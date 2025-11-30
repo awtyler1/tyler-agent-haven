@@ -15,13 +15,13 @@ const navLinks = [
       { name: "Medicare Fundamentals", href: "/medicare-fundamentals" },
       { name: "Sales Training", href: "/sales-training" },
       { name: "Cross Selling", href: "/cross-selling" },
+      { name: "Industry & Market Updates", href: "/industry-updates" },
     ]
   },
   { 
     name: "Resources", 
-    href: "/industry-updates",
+    href: "/leads-marketing",
     submenu: [
-      { name: "Industry & Market Updates", href: "/industry-updates" },
       { name: "Leads & Marketing", href: "/leads-marketing" },
       { name: "Carrier Resources", href: "/carrier-resources" },
     ]
