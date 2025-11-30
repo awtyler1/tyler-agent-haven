@@ -117,7 +117,7 @@ const StartHerePage = () => {
         {/* 1. Title Section */}
         <section className="pt-32 pb-16 md:pt-40 md:pb-20 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-4">Start Here</h1>
+            <h1 className="heading-display mb-4">Onboarding</h1>
             <p className="text-xl text-muted-foreground mb-8">
               Your orientation, expectations, and path forward with Tyler Insurance Group.
             </p>
