@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ExternalLink, Monitor, Users, Building2, Phone, Mail, Clock } from "lucide-react";
 import connect4Logo from "@/assets/connect4insurance-logo.png";
+import sunfireLogo from "@/assets/sunfire-logo.png";
 
 const toolCards = [
   {
@@ -18,6 +19,7 @@ const toolCards = [
     note: "Use your assigned login.",
     url: "https://www.sunfirematrix.com/app/agent/pfs",
     icon: Monitor,
+    logo: sunfireLogo,
   },
 ];
 
