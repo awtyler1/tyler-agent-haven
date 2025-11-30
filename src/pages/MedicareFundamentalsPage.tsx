@@ -16,6 +16,19 @@ const topics = [
     ]
   },
   {
+    id: "what-is-medicare-broker",
+    title: "What is a Medicare Broker",
+    description: "A Medicare broker is a licensed insurance professional who helps beneficiaries understand and enroll in Medicare plans. Brokers are independent and can represent multiple carriers.",
+    keyPoints: [
+      "Licensed and certified by carriers",
+      "Represents multiple insurance companies",
+      "No cost to beneficiaries - paid by carriers",
+      "Provides unbiased plan comparisons",
+      "Assists with enrollment and ongoing support",
+      "Must follow CMS compliance guidelines"
+    ]
+  },
+  {
     id: "part-a-b",
     title: "Part A and Part B",
     description: "Part A covers hospital insurance while Part B covers medical insurance. Together they form Original Medicare.",
