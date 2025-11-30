@@ -85,6 +85,15 @@ const carrierCertifications = [
     howToCertifyUrl: "#",
     logo: anthemLogo,
   },
+  {
+    name: "Devoted",
+    buttonText: "Start Devoted Certification",
+    subtext: "Annual certification for MAPD and PDP plans.",
+    support: "Devoted Broker Support: 800-485-4164",
+    url: "#",
+    howToCertifyUrl: "#",
+    logo: devotedLogo,
+  },
 ];
 
 const supportContacts = [
