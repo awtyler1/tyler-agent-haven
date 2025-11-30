@@ -44,7 +44,7 @@ const navLinks = [
       {
         title: "Carrier Portal Links",
         items: [
-          { name: "Aetna", href: "https://www.aetnamedicare.com/", external: true },
+          { name: "Aetna", href: "https://www.aetna.com/producer_public/login.fcc", external: true },
           { name: "Anthem", href: "https://www.anthem.com/", external: true },
           { name: "Devoted", href: "https://www.devoted.com/", external: true },
           { name: "Humana", href: "https://www.humana.com/", external: true },
