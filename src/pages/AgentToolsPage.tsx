@@ -304,7 +304,7 @@ const AgentToolsPage = () => {
                     </div>
                     
                     <div className="pt-4 border-t border-border">
-                      <span className="btn-primary-gold w-full text-center inline-flex items-center justify-center gap-2 group-hover:bg-gold/90">
+                      <span className="btn-primary-gold w-full text-center inline-flex items-center justify-center gap-2 group-hover:bg-gold/90 whitespace-nowrap text-sm">
                         {cert.buttonText}
                         <ExternalLink size={14} />
                       </span>
