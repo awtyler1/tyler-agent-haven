@@ -5,7 +5,7 @@ import { Lock } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
 
 // Simple password - change this to your desired password
-const SITE_PASSWORD = "tyler2024";
+const SITE_PASSWORD = "Tyler2026";
 
 interface PasswordGateProps {
   children: React.ReactNode;
