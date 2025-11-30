@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import PasswordGate from "./components/PasswordGate";
 import Index from "./pages/Index";
 import StartHerePage from "./pages/StartHerePage";
 import MedicareFundamentalsPage from "./pages/MedicareFundamentalsPage";
@@ -23,22 +24,24 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/start-here" element={<StartHerePage />} />
-          <Route path="/medicare-fundamentals" element={<MedicareFundamentalsPage />} />
-          <Route path="/industry-updates" element={<IndustryUpdatesPage />} />
-          <Route path="/leads-marketing" element={<LeadsMarketingPage />} />
-          <Route path="/sales-training" element={<SalesTrainingPage />} />
-          <Route path="/cross-selling" element={<CrossSellingPage />} />
-          <Route path="/compliance" element={<CompliancePage />} />
-          <Route path="/carrier-resources" element={<CarrierResourcesPage />} />
-          <Route path="/agent-tools" element={<AgentToolsPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <PasswordGate>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/start-here" element={<StartHerePage />} />
+            <Route path="/medicare-fundamentals" element={<MedicareFundamentalsPage />} />
+            <Route path="/industry-updates" element={<IndustryUpdatesPage />} />
+            <Route path="/leads-marketing" element={<LeadsMarketingPage />} />
+            <Route path="/sales-training" element={<SalesTrainingPage />} />
+            <Route path="/cross-selling" element={<CrossSellingPage />} />
+            <Route path="/compliance" element={<CompliancePage />} />
+            <Route path="/carrier-resources" element={<CarrierResourcesPage />} />
+            <Route path="/agent-tools" element={<AgentToolsPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </PasswordGate>
     </TooltipProvider>
   </QueryClientProvider>
 );
