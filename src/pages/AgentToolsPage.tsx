@@ -88,7 +88,7 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "UHC Broker Support: 888-381-8581",
     url: "#",
-    howToCertifyUrl: "",
+    howToCertifyUrl: "/downloads/TIG_2026_UHC_Certification_Instructions.pdf",
     howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
     logo: uhcLogo,
   },
