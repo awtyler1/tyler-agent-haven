@@ -234,24 +234,6 @@ const ContactPage = () => {
           </div>
         </section>
 
-        {/* FAQ or Additional Info */}
-        <section className="section-padding bg-cream">
-          <div className="container-narrow text-center">
-            <h2 className="heading-section mb-4">Need Something Else?</h2>
-            <p className="text-body max-w-xl mx-auto mb-8">
-              Can't find what you're looking for? Reach out to any team member and 
-              we'll point you in the right direction.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a href="mailto:support@tylerinsurance.com" className="btn-primary-gold">
-                General Inquiry
-              </a>
-              <a href="tel:5551234567" className="btn-outline-gold">
-                Call Main Line
-              </a>
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
     </div>
