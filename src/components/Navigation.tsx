@@ -45,11 +45,11 @@ const navLinks = [
         title: "Carrier Portal Links",
         items: [
           { name: "Aetna", href: "https://www.aetna.com/producer_public/login.fcc", external: true },
-          { name: "Anthem", href: "https://www.anthem.com/", external: true },
-          { name: "Devoted", href: "https://www.devoted.com/", external: true },
-          { name: "Humana", href: "https://www.humana.com/", external: true },
-          { name: "United Healthcare", href: "https://www.uhc.com/", external: true },
-          { name: "Wellcare", href: "https://www.wellcare.com/", external: true },
+          { name: "Anthem", href: "https://brokerportal.anthem.com/apps/ptb/login", external: true },
+          { name: "Devoted", href: "https://agent.devoted.com/", external: true },
+          { name: "Humana", href: "https://account.humana.com/", external: true },
+          { name: "United Healthcare", href: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in", external: true },
+          { name: "Wellcare", href: "https://www.wellcare.com/Broker-Resources/Broker-Resources", external: true },
         ]
       }
     ]
