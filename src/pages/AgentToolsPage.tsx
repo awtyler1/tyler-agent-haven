@@ -7,14 +7,14 @@ const toolCards = [
     name: "Connect4Insurance",
     description: "Quoting + E-apps. Carrier-agnostic. Fast comparisons.",
     note: "Use your assigned credentials.",
-    url: "https://connecture.com",
+    url: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login",
     icon: Monitor,
   },
   {
     name: "Sunfire",
     description: "Quoting, enrollment, SOA capture, and plan comparison. Includes MA, PDP, and Med Supp.",
     note: "Use your assigned login.",
-    url: "https://sunfire.com",
+    url: "https://www.sunfirematrix.com/app/agent/pfs",
     icon: Monitor,
   },
 ];
@@ -111,7 +111,7 @@ const AgentToolsPage = () => {
             </div>
 
             <a
-              href="https://bosscrm.com"
+              href="https://fmo.kizen.com/login"
               target="_blank"
               rel="noopener noreferrer"
               className="group card-premium hover:border-gold transition-smooth block max-w-xl"

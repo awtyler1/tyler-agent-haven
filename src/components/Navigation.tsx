@@ -28,9 +28,9 @@ const navLinks = [
     name: "Agent Tools", 
     href: "/agent-tools",
     submenu: [
-      { name: "Connect4Insurance", href: "https://connecture.com", external: true },
-      { name: "Sunfire", href: "https://sunfire.com", external: true },
-      { name: "BOSS CRM", href: "https://bosscrm.com", external: true },
+      { name: "Connect4Insurance", href: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login", external: true },
+      { name: "Sunfire", href: "https://www.sunfirematrix.com/app/agent/pfs", external: true },
+      { name: "BOSS CRM", href: "https://fmo.kizen.com/login", external: true },
     ]
   },
   { name: "Compliance", href: "/compliance" },
