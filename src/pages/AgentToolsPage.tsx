@@ -82,9 +82,9 @@ const AgentToolsPage = () => {
                   className="group card-premium hover:border-gold transition-smooth block"
                 >
                   <div className="flex items-start gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-lg bg-cream flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div className="w-20 h-14 rounded-lg bg-cream flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {tool.logo ? (
-                        <img src={tool.logo} alt={tool.name} className="w-full h-full object-contain p-1" />
+                        <img src={tool.logo} alt={tool.name} className="w-full h-full object-contain" />
                       ) : (
                         <tool.icon className="w-6 h-6 text-gold" />
                       )}
@@ -126,8 +126,8 @@ const AgentToolsPage = () => {
               className="group card-premium hover:border-gold transition-smooth block max-w-xl"
             >
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-lg bg-background flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  <img src={bossCrmLogo} alt="BOSS CRM" className="w-full h-full object-contain p-1" />
+                <div className="w-20 h-14 rounded-lg bg-background flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <img src={bossCrmLogo} alt="BOSS CRM" className="w-full h-full object-contain" />
                 </div>
                 <div className="flex-1">
                   <h3 className="heading-subsection mb-1">BOSS CRM</h3>
