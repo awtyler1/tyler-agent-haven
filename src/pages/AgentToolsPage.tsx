@@ -68,7 +68,7 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Devoted Broker Support: 800-485-4164",
     url: "#",
-    howToCertifyUrl: "",
+    howToCertifyUrl: "/downloads/TIG_2026_Devoted_Certification_Instructions.pdf",
     howToCertifyTitle: "Devoted 2026 Certification Instructions",
     logo: devotedLogo,
   },
