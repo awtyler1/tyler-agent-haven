@@ -27,10 +27,31 @@ const navLinks = [
   { 
     name: "Agent Tools", 
     href: "/agent-tools",
-    submenu: [
-      { name: "Connect4Insurance", href: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login", external: true },
-      { name: "Sunfire", href: "https://www.sunfirematrix.com/app/agent/pfs", external: true },
-      { name: "BOSS CRM", href: "https://fmo.kizen.com/login", external: true },
+    sections: [
+      {
+        title: "Quoting Tools",
+        items: [
+          { name: "Connect4Insurance", href: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login", external: true },
+          { name: "Sunfire", href: "https://www.sunfirematrix.com/app/agent/pfs", external: true },
+        ]
+      },
+      {
+        title: "CRM",
+        items: [
+          { name: "BOSS CRM", href: "https://fmo.kizen.com/login", external: true },
+        ]
+      },
+      {
+        title: "Carrier Portal Links",
+        items: [
+          { name: "Aetna", href: "https://www.aetnamedicare.com/", external: true },
+          { name: "Anthem", href: "https://www.anthem.com/", external: true },
+          { name: "Devoted", href: "https://www.devoted.com/", external: true },
+          { name: "Humana", href: "https://www.humana.com/", external: true },
+          { name: "United Healthcare", href: "https://www.uhc.com/", external: true },
+          { name: "Wellcare", href: "https://www.wellcare.com/", external: true },
+        ]
+      }
     ]
   },
   { name: "Compliance", href: "/compliance" },
@@ -76,7 +97,7 @@ const Navigation = () => {
                   <div className="absolute top-full left-0 pt-2 w-56 animate-fade-in">
                     <div className="bg-background border border-border rounded-lg shadow-elevated py-2">
                       {link.submenu.map((subitem) => (
-                        subitem.external ? (
+                        'external' in subitem && subitem.external ? (
                           <a
                             key={subitem.name}
                             href={subitem.href}
@@ -95,6 +116,30 @@ const Navigation = () => {
                             {subitem.name}
                           </Link>
                         )
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {link.sections && openSubmenu === link.name && (
+                  <div className="absolute top-full left-0 pt-2 w-64 animate-fade-in">
+                    <div className="bg-background border border-border rounded-lg shadow-elevated py-2">
+                      {link.sections.map((section, sectionIndex) => (
+                        <div key={section.title}>
+                          {sectionIndex > 0 && <div className="border-t border-border my-2" />}
+                          <p className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-gold">{section.title}</p>
+                          {section.items.map((item) => (
+                            <a
+                              key={item.name}
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
+                            >
+                              {item.name}
+                            </a>
+                          ))}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -129,7 +174,7 @@ const Navigation = () => {
                   {link.submenu && (
                     <div className="pl-4 border-l border-border ml-2">
                       {link.submenu.map((subitem) => (
-                        subitem.external ? (
+                        'external' in subitem && subitem.external ? (
                           <a
                             key={subitem.name}
                             href={subitem.href}
@@ -150,6 +195,27 @@ const Navigation = () => {
                             {subitem.name}
                           </Link>
                         )
+                      ))}
+                    </div>
+                  )}
+                  {link.sections && (
+                    <div className="pl-4 border-l border-border ml-2">
+                      {link.sections.map((section) => (
+                        <div key={section.title} className="mt-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-gold py-1">{section.title}</p>
+                          {section.items.map((item) => (
+                            <a
+                              key={item.name}
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setIsOpen(false)}
+                              className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
+                            >
+                              {item.name}
+                            </a>
+                          ))}
+                        </div>
                       ))}
                     </div>
                   )}
