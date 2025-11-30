@@ -140,6 +140,7 @@ const Index = () => {
                 <Link
                   key={index}
                   to={tile.link}
+                  onClick={() => window.scrollTo(0, 0)}
                   className="group card-premium p-8 flex flex-col items-center text-center hover:border-gold/40 transition-all duration-300"
                 >
                   <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center mb-5 group-hover:bg-gold/20 transition-colors">
