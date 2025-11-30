@@ -54,6 +54,7 @@ const navLinks = [
       }
     ]
   },
+  { name: "Certifications", href: "/certifications" },
   { name: "Compliance", href: "/compliance" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
