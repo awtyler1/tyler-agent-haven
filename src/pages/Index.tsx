@@ -9,7 +9,7 @@ import carolineHeadshot from "@/assets/caroline-headshot.jpg";
 
 const controlCenterTiles = [
   {
-    title: "Start Here",
+    title: "Onboarding",
     description: "Orientation, expectations, and your first steps.",
     icon: Rocket,
     link: "/start-here"
