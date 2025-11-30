@@ -25,11 +25,12 @@ const toolCards = [
 ];
 
 const carrierPortals = [
-  { name: "Humana", url: "#" },
-  { name: "Wellcare", url: "#" },
-  { name: "Aetna", url: "#" },
-  { name: "UnitedHealthcare", url: "#" },
-  { name: "Anthem", url: "#" },
+  { name: "Aetna", url: "https://www.aetna.com/producer_public/login.fcc" },
+  { name: "Anthem", url: "https://brokerportal.anthem.com/apps/ptb/login" },
+  { name: "Devoted", url: "https://agent.devoted.com/" },
+  { name: "Humana", url: "https://account.humana.com/" },
+  { name: "United Healthcare", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in" },
+  { name: "Wellcare", url: "https://www.wellcare.com/Broker-Resources/Broker-Resources" },
 ];
 
 const supportContacts = [
@@ -164,16 +165,19 @@ const AgentToolsPage = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {carrierPortals.map((carrier) => (
-                <div
+                <a
                   key={carrier.name}
-                  className="card-premium opacity-60 cursor-not-allowed text-center py-8"
+                  href={carrier.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-premium hover:border-gold transition-smooth text-center py-8 group"
                 >
-                  <Building2 className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <Building2 className="w-8 h-8 text-gold mx-auto mb-3 group-hover:scale-110 transition-transform" />
                   <p className="font-medium text-foreground">{carrier.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Coming Soon</p>
-                </div>
+                  <p className="text-xs text-muted-foreground mt-1 group-hover:text-gold transition-smooth">Open Portal</p>
+                </a>
               ))}
             </div>
           </div>
