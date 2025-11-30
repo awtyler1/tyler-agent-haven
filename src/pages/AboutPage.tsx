@@ -40,13 +40,13 @@ const agentExpectations = [
 
 const leadership = [
   {
-    name: "Austin",
-    role: "Founder & Principal",
+    name: "Austin Tyler, MBA",
+    role: "Broker Development",
     description: "Sets the vision, standards, and strategic direction for Tyler Insurance Group."
   },
   {
-    name: "Andrew",
-    role: "Support & Operations",
+    name: "Andrew Horn, MHA",
+    role: "Broker Development",
     description: "Manages day-to-day operations, agent support, and platform functionality."
   },
   {
