@@ -289,6 +289,7 @@ const AgentToolsPage = () => {
                   <div className="flex-1">
                     <h4 className="heading-subsection mb-1">AHIP Certification</h4>
                     <p className="text-body-small">Annual Medicare training requirement.</p>
+                    <p className="text-body-small text-gold mt-1">First year agents, Tyler Insurance Group covers the full cost of their AHIP.</p>
                   </div>
                 </div>
                 
