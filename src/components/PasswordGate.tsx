@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
-
-// Simple password - change this to your desired password
-const SITE_PASSWORD = "Tyler2026";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PasswordGateProps {
   children: React.ReactNode;
@@ -16,6 +14,7 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isValidating, setIsValidating] = useState(false);
 
   useEffect(() => {
     // Check if already authenticated in this session
@@ -26,16 +25,36 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
     setIsLoading(false);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsValidating(true);
 
-    if (password === SITE_PASSWORD) {
-      sessionStorage.setItem("site_authenticated", "true");
-      setIsAuthenticated(true);
-    } else {
-      setError("Incorrect password. Please try again.");
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("validate-password", {
+        body: { password },
+      });
+
+      if (fnError) {
+        console.error("Validation error:", fnError);
+        setError("Unable to validate password. Please try again.");
+        setPassword("");
+        return;
+      }
+
+      if (data?.valid) {
+        sessionStorage.setItem("site_authenticated", "true");
+        setIsAuthenticated(true);
+      } else {
+        setError("Incorrect password. Please try again.");
+        setPassword("");
+      }
+    } catch (err) {
+      console.error("Password validation failed:", err);
+      setError("Unable to validate password. Please try again.");
       setPassword("");
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -83,6 +102,7 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10"
                 autoFocus
+                disabled={isValidating}
               />
             </div>
 
@@ -90,8 +110,15 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
               <p className="text-sm text-destructive">{error}</p>
             )}
 
-            <Button type="submit" className="btn-primary-gold w-full">
-              Access Portal
+            <Button type="submit" className="btn-primary-gold w-full" disabled={isValidating}>
+              {isValidating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Validating...
+                </>
+              ) : (
+                "Access Portal"
+              )}
             </Button>
           </form>
 

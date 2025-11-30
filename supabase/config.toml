@@ -2,3 +2,6 @@ project_id = "clcidrccnmetckkawtkq"
 
 [functions.send-contracting-packet]
 verify_jwt = false
+
+[functions.validate-password]
+verify_jwt = false
