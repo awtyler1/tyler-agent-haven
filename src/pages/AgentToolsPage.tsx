@@ -1,6 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { ExternalLink, Monitor, Building2, Phone, Mail, Clock } from "lucide-react";
+import { ExternalLink, Monitor, Building2, Mail, Clock } from "lucide-react";
 import connect4Logo from "@/assets/connect4insurance-logo.png";
 import sunfireLogo from "@/assets/sunfire-logo.png";
 import bossCrmLogo from "@/assets/boss-crm-logo.png";
@@ -10,6 +10,7 @@ import devotedLogo from "@/assets/devoted-logo.png";
 import humanaLogo from "@/assets/humana-logo.png";
 import uhcLogo from "@/assets/uhc-logo.png";
 import wellcareLogo from "@/assets/wellcare-logo.jpg";
+import carolineHeadshot from "@/assets/caroline-headshot.jpg";
 
 const toolCards = [
   {
@@ -37,21 +38,6 @@ const carrierPortals = [
   { name: "Humana", url: "https://account.humana.com/", logo: humanaLogo },
   { name: "United Healthcare", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in", logo: uhcLogo },
   { name: "Wellcare", url: "https://www.wellcare.com/Broker-Resources/Broker-Resources", logo: wellcareLogo },
-];
-
-const supportContacts = [
-  {
-    name: "Caroline",
-    role: "Contracting",
-    phone: "(555) 345-6789",
-    email: "caroline@tylerinsurance.com",
-  },
-  {
-    name: "Pinnacle Support",
-    role: "Broker Support",
-    phone: "(555) 456-7890",
-    email: "support@pinnacle.com",
-  },
 ];
 
 const AgentToolsPage = () => {
@@ -205,47 +191,31 @@ const AgentToolsPage = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 mb-10">
-              {supportContacts.map((contact) => (
-                <div key={contact.name} className="card-premium">
-                  <div className="mb-4">
-                    <h3 className="heading-subsection mb-1">{contact.name}</h3>
-                    <p className="text-sm text-gold font-medium">{contact.role}</p>
-                  </div>
+            <div className="max-w-md mb-10">
+              <div className="card-premium text-center">
+                <img 
+                  src={carolineHeadshot} 
+                  alt="Caroline Horn"
+                  className="w-24 h-24 rounded-full object-cover object-top mx-auto mb-4 border-2 border-gold/20"
+                />
+                <h3 className="heading-subsection mb-1">Caroline Horn</h3>
+                <p className="text-sm text-gold font-medium mb-4">Contracting Support</p>
+                
+                <a 
+                  href="mailto:caroline@tylerinsurancegroup.com"
+                  className="flex items-center justify-center gap-2 text-foreground hover:text-gold transition-smooth text-sm mb-6"
+                >
+                  <Mail size={14} className="text-gold" />
+                  <span>caroline@tylerinsurancegroup.com</span>
+                </a>
 
-                  <div className="space-y-2 mb-6">
-                    <a 
-                      href={`tel:${contact.phone.replace(/\D/g, '')}`}
-                      className="flex items-center gap-3 text-foreground hover:text-gold transition-smooth text-sm"
-                    >
-                      <Phone size={14} className="text-gold" />
-                      <span>{contact.phone}</span>
-                    </a>
-                    <a 
-                      href={`mailto:${contact.email}`}
-                      className="flex items-center gap-3 text-foreground hover:text-gold transition-smooth text-sm"
-                    >
-                      <Mail size={14} className="text-gold" />
-                      <span>{contact.email}</span>
-                    </a>
-                  </div>
-
-                  <div className="flex gap-3 pt-4 border-t border-border">
-                    <a 
-                      href={`tel:${contact.phone.replace(/\D/g, '')}`}
-                      className="flex-1 btn-outline-gold text-center text-sm py-2"
-                    >
-                      Call
-                    </a>
-                    <a 
-                      href={`mailto:${contact.email}`}
-                      className="flex-1 btn-primary-gold text-center text-sm py-2"
-                    >
-                      Email
-                    </a>
-                  </div>
-                </div>
-              ))}
+                <a 
+                  href="mailto:caroline@tylerinsurancegroup.com"
+                  className="btn-primary-gold text-center text-sm py-2 px-6 inline-block"
+                >
+                  Email Caroline
+                </a>
+              </div>
             </div>
 
             <div className="card-premium">
