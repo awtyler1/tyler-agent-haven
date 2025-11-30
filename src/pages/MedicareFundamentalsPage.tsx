@@ -5,17 +5,6 @@ import { FileText, Download, Play, ChevronRight } from "lucide-react";
 
 const topics = [
   {
-    id: "what-is-medicare",
-    title: "What is Medicare",
-    description: "Medicare is a federal health insurance program for people 65 and older, and certain younger people with disabilities or specific conditions.",
-    keyPoints: [
-      "Federal health insurance program",
-      "Primarily for people 65+",
-      "Also covers certain disabilities",
-      "Administered by CMS"
-    ]
-  },
-  {
     id: "what-is-medicare-broker",
     title: "What is a Medicare Broker",
     description: "A Medicare broker is a licensed insurance professional who helps beneficiaries understand and enroll in Medicare plans. Brokers are independent and can represent multiple carriers.",
@@ -26,6 +15,17 @@ const topics = [
       "Provides unbiased plan comparisons",
       "Assists with enrollment and ongoing support",
       "Must follow CMS compliance guidelines"
+    ]
+  },
+  {
+    id: "what-is-medicare",
+    title: "What is Medicare",
+    description: "Medicare is a federal health insurance program for people 65 and older, and certain younger people with disabilities or specific conditions.",
+    keyPoints: [
+      "Federal health insurance program",
+      "Primarily for people 65+",
+      "Also covers certain disabilities",
+      "Administered by CMS"
     ]
   },
   {
