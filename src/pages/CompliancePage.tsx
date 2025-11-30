@@ -50,11 +50,11 @@ const rules = [
 ];
 
 const downloads = [
-  { name: "Standard SOA Form", type: "PDF" },
-  { name: "Telephonic SOA Script", type: "PDF" },
-  { name: "Pre-Enrollment Checklist", type: "PDF" },
-  { name: "Agent Attestation Form", type: "PDF" },
-  { name: "Complaint Submission Form", type: "PDF" },
+  { name: "Standard SOA Form", type: "PDF", url: "/downloads/Scope-of-Appointment_2026.pdf" },
+  { name: "Telephonic SOA Script", type: "PDF", url: null },
+  { name: "Pre-Enrollment Checklist", type: "PDF", url: null },
+  { name: "Agent Attestation Form", type: "PDF", url: null },
+  { name: "Complaint Submission Form", type: "PDF", url: null },
 ];
 
 const cmsLinks = [
@@ -134,19 +134,38 @@ const CompliancePage = () => {
             </p>
             <div className="space-y-3">
               {downloads.map((doc, index) => (
-                <button 
-                  key={index}
-                  className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:border-gold hover:bg-gold/5 transition-smooth text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <Download className="w-5 h-5 text-gold" />
-                    <div>
-                      <p className="font-medium text-foreground">{doc.name}</p>
-                      <p className="text-xs text-muted-foreground">{doc.type}</p>
+                doc.url ? (
+                  <a 
+                    key={index}
+                    href={doc.url}
+                    download
+                    className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:border-gold hover:bg-gold/5 transition-smooth"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Download className="w-5 h-5 text-gold" />
+                      <div>
+                        <p className="font-medium text-foreground">{doc.name}</p>
+                        <p className="text-xs text-muted-foreground">{doc.type}</p>
+                      </div>
                     </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                </button>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  </a>
+                ) : (
+                  <button 
+                    key={index}
+                    className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:border-gold hover:bg-gold/5 transition-smooth text-left opacity-60 cursor-not-allowed"
+                    disabled
+                  >
+                    <div className="flex items-center gap-3">
+                      <Download className="w-5 h-5 text-gold" />
+                      <div>
+                        <p className="font-medium text-foreground">{doc.name}</p>
+                        <p className="text-xs text-muted-foreground">{doc.type} - Coming Soon</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                )
               ))}
             </div>
           </div>
