@@ -16,13 +16,13 @@ const navLinks = [
       { name: "Sales Training", href: "/sales-training" },
       { name: "Cross Selling", href: "/cross-selling" },
       { name: "Industry & Market Updates", href: "/industry-updates" },
+      { name: "Leads & Marketing", href: "/leads-marketing" },
     ]
   },
   { 
     name: "Resources", 
-    href: "/leads-marketing",
+    href: "/carrier-resources",
     submenu: [
-      { name: "Leads & Marketing", href: "/leads-marketing" },
       { name: "Carrier Resources", href: "/carrier-resources" },
     ]
   },
