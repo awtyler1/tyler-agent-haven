@@ -22,7 +22,7 @@ const carriers = [
     links: [
       { name: "Broker Portal", url: "https://www.aetna.com/producer_public/login.fcc" },
       { name: "Kit Ordering Portal", url: "https://aetna-pek-ff-op.memberdoc.com/#/login", subtext: "Username and password are your NPN" },
-      { name: "Training Center", url: "#" },
+      { name: "Kentucky Broker Managers", url: "/downloads/Aetna_KY_Medicare_Broker_Managers.pdf" },
     ],
   },
   {
