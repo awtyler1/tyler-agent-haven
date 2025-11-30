@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { FileText, ExternalLink, Phone } from "lucide-react";
+import { FileText, ExternalLink, Phone, Mail } from "lucide-react";
 
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
@@ -16,8 +16,8 @@ const carriers = [
     name: "Aetna",
     logo: aetnaLogo,
     contacts: [
-      { type: "Agent Support", number: "1-800-123-4567" },
-      { type: "Enrollment", number: "1-800-234-5678" },
+      { type: "Jonathan Lemaster - Broker Manager", subtitle: "Greater Lexington / Ashland / Eastern Kentucky", number: "(859) 333-5389", email: "lemasterj1@aetna.com" },
+      { type: "Broker Services", number: "(866) 714-9301", email: "brokersupport@aetna.com" },
     ],
     links: [
       { name: "Broker Portal", url: "https://www.aetna.com/producer_public/login.fcc" },
@@ -164,17 +164,32 @@ const CarrierResourcesPage = () => {
                   {/* Contacts */}
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Contacts</h4>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {activeCarrier.contacts.map((contact, index) => (
-                        <a 
-                          key={index}
-                          href={`tel:${contact.number}`}
-                          className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
-                        >
-                          <Phone size={14} className="text-gold" />
-                          <span>{contact.type}:</span>
-                          <span className="font-medium">{contact.number}</span>
-                        </a>
+                        <div key={index} className="space-y-1">
+                          <p className="text-sm font-medium text-foreground">{contact.type}</p>
+                          {'subtitle' in contact && contact.subtitle && (
+                            <p className="text-xs text-muted-foreground">{contact.subtitle}</p>
+                          )}
+                          <div className="flex flex-col gap-1 mt-1">
+                            <a 
+                              href={`tel:${contact.number}`}
+                              className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                            >
+                              <Phone size={14} className="text-gold" />
+                              <span>{contact.number}</span>
+                            </a>
+                            {'email' in contact && contact.email && (
+                              <a 
+                                href={`mailto:${contact.email}`}
+                                className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                              >
+                                <Mail size={14} className="text-gold" />
+                                <span>{contact.email}</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
