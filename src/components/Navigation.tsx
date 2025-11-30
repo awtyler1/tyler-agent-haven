@@ -20,13 +20,6 @@ const navLinks = [
     ]
   },
   { 
-    name: "Resources", 
-    href: "/carrier-resources",
-    submenu: [
-      { name: "Carrier Resources", href: "/carrier-resources" },
-    ]
-  },
-  { 
     name: "Agent Tools", 
     href: "/agent-tools",
     sections: [
@@ -52,6 +45,12 @@ const navLinks = [
           { name: "Humana", href: "https://account.humana.com/", external: true },
           { name: "United Healthcare", href: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in", external: true },
           { name: "Wellcare", href: "https://www.wellcare.com/Broker-Resources/Broker-Resources", external: true },
+        ]
+      },
+      {
+        title: "Resources",
+        items: [
+          { name: "Carrier Resources", href: "/carrier-resources", external: false },
         ]
       }
     ]
@@ -131,15 +130,25 @@ const Navigation = () => {
                           {sectionIndex > 0 && <div className="border-t border-border my-2" />}
                           <p className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-gold">{section.title}</p>
                           {section.items.map((item) => (
-                            <a
-                              key={item.name}
-                              href={item.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
-                            >
-                              {item.name}
-                            </a>
+                            item.external ? (
+                              <a
+                                key={item.name}
+                                href={item.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
+                              >
+                                {item.name}
+                              </a>
+                            ) : (
+                              <Link
+                                key={item.name}
+                                to={item.href}
+                                className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
+                              >
+                                {item.name}
+                              </Link>
+                            )
                           ))}
                         </div>
                       ))}
@@ -206,16 +215,27 @@ const Navigation = () => {
                         <div key={section.title} className="mt-2">
                           <p className="text-xs font-semibold uppercase tracking-wider text-gold py-1">{section.title}</p>
                           {section.items.map((item) => (
-                            <a
-                              key={item.name}
-                              href={item.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={() => setIsOpen(false)}
-                              className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
-                            >
-                              {item.name}
-                            </a>
+                            item.external ? (
+                              <a
+                                key={item.name}
+                                href={item.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setIsOpen(false)}
+                                className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
+                              >
+                                {item.name}
+                              </a>
+                            ) : (
+                              <Link
+                                key={item.name}
+                                to={item.href}
+                                onClick={() => setIsOpen(false)}
+                                className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
+                              >
+                                {item.name}
+                              </Link>
+                            )
                           ))}
                         </div>
                       ))}
