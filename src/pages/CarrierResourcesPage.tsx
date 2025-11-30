@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { FileText, ExternalLink, Phone, ChevronDown } from "lucide-react";
+import { FileText, ExternalLink, Phone } from "lucide-react";
 
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
@@ -95,14 +95,15 @@ const carriers = [
 ];
 
 const CarrierResourcesPage = () => {
-  const [expandedCarrier, setExpandedCarrier] = useState<string | null>(carriers[0].id);
+  const [selectedCarrier, setSelectedCarrier] = useState<string>(carriers[0].id);
+  const activeCarrier = carriers.find(c => c.id === selectedCarrier);
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
+        <section className="pt-32 pb-8 md:pt-40 md:pb-12 px-6 md:px-12 lg:px-20 bg-cream">
           <div className="container-narrow">
             <h1 className="heading-display mb-4">Carrier Resources</h1>
             <p className="text-body max-w-2xl">
@@ -111,102 +112,115 @@ const CarrierResourcesPage = () => {
           </div>
         </section>
 
-        {/* Carrier List */}
-        <section className="section-padding">
+        {/* Carrier Selection Grid */}
+        <section className="px-6 md:px-12 lg:px-20 py-8 bg-cream border-b border-border">
           <div className="container-narrow">
-            <div className="space-y-4">
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
               {carriers.map((carrier) => (
-                <div 
+                <button
                   key={carrier.id}
-                  className="border border-border rounded-lg overflow-hidden"
+                  onClick={() => setSelectedCarrier(carrier.id)}
+                  className={`flex flex-col items-center gap-2 p-3 md:p-4 rounded-lg border transition-all ${
+                    selectedCarrier === carrier.id
+                      ? "border-gold bg-white shadow-md"
+                      : "border-border bg-white/50 hover:bg-white hover:border-gold/50"
+                  }`}
                 >
-                  <button
-                    onClick={() => setExpandedCarrier(expandedCarrier === carrier.id ? null : carrier.id)}
-                    className="w-full flex items-center justify-between p-6 hover:bg-muted/50 transition-smooth text-left"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-white border border-border flex items-center justify-center p-1.5">
-                        <img 
-                          src={carrier.logo} 
-                          alt={`${carrier.name} logo`} 
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <h3 className="heading-subsection">{carrier.name}</h3>
-                    </div>
-                    <ChevronDown 
-                      className={`w-5 h-5 text-muted-foreground transition-transform ${
-                        expandedCarrier === carrier.id ? "rotate-180" : ""
-                      }`} 
+                  <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">
+                    <img 
+                      src={carrier.logo} 
+                      alt={`${carrier.name} logo`} 
+                      className="w-full h-full object-contain"
                     />
-                  </button>
-
-                  {expandedCarrier === carrier.id && (
-                    <div className="px-6 pb-6 pt-2 border-t border-border animate-fade-in">
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {/* Contacts */}
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">Contacts</h4>
-                          <div className="space-y-2">
-                            {carrier.contacts.map((contact, index) => (
-                              <a 
-                                key={index}
-                                href={`tel:${contact.number}`}
-                                className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
-                              >
-                                <Phone size={14} className="text-gold" />
-                                <span>{contact.type}:</span>
-                                <span className="font-medium">{contact.number}</span>
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Quick Links */}
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">Quick Links</h4>
-                          <div className="space-y-2">
-                            {carrier.links.map((link, index) => (
-                              <a 
-                                key={index}
-                                href={link.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
-                              >
-                                <ExternalLink size={14} className="text-gold" />
-                                <span>{link.name}</span>
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Downloads */}
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">Downloads</h4>
-                          <div className="space-y-2">
-                            <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
-                              <FileText size={14} className="text-gold" />
-                              <span>Summary of Benefits</span>
-                            </button>
-                            <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
-                              <FileText size={14} className="text-gold" />
-                              <span>Plan Comparison</span>
-                            </button>
-                            <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
-                              <FileText size={14} className="text-gold" />
-                              <span>Commission Schedule</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                  <span className={`text-xs md:text-sm font-medium text-center leading-tight ${
+                    selectedCarrier === carrier.id ? "text-gold" : "text-muted-foreground"
+                  }`}>
+                    {carrier.name}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
         </section>
+
+        {/* Selected Carrier Details */}
+        {activeCarrier && (
+          <section className="section-padding">
+            <div className="container-narrow">
+              <div className="border border-border rounded-lg p-6 md:p-8 animate-fade-in">
+                <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
+                  <div className="w-16 h-16 rounded-lg bg-white border border-border flex items-center justify-center p-2">
+                    <img 
+                      src={activeCarrier.logo} 
+                      alt={`${activeCarrier.name} logo`} 
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <h2 className="heading-section">{activeCarrier.name}</h2>
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {/* Contacts */}
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Contacts</h4>
+                    <div className="space-y-3">
+                      {activeCarrier.contacts.map((contact, index) => (
+                        <a 
+                          key={index}
+                          href={`tel:${contact.number}`}
+                          className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                        >
+                          <Phone size={14} className="text-gold" />
+                          <span>{contact.type}:</span>
+                          <span className="font-medium">{contact.number}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quick Links */}
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Quick Links</h4>
+                    <div className="space-y-3">
+                      {activeCarrier.links.map((link, index) => (
+                        <a 
+                          key={index}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                        >
+                          <ExternalLink size={14} className="text-gold" />
+                          <span>{link.name}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Downloads */}
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Downloads</h4>
+                    <div className="space-y-3">
+                      <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
+                        <FileText size={14} className="text-gold" />
+                        <span>Summary of Benefits</span>
+                      </button>
+                      <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
+                        <FileText size={14} className="text-gold" />
+                        <span>Plan Comparison</span>
+                      </button>
+                      <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
+                        <FileText size={14} className="text-gold" />
+                        <span>Commission Schedule</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
     </div>
