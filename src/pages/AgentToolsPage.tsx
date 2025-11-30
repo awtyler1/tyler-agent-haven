@@ -4,6 +4,7 @@ import { ExternalLink, Monitor, Users, Building2, Phone, Mail, Clock } from "luc
 import connect4Logo from "@/assets/connect4insurance-logo.png";
 import sunfireLogo from "@/assets/sunfire-logo.png";
 import bossCrmLogo from "@/assets/boss-crm-logo.png";
+import aetnaLogo from "@/assets/aetna-logo.png";
 
 const toolCards = [
   {
@@ -25,7 +26,7 @@ const toolCards = [
 ];
 
 const carrierPortals = [
-  { name: "Aetna", url: "https://www.aetna.com/producer_public/login.fcc" },
+  { name: "Aetna", url: "https://www.aetna.com/producer_public/login.fcc", logo: aetnaLogo },
   { name: "Anthem", url: "https://brokerportal.anthem.com/apps/ptb/login" },
   { name: "Devoted", url: "https://agent.devoted.com/" },
   { name: "Humana", url: "https://account.humana.com/" },
@@ -174,7 +175,13 @@ const AgentToolsPage = () => {
                   rel="noopener noreferrer"
                   className="card-premium hover:border-gold transition-smooth text-center py-8 group"
                 >
-                  <Building2 className="w-8 h-8 text-gold mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                  {'logo' in carrier && carrier.logo ? (
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-lg overflow-hidden group-hover:scale-110 transition-transform">
+                      <img src={carrier.logo} alt={carrier.name} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <Building2 className="w-8 h-8 text-gold mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                  )}
                   <p className="font-medium text-foreground">{carrier.name}</p>
                   <p className="text-xs text-muted-foreground mt-1 group-hover:text-gold transition-smooth">Open Portal</p>
                 </a>
