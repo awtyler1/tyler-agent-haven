@@ -46,6 +46,7 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Humana Broker Support: 800-309-3163",
     url: "#",
+    howToCertifyUrl: "#",
     logo: humanaLogo,
   },
   {
@@ -54,6 +55,7 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Aetna Broker Support: 866-714-9301",
     url: "#",
+    howToCertifyUrl: "#",
     logo: aetnaLogo,
   },
   {
@@ -62,6 +64,7 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "UHC Broker Support: 888-381-8581",
     url: "#",
+    howToCertifyUrl: "#",
     logo: uhcLogo,
   },
   {
@@ -70,6 +73,7 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Wellcare Broker Support: 866-822-1339",
     url: "#",
+    howToCertifyUrl: "#",
     logo: wellcareLogo,
   },
   {
@@ -78,6 +82,7 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Anthem Broker Support: 855-277-6066",
     url: "#",
+    howToCertifyUrl: "#",
     logo: anthemLogo,
   },
 ];
@@ -302,6 +307,16 @@ const AgentToolsPage = () => {
                       <Phone size={12} className="text-gold" />
                       <span>{cert.support}</span>
                     </div>
+
+                    <a 
+                      href={cert.howToCertifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs text-gold hover:underline mb-4 inline-block"
+                    >
+                      How to Certify
+                    </a>
                     
                     <div className="pt-4 border-t border-border">
                       <span className="btn-primary-gold w-full text-center inline-flex items-center justify-center gap-2 group-hover:bg-gold/90 whitespace-nowrap text-sm">
