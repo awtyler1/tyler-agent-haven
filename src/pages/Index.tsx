@@ -15,7 +15,7 @@ const controlCenterTiles = [
     title: "Contracting Hub",
     description: "Carrier contracting, documents, and onboarding guidance.",
     icon: FileText,
-    link: "/carrier-resources"
+    link: "/contracting-hub"
   },
   {
     title: "Certifications",
@@ -66,7 +66,7 @@ const quickLinks = [
   { name: "Sunfire", url: "https://www.sunfirematrix.com/app/agent/pfs", external: true },
   { name: "BOSS CRM", url: "https://fmo.kizen.com/login", external: true },
   { name: "Carrier Support", link: "/contact" },
-  { name: "Contracting Hub", link: "/carrier-resources" },
+  { name: "Contracting Hub", link: "/contracting-hub" },
   { name: "Compliance Center", link: "/compliance" }
 ];
 
