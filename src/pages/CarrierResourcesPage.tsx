@@ -20,7 +20,7 @@ const carriers = [
       { type: "Enrollment", number: "1-800-234-5678" },
     ],
     links: [
-      { name: "Broker Portal", url: "#" },
+      { name: "Broker Portal", url: "https://www.aetna.com/producer_public/login.fcc" },
       { name: "Plan Finder", url: "#" },
       { name: "Training Center", url: "#" },
     ],
