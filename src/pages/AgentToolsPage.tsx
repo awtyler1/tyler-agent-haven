@@ -12,6 +12,7 @@ import devotedLogo from "@/assets/devoted-logo.png";
 import humanaLogo from "@/assets/humana-logo.png";
 import uhcLogo from "@/assets/uhc-logo.png";
 import wellcareLogo from "@/assets/wellcare-logo.jpg";
+import ahipLogo from "@/assets/ahip-logo.png";
 
 const toolCards = [
   {
@@ -282,8 +283,8 @@ const AgentToolsPage = () => {
                 className="group card-premium hover:border-gold transition-smooth block max-w-xl"
               >
                 <div className="flex items-start gap-4 mb-6">
-                  <div className="w-20 h-14 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0">
-                    <GraduationCap className="w-8 h-8 text-gold" />
+                  <div className="w-20 h-14 rounded-lg bg-white flex items-center justify-center flex-shrink-0 p-2">
+                    <img src={ahipLogo} alt="AHIP" className="w-full h-full object-contain" />
                   </div>
                   <div className="flex-1">
                     <h4 className="heading-subsection mb-1">AHIP Certification</h4>
