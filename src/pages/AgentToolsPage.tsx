@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { ExternalLink, Monitor, Users, Building2, Phone, Mail, Clock } from "lucide-react";
 import connect4Logo from "@/assets/connect4insurance-logo.png";
 import sunfireLogo from "@/assets/sunfire-logo.png";
+import bossCrmLogo from "@/assets/boss-crm-logo.png";
 
 const toolCards = [
   {
@@ -125,8 +126,8 @@ const AgentToolsPage = () => {
               className="group card-premium hover:border-gold transition-smooth block max-w-xl"
             >
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-lg bg-background flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-gold" />
+                <div className="w-12 h-12 rounded-lg bg-background flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <img src={bossCrmLogo} alt="BOSS CRM" className="w-full h-full object-contain p-1" />
                 </div>
                 <div className="flex-1">
                   <h3 className="heading-subsection mb-1">BOSS CRM</h3>
