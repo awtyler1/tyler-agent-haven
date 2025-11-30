@@ -1,6 +1,8 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ExternalLink, Monitor, Users, Building2, Phone, Mail, Clock, Award, GraduationCap } from "lucide-react";
+import PdfPreviewModal from "@/components/PdfPreviewModal";
 import connect4Logo from "@/assets/connect4insurance-logo.png";
 import sunfireLogo from "@/assets/sunfire-logo.png";
 import bossCrmLogo from "@/assets/boss-crm-logo.png";
@@ -46,7 +48,8 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Aetna Broker Support: 866-714-9301",
     url: "#",
-    howToCertifyUrl: "#",
+    howToCertifyUrl: "",
+    howToCertifyTitle: "Aetna 2026 Certification Instructions",
     logo: aetnaLogo,
   },
   {
@@ -55,7 +58,8 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Anthem Broker Support: 855-277-6066",
     url: "#",
-    howToCertifyUrl: "#",
+    howToCertifyUrl: "/downloads/TIG_2026_Anthem_Certification_Instructions.pdf",
+    howToCertifyTitle: "Anthem 2026 Certification Instructions",
     logo: anthemLogo,
   },
   {
@@ -64,7 +68,8 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Devoted Broker Support: 800-485-4164",
     url: "#",
-    howToCertifyUrl: "#",
+    howToCertifyUrl: "",
+    howToCertifyTitle: "Devoted 2026 Certification Instructions",
     logo: devotedLogo,
   },
   {
@@ -73,7 +78,8 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Humana Broker Support: 800-309-3163",
     url: "#",
-    howToCertifyUrl: "#",
+    howToCertifyUrl: "",
+    howToCertifyTitle: "Humana 2026 Certification Instructions",
     logo: humanaLogo,
   },
   {
@@ -82,7 +88,8 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "UHC Broker Support: 888-381-8581",
     url: "#",
-    howToCertifyUrl: "#",
+    howToCertifyUrl: "",
+    howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
     logo: uhcLogo,
   },
   {
@@ -91,7 +98,8 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Wellcare Broker Support: 866-822-1339",
     url: "#",
-    howToCertifyUrl: "#",
+    howToCertifyUrl: "",
+    howToCertifyTitle: "Wellcare 2026 Certification Instructions",
     logo: wellcareLogo,
   },
 ];
@@ -112,6 +120,8 @@ const supportContacts = [
 ];
 
 const AgentToolsPage = () => {
+  const [pdfPreview, setPdfPreview] = useState<{ title: string; url: string } | null>(null);
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -317,15 +327,22 @@ const AgentToolsPage = () => {
                       <span>{cert.support}</span>
                     </div>
 
-                    <a 
-                      href={cert.howToCertifyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-xs text-gold hover:underline mb-4 inline-block"
-                    >
-                      How to Certify
-                    </a>
+                    {cert.howToCertifyUrl ? (
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setPdfPreview({ title: cert.howToCertifyTitle, url: cert.howToCertifyUrl });
+                        }}
+                        className="text-xs text-gold hover:underline mb-4 inline-block"
+                      >
+                        How to Certify
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground mb-4 inline-block opacity-50">
+                        How to Certify (Coming Soon)
+                      </span>
+                    )}
                     
                     <div className="pt-4 border-t border-border">
                       <span className="btn-primary-gold w-full text-center inline-flex items-center justify-center gap-2 group-hover:bg-gold/90 whitespace-nowrap text-sm">
@@ -428,6 +445,14 @@ const AgentToolsPage = () => {
         </section>
       </main>
       <Footer />
+
+      {/* PDF Preview Modal */}
+      <PdfPreviewModal
+        isOpen={!!pdfPreview}
+        onClose={() => setPdfPreview(null)}
+        title={pdfPreview?.title || ""}
+        pdfUrl={pdfPreview?.url || ""}
+      />
     </div>
   );
 };
