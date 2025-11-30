@@ -1,6 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ExternalLink, Monitor, Users, Building2, Phone, Mail, Clock } from "lucide-react";
+import connect4Logo from "@/assets/connect4insurance-logo.png";
 
 const toolCards = [
   {
@@ -9,6 +10,7 @@ const toolCards = [
     note: "Use your assigned credentials.",
     url: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login",
     icon: Monitor,
+    logo: connect4Logo,
   },
   {
     name: "Sunfire",
@@ -77,8 +79,12 @@ const AgentToolsPage = () => {
                   className="group card-premium hover:border-gold transition-smooth block"
                 >
                   <div className="flex items-start gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-lg bg-cream flex items-center justify-center flex-shrink-0">
-                      <tool.icon className="w-6 h-6 text-gold" />
+                    <div className="w-12 h-12 rounded-lg bg-cream flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {tool.logo ? (
+                        <img src={tool.logo} alt={tool.name} className="w-full h-full object-contain p-1" />
+                      ) : (
+                        <tool.icon className="w-6 h-6 text-gold" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="heading-subsection mb-1">{tool.name}</h3>
