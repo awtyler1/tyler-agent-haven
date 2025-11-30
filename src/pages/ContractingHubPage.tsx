@@ -105,7 +105,7 @@ const ContractingHubPage = () => {
       
       <main className="pt-24">
         {/* Title Section */}
-        <section className="section-padding bg-background">
+        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-background">
           <div className="container-narrow text-center">
             <h1 className="heading-display text-foreground mb-4">
               Contracting Hub
@@ -120,9 +120,9 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Required Documents Section */}
-        <section className="section-padding bg-cream/30">
+        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-cream/30">
           <div className="container-narrow">
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="heading-section text-foreground mb-4">
                 What You Need Before You Begin
               </h2>
@@ -147,9 +147,9 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Step-by-Step Process */}
-        <section className="section-padding bg-background">
+        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-background">
           <div className="container-narrow">
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="heading-section text-foreground mb-4">
                 Step-by-Step Contracting Process
               </h2>
@@ -259,7 +259,7 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Upload Form Section */}
-        <section className="section-padding bg-background">
+        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-cream/30">
           <div className="container-narrow">
             <Card className="border-gold/30 shadow-elegant max-w-2xl mx-auto">
               <CardContent className="p-8 md:p-12">
@@ -366,9 +366,9 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Important Notes */}
-        <section className="section-padding bg-cream/30">
+        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-background">
           <div className="container-narrow">
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="heading-section text-foreground mb-4">
                 Important Notes & Expectations
               </h2>
@@ -396,9 +396,9 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Support Section */}
-        <section className="section-padding bg-background">
+        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-cream/30">
           <div className="container-narrow">
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="heading-section text-foreground mb-4">
                 Contracting Support
               </h2>
@@ -430,9 +430,9 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Quick Links */}
-        <section className="section-padding bg-cream/30">
+        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-background">
           <div className="container-narrow">
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="heading-section text-foreground mb-4">
                 Quick Links
               </h2>
