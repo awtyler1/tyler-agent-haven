@@ -82,7 +82,7 @@ const Navigation = () => {
               <div 
                 key={link.name} 
                 className="relative group"
-                onMouseEnter={() => link.submenu && setOpenSubmenu(link.name)}
+                onMouseEnter={() => (link.submenu || link.sections) && setOpenSubmenu(link.name)}
                 onMouseLeave={() => setOpenSubmenu(null)}
               >
                 <Link
@@ -90,7 +90,7 @@ const Navigation = () => {
                   className="text-sm font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide uppercase flex items-center gap-1"
                 >
                   {link.name}
-                  {link.submenu && <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />}
+                  {(link.submenu || link.sections) && <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />}
                 </Link>
                 
                 {link.submenu && openSubmenu === link.name && (
