@@ -151,7 +151,7 @@ const StartHerePage = () => {
               </div>
 
               <Link
-                to="/carrier-resources"
+                to="/contracting-hub"
                 className="btn-primary-gold inline-flex items-center gap-2"
               >
                 Start Contracting <ArrowRight size={18} />
