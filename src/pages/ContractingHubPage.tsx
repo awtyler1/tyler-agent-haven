@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   CheckCircle, 
   FileText, 
@@ -84,19 +85,51 @@ const ContractingHubPage = () => {
 
     setIsSubmitting(true);
 
-    // For now, simulate submission - will need Lovable Cloud for actual email
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      const fileBase64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
+          const base64 = result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const { data, error } = await supabase.functions.invoke('send-contracting-packet', {
+        body: {
+          name: formData.name.trim(),
+          npn: formData.npn.trim(),
+          email: formData.email.trim() || undefined,
+          fileName: file.name,
+          fileContent: fileBase64,
+          fileType: file.type || 'application/octet-stream',
+        },
+      });
+
+      if (error) throw error;
+
       toast({
         title: "Submission Received",
         description: "Thank you. Your contracting packet has been sent to our contracting team. We will contact you if additional information is needed."
       });
       setFormData({ name: "", npn: "", email: "" });
       setFile(null);
-      // Reset file input
       const fileInput = document.getElementById("packet-upload") as HTMLInputElement;
       if (fileInput) fileInput.value = "";
-    }, 1500);
+    } catch (error: any) {
+      console.error("Error submitting contracting packet:", error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error sending your packet. Please try again or contact support directly.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

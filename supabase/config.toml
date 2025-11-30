@@ -1,1 +1,4 @@
 project_id = "clcidrccnmetckkawtkq"
+
+[functions.send-contracting-packet]
+verify_jwt = false
