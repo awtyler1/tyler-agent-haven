@@ -9,34 +9,26 @@ const contacts = [
   {
     name: "Austin Tyler, MBA",
     role: "Broker Development",
-    phone: "(555) 123-4567",
-    email: "austin@tylerinsurance.com",
+    phone: "(859) 619-6672",
+    email: "austin@tylerinsurancegroup.com",
     specialties: ["Sales strategy", "Team leadership", "Production goals"],
     image: austinHeadshot
   },
   {
     name: "Andrew Horn, MHA",
     role: "Broker Development",
-    phone: "(555) 234-5678",
-    email: "andrew@tylerinsurance.com",
+    phone: "(210) 722-5597",
+    email: "andrew@tylerinsurancegroup.com",
     specialties: ["Day-to-day operations", "Agent support", "Training coordination"],
     image: andrewHeadshot
   },
   {
     name: "Caroline Horn",
     role: "Contracting Support",
-    phone: "(555) 345-6789",
-    email: "caroline@tylerinsurance.com",
+    phone: null,
+    email: "caroline@tylerinsurancegroup.com",
     specialties: ["Carrier contracting", "Certifications", "Onboarding"],
     image: carolineHeadshot
-  },
-  {
-    name: "Pinnacle Support",
-    role: "Back Office",
-    phone: "(555) 456-7890",
-    email: "support@pinnacle.com",
-    specialties: ["Commission inquiries", "Policy issues", "Technical support"],
-    image: null
   },
 ];
 
@@ -98,13 +90,15 @@ const ContactPage = () => {
                   </div>
 
                   <div className="space-y-3 mb-6">
-                    <a 
-                      href={`tel:${contact.phone.replace(/\D/g, '')}`}
-                      className="flex items-center gap-3 text-foreground hover:text-gold transition-smooth"
-                    >
-                      <Phone size={16} className="text-gold" />
-                      <span>{contact.phone}</span>
-                    </a>
+                    {contact.phone && (
+                      <a 
+                        href={`tel:${contact.phone.replace(/\D/g, '')}`}
+                        className="flex items-center gap-3 text-foreground hover:text-gold transition-smooth"
+                      >
+                        <Phone size={16} className="text-gold" />
+                        <span>{contact.phone}</span>
+                      </a>
+                    )}
                     <a 
                       href={`mailto:${contact.email}`}
                       className="flex items-center gap-3 text-foreground hover:text-gold transition-smooth"
@@ -127,21 +121,25 @@ const ContactPage = () => {
                   </div>
 
                   <div className="mt-6 pt-6 border-t border-border flex gap-3">
-                    <a 
-                      href={`tel:${contact.phone.replace(/\D/g, '')}`}
-                      className="flex-1 btn-outline-gold text-center text-sm py-3"
-                    >
-                      Call
-                    </a>
-                    <a 
-                      href={`sms:${contact.phone.replace(/\D/g, '')}`}
-                      className="flex-1 btn-outline-gold text-center text-sm py-3"
-                    >
-                      Text
-                    </a>
+                    {contact.phone && (
+                      <>
+                        <a 
+                          href={`tel:${contact.phone.replace(/\D/g, '')}`}
+                          className="flex-1 btn-outline-gold text-center text-sm py-3"
+                        >
+                          Call
+                        </a>
+                        <a 
+                          href={`sms:${contact.phone.replace(/\D/g, '')}`}
+                          className="flex-1 btn-outline-gold text-center text-sm py-3"
+                        >
+                          Text
+                        </a>
+                      </>
+                    )}
                     <a 
                       href={`mailto:${contact.email}`}
-                      className="flex-1 btn-primary-gold text-center text-sm py-3"
+                      className={`${contact.phone ? 'flex-1' : 'w-full'} btn-primary-gold text-center text-sm py-3`}
                     >
                       Email
                     </a>
