@@ -28,7 +28,7 @@ const navLinks = [
     name: "Agent Tools", 
     href: "/agent-tools",
     submenu: [
-      { name: "Connecture", href: "https://connecture.com", external: true },
+      { name: "Connect4Insurance", href: "https://connecture.com", external: true },
       { name: "Sunfire", href: "https://sunfire.com", external: true },
       { name: "BOSS CRM", href: "https://bosscrm.com", external: true },
     ]
