@@ -10,10 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { 
   CheckCircle, 
-  Download, 
   FileText, 
   Upload,
-  Building2,
   Award,
   Wrench,
   HelpCircle,
@@ -43,11 +41,6 @@ const ContractingHubPage = () => {
     "Written explanations for any \"Yes\" answers to background questions",
     "Corporate license and corporate voided check (if contracting as a corporation)",
     "Corporate signer list or corporate resolution (if contracting through a business entity)"
-  ];
-
-  const carriers = [
-    "Aetna", "Anthem", "Devoted Health", "Humana", 
-    "UnitedHealthcare", "Wellcare"
   ];
 
   const importantNotes = [
@@ -261,28 +254,6 @@ const ContractingHubPage = () => {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Carrier List */}
-        <section className="section-padding bg-cream/30">
-          <div className="container-narrow">
-            <div className="text-center mb-12">
-              <h2 className="heading-section text-foreground mb-4">
-                Carriers Available for Contracting
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-              {carriers.map((carrier, index) => (
-                <Card key={index} className="border-gold/20">
-                  <CardContent className="p-4 text-center">
-                    <Building2 className="w-6 h-6 text-gold mx-auto mb-2" />
-                    <span className="text-sm font-medium text-foreground">{carrier}</span>
-                  </CardContent>
-                </Card>
-              ))}
             </div>
           </div>
         </section>
