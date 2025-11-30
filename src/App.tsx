@@ -12,6 +12,7 @@ import SalesTrainingPage from "./pages/SalesTrainingPage";
 import CrossSellingPage from "./pages/CrossSellingPage";
 import CompliancePage from "./pages/CompliancePage";
 import CarrierResourcesPage from "./pages/CarrierResourcesPage";
+import AgentToolsPage from "./pages/AgentToolsPage";
 import ContactPage from "./pages/ContactPage";
 import NotFound from "./pages/NotFound";
 
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/cross-selling" element={<CrossSellingPage />} />
           <Route path="/compliance" element={<CompliancePage />} />
           <Route path="/carrier-resources" element={<CarrierResourcesPage />} />
+          <Route path="/agent-tools" element={<AgentToolsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
