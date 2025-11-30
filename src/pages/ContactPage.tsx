@@ -1,35 +1,42 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Phone, Mail, MessageSquare, Clock } from "lucide-react";
+import austinHeadshot from "@/assets/austin-headshot.jpg";
+import andrewHeadshot from "@/assets/andrew-headshot.png";
+import carolineHeadshot from "@/assets/caroline-headshot.jpg";
 
 const contacts = [
   {
-    name: "Austin",
-    role: "Sales Director",
+    name: "Austin Tyler, MBA",
+    role: "Broker Development",
     phone: "(555) 123-4567",
     email: "austin@tylerinsurance.com",
-    specialties: ["Sales strategy", "Team leadership", "Production goals"]
+    specialties: ["Sales strategy", "Team leadership", "Production goals"],
+    image: austinHeadshot
   },
   {
-    name: "Andrew",
-    role: "Operations Manager",
+    name: "Andrew Horn, MHA",
+    role: "Broker Development",
     phone: "(555) 234-5678",
     email: "andrew@tylerinsurance.com",
-    specialties: ["Day-to-day operations", "Agent support", "Training coordination"]
+    specialties: ["Day-to-day operations", "Agent support", "Training coordination"],
+    image: andrewHeadshot
   },
   {
-    name: "Caroline",
-    role: "Contracting Specialist",
+    name: "Caroline Horn",
+    role: "Contracting Support",
     phone: "(555) 345-6789",
     email: "caroline@tylerinsurance.com",
-    specialties: ["Carrier contracting", "Certifications", "Onboarding"]
+    specialties: ["Carrier contracting", "Certifications", "Onboarding"],
+    image: carolineHeadshot
   },
   {
     name: "Pinnacle Support",
     role: "Back Office",
     phone: "(555) 456-7890",
     email: "support@pinnacle.com",
-    specialties: ["Commission inquiries", "Policy issues", "Technical support"]
+    specialties: ["Commission inquiries", "Policy issues", "Technical support"],
+    image: null
   },
 ];
 
@@ -72,9 +79,22 @@ const ContactPage = () => {
             <div className="grid md:grid-cols-2 gap-6">
               {contacts.map((contact, index) => (
                 <div key={index} className="card-premium">
-                  <div className="mb-6">
-                    <h3 className="heading-subsection mb-1">{contact.name}</h3>
-                    <p className="text-sm text-gold font-medium">{contact.role}</p>
+                  <div className="flex items-start gap-4 mb-6">
+                    {contact.image ? (
+                      <img 
+                        src={contact.image} 
+                        alt={contact.name}
+                        className="w-16 h-16 rounded-full object-cover object-top flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xl font-bold text-gold">{contact.name[0]}</span>
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="heading-subsection mb-1">{contact.name}</h3>
+                      <p className="text-sm text-gold font-medium">{contact.role}</p>
+                    </div>
                   </div>
 
                   <div className="space-y-3 mb-6">
