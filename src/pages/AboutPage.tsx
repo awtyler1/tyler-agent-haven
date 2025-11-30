@@ -1,6 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Check, X } from "lucide-react";
+import austinHeadshot from "@/assets/austin-headshot.jpg";
 
 const fmoIs = [
   "The strategic engine behind your Medicare business",
@@ -42,17 +43,20 @@ const leadership = [
   {
     name: "Austin Tyler, MBA",
     role: "Broker Development",
-    description: "Sets the vision, standards, and strategic direction for Tyler Insurance Group."
+    description: "Sets the vision, standards, and strategic direction for Tyler Insurance Group.",
+    image: austinHeadshot
   },
   {
     name: "Andrew Horn, MHA",
     role: "Broker Development",
-    description: "Manages day-to-day operations, agent support, and platform functionality."
+    description: "Manages day-to-day operations, agent support, and platform functionality.",
+    image: null
   },
   {
     name: "Caroline",
     role: "Contracting Support",
-    description: "Handles contracting processes, carrier communications, and onboarding."
+    description: "Handles contracting processes, carrier communications, and onboarding.",
+    image: null
   }
 ];
 
@@ -202,9 +206,17 @@ const AboutPage = () => {
             <div className="grid md:grid-cols-3 gap-6">
               {leadership.map((person) => (
                 <div key={person.name} className="card-premium text-center">
-                  <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-gold">{person.name[0]}</span>
-                  </div>
+                  {person.image ? (
+                    <img 
+                      src={person.image} 
+                      alt={person.name}
+                      className="w-24 h-24 rounded-full object-cover mx-auto mb-4"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                      <span className="text-3xl font-bold text-gold">{person.name[0]}</span>
+                    </div>
+                  )}
                   <h3 className="heading-subsection mb-1">{person.name}</h3>
                   <p className="text-sm text-gold font-medium mb-4">{person.role}</p>
                   <p className="text-body-small">{person.description}</p>
