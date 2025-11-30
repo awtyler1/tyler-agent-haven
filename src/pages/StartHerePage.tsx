@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 const firstSteps = [
-  { text: "Complete contracting through the Contracting Hub", link: "/carrier-resources" },
+  { text: "Complete contracting through the Contracting Hub", link: "/contracting-hub" },
   { text: "Complete AHIP and annual carrier certifications", link: "/agent-tools#certifications" },
   { text: "Access your tools in Agent Tools (Connecture, Sunfire, BOSS CRM, Carrier Portals)", link: "/agent-tools" },
   { text: "Begin Medicare Fundamentals", link: "/medicare-fundamentals" },
@@ -51,7 +51,7 @@ const platformAreas = [
     title: "Contracting Hub", 
     description: "Carrier contracting, documents, onboarding",
     icon: FileText,
-    link: "/carrier-resources"
+    link: "/contracting-hub"
   },
   { 
     title: "Certifications", 
