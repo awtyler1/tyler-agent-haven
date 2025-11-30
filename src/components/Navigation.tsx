@@ -24,6 +24,7 @@ const navLinks = [
       { name: "Carrier Resources", href: "/carrier-resources" },
     ]
   },
+  { name: "Agent Tools", href: "/agent-tools" },
   { name: "Compliance", href: "/compliance" },
   { name: "Contact", href: "/contact" },
 ];
