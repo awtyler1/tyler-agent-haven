@@ -7,6 +7,7 @@ const navLinks = [
   { name: "Dashboard", href: "/" },
   { name: "Start Here", href: "/start-here" },
   { name: "Contracting Hub", href: "/contracting-hub" },
+  { name: "Certifications", href: "/certifications" },
   { 
     name: "Training", 
     href: "/medicare-fundamentals",
@@ -55,7 +56,6 @@ const navLinks = [
       }
     ]
   },
-  { name: "Certifications", href: "/certifications" },
   { name: "Compliance", href: "/compliance" },
   { name: "Support", href: "/contact" },
 ];
