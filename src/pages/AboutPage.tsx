@@ -2,6 +2,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Check, X } from "lucide-react";
 import austinHeadshot from "@/assets/austin-headshot.jpg";
+import andrewHeadshot from "@/assets/andrew-headshot.png";
 
 const fmoIs = [
   "The strategic engine behind your Medicare business",
@@ -50,7 +51,7 @@ const leadership = [
     name: "Andrew Horn, MHA",
     role: "Broker Development",
     description: "Manages day-to-day operations, agent support, and platform functionality.",
-    image: null
+    image: andrewHeadshot
   },
   {
     name: "Caroline",
