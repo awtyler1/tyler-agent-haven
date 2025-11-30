@@ -276,7 +276,7 @@ const AgentToolsPage = () => {
             <div className="mb-12">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-gold mb-6">Required Certifications</h3>
               <a
-                href="#"
+                href="https://www.ahipmedicaretraining.com/page/login"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group card-premium hover:border-gold transition-smooth block max-w-xl"
