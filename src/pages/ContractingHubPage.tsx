@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { 
   CheckCircle, 
   Download, 
@@ -19,12 +20,13 @@ import {
   BookOpen,
   GraduationCap,
   Mail,
-  Phone
+  Eye
 } from "lucide-react";
 
 const ContractingHubPage = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     npn: "",
@@ -172,11 +174,12 @@ const ContractingHubPage = () => {
                       <h3 className="text-xl font-semibold text-foreground mb-3">
                         Download and Complete the Contracting Packet
                       </h3>
-                      <Button asChild className="bg-gold hover:bg-gold/90 text-charcoal">
-                        <a href="/downloads/Tyler_Insurance_Group_Contracting_Packet.pdf" download>
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Contracting Packet (PDF)
-                        </a>
+                      <Button 
+                        onClick={() => setIsPdfModalOpen(true)}
+                        className="bg-gold hover:bg-gold/90 text-charcoal"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        Preview & Download Contracting Packet
                       </Button>
                     </div>
                   </div>
@@ -486,6 +489,13 @@ const ContractingHubPage = () => {
       </main>
 
       <Footer />
+
+      <PdfPreviewModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        title="Tyler Insurance Group Contracting Packet"
+        pdfUrl="/downloads/Tyler_Insurance_Group_Contracting_Packet.pdf"
+      />
     </div>
   );
 };
