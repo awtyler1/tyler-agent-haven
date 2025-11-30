@@ -16,7 +16,7 @@ import {
 
 const firstSteps = [
   { text: "Complete contracting through the Contracting Hub", link: "/contracting-hub" },
-  { text: "Complete AHIP and annual carrier certifications", link: "/agent-tools#certifications" },
+  { text: "Complete AHIP and annual carrier certifications", link: "/certifications" },
   { text: "Access your tools in Agent Tools (Connecture, Sunfire, BOSS CRM, Carrier Portals)", link: "/agent-tools" },
   { text: "Begin Medicare Fundamentals", link: "/medicare-fundamentals" },
   { text: "Review Sales Training and required scripts", link: "/sales-training" },
@@ -57,7 +57,7 @@ const platformAreas = [
     title: "Certifications", 
     description: "AHIP + carrier recerts",
     icon: Award,
-    link: "/agent-tools#certifications"
+    link: "/certifications"
   },
   { 
     title: "Agent Tools", 
@@ -101,8 +101,8 @@ const requiredDocs = [
 ];
 
 const quickLinks = [
-  { title: "Contracting Hub", link: "/carrier-resources", icon: FileText },
-  { title: "Certifications", link: "/agent-tools#certifications", icon: Award },
+  { title: "Contracting Hub", link: "/contracting-hub", icon: FileText },
+  { title: "Certifications", link: "/certifications", icon: Award },
   { title: "Agent Tools", link: "/agent-tools", icon: Wrench },
   { title: "Medicare Fundamentals", link: "/medicare-fundamentals", icon: GraduationCap },
   { title: "Sales Training", link: "/sales-training", icon: GraduationCap },
@@ -142,6 +142,7 @@ const StartHerePage = () => {
                   <Link
                     key={index}
                     to={step.link}
+                    onClick={() => window.scrollTo(0, 0)}
                     className="flex items-start gap-4 p-4 rounded-lg border border-border hover:border-gold/40 hover:bg-gold/5 transition-all duration-200 group"
                   >
                     <CheckCircle2 className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
@@ -212,6 +213,7 @@ const StartHerePage = () => {
                 <Link
                   key={index}
                   to={area.link}
+                  onClick={() => window.scrollTo(0, 0)}
                   className="p-5 border border-border rounded-lg hover:border-gold/40 hover:bg-gold/5 transition-all duration-200 group"
                 >
                   <area.icon className="w-5 h-5 text-gold mb-3" />
@@ -259,6 +261,7 @@ const StartHerePage = () => {
                 <Link
                   key={index}
                   to={item.link}
+                  onClick={() => window.scrollTo(0, 0)}
                   className="flex flex-col items-center text-center p-5 border border-border rounded-lg hover:border-gold/40 hover:bg-gold/5 transition-all duration-200 group"
                 >
                   <item.icon className="w-6 h-6 text-gold mb-3" />
