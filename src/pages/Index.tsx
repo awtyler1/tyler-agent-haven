@@ -24,7 +24,7 @@ const controlCenterTiles = [
     title: "Certifications",
     description: "AHIP and annual carrier recertification links.",
     icon: Award,
-    link: "/agent-tools#certifications"
+    link: "/certifications"
   },
   {
     title: "Agent Tools",
