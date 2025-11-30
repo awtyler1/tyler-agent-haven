@@ -77,7 +77,7 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-5">
             {navLinks.map((link) => (
               <div 
                 key={link.name} 
@@ -87,10 +87,10 @@ const Navigation = () => {
               >
                 <Link
                   to={link.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide uppercase flex items-center gap-1"
+                  className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide flex items-center gap-1 whitespace-nowrap"
                 >
                   {link.name}
-                  {(link.submenu || link.sections) && <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />}
+                  {(link.submenu || link.sections) && <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />}
                 </Link>
                 
                 {link.submenu && openSubmenu === link.name && (
