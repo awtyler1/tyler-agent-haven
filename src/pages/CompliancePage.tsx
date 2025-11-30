@@ -1,7 +1,9 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Shield, FileText, Download, ExternalLink, ChevronRight } from "lucide-react";
+import { Shield, FileText, Download, ExternalLink, ChevronRight, X } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const sections = [
   { id: "rules", title: "Compliance Rules", icon: Shield },
@@ -66,6 +68,7 @@ const cmsLinks = [
 
 const CompliancePage = () => {
   const [activeSection, setActiveSection] = useState(sections[0].id);
+  const [previewDoc, setPreviewDoc] = useState<{ name: string; url: string } | null>(null);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -135,11 +138,10 @@ const CompliancePage = () => {
             <div className="space-y-3">
               {downloads.map((doc, index) => (
                 doc.url ? (
-                  <a 
+                  <button 
                     key={index}
-                    href={doc.url}
-                    download
-                    className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:border-gold hover:bg-gold/5 transition-smooth"
+                    onClick={() => setPreviewDoc({ name: doc.name, url: doc.url })}
+                    className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:border-gold hover:bg-gold/5 transition-smooth text-left"
                   >
                     <div className="flex items-center gap-3">
                       <Download className="w-5 h-5 text-gold" />
@@ -149,7 +151,7 @@ const CompliancePage = () => {
                       </div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                  </a>
+                  </button>
                 ) : (
                   <button 
                     key={index}
@@ -249,6 +251,34 @@ const CompliancePage = () => {
         </section>
       </main>
       <Footer />
+
+      {/* PDF Preview Modal */}
+      <Dialog open={!!previewDoc} onOpenChange={() => setPreviewDoc(null)}>
+        <DialogContent className="max-w-4xl w-[95vw] h-[85vh] p-0 overflow-hidden">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-muted">
+              <h3 className="font-medium text-foreground">{previewDoc?.name}</h3>
+              <div className="flex items-center gap-2">
+                <Button asChild variant="default" size="sm">
+                  <a href={previewDoc?.url} download>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </a>
+                </Button>
+              </div>
+            </div>
+            <div className="flex-1 bg-muted">
+              {previewDoc && (
+                <iframe
+                  src={previewDoc.url}
+                  className="w-full h-full"
+                  title={previewDoc.name}
+                />
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
