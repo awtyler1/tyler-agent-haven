@@ -8,6 +8,7 @@ import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
 import devotedLogo from "@/assets/devoted-logo.png";
 import humanaLogo from "@/assets/humana-logo.png";
+import uhcLogo from "@/assets/uhc-logo.png";
 
 const toolCards = [
   {
@@ -33,7 +34,7 @@ const carrierPortals = [
   { name: "Anthem", url: "https://brokerportal.anthem.com/apps/ptb/login", logo: anthemLogo },
   { name: "Devoted", url: "https://agent.devoted.com/", logo: devotedLogo },
   { name: "Humana", url: "https://account.humana.com/", logo: humanaLogo },
-  { name: "United Healthcare", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in" },
+  { name: "United Healthcare", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in", logo: uhcLogo },
   { name: "Wellcare", url: "https://www.wellcare.com/Broker-Resources/Broker-Resources" },
 ];
 
