@@ -21,7 +21,7 @@ const carriers = [
     ],
     links: [
       { name: "Broker Portal", url: "https://www.aetna.com/producer_public/login.fcc" },
-      { name: "Plan Finder", url: "#" },
+      { name: "Kit Ordering Portal", url: "https://aetna-pek-ff-op.memberdoc.com/#/login", subtext: "Username and password are your NPN" },
       { name: "Training Center", url: "#" },
     ],
   },
@@ -184,16 +184,20 @@ const CarrierResourcesPage = () => {
                     <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Quick Links</h4>
                     <div className="space-y-3">
                       {activeCarrier.links.map((link, index) => (
-                        <a 
-                          key={index}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
-                        >
-                          <ExternalLink size={14} className="text-gold" />
-                          <span>{link.name}</span>
-                        </a>
+                        <div key={index}>
+                          <a 
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                          >
+                            <ExternalLink size={14} className="text-gold flex-shrink-0" />
+                            <span>{link.name}</span>
+                          </a>
+                          {'subtext' in link && link.subtext && (
+                            <p className="text-xs text-muted-foreground ml-[22px] mt-0.5">{link.subtext}</p>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
