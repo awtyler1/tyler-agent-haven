@@ -5,6 +5,7 @@ import connect4Logo from "@/assets/connect4insurance-logo.png";
 import sunfireLogo from "@/assets/sunfire-logo.png";
 import bossCrmLogo from "@/assets/boss-crm-logo.png";
 import aetnaLogo from "@/assets/aetna-logo.png";
+import anthemLogo from "@/assets/anthem-logo.jpg";
 
 const toolCards = [
   {
@@ -27,7 +28,7 @@ const toolCards = [
 
 const carrierPortals = [
   { name: "Aetna", url: "https://www.aetna.com/producer_public/login.fcc", logo: aetnaLogo },
-  { name: "Anthem", url: "https://brokerportal.anthem.com/apps/ptb/login" },
+  { name: "Anthem", url: "https://brokerportal.anthem.com/apps/ptb/login", logo: anthemLogo },
   { name: "Devoted", url: "https://agent.devoted.com/" },
   { name: "Humana", url: "https://account.humana.com/" },
   { name: "United Healthcare", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in" },
