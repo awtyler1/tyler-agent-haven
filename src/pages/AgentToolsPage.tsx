@@ -181,8 +181,8 @@ const AgentToolsPage = () => {
                   className="card-premium hover:border-gold transition-smooth text-center py-8 group"
                 >
                   {'logo' in carrier && carrier.logo ? (
-                    <div className="w-12 h-12 mx-auto mb-3 rounded-lg overflow-hidden group-hover:scale-110 transition-transform">
-                      <img src={carrier.logo} alt={carrier.name} className="w-full h-full object-cover" />
+                    <div className="w-16 h-12 mx-auto mb-3 rounded-lg overflow-hidden group-hover:scale-110 transition-transform flex items-center justify-center">
+                      <img src={carrier.logo} alt={carrier.name} className="w-full h-full object-contain" />
                     </div>
                   ) : (
                     <Building2 className="w-8 h-8 text-gold mx-auto mb-3 group-hover:scale-110 transition-transform" />
