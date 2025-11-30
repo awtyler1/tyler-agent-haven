@@ -78,7 +78,7 @@ const carrierCertifications = [
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Humana Broker Support: 800-309-3163",
     url: "#",
-    howToCertifyUrl: "",
+    howToCertifyUrl: "/downloads/TIG_2026_Humana_Certification_Instructions.pdf",
     howToCertifyTitle: "Humana 2026 Certification Instructions",
     logo: humanaLogo,
   },
