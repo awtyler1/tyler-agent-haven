@@ -4,7 +4,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
 
 const navLinks = [
-  { name: "Home", href: "/" },
+  { name: "Dashboard", href: "/" },
   { name: "Start Here", href: "/start-here" },
   { 
     name: "Training", 
