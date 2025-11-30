@@ -211,11 +211,11 @@ const AboutPage = () => {
                     <img 
                       src={person.image} 
                       alt={person.name}
-                      className="w-24 h-24 rounded-full object-cover mx-auto mb-4"
+                      className="w-32 h-32 rounded-full object-cover object-top mx-auto mb-4 border-2 border-gold/20"
                     />
                   ) : (
-                    <div className="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
-                      <span className="text-3xl font-bold text-gold">{person.name[0]}</span>
+                    <div className="w-32 h-32 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                      <span className="text-4xl font-bold text-gold">{person.name[0]}</span>
                     </div>
                   )}
                   <h3 className="heading-subsection mb-1">{person.name}</h3>
