@@ -9,6 +9,7 @@ import anthemLogo from "@/assets/anthem-logo.jpg";
 import devotedLogo from "@/assets/devoted-logo.png";
 import humanaLogo from "@/assets/humana-logo.png";
 import uhcLogo from "@/assets/uhc-logo.png";
+import wellcareLogo from "@/assets/wellcare-logo.jpg";
 
 const toolCards = [
   {
@@ -35,7 +36,7 @@ const carrierPortals = [
   { name: "Devoted", url: "https://agent.devoted.com/", logo: devotedLogo },
   { name: "Humana", url: "https://account.humana.com/", logo: humanaLogo },
   { name: "United Healthcare", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in", logo: uhcLogo },
-  { name: "Wellcare", url: "https://www.wellcare.com/Broker-Resources/Broker-Resources" },
+  { name: "Wellcare", url: "https://www.wellcare.com/Broker-Resources/Broker-Resources", logo: wellcareLogo },
 ];
 
 const supportContacts = [
