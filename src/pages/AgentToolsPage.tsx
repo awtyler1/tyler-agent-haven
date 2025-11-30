@@ -4,7 +4,7 @@ import { ExternalLink, Monitor, Users, Building2, Phone, Mail, Clock } from "luc
 
 const toolCards = [
   {
-    name: "Connecture",
+    name: "Connect4Insurance",
     description: "Quoting + E-apps. Carrier-agnostic. Fast comparisons.",
     note: "Use your assigned credentials.",
     url: "https://connecture.com",
