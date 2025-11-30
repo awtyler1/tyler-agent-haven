@@ -87,6 +87,7 @@ const Navigation = () => {
               >
                 <Link
                   to={link.href}
+                  onClick={() => window.scrollTo(0, 0)}
                   className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide flex items-center gap-1 whitespace-nowrap"
                 >
                   {link.name}
