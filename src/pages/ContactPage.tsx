@@ -68,8 +68,9 @@ const ContactPage = () => {
         {/* Contact Cards */}
         <section className="section-padding">
           <div className="container-narrow">
-            <div className="grid md:grid-cols-2 gap-6">
-              {contacts.map((contact, index) => (
+            {/* Austin and Andrew - side by side */}
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              {contacts.slice(0, 2).map((contact, index) => (
                 <div key={index} className="card-premium">
                   <div className="flex items-start gap-4 mb-6">
                     {contact.image ? (
@@ -146,6 +147,89 @@ const ContactPage = () => {
                   </div>
                 </div>
               ))}
+            </div>
+            
+            {/* Caroline - centered below */}
+            <div className="flex justify-center">
+              <div className="w-full md:w-1/2 md:max-w-md">
+                {contacts.slice(2, 3).map((contact, index) => (
+                  <div key={index} className="card-premium">
+                    <div className="flex items-start gap-4 mb-6">
+                      {contact.image ? (
+                        <img 
+                          src={contact.image} 
+                          alt={contact.name}
+                          className="w-16 h-16 rounded-full object-cover object-top flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xl font-bold text-gold">{contact.name[0]}</span>
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="heading-subsection mb-1">{contact.name}</h3>
+                        <p className="text-sm text-gold font-medium">{contact.role}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      {contact.phone && (
+                        <a 
+                          href={`tel:${contact.phone.replace(/\D/g, '')}`}
+                          className="flex items-center gap-3 text-foreground hover:text-gold transition-smooth"
+                        >
+                          <Phone size={16} className="text-gold" />
+                          <span>{contact.phone}</span>
+                        </a>
+                      )}
+                      <a 
+                        href={`mailto:${contact.email}`}
+                        className="flex items-center gap-3 text-foreground hover:text-gold transition-smooth"
+                      >
+                        <Mail size={16} className="text-gold" />
+                        <span>{contact.email}</span>
+                      </a>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Specialties</p>
+                      <ul className="space-y-1">
+                        {contact.specialties.map((specialty, i) => (
+                          <li key={i} className="flex items-center gap-2 text-body-small">
+                            <span className="text-gold text-xs">◆</span>
+                            {specialty}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-border flex gap-3">
+                      {contact.phone && (
+                        <>
+                          <a 
+                            href={`tel:${contact.phone.replace(/\D/g, '')}`}
+                            className="flex-1 btn-outline-gold text-center text-sm py-3"
+                          >
+                            Call
+                          </a>
+                          <a 
+                            href={`sms:${contact.phone.replace(/\D/g, '')}`}
+                            className="flex-1 btn-outline-gold text-center text-sm py-3"
+                          >
+                            Text
+                          </a>
+                        </>
+                      )}
+                      <a 
+                        href={`mailto:${contact.email}`}
+                        className={`${contact.phone ? 'flex-1' : 'w-full'} btn-primary-gold text-center text-sm py-3`}
+                      >
+                        Email
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
