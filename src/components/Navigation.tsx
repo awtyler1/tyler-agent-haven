@@ -24,7 +24,15 @@ const navLinks = [
       { name: "Carrier Resources", href: "/carrier-resources" },
     ]
   },
-  { name: "Agent Tools", href: "/agent-tools" },
+  { 
+    name: "Agent Tools", 
+    href: "/agent-tools",
+    submenu: [
+      { name: "Connecture", href: "https://connecture.com", external: true },
+      { name: "Sunfire", href: "https://sunfire.com", external: true },
+      { name: "BOSS CRM", href: "https://bosscrm.com", external: true },
+    ]
+  },
   { name: "Compliance", href: "/compliance" },
   { name: "Contact", href: "/contact" },
 ];
@@ -67,13 +75,25 @@ const Navigation = () => {
                   <div className="absolute top-full left-0 pt-2 w-56 animate-fade-in">
                     <div className="bg-background border border-border rounded-lg shadow-elevated py-2">
                       {link.submenu.map((subitem) => (
-                        <Link
-                          key={subitem.name}
-                          to={subitem.href}
-                          className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
-                        >
-                          {subitem.name}
-                        </Link>
+                        subitem.external ? (
+                          <a
+                            key={subitem.name}
+                            href={subitem.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
+                          >
+                            {subitem.name}
+                          </a>
+                        ) : (
+                          <Link
+                            key={subitem.name}
+                            to={subitem.href}
+                            className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
+                          >
+                            {subitem.name}
+                          </Link>
+                        )
                       ))}
                     </div>
                   </div>
@@ -108,14 +128,27 @@ const Navigation = () => {
                   {link.submenu && (
                     <div className="pl-4 border-l border-border ml-2">
                       {link.submenu.map((subitem) => (
-                        <Link
-                          key={subitem.name}
-                          to={subitem.href}
-                          onClick={() => setIsOpen(false)}
-                          className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
-                        >
-                          {subitem.name}
-                        </Link>
+                        subitem.external ? (
+                          <a
+                            key={subitem.name}
+                            href={subitem.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setIsOpen(false)}
+                            className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
+                          >
+                            {subitem.name}
+                          </a>
+                        ) : (
+                          <Link
+                            key={subitem.name}
+                            to={subitem.href}
+                            onClick={() => setIsOpen(false)}
+                            className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
+                          >
+                            {subitem.name}
+                          </Link>
+                        )
                       ))}
                     </div>
                   )}
