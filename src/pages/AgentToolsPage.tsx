@@ -43,7 +43,7 @@ const carrierCertifications = [
   {
     name: "Humana",
     buttonText: "Start Humana Certification",
-    subtext: "Annual recertification for MAPD/PDP.",
+    subtext: "Annual certification for MAPD and PDP plans.",
     support: "Humana Broker Support: 800-309-3163",
     url: "#",
     logo: humanaLogo,
@@ -51,7 +51,7 @@ const carrierCertifications = [
   {
     name: "Aetna",
     buttonText: "Start Aetna Certification",
-    subtext: "Annual Medicare training and exam.",
+    subtext: "Annual certification for MAPD and PDP plans.",
     support: "Aetna Broker Support: 866-714-9301",
     url: "#",
     logo: aetnaLogo,
@@ -59,7 +59,7 @@ const carrierCertifications = [
   {
     name: "UnitedHealthcare",
     buttonText: "Start UHC Certification",
-    subtext: "Annual certification for MAPD and PDP.",
+    subtext: "Annual certification for MAPD and PDP plans.",
     support: "UHC Broker Support: 888-381-8581",
     url: "#",
     logo: uhcLogo,
@@ -67,7 +67,7 @@ const carrierCertifications = [
   {
     name: "Wellcare",
     buttonText: "Start Wellcare Certification",
-    subtext: "Annual training for PDP and MAPD.",
+    subtext: "Annual certification for MAPD and PDP plans.",
     support: "Wellcare Broker Support: 866-822-1339",
     url: "#",
     logo: wellcareLogo,
@@ -75,7 +75,7 @@ const carrierCertifications = [
   {
     name: "Anthem",
     buttonText: "Start Anthem Certification",
-    subtext: "Annual certification for MAPD/MAPD plans.",
+    subtext: "Annual certification for MAPD and PDP plans.",
     support: "Anthem Broker Support: 855-277-6066",
     url: "#",
     logo: anthemLogo,
