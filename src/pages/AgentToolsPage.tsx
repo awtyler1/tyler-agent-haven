@@ -57,7 +57,7 @@ const carrierCertifications = [
     name: "Anthem",
     buttonText: "Start Anthem Certification",
     subtext: "Annual certification for MAPD and PDP plans.",
-    support: "Anthem Broker Support: 855-277-6066",
+    support: "Anthem Broker Support: (833) 864-0133",
     url: "#",
     howToCertifyUrl: "/downloads/TIG_2026_Anthem_Certification_Instructions.pdf",
     howToCertifyTitle: "Anthem 2026 Certification Instructions",
