@@ -1,6 +1,13 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ExternalLink, Monitor, Users, Building2, Phone, Mail, Clock } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const toolCards = [
   {
@@ -51,9 +58,28 @@ const AgentToolsPage = () => {
         <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
           <div className="container-narrow">
             <h1 className="heading-display mb-4">Agent Tools</h1>
-            <p className="text-body max-w-2xl">
+            <p className="text-body max-w-2xl mb-6">
               Your command center for quoting, applications, CRM, and essential platforms.
             </p>
+            
+            {/* Quick Selection Dropdown */}
+            <div className="max-w-xs">
+              <label className="text-sm font-medium text-foreground mb-2 block">Quick Access</label>
+              <Select
+                onValueChange={(value) => {
+                  if (value) window.open(value, '_blank');
+                }}
+              >
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue placeholder="Select a tool..." />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border">
+                  <SelectItem value="https://connecture.com">Connecture</SelectItem>
+                  <SelectItem value="https://sunfire.com">Sunfire</SelectItem>
+                  <SelectItem value="https://bosscrm.com">BOSS CRM</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </section>
 
