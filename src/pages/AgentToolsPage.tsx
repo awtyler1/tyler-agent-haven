@@ -41,15 +41,6 @@ const carrierPortals = [
 
 const carrierCertifications = [
   {
-    name: "Humana",
-    buttonText: "Start Humana Certification",
-    subtext: "Annual certification for MAPD and PDP plans.",
-    support: "Humana Broker Support: 800-309-3163",
-    url: "#",
-    howToCertifyUrl: "#",
-    logo: humanaLogo,
-  },
-  {
     name: "Aetna",
     buttonText: "Start Aetna Certification",
     subtext: "Annual certification for MAPD and PDP plans.",
@@ -57,24 +48,6 @@ const carrierCertifications = [
     url: "#",
     howToCertifyUrl: "#",
     logo: aetnaLogo,
-  },
-  {
-    name: "UnitedHealthcare",
-    buttonText: "Start UHC Certification",
-    subtext: "Annual certification for MAPD and PDP plans.",
-    support: "UHC Broker Support: 888-381-8581",
-    url: "#",
-    howToCertifyUrl: "#",
-    logo: uhcLogo,
-  },
-  {
-    name: "Wellcare",
-    buttonText: "Start Wellcare Certification",
-    subtext: "Annual certification for MAPD and PDP plans.",
-    support: "Wellcare Broker Support: 866-822-1339",
-    url: "#",
-    howToCertifyUrl: "#",
-    logo: wellcareLogo,
   },
   {
     name: "Anthem",
@@ -93,6 +66,33 @@ const carrierCertifications = [
     url: "#",
     howToCertifyUrl: "#",
     logo: devotedLogo,
+  },
+  {
+    name: "Humana",
+    buttonText: "Start Humana Certification",
+    subtext: "Annual certification for MAPD and PDP plans.",
+    support: "Humana Broker Support: 800-309-3163",
+    url: "#",
+    howToCertifyUrl: "#",
+    logo: humanaLogo,
+  },
+  {
+    name: "UnitedHealthcare",
+    buttonText: "Start UHC Certification",
+    subtext: "Annual certification for MAPD and PDP plans.",
+    support: "UHC Broker Support: 888-381-8581",
+    url: "#",
+    howToCertifyUrl: "#",
+    logo: uhcLogo,
+  },
+  {
+    name: "Wellcare",
+    buttonText: "Start Wellcare Certification",
+    subtext: "Annual certification for MAPD and PDP plans.",
+    support: "Wellcare Broker Support: 866-822-1339",
+    url: "#",
+    howToCertifyUrl: "#",
+    logo: wellcareLogo,
   },
 ];
 
