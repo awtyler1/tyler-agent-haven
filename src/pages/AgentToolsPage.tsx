@@ -292,7 +292,7 @@ const AgentToolsPage = () => {
 
             {/* Carrier Recertifications */}
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-gold mb-6">Carrier Recertifications</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gold mb-6">Carrier Certifications 2026</h3>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {carrierCertifications.map((cert) => (
                   <a
