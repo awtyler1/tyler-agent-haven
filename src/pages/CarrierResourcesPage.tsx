@@ -298,9 +298,7 @@ const carriers = [
       { type: "Humana Agent Support Unit", number: "(800) 309-3163", email: "AgentSupport@Humana.com" },
     ],
     links: [
-      { name: "Broker Portal", url: "#" },
-      { name: "Vantage", url: "#" },
-      { name: "Certifications", url: "#" },
+      { name: "Vantage", url: "https://account.humana.com/" },
     ],
     downloads: [
       { name: "KY Humana Market Product Guide 2026", url: "/downloads/KY_Humana_Market_Product_Guide_2026.pdf" },
