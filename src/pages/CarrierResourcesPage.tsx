@@ -483,6 +483,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/UHC_AARP_Essentials_KY1_HMO_H5253-099_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_AARP_Essentials_KY1_HMO_H5253-099_EOC_2026.pdf" },
+              { type: "Plan Highlights", url: "/downloads/UHC_AARP_Essentials_KY1_HMO_H5253-099_Highlights_2026.pdf" },
             ],
           },
         ],
