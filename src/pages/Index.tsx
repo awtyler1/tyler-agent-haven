@@ -170,7 +170,7 @@ const Index = () => {
                             <p className="text-sm text-muted-foreground">{tile.description}</p>
                             
                             {/* Overlay */}
-                            <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] rounded-lg flex items-center justify-center">
+                            <div className="absolute inset-0 bg-white/20 rounded-lg flex items-center justify-center">
                               <div className="bg-gold/10 border border-gold/30 rounded-md px-4 py-2">
                                 <p className="text-sm font-medium text-gold">Launching January 2026</p>
                               </div>
