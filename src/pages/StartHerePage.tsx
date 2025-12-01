@@ -17,26 +17,19 @@ import {
 
 
 const expectations = [
-  "Maintain professionalism",
-  "Follow compliance rules",
-  "Use our systems as designed",
-  "Keep CRM activity updated",
-  "Communicate clearly and respectfully",
-  "Complete certifications on time",
-  "Follow the appointment structure",
-  "Serve clients with integrity",
-  "Stay disciplined, consistent, and coachable",
+  "Professionalism in every client interaction",
+  "Strict compliance discipline",
+  "Consistent use of our systems and CRM",
+  "Clear, timely communication",
+  "Commitment to learning and improvement",
 ];
 
 const ourSupport = [
-  "Clean contracting support",
+  "Straightforward support",
   "Clear direction",
   "Practical training",
-  "Tools that work",
-  "Fast response times",
-  "Carrier updates",
-  "Guidance when you get stuck",
-  "A system designed to help you grow",
+  "Tools that keep you focused",
+  "Fast, reliable communication",
 ];
 
 const essentialTools = [
