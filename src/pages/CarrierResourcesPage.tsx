@@ -490,6 +490,11 @@ const carriers = [
         "C-SNP": [
           {
             planName: "UHC Complete Care KY-6 (HMO-POS C-SNP) H5253-182-000",
+            labels: [
+              { text: "Cardiovascular disorders", type: "location" },
+              { text: "Chronic heart failure", type: "location" },
+              { text: "Diabetes", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/UHC_Complete_Care_KY6_CSNP_H5253-182_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_Complete_Care_KY6_CSNP_H5253-182_EOC_2026.pdf" },
