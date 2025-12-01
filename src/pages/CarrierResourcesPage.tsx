@@ -41,6 +41,15 @@ const carriers = [
             { type: "Formulary", url: "/downloads/Aetna_Medicare_Formulary_2026.pdf" },
           ]
         },
+        { 
+          planName: "Aetna Medicare Signature (PPO) H5521 - 260", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_Formulary_2026.pdf" },
+          ]
+        },
       ],
       "Footprint-wide": [
         { 
