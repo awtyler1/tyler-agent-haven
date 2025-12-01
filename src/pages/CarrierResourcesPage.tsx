@@ -94,7 +94,17 @@ const carriers = [
           ]
         },
       ],
-      "Northern KY / Greater Ashland / Eastern KY": [],
+      "Northern KY / Greater Ashland / Eastern KY": [
+        { 
+          planName: "Aetna Medicare Signature (PPO) H5521 - 085", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_Formulary_2026.pdf" },
+          ]
+        },
+      ],
       "Northern KY / Greater Louisville": [],
       "Select Counties": [],
     },
