@@ -302,6 +302,7 @@ const carriers = [
     ],
     downloads: [
       { name: "KY Humana Market Product Guide 2026", url: "/downloads/KY_Humana_Market_Product_Guide_2026.pdf" },
+      { name: "Blank Verification of Chronic Condition (VCC) Form", url: "/downloads/Blank_Verification_of_Chronic_Condition_VCC.pdf" },
     ],
     summaryOfBenefits: {
       "Kentucky": {
