@@ -404,7 +404,7 @@ const CarrierResourcesPage = () => {
                 {/* Summary of Benefits Section */}
                 {'summaryOfBenefits' in activeCarrier && activeCarrier.summaryOfBenefits && (
                   <div className="mt-8 pt-6 border-t border-border">
-                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Plan Documents by Region</h4>
+                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Plan Documents by State</h4>
                     <Accordion type="multiple" className="space-y-3">
                       {Object.entries(activeCarrier.summaryOfBenefits).map(([state, submarkets]) => (
                         <AccordionItem key={state} value={state} className="border border-border rounded-lg overflow-hidden">
