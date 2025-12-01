@@ -74,19 +74,20 @@ const StartHerePage = () => {
                 </Link>
               </div>
 
-              {/* Tile 3 - Orientation */}
+              {/* Tile 3 - Agent Tools */}
               <div className="bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300">
                 <GraduationCap className="w-6 h-6 text-gold mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">Orientation</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Agent Tools</h3>
                 <p className="text-body-small text-muted-foreground mb-6">
                   Learn the tools and systems you'll use daily.
                 </p>
-                <a
-                  href="#essential-tools"
+                <Link
+                  to="/agent-tools"
+                  onClick={() => window.scrollTo(0, 0)}
                   className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
                 >
-                  Orientation Overview
-                </a>
+                  Go to Agent Tools
+                </Link>
               </div>
             </div>
           </div>
