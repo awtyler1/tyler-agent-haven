@@ -131,7 +131,6 @@ const carriers = [
             { type: "SOB", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_SOB_2026.pdf" },
             { type: "ANOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_ANOC_2026.pdf" },
             { type: "EOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_Formulary_2026.pdf" },
           ]
         },
         { 
