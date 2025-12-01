@@ -234,8 +234,10 @@ const carriers = [
     name: "Devoted",
     logo: devotedLogo,
     contacts: [
-      { type: "Agent Support", number: "1-800-555-1234" },
-      { type: "Enrollment", number: "1-800-555-5678" },
+      { type: "Jotham Cortez - Sales Director", subtitle: "MO, AR, KY, KS", number: "(573) 356-4005", email: "jotham.cortez@devoted.com" },
+      { type: "Cole Lawson - Broker Manager", subtitle: "Kentucky", number: "(618) 946-1111", email: "cole.lawson@devoted.com" },
+      { type: "Hailey Lindenbauer - Broker Manager", subtitle: "KY (Eastern, Lexington, Southeastern)", number: "(502) 794-1717", email: "hailey.lindenbauer@devoted.com" },
+      { type: "Agent Support Team", number: "1-877-764-9446" },
     ],
     links: [
       { name: "Agent Portal", url: "https://agent.devoted.com/" },
