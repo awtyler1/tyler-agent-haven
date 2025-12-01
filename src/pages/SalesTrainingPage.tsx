@@ -27,7 +27,8 @@ const trainingModules = [
     title: "Cross Selling",
     subtitle: "Increase client value and strengthen relationships the right way.",
     icon: Users,
-    label: "Module Launching January 2026"
+    label: "Module Launching January 2026",
+    href: "/cross-selling"
   },
   {
     title: "Industry & Market Updates",

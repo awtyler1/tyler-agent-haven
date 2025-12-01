@@ -1,224 +1,156 @@
-import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Package, Clock, AlertTriangle, Download, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { 
+  Shield, 
+  Clock, 
+  Building2, 
+  Eye, 
+  HeartPulse, 
+  Coins, 
+  FileCheck, 
+  Users 
+} from "lucide-react";
 
-const sections = [
-  { id: "products", title: "Ancillary Products", icon: Package },
-  { id: "timing", title: "When & How to Introduce", icon: Clock },
-  { id: "compliance", title: "Compliance Dos & Don'ts", icon: AlertTriangle },
-];
-
-const products = [
+const learningTopics = [
   {
-    name: "Dental, Vision, Hearing",
-    description: "Standalone or bundled coverage for common senior needs.",
-    opportunities: ["MA plans without DVH benefits", "Supplement clients", "During AEP/OEP"]
+    title: "What Cross Selling Really Is",
+    description: "Understand the ethical foundation of cross selling: it's not about pressure, it's about protection, value, and long-term client relationships.",
+    icon: Shield
   },
   {
-    name: "Hospital Indemnity",
-    description: "Cash benefits for hospital stays to cover out-of-pocket costs.",
-    opportunities: ["MA clients with hospital stays", "High-deductible plans", "Recent health events"]
+    title: "When to Introduce Additional Products",
+    description: "Learn the right timing and approach to introduce ancillary products naturally, without disrupting the Medicare enrollment process.",
+    icon: Clock
   },
   {
-    name: "Cancer/Heart/Stroke",
-    description: "Specified disease policies providing lump sum or periodic benefits.",
-    opportunities: ["Family history discussions", "Supplement clients", "Risk-aware seniors"]
+    title: "Hospital Indemnity",
+    description: "Master how to position hospital indemnity coverage as financial protection against out-of-pocket hospital costs and deductibles.",
+    icon: Building2
   },
   {
-    name: "Final Expense",
-    description: "Whole life policies designed to cover end-of-life costs.",
-    opportunities: ["Estate planning conversations", "Funeral cost concerns", "Legacy discussions"]
+    title: "Dental, Vision & Hearing",
+    description: "Understand when and how to recommend standalone DVH coverage to fill gaps in Medicare Advantage plans or Original Medicare.",
+    icon: Eye
   },
   {
-    name: "Annuities",
-    description: "Retirement income products for asset protection and growth.",
-    opportunities: ["Retirement planning", "CD renewals", "Market volatility concerns"]
+    title: "Cancer, Heart & Stroke",
+    description: "Learn how to introduce specified disease policies that provide lump sum benefits for critical health events and family history risks.",
+    icon: HeartPulse
+  },
+  {
+    title: "Final Expense",
+    description: "Understand how to guide clients through final expense conversations with dignity, focusing on legacy protection and family relief.",
+    icon: Coins
+  },
+  {
+    title: "Compliance Rules for Cross Selling",
+    description: "Master CMS compliance requirements, separation of appointments, documentation standards, and ethical boundaries for ancillary products.",
+    icon: FileCheck
+  },
+  {
+    title: "Real Appointment Examples",
+    description: "Study real-world scenarios showing how to introduce, position, and close ancillary products naturally during client appointments.",
+    icon: Users
   }
 ];
 
 const CrossSellingPage = () => {
-  const [activeSection, setActiveSection] = useState(sections[0].id);
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case "products":
-        return (
-          <div>
-            <h2 className="heading-section mb-4">Ancillary Products</h2>
-            <p className="text-body mb-8">
-              Increase lifetime value and strengthen client retention with complementary products.
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <main style={{ backgroundColor: '#FDFBF7' }}>
+        {/* Hero Section */}
+        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20">
+          <div className="container-narrow text-center">
+            <h1 className="heading-display mb-4">Cross Selling</h1>
+            <p className="text-xl md:text-2xl text-foreground font-medium mb-6 max-w-3xl mx-auto">
+              Increase client value. Strengthen relationships. Protect your book.
             </p>
-            <div className="space-y-6">
-              {products.map((product, index) => (
-                <div key={index} className="p-6 bg-muted rounded-lg">
-                  <h3 className="font-medium text-foreground text-lg mb-2">{product.name}</h3>
-                  <p className="text-body-small mb-4">{product.description}</p>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-gold mb-2">Best Opportunities</p>
-                    <ul className="space-y-1">
-                      {product.opportunities.map((opp, i) => (
-                        <li key={i} className="flex items-center gap-2 text-body-small">
-                          <span className="text-gold">◆</span>
-                          {opp}
-                        </li>
-                      ))}
-                    </ul>
+            <p className="text-sm text-gold/80 font-medium tracking-wide">
+              Full module launches January 2026.
+            </p>
+          </div>
+        </section>
+
+        {/* Intro Paragraph */}
+        <section className="px-6 md:px-12 lg:px-20 pb-12">
+          <div className="container-narrow">
+            <div className="max-w-3xl mx-auto text-center">
+              <p className="text-body leading-relaxed">
+                This module teaches agents how to introduce additional coverage ethically, clearly, and confidently. Cross selling is not about pressure — it is about protection, value, and long-term retention. Master the art of identifying client needs and presenting solutions that genuinely serve their best interests.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Core Learning Sections */}
+        <section className="section-padding">
+          <div className="container-narrow">
+            <div className="grid md:grid-cols-2 gap-6">
+              {learningTopics.map((topic, index) => (
+                <div 
+                  key={index}
+                  className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                      <topic.icon className="w-6 h-6 text-gold" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-foreground mb-2">
+                        {topic.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {topic.description}
+                      </p>
+                      <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
+                        <span className="text-xs font-medium text-gold">
+                          Module Launching January 2026
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        );
-      case "timing":
-        return (
-          <div>
-            <h2 className="heading-section mb-4">When & How to Introduce</h2>
-            <p className="text-body mb-8">
-              Timing and approach matter. Here's when to introduce ancillary products.
-            </p>
-            
-            <div className="space-y-6">
-              <div className="p-6 border border-border rounded-lg">
-                <h3 className="font-medium text-foreground mb-4">Best Timing</h3>
-                <ul className="space-y-3">
-                  {[
-                    "After the primary Medicare enrollment is complete",
-                    "During annual reviews when coverage gaps appear",
-                    "When client mentions specific health concerns",
-                    "30-60 days after initial enrollment",
-                    "During birthday calls and check-ins"
-                  ].map((item, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <span className="text-gold font-bold">◆</span>
-                      <span className="text-body-small">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+        </section>
 
-              <div className="p-6 border border-border rounded-lg">
-                <h3 className="font-medium text-foreground mb-4">Introduction Framework</h3>
-                <ol className="space-y-3">
-                  {[
-                    "Identify the gap or concern naturally in conversation",
-                    "Ask permission: 'Would it be helpful if I shared some options?'",
-                    "Present one or two relevant solutions only",
-                    "Explain benefits in terms of their specific situation",
-                    "Offer to follow up - no pressure"
-                  ].map((step, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-gold text-primary-foreground flex items-center justify-center text-sm font-medium flex-shrink-0">
-                        {index + 1}
-                      </span>
-                      <span className="text-body-small">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </div>
-          </div>
-        );
-      case "compliance":
-        return (
-          <div>
-            <h2 className="heading-section mb-4">Compliance Dos & Don'ts</h2>
-            <p className="text-body mb-8">
-              Protect yourself and your clients. Know the rules.
-            </p>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="p-6 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-900">
-                <h3 className="font-medium text-green-800 dark:text-green-400 mb-4 flex items-center gap-2">
-                  <span className="text-lg">✓</span> Do
-                </h3>
-                <ul className="space-y-3">
-                  {[
-                    "Complete Medicare enrollment first",
-                    "Get separate permission for ancillary discussion",
-                    "Document all conversations",
-                    "Explain products are not Medicare",
-                    "Allow time between enrollments",
-                    "Use carrier-approved materials"
-                  ].map((item, index) => (
-                    <li key={index} className="text-body-small text-green-900 dark:text-green-300">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="p-6 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-900">
-                <h3 className="font-medium text-red-800 dark:text-red-400 mb-4 flex items-center gap-2">
-                  <span className="text-lg">✗</span> Don't
-                </h3>
-                <ul className="space-y-3">
-                  {[
-                    "Bundle ancillary with Medicare enrollment",
-                    "Pressure or rush the decision",
-                    "Misrepresent products as Medicare",
-                    "Use Medicare marketing events for ancillary",
-                    "Cross-sell during SOA process",
-                    "Imply required purchase"
-                  ].map((item, index) => (
-                    <li key={index} className="text-body-small text-red-900 dark:text-red-300">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <main>
-        {/* Hero */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
+        {/* How to Apply This Module */}
+        <section className="section-padding bg-cream">
           <div className="container-narrow">
-            <h1 className="heading-display mb-4">Cross Selling</h1>
-            <p className="text-body max-w-2xl">
-              Increase lifetime value. Strengthen client relationships. Serve complete needs.
-            </p>
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)]">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">How to Apply This Module</h2>
+                <p className="text-body leading-relaxed">
+                  Once this module launches in January 2026, you'll receive structured guidance on identifying cross-selling opportunities, introducing products ethically, navigating compliance requirements, and closing with confidence. Each section will include real appointment examples, compliance checklists, and scripting frameworks to help you serve clients completely while protecting your business and reputation.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Content */}
+        {/* Coming Soon Banner */}
         <section className="section-padding">
-          <div className="container-narrow">
-            <div className="grid lg:grid-cols-[280px_1fr] gap-8">
-              {/* Sidebar */}
-              <div className="lg:sticky lg:top-28 lg:self-start">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Sections</h3>
-                <nav className="space-y-1">
-                  {sections.map((section) => (
-                    <button
-                      key={section.id}
-                      onClick={() => setActiveSection(section.id)}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition-smooth flex items-center gap-3 ${
-                        activeSection === section.id 
-                          ? "bg-gold/10 text-gold border-l-2 border-gold" 
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      <section.icon size={16} />
-                      <span className="text-sm font-medium">{section.title}</span>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-
-              {/* Main Content */}
-              <div className="card-premium animate-fade-in" key={activeSection}>
-                {renderContent()}
-              </div>
+          <div className="container-narrow text-center">
+            <div className="inline-flex items-center px-6 py-3 rounded-md bg-gold/10 border border-gold/20">
+              <span className="text-sm font-medium text-gold">
+                Full Cross Selling training launches January 2026.
+              </span>
             </div>
+          </div>
+        </section>
+
+        {/* Back Button */}
+        <section className="pb-16 px-6">
+          <div className="container-narrow text-center">
+            <Link 
+              to="/sales-training"
+              className="inline-flex items-center justify-center px-8 py-3 border-2 border-gold rounded-lg text-sm font-medium text-gold hover:bg-gold hover:text-white transition-all duration-200"
+            >
+              Back to Training Hub
+            </Link>
           </div>
         </section>
       </main>
