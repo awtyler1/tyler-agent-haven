@@ -20,6 +20,7 @@ import ContractingHubPage from "./pages/ContractingHubPage";
 import CertificationsPage from "./pages/CertificationsPage";
 import FormsLibraryPage from "./pages/FormsLibraryPage";
 import CarrierPortalsPage from "./pages/CarrierPortalsPage";
+import CarrierPlansPage from "./pages/CarrierPlansPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/medicare-fundamentals" element={<MedicareFundamentalsPage />} />
             <Route path="/compliance" element={<CompliancePage />} />
             <Route path="/carrier-resources" element={<CarrierResourcesPage />} />
+            <Route path="/carrier-resources/plans" element={<CarrierPlansPage />} />
             <Route path="/agent-tools" element={<AgentToolsPage />} />
             <Route path="/certifications" element={<CertificationsPage />} />
             <Route path="/forms-library" element={<FormsLibraryPage />} />
