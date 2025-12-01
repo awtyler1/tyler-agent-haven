@@ -9,7 +9,7 @@ import carolineHeadshot from "@/assets/caroline-headshot.jpg";
 
 const controlCenterTiles = [
   {
-    title: "Onboarding",
+    title: "Start Here",
     description: "Orientation, expectations, and your first steps.",
     icon: Rocket,
     link: "/start-here"
@@ -130,7 +130,7 @@ const Index = () => {
       <Navigation />
       <main>
         {/* Header / Identity Section */}
-        <section className="pt-28 pb-8 md:pt-32 md:pb-10 px-6 md:px-12 lg:px-20">
+        <section className="pt-32 pb-8 md:pt-40 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <img 
               src={tylerLogo} 
@@ -138,9 +138,10 @@ const Index = () => {
               className="h-24 md:h-28 mx-auto mb-6"
             />
             <h1 className="heading-display mb-3">Tyler Insurance Group Agent Platform</h1>
-            <p className="text-body text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-body max-w-2xl mx-auto mb-6">
               Your control center for contracting, certifications, tools, training, and support.
             </p>
+            <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mx-auto"></div>
           </div>
         </section>
 
@@ -156,7 +157,7 @@ const Index = () => {
                   className="group card-premium p-6 flex flex-col items-center text-center hover:border-gold/40 transition-all duration-300"
                 >
                   <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors">
-                    <tile.icon className="w-6 h-6 text-gold" />
+                    <tile.icon className="w-5 h-5 text-gold" />
                   </div>
                   <h3 className="text-base font-semibold mb-1.5">{tile.title}</h3>
                   <p className="text-sm text-muted-foreground">{tile.description}</p>

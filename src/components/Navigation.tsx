@@ -5,7 +5,7 @@ import tylerLogo from "@/assets/tyler-logo.png";
 
 const navLinks = [
   { name: "Dashboard", href: "/" },
-  { name: "Onboarding", href: "/start-here" },
+  { name: "Start Here", href: "/start-here" },
   { name: "Contracting Hub", href: "/contracting-hub" },
   { name: "Certifications", href: "/certifications" },
   { 
