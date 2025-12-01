@@ -625,6 +625,13 @@ const carriers = [
               { type: "EOC", url: "/downloads/Wellcare_Simple_HMO-POS_H9730-009_EOC_2026.pdf" },
             ],
           },
+          {
+            planName: "Wellcare Assist (HMO-POS) H9730-010-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Wellcare_Assist_HMO-POS_H9730-010_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Wellcare_Assist_HMO-POS_H9730-010_EOC_2026.pdf" },
+            ],
+          },
         ],
         "PPO": [],
         "DSNP": [],
