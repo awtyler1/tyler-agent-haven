@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import StartHerePage from "./pages/StartHerePage";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
 import SalesTrainingPage from "./pages/SalesTrainingPage";
+import SalesTrainingModulePage from "./pages/SalesTrainingModulePage";
 import TrainingLibraryPage from "./pages/TrainingLibraryPage";
 import MedicareFundamentalsPage from "./pages/MedicareFundamentalsPage";
 import CompliancePage from "./pages/CompliancePage";
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/contracting-hub" element={<ContractingHubPage />} />
             <Route path="/industry-updates" element={<IndustryUpdatesPage />} />
             <Route path="/sales-training" element={<SalesTrainingPage />} />
+            <Route path="/sales-training-module" element={<SalesTrainingModulePage />} />
             <Route path="/training-library" element={<TrainingLibraryPage />} />
             <Route path="/medicare-fundamentals" element={<MedicareFundamentalsPage />} />
             <Route path="/compliance" element={<CompliancePage />} />
