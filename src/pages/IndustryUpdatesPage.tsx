@@ -15,7 +15,7 @@ const updates = [
     id: 1,
     category: "cms",
     title: "2026 Medicare Parts B Premiums & Deductibles",
-    date: "2024-11-07",
+    date: "2025-11-14",
     excerpt: "Official CMS announcement of 2026 Medicare Part B premiums and deductibles.",
     url: "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
   },
