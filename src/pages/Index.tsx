@@ -131,7 +131,7 @@ const Index = () => {
       <Navigation />
       <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Header / Identity Section */}
-        <section className="pt-20 pb-6 md:pt-24 md:pb-6 px-6 md:px-12 lg:px-20">
+        <section className="pt-20 pb-8 md:pt-24 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <img 
               src={tylerLogo} 
@@ -151,7 +151,7 @@ const Index = () => {
         </section>
 
         {/* Control Center Grid */}
-        <section className="pb-8 px-6 md:px-12 lg:px-20">
+        <section className="pb-20 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6">
               {controlCenterTiles.map((tile, index) => (
