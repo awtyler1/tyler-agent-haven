@@ -19,48 +19,6 @@ const updates = [
     excerpt: "Official CMS announcement of 2026 Medicare Part B premiums and deductibles.",
     url: "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
   },
-  {
-    id: 2,
-    category: "cms",
-    title: "2024 Medicare Final Rule Summary",
-    date: "2024-01-15",
-    excerpt: "Key changes to Medicare Advantage and Part D programs for the upcoming year.",
-  },
-  {
-    id: 3,
-    category: "carrier",
-    title: "Aetna Plan Updates - Q1 2024",
-    date: "2024-01-10",
-    excerpt: "Summary of benefit changes and new plan offerings from Aetna.",
-  },
-  {
-    id: 4,
-    category: "product",
-    title: "New DSNP Plans Available",
-    date: "2024-01-08",
-    excerpt: "Dual Special Needs Plans now available in expanded service areas.",
-  },
-  {
-    id: 5,
-    category: "trends",
-    title: "Medicare Enrollment Trends 2024",
-    date: "2024-01-05",
-    excerpt: "Analysis of enrollment patterns and market opportunities.",
-  },
-  {
-    id: 6,
-    category: "cms",
-    title: "Marketing Guidelines Reminder",
-    date: "2024-01-03",
-    excerpt: "Important compliance reminders for agent marketing activities.",
-  },
-  {
-    id: 7,
-    category: "carrier",
-    title: "UnitedHealthcare Commission Updates",
-    date: "2024-01-02",
-    excerpt: "Updated commission structure and bonus programs.",
-  },
 ];
 
 const IndustryUpdatesPage = () => {
