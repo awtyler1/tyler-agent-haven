@@ -142,6 +142,11 @@ export const carriers = [
           },
         ],
       },
+      "Tennessee": {
+        "HMO": [],
+        "PPO": [],
+        "D-SNP": [],
+      },
     },
   },
   {
@@ -210,6 +215,9 @@ export const carriers = [
           },
         ],
       },
+      "Tennessee": {
+        "HMO": [],
+      },
     },
   },
   {
@@ -273,6 +281,11 @@ export const carriers = [
             ],
           },
         ],
+      },
+      "Tennessee": {
+        "C-SNP": [],
+        "PPO": [],
+        "Giveback": [],
       },
     },
   },
@@ -426,6 +439,13 @@ export const carriers = [
           },
         ],
       },
+      "Tennessee": {
+        "Humana Community": [],
+        "Humana Gold Plus": [],
+        "Humana Dual Select": [],
+        "HumanaChoice": [],
+        "Humana USAA Honor": [],
+      },
     },
   },
   {
@@ -577,6 +597,11 @@ export const carriers = [
           },
         ],
       },
+      "Tennessee": {
+        "AARP": [],
+        "Dual Complete": [],
+        "Complete Care": [],
+      },
     },
   },
   {
@@ -663,6 +688,11 @@ export const carriers = [
           },
         ],
       },
+      "Tennessee": {
+        "HMO-POS": [],
+        "D-SNP": [],
+      },
     },
   },
 ];
+

@@ -113,7 +113,7 @@ const CarrierPlansPage = () => {
                   <SelectContent>
                     <SelectItem value="Kentucky">Kentucky</SelectItem>
                     <SelectItem value="Ohio" disabled>Ohio (Coming Soon)</SelectItem>
-                    <SelectItem value="Tennessee" disabled>Tennessee (Coming Soon)</SelectItem>
+                    <SelectItem value="Tennessee">Tennessee</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
