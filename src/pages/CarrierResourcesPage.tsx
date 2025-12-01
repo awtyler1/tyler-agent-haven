@@ -186,6 +186,7 @@ const carriers = [
           documents: [
             { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_SOB_2026.pdf" },
             { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_EOC_2026.pdf" },
+            { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_Application_2026.pdf" },
           ]
         },
         {
