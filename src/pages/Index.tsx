@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Rocket, FileText, Award, Wrench, GraduationCap, Building2, ExternalLink, Check, X, FolderOpen } from "lucide-react";
+import { Rocket, FileText, Award, Wrench, GraduationCap, Building2, ExternalLink, Check, X, FolderOpen, Building } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
 import austinHeadshot from "@/assets/austin-headshot.jpg";
 import andrewHeadshot from "@/assets/andrew-headshot.png";
@@ -49,6 +49,12 @@ const controlCenterTiles = [
     description: "SOA, HIPAA, enrollment worksheets, and essential appointment forms.",
     icon: FolderOpen,
     link: "/forms-library"
+  },
+  {
+    title: "Carrier Portals",
+    description: "Fast access to Humana, Aetna, UHC, Wellcare, Anthem, and more.",
+    icon: Building,
+    link: "/agent-tools"
   }
 ];
 
