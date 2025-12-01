@@ -1,7 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
-import { GraduationCap, Target, TrendingUp, Users, Newspaper } from "lucide-react";
+import { GraduationCap, Target, TrendingUp, Users, Newspaper, Library } from "lucide-react";
 
 const trainingModules = [
   {
@@ -33,6 +33,13 @@ const trainingModules = [
     subtitle: "Stay current. Stay competitive. Stay sharp.",
     icon: Newspaper,
     label: "Updated throughout the year — full module coming 2026."
+  },
+  {
+    title: "Training Library",
+    subtitle: "A complete archive of all videos, articles, and downloadable documents.",
+    icon: Library,
+    label: "Access Now",
+    href: "/training-library"
   }
 ];
 
@@ -59,29 +66,56 @@ const SalesTrainingPage = () => {
           <div className="container-narrow">
             <div className="grid md:grid-cols-2 gap-6">
               {trainingModules.map((module, index) => (
-                <div 
-                  key={index}
-                  className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
-                >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                      <module.icon className="w-6 h-6 text-gold" />
+                module.href ? (
+                  <Link
+                    key={index}
+                    to={module.href}
+                    className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer block"
+                  >
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                        <module.icon className="w-6 h-6 text-gold" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                          {module.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {module.subtitle}
+                        </p>
+                        <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
+                          <span className="text-xs font-medium text-gold">
+                            {module.label}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-foreground mb-2">
-                        {module.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {module.subtitle}
-                      </p>
-                      <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
-                        <span className="text-xs font-medium text-gold">
-                          {module.label}
-                        </span>
+                  </Link>
+                ) : (
+                  <div 
+                    key={index}
+                    className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
+                  >
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                        <module.icon className="w-6 h-6 text-gold" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                          {module.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {module.subtitle}
+                        </p>
+                        <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
+                          <span className="text-xs font-medium text-gold">
+                            {module.label}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )
               ))}
             </div>
           </div>

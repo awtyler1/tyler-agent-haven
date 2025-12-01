@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import StartHerePage from "./pages/StartHerePage";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
 import SalesTrainingPage from "./pages/SalesTrainingPage";
+import TrainingLibraryPage from "./pages/TrainingLibraryPage";
 import CompliancePage from "./pages/CompliancePage";
 import CarrierResourcesPage from "./pages/CarrierResourcesPage";
 import AgentToolsPage from "./pages/AgentToolsPage";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/contracting-hub" element={<ContractingHubPage />} />
             <Route path="/industry-updates" element={<IndustryUpdatesPage />} />
             <Route path="/sales-training" element={<SalesTrainingPage />} />
+            <Route path="/training-library" element={<TrainingLibraryPage />} />
             <Route path="/compliance" element={<CompliancePage />} />
             <Route path="/carrier-resources" element={<CarrierResourcesPage />} />
             <Route path="/agent-tools" element={<AgentToolsPage />} />
