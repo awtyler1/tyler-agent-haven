@@ -649,6 +649,14 @@ const carriers = [
               { type: "EOC", url: "/downloads/Wellcare_Dual_Access_Sync_Open_DSNP_H3975-004_EOC_2026.pdf" },
             ],
           },
+          {
+            planName: "Wellcare Dual Access Sync (HMO-POS D-SNP) HIDE H9730-003-000",
+            nonCommissionable: true,
+            documents: [
+              { type: "SOB", url: "/downloads/Wellcare_Dual_Access_Sync_DSNP_H9730-003_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Wellcare_Dual_Access_Sync_DSNP_H9730-003_EOC_2026.pdf" },
+            ],
+          },
         ],
         "Giveback": [
           {
