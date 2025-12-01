@@ -320,7 +320,13 @@ const carriers = [
         "Humana Gold Plus (HMO)": [],
         "C-SNP": [],
         "D-SNP": [],
-        "PPO": [],
+        "PPO": [
+          {
+            name: "HumanaChoice H7617-050 (PPO) H7617-050-000",
+            sob: "/downloads/HumanaChoice_H7617-050_PPO_H7617-050-000_SOB_2026.pdf",
+            eoc: "/downloads/HumanaChoice_H7617-050_PPO_H7617-050-000_EOC_2026.pdf",
+          },
+        ],
         "Giveback": [],
       },
     },
