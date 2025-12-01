@@ -319,7 +319,15 @@ const carriers = [
             ],
           },
         ],
-        "Humana Gold Plus (HMO)": [],
+        "Humana Gold Plus (HMO)": [
+          {
+            planName: "Humana Gold Plus H5619-071 (HMO) H5619-071-000",
+            documents: [
+              { type: "EOC", url: "/downloads/Humana_Gold_Plus_H5619-071_HMO_EOC_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Humana_Gold_Plus_H5619-071_HMO_ANOC_2026.pdf" },
+            ],
+          },
+        ],
         "C-SNP": [],
         "D-SNP": [],
         "PPO": [
