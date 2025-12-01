@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Rocket, FileText, Award, Wrench, GraduationCap, HeadphonesIcon, ExternalLink, Check, X } from "lucide-react";
+import { Rocket, FileText, Award, Wrench, GraduationCap, Building2, ExternalLink, Check, X } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
 import austinHeadshot from "@/assets/austin-headshot.jpg";
 import andrewHeadshot from "@/assets/andrew-headshot.png";
@@ -33,16 +33,16 @@ const controlCenterTiles = [
     link: "/agent-tools"
   },
   {
+    title: "Carrier Resources",
+    description: "Plan documents, contacts, and carrier-specific resources.",
+    icon: Building2,
+    link: "/carrier-resources"
+  },
+  {
     title: "Training",
     description: "Medicare Fundamentals, Sales Training, and Leads & Marketing.",
     icon: GraduationCap,
     link: "/sales-training"
-  },
-  {
-    title: "Support",
-    description: "How to contact our support team and carrier support.",
-    icon: HeadphonesIcon,
-    link: "/contact"
   }
 ];
 
