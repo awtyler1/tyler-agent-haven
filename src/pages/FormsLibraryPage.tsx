@@ -37,7 +37,7 @@ const FormsLibraryPage = () => {
       ]
     },
     {
-      title: "CMS Model Forms",
+      title: "CMS Forms",
       description: "Official CMS model documents for required disclosures and communications.",
       forms: [
         { name: "CMS Form L564/R297 REQUEST FOR EMPLOYMENT INFORMATION", file: "/downloads/CMS-40B.pdf" },
