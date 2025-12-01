@@ -610,6 +610,9 @@ const carriers = [
       { name: "Broker Connect", url: "https://1b3050-42a8.icpage.net/broker-connect-main-page" },
       { name: "Find a Provider", url: "https://my.wellcare.com/x/hub/public/en/landing-page" },
     ],
+    downloads: [
+      { name: "Wellcare's Commitment to Broker and Service Excellence", url: "/downloads/Wellcare_Commitment_to_Broker_Service_Excellence_2026.pdf" },
+    ],
     summaryOfBenefits: {
       "Kentucky": {
         // Submarkets will be added here
