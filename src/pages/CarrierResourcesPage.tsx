@@ -94,6 +94,7 @@ const carriers = [
           ]
         },
       ],
+      "Northern KY / Greater Ashland / Eastern KY": [],
       "Northern KY / Greater Louisville": [],
       "Select Counties": [],
     },
