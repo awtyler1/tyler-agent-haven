@@ -128,7 +128,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main>
+      <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Header / Identity Section */}
         <section className="pt-32 pb-8 md:pt-40 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
@@ -154,7 +154,7 @@ const Index = () => {
                   key={index}
                   to={tile.link}
                   onClick={() => window.scrollTo(0, 0)}
-                  className="group card-premium p-6 flex flex-col items-center text-center hover:border-gold/40 transition-all duration-300"
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_16px_-2px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] transition-all duration-300"
                 >
                   <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors">
                     <tile.icon className="w-5 h-5 text-gold" />
