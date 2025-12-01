@@ -27,6 +27,9 @@ const carriers = [
       { name: "Kentucky Broker Managers", url: "/downloads/Aetna_KY_Medicare_Broker_Managers.pdf" },
       { name: "Aetna Medicare Extra Benefits Card 2026 Broker Playbook", url: "/downloads/2026_Aetna_Medicare_EBC_Broker_Playbook.pdf" },
     ],
+    downloads: [
+      { name: "Aetna Medicare 2026 KY Market Specific Training", url: "/downloads/Aetna_Medicare_2026_KY_Market_Specific_Training.pdf" },
+    ],
   },
   {
     id: "anthem",
@@ -224,18 +227,35 @@ const CarrierResourcesPage = () => {
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Downloads</h4>
                     <div className="space-y-3">
-                      <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
-                        <FileText size={14} className="text-gold" />
-                        <span>Summary of Benefits</span>
-                      </button>
-                      <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
-                        <FileText size={14} className="text-gold" />
-                        <span>Plan Comparison</span>
-                      </button>
-                      <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
-                        <FileText size={14} className="text-gold" />
-                        <span>Commission Schedule</span>
-                      </button>
+                      {'downloads' in activeCarrier && activeCarrier.downloads ? (
+                        activeCarrier.downloads.map((download, index) => (
+                          <a 
+                            key={index}
+                            href={download.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                          >
+                            <FileText size={14} className="text-gold" />
+                            <span>{download.name}</span>
+                          </a>
+                        ))
+                      ) : (
+                        <>
+                          <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
+                            <FileText size={14} className="text-gold" />
+                            <span>Summary of Benefits</span>
+                          </button>
+                          <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
+                            <FileText size={14} className="text-gold" />
+                            <span>Plan Comparison</span>
+                          </button>
+                          <button className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth">
+                            <FileText size={14} className="text-gold" />
+                            <span>Commission Schedule</span>
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
