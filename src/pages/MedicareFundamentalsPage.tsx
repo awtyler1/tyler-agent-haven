@@ -11,59 +11,76 @@ import {
   HeartHandshake, 
   Calendar, 
   FileCheck, 
-  Users 
+  Users,
+  UserCheck
 } from "lucide-react";
 
-const learningTopics = [
+const fundamentalsTopics = [
   {
     title: "What Is Medicare",
-    description: "Understand the federal health insurance program, eligibility requirements, and how it serves Americans 65+ and those with qualifying disabilities.",
-    icon: BookOpen
+    subtitle: "Federal health insurance program for seniors and qualifying individuals",
+    icon: BookOpen,
+    href: "/medicare-fundamentals/what-is-medicare"
   },
   {
-    title: "Part A – Hospital Insurance",
-    description: "Learn what hospital coverage includes, when it applies, premium structures, and how to explain it clearly to clients.",
-    icon: Building2
+    title: "What Is a Medicare Broker",
+    subtitle: "Your role as an independent advocate and trusted advisor",
+    icon: UserCheck,
+    href: "/medicare-fundamentals/what-is-a-broker"
   },
   {
-    title: "Part B – Medical Insurance",
-    description: "Master outpatient care, doctor visits, preventive services, and how Part B premiums work for beneficiaries.",
-    icon: Stethoscope
+    title: "Part A — Hospital Insurance",
+    subtitle: "Inpatient hospital care, skilled nursing, and related services",
+    icon: Building2,
+    href: "/medicare-fundamentals/part-a"
+  },
+  {
+    title: "Part B — Medical Insurance",
+    subtitle: "Outpatient care, doctor visits, and preventive services",
+    icon: Stethoscope,
+    href: "/medicare-fundamentals/part-b"
   },
   {
     title: "Medicare Advantage (Part C)",
-    description: "Explore private plan alternatives to Original Medicare, including HMO, PPO, and Special Needs Plans with bundled benefits.",
-    icon: Shield
+    subtitle: "Private plan alternatives with bundled coverage and benefits",
+    icon: Shield,
+    href: "/medicare-fundamentals/medicare-advantage"
   },
   {
     title: "Medicare Supplement (Medigap)",
-    description: "Understand standardized Medigap plans, how they work alongside Original Medicare, and when to recommend them.",
-    icon: LifeBuoy
+    subtitle: "Gap coverage for Original Medicare out-of-pocket costs",
+    icon: LifeBuoy,
+    href: "/medicare-fundamentals/medicare-supplement"
   },
   {
-    title: "Part D – Prescription Drug Coverage",
-    description: "Navigate formularies, coverage phases, the donut hole, and how to guide clients through drug plan selection.",
-    icon: Pill
+    title: "Part D — Prescription Drug Coverage",
+    subtitle: "Formularies, tiers, and drug plan selection",
+    icon: Pill,
+    href: "/medicare-fundamentals/part-d"
   },
   {
     title: "LIS & Medicaid",
-    description: "Learn about Low-Income Subsidy (Extra Help), dual eligibility, and how these programs support beneficiaries with limited resources.",
-    icon: HeartHandshake
+    subtitle: "Low-Income Subsidy and dual eligibility programs",
+    icon: HeartHandshake,
+    href: "/medicare-fundamentals/lis-medicaid"
   },
   {
     title: "Enrollment Periods",
-    description: "Master IEP, AEP, OEP, and SEPs — when clients can enroll, switch plans, and the compliance rules around each period.",
-    icon: Calendar
+    subtitle: "When clients can enroll, switch plans, and make changes",
+    icon: Calendar,
+    href: "/medicare-fundamentals/enrollment-periods"
   },
   {
     title: "Compliance Basics",
-    description: "Understand CMS guidelines, SOA requirements, marketing rules, and how to conduct compliant appointments every time.",
-    icon: FileCheck
+    subtitle: "CMS guidelines, SOA requirements, and marketing rules",
+    icon: FileCheck,
+    href: "/medicare-fundamentals/compliance-basics"
   },
   {
     title: "Common Client Scenarios",
-    description: "Prepare for real-world situations: dual eligibles, plan switches, drug coverage questions, and handling objections with confidence.",
-    icon: Users
+    subtitle: "Real-world situations and how to navigate them confidently",
+    icon: Users,
+    href: "/medicare-fundamentals/common-client-scenarios"
   }
 ];
 
@@ -76,11 +93,8 @@ const MedicareFundamentalsPage = () => {
         <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <h1 className="heading-display mb-4">Medicare Fundamentals</h1>
-            <p className="text-xl md:text-2xl text-foreground font-medium mb-6 max-w-3xl mx-auto">
-              The essential foundation every Medicare professional must master.
-            </p>
-            <p className="text-sm text-gold/80 font-medium tracking-wide">
-              Full module launches January 2026.
+            <p className="text-xl md:text-2xl text-foreground font-medium max-w-3xl mx-auto">
+              Your foundation as a Medicare professional.
             </p>
           </div>
         </section>
@@ -90,22 +104,23 @@ const MedicareFundamentalsPage = () => {
           <div className="container-narrow">
             <div className="max-w-3xl mx-auto text-center">
               <p className="text-body leading-relaxed">
-                This module provides the core framework every Medicare agent must understand. It equips new agents with a clear foundation and gives experienced agents a reliable reference point. Mastering these fundamentals ensures you can confidently guide clients through every aspect of Medicare with clarity and precision.
+                This section provides a complete understanding of Medicare and prepares you for real-world selling and client service. Master these fundamentals to guide clients with clarity, confidence, and precision through every aspect of Medicare coverage.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Core Learning Sections */}
+        {/* Topic Tiles */}
         <section className="section-padding">
           <div className="container-narrow">
             <div className="grid md:grid-cols-2 gap-6">
-              {learningTopics.map((topic, index) => (
-                <div 
+              {fundamentalsTopics.map((topic, index) => (
+                <Link
                   key={index}
-                  className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
+                  to={topic.href}
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer block"
                 >
-                  <div className="flex items-start gap-4 mb-4">
+                  <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
                       <topic.icon className="w-6 h-6 text-gold" />
                     </div>
@@ -113,43 +128,13 @@ const MedicareFundamentalsPage = () => {
                       <h3 className="text-xl font-semibold text-foreground mb-2">
                         {topic.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {topic.description}
+                      <p className="text-sm text-muted-foreground">
+                        {topic.subtitle}
                       </p>
-                      <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
-                        <span className="text-xs font-medium text-gold">
-                          Module Launching January 2026
-                        </span>
-                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* How to Study Section */}
-        <section className="section-padding bg-cream">
-          <div className="container-narrow">
-            <div className="max-w-3xl mx-auto">
-              <div className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)]">
-                <h2 className="text-2xl font-semibold text-foreground mb-4">How to Study This Module</h2>
-                <p className="text-body leading-relaxed">
-                  Once this module launches in January 2026, you'll receive a structured learning path with video lessons, reference materials, quizzes, and practical scenarios. Each section will build on the previous one, ensuring you develop a complete understanding of Medicare fundamentals. Until then, explore the topics above to see what's coming.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Coming Soon Banner */}
-        <section className="section-padding">
-          <div className="container-narrow text-center">
-            <div className="inline-flex items-center px-6 py-3 rounded-md bg-gold/10 border border-gold/20">
-              <span className="text-sm font-medium text-gold">
-                Full Medicare Fundamentals training launches January 2026.
-              </span>
             </div>
           </div>
         </section>
