@@ -6,18 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PasswordGate from "./components/PasswordGate";
 import Index from "./pages/Index";
 import StartHerePage from "./pages/StartHerePage";
-import MedicareFundamentalsPage from "./pages/MedicareFundamentalsPage";
-import WhatIsMedicare from "./pages/medicare-fundamentals/WhatIsMedicare";
-import WhatIsABroker from "./pages/medicare-fundamentals/WhatIsABroker";
-import PartA from "./pages/medicare-fundamentals/PartA";
-import PartB from "./pages/medicare-fundamentals/PartB";
-import MedicareAdvantage from "./pages/medicare-fundamentals/MedicareAdvantage";
-import MedicareSupplement from "./pages/medicare-fundamentals/MedicareSupplement";
-import PartD from "./pages/medicare-fundamentals/PartD";
-import LISMedicaid from "./pages/medicare-fundamentals/LISMedicaid";
-import EnrollmentPeriods from "./pages/medicare-fundamentals/EnrollmentPeriods";
-import ComplianceBasics from "./pages/medicare-fundamentals/ComplianceBasics";
-import CommonClientScenarios from "./pages/medicare-fundamentals/CommonClientScenarios";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
 import LeadsMarketingPage from "./pages/LeadsMarketingPage";
 import SalesTrainingPage from "./pages/SalesTrainingPage";
@@ -46,18 +34,6 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/start-here" element={<StartHerePage />} />
             <Route path="/contracting-hub" element={<ContractingHubPage />} />
-            <Route path="/medicare-fundamentals" element={<MedicareFundamentalsPage />} />
-            <Route path="/medicare-fundamentals/what-is-medicare" element={<WhatIsMedicare />} />
-            <Route path="/medicare-fundamentals/what-is-a-broker" element={<WhatIsABroker />} />
-            <Route path="/medicare-fundamentals/part-a" element={<PartA />} />
-            <Route path="/medicare-fundamentals/part-b" element={<PartB />} />
-            <Route path="/medicare-fundamentals/medicare-advantage" element={<MedicareAdvantage />} />
-            <Route path="/medicare-fundamentals/medicare-supplement" element={<MedicareSupplement />} />
-            <Route path="/medicare-fundamentals/part-d" element={<PartD />} />
-            <Route path="/medicare-fundamentals/lis-medicaid" element={<LISMedicaid />} />
-            <Route path="/medicare-fundamentals/enrollment-periods" element={<EnrollmentPeriods />} />
-            <Route path="/medicare-fundamentals/compliance-basics" element={<ComplianceBasics />} />
-            <Route path="/medicare-fundamentals/common-client-scenarios" element={<CommonClientScenarios />} />
             <Route path="/industry-updates" element={<IndustryUpdatesPage />} />
             <Route path="/leads-marketing" element={<LeadsMarketingPage />} />
             <Route path="/sales-training" element={<SalesTrainingPage />} />
