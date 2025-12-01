@@ -309,7 +309,14 @@ const carriers = [
     ],
     summaryOfBenefits: {
       "Kentucky": {
-        "Humana Community": [],
+        "Humana Community": [
+          {
+            name: "Humana Community (HMO) H1036-236-000 - Louisville",
+            sob: "/downloads/Humana_Community_HMO_H1036-236-000_SOB_2026.pdf",
+            eoc: "/downloads/Humana_Community_HMO_H1036-236-000_EOC_2026.pdf",
+            anoc: "/downloads/Humana_Community_HMO_H1036-236-000_ANOC_2026.pdf",
+          },
+        ],
         "Humana Gold Plus (HMO)": [],
         "C-SNP": [],
         "D-SNP": [],
