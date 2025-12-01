@@ -14,40 +14,48 @@ const updates = [
   {
     id: 1,
     category: "cms",
+    title: "2026 Medicare Parts B Premiums & Deductibles",
+    date: "2024-11-07",
+    excerpt: "Official CMS announcement of 2026 Medicare Part B premiums and deductibles.",
+    url: "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+  },
+  {
+    id: 2,
+    category: "cms",
     title: "2024 Medicare Final Rule Summary",
     date: "2024-01-15",
     excerpt: "Key changes to Medicare Advantage and Part D programs for the upcoming year.",
   },
   {
-    id: 2,
+    id: 3,
     category: "carrier",
     title: "Aetna Plan Updates - Q1 2024",
     date: "2024-01-10",
     excerpt: "Summary of benefit changes and new plan offerings from Aetna.",
   },
   {
-    id: 3,
+    id: 4,
     category: "product",
     title: "New DSNP Plans Available",
     date: "2024-01-08",
     excerpt: "Dual Special Needs Plans now available in expanded service areas.",
   },
   {
-    id: 4,
+    id: 5,
     category: "trends",
     title: "Medicare Enrollment Trends 2024",
     date: "2024-01-05",
     excerpt: "Analysis of enrollment patterns and market opportunities.",
   },
   {
-    id: 5,
+    id: 6,
     category: "cms",
     title: "Marketing Guidelines Reminder",
     date: "2024-01-03",
     excerpt: "Important compliance reminders for agent marketing activities.",
   },
   {
-    id: 6,
+    id: 7,
     category: "carrier",
     title: "UnitedHealthcare Commission Updates",
     date: "2024-01-02",
@@ -116,6 +124,7 @@ const IndustryUpdatesPage = () => {
                 <article 
                   key={update.id}
                   className="card-premium flex items-start justify-between gap-4 cursor-pointer group"
+                  onClick={() => update.url && window.open(update.url, '_blank')}
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
