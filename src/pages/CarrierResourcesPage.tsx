@@ -712,18 +712,8 @@ const CarrierResourcesPage = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       <main>
-        {/* Hero */}
-        <section className="pt-32 pb-8 md:pt-40 md:pb-12 px-6 md:px-12 lg:px-20 bg-cream">
-          <div className="container-narrow">
-            <h1 className="heading-display mb-4">Carrier Resources</h1>
-            <p className="text-body max-w-2xl">
-              Everything you need, organized by carrier. Fast access. No wasted time.
-            </p>
-          </div>
-        </section>
-
         {/* Carrier Selection Grid */}
-        <section className="px-6 md:px-12 lg:px-20 py-8 bg-cream border-b border-border">
+        <section className="px-6 md:px-12 lg:px-20 pt-24 md:pt-28 pb-4 bg-cream border-b border-border">
           <div className="container-narrow">
             <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
               {carriers.map((carrier) => (
@@ -756,7 +746,7 @@ const CarrierResourcesPage = () => {
 
         {/* Selected Carrier Details */}
         {activeCarrier && (
-          <section className="section-padding">
+          <section className="px-6 md:px-12 lg:px-20 py-6">
             <div className="container-narrow">
               <div className="border border-border rounded-lg p-6 md:p-8 animate-fade-in">
                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
