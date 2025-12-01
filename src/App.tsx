@@ -9,6 +9,7 @@ import StartHerePage from "./pages/StartHerePage";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
 import SalesTrainingPage from "./pages/SalesTrainingPage";
 import TrainingLibraryPage from "./pages/TrainingLibraryPage";
+import MedicareFundamentalsPage from "./pages/MedicareFundamentalsPage";
 import CompliancePage from "./pages/CompliancePage";
 import CarrierResourcesPage from "./pages/CarrierResourcesPage";
 import AgentToolsPage from "./pages/AgentToolsPage";
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/industry-updates" element={<IndustryUpdatesPage />} />
             <Route path="/sales-training" element={<SalesTrainingPage />} />
             <Route path="/training-library" element={<TrainingLibraryPage />} />
+            <Route path="/medicare-fundamentals" element={<MedicareFundamentalsPage />} />
             <Route path="/compliance" element={<CompliancePage />} />
             <Route path="/carrier-resources" element={<CarrierResourcesPage />} />
             <Route path="/agent-tools" element={<AgentToolsPage />} />

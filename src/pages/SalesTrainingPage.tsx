@@ -55,17 +55,19 @@ const SalesTrainingPage = () => {
         <section className="px-6 md:px-12 lg:px-20 pb-12">
           <div className="container-narrow">
             <div className="grid md:grid-cols-3 gap-5">
-              {trainingModules.map((module, index) => (
-                <div
-                  key={index}
-                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer"
-                >
+              {trainingModules.map((module, index) => {
+                const moduleLinks: { [key: string]: string } = {
+                  "Medicare Fundamentals": "/medicare-fundamentals"
+                };
+                
+                const hasLink = moduleLinks[module.title];
+                const tileContent = (
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
                       <module.icon className="w-5 h-5 text-gold" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-foreground mb-1.5">
+                      <h3 className="text-base font-semibold text-foreground mb-1.5">
                         {module.title}
                       </h3>
                       <p className="text-xs text-muted-foreground">
@@ -73,8 +75,25 @@ const SalesTrainingPage = () => {
                       </p>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+                
+                return hasLink ? (
+                  <Link
+                    key={index}
+                    to={moduleLinks[module.title]}
+                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer"
+                  >
+                    {tileContent}
+                  </Link>
+                ) : (
+                  <div
+                    key={index}
+                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer"
+                  >
+                    {tileContent}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
