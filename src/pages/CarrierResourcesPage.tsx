@@ -48,6 +48,7 @@ const carriers = [
           planName: "Aetna Medicare Signature (HMO-POS) H0628 - 010", 
           documents: [
             { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_ANOC_2026.pdf" },
           ]
         },
       ],
