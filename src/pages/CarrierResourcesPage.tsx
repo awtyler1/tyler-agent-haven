@@ -214,6 +214,14 @@ const carriers = [
             { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-002_Application_2026.pdf" },
           ]
         },
+        {
+          planName: "Anthem Kidney Care (HMO-POS C-SNP) H9525-011-000",
+          documents: [
+            { type: "SOB", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_SOB_2026.pdf" },
+            { type: "EOC", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_EOC_2026.pdf" },
+            { type: "Enrollment Application", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_Application_2026.pdf" },
+          ]
+        },
       ],
     },
   },
