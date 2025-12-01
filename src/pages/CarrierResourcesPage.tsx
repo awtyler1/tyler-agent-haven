@@ -617,7 +617,15 @@ const carriers = [
     ],
     summaryOfBenefits: {
       "Kentucky": {
-        "HMO": [],
+        "HMO": [
+          {
+            planName: "Wellcare Simple (HMO-POS) H9730-009-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Wellcare_Simple_HMO-POS_H9730-009_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Wellcare_Simple_HMO-POS_H9730-009_EOC_2026.pdf" },
+            ],
+          },
+        ],
         "PPO": [],
         "DSNP": [],
       },
