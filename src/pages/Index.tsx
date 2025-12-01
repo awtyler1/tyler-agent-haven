@@ -130,19 +130,19 @@ const Index = () => {
       <Navigation />
       <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Header / Identity Section */}
-        <section className="pt-32 pb-8 md:pt-40 md:pb-10 px-6 md:px-12 lg:px-20">
+        <section className="pt-20 pb-6 md:pt-24 md:pb-6 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <img 
               src={tylerLogo} 
               alt="Tyler Insurance Group" 
-              className="h-24 md:h-28 mx-auto mb-6"
+              className="h-28 md:h-32 mx-auto mb-5"
               style={{ 
                 filter: 'contrast(1.1) saturate(1.1)',
                 mixBlendMode: 'multiply'
               }}
             />
-            <h1 className="heading-display mb-3">Tyler Insurance Group Agent Platform</h1>
-            <p className="text-body max-w-2xl mx-auto mb-6" style={{ color: 'hsl(30 10% 20%)' }}>
+            <h1 className="heading-display mb-2">Tyler Insurance Group Agent Platform</h1>
+            <p className="text-body max-w-2xl mx-auto mb-4" style={{ color: 'hsl(30 10% 20%)' }}>
               Your control center for contracting, certifications, tools, training, and support.
             </p>
             <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mx-auto"></div>
@@ -150,7 +150,7 @@ const Index = () => {
         </section>
 
         {/* Control Center Grid */}
-        <section className="pb-12 px-6 md:px-12 lg:px-20">
+        <section className="pb-8 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6">
               {controlCenterTiles.map((tile, index) => (
