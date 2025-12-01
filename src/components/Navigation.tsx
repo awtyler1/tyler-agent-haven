@@ -8,17 +8,7 @@ const navLinks = [
   { name: "Start Here", href: "/start-here" },
   { name: "Contracting Hub", href: "/contracting-hub" },
   { name: "Certifications", href: "/certifications" },
-  { 
-    name: "Training", 
-    href: "/medicare-fundamentals",
-    submenu: [
-      { name: "Medicare Fundamentals", href: "/medicare-fundamentals" },
-      { name: "Sales Training", href: "/sales-training" },
-      { name: "Cross Selling", href: "/cross-selling" },
-      { name: "Industry & Market Updates", href: "/industry-updates" },
-      { name: "Leads & Marketing", href: "/leads-marketing" },
-    ]
-  },
+  { name: "Training Hub", href: "/sales-training" },
   { 
     name: "Agent Tools", 
     href: "/agent-tools",
@@ -89,7 +79,7 @@ const Navigation = () => {
               <div 
                 key={link.name} 
                 className="relative group"
-                onMouseEnter={() => (link.submenu || link.sections) && setOpenSubmenu(link.name)}
+                onMouseEnter={() => (('submenu' in link && link.submenu) || ('sections' in link && link.sections)) && setOpenSubmenu(link.name)}
                 onMouseLeave={() => setOpenSubmenu(null)}
               >
                 <Link
@@ -98,13 +88,13 @@ const Navigation = () => {
                   className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide flex items-center gap-1 whitespace-nowrap"
                 >
                   {link.name}
-                  {(link.submenu || link.sections) && <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />}
+                  {(('submenu' in link && link.submenu) || ('sections' in link && link.sections)) && <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />}
                 </Link>
                 
-                {link.submenu && openSubmenu === link.name && (
+                {'submenu' in link && link.submenu && openSubmenu === link.name && Array.isArray(link.submenu) && (
                   <div className="absolute top-full left-0 pt-2 w-56 animate-fade-in">
                     <div className="bg-background border border-border rounded-lg shadow-elevated py-2">
-                      {link.submenu.map((subitem) => (
+                      {(link.submenu as Array<{name: string; href: string; external?: boolean}>).map((subitem) => (
                         'external' in subitem && subitem.external ? (
                           <a
                             key={subitem.name}
@@ -129,7 +119,7 @@ const Navigation = () => {
                   </div>
                 )}
                 
-                {link.sections && openSubmenu === link.name && (
+                {'sections' in link && link.sections && openSubmenu === link.name && (
                   <div className="absolute top-full left-0 pt-2 w-64 animate-fade-in">
                     <div className="bg-background border border-border rounded-lg shadow-elevated py-2">
                       {link.sections.map((section, sectionIndex) => (
@@ -184,14 +174,14 @@ const Navigation = () => {
                 <div key={link.name}>
                   <Link
                     to={link.href}
-                    onClick={() => !link.submenu && setIsOpen(false)}
+                    onClick={() => !('submenu' in link && link.submenu) && setIsOpen(false)}
                     className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide uppercase py-2 block"
                   >
                     {link.name}
                   </Link>
-                  {link.submenu && (
+                  {'submenu' in link && link.submenu && Array.isArray(link.submenu) && (
                     <div className="pl-4 border-l border-border ml-2">
-                      {link.submenu.map((subitem) => (
+                      {(link.submenu as Array<{name: string; href: string; external?: boolean}>).map((subitem) => (
                         'external' in subitem && subitem.external ? (
                           <a
                             key={subitem.name}
@@ -216,7 +206,7 @@ const Navigation = () => {
                       ))}
                     </div>
                   )}
-                  {link.sections && (
+                  {'sections' in link && link.sections && (
                     <div className="pl-4 border-l border-border ml-2">
                       {link.sections.map((section) => (
                         <div key={section.title} className="mt-2">
