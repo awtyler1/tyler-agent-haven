@@ -43,7 +43,14 @@ const carriers = [
         },
       ],
       "Footprint-wide": [],
-      "Greater Ashland / Eastern KY": [],
+      "Greater Ashland / Eastern KY": [
+        { 
+          planName: "Aetna Medicare Signature (HMO-POS) H0628 - 010", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_SOB_2026.pdf" },
+          ]
+        },
+      ],
       "Greater Lexington": [
         { 
           planName: "Aetna Medicare Signature (HMO-POS) H0628 - 008", 
