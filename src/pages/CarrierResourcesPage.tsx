@@ -175,50 +175,52 @@ const carriers = [
       { name: "Non-Commissionable Plans", url: "/downloads/Anthem_Non-Commissionable-MA-Plans_ABCBS.pdf" },
     ],
     summaryOfBenefits: {
-      "Kentucky": [
-        {
-          planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-001",
-          nonCommissionable: true,
-          documents: [
-            { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_SOB_2026.pdf" },
-            { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_EOC_2026.pdf" },
-            { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_Application_2026.pdf" },
-          ]
-        },
-        {
-          planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-005",
-          documents: [
-            { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_SOB_2026.pdf" },
-            { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_EOC_2026.pdf" },
-            { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_Application_2026.pdf" },
-          ]
-        },
-        {
-          planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-003",
-          documents: [
-            { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_SOB_2026.pdf" },
-            { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_EOC_2026.pdf" },
-            { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_Application_2026.pdf" },
-          ]
-        },
-        {
-          planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-002",
-          documents: [
-            { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-002_SOB_2026.pdf" },
-            { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-002_EOC_2026.pdf" },
-            { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-002_Application_2026.pdf" },
-          ]
-        },
-        {
-          planName: "Anthem Kidney Care (HMO-POS C-SNP) H9525-011-000",
-          nonCommissionable: true,
-          documents: [
-            { type: "SOB", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_SOB_2026.pdf" },
-            { type: "EOC", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_EOC_2026.pdf" },
-            { type: "Enrollment Application", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_Application_2026.pdf" },
-          ]
-        },
-      ],
+      "Kentucky": {
+        "HMO": [
+          {
+            planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-001",
+            nonCommissionable: true,
+            documents: [
+              { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_EOC_2026.pdf" },
+              { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_Application_2026.pdf" },
+            ]
+          },
+          {
+            planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-005",
+            documents: [
+              { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_EOC_2026.pdf" },
+              { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_Application_2026.pdf" },
+            ]
+          },
+          {
+            planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-003",
+            documents: [
+              { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_EOC_2026.pdf" },
+              { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_Application_2026.pdf" },
+            ]
+          },
+          {
+            planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-002",
+            documents: [
+              { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-002_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-002_EOC_2026.pdf" },
+              { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-002_Application_2026.pdf" },
+            ]
+          },
+          {
+            planName: "Anthem Kidney Care (HMO-POS C-SNP) H9525-011-000",
+            nonCommissionable: true,
+            documents: [
+              { type: "SOB", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_EOC_2026.pdf" },
+              { type: "Enrollment Application", url: "/downloads/Anthem_Kidney_Care_HMO-POS_C-SNP_H9525-011-000_Application_2026.pdf" },
+            ]
+          },
+        ],
+      },
     },
   },
   {
