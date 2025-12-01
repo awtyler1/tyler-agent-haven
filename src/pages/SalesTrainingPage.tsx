@@ -7,39 +7,32 @@ const trainingModules = [
   {
     title: "Medicare Fundamentals",
     subtitle: "The foundation of every Medicare agent.",
-    icon: GraduationCap,
-    label: "Module Launching January 2026"
+    icon: GraduationCap
   },
   {
     title: "Sales Training",
     subtitle: "Master communication, appointment flow, and the art of closing.",
-    icon: Target,
-    label: "Module Launching January 2026"
+    icon: Target
   },
   {
     title: "Leads & Marketing",
     subtitle: "Generate consistent opportunities and build your pipeline.",
-    icon: TrendingUp,
-    label: "Module Launching January 2026"
+    icon: TrendingUp
   },
   {
     title: "Cross Selling",
     subtitle: "Increase client value and strengthen relationships the right way.",
-    icon: Users,
-    label: "Module Launching January 2026"
+    icon: Users
   },
   {
     title: "Industry & Market Updates",
     subtitle: "Stay current. Stay competitive. Stay sharp.",
-    icon: Newspaper,
-    label: "Updated throughout the year — full module coming 2026."
+    icon: Newspaper
   },
   {
     title: "Training Library",
     subtitle: "A complete archive of all videos, articles, and downloadable documents.",
-    icon: Library,
-    label: "Access Now",
-    href: "/training-library"
+    icon: Library
   }
 ];
 
@@ -52,11 +45,8 @@ const SalesTrainingPage = () => {
         <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <h1 className="heading-display mb-3">Training Hub</h1>
-            <p className="text-lg md:text-xl text-foreground font-medium mb-4 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
               Master the craft. Build your skills. Become an elite Medicare professional.
-            </p>
-            <p className="text-sm text-gold/80 font-medium tracking-wide">
-              Full modules launch January 2026.
             </p>
           </div>
         </section>
@@ -66,56 +56,24 @@ const SalesTrainingPage = () => {
           <div className="container-narrow">
             <div className="grid md:grid-cols-3 gap-5">
               {trainingModules.map((module, index) => (
-                module.href ? (
-                  <Link
-                    key={index}
-                    to={module.href}
-                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer block"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                        <module.icon className="w-5 h-5 text-gold" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-foreground mb-1.5">
-                          {module.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          {module.subtitle}
-                        </p>
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
-                          <span className="text-xs font-medium text-gold">
-                            {module.label}
-                          </span>
-                        </div>
-                      </div>
+                <div
+                  key={index}
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                      <module.icon className="w-5 h-5 text-gold" />
                     </div>
-                  </Link>
-                ) : (
-                  <div 
-                    key={index}
-                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                        <module.icon className="w-5 h-5 text-gold" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-foreground mb-1.5">
-                          {module.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          {module.subtitle}
-                        </p>
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
-                          <span className="text-xs font-medium text-gold">
-                            {module.label}
-                          </span>
-                        </div>
-                      </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-foreground mb-1.5">
+                        {module.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {module.subtitle}
+                      </p>
                     </div>
                   </div>
-                )
+                </div>
               ))}
             </div>
           </div>
