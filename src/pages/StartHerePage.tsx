@@ -65,9 +65,6 @@ const StartHerePage = () => {
         <section className="pt-20 pb-6 md:pt-24 md:pb-8 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <h1 className="heading-display mb-3">Your Onboarding Roadmap</h1>
-            <p className="text-body-large max-w-2xl mx-auto" style={{ color: 'hsl(30 10% 40%)' }}>
-              Your first steps toward operating with clarity and confidence.
-            </p>
           </div>
         </section>
 
