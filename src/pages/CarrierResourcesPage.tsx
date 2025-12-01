@@ -170,7 +170,7 @@ const CarrierResourcesPage = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {/* Contacts */}
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Contacts</h4>
+                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-4">Contacts</h4>
                     <div className="space-y-4">
                       {activeCarrier.contacts.map((contact, index) => (
                         <div key={index} className="space-y-1">
@@ -203,7 +203,7 @@ const CarrierResourcesPage = () => {
 
                   {/* Quick Links */}
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Quick Links</h4>
+                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-4">Quick Links</h4>
                     <div className="space-y-3">
                       {activeCarrier.links.map((link, index) => (
                         <div key={index}>
@@ -226,7 +226,7 @@ const CarrierResourcesPage = () => {
 
                   {/* Downloads */}
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Downloads</h4>
+                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-4">Downloads</h4>
                     <div className="space-y-3">
                       {'downloads' in activeCarrier && activeCarrier.downloads ? (
                         activeCarrier.downloads.map((download, index) => (
@@ -264,7 +264,7 @@ const CarrierResourcesPage = () => {
                 {/* Summary of Benefits Section */}
                 {'summaryOfBenefits' in activeCarrier && activeCarrier.summaryOfBenefits && (
                   <div className="mt-8 pt-6 border-t border-border">
-                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Summary of Benefits</h4>
+                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-4">Summary of Benefits</h4>
                     {activeCarrier.summaryOfBenefits.length > 0 ? (
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {activeCarrier.summaryOfBenefits.map((sob, index) => (
