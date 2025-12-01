@@ -86,9 +86,9 @@ const MedicareFundamentalsPage = () => {
       <Navigation />
       <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Hero Section */}
-        <section className="pt-28 pb-6 px-6 md:px-12 lg:px-20">
+        <section className="pt-24 pb-4 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-3">Medicare Fundamentals</h1>
+            <h1 className="heading-display mb-2">Medicare Fundamentals</h1>
             <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
               Your foundation as a Medicare professional.
             </p>
@@ -96,7 +96,7 @@ const MedicareFundamentalsPage = () => {
         </section>
 
         {/* Intro Paragraph */}
-        <section className="px-6 md:px-12 lg:px-20 pb-6">
+        <section className="px-6 md:px-12 lg:px-20 pb-4">
           <div className="container-narrow">
             <p className="text-sm text-body leading-relaxed max-w-3xl mx-auto text-center">
               This section gives you a clear, disciplined understanding of how Medicare works. It prepares you to explain the program, guide clients, and make confident decisions in the field.
@@ -105,23 +105,23 @@ const MedicareFundamentalsPage = () => {
         </section>
 
         {/* Fundamentals Tile Grid */}
-        <section className="px-6 md:px-12 lg:px-20 pb-12">
+        <section className="px-6 md:px-12 lg:px-20 pb-8">
           <div className="container-narrow">
-            <div className="grid md:grid-cols-3 gap-5">
+            <div className="grid md:grid-cols-4 gap-4">
               {fundamentalsTiles.map((tile, index) => (
                 <div
                   key={index}
-                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer"
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-4 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                      <tile.icon className="w-5 h-5 text-gold" />
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                      <tile.icon className="w-4 h-4 text-gold" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-base font-semibold text-foreground mb-1.5">
+                      <h3 className="text-sm font-semibold text-foreground mb-1">
                         {tile.title}
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground leading-tight">
                         {tile.subtitle}
                       </p>
                     </div>
@@ -133,7 +133,7 @@ const MedicareFundamentalsPage = () => {
         </section>
 
         {/* Back to Training Hub */}
-        <section className="px-6 md:px-12 lg:px-20 pb-12">
+        <section className="px-6 md:px-12 lg:px-20 pb-8">
           <div className="container-narrow text-center">
             <Link
               to="/sales-training"
