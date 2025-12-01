@@ -81,7 +81,7 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
             <img
               src={tylerLogo}
               alt="Tyler Insurance Group"
-              className="h-20 mx-auto"
+              className="h-28 md:h-32 mx-auto"
             />
           </div>
 
