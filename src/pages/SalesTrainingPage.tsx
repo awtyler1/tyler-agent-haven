@@ -8,8 +8,7 @@ const trainingModules = [
     title: "Medicare Fundamentals",
     subtitle: "The foundation of every Medicare agent.",
     icon: GraduationCap,
-    label: "Module Launching January 2026",
-    href: "/medicare-fundamentals"
+    label: "Module Launching January 2026"
   },
   {
     title: "Sales Training",
