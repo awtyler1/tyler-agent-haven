@@ -14,27 +14,27 @@ const CarrierResourcesPage = () => {
       <Navigation />
       <main>
         {/* Carrier Selection Grid */}
-        <section className="px-6 md:px-12 lg:px-20 pt-24 md:pt-28 pb-4 bg-cream border-b border-border">
+        <section className="px-6 md:px-12 lg:px-20 pt-20 md:pt-24 pb-3 bg-cream border-b border-border">
           <div className="container-narrow">
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
               {carriers.map((carrier) => (
                 <button
                   key={carrier.id}
                   onClick={() => setSelectedCarrier(carrier.id)}
-                  className={`flex flex-col items-center gap-2 p-3 md:p-4 rounded-lg border transition-all ${
+                  className={`flex flex-col items-center gap-1.5 p-2.5 rounded-lg border transition-all ${
                     selectedCarrier === carrier.id
                       ? "border-gold bg-white shadow-md"
                       : "border-border bg-white/50 hover:bg-white hover:border-gold/50"
                   }`}
                 >
-                  <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">
+                  <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
                     <img 
                       src={carrier.logo} 
                       alt={`${carrier.name} logo`} 
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <span className={`text-xs md:text-sm font-medium text-center leading-tight ${
+                  <span className={`text-[10px] md:text-xs font-medium text-center leading-tight ${
                     selectedCarrier === carrier.id ? "text-gold" : "text-muted-foreground"
                   }`}>
                     {carrier.name}
@@ -47,58 +47,58 @@ const CarrierResourcesPage = () => {
 
         {/* Selected Carrier Details */}
         {activeCarrier && (
-          <section className="px-6 md:px-12 lg:px-20 py-6">
+          <section className="px-6 md:px-12 lg:px-20 py-4">
             <div className="container-narrow">
-              <div className="border border-border rounded-lg p-6 md:p-8 animate-fade-in">
-                <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
-                  <div className="w-16 h-16 rounded-lg bg-white border border-border flex items-center justify-center p-2">
+              <div className="border border-border rounded-lg p-4 md:p-5 animate-fade-in">
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
+                  <div className="w-12 h-12 rounded-lg bg-white border border-border flex items-center justify-center p-2">
                     <img 
                       src={activeCarrier.logo} 
                       alt={`${activeCarrier.name} logo`} 
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <h2 className="heading-section">{activeCarrier.name}</h2>
+                  <h2 className="text-xl font-semibold text-foreground">{activeCarrier.name}</h2>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-5">
                   {/* Contacts */}
                   <div>
-                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-4">Contacts</h4>
-                    <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Contacts</h4>
+                    <div className="space-y-3">
                       {activeCarrier.contacts.map((contact, index) => (
-                        <div key={index} className="space-y-1">
+                        <div key={index} className="space-y-0.5">
                           {'name' in contact ? (
                             <>
-                              <p className="text-sm font-medium text-foreground">{contact.name}</p>
+                              <p className="text-sm font-medium text-foreground leading-tight">{contact.name}</p>
                               {'role' in contact && contact.role && (
-                                <p className="text-xs text-muted-foreground">{contact.role}{('region' in contact && contact.region) ? ` – ${contact.region}` : ''}</p>
+                                <p className="text-xs text-muted-foreground leading-tight">{contact.role}{('region' in contact && contact.region) ? ` – ${contact.region}` : ''}</p>
                               )}
                             </>
                           ) : (
                             <>
-                              <p className="text-sm font-medium text-foreground">{contact.type}</p>
+                              <p className="text-sm font-medium text-foreground leading-tight">{contact.type}</p>
                               {'subtitle' in contact && contact.subtitle && (
-                                <p className="text-xs text-muted-foreground">{contact.subtitle}</p>
+                                <p className="text-xs text-muted-foreground leading-tight">{contact.subtitle}</p>
                               )}
                             </>
                           )}
-                          <div className="flex flex-col gap-1 mt-1">
+                          <div className="flex flex-col gap-0.5 mt-1">
                             {(('phone' in contact && contact.phone) || ('number' in contact && contact.number)) && (
                               <a 
                                 href={`tel:${'phone' in contact ? contact.phone : contact.number}`}
-                                className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                                className="flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth"
                               >
-                                <Phone size={14} className="text-gold" />
+                                <Phone size={12} className="text-gold" />
                                 <span>{'phone' in contact ? contact.phone : contact.number}</span>
                               </a>
                             )}
                             {'email' in contact && contact.email && (
                               <a 
                                 href={`mailto:${contact.email}`}
-                                className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                                className="flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth"
                               >
-                                <Mail size={14} className="text-gold" />
+                                <Mail size={12} className="text-gold" />
                                 <span>{contact.email}</span>
                               </a>
                             )}
@@ -110,21 +110,21 @@ const CarrierResourcesPage = () => {
 
                   {/* Quick Links */}
                   <div>
-                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-4">Quick Links</h4>
-                    <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Quick Links</h4>
+                    <div className="space-y-2">
                       {activeCarrier.links.map((link, index) => (
                         <div key={index}>
                           <a 
                             href={link.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                            className="flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth"
                           >
-                            <ExternalLink size={14} className="text-gold flex-shrink-0" />
+                            <ExternalLink size={12} className="text-gold flex-shrink-0" />
                             <span>{link.name}</span>
                           </a>
                           {'subtext' in link && link.subtext && (
-                            <p className="text-xs text-muted-foreground ml-[22px] mt-0.5">{link.subtext}</p>
+                            <p className="text-xs text-muted-foreground ml-[18px] mt-0.5">{link.subtext}</p>
                           )}
                         </div>
                       ))}
@@ -133,8 +133,8 @@ const CarrierResourcesPage = () => {
 
                   {/* Downloads */}
                   <div>
-                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-4">Downloads</h4>
-                    <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Downloads</h4>
+                    <div className="space-y-2">
                       {'downloads' in activeCarrier && activeCarrier.downloads ? (
                         activeCarrier.downloads.map((download, index) => (
                           <a 
@@ -142,30 +142,30 @@ const CarrierResourcesPage = () => {
                             href={download.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                            className="flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth"
                           >
-                            <FileText size={14} className="text-gold" />
+                            <FileText size={12} className="text-gold" />
                             <span>{download.name}</span>
                           </a>
                         ))
                       ) : (
-                        <p className="text-sm text-muted-foreground">No downloads available</p>
+                        <p className="text-xs text-muted-foreground">No downloads available</p>
                       )}
                     </div>
                   </div>
                 </div>
 
                 {/* Plan Documents Button */}
-                <div className="pt-6 border-t border-border">
+                <div className="pt-4 border-t border-border">
                   <Link
                     to="/carrier-resources/plans"
-                    className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gold rounded-lg text-white font-semibold hover:bg-gold/90 transition-all duration-200 shadow-md hover:shadow-lg"
+                    className="flex items-center justify-center gap-2.5 w-full px-5 py-3 bg-gold rounded-lg text-white text-sm font-semibold hover:bg-gold/90 transition-all duration-200 shadow-md hover:shadow-lg"
                   >
-                    <FileText size={20} />
+                    <FileText size={18} />
                     <span>View Plan Documents</span>
-                    <ArrowRight size={20} />
+                    <ArrowRight size={18} />
                   </Link>
-                  <p className="text-xs text-muted-foreground text-center mt-3">
+                  <p className="text-[11px] text-muted-foreground text-center mt-2">
                     Access SOB, EOC, ANOC, and formulary documents for all {activeCarrier.name} plans
                   </p>
                 </div>
