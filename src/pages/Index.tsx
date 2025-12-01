@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Rocket, FileText, Award, Wrench, GraduationCap, Building2, ExternalLink, Check, X } from "lucide-react";
+import { Rocket, FileText, Award, Wrench, GraduationCap, Building2, ExternalLink, Check, X, FolderOpen } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
 import austinHeadshot from "@/assets/austin-headshot.jpg";
 import andrewHeadshot from "@/assets/andrew-headshot.png";
@@ -43,6 +43,12 @@ const controlCenterTiles = [
     description: "Medicare Fundamentals, Sales Training, and Leads & Marketing.",
     icon: GraduationCap,
     link: "/sales-training"
+  },
+  {
+    title: "Forms Library",
+    description: "SOA, HIPAA, enrollment worksheets, and essential appointment forms.",
+    icon: FolderOpen,
+    link: "/forms-library"
   }
 ];
 
