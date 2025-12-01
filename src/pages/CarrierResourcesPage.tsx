@@ -246,6 +246,7 @@ const carriers = [
     ],
     downloads: [
       { name: "Broker Manual", url: "/downloads/Devoted_Health_Broker_Manual.pdf" },
+      { name: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
     ],
     summaryOfBenefits: {
       "Kentucky": [
