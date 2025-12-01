@@ -60,7 +60,7 @@ const FormsLibraryPage = () => {
 
   const quickAccessForms = [
     { name: "SOA (Standard)", file: "/downloads/Scope-of-Appointment_2026.pdf" },
-    { name: "CMS Form L564/R297", file: "/downloads/CMS-40B.pdf" },
+    { name: "CMS-40B", file: "/downloads/CMS-40B.pdf" },
     { name: "CMS Form L564/R297", file: "/downloads/CMS-40B.pdf" },
     { name: "Medicare Factfinder", file: "/downloads/Fillable_TIG_Medicare_Intake_Form.pdf" }
   ];
