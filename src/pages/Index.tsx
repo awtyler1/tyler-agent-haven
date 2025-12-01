@@ -162,16 +162,18 @@ const Index = () => {
                     return (
                       <Tooltip key={index}>
                         <TooltipTrigger asChild>
-                          <div className="relative bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] cursor-not-allowed">
+                          <div className="relative group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] cursor-not-allowed">
                             <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center mb-4">
                               <tile.icon className="w-5 h-5 text-gold" />
                             </div>
                             <h3 className="text-base font-semibold mb-1.5">{tile.title}</h3>
                             <p className="text-sm text-muted-foreground">{tile.description}</p>
                             
-                            {/* Overlay with centered text */}
-                            <div className="absolute inset-0 bg-white/[0.18] rounded-lg flex items-center justify-center">
-                              <p className="text-sm font-medium text-muted-foreground/80">Launching January 2026</p>
+                            {/* Overlay */}
+                            <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] rounded-lg flex items-center justify-center">
+                              <div className="bg-gold/10 border border-gold/30 rounded-md px-4 py-2">
+                                <p className="text-sm font-medium text-gold">Launching January 2026</p>
+                              </div>
                             </div>
                           </div>
                         </TooltipTrigger>
