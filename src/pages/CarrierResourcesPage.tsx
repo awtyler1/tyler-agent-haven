@@ -397,6 +397,9 @@ const carriers = [
           },
           {
             planName: "Humana Dual Select H5619-075 (HMO D-SNP) HIDE H5619-075-000",
+            labels: [
+              { text: "Partial Dual", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/Humana_Dual_Select_H5619-075_HMO_DSNP_HIDE_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Humana_Dual_Select_H5619-075_HMO_DSNP_HIDE_EOC_2026.pdf" },
