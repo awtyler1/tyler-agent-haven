@@ -135,10 +135,11 @@ const Index = () => {
             <img 
               src={tylerLogo} 
               alt="Tyler Insurance Group" 
-              className="h-24 md:h-28 mx-auto mb-6"
+              className="h-24 md:h-28 mx-auto mb-6 drop-shadow-sm"
+              style={{ filter: 'brightness(0.95)' }}
             />
             <h1 className="heading-display mb-3">Tyler Insurance Group Agent Platform</h1>
-            <p className="text-body max-w-2xl mx-auto mb-6">
+            <p className="text-body max-w-2xl mx-auto mb-6" style={{ color: 'hsl(30 10% 20%)' }}>
               Your control center for contracting, certifications, tools, training, and support.
             </p>
             <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mx-auto"></div>
@@ -148,15 +149,15 @@ const Index = () => {
         {/* Control Center Grid */}
         <section className="pb-12 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6">
               {controlCenterTiles.map((tile, index) => (
                 <Link
                   key={index}
                   to={tile.link}
                   onClick={() => window.scrollTo(0, 0)}
-                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_16px_-2px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] transition-all duration-300"
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
                 >
-                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center mb-4 group-hover:bg-gold/17 transition-colors">
                     <tile.icon className="w-5 h-5 text-gold" />
                   </div>
                   <h3 className="text-base font-semibold mb-1.5">{tile.title}</h3>
