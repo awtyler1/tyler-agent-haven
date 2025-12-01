@@ -82,6 +82,15 @@ const carriers = [
             { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_Formulary_2026.pdf" },
           ]
         },
+        { 
+          planName: "Aetna Medicare Signature (PPO) H5521 - 156", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_Formulary_2026.pdf" },
+          ]
+        },
       ],
       "Greater Louisville": [
         { 
