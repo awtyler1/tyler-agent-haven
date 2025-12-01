@@ -51,6 +51,7 @@ const carriers = [
             { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_2026_SOB.pdf" },
             { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_ANOC_2026.pdf" },
             { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_Formulary_2026.pdf" },
           ]
         },
       ],
