@@ -123,7 +123,7 @@ const carriers = [
           ]
         },
       ],
-      "Northern KY / Greater Louisville": [],
+      
       "Select Counties": [
         { 
           planName: "Aetna Medicare Eagle Giveback (PPO) H5521 - 488", 
