@@ -639,6 +639,12 @@ const carriers = [
         "DSNP": [
           {
             planName: "Wellcare Dual Liberty Sync (HMO-POS D-SNP) HIDE H9730-004-000",
+            labels: [
+              { text: "Full Dual", type: "location" },
+              { text: "QMB+", type: "location" },
+              { text: "SLMB+", type: "location" },
+              { text: "FBDE", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Dual_Liberty_Sync_DSNP_H9730-004_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Dual_Liberty_Sync_DSNP_H9730-004_EOC_2026.pdf" },
