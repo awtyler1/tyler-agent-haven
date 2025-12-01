@@ -197,6 +197,11 @@ const carriers = [
       { name: "Agent Portal", url: "https://agent.devoted.com/" },
       { name: "Plan Materials", url: "#" },
     ],
+    summaryOfBenefits: {
+      "Kentucky": {
+        // Submarkets will be added here
+      },
+    },
   },
   {
     id: "humana",
@@ -211,6 +216,11 @@ const carriers = [
       { name: "Vantage", url: "#" },
       { name: "Certifications", url: "#" },
     ],
+    summaryOfBenefits: {
+      "Kentucky": {
+        // Submarkets will be added here
+      },
+    },
   },
   {
     id: "uhc",
@@ -225,6 +235,11 @@ const carriers = [
       { name: "Certifications", url: "#" },
       { name: "Marketing Materials", url: "#" },
     ],
+    summaryOfBenefits: {
+      "Kentucky": {
+        // Submarkets will be added here
+      },
+    },
   },
   {
     id: "wellcare",
@@ -238,6 +253,11 @@ const carriers = [
       { name: "Broker Portal", url: "#" },
       { name: "Plan Materials", url: "#" },
     ],
+    summaryOfBenefits: {
+      "Kentucky": {
+        // Submarkets will be added here
+      },
+    },
   },
 ];
 
