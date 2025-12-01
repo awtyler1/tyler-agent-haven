@@ -113,24 +113,25 @@ const StartHerePage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main>
+      <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* 1. Title Section */}
-        <section className="pt-32 pb-16 md:pt-40 md:pb-20 px-6 md:px-12 lg:px-20">
+        <section className="pt-20 pb-8 md:pt-24 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-4">Onboarding</h1>
-            <p className="text-xl text-muted-foreground mb-8">
+            <h1 className="heading-display mb-2">Onboarding</h1>
+            <p className="text-body max-w-2xl mx-auto mb-4" style={{ color: 'hsl(30 10% 20%)' }}>
               Your orientation, expectations, and path forward with Tyler Insurance Group.
             </p>
             <p className="text-body max-w-2xl mx-auto">
               This page gives you your first steps, your expectations, and a clear understanding of how to use this platform. Follow this structure and you will always know what to do next.
             </p>
+            <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mx-auto mt-4"></div>
           </div>
         </section>
 
         {/* 2. First Steps Checklist */}
-        <section className="pb-20 px-6 md:px-12 lg:px-20">
+        <section className="pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="card-premium p-8 md:p-10">
+            <div className="bg-white border border-[#EAE7E1] rounded-lg p-8 md:p-10 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)]">
               <div className="flex items-center gap-3 mb-2">
                 <ClipboardList className="w-6 h-6 text-gold" />
                 <h2 className="heading-section">First Steps</h2>
@@ -143,10 +144,10 @@ const StartHerePage = () => {
                     key={index}
                     to={step.link}
                     onClick={() => window.scrollTo(0, 0)}
-                    className="flex items-start gap-4 p-4 rounded-lg border border-border hover:border-gold/40 hover:bg-gold/5 transition-all duration-200 group"
+                    className="flex items-start gap-4 p-4 rounded-lg border border-[#EAE7E1] hover:border-gold/40 hover:bg-gold/5 transition-all duration-200 group"
                   >
                     <CheckCircle2 className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
-                    <span className="text-body group-hover:text-foreground">{step.text}</span>
+                    <span className="text-body-small group-hover:text-foreground">{step.text}</span>
                   </Link>
                 ))}
               </div>
@@ -154,7 +155,7 @@ const StartHerePage = () => {
               <Link
                 to="/contracting-hub"
                 onClick={() => window.scrollTo(0, 0)}
-                className="btn-primary-gold inline-flex items-center gap-2"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200 gap-2"
               >
                 Start Contracting <ArrowRight size={18} />
               </Link>
@@ -163,18 +164,18 @@ const StartHerePage = () => {
         </section>
 
         {/* 3 & 4. Expectations Section */}
-        <section className="py-20 px-6 md:px-12 lg:px-20 bg-cream">
+        <section className="py-10 px-6 md:px-12 lg:px-20 bg-cream">
           <div className="container-narrow">
-            <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
+            <div className="grid md:grid-cols-2 gap-10">
               {/* What We Expect From You */}
               <div>
-                <h2 className="text-sm font-medium tracking-widest text-gold uppercase mb-6">
-                  What We Expect From You
-                </h2>
+                <div className="border-l-4 border-gold pl-6 mb-6">
+                  <h2 className="heading-section">What We Expect From You</h2>
+                </div>
                 <ul className="space-y-3">
                   {expectations.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold mt-2 flex-shrink-0"></span>
+                    <li key={i} className="flex items-center gap-3">
+                      <span className="text-gold font-bold">◆</span>
                       <span className="text-body">{item}</span>
                     </li>
                   ))}
@@ -183,13 +184,13 @@ const StartHerePage = () => {
 
               {/* What You Can Expect From Us */}
               <div>
-                <h2 className="text-sm font-medium tracking-widest text-gold uppercase mb-6">
-                  What You Can Expect From Us
-                </h2>
+                <div className="border-l-4 border-gold pl-6 mb-6">
+                  <h2 className="heading-section">What You Can Expect From Us</h2>
+                </div>
                 <ul className="space-y-3">
                   {ourSupport.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold mt-2 flex-shrink-0"></span>
+                    <li key={i} className="flex items-center gap-3">
+                      <span className="text-gold font-bold">◆</span>
                       <span className="text-body">{item}</span>
                     </li>
                   ))}
@@ -200,12 +201,12 @@ const StartHerePage = () => {
         </section>
 
         {/* 5. How to Use This Platform */}
-        <section className="py-20 px-6 md:px-12 lg:px-20">
+        <section className="py-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <h2 className="text-sm font-medium tracking-widest text-gold uppercase text-center mb-4">
               How This Platform Works
             </h2>
-            <p className="text-body text-center text-muted-foreground mb-12 max-w-xl mx-auto">
+            <p className="text-body-small text-center text-muted-foreground mb-10 max-w-xl mx-auto">
               Navigate the platform using these core areas.
             </p>
             
@@ -215,10 +216,10 @@ const StartHerePage = () => {
                   key={index}
                   to={area.link}
                   onClick={() => window.scrollTo(0, 0)}
-                  className="p-5 border border-border rounded-lg hover:border-gold/40 hover:bg-gold/5 transition-all duration-200 group"
+                  className="bg-white border border-[#EAE7E1] rounded-lg p-5 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300 group"
                 >
                   <area.icon className="w-5 h-5 text-gold mb-3" />
-                  <h3 className="font-medium text-foreground mb-1">{area.title}</h3>
+                  <h3 className="text-base font-semibold text-foreground mb-1">{area.title}</h3>
                   <p className="text-sm text-muted-foreground">{area.description}</p>
                 </Link>
               ))}
@@ -227,17 +228,17 @@ const StartHerePage = () => {
         </section>
 
         {/* 6. Required Documents */}
-        <section className="py-20 px-6 md:px-12 lg:px-20 bg-cream">
+        <section className="py-10 px-6 md:px-12 lg:px-20 bg-cream">
           <div className="container-narrow">
             <div className="max-w-xl mx-auto text-center">
               <h2 className="text-sm font-medium tracking-widest text-gold uppercase mb-4">
                 Required Documents
               </h2>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-body-small text-muted-foreground mb-8">
                 Have these ready before starting your contracting.
               </p>
               
-              <div className="card-premium p-8 text-left">
+              <div className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] text-left">
                 <ul className="space-y-3">
                   {requiredDocs.map((doc, i) => (
                     <li key={i} className="flex items-center gap-3">
@@ -252,21 +253,20 @@ const StartHerePage = () => {
         </section>
 
         {/* 7. Quick Links Grid */}
-        <section className="py-20 px-6 md:px-12 lg:px-20">
+        <section className="py-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <h2 className="text-sm font-medium tracking-widest text-gold uppercase text-center mb-8">
               Quick Links
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               {quickLinks.map((item, index) => (
                 <Link
                   key={index}
                   to={item.link}
                   onClick={() => window.scrollTo(0, 0)}
-                  className="flex flex-col items-center text-center p-5 border border-border rounded-lg hover:border-gold/40 hover:bg-gold/5 transition-all duration-200 group"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 border border-border rounded-md text-sm font-medium text-foreground hover:border-gold/40 hover:bg-gold/5 transition-all duration-200"
                 >
-                  <item.icon className="w-6 h-6 text-gold mb-3" />
-                  <span className="text-sm font-medium text-foreground">{item.title}</span>
+                  {item.title}
                 </Link>
               ))}
             </div>
@@ -274,9 +274,9 @@ const StartHerePage = () => {
         </section>
 
         {/* 8. Closing Line */}
-        <section className="py-16 px-6 md:px-12 lg:px-20 bg-cream">
+        <section className="py-12 px-6 md:px-12 lg:px-20 bg-cream">
           <div className="container-narrow text-center">
-            <p className="text-xl md:text-2xl font-serif text-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-foreground font-medium max-w-2xl mx-auto leading-relaxed italic">
               "This is your starting point. Follow the structure. Stay disciplined. We are here to support your growth."
             </p>
           </div>
