@@ -30,6 +30,7 @@ const carriers = [
       { name: "Aetna Medicare 2026 KY Market Specific Training", url: "/downloads/Aetna_Medicare_2026_KY_Market_Specific_Training.pdf" },
       { name: "Aetna Medicare Extra Benefits Card 2026 Broker Playbook", url: "/downloads/2026_Aetna_Medicare_EBC_Broker_Playbook.pdf" },
     ],
+    summaryOfBenefits: [],
   },
   {
     id: "anthem",
@@ -259,6 +260,31 @@ const CarrierResourcesPage = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Summary of Benefits Section */}
+                {'summaryOfBenefits' in activeCarrier && activeCarrier.summaryOfBenefits && (
+                  <div className="mt-8 pt-6 border-t border-border">
+                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Summary of Benefits</h4>
+                    {activeCarrier.summaryOfBenefits.length > 0 ? (
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {activeCarrier.summaryOfBenefits.map((sob, index) => (
+                          <a 
+                            key={index}
+                            href={sob.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth p-3 border border-border rounded-lg hover:border-gold/50"
+                          >
+                            <FileText size={14} className="text-gold flex-shrink-0" />
+                            <span>{sob.name}</span>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">Plan documents coming soon.</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </section>
