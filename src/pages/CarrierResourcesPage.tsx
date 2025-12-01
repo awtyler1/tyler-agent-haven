@@ -479,6 +479,7 @@ const carriers = [
       { name: "2026 Fitness Quick Reference Guide", url: "/downloads/UHC_2026_Fitness_Quick_Reference_Guide.pdf" },
       { name: "2026 OTC + Healthy Food + Utilities Quick Reference Guide", url: "/downloads/UHC_2026_OTC_Healthy_Food_Utilities_Quick_Reference_Guide.pdf" },
       { name: "2026 Dental Quick Reference Guide", url: "/downloads/UHC_2026_Dental_Quick_Reference_Guide.pdf" },
+      { name: "2026 SSBCI Quick Reference Guide", url: "/downloads/UHC_2026_SSBCI_Quick_Reference_Guide.pdf" },
     ],
     summaryOfBenefits: {
       "Kentucky": {
