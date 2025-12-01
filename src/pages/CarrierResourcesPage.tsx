@@ -336,7 +336,16 @@ const carriers = [
             ],
           },
         ],
-        "C-SNP": [],
+        "C-SNP": [
+          {
+            planName: "Humana Gold Plus Chronic Kidney Disease (HMO C-SNP) H5619-170-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Humana_Gold_Plus_CKD_HMO_CSNP_H5619-170_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Humana_Gold_Plus_CKD_HMO_CSNP_H5619-170_EOC_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Humana_Gold_Plus_CKD_HMO_CSNP_H5619-170_ANOC_2026.pdf" },
+            ],
+          },
+        ],
         "D-SNP": [
           {
             planName: "Humana Gold Plus SNP-DE H1036-320 (HMO D-SNP) HIDE H1036-320-000",
