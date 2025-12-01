@@ -510,6 +510,13 @@ const carriers = [
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS001_PPO_DSNP_H1889-008_EOC_2026.pdf" },
             ],
           },
+          {
+            planName: "UHC Dual Complete KY-S3 (PPO D-SNP) HIDE H1889-030-000",
+            documents: [
+              { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYS3_PPO_DSNP_H1889-030_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS3_PPO_DSNP_H1889-030_EOC_2026.pdf" },
+            ],
+          },
         ],
         "Giveback": [],
       },
