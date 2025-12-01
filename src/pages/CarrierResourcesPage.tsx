@@ -476,6 +476,7 @@ const carriers = [
     ],
     downloads: [
       { name: "2026 UCard Quick Reference Guide", url: "/downloads/UHC_2026_UCard_Quick_Reference_Guide.pdf" },
+      { name: "2026 Fitness Quick Reference Guide", url: "/downloads/UHC_2026_Fitness_Quick_Reference_Guide.pdf" },
     ],
     summaryOfBenefits: {
       "Kentucky": {
