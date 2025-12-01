@@ -657,6 +657,16 @@ const carriers = [
               { type: "EOC", url: "/downloads/Wellcare_Dual_Access_Sync_DSNP_H9730-003_EOC_2026.pdf" },
             ],
           },
+          {
+            planName: "Wellcare Dual Reserve (HMO-POS D-SNP) H9730-011-000",
+            labels: [
+              { text: "Partial Dual", type: "location" },
+            ],
+            documents: [
+              { type: "SOB", url: "/downloads/Wellcare_Dual_Reserve_DSNP_H9730-011_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Wellcare_Dual_Reserve_DSNP_H9730-011_EOC_2026.pdf" },
+            ],
+          },
         ],
         "Giveback": [
           {
