@@ -12,7 +12,9 @@ import {
   Heart, 
   Calendar, 
   Scale, 
-  Users 
+  Users,
+  DollarSign,
+  BookOpen
 } from "lucide-react";
 
 const fundamentalsTiles = [
@@ -65,6 +67,16 @@ const fundamentalsTiles = [
     title: "Common Client Scenarios",
     subtitle: "Real-world situations and how to navigate them.",
     icon: Users
+  },
+  {
+    title: "Medicare Costs & IRMAA",
+    subtitle: "Understanding premiums, surcharges, and how Medicare determines client costs.",
+    icon: DollarSign
+  },
+  {
+    title: "Medicare Fundamentals Recap",
+    subtitle: "A complete summary of everything learned in Medicare Fundamentals.",
+    icon: BookOpen
   }
 ];
 
