@@ -253,6 +253,14 @@ const carriers = [
             { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
           ],
         },
+        {
+          planName: "DEVOTED C-SNP CHOICE PREMIUM 006 KY (PPO C-SNP)",
+          documents: [
+            { type: "SOB", url: "/downloads/Devoted_C-SNP_Choice_Premium_006_KY_SOB_2026.pdf" },
+            { type: "EOC", url: "/downloads/Devoted_C-SNP_Choice_Premium_006_KY_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
+          ],
+        },
       ],
     },
   },
