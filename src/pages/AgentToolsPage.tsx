@@ -1,15 +1,9 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { ExternalLink, Monitor, Building2, Mail, Clock } from "lucide-react";
+import { ExternalLink, Monitor, Mail, Clock } from "lucide-react";
 import connect4Logo from "@/assets/connect4insurance-logo.png";
 import sunfireLogo from "@/assets/sunfire-logo.png";
 import bossCrmLogo from "@/assets/boss-crm-logo.png";
-import aetnaLogo from "@/assets/aetna-logo.png";
-import anthemLogo from "@/assets/anthem-logo.jpg";
-import devotedLogo from "@/assets/devoted-logo.png";
-import humanaLogo from "@/assets/humana-logo.png";
-import uhcLogo from "@/assets/uhc-logo.png";
-import wellcareLogo from "@/assets/wellcare-logo.jpg";
 import carolineHeadshot from "@/assets/caroline-headshot.jpg";
 
 const toolCards = [
@@ -29,15 +23,6 @@ const toolCards = [
     icon: Monitor,
     logo: sunfireLogo,
   },
-];
-
-const carrierPortals = [
-  { name: "Aetna", url: "https://www.aetna.com/producer_public/login.fcc", logo: aetnaLogo },
-  { name: "Anthem", url: "https://brokerportal.anthem.com/apps/ptb/login", logo: anthemLogo },
-  { name: "Devoted", url: "https://agent.devoted.com/", logo: devotedLogo },
-  { name: "Humana", url: "https://account.humana.com/", logo: humanaLogo },
-  { name: "United Healthcare", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in", logo: uhcLogo },
-  { name: "Wellcare", url: "https://www.wellcare.com/Broker-Resources/Broker-Resources", logo: wellcareLogo },
 ];
 
 const AgentToolsPage = () => {
@@ -144,40 +129,6 @@ const AgentToolsPage = () => {
                 </a>
               </div>
             </a>
-          </div>
-        </section>
-
-        {/* Carrier Portals */}
-        <section className="section-padding">
-          <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-10">
-              <h2 className="heading-section mb-2">Carrier Portals</h2>
-              <p className="text-body">
-                Fast access to your carrier broker portals once contracted.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {carrierPortals.map((carrier) => (
-                <a
-                  key={carrier.name}
-                  href={carrier.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="card-premium hover:border-gold transition-smooth text-center py-8 group"
-                >
-                  {'logo' in carrier && carrier.logo ? (
-                    <div className="w-16 h-12 mx-auto mb-3 rounded-lg overflow-hidden group-hover:scale-110 transition-transform flex items-center justify-center">
-                      <img src={carrier.logo} alt={carrier.name} className="w-full h-full object-contain" />
-                    </div>
-                  ) : (
-                    <Building2 className="w-8 h-8 text-gold mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                  )}
-                  <p className="font-medium text-foreground">{carrier.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1 group-hover:text-gold transition-smooth">Open Portal</p>
-                </a>
-              ))}
-            </div>
           </div>
         </section>
 

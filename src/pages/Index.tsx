@@ -54,7 +54,7 @@ const controlCenterTiles = [
     title: "Carrier Portals",
     description: "Fast access to Humana, Aetna, UHC, Wellcare, Anthem, and more.",
     icon: Building,
-    link: "/agent-tools"
+    link: "/carrier-portals"
   }
 ];
 
