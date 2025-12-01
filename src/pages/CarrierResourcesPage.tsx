@@ -384,7 +384,7 @@ const CarrierResourcesPage = () => {
                 {'summaryOfBenefits' in activeCarrier && activeCarrier.summaryOfBenefits && (
                   <div className="mt-8 pt-6 border-t border-border">
                     <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Plan Documents by Region</h4>
-                    <Accordion type="multiple" defaultValue={Object.keys(activeCarrier.summaryOfBenefits)} className="space-y-3">
+                    <Accordion type="multiple" className="space-y-3">
                       {Object.entries(activeCarrier.summaryOfBenefits).map(([market, plans]) => (
                         <AccordionItem key={market} value={market} className="border border-border rounded-lg overflow-hidden">
                           <AccordionTrigger className="px-4 py-3 bg-muted/50 hover:bg-muted hover:no-underline">
