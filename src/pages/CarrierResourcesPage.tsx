@@ -477,7 +477,15 @@ const carriers = [
     ],
     summaryOfBenefits: {
       "Kentucky": {
-        "HMO": [],
+        "HMO": [
+          {
+            planName: "AARP Medicare Advantage Essentials from UHC KY-1 (HMO-POS) H5253-099-000",
+            documents: [
+              { type: "SOB", url: "/downloads/UHC_AARP_Essentials_KY1_HMO_H5253-099_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/UHC_AARP_Essentials_KY1_HMO_H5253-099_EOC_2026.pdf" },
+            ],
+          },
+        ],
         "PPO": [],
         "C-SNP": [],
         "D-SNP": [],
