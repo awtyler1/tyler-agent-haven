@@ -32,7 +32,13 @@ const carriers = [
     ],
     summaryOfBenefits: {
       "Bowling Green / Western KY": [
-        { name: "Aetna Medicare Signature Extra (HMO-POS) H0628 - 007", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007.pdf" },
+        { 
+          planName: "Aetna Medicare Signature Extra (HMO-POS) H0628 - 007", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_ANOC_2026.pdf" },
+          ]
+        },
       ],
       "Footprint-wide": [],
       "Greater Ashland / Eastern KY": [],
@@ -278,19 +284,26 @@ const CarrierResourcesPage = () => {
                       {Object.entries(activeCarrier.summaryOfBenefits).map(([market, plans]) => (
                         <div key={market}>
                           <h5 className="text-sm font-semibold text-foreground mb-3">{market}</h5>
-                          {(plans as Array<{name: string; url: string}>).length > 0 ? (
-                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-                              {(plans as Array<{name: string; url: string}>).map((sob, index) => (
-                                <a 
-                                  key={index}
-                                  href={sob.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth p-3 border border-border rounded-lg hover:border-gold/50"
-                                >
-                                  <FileText size={14} className="text-gold flex-shrink-0" />
-                                  <span>{sob.name}</span>
-                                </a>
+                          {(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).length > 0 ? (
+                            <div className="space-y-4">
+                              {(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).map((plan, index) => (
+                                <div key={index} className="border border-border rounded-lg p-4">
+                                  <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {plan.documents.map((doc, docIndex) => (
+                                      <a 
+                                        key={docIndex}
+                                        href={doc.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth px-3 py-1.5 bg-muted rounded-md hover:bg-gold/10"
+                                      >
+                                        <FileText size={12} className="text-gold" />
+                                        <span>{doc.type}</span>
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
                               ))}
                             </div>
                           ) : (
