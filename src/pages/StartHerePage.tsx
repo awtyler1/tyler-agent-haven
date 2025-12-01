@@ -78,44 +78,6 @@ const StartHerePage = () => {
           </div>
         </section>
 
-
-        {/* Expectations Section */}
-        <section className="py-12 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
-          <div className="container-narrow">
-            <div className="grid md:grid-cols-2 gap-10">
-              {/* What We Expect From You */}
-              <div>
-                <div className="border-l-4 border-gold pl-6 mb-6">
-                  <h2 className="heading-section">What We Expect From You</h2>
-                </div>
-                <ul className="space-y-3">
-                  {expectations.map((item, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <span className="text-gold font-bold">◆</span>
-                      <span className="text-body">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* What You Can Expect From Us */}
-              <div>
-                <div className="border-l-4 border-gold pl-6 mb-6">
-                  <h2 className="heading-section">What You Can Expect From Us</h2>
-                </div>
-                <ul className="space-y-3">
-                  {ourSupport.map((item, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <span className="text-gold font-bold">◆</span>
-                      <span className="text-body">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Onboarding Roadmap */}
         <section className="py-12 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
@@ -167,6 +129,43 @@ const StartHerePage = () => {
                 >
                   Orientation Overview
                 </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Expectations Section */}
+        <section className="py-12 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+          <div className="container-narrow">
+            <div className="grid md:grid-cols-2 gap-10">
+              {/* What We Expect From You */}
+              <div>
+                <div className="border-l-4 border-gold pl-6 mb-6">
+                  <h2 className="heading-section">What We Expect From You</h2>
+                </div>
+                <ul className="space-y-3">
+                  {expectations.map((item, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <span className="text-gold font-bold">◆</span>
+                      <span className="text-body">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* What You Can Expect From Us */}
+              <div>
+                <div className="border-l-4 border-gold pl-6 mb-6">
+                  <h2 className="heading-section">What You Can Expect From Us</h2>
+                </div>
+                <ul className="space-y-3">
+                  {ourSupport.map((item, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <span className="text-gold font-bold">◆</span>
+                      <span className="text-body">{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
