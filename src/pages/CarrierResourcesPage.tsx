@@ -309,7 +309,12 @@ const carriers = [
     ],
     summaryOfBenefits: {
       "Kentucky": {
-        // Submarkets will be added here
+        "Humana Community": [],
+        "Humana Gold Plus (HMO)": [],
+        "C-SNP": [],
+        "D-SNP": [],
+        "PPO": [],
+        "Giveback": [],
       },
     },
   },
