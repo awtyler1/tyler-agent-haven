@@ -31,7 +31,9 @@ const carriers = [
       { name: "Aetna Medicare Extra Benefits Card 2026 Broker Playbook", url: "/downloads/2026_Aetna_Medicare_EBC_Broker_Playbook.pdf" },
     ],
     summaryOfBenefits: {
-      "Bowling Green / Western KY": [],
+      "Bowling Green / Western KY": [
+        { name: "Aetna Medicare Signature Extra (HMO-POS) H0628 - 007", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007.pdf" },
+      ],
       "Footprint-wide": [],
       "Greater Ashland / Eastern KY": [],
       "Greater Lexington": [],
