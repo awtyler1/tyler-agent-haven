@@ -334,6 +334,7 @@ const Index = () => {
                   <Link
                     key={index}
                     to={item.link!}
+                    onClick={() => window.scrollTo(0, 0)}
                     className="inline-flex items-center gap-2 px-5 py-2.5 border border-border rounded-md text-sm font-medium text-foreground hover:border-gold/40 hover:bg-gold/5 transition-all duration-200"
                   >
                     {item.name}
