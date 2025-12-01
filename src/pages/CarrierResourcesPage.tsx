@@ -42,7 +42,14 @@ const carriers = [
           ]
         },
       ],
-      "Footprint-wide": [],
+      "Footprint-wide": [
+        { 
+          planName: "Aetna Medicare HIDE (HMO D-SNP) H0628 - 012", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_SOB_2026.pdf" },
+          ]
+        },
+      ],
       "Greater Ashland / Eastern KY": [
         { 
           planName: "Aetna Medicare Signature (HMO-POS) H0628 - 010", 
