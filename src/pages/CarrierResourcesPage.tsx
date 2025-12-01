@@ -311,7 +311,7 @@ const carriers = [
       "Kentucky": {
         "Humana Community": [
           {
-            planName: "Humana Community (HMO) H1036-236-000 - Louisville",
+            planName: "Humana Community (HMO) H1036-236-000",
             documents: [
               { type: "SOB", url: "/downloads/Humana_Community_HMO_H1036-236-000_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Humana_Community_HMO_H1036-236-000_EOC_2026.pdf" },
@@ -319,7 +319,7 @@ const carriers = [
             ],
           },
           {
-            planName: "Humana Community (HMO) H5178-002-000 - Lexington",
+            planName: "Humana Community (HMO) H5178-002-000",
             documents: [
               { type: "SOB", url: "/downloads/Humana_Community_HMO_H5178-002-000_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Humana_Community_HMO_H5178-002-000_EOC_2026.pdf" },
