@@ -99,7 +99,7 @@ const SalesTrainingPage = () => {
         </section>
 
         {/* Support Section */}
-        <section className="px-6 md:px-12 lg:px-20 py-6 bg-cream">
+        <section className="px-6 md:px-12 lg:px-20 py-4 bg-cream">
           <div className="container-narrow text-center">
             <h2 className="text-xl font-semibold mb-3">Questions About Training?</h2>
             <p className="text-sm text-body max-w-2xl mx-auto mb-5">
