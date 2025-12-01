@@ -245,7 +245,12 @@ const carriers = [
     ],
     summaryOfBenefits: {
       "Kentucky": {
-        // Submarkets will be added here
+        "Eastern Kentucky": [],
+        "Lexington": [],
+        "Louisville": [],
+        "Northeast Kentucky (Cincinnati)": [],
+        "South-Central Kentucky (Bowling Green)": [],
+        "Southeastern Kentucky": [],
       },
     },
   },
