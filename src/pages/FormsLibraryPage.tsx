@@ -64,13 +64,6 @@ const FormsLibraryPage = () => {
     { name: "Medicare Factfinder", file: "/downloads/Fillable_TIG_Medicare_Intake_Form.pdf" }
   ];
 
-  const bestPractices = [
-    "Complete the SOA before discussing benefits.",
-    "Keep a digital and printed copy of required forms.",
-    "Use the Enrollment Worksheet to ensure accuracy and avoid corrections.",
-    "Review the Star Rating disclosure during the appointment.",
-    "Upload completed documents to your CRM or client file."
-  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -141,26 +134,6 @@ const FormsLibraryPage = () => {
                   </CardContent>
                 </Card>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Best Practices */}
-        <section className="section-padding border-b border-border bg-cream/10">
-          <div className="container-narrow">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-2xl font-serif font-semibold text-gold mb-6">Best Practices</h2>
-              <ul className="space-y-3 mb-6">
-                {bestPractices.map((practice, index) => (
-                  <li key={index} className="flex items-start text-foreground">
-                    <span className="text-gold mr-3 font-bold">•</span>
-                    <span>{practice}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="text-muted-foreground italic border-l-2 border-gold pl-4">
-                These forms support compliant, efficient, and professional Medicare appointments.
-              </p>
             </div>
           </div>
         </section>
