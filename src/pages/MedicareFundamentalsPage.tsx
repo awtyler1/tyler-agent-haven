@@ -137,7 +137,7 @@ const MedicareFundamentalsPage = () => {
           <div className="container-narrow text-center">
             <Link
               to="/sales-training"
-              className="inline-flex items-center justify-center px-6 py-3 border border-border rounded-lg text-sm font-medium text-foreground hover:border-gold/40 hover:bg-gold/5 transition-all duration-200"
+              className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
             >
               Back to Training Hub
             </Link>
