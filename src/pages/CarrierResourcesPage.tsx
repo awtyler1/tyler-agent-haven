@@ -487,7 +487,16 @@ const carriers = [
           },
         ],
         "PPO": [],
-        "C-SNP": [],
+        "C-SNP": [
+          {
+            planName: "UHC Complete Care KY-6 (HMO-POS C-SNP) H5253-182-000",
+            documents: [
+              { type: "SOB", url: "/downloads/UHC_Complete_Care_KY6_CSNP_H5253-182_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/UHC_Complete_Care_KY6_CSNP_H5253-182_EOC_2026.pdf" },
+              { type: "Plan Highlights", url: "/downloads/UHC_Complete_Care_KY6_CSNP_H5253-182_Highlights_2026.pdf" },
+            ],
+          },
+        ],
         "D-SNP": [
           {
             planName: "UHC Dual Complete KY-S002 (HMO-POS D-SNP) HIDE H6595-004-000",
