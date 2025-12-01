@@ -613,6 +613,7 @@ const carriers = [
     downloads: [
       { name: "Wellcare's Commitment to Broker and Service Excellence", url: "/downloads/Wellcare_Commitment_to_Broker_Service_Excellence_2026.pdf" },
       { name: "Medicare Advantage & more. Sales Presentation", url: "/downloads/Wellcare_Medicare_Advantage_Sales_Presentation_2026.pdf" },
+      { name: "2026 KY Market Highlights", url: "/downloads/Wellcare_2026_KY_Market_Highlights.pdf" },
     ],
     summaryOfBenefits: {
       "Kentucky": {
