@@ -331,7 +331,15 @@ const carriers = [
             ],
           },
         ],
-        "Giveback": [],
+        "Giveback": [
+          {
+            planName: "Humana USAA Honor Giveback with Rx (PPO) H7617-005-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H7617-005-000_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H7617-005-000_EOC_2026.pdf" },
+            ],
+          },
+        ],
       },
     },
   },
