@@ -23,9 +23,9 @@ const CarrierPortalsPage = () => {
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
+        <section className="pt-28 pb-6 md:pt-32 md:pb-8 px-6 md:px-12 lg:px-20 bg-cream">
           <div className="container-narrow">
-            <h1 className="heading-display mb-4">Carrier Portals</h1>
+            <h1 className="heading-display mb-3">Carrier Portals</h1>
             <p className="text-body max-w-2xl">
               Fast access to your carrier broker portals once contracted.
             </p>
@@ -33,56 +33,38 @@ const CarrierPortalsPage = () => {
         </section>
 
         {/* Carrier Portals Grid */}
-        <section className="section-padding">
+        <section className="py-8 md:py-12 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-10">
+            <div className="border-l-4 border-gold pl-6 mb-6">
               <h2 className="heading-section mb-2">Broker Portal Access</h2>
-              <p className="text-body">
+              <p className="text-body text-sm">
                 Log in to your carrier broker portals to access applications, commissions, training materials, and support resources.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {carrierPortals.map((carrier) => (
                 <a
                   key={carrier.name}
                   href={carrier.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group card-premium hover:border-gold transition-smooth text-center py-10 flex flex-col items-center"
+                  className="group card-premium hover:border-gold transition-smooth text-center py-6 flex flex-col items-center"
                 >
                   {'logo' in carrier && carrier.logo ? (
-                    <div className="w-28 h-20 mb-4 rounded-lg overflow-hidden group-hover:scale-110 transition-transform flex items-center justify-center">
+                    <div className="w-24 h-16 mb-3 rounded-lg overflow-hidden group-hover:scale-110 transition-transform flex items-center justify-center">
                       <img src={carrier.logo} alt={carrier.name} className="w-full h-full object-contain" />
                     </div>
                   ) : (
-                    <Building2 className="w-12 h-12 text-gold mb-4 group-hover:scale-110 transition-transform" />
+                    <Building2 className="w-10 h-10 text-gold mb-3 group-hover:scale-110 transition-transform" />
                   )}
-                  <h3 className="heading-subsection mb-2">{carrier.name}</h3>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-gold transition-smooth">
+                  <h3 className="text-base font-semibold mb-1">{carrier.name}</h3>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground group-hover:text-gold transition-smooth">
                     <span>Open Portal</span>
-                    <ExternalLink size={14} />
+                    <ExternalLink size={12} />
                   </div>
                 </a>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Support Note */}
-        <section className="section-padding bg-cream">
-          <div className="container-narrow">
-            <div className="card-premium max-w-2xl mx-auto text-center">
-              <h3 className="heading-subsection mb-4">Need Portal Access?</h3>
-              <p className="text-body mb-6">
-                If you need credentials or are having trouble accessing a carrier portal, reach out to our contracting support team.
-              </p>
-              <a 
-                href="/contact"
-                className="btn-primary-gold inline-block"
-              >
-                Contact Support
-              </a>
             </div>
           </div>
         </section>
