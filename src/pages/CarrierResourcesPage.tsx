@@ -37,130 +37,116 @@ const carriers = [
       { name: "Aetna Medicare Extra Benefits Card 2026 Broker Playbook", url: "/downloads/2026_Aetna_Medicare_EBC_Broker_Playbook.pdf" },
     ],
     summaryOfBenefits: {
-      "Kentucky": {
-        "Bowling Green / Western KY": [
-          { 
-            planName: "Aetna Medicare Signature Extra (HMO-POS) H0628 - 007", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-007", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Formulary_2026.pdf" },
-            ]
-          },
-          { 
-            planName: "Aetna Medicare Signature (PPO) H5521 - 260", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-260", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_SOB_2026.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_Formulary_2026.pdf" },
-            ]
-          },
-        ],
-        "DSNP Plans": [
-          { 
-            planName: "Aetna Medicare HIDE (HMO D-SNP) H0628 - 012", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-012", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_SOB_2026.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_Formulary_2026.pdf" },
-            ]
-          },
-          { 
-            planName: "Aetna Medicare Partial Dual (HMO D-SNP) H0628 - 040", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-040", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_SOB_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_Formulary_2026.pdf" },
-            ]
-          },
-        ],
-        "Greater Ashland / Eastern KY": [
-          { 
-            planName: "Aetna Medicare Signature (HMO-POS) H0628 - 010", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-010", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_SOB_2026.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_Formulary_2026.pdf" },
-            ]
-          },
-        ],
-        "Greater Lexington": [
-          { 
-            planName: "Aetna Medicare Signature (HMO-POS) H0628 - 008", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-008", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_2026_SOB.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_Formulary_2026.pdf" },
-            ]
-          },
-          { 
-            planName: "Aetna Medicare Signature (PPO) H5521 - 156", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-156", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_SOB_2026.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_Formulary_2026.pdf" },
-            ]
-          },
-        ],
-        "Greater Louisville": [
-          { 
-            planName: "Aetna Medicare Signature (HMO-POS) H0628 - 024", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-024", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_SOB_2026.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_Formulary_2026.pdf" },
-            ]
-          },
-        ],
-        "Northern KY / Greater Ashland / Eastern KY": [
-          { 
-            planName: "Aetna Medicare Signature (PPO) H5521 - 085", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-085", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_SOB_2026.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_Formulary_2026.pdf" },
-            ]
-          },
-        ],
-        "Select Counties": [
-          { 
-            planName: "Aetna Medicare Eagle Giveback (PPO) H5521 - 488", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-488", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_SOB_2026.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_EOC_2026.pdf" },
-            ]
-          },
-          { 
-            planName: "Aetna Medicare Value Plus (PPO) H5521 - 490", 
-            documents: [
-              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-490", isExternal: true },
-              { type: "SOB", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_SOB_2026.pdf" },
-              { type: "ANOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_ANOC_2026.pdf" },
-              { type: "EOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_EOC_2026.pdf" },
-              { type: "Formulary", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_Formulary_2026.pdf" },
-            ]
-          },
-        ],
-      },
+      "Kentucky": [
+        { 
+          planName: "Aetna Medicare Signature Extra (HMO-POS) H0628 - 007", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-007", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Signature (PPO) H5521 - 260", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-260", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare HIDE (HMO D-SNP) H0628 - 012", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-012", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Partial Dual (HMO D-SNP) H0628 - 040", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-040", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_SOB_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Signature (HMO-POS) H0628 - 010", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-010", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Signature (HMO-POS) H0628 - 008", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-008", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_2026_SOB.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Signature (PPO) H5521 - 156", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-156", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Signature (HMO-POS) H0628 - 024", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-024", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Signature (PPO) H5521 - 085", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-085", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_Formulary_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Eagle Giveback (PPO) H5521 - 488", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-488", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_EOC_2026.pdf" },
+          ]
+        },
+        { 
+          planName: "Aetna Medicare Value Plus (PPO) H5521 - 490", 
+          documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-490", isExternal: true },
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_Formulary_2026.pdf" },
+          ]
+        },
+      ],
     },
   },
   {
