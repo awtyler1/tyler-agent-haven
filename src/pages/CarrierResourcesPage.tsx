@@ -471,7 +471,7 @@ const carriers = [
       { type: "Enrollment", number: "1-800-678-9012" },
     ],
     links: [
-      { name: "Jarvis Portal", url: "#" },
+      { name: "Jarvis Portal", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in" },
       { name: "Certifications", url: "#" },
       { name: "Marketing Materials", url: "#" },
     ],
