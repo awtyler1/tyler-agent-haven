@@ -299,6 +299,7 @@ const carriers = [
     ],
     links: [
       { name: "Vantage", url: "https://account.humana.com/" },
+      { name: "Medicare Drug List Search", url: "https://rxcalculator.humana.com/medicaredrugsearch" },
     ],
     downloads: [
       { name: "KY Humana Market Product Guide 2026", url: "/downloads/KY_Humana_Market_Product_Guide_2026.pdf" },
