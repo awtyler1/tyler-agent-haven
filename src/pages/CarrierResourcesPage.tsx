@@ -167,8 +167,9 @@ const carriers = [
     name: "Anthem",
     logo: anthemLogo,
     contacts: [
-      { type: "Agent Support", number: "1-800-901-2345" },
-      { type: "Enrollment", number: "1-800-012-3456" },
+      { type: "Sam Call", subtitle: "Western KY", email: "sam.call@anthem.com", number: "(502) 216-3480" },
+      { type: "Jordan Gentry", subtitle: "Eastern KY", email: "jordan.gentry@anthem.com", number: "(859) 585-8183" },
+      { type: "Todd Jarboe", subtitle: "Agency Services Rep", email: "todd.jarboe@anthem.com", number: "(502) 396-0695" },
     ],
     links: [
       { name: "Producer World", url: "#" },
