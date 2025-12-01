@@ -447,6 +447,11 @@ const carriers = [
           },
           {
             planName: "Humana USAA Honor Giveback (PPO) H5216-225-000",
+            labels: [
+              { text: "$100 Giveback", type: "positive" },
+              { text: "High Dental Coverage", type: "positive" },
+              { text: "No Drug Coverage", type: "caution" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H5216-225-000_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H5216-225-000_EOC_2026.pdf" },
