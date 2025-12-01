@@ -243,42 +243,48 @@ const carriers = [
       { name: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
     ],
     summaryOfBenefits: {
-      "Kentucky": [
-        {
-          planName: "DEVOTED C-SNP CHOICE PLUS 004 KY (PPO C-SNP)",
-          documents: [
-            { type: "SOB", url: "/downloads/Devoted_C-SNP_Choice_Plus_004_KY_SOB_2026.pdf" },
-            { type: "EOC", url: "/downloads/Devoted_C-SNP_Choice_Plus_004_KY_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
-          ],
-        },
-        {
-          planName: "DEVOTED C-SNP CHOICE PREMIUM 006 KY (PPO C-SNP)",
-          documents: [
-            { type: "SOB", url: "/downloads/Devoted_C-SNP_Choice_Premium_006_KY_SOB_2026.pdf" },
-            { type: "EOC", url: "/downloads/Devoted_C-SNP_Choice_Premium_006_KY_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
-          ],
-        },
-        {
-          planName: "DEVOTED CHOICE 001 KY (PPO)",
-          documents: [
-            { type: "SOB", url: "/downloads/Devoted_Choice_001_KY_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Devoted_Choice_001_KY_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Devoted_Choice_001_KY_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
-          ],
-        },
-        {
-          planName: "DEVOTED CHOICE GIVEBACK 002 KY (PPO)",
-          documents: [
-            { type: "SOB", url: "/downloads/Devoted_Choice_Giveback_002_KY_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Devoted_Choice_Giveback_002_KY_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Devoted_Choice_Giveback_002_KY_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
-          ],
-        },
-      ],
+      "Kentucky": {
+        "C-SNP": [
+          {
+            planName: "DEVOTED C-SNP CHOICE PLUS 004 KY (PPO C-SNP)",
+            documents: [
+              { type: "SOB", url: "/downloads/Devoted_C-SNP_Choice_Plus_004_KY_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Devoted_C-SNP_Choice_Plus_004_KY_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
+            ],
+          },
+          {
+            planName: "DEVOTED C-SNP CHOICE PREMIUM 006 KY (PPO C-SNP)",
+            documents: [
+              { type: "SOB", url: "/downloads/Devoted_C-SNP_Choice_Premium_006_KY_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Devoted_C-SNP_Choice_Premium_006_KY_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
+            ],
+          },
+        ],
+        "PPO": [
+          {
+            planName: "DEVOTED CHOICE 001 KY (PPO)",
+            documents: [
+              { type: "SOB", url: "/downloads/Devoted_Choice_001_KY_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Devoted_Choice_001_KY_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Devoted_Choice_001_KY_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
+            ],
+          },
+        ],
+        "Giveback": [
+          {
+            planName: "DEVOTED CHOICE GIVEBACK 002 KY (PPO)",
+            documents: [
+              { type: "SOB", url: "/downloads/Devoted_Choice_Giveback_002_KY_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Devoted_Choice_Giveback_002_KY_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Devoted_Choice_Giveback_002_KY_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
+            ],
+          },
+        ],
+      },
     },
   },
   {
