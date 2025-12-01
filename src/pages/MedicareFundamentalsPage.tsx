@@ -1,172 +1,168 @@
-import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { FileText, Download, Play, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { 
+  BookOpen, 
+  Building2, 
+  Stethoscope, 
+  Shield, 
+  LifeBuoy, 
+  Pill, 
+  HeartHandshake, 
+  Calendar, 
+  FileCheck, 
+  Users 
+} from "lucide-react";
 
-const topics = [
+const learningTopics = [
   {
-    id: "what-is-medicare-broker",
-    title: "What is a Medicare Broker",
-    description: "A Medicare broker is a licensed insurance professional who helps beneficiaries understand and enroll in Medicare plans. Brokers are independent and can represent multiple carriers.",
-    keyPoints: [
-      "Licensed and certified by carriers",
-      "Represents multiple insurance companies",
-      "No cost to beneficiaries - paid by carriers",
-      "Provides unbiased plan comparisons",
-      "Assists with enrollment and ongoing support",
-      "Must follow CMS compliance guidelines"
-    ]
+    title: "What Is Medicare",
+    description: "Understand the federal health insurance program, eligibility requirements, and how it serves Americans 65+ and those with qualifying disabilities.",
+    icon: BookOpen
   },
   {
-    id: "what-is-medicare",
-    title: "What is Medicare",
-    description: "Medicare is a federal health insurance program for people 65 and older, and certain younger people with disabilities or specific conditions.",
-    keyPoints: [
-      "Federal health insurance program",
-      "Primarily for people 65+",
-      "Also covers certain disabilities",
-      "Administered by CMS"
-    ]
+    title: "Part A – Hospital Insurance",
+    description: "Learn what hospital coverage includes, when it applies, premium structures, and how to explain it clearly to clients.",
+    icon: Building2
   },
   {
-    id: "part-a-b",
-    title: "Part A and Part B",
-    description: "Part A covers hospital insurance while Part B covers medical insurance. Together they form Original Medicare.",
-    keyPoints: [
-      "Part A: Hospital, skilled nursing, hospice",
-      "Part B: Doctor visits, outpatient care, preventive services",
-      "Part A is usually premium-free",
-      "Part B has monthly premiums"
-    ]
+    title: "Part B – Medical Insurance",
+    description: "Master outpatient care, doctor visits, preventive services, and how Part B premiums work for beneficiaries.",
+    icon: Stethoscope
   },
   {
-    id: "medicare-advantage",
-    title: "Medicare Advantage",
-    description: "Medicare Advantage (Part C) plans are offered by private insurers as an alternative to Original Medicare, often with additional benefits.",
-    keyPoints: [
-      "Combines Part A, B, and usually D",
-      "Often includes extra benefits",
-      "Network-based coverage",
-      "Different plan types: HMO, PPO, PFFS"
-    ]
+    title: "Medicare Advantage (Part C)",
+    description: "Explore private plan alternatives to Original Medicare, including HMO, PPO, and Special Needs Plans with bundled benefits.",
+    icon: Shield
   },
   {
-    id: "medicare-supplement",
-    title: "Medicare Supplement",
-    description: "Medigap policies help pay costs that Original Medicare doesn't cover, like copays, coinsurance, and deductibles.",
-    keyPoints: [
-      "Standardized plans (A through N)",
-      "Works alongside Original Medicare",
-      "No network restrictions",
-      "Guaranteed renewable"
-    ]
+    title: "Medicare Supplement (Medigap)",
+    description: "Understand standardized Medigap plans, how they work alongside Original Medicare, and when to recommend them.",
+    icon: LifeBuoy
   },
   {
-    id: "part-d",
-    title: "Part D",
-    description: "Medicare Part D provides prescription drug coverage through private insurers approved by Medicare.",
-    keyPoints: [
-      "Standalone or included in MA",
-      "Formulary-based coverage",
-      "Coverage phases and donut hole",
-      "Annual enrollment period"
-    ]
+    title: "Part D – Prescription Drug Coverage",
+    description: "Navigate formularies, coverage phases, the donut hole, and how to guide clients through drug plan selection.",
+    icon: Pill
   },
   {
-    id: "lis-medicaid",
-    title: "LIS and Medicaid",
-    description: "Low-Income Subsidy (Extra Help) and Medicaid provide assistance for those with limited income and resources.",
-    keyPoints: [
-      "LIS helps with Part D costs",
-      "Medicaid: state-run assistance",
-      "Dual eligibility considerations",
-      "Special enrollment rights"
-    ]
+    title: "LIS & Medicaid",
+    description: "Learn about Low-Income Subsidy (Extra Help), dual eligibility, and how these programs support beneficiaries with limited resources.",
+    icon: HeartHandshake
+  },
+  {
+    title: "Enrollment Periods",
+    description: "Master IEP, AEP, OEP, and SEPs — when clients can enroll, switch plans, and the compliance rules around each period.",
+    icon: Calendar
+  },
+  {
+    title: "Compliance Basics",
+    description: "Understand CMS guidelines, SOA requirements, marketing rules, and how to conduct compliant appointments every time.",
+    icon: FileCheck
+  },
+  {
+    title: "Common Client Scenarios",
+    description: "Prepare for real-world situations: dual eligibles, plan switches, drug coverage questions, and handling objections with confidence.",
+    icon: Users
   }
 ];
 
 const MedicareFundamentalsPage = () => {
-  const [activeTopic, setActiveTopic] = useState(topics[0].id);
-  const currentTopic = topics.find(t => t.id === activeTopic);
-
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main>
-        {/* Hero */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
-          <div className="container-narrow">
+      <main style={{ backgroundColor: '#FDFBF7' }}>
+        {/* Hero Section */}
+        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20">
+          <div className="container-narrow text-center">
             <h1 className="heading-display mb-4">Medicare Fundamentals</h1>
-            <p className="text-body max-w-2xl">
-              Build your foundation. Master the basics before moving forward.
+            <p className="text-xl md:text-2xl text-foreground font-medium mb-6 max-w-3xl mx-auto">
+              The essential foundation every Medicare professional must master.
+            </p>
+            <p className="text-sm text-gold/80 font-medium tracking-wide">
+              Full module launches January 2026.
             </p>
           </div>
         </section>
 
-        {/* Content */}
+        {/* Intro Paragraph */}
+        <section className="px-6 md:px-12 lg:px-20 pb-12">
+          <div className="container-narrow">
+            <div className="max-w-3xl mx-auto text-center">
+              <p className="text-body leading-relaxed">
+                This module provides the core framework every Medicare agent must understand. It equips new agents with a clear foundation and gives experienced agents a reliable reference point. Mastering these fundamentals ensures you can confidently guide clients through every aspect of Medicare with clarity and precision.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Core Learning Sections */}
         <section className="section-padding">
           <div className="container-narrow">
-            <div className="grid lg:grid-cols-[280px_1fr] gap-8">
-              {/* Sidebar Navigation */}
-              <div className="lg:sticky lg:top-28 lg:self-start">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Topics</h3>
-                <nav className="space-y-1">
-                  {topics.map((topic) => (
-                    <button
-                      key={topic.id}
-                      onClick={() => setActiveTopic(topic.id)}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition-smooth flex items-center justify-between ${
-                        activeTopic === topic.id 
-                          ? "bg-gold/10 text-gold border-l-2 border-gold" 
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      <span className="text-sm font-medium">{topic.title}</span>
-                      <ChevronRight size={16} className={activeTopic === topic.id ? "opacity-100" : "opacity-0"} />
-                    </button>
-                  ))}
-                </nav>
-              </div>
-
-              {/* Main Content */}
-              <div className="animate-fade-in" key={activeTopic}>
-                <div className="card-premium">
-                  <h2 className="heading-section mb-4">{currentTopic?.title}</h2>
-                  <p className="text-body mb-8">{currentTopic?.description}</p>
-
-                  {/* Key Points */}
-                  <div className="bg-muted rounded-lg p-6 mb-8">
-                    <h3 className="font-medium text-foreground mb-4">Key Points</h3>
-                    <ul className="space-y-3">
-                      {currentTopic?.keyPoints.map((point, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <span className="text-gold font-bold">◆</span>
-                          <span className="text-body-small">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Resources */}
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <button className="flex items-center gap-3 p-4 border border-border rounded-lg hover:border-gold hover:bg-gold/5 transition-smooth text-left">
-                      <Play className="w-5 h-5 text-gold" />
-                      <div>
-                        <p className="font-medium text-foreground text-sm">Watch Video</p>
-                        <p className="text-xs text-muted-foreground">Training module</p>
+            <div className="grid md:grid-cols-2 gap-6">
+              {learningTopics.map((topic, index) => (
+                <div 
+                  key={index}
+                  className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                      <topic.icon className="w-6 h-6 text-gold" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-foreground mb-2">
+                        {topic.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {topic.description}
+                      </p>
+                      <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
+                        <span className="text-xs font-medium text-gold">
+                          Module Launching January 2026
+                        </span>
                       </div>
-                    </button>
-                    <button className="flex items-center gap-3 p-4 border border-border rounded-lg hover:border-gold hover:bg-gold/5 transition-smooth text-left">
-                      <Download className="w-5 h-5 text-gold" />
-                      <div>
-                        <p className="font-medium text-foreground text-sm">Download PDF</p>
-                        <p className="text-xs text-muted-foreground">One-page summary</p>
-                      </div>
-                    </button>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How to Study Section */}
+        <section className="section-padding bg-cream">
+          <div className="container-narrow">
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)]">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">How to Study This Module</h2>
+                <p className="text-body leading-relaxed">
+                  Once this module launches in January 2026, you'll receive a structured learning path with video lessons, reference materials, quizzes, and practical scenarios. Each section will build on the previous one, ensuring you develop a complete understanding of Medicare fundamentals. Until then, explore the topics above to see what's coming.
+                </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Coming Soon Banner */}
+        <section className="section-padding">
+          <div className="container-narrow text-center">
+            <div className="inline-flex items-center px-6 py-3 rounded-md bg-gold/10 border border-gold/20">
+              <span className="text-sm font-medium text-gold">
+                Full Medicare Fundamentals training launches January 2026.
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Back Button */}
+        <section className="pb-16 px-6">
+          <div className="container-narrow text-center">
+            <Link 
+              to="/sales-training"
+              className="inline-flex items-center justify-center px-8 py-3 border-2 border-gold rounded-lg text-sm font-medium text-gold hover:bg-gold hover:text-white transition-all duration-200"
+            >
+              Back to Training Hub
+            </Link>
           </div>
         </section>
       </main>
