@@ -99,7 +99,7 @@ const SalesTrainingPage = () => {
         </section>
 
         {/* Support Section */}
-        <section className="px-6 md:px-12 lg:px-20 py-10 bg-cream">
+        <section className="px-6 md:px-12 lg:px-20 py-6 bg-cream">
           <div className="container-narrow text-center">
             <h2 className="text-xl font-semibold mb-3">Questions About Training?</h2>
             <p className="text-sm text-body max-w-2xl mx-auto mb-5">
@@ -108,13 +108,13 @@ const SalesTrainingPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a 
                 href="mailto:austin@tylerinsurancegroup.com"
-                className="inline-flex items-center justify-center px-6 py-3 border border-border rounded-lg text-sm font-medium text-foreground hover:border-gold/40 hover:bg-gold/5 transition-all duration-200"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
               >
                 Contact Austin Tyler
               </a>
               <a 
                 href="mailto:andrew@tylerinsurancegroup.com"
-                className="inline-flex items-center justify-center px-6 py-3 border border-border rounded-lg text-sm font-medium text-foreground hover:border-gold/40 hover:bg-gold/5 transition-all duration-200"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
               >
                 Contact Andrew Horn
               </a>
