@@ -18,6 +18,7 @@ import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import ContractingHubPage from "./pages/ContractingHubPage";
 import CertificationsPage from "./pages/CertificationsPage";
+import FormsLibraryPage from "./pages/FormsLibraryPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/carrier-resources" element={<CarrierResourcesPage />} />
             <Route path="/agent-tools" element={<AgentToolsPage />} />
             <Route path="/certifications" element={<CertificationsPage />} />
+            <Route path="/forms-library" element={<FormsLibraryPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="*" element={<NotFound />} />

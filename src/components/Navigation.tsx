@@ -24,6 +24,12 @@ const navLinks = [
     href: "/agent-tools",
     sections: [
       {
+        title: "Tools & Resources",
+        items: [
+          { name: "Forms Library", href: "/forms-library", external: false },
+        ]
+      },
+      {
         title: "Quoting Tools",
         items: [
           { name: "Connect4Insurance", href: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login", external: true },
