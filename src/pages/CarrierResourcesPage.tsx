@@ -653,6 +653,12 @@ const carriers = [
           },
           {
             planName: "Wellcare Dual Access Sync Open (PPO D-SNP) HIDE H3975-004-000",
+            labels: [
+              { text: "QMB", type: "location" },
+              { text: "QMB+", type: "location" },
+              { text: "SLMB+", type: "location" },
+              { text: "FBDE", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Dual_Access_Sync_Open_DSNP_H3975-004_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Dual_Access_Sync_Open_DSNP_H3975-004_EOC_2026.pdf" },
@@ -672,6 +678,9 @@ const carriers = [
             planName: "Wellcare Dual Reserve (HMO-POS D-SNP) H9730-011-000",
             labels: [
               { text: "Partial Dual", type: "location" },
+              { text: "SLMB", type: "location" },
+              { text: "QDWI", type: "location" },
+              { text: "QI", type: "location" },
             ],
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Dual_Reserve_DSNP_H9730-011_SOB_2026.pdf" },
