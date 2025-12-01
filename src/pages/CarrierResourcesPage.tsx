@@ -244,6 +244,9 @@ const carriers = [
       { name: "Search Drugs", url: "https://www.devoted.com/search-formulary/" },
       { name: "Search Providers", url: "https://www.devoted.com/search-providers/" },
     ],
+    downloads: [
+      { name: "Broker Manual", url: "/downloads/Devoted_Health_Broker_Manual.pdf" },
+    ],
     summaryOfBenefits: {
       "Kentucky": [
         {
