@@ -27,7 +27,7 @@ const carrierCertifications = [
     buttonText: "Start Anthem Certification",
     subtext: "Annual certification for MAPD and PDP plans.",
     support: "Anthem Broker Support: (833) 864-0133",
-    url: "https://brokerportal.anthem.com/apps/ptb/login",
+    url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV",
     howToCertifyUrl: "/downloads/TIG_2026_Anthem_Certification_Instructions.pdf",
     howToCertifyTitle: "Anthem 2026 Certification Instructions",
     logo: anthemLogo,
