@@ -292,8 +292,10 @@ const carriers = [
     name: "Humana",
     logo: humanaLogo,
     contacts: [
-      { type: "Agent Support", number: "1-800-345-6789" },
-      { type: "Enrollment", number: "1-800-456-7890" },
+      { type: "Horace Williams - Broker Relationship Executive", number: "(502) 313-7938", email: "hwilliams41@humana.com" },
+      { type: "Chris Baker - Broker Relationship Manager", subtitle: "Eastern Kentucky", number: "(859) 227-9256", email: "cbaker56@humana.com" },
+      { type: "Samantha Stevenson - Broker Relationship Manager", subtitle: "Western Kentucky", number: "(502) 438-3816", email: "sjones224@humana.com" },
+      { type: "Humana Agent Support Unit", number: "(800) 309-3163", email: "AgentSupport@Humana.com" },
     ],
     links: [
       { name: "Broker Portal", url: "#" },
