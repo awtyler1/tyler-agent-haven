@@ -335,6 +335,13 @@ const carriers = [
               { type: "ANOC", url: "/downloads/Humana_Gold_Plus_H5619-071_HMO_ANOC_2026.pdf" },
             ],
           },
+          {
+            planName: "Humana Gold Plus (HMO) H0292-003-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Humana_Gold_Plus_HMO_H0292-003-000_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Humana_Gold_Plus_HMO_H0292-003-000_EOC_2026.pdf" },
+            ],
+          },
         ],
         "C-SNP": [
           {
