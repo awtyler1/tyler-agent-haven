@@ -311,10 +311,12 @@ const carriers = [
       "Kentucky": {
         "Humana Community": [
           {
-            name: "Humana Community (HMO) H1036-236-000 - Louisville",
-            sob: "/downloads/Humana_Community_HMO_H1036-236-000_SOB_2026.pdf",
-            eoc: "/downloads/Humana_Community_HMO_H1036-236-000_EOC_2026.pdf",
-            anoc: "/downloads/Humana_Community_HMO_H1036-236-000_ANOC_2026.pdf",
+            planName: "Humana Community (HMO) H1036-236-000 - Louisville",
+            documents: [
+              { type: "SOB", url: "/downloads/Humana_Community_HMO_H1036-236-000_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Humana_Community_HMO_H1036-236-000_EOC_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Humana_Community_HMO_H1036-236-000_ANOC_2026.pdf" },
+            ],
           },
         ],
         "Humana Gold Plus (HMO)": [],
@@ -322,9 +324,11 @@ const carriers = [
         "D-SNP": [],
         "PPO": [
           {
-            name: "HumanaChoice H7617-050 (PPO) H7617-050-000",
-            sob: "/downloads/HumanaChoice_H7617-050_PPO_H7617-050-000_SOB_2026.pdf",
-            eoc: "/downloads/HumanaChoice_H7617-050_PPO_H7617-050-000_EOC_2026.pdf",
+            planName: "HumanaChoice H7617-050 (PPO) H7617-050-000",
+            documents: [
+              { type: "SOB", url: "/downloads/HumanaChoice_H7617-050_PPO_H7617-050-000_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/HumanaChoice_H7617-050_PPO_H7617-050-000_EOC_2026.pdf" },
+            ],
           },
         ],
         "Giveback": [],
