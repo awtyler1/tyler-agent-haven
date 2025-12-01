@@ -547,7 +547,7 @@ const CarrierResourcesPage = () => {
                               </div>
                             ) : typeof submarkets === 'object' && submarkets !== null ? (
                               <Accordion type="multiple" className="space-y-2">
-                                {Object.entries(submarkets as Record<string, Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>>).map(([submarket, plans]) => (
+                                {Object.entries(submarkets as Record<string, Array<{planName: string; nonCommissionable?: boolean; documents: Array<{type: string; url: string; isExternal?: boolean}>}>>).map(([submarket, plans]) => (
                                   <AccordionItem key={submarket} value={submarket} className="border border-border/50 rounded-lg overflow-hidden">
                                     <AccordionTrigger className="px-3 py-2 bg-muted/30 hover:bg-muted/50 hover:no-underline text-sm">
                                       <div className="flex items-center gap-2">
@@ -562,7 +562,12 @@ const CarrierResourcesPage = () => {
                                         <div className="space-y-4">
                                           {plans.map((plan, index) => (
                                             <div key={index} className="border border-border/50 rounded-lg p-4 bg-muted/20">
-                                              <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
+                                              <p className="text-sm font-medium text-foreground mb-3">
+                                                {plan.planName}
+                                                {plan.nonCommissionable && (
+                                                  <span className="ml-2 text-xs font-semibold text-destructive uppercase">NON-COMMISSIONABLE</span>
+                                                )}
+                                              </p>
                                               <div className="flex flex-wrap gap-2">
                                                 {plan.documents.map((doc, docIndex) => (
                                                   <a 
