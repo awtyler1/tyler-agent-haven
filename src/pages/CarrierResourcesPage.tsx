@@ -302,6 +302,9 @@ const carriers = [
       { name: "Vantage", url: "#" },
       { name: "Certifications", url: "#" },
     ],
+    downloads: [
+      { name: "KY Humana Market Product Guide 2026", url: "/downloads/KY_Humana_Market_Product_Guide_2026.pdf" },
+    ],
     summaryOfBenefits: {
       "Kentucky": {
         // Submarkets will be added here
