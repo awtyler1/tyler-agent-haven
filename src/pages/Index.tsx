@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Rocket, FileText, Award, Wrench, GraduationCap, Building2, ExternalLink, Check, X, FolderOpen, Building } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 import tylerLogo from "@/assets/tyler-logo.png";
 import austinHeadshot from "@/assets/austin-headshot.jpg";
 import andrewHeadshot from "@/assets/andrew-headshot.png";
@@ -153,54 +153,22 @@ const Index = () => {
         {/* Control Center Grid */}
         <section className="pb-8 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <TooltipProvider>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6">
-                {controlCenterTiles.map((tile, index) => {
-                  const isTraining = tile.title === "Training";
-                  
-                  if (isTraining) {
-                    return (
-                      <Tooltip key={index}>
-                        <TooltipTrigger asChild>
-                          <div className="relative group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] cursor-not-allowed">
-                            <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center mb-4">
-                              <tile.icon className="w-5 h-5 text-gold" />
-                            </div>
-                            <h3 className="text-base font-semibold mb-1.5">{tile.title}</h3>
-                            <p className="text-sm text-muted-foreground">{tile.description}</p>
-                            
-                            {/* Overlay */}
-                            <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] rounded-lg flex items-center justify-center">
-                              <div className="bg-gold/10 border border-gold/30 rounded-md px-4 py-2">
-                                <p className="text-sm font-medium text-gold">Launching January 2026</p>
-                              </div>
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Training modules are currently in development.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  }
-                  
-                  return (
-                    <Link
-                      key={index}
-                      to={tile.link}
-                      onClick={() => window.scrollTo(0, 0)}
-                      className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center mb-4 group-hover:bg-gold/17 transition-colors">
-                        <tile.icon className="w-5 h-5 text-gold" />
-                      </div>
-                      <h3 className="text-base font-semibold mb-1.5">{tile.title}</h3>
-                      <p className="text-sm text-muted-foreground">{tile.description}</p>
-                    </Link>
-                  );
-                })}
-              </div>
-            </TooltipProvider>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6">
+              {controlCenterTiles.map((tile, index) => (
+                <Link
+                  key={index}
+                  to={tile.link}
+                  onClick={() => window.scrollTo(0, 0)}
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+                >
+                  <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center mb-4 group-hover:bg-gold/17 transition-colors">
+                    <tile.icon className="w-5 h-5 text-gold" />
+                  </div>
+                  <h3 className="text-base font-semibold mb-1.5">{tile.title}</h3>
+                  <p className="text-sm text-muted-foreground">{tile.description}</p>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 
