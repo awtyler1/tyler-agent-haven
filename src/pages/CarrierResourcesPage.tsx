@@ -337,7 +337,15 @@ const carriers = [
           },
         ],
         "C-SNP": [],
-        "D-SNP": [],
+        "D-SNP": [
+          {
+            planName: "Humana Gold Plus SNP-DE H1036-320 (HMO D-SNP) HIDE H1036-320-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Humana_Gold_Plus_SNP-DE_H1036-320_HMO_DSNP_HIDE_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Humana_Gold_Plus_SNP-DE_H1036-320_HMO_DSNP_HIDE_EOC_2026.pdf" },
+            ],
+          },
+        ],
         "PPO": [
           {
             planName: "HumanaChoice H7617-050 (PPO) H7617-050-000",
