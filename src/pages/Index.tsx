@@ -173,13 +173,9 @@ const Index = () => {
         </section>
 
         {/* What an FMO Is / Is Not */}
-        <section className="section-padding">
+        <section className="py-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-12">
-              <h2 className="heading-section">What an FMO Actually Is</h2>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8 mb-10">
+            <div className="grid md:grid-cols-2 gap-8">
               <div className="card-premium">
                 <h3 className="heading-subsection mb-6 text-gold">What an FMO Is</h3>
                 <ul className="space-y-4">
@@ -204,58 +200,42 @@ const Index = () => {
                 </ul>
               </div>
             </div>
-
-            <p className="text-center text-lg font-medium text-foreground italic">
-              "Our role is to build durable agents, not dependent ones."
-            </p>
           </div>
         </section>
 
-        {/* Who We Are */}
-        <section className="section-padding bg-cream">
+        {/* Mission & Vision */}
+        <section className="py-10 px-6 md:px-12 lg:px-20 bg-cream">
           <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-8">
-              <h2 className="heading-section">Who We Are as Your FMO</h2>
+            <div className="grid md:grid-cols-2 gap-10">
+              <div>
+                <div className="border-l-4 border-gold pl-6 mb-6">
+                  <h2 className="heading-section">Our Mission</h2>
+                </div>
+                <p className="text-body">
+                  To build elite, independent agents who serve clients with integrity, discipline, and clarity — and to create a system where ambition is matched with support, structure, and operational excellence.
+                </p>
+              </div>
+              <div>
+                <div className="border-l-4 border-gold pl-6 mb-6">
+                  <h2 className="heading-section">Our Vision</h2>
+                </div>
+                <p className="text-body">
+                  To become the most trusted Medicare-focused FMO in Kentucky and beyond, known for high standards, elite training, and a culture of disciplined execution.
+                </p>
+              </div>
             </div>
-            <p className="text-body max-w-3xl">
-              Tyler Insurance Group operates with discipline, structure, clean processes, and high standards. We are not interested in shortcuts or noise. We are focused on building a system that supports serious agents who want to build serious businesses. Our approach is methodical. Our expectations are clear. Our support is real.
-            </p>
-          </div>
-        </section>
-
-        {/* Mission */}
-        <section className="section-padding">
-          <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-8">
-              <h2 className="heading-section">Our Mission</h2>
-            </div>
-            <blockquote className="text-xl md:text-2xl text-foreground font-medium leading-relaxed max-w-4xl">
-              "To build elite, independent agents who serve clients with integrity, discipline, and clarity — and to create a system where ambition is matched with support, structure, and operational excellence."
-            </blockquote>
-          </div>
-        </section>
-
-        {/* Vision */}
-        <section className="section-padding bg-cream">
-          <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-8">
-              <h2 className="heading-section">Our Vision</h2>
-            </div>
-            <p className="text-body max-w-3xl">
-              To become the most trusted Medicare-focused FMO in Kentucky and beyond, known for high standards, elite training, and a culture of disciplined execution.
-            </p>
           </div>
         </section>
 
         {/* Expectations */}
-        <section className="section-padding">
+        <section className="py-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="grid md:grid-cols-2 gap-12">
+            <div className="grid md:grid-cols-2 gap-10">
               <div>
-                <div className="border-l-4 border-gold pl-6 mb-8">
+                <div className="border-l-4 border-gold pl-6 mb-6">
                   <h2 className="heading-section">What You Can Expect From Us</h2>
                 </div>
-                <ul className="space-y-4">
+                <ul className="space-y-3">
                   {expectations.map((item, index) => (
                     <li key={index} className="flex items-center gap-3">
                       <span className="text-gold font-bold">◆</span>
@@ -266,10 +246,10 @@ const Index = () => {
               </div>
 
               <div>
-                <div className="border-l-4 border-gold pl-6 mb-8">
+                <div className="border-l-4 border-gold pl-6 mb-6">
                   <h2 className="heading-section">What We Expect From You</h2>
                 </div>
-                <ul className="space-y-4">
+                <ul className="space-y-3">
                   {agentExpectations.map((item, index) => (
                     <li key={index} className="flex items-center gap-3">
                       <span className="text-gold font-bold">◆</span>
@@ -279,17 +259,13 @@ const Index = () => {
                 </ul>
               </div>
             </div>
-
-            <p className="text-center text-lg font-medium text-foreground italic mt-12">
-              "When both sides uphold these standards, success becomes predictable."
-            </p>
           </div>
         </section>
 
         {/* Leadership */}
-        <section className="section-padding bg-cream">
+        <section className="py-10 px-6 md:px-12 lg:px-20 bg-cream">
           <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-10">
+            <div className="border-l-4 border-gold pl-6 mb-8">
               <h2 className="heading-section">Leadership</h2>
             </div>
 
@@ -300,15 +276,15 @@ const Index = () => {
                     <img 
                       src={person.image} 
                       alt={person.name}
-                      className="w-32 h-32 rounded-full object-cover object-top mx-auto mb-4 border-2 border-gold/20"
+                      className="w-28 h-28 rounded-full object-cover object-top mx-auto mb-4 border-2 border-gold/20"
                     />
                   ) : (
-                    <div className="w-32 h-32 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                    <div className="w-28 h-28 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
                       <span className="text-4xl font-bold text-gold">{person.name[0]}</span>
                     </div>
                   )}
                   <h3 className="heading-subsection mb-1">{person.name}</h3>
-                  <p className="text-sm text-gold font-medium mb-4">{person.role}</p>
+                  <p className="text-sm text-gold font-medium mb-3">{person.role}</p>
                   <p className="text-body-small">{person.description}</p>
                 </div>
               ))}
@@ -316,23 +292,8 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Why We Built This */}
-        <section className="section-padding">
-          <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-8">
-              <h2 className="heading-section">Why We Built This Platform</h2>
-            </div>
-            <p className="text-body max-w-3xl mb-6">
-              This platform exists to eliminate confusion, unify training, raise standards, simplify onboarding, and create a repeatable system for long-term success.
-            </p>
-            <p className="text-body max-w-3xl">
-              We built it because we believe agents deserve clarity. They deserve structure. They deserve a system that works with them, not against them. Every page, every resource, every tool on this platform was designed with one goal: to help you succeed on your terms, with our support.
-            </p>
-          </div>
-        </section>
-
         {/* Quick Links Section */}
-        <section className="py-16 px-6 md:px-12 lg:px-20 bg-cream">
+        <section className="py-12 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <h2 className="text-sm font-medium tracking-widest text-gold uppercase text-center mb-8">Quick Links</h2>
             <div className="flex flex-wrap justify-center gap-4">
