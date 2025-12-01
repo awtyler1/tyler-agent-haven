@@ -617,7 +617,9 @@ const carriers = [
     ],
     summaryOfBenefits: {
       "Kentucky": {
-        // Submarkets will be added here
+        "HMO": [],
+        "PPO": [],
+        "DSNP": [],
       },
     },
   },
