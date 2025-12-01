@@ -92,35 +92,6 @@ const MedicareFundamentalsPage = () => {
           </div>
         </section>
 
-        {/* What You'll Learn Section */}
-        <section className="px-6 md:px-12 lg:px-20 pb-8">
-          <div className="container-narrow">
-            <h2 className="text-xl font-semibold mb-4 text-center">What You'll Learn</h2>
-            <ul className="space-y-2 max-w-2xl mx-auto text-sm text-body">
-              <li className="flex items-start gap-3">
-                <span className="text-gold mt-0.5">•</span>
-                <span>How Medicare is structured</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-gold mt-0.5">•</span>
-                <span>The differences between Parts A, B, C, and D</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-gold mt-0.5">•</span>
-                <span>Key enrollment periods and rules</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-gold mt-0.5">•</span>
-                <span>Essential compliance principles</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-gold mt-0.5">•</span>
-                <span>How to identify and navigate common client situations</span>
-              </li>
-            </ul>
-          </div>
-        </section>
-
         {/* Fundamentals Tile Grid */}
         <section className="px-6 md:px-12 lg:px-20 pb-12">
           <div className="container-narrow">
