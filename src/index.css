@@ -29,7 +29,7 @@
     --secondary-foreground: 30 10% 15%;
 
     --muted: 40 15% 95%;
-    --muted-foreground: 30 8% 45%;
+    --muted-foreground: 30 8% 35%;
 
     --accent: 43 56% 41%;
     --accent-foreground: 0 0% 100%;
@@ -198,11 +198,13 @@
   }
 
   .text-body {
-    @apply text-base md:text-lg text-muted-foreground leading-relaxed;
+    @apply text-base md:text-lg leading-relaxed;
+    color: hsl(30 10% 25%);
   }
 
   .text-body-small {
-    @apply text-sm md:text-base text-muted-foreground leading-relaxed;
+    @apply text-sm md:text-base leading-relaxed;
+    color: hsl(30 10% 30%);
   }
 
   .gold-marker::before {
