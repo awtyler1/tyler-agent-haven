@@ -27,14 +27,9 @@ const fundamentalsTiles = [
     icon: User
   },
   {
-    title: "Part A — Hospital Insurance",
-    subtitle: "Inpatient care, skilled nursing, and hospice coverage.",
+    title: "Part A & B — Original Medicare",
+    subtitle: "Hospital and medical insurance coverage.",
     icon: Building2
-  },
-  {
-    title: "Part B — Medical Insurance",
-    subtitle: "Outpatient care, doctor visits, and preventive services.",
-    icon: Stethoscope
   },
   {
     title: "Medicare Advantage (Part C)",
