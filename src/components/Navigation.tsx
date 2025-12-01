@@ -27,6 +27,7 @@ const navLinks = [
         title: "Tools & Resources",
         items: [
           { name: "Forms Library", href: "/forms-library", external: false },
+          { name: "Carrier Portals", href: "/carrier-portals", external: false },
         ]
       },
       {
