@@ -57,7 +57,7 @@ const carriers = [
           ]
         },
       ],
-      "Footprint-wide": [
+      "DSNP Plans": [
         { 
           planName: "Aetna Medicare HIDE (HMO D-SNP) H0628 - 012", 
           documents: [
