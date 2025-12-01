@@ -600,8 +600,9 @@ const carriers = [
     name: "Wellcare",
     logo: wellcareLogo,
     contacts: [
-      { type: "Agent Support", number: "1-800-789-0123" },
-      { type: "Enrollment", number: "1-800-890-1234" },
+      { name: "Austin Compton", role: "Regional Agency Manager", region: "Kentucky", email: "Austin.Compton@wellcare.com", phone: "859-297-8759" },
+      { name: "Jeff Baker", role: "Regional Agency Manager", region: "Kentucky", email: "Jeffrey.Baker@wellcare.com", phone: "502-365-8918" },
+      { type: "Broker Support Call Center", number: "1-866-822-1339" },
     ],
     links: [
       { name: "Broker Portal", url: "#" },
