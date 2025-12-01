@@ -474,6 +474,9 @@ const carriers = [
       { name: "Jarvis Portal", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in" },
       { name: "Provider Directory", url: "https://connect.werally.com/plans/uhc" },
     ],
+    downloads: [
+      { name: "2026 UCard Quick Reference Guide", url: "/downloads/UHC_2026_UCard_Quick_Reference_Guide.pdf" },
+    ],
     summaryOfBenefits: {
       "Kentucky": {
         "HMO": [
