@@ -174,7 +174,7 @@ const carriers = [
     ],
     links: [
       { name: "Producer World", url: "https://brokerportal.anthem.com/apps/ptb/login" },
-      { name: "mproducer", url: "https://mproducer.anthem.com/mproducer/public/login" },
+      { name: "mProducer", url: "https://mproducer.anthem.com/mproducer/public/login" },
     ],
   },
   {
