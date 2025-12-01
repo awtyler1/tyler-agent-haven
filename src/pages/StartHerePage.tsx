@@ -2,17 +2,9 @@ import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { 
-  CheckCircle2, 
-  ArrowRight, 
   FileText, 
   Award, 
-  Wrench, 
-  GraduationCap, 
-  Shield, 
-  FolderOpen,
-  HeadphonesIcon,
-  ClipboardList,
-  User
+  GraduationCap
 } from "lucide-react";
 
 
@@ -32,28 +24,6 @@ const ourSupport = [
   "Fast, reliable communication",
 ];
 
-const essentialTools = [
-  { 
-    title: "BOSS CRM", 
-    link: "/agent-tools",
-    icon: Wrench
-  },
-  { 
-    title: "Connecture", 
-    link: "/agent-tools",
-    icon: Wrench
-  },
-  { 
-    title: "Sunfire", 
-    link: "/agent-tools",
-    icon: Wrench
-  },
-  { 
-    title: "Carrier Portal Links", 
-    link: "/carrier-portals",
-    icon: FolderOpen
-  },
-];
 
 
 const StartHerePage = () => {
@@ -154,54 +124,6 @@ const StartHerePage = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Essential Tools */}
-        <section id="essential-tools" className="py-12 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
-          <div className="container-narrow">
-            <h2 className="heading-section text-center mb-10">Essential Tools</h2>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-              {essentialTools.map((tool, index) => (
-                <Link
-                  key={index}
-                  to={tool.link}
-                  onClick={() => window.scrollTo(0, 0)}
-                  className="bg-white border border-[#EAE7E1] rounded-lg p-5 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300 text-center"
-                >
-                  <tool.icon className="w-5 h-5 text-gold mb-3 mx-auto" />
-                  <h3 className="text-base font-semibold text-foreground">{tool.title}</h3>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Support Section */}
-        <section className="py-12 px-6 md:px-12 lg:px-20">
-          <div className="container-narrow">
-            <div className="max-w-2xl mx-auto text-center">
-              <h2 className="heading-section mb-8">Support</h2>
-              
-              <div className="grid sm:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <User className="w-5 h-5 text-gold mb-2 mx-auto" />
-                  <p className="text-sm font-semibold text-foreground mb-1">Contracting Support</p>
-                  <p className="text-sm text-muted-foreground">Caroline</p>
-                </div>
-                <div className="text-center">
-                  <User className="w-5 h-5 text-gold mb-2 mx-auto" />
-                  <p className="text-sm font-semibold text-foreground mb-1">General Support</p>
-                  <p className="text-sm text-muted-foreground">Austin</p>
-                </div>
-                <div className="text-center">
-                  <User className="w-5 h-5 text-gold mb-2 mx-auto" />
-                  <p className="text-sm font-semibold text-foreground mb-1">Technical Support</p>
-                  <p className="text-sm text-muted-foreground">Andrew</p>
-                </div>
               </div>
             </div>
           </div>
