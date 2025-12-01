@@ -73,15 +73,15 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6">
+    <div className="min-h-screen bg-gradient-to-b from-[hsl(40,30%,99%)] to-white flex items-center justify-center px-6">
       <div className="w-full max-w-md">
-        <div className="card-premium text-center">
+        <div className="bg-card border border-border rounded-xl p-8 text-center shadow-[0_4px_24px_-4px_hsl(43,30%,20%,0.08)] hover:shadow-[0_12px_40px_-8px_hsl(43,30%,20%,0.14)] transition-shadow">
           {/* Logo */}
           <div className="mb-8">
             <img
               src={tylerLogo}
               alt="Tyler Insurance Group"
-              className="h-16 mx-auto"
+              className="h-20 mx-auto"
             />
           </div>
 
@@ -106,11 +106,20 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
               />
             </div>
 
+            {/* Security note */}
+            <p className="text-xs text-muted-foreground -mt-2">
+              Secure access for licensed Tyler Insurance Group agents.
+            </p>
+
             {error && (
               <p className="text-sm text-destructive">{error}</p>
             )}
 
-            <Button type="submit" className="btn-primary-gold w-full" disabled={isValidating}>
+            <Button 
+              type="submit" 
+              className="w-full h-12 bg-gradient-to-b from-gold to-[hsl(43,56%,38%)] text-primary-foreground rounded-lg font-medium transition-all hover:shadow-[0_4px_16px_-2px_hsl(43,56%,41%,0.4)] hover:from-[hsl(43,56%,38%)] hover:to-[hsl(43,56%,35%)] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" 
+              disabled={isValidating}
+            >
               {isValidating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
