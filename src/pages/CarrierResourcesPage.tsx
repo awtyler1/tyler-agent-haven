@@ -531,6 +531,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/UHC_AARP_Patriot_NoRx_KYMA01_PPO_H8768-020_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_AARP_Patriot_NoRx_KYMA01_PPO_H8768-020_EOC_2026.pdf" },
+              { type: "Plan Highlights", url: "/downloads/UHC_AARP_Patriot_NoRx_KYMA01_PPO_H8768-020_Highlights_2026.pdf" },
             ],
           },
         ],
