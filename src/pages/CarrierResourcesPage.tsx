@@ -270,6 +270,15 @@ const carriers = [
             { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
           ],
         },
+        {
+          planName: "DEVOTED CHOICE GIVEBACK 002 KY (PPO)",
+          documents: [
+            { type: "SOB", url: "/downloads/Devoted_Choice_Giveback_002_KY_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Devoted_Choice_Giveback_002_KY_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Devoted_Choice_Giveback_002_KY_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
+          ],
+        },
       ],
     },
   },
