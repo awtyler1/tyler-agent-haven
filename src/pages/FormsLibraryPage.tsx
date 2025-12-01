@@ -32,9 +32,9 @@ const FormsLibraryPage = () => {
       title: "Other Important Documents",
       description: "Commonly used forms for clean, compliant appointments.",
       forms: [
-        { name: "Complaint / Grievance Form", file: "#" },
-        { name: "Cancellation Request Form", file: "#" },
-        { name: "Provider Search Guide", file: "#" }
+        { name: "Coming soon", file: "#" },
+        { name: "Coming soon", file: "#" },
+        { name: "Coming soon", file: "#" }
       ]
     }
   ];
