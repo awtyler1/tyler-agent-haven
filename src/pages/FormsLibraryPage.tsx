@@ -10,9 +10,7 @@ const FormsLibraryPage = () => {
       title: "Scope of Appointment (SOA) Forms",
       description: "Required before discussing Medicare Advantage or Prescription Drug Plans.",
       forms: [
-        { name: "Download SOA (Standard)", file: "/downloads/Scope-of-Appointment_2026.pdf" },
-        { name: "Download SOA — Telephonic Version", file: "/downloads/Scope-of-Appointment_2026.pdf" },
-        { name: "Download SOA — Spanish", file: "/downloads/Scope-of-Appointment_2026.pdf" }
+        { name: "Download SOA (Standard)", file: "/downloads/Scope-of-Appointment_2026.pdf" }
       ]
     },
     {
