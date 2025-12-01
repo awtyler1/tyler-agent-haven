@@ -64,7 +64,7 @@ const SalesTrainingPage = () => {
         {/* Training Modules Grid */}
         <section className="section-padding">
           <div className="container-narrow">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               {trainingModules.map((module, index) => (
                 module.href ? (
                   <Link
