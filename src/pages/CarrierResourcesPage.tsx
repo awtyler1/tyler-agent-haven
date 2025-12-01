@@ -472,8 +472,6 @@ const carriers = [
     ],
     links: [
       { name: "Jarvis Portal", url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in" },
-      { name: "Certifications", url: "#" },
-      { name: "Marketing Materials", url: "#" },
       { name: "Provider Directory", url: "https://connect.werally.com/plans/uhc" },
     ],
     summaryOfBenefits: {
