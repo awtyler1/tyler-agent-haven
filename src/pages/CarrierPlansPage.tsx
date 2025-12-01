@@ -97,7 +97,7 @@ const CarrierPlansPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="2026">2026</SelectItem>
-                    <SelectItem value="2025" disabled>2025 (Coming Soon)</SelectItem>
+                    <SelectItem value="2027" disabled>2027</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
