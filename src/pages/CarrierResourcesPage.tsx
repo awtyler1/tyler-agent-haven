@@ -353,6 +353,14 @@ const carriers = [
               { type: "ANOC", url: "/downloads/HumanaChoice_SNP-DE_H5525-045_PPO_DSNP_HIDE_ANOC_2026.pdf" },
             ],
           },
+          {
+            planName: "Humana Gold Plus SNP-DE H5619-163 (HMO D-SNP) HIDE H5619-163-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Humana_Gold_Plus_SNP-DE_H5619-163_HMO_DSNP_HIDE_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Humana_Gold_Plus_SNP-DE_H5619-163_HMO_DSNP_HIDE_EOC_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Humana_Gold_Plus_SNP-DE_H5619-163_HMO_DSNP_HIDE_ANOC_2026.pdf" },
+            ],
+          },
         ],
         "PPO": [
           {
