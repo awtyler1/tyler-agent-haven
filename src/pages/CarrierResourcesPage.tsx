@@ -30,7 +30,14 @@ const carriers = [
       { name: "Aetna Medicare 2026 KY Market Specific Training", url: "/downloads/Aetna_Medicare_2026_KY_Market_Specific_Training.pdf" },
       { name: "Aetna Medicare Extra Benefits Card 2026 Broker Playbook", url: "/downloads/2026_Aetna_Medicare_EBC_Broker_Playbook.pdf" },
     ],
-    summaryOfBenefits: [],
+    summaryOfBenefits: {
+      "Bowling Green / Western KY": [],
+      "Footprint-wide": [],
+      "Greater Ashland / Eastern KY": [],
+      "Greater Lexington": [],
+      "Northern KY / Greater Louisville": [],
+      "Select Counties": [],
+    },
   },
   {
     id: "anthem",
@@ -264,25 +271,32 @@ const CarrierResourcesPage = () => {
                 {/* Summary of Benefits Section */}
                 {'summaryOfBenefits' in activeCarrier && activeCarrier.summaryOfBenefits && (
                   <div className="mt-8 pt-6 border-t border-border">
-                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-4">Summary of Benefits</h4>
-                    {activeCarrier.summaryOfBenefits.length > 0 ? (
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {activeCarrier.summaryOfBenefits.map((sob, index) => (
-                          <a 
-                            key={index}
-                            href={sob.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth p-3 border border-border rounded-lg hover:border-gold/50"
-                          >
-                            <FileText size={14} className="text-gold flex-shrink-0" />
-                            <span>{sob.name}</span>
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">Plan documents coming soon.</p>
-                    )}
+                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Summary of Benefits</h4>
+                    <div className="space-y-6">
+                      {Object.entries(activeCarrier.summaryOfBenefits).map(([market, plans]) => (
+                        <div key={market}>
+                          <h5 className="text-sm font-semibold text-foreground mb-3">{market}</h5>
+                          {(plans as Array<{name: string; url: string}>).length > 0 ? (
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {(plans as Array<{name: string; url: string}>).map((sob, index) => (
+                                <a 
+                                  key={index}
+                                  href={sob.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth p-3 border border-border rounded-lg hover:border-gold/50"
+                                >
+                                  <FileText size={14} className="text-gold flex-shrink-0" />
+                                  <span>{sob.name}</span>
+                                </a>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground italic ml-2">No plans added yet.</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
