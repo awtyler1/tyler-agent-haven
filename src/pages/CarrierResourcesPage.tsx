@@ -525,7 +525,15 @@ const carriers = [
             ],
           },
         ],
-        "Giveback": [],
+        "Giveback": [
+          {
+            planName: "AARP Medicare Advantage Patriot No Rx KY-MA01 (PPO) H8768-020-000",
+            documents: [
+              { type: "SOB", url: "/downloads/UHC_AARP_Patriot_NoRx_KYMA01_PPO_H8768-020_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/UHC_AARP_Patriot_NoRx_KYMA01_PPO_H8768-020_EOC_2026.pdf" },
+            ],
+          },
+        ],
       },
     },
   },
