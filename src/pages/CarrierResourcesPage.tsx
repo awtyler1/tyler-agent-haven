@@ -318,6 +318,14 @@ const carriers = [
               { type: "ANOC", url: "/downloads/Humana_Community_HMO_H1036-236-000_ANOC_2026.pdf" },
             ],
           },
+          {
+            planName: "Humana Community (HMO) H5178-002-000 - Lexington",
+            documents: [
+              { type: "SOB", url: "/downloads/Humana_Community_HMO_H5178-002-000_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Humana_Community_HMO_H5178-002-000_EOC_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Humana_Community_HMO_H5178-002-000_ANOC_2026.pdf" },
+            ],
+          },
         ],
         "Humana Gold Plus (HMO)": [
           {
