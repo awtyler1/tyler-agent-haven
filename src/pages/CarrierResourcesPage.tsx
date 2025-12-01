@@ -505,6 +505,12 @@ const carriers = [
         "D-SNP": [
           {
             planName: "UHC Dual Complete KY-S002 (HMO-POS D-SNP) HIDE H6595-004-000",
+            labels: [
+              { text: "QMB", type: "location" },
+              { text: "QMB+", type: "location" },
+              { text: "SLMB+", type: "location" },
+              { text: "FBDE", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYS002_DSNP_H6595-004_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS002_DSNP_H6595-004_EOC_2026.pdf" },
@@ -512,6 +518,11 @@ const carriers = [
           },
           {
             planName: "UHC Dual Complete KY-S4 (HMO-POS D-SNP) HIDE H6595-005-000",
+            labels: [
+              { text: "QMB+", type: "location" },
+              { text: "SLMB+", type: "location" },
+              { text: "FBDE", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYS4_DSNP_H6595-005_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS4_DSNP_H6595-005_EOC_2026.pdf" },
@@ -519,6 +530,12 @@ const carriers = [
           },
           {
             planName: "UHC Dual Complete KY-S001 (PPO D-SNP) HIDE H1889-008-000",
+            labels: [
+              { text: "QMB", type: "location" },
+              { text: "QMB+", type: "location" },
+              { text: "SLMB+", type: "location" },
+              { text: "FBDE", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYS001_PPO_DSNP_H1889-008_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS001_PPO_DSNP_H1889-008_EOC_2026.pdf" },
@@ -526,6 +543,11 @@ const carriers = [
           },
           {
             planName: "UHC Dual Complete KY-S3 (PPO D-SNP) HIDE H1889-030-000",
+            labels: [
+              { text: "QMB+", type: "location" },
+              { text: "SLMB+", type: "location" },
+              { text: "FBDE", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYS3_PPO_DSNP_H1889-030_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS3_PPO_DSNP_H1889-030_EOC_2026.pdf" },
@@ -533,6 +555,14 @@ const carriers = [
           },
           {
             planName: "UHC Dual Complete KY-V001 (HMO-POS D-SNP) HIDE H6595-003-000",
+            labels: [
+              { text: "QMB", type: "location" },
+              { text: "QMB+", type: "location" },
+              { text: "SLMB", type: "location" },
+              { text: "SLMB+", type: "location" },
+              { text: "QI", type: "location" },
+              { text: "FBDE", type: "location" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYV001_DSNP_H6595-003_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYV001_DSNP_H6595-003_EOC_2026.pdf" },
