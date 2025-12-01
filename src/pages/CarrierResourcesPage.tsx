@@ -605,7 +605,7 @@ const carriers = [
       { type: "Broker Support Call Center", number: "1-866-822-1339" },
     ],
     links: [
-      { name: "Broker Portal", url: "#" },
+      { name: "Broker Portal", url: "https://www.wellcare.com/Broker-Resources/Broker-Resources" },
       { name: "Plan Materials", url: "#" },
     ],
     summaryOfBenefits: {
