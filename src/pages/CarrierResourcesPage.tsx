@@ -313,6 +313,7 @@ const carriers = [
           {
             planName: "Humana Community (HMO) H1036-236-000",
             labels: [
+              { text: "Louisville", type: "location" },
               { text: "Smaller Network", type: "caution" },
               { text: "High Dental Allowance", type: "positive" },
             ],
@@ -325,6 +326,7 @@ const carriers = [
           {
             planName: "Humana Community (HMO) H5178-002-000",
             labels: [
+              { text: "Lexington", type: "location" },
               { text: "Smaller Network", type: "caution" },
               { text: "High Dental Allowance", type: "positive" },
             ],
@@ -649,7 +651,7 @@ const CarrierResourcesPage = () => {
                                         <span 
                                           key={labelIndex}
                                           className={`ml-2 text-xs font-semibold uppercase ${
-                                            label.type === 'caution' ? 'text-amber-500' : 'text-emerald-500'
+                                            label.type === 'caution' ? 'text-amber-500' : label.type === 'location' ? 'text-blue-500' : 'text-emerald-500'
                                           }`}
                                         >
                                           {label.text}
@@ -703,7 +705,7 @@ const CarrierResourcesPage = () => {
                                                   <span 
                                                     key={labelIndex}
                                                     className={`ml-2 text-xs font-semibold uppercase ${
-                                                      label.type === 'caution' ? 'text-amber-500' : 'text-emerald-500'
+                                                      label.type === 'caution' ? 'text-amber-500' : label.type === 'location' ? 'text-blue-500' : 'text-emerald-500'
                                                     }`}
                                                   >
                                                     {label.text}
