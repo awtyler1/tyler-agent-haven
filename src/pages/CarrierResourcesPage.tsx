@@ -47,6 +47,7 @@ const carriers = [
           planName: "Aetna Medicare HIDE (HMO D-SNP) H0628 - 012", 
           documents: [
             { type: "SOB", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_ANOC_2026.pdf" },
           ]
         },
       ],
