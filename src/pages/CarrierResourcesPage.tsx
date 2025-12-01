@@ -183,6 +183,7 @@ const carriers = [
       "Kentucky": [
         {
           planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-001",
+          nonCommissionable: true,
           documents: [
             { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_SOB_2026.pdf" },
             { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-001_EOC_2026.pdf" },
@@ -469,9 +470,14 @@ const CarrierResourcesPage = () => {
                             {Array.isArray(submarkets) ? (
                               /* Direct plans without submarkets */
                               <div className="space-y-4">
-                                {(submarkets as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).map((plan, index) => (
+                                {(submarkets as Array<{planName: string; nonCommissionable?: boolean; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).map((plan, index) => (
                                   <div key={index} className="border border-border/50 rounded-lg p-4 bg-muted/20">
-                                    <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
+                                    <p className="text-sm font-medium text-foreground mb-3">
+                                      {plan.planName}
+                                      {plan.nonCommissionable && (
+                                        <span className="ml-2 text-xs font-semibold text-destructive uppercase">NON-COMMISSIONABLE</span>
+                                      )}
+                                    </p>
                                     <div className="flex flex-wrap gap-2">
                                       {plan.documents.map((doc, docIndex) => (
                                         <a 
