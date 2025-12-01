@@ -437,6 +437,14 @@ const carriers = [
               { type: "EOC", url: "/downloads/HumanaChoice_Giveback_H7617-049_PPO_EOC_2026.pdf" },
             ],
           },
+          {
+            planName: "Humana USAA Honor Giveback (PPO) H5216-105-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H5216-105-000_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H5216-105-000_EOC_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H5216-105-000_ANOC_2026.pdf" },
+            ],
+          },
         ],
       },
     },
