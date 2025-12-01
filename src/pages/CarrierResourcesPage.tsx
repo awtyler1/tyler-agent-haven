@@ -75,7 +75,17 @@ const carriers = [
           ]
         },
       ],
-      "Greater Louisville": [],
+      "Greater Louisville": [
+        { 
+          planName: "Aetna Medicare Signature (HMO-POS) H0628 - 024", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_Formulary_2026.pdf" },
+          ]
+        },
+      ],
       "Northern KY / Greater Louisville": [],
       "Select Counties": [],
     },
