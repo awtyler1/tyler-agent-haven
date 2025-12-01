@@ -37,129 +37,130 @@ const carriers = [
       { name: "Aetna Medicare Extra Benefits Card 2026 Broker Playbook", url: "/downloads/2026_Aetna_Medicare_EBC_Broker_Playbook.pdf" },
     ],
     summaryOfBenefits: {
-      "Bowling Green / Western KY": [
-        { 
-          planName: "Aetna Medicare Signature Extra (HMO-POS) H0628 - 007", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-007", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Formulary_2026.pdf" },
-          ]
-        },
-        { 
-          planName: "Aetna Medicare Signature (PPO) H5521 - 260", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-260", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_Formulary_2026.pdf" },
-          ]
-        },
-      ],
-      "DSNP Plans": [
-        { 
-          planName: "Aetna Medicare HIDE (HMO D-SNP) H0628 - 012", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-012", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_Formulary_2026.pdf" },
-          ]
-        },
-        { 
-          planName: "Aetna Medicare Partial Dual (HMO D-SNP) H0628 - 040", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-040", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_SOB_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_Formulary_2026.pdf" },
-          ]
-        },
-      ],
-      "Greater Ashland / Eastern KY": [
-        { 
-          planName: "Aetna Medicare Signature (HMO-POS) H0628 - 010", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-010", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_Formulary_2026.pdf" },
-          ]
-        },
-      ],
-      "Greater Lexington": [
-        { 
-          planName: "Aetna Medicare Signature (HMO-POS) H0628 - 008", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-008", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_2026_SOB.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_Formulary_2026.pdf" },
-          ]
-        },
-        { 
-          planName: "Aetna Medicare Signature (PPO) H5521 - 156", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-156", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_Formulary_2026.pdf" },
-          ]
-        },
-      ],
-      "Greater Louisville": [
-        { 
-          planName: "Aetna Medicare Signature (HMO-POS) H0628 - 024", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-024", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_Formulary_2026.pdf" },
-          ]
-        },
-      ],
-      "Northern KY / Greater Ashland / Eastern KY": [
-        { 
-          planName: "Aetna Medicare Signature (PPO) H5521 - 085", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-085", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_Formulary_2026.pdf" },
-          ]
-        },
-      ],
-      
-      "Select Counties": [
-        { 
-          planName: "Aetna Medicare Eagle Giveback (PPO) H5521 - 488", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-488", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_EOC_2026.pdf" },
-          ]
-        },
-        { 
-          planName: "Aetna Medicare Value Plus (PPO) H5521 - 490", 
-          documents: [
-            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-490", isExternal: true },
-            { type: "SOB", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_SOB_2026.pdf" },
-            { type: "ANOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_ANOC_2026.pdf" },
-            { type: "EOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_EOC_2026.pdf" },
-            { type: "Formulary", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_Formulary_2026.pdf" },
-          ]
-        },
-      ],
+      "Kentucky": {
+        "Bowling Green / Western KY": [
+          { 
+            planName: "Aetna Medicare Signature Extra (HMO-POS) H0628 - 007", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-007", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Formulary_2026.pdf" },
+            ]
+          },
+          { 
+            planName: "Aetna Medicare Signature (PPO) H5521 - 260", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-260", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-260_Formulary_2026.pdf" },
+            ]
+          },
+        ],
+        "DSNP Plans": [
+          { 
+            planName: "Aetna Medicare HIDE (HMO D-SNP) H0628 - 012", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-012", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_Formulary_2026.pdf" },
+            ]
+          },
+          { 
+            planName: "Aetna Medicare Partial Dual (HMO D-SNP) H0628 - 040", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-040", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_Formulary_2026.pdf" },
+            ]
+          },
+        ],
+        "Greater Ashland / Eastern KY": [
+          { 
+            planName: "Aetna Medicare Signature (HMO-POS) H0628 - 010", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-010", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-010_Formulary_2026.pdf" },
+            ]
+          },
+        ],
+        "Greater Lexington": [
+          { 
+            planName: "Aetna Medicare Signature (HMO-POS) H0628 - 008", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-008", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_2026_SOB.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-008_Formulary_2026.pdf" },
+            ]
+          },
+          { 
+            planName: "Aetna Medicare Signature (PPO) H5521 - 156", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-156", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-156_Formulary_2026.pdf" },
+            ]
+          },
+        ],
+        "Greater Louisville": [
+          { 
+            planName: "Aetna Medicare Signature (HMO-POS) H0628 - 024", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-024", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_HMO-POS_H0628-024_Formulary_2026.pdf" },
+            ]
+          },
+        ],
+        "Northern KY / Greater Ashland / Eastern KY": [
+          { 
+            planName: "Aetna Medicare Signature (PPO) H5521 - 085", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-085", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Signature_PPO_H5521-085_Formulary_2026.pdf" },
+            ]
+          },
+        ],
+        "Select Counties": [
+          { 
+            planName: "Aetna Medicare Eagle Giveback (PPO) H5521 - 488", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-488", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_EOC_2026.pdf" },
+            ]
+          },
+          { 
+            planName: "Aetna Medicare Value Plus (PPO) H5521 - 490", 
+            documents: [
+              { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H5521-490", isExternal: true },
+              { type: "SOB", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_SOB_2026.pdf" },
+              { type: "ANOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_ANOC_2026.pdf" },
+              { type: "EOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_Formulary_2026.pdf" },
+            ]
+          },
+        ],
+      },
     },
   },
   {
@@ -179,9 +180,9 @@ const carriers = [
       { name: "Certification", url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV" },
     ],
     summaryOfBenefits: {
-      "Kentucky": [
-        // Plans will be added here
-      ],
+      "Kentucky": {
+        // Submarkets will be added here
+      },
     },
   },
   {
@@ -405,46 +406,63 @@ const CarrierResourcesPage = () => {
                   <div className="mt-8 pt-6 border-t border-border">
                     <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Plan Documents by Region</h4>
                     <Accordion type="multiple" className="space-y-3">
-                      {Object.entries(activeCarrier.summaryOfBenefits).map(([market, plans]) => (
-                        <AccordionItem key={market} value={market} className="border border-border rounded-lg overflow-hidden">
+                      {Object.entries(activeCarrier.summaryOfBenefits).map(([state, submarkets]) => (
+                        <AccordionItem key={state} value={state} className="border border-border rounded-lg overflow-hidden">
                           <AccordionTrigger className="px-4 py-3 bg-muted/50 hover:bg-muted hover:no-underline">
                             <div className="flex items-center gap-2">
                               <MapPin size={16} className="text-gold" />
-                              <span className="font-semibold text-foreground">{market}</span>
-                              <span className="text-xs text-muted-foreground ml-2">
-                                ({(plans as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).length} plan{(plans as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).length !== 1 ? 's' : ''})
-                              </span>
+                              <span className="font-semibold text-foreground">{state}</span>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 py-4 bg-background">
-                            {(plans as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).length > 0 ? (
-                              <div className="space-y-4">
-                                {(plans as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).map((plan, index) => (
-                                  <div key={index} className="border border-border/50 rounded-lg p-4 bg-muted/20">
-                                    <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
-                                    <div className="flex flex-wrap gap-2">
-                                      {plan.documents.map((doc, docIndex) => (
-                                        <a 
-                                          key={docIndex}
-                                          href={doc.url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth px-3 py-1.5 bg-background border border-border rounded-md hover:bg-gold/10 hover:border-gold/30"
-                                        >
-                                          {doc.isExternal ? (
-                                            <ExternalLink size={12} className="text-gold" />
-                                          ) : (
-                                            <FileText size={12} className="text-gold" />
-                                          )}
-                                          <span>{doc.type}</span>
-                                        </a>
-                                      ))}
-                                    </div>
-                                  </div>
+                            {typeof submarkets === 'object' && submarkets !== null && !Array.isArray(submarkets) ? (
+                              <Accordion type="multiple" className="space-y-2">
+                                {Object.entries(submarkets as Record<string, Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>>).map(([submarket, plans]) => (
+                                  <AccordionItem key={submarket} value={submarket} className="border border-border/50 rounded-lg overflow-hidden">
+                                    <AccordionTrigger className="px-3 py-2 bg-muted/30 hover:bg-muted/50 hover:no-underline text-sm">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium text-foreground">{submarket}</span>
+                                        <span className="text-xs text-muted-foreground">
+                                          ({plans.length} plan{plans.length !== 1 ? 's' : ''})
+                                        </span>
+                                      </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-3 py-3 bg-background">
+                                      {plans.length > 0 ? (
+                                        <div className="space-y-4">
+                                          {plans.map((plan, index) => (
+                                            <div key={index} className="border border-border/50 rounded-lg p-4 bg-muted/20">
+                                              <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
+                                              <div className="flex flex-wrap gap-2">
+                                                {plan.documents.map((doc, docIndex) => (
+                                                  <a 
+                                                    key={docIndex}
+                                                    href={doc.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth px-3 py-1.5 bg-background border border-border rounded-md hover:bg-gold/10 hover:border-gold/30"
+                                                  >
+                                                    {doc.isExternal ? (
+                                                      <ExternalLink size={12} className="text-gold" />
+                                                    ) : (
+                                                      <FileText size={12} className="text-gold" />
+                                                    )}
+                                                    <span>{doc.type}</span>
+                                                  </a>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <p className="text-xs text-muted-foreground italic">No plans added yet.</p>
+                                      )}
+                                    </AccordionContent>
+                                  </AccordionItem>
                                 ))}
-                              </div>
+                              </Accordion>
                             ) : (
-                              <p className="text-xs text-muted-foreground italic">No plans added yet.</p>
+                              <p className="text-xs text-muted-foreground italic">No submarkets added yet.</p>
                             )}
                           </AccordionContent>
                         </AccordionItem>
