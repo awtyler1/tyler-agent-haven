@@ -135,11 +135,8 @@ const Index = () => {
             <img 
               src={tylerLogo} 
               alt="Tyler Insurance Group" 
-              className="h-30 md:h-35 mx-auto mb-6"
-              style={{ 
-                filter: 'sepia(0.15) saturate(0.7) brightness(1.15) contrast(0.92) drop-shadow(0 1px 3px rgba(0,0,0,0.03))',
-                opacity: 0.85
-              }}
+              className="h-24 md:h-28 mx-auto mb-6"
+              style={{ filter: 'contrast(1.1) saturate(1.1)' }}
             />
             <h1 className="heading-display mb-3">Tyler Insurance Group Agent Platform</h1>
             <p className="text-body max-w-2xl mx-auto mb-6" style={{ color: 'hsl(30 10% 20%)' }}>
