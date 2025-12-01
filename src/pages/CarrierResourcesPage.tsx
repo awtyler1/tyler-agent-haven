@@ -197,6 +197,14 @@ const carriers = [
             { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_Application_2026.pdf" },
           ]
         },
+        {
+          planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-003",
+          documents: [
+            { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_SOB_2026.pdf" },
+            { type: "EOC", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_EOC_2026.pdf" },
+            { type: "Enrollment Application", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-003_Application_2026.pdf" },
+          ]
+        },
       ],
     },
   },
