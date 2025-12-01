@@ -180,16 +180,14 @@ const carriers = [
       { name: "Certification", url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV" },
     ],
     summaryOfBenefits: {
-      "Kentucky": {
-        "General": [
-          {
-            planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-005",
-            documents: [
-              { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_SOB_2026.pdf" },
-            ]
-          },
-        ],
-      },
+      "Kentucky": [
+        {
+          planName: "Anthem Medicare Advantage (HMO-POS) H9525-013-005",
+          documents: [
+            { type: "SOB", url: "/downloads/Anthem_Medicare_Advantage_HMO-POS_H9525-013-005_SOB_2026.pdf" },
+          ]
+        },
+      ],
     },
   },
   {
@@ -442,7 +440,34 @@ const CarrierResourcesPage = () => {
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 py-4 bg-background">
-                            {typeof submarkets === 'object' && submarkets !== null && !Array.isArray(submarkets) ? (
+                            {Array.isArray(submarkets) ? (
+                              /* Direct plans without submarkets */
+                              <div className="space-y-4">
+                                {(submarkets as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).map((plan, index) => (
+                                  <div key={index} className="border border-border/50 rounded-lg p-4 bg-muted/20">
+                                    <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {plan.documents.map((doc, docIndex) => (
+                                        <a 
+                                          key={docIndex}
+                                          href={doc.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth px-3 py-1.5 bg-background border border-border rounded-md hover:bg-gold/10 hover:border-gold/30"
+                                        >
+                                          {doc.isExternal ? (
+                                            <ExternalLink size={12} className="text-gold" />
+                                          ) : (
+                                            <FileText size={12} className="text-gold" />
+                                          )}
+                                          <span>{doc.type}</span>
+                                        </a>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : typeof submarkets === 'object' && submarkets !== null ? (
                               <Accordion type="multiple" className="space-y-2">
                                 {Object.entries(submarkets as Record<string, Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>>).map(([submarket, plans]) => (
                                   <AccordionItem key={submarket} value={submarket} className="border border-border/50 rounded-lg overflow-hidden">
