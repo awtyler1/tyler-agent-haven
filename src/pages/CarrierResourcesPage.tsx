@@ -339,6 +339,13 @@ const carriers = [
               { type: "EOC", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H7617-005-000_EOC_2026.pdf" },
             ],
           },
+          {
+            planName: "HumanaChoice Giveback H7617-049 (PPO) H7617-049-000",
+            documents: [
+              { type: "SOB", url: "/downloads/HumanaChoice_Giveback_H7617-049_PPO_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/HumanaChoice_Giveback_H7617-049_PPO_EOC_2026.pdf" },
+            ],
+          },
         ],
       },
     },
