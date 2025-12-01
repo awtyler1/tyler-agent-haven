@@ -49,10 +49,10 @@ const SalesTrainingPage = () => {
       <Navigation />
       <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Hero Section */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20">
+        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-4">Training Hub</h1>
-            <p className="text-xl md:text-2xl text-foreground font-medium mb-6 max-w-3xl mx-auto">
+            <h1 className="heading-display mb-3">Training Hub</h1>
+            <p className="text-lg md:text-xl text-foreground font-medium mb-4 max-w-3xl mx-auto">
               Master the craft. Build your skills. Become an elite Medicare professional.
             </p>
             <p className="text-sm text-gold/80 font-medium tracking-wide">
@@ -62,28 +62,28 @@ const SalesTrainingPage = () => {
         </section>
 
         {/* Training Modules Grid */}
-        <section className="section-padding">
+        <section className="px-6 md:px-12 lg:px-20 pb-12">
           <div className="container-narrow">
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-5">
               {trainingModules.map((module, index) => (
                 module.href ? (
                   <Link
                     key={index}
                     to={module.href}
-                    className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer block"
+                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer block"
                   >
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                        <module.icon className="w-6 h-6 text-gold" />
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                        <module.icon className="w-5 h-5 text-gold" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        <h3 className="text-lg font-semibold text-foreground mb-1.5">
                           {module.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground mb-4">
+                        <p className="text-xs text-muted-foreground mb-3">
                           {module.subtitle}
                         </p>
-                        <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
                           <span className="text-xs font-medium text-gold">
                             {module.label}
                           </span>
@@ -94,20 +94,20 @@ const SalesTrainingPage = () => {
                 ) : (
                   <div 
                     key={index}
-                    className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
+                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
                   >
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                        <module.icon className="w-6 h-6 text-gold" />
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                        <module.icon className="w-5 h-5 text-gold" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        <h3 className="text-lg font-semibold text-foreground mb-1.5">
                           {module.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground mb-4">
+                        <p className="text-xs text-muted-foreground mb-3">
                           {module.subtitle}
                         </p>
-                        <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
                           <span className="text-xs font-medium text-gold">
                             {module.label}
                           </span>
@@ -122,10 +122,10 @@ const SalesTrainingPage = () => {
         </section>
 
         {/* Support Section */}
-        <section className="section-padding bg-cream">
+        <section className="px-6 md:px-12 lg:px-20 py-10 bg-cream">
           <div className="container-narrow text-center">
-            <h2 className="heading-section mb-4">Questions About Training?</h2>
-            <p className="text-body max-w-2xl mx-auto mb-6">
+            <h2 className="text-xl font-semibold mb-3">Questions About Training?</h2>
+            <p className="text-sm text-body max-w-2xl mx-auto mb-5">
               Our training modules are being designed with precision and care. If you have questions or suggestions about what you'd like to see covered, reach out to our team.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
