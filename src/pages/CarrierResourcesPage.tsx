@@ -623,6 +623,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Simple_HMO-POS_H9730-009_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Simple_HMO-POS_H9730-009_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
             ],
           },
           {
@@ -630,6 +631,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Assist_HMO-POS_H9730-010_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Assist_HMO-POS_H9730-010_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
             ],
           },
         ],
@@ -640,6 +642,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Dual_Liberty_Sync_DSNP_H9730-004_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Dual_Liberty_Sync_DSNP_H9730-004_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
             ],
           },
           {
@@ -647,6 +650,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Dual_Access_Sync_Open_DSNP_H3975-004_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Dual_Access_Sync_Open_DSNP_H3975-004_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
             ],
           },
           {
@@ -655,6 +659,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Dual_Access_Sync_DSNP_H9730-003_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Dual_Access_Sync_DSNP_H9730-003_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
             ],
           },
           {
@@ -665,6 +670,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Dual_Reserve_DSNP_H9730-011_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Dual_Reserve_DSNP_H9730-011_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
             ],
           },
         ],
@@ -674,6 +680,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/Wellcare_Giveback_HMO-POS_H9730-007_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Wellcare_Giveback_HMO-POS_H9730-007_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
             ],
           },
         ],
