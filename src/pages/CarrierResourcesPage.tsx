@@ -241,7 +241,8 @@ const carriers = [
     ],
     links: [
       { name: "Agent Portal", url: "https://agent.devoted.com/" },
-      { name: "Plan Materials", url: "#" },
+      { name: "Search Drugs", url: "https://www.devoted.com/search-formulary/" },
+      { name: "Search Providers", url: "https://www.devoted.com/search-providers/" },
     ],
     summaryOfBenefits: {
       "Kentucky": [
