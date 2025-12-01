@@ -134,6 +134,15 @@ const carriers = [
             { type: "Formulary", url: "/downloads/Aetna_Medicare_Eagle_Giveback_PPO_H5521-488_Formulary_2026.pdf" },
           ]
         },
+        { 
+          planName: "Aetna Medicare Value Plus (PPO) H5521 - 490", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_SOB_2026.pdf" },
+            { type: "ANOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_ANOC_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Value_Plus_PPO_H5521-490_Formulary_2026.pdf" },
+          ]
+        },
       ],
     },
   },
