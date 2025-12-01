@@ -689,18 +689,31 @@ const CarrierResourcesPage = () => {
                     <div className="space-y-4">
                       {activeCarrier.contacts.map((contact, index) => (
                         <div key={index} className="space-y-1">
-                          <p className="text-sm font-medium text-foreground">{contact.type}</p>
-                          {'subtitle' in contact && contact.subtitle && (
-                            <p className="text-xs text-muted-foreground">{contact.subtitle}</p>
+                          {'name' in contact ? (
+                            <>
+                              <p className="text-sm font-medium text-foreground">{contact.name}</p>
+                              {'role' in contact && contact.role && (
+                                <p className="text-xs text-muted-foreground">{contact.role}{('region' in contact && contact.region) ? ` – ${contact.region}` : ''}</p>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-sm font-medium text-foreground">{contact.type}</p>
+                              {'subtitle' in contact && contact.subtitle && (
+                                <p className="text-xs text-muted-foreground">{contact.subtitle}</p>
+                              )}
+                            </>
                           )}
                           <div className="flex flex-col gap-1 mt-1">
-                            <a 
-                              href={`tel:${contact.number}`}
-                              className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
-                            >
-                              <Phone size={14} className="text-gold" />
-                              <span>{contact.number}</span>
-                            </a>
+                            {(('phone' in contact && contact.phone) || ('number' in contact && contact.number)) && (
+                              <a 
+                                href={`tel:${'phone' in contact ? contact.phone : contact.number}`}
+                                className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-smooth"
+                              >
+                                <Phone size={14} className="text-gold" />
+                                <span>{'phone' in contact ? contact.phone : contact.number}</span>
+                              </a>
+                            )}
                             {'email' in contact && contact.email && (
                               <a 
                                 href={`mailto:${contact.email}`}
