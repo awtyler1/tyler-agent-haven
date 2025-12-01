@@ -92,7 +92,7 @@ const MedicareFundamentalsPage = () => {
         <section className="px-6 md:px-12 lg:px-20 pb-6">
           <div className="container-narrow">
             <p className="text-sm text-body leading-relaxed max-w-3xl mx-auto text-center">
-              Medicare Fundamentals is the essential knowledge base every agent must master before serving clients. This section breaks down how Medicare works, what each part covers, how plans differ, and how to navigate the rules with confidence. Whether you're brand new to Medicare or sharpening your foundation, this is where disciplined agents begin.
+              This section gives you a clear, disciplined understanding of how Medicare works. It prepares you to explain the program, guide clients, and make confident decisions in the field.
             </p>
           </div>
         </section>
@@ -104,27 +104,23 @@ const MedicareFundamentalsPage = () => {
             <ul className="space-y-2 max-w-2xl mx-auto text-sm text-body">
               <li className="flex items-start gap-3">
                 <span className="text-gold mt-0.5">•</span>
-                <span>Understand how Medicare works at a foundational level</span>
+                <span>How Medicare is structured</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-gold mt-0.5">•</span>
-                <span>Distinguish between Parts A, B, C, and D with clarity</span>
+                <span>The differences between Parts A, B, C, and D</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-gold mt-0.5">•</span>
-                <span>Recognize client scenarios and how to navigate them</span>
+                <span>Key enrollment periods and rules</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-gold mt-0.5">•</span>
-                <span>Identify enrollment periods and rules without confusion</span>
+                <span>Essential compliance principles</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-gold mt-0.5">•</span>
-                <span>Understand compliance basics and agent responsibilities</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-gold mt-0.5">•</span>
-                <span>Build confidence in explaining Medicare to clients</span>
+                <span>How to identify and navigate common client situations</span>
               </li>
             </ul>
           </div>
