@@ -31,7 +31,7 @@ const FormsLibraryPage = () => {
       title: "Needs Assessment Forms",
       description: "Use these to understand client needs and recommend appropriate coverage.",
       forms: [
-        { name: "Medicare Needs Assessment", file: "#" },
+        { name: "Medicare Factfinder", file: "/downloads/Fillable_TIG_Medicare_Intake_Form.pdf" },
         { name: "Health & Lifestyle Questionnaire", file: "#" },
         { name: "Chronic Condition Assessment (C-SNP)", file: "/downloads/Blank_Verification_of_Chronic_Condition_VCC.pdf" }
       ]
@@ -61,7 +61,7 @@ const FormsLibraryPage = () => {
     { name: "SOA (Standard)", file: "/downloads/Scope-of-Appointment_2026.pdf" },
     { name: "HIPAA Form", file: "#" },
     { name: "Enrollment Worksheet", file: "#" },
-    { name: "Needs Assessment", file: "#" }
+    { name: "Medicare Factfinder", file: "/downloads/Fillable_TIG_Medicare_Intake_Form.pdf" }
   ];
 
   const bestPractices = [
