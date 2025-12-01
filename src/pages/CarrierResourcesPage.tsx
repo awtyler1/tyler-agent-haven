@@ -245,7 +245,16 @@ const carriers = [
     ],
     summaryOfBenefits: {
       "Kentucky": {
-        "Eastern Kentucky": [],
+        "Eastern Kentucky": [
+          {
+            planName: "DEVOTED C-SNP CHOICE PLUS 004 KY (PPO C-SNP)",
+            documents: [
+              { type: "SOB", url: "/downloads/Devoted_C-SNP_Choice_Plus_004_KY_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Devoted_C-SNP_Choice_Plus_004_KY_EOC_2026.pdf" },
+              { type: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
+            ],
+          },
+        ],
         "Lexington": [],
         "Louisville": [],
         "Northeast Kentucky (Cincinnati)": [],
