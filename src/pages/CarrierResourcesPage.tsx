@@ -419,6 +419,9 @@ const carriers = [
         "Giveback": [
           {
             planName: "Humana USAA Honor Giveback with Rx (PPO) H7617-005-000",
+            labels: [
+              { text: "$75 Giveback", type: "positive" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H7617-005-000_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/Humana_USAA_Honor_Giveback_PPO_H7617-005-000_EOC_2026.pdf" },
@@ -426,6 +429,9 @@ const carriers = [
           },
           {
             planName: "HumanaChoice Giveback H7617-049 (PPO) H7617-049-000",
+            labels: [
+              { text: "$129 Giveback", type: "positive" },
+            ],
             documents: [
               { type: "SOB", url: "/downloads/HumanaChoice_Giveback_H7617-049_PPO_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/HumanaChoice_Giveback_H7617-049_PPO_EOC_2026.pdf" },
