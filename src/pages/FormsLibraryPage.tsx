@@ -40,6 +40,7 @@ const FormsLibraryPage = () => {
       title: "CMS Model Forms",
       description: "Official CMS model documents for required disclosures and communications.",
       forms: [
+        { name: "CMS Form L564/R297 REQUEST FOR EMPLOYMENT INFORMATION", file: "#" },
         { name: "CMS Model Enrollment Checklist", file: "#" },
         { name: "CMS Model Drug Coverage Form", file: "#" },
         { name: "CMS Annual Notice Templates", file: "#" },
@@ -59,7 +60,7 @@ const FormsLibraryPage = () => {
 
   const quickAccessForms = [
     { name: "SOA (Standard)", file: "/downloads/Scope-of-Appointment_2026.pdf" },
-    { name: "HIPAA Form", file: "#" },
+    { name: "CMS Form L564/R297 REQUEST FOR EMPLOYMENT INFORMATION", file: "#" },
     { name: "Enrollment Worksheet", file: "#" },
     { name: "Medicare Factfinder", file: "/downloads/Fillable_TIG_Medicare_Intake_Form.pdf" }
   ];
