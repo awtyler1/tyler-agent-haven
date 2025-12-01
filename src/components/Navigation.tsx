@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import tylerLogo from "@/assets/tyler-logo.png";
 
 const navLinks = [
@@ -69,6 +70,9 @@ const navLinks = [
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  
+  // Check if we're in the Lovable editor (iframe context)
+  const isInEditor = window.self !== window.top;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -84,22 +88,41 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-5">
-            {navLinks.map((link) => (
-              <div 
-                key={link.name} 
-                className="relative group"
-                onMouseEnter={() => (link.submenu || link.sections) && setOpenSubmenu(link.name)}
-                onMouseLeave={() => setOpenSubmenu(null)}
-              >
-                <Link
-                  to={link.href}
-                  onClick={() => window.scrollTo(0, 0)}
-                  className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide flex items-center gap-1 whitespace-nowrap"
-                >
-                  {link.name}
-                  {(link.submenu || link.sections) && <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />}
-                </Link>
+          <TooltipProvider>
+            <div className="hidden lg:flex items-center gap-5">
+              {navLinks.map((link) => {
+                const isTraining = link.name === "Training";
+                const isDisabled = isTraining && !isInEditor;
+                
+                return (
+                  <div 
+                    key={link.name} 
+                    className="relative group"
+                    onMouseEnter={() => !isDisabled && (link.submenu || link.sections) && setOpenSubmenu(link.name)}
+                    onMouseLeave={() => setOpenSubmenu(null)}
+                  >
+                    {isDisabled ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-[13px] font-medium text-muted-foreground/60 cursor-not-allowed tracking-wide flex items-center gap-1 whitespace-nowrap">
+                            {link.name}
+                            {(link.submenu || link.sections) && <ChevronDown size={12} />}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Training modules launch January 2026.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        onClick={() => window.scrollTo(0, 0)}
+                        className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide flex items-center gap-1 whitespace-nowrap"
+                      >
+                        {link.name}
+                        {(link.submenu || link.sections) && <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />}
+                      </Link>
+                    )}
                 
                 {link.submenu && openSubmenu === link.name && (
                   <div className="absolute top-full left-0 pt-2 w-56 animate-fade-in">
@@ -162,9 +185,11 @@ const Navigation = () => {
                     </div>
                   </div>
                 )}
-              </div>
-            ))}
-          </div>
+                  </div>
+                );
+              })}
+            </div>
+          </TooltipProvider>
 
           {/* Mobile Menu Button */}
           <button
@@ -179,16 +204,34 @@ const Navigation = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="lg:hidden py-6 border-t border-border animate-fade-in">
-            <div className="flex flex-col gap-2">
-              {navLinks.map((link) => (
-                <div key={link.name}>
-                  <Link
-                    to={link.href}
-                    onClick={() => !link.submenu && setIsOpen(false)}
-                    className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide uppercase py-2 block"
-                  >
-                    {link.name}
-                  </Link>
+            <TooltipProvider>
+              <div className="flex flex-col gap-2">
+                {navLinks.map((link) => {
+                  const isTraining = link.name === "Training";
+                  const isDisabled = isTraining && !isInEditor;
+                  
+                  return (
+                    <div key={link.name}>
+                      {isDisabled ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-base font-medium text-muted-foreground/60 cursor-not-allowed tracking-wide uppercase py-2 block">
+                              {link.name}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Training modules launch January 2026.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <Link
+                          to={link.href}
+                          onClick={() => !link.submenu && setIsOpen(false)}
+                          className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide uppercase py-2 block"
+                        >
+                          {link.name}
+                        </Link>
+                      )}
                   {link.submenu && (
                     <div className="pl-4 border-l border-border ml-2">
                       {link.submenu.map((subitem) => (
@@ -248,9 +291,11 @@ const Navigation = () => {
                       ))}
                     </div>
                   )}
-                </div>
-              ))}
-            </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </TooltipProvider>
           </div>
         )}
       </div>
