@@ -541,6 +541,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYS001_PPO_DSNP_H1889-008_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS001_PPO_DSNP_H1889-008_EOC_2026.pdf" },
+              { type: "Plan Highlights", url: "/downloads/UHC_Dual_Complete_KYS001_PPO_DSNP_H1889-008_Highlights_2026.pdf" },
             ],
           },
           {
