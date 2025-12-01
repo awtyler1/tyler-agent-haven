@@ -14,18 +14,6 @@ const FormsLibraryPage = () => {
       ]
     },
     {
-      title: "Enrollment & Client Forms",
-      description: "Documents used during and after the enrollment process.",
-      forms: [
-        { name: "HIPAA Authorization Form", file: "#" },
-        { name: "Enrollment Worksheet", file: "#" },
-        { name: "Plan Comparison Documentation", file: "#" },
-        { name: "Star Ratings Disclosure", file: "#" },
-        { name: "Statement of Understanding", file: "#" },
-        { name: "Prescription Drug Worksheet", file: "#" }
-      ]
-    },
-    {
       title: "Needs Assessment Forms",
       description: "Use these to understand client needs and recommend appropriate coverage.",
       forms: [
