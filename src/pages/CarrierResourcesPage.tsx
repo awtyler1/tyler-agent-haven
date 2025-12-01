@@ -496,6 +496,13 @@ const carriers = [
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS002_DSNP_H6595-004_EOC_2026.pdf" },
             ],
           },
+          {
+            planName: "UHC Dual Complete KY-S4 (HMO-POS D-SNP) HIDE H6595-005-000",
+            documents: [
+              { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYS4_DSNP_H6595-005_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS4_DSNP_H6595-005_EOC_2026.pdf" },
+            ],
+          },
         ],
         "Giveback": [],
       },
