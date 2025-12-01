@@ -130,14 +130,14 @@ const Index = () => {
       <Navigation />
       <main>
         {/* Header / Identity Section */}
-        <section className="pt-32 pb-16 md:pt-40 md:pb-20 px-6 md:px-12 lg:px-20">
+        <section className="pt-28 pb-8 md:pt-32 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <img 
               src={tylerLogo} 
               alt="Tyler Insurance Group" 
-              className="h-20 md:h-24 mx-auto mb-8"
+              className="h-24 md:h-28 mx-auto mb-6"
             />
-            <h1 className="heading-display mb-4">Tyler Insurance Group Agent Platform</h1>
+            <h1 className="heading-display mb-3">Tyler Insurance Group Agent Platform</h1>
             <p className="text-body text-muted-foreground max-w-2xl mx-auto">
               Your control center for contracting, certifications, tools, training, and support.
             </p>
@@ -145,21 +145,21 @@ const Index = () => {
         </section>
 
         {/* Control Center Grid */}
-        <section className="pb-20 px-6 md:px-12 lg:px-20">
+        <section className="pb-12 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {controlCenterTiles.map((tile, index) => (
                 <Link
                   key={index}
                   to={tile.link}
                   onClick={() => window.scrollTo(0, 0)}
-                  className="group card-premium p-8 flex flex-col items-center text-center hover:border-gold/40 transition-all duration-300"
+                  className="group card-premium p-6 flex flex-col items-center text-center hover:border-gold/40 transition-all duration-300"
                 >
-                  <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center mb-5 group-hover:bg-gold/20 transition-colors">
-                    <tile.icon className="w-7 h-7 text-gold" />
+                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors">
+                    <tile.icon className="w-6 h-6 text-gold" />
                   </div>
-                  <h3 className="heading-subsection mb-2">{tile.title}</h3>
-                  <p className="text-body-small text-muted-foreground">{tile.description}</p>
+                  <h3 className="text-base font-semibold mb-1.5">{tile.title}</h3>
+                  <p className="text-sm text-muted-foreground">{tile.description}</p>
                 </Link>
               ))}
             </div>
