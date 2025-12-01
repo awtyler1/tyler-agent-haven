@@ -273,7 +273,7 @@ const CarrierResourcesPage = () => {
                 {/* Summary of Benefits Section */}
                 {'summaryOfBenefits' in activeCarrier && activeCarrier.summaryOfBenefits && (
                   <div className="mt-8 pt-6 border-t border-border">
-                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Summary of Benefits</h4>
+                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Plan Documents</h4>
                     <div className="space-y-6">
                       {Object.entries(activeCarrier.summaryOfBenefits).map(([market, plans]) => (
                         <div key={market}>
