@@ -39,11 +39,7 @@ const FormsLibraryPage = () => {
       description: "Official CMS model documents for required disclosures and communications.",
       forms: [
         { name: "CMS Form L564", file: "/downloads/CMS-40B.pdf" },
-        { name: "CMS-40B", file: "/downloads/CMS-40B.pdf" },
-        { name: "CMS Model Enrollment Checklist", file: "#" },
-        { name: "CMS Model Drug Coverage Form", file: "#" },
-        { name: "CMS Annual Notice Templates", file: "#" },
-        { name: "Other CMS Standard Forms", file: "#" }
+        { name: "CMS-40B", file: "/downloads/CMS-40B.pdf" }
       ]
     },
     {
