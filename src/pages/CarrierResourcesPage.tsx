@@ -178,6 +178,11 @@ const carriers = [
       { name: "Order Materials", url: "https://custompoint.rrd.com/xs2/prelogin?qwerty=25113007" },
       { name: "Certification", url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV" },
     ],
+    summaryOfBenefits: {
+      "Kentucky": [
+        // Plans will be added here
+      ],
+    },
   },
   {
     id: "devoted",
