@@ -52,6 +52,14 @@ const carriers = [
             { type: "Formulary", url: "/downloads/Aetna_Medicare_HIDE_HMO_DSNP_H0628-012_Formulary_2026.pdf" },
           ]
         },
+        { 
+          planName: "Aetna Medicare Partial Dual (HMO D-SNP) H0628 - 040", 
+          documents: [
+            { type: "SOB", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_SOB_2026.pdf" },
+            { type: "EOC", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_EOC_2026.pdf" },
+            { type: "Formulary", url: "/downloads/Aetna_Medicare_Partial_Dual_HMO_DSNP_H0628-040_Formulary_2026.pdf" },
+          ]
+        },
       ],
       "Greater Ashland / Eastern KY": [
         { 
