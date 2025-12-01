@@ -41,6 +41,7 @@ const carriers = [
         { 
           planName: "Aetna Medicare Signature Extra (HMO-POS) H0628 - 007", 
           documents: [
+            { type: "Plan Web Page", url: "http://www.aetnamedicare.com/H0628-007", isExternal: true },
             { type: "SOB", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007.pdf" },
             { type: "ANOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_ANOC_2026.pdf" },
             { type: "EOC", url: "/downloads/Aetna_Medicare_Signature_Extra_HMO-POS_H0628-007_EOC_2026.pdf" },
@@ -392,14 +393,14 @@ const CarrierResourcesPage = () => {
                               <MapPin size={16} className="text-gold" />
                               <span className="font-semibold text-foreground">{market}</span>
                               <span className="text-xs text-muted-foreground ml-2">
-                                ({(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).length} plan{(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).length !== 1 ? 's' : ''})
+                                ({(plans as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).length} plan{(plans as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).length !== 1 ? 's' : ''})
                               </span>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 py-4 bg-background">
-                            {(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).length > 0 ? (
+                            {(plans as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).length > 0 ? (
                               <div className="space-y-4">
-                                {(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).map((plan, index) => (
+                                {(plans as Array<{planName: string; documents: Array<{type: string; url: string; isExternal?: boolean}>}>).map((plan, index) => (
                                   <div key={index} className="border border-border/50 rounded-lg p-4 bg-muted/20">
                                     <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
                                     <div className="flex flex-wrap gap-2">
@@ -411,7 +412,11 @@ const CarrierResourcesPage = () => {
                                           rel="noopener noreferrer"
                                           className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth px-3 py-1.5 bg-background border border-border rounded-md hover:bg-gold/10 hover:border-gold/30"
                                         >
-                                          <FileText size={12} className="text-gold" />
+                                          {doc.isExternal ? (
+                                            <ExternalLink size={12} className="text-gold" />
+                                          ) : (
+                                            <FileText size={12} className="text-gold" />
+                                          )}
                                           <span>{doc.type}</span>
                                         </a>
                                       ))}
