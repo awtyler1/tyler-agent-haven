@@ -170,6 +170,7 @@ const carriers = [
       { type: "Sam Call", subtitle: "Western KY", email: "sam.call@anthem.com", number: "(502) 216-3480" },
       { type: "Jordan Gentry", subtitle: "Eastern KY", email: "jordan.gentry@anthem.com", number: "(859) 585-8183" },
       { type: "Todd Jarboe", subtitle: "Agency Services Rep", email: "todd.jarboe@anthem.com", number: "(502) 396-0695" },
+      { type: "Broker Services", number: "(800) 633-4368", email: "medicareagentsupport@anthem.com" },
     ],
     links: [
       { name: "Producer World", url: "#" },
