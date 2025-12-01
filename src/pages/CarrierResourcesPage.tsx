@@ -606,7 +606,7 @@ const carriers = [
     ],
     links: [
       { name: "Broker Portal", url: "https://www.wellcare.com/Broker-Resources/Broker-Resources" },
-      { name: "Plan Materials", url: "#" },
+      { name: "Order Plan Materials", url: "https://1b3050-42a8.icpage.net/sales-and-marketing-resources" },
     ],
     summaryOfBenefits: {
       "Kentucky": {
