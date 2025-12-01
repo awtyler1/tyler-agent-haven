@@ -1,7 +1,13 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { FileText, ExternalLink, Phone, Mail } from "lucide-react";
+import { FileText, ExternalLink, Phone, Mail, ChevronDown, MapPin } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
@@ -377,39 +383,49 @@ const CarrierResourcesPage = () => {
                 {/* Summary of Benefits Section */}
                 {'summaryOfBenefits' in activeCarrier && activeCarrier.summaryOfBenefits && (
                   <div className="mt-8 pt-6 border-t border-border">
-                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Plan Documents</h4>
-                    <div className="space-y-6">
+                    <h4 className="text-base font-semibold text-gold uppercase tracking-wider mb-6">Plan Documents by Region</h4>
+                    <Accordion type="multiple" defaultValue={Object.keys(activeCarrier.summaryOfBenefits)} className="space-y-3">
                       {Object.entries(activeCarrier.summaryOfBenefits).map(([market, plans]) => (
-                        <div key={market}>
-                          <h5 className="text-sm font-semibold text-foreground mb-3">{market}</h5>
-                          {(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).length > 0 ? (
-                            <div className="space-y-4">
-                              {(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).map((plan, index) => (
-                                <div key={index} className="border border-border rounded-lg p-4">
-                                  <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
-                                  <div className="flex flex-wrap gap-2">
-                                    {plan.documents.map((doc, docIndex) => (
-                                      <a 
-                                        key={docIndex}
-                                        href={doc.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth px-3 py-1.5 bg-muted rounded-md hover:bg-gold/10"
-                                      >
-                                        <FileText size={12} className="text-gold" />
-                                        <span>{doc.type}</span>
-                                      </a>
-                                    ))}
-                                  </div>
-                                </div>
-                              ))}
+                        <AccordionItem key={market} value={market} className="border border-border rounded-lg overflow-hidden">
+                          <AccordionTrigger className="px-4 py-3 bg-muted/50 hover:bg-muted hover:no-underline">
+                            <div className="flex items-center gap-2">
+                              <MapPin size={16} className="text-gold" />
+                              <span className="font-semibold text-foreground">{market}</span>
+                              <span className="text-xs text-muted-foreground ml-2">
+                                ({(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).length} plan{(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).length !== 1 ? 's' : ''})
+                              </span>
                             </div>
-                          ) : (
-                            <p className="text-xs text-muted-foreground italic ml-2">No plans added yet.</p>
-                          )}
-                        </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4 py-4 bg-background">
+                            {(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).length > 0 ? (
+                              <div className="space-y-4">
+                                {(plans as Array<{planName: string; documents: Array<{type: string; url: string}>}>).map((plan, index) => (
+                                  <div key={index} className="border border-border/50 rounded-lg p-4 bg-muted/20">
+                                    <p className="text-sm font-medium text-foreground mb-3">{plan.planName}</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {plan.documents.map((doc, docIndex) => (
+                                        <a 
+                                          key={docIndex}
+                                          href={doc.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth px-3 py-1.5 bg-background border border-border rounded-md hover:bg-gold/10 hover:border-gold/30"
+                                        >
+                                          <FileText size={12} className="text-gold" />
+                                          <span>{doc.type}</span>
+                                        </a>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-xs text-muted-foreground italic">No plans added yet.</p>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
                       ))}
-                    </div>
+                    </Accordion>
                   </div>
                 )}
               </div>
