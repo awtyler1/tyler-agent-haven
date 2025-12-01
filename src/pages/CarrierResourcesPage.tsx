@@ -628,6 +628,15 @@ const carriers = [
         ],
         "PPO": [],
         "DSNP": [],
+        "Giveback": [
+          {
+            planName: "Wellcare Giveback (HMO-POS) H9730-007-000",
+            documents: [
+              { type: "SOB", url: "/downloads/Wellcare_Giveback_HMO-POS_H9730-007_SOB_2026.pdf" },
+              { type: "EOC", url: "/downloads/Wellcare_Giveback_HMO-POS_H9730-007_EOC_2026.pdf" },
+            ],
+          },
+        ],
       },
     },
   },
