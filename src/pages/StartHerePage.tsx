@@ -71,7 +71,7 @@ const StartHerePage = () => {
         {/* Hero Section */}
         <section className="pt-20 pb-12 md:pt-24 md:pb-16 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-3">Onboarding</h1>
+            <h1 className="heading-display mb-3">Your Onboarding Roadmap</h1>
             <p className="text-body-large max-w-2xl mx-auto" style={{ color: 'hsl(30 10% 40%)' }}>
               Your first steps toward operating with clarity and confidence.
             </p>
@@ -81,8 +81,6 @@ const StartHerePage = () => {
         {/* Onboarding Roadmap */}
         <section className="py-12 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <h2 className="heading-section text-center mb-10">Your Onboarding Roadmap</h2>
-            
             <div className="grid md:grid-cols-3 gap-6">
               {/* Tile 1 - Contracting */}
               <div className="bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300">
