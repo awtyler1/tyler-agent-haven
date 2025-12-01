@@ -527,6 +527,7 @@ const carriers = [
             documents: [
               { type: "SOB", url: "/downloads/UHC_Dual_Complete_KYS4_DSNP_H6595-005_SOB_2026.pdf" },
               { type: "EOC", url: "/downloads/UHC_Dual_Complete_KYS4_DSNP_H6595-005_EOC_2026.pdf" },
+              { type: "Plan Highlights", url: "/downloads/UHC_Dual_Complete_KYS4_DSNP_H6595-005_Highlights_2026.pdf" },
             ],
           },
           {
