@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { FileText, ExternalLink, ChevronLeft } from "lucide-react";
@@ -12,8 +12,18 @@ import {
 import { carriers } from "@/data/carriersData";
 
 const CarrierPlansPage = () => {
-  const [selectedCarrier, setSelectedCarrier] = useState<string>(carriers[0].id);
+  const [searchParams] = useSearchParams();
+  const carrierParam = searchParams.get('carrier');
+  const [selectedCarrier, setSelectedCarrier] = useState<string>(
+    carrierParam && carriers.find(c => c.id === carrierParam) ? carrierParam : carriers[0].id
+  );
   const activeCarrier = carriers.find(c => c.id === selectedCarrier);
+
+  useEffect(() => {
+    if (carrierParam && carriers.find(c => c.id === carrierParam)) {
+      setSelectedCarrier(carrierParam);
+    }
+  }, [carrierParam]);
 
   return (
     <div className="min-h-screen bg-background">

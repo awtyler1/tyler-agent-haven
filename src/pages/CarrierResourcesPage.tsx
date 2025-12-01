@@ -158,7 +158,7 @@ const CarrierResourcesPage = () => {
                 {/* Plan Documents Button */}
                 <div className="pt-4 border-t border-border">
                   <Link
-                    to="/carrier-resources/plans"
+                    to={`/carrier-resources/plans?carrier=${selectedCarrier}`}
                     className="flex items-center justify-center gap-2.5 w-full px-5 py-3 bg-gold rounded-lg text-white text-sm font-semibold hover:bg-gold/90 transition-all duration-200 shadow-md hover:shadow-lg"
                   >
                     <FileText size={18} />
