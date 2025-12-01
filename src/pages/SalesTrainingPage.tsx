@@ -26,8 +26,7 @@ const trainingModules = [
     title: "Cross Selling",
     subtitle: "Increase client value and strengthen relationships the right way.",
     icon: Users,
-    label: "Module Launching January 2026",
-    href: "/cross-selling"
+    label: "Module Launching January 2026"
   },
   {
     title: "Industry & Market Updates",
@@ -60,56 +59,29 @@ const SalesTrainingPage = () => {
           <div className="container-narrow">
             <div className="grid md:grid-cols-2 gap-6">
               {trainingModules.map((module, index) => (
-                module.href ? (
-                  <Link
-                    key={index}
-                    to={module.href}
-                    className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer block"
-                  >
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                        <module.icon className="w-6 h-6 text-gold" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
-                          {module.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          {module.subtitle}
-                        </p>
-                        <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
-                          <span className="text-xs font-medium text-gold">
-                            {module.label}
-                          </span>
-                        </div>
-                      </div>
+                <div 
+                  key={index}
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+                      <module.icon className="w-6 h-6 text-gold" />
                     </div>
-                  </Link>
-                ) : (
-                  <div 
-                    key={index}
-                    className="group bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300"
-                  >
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                        <module.icon className="w-6 h-6 text-gold" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
-                          {module.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          {module.subtitle}
-                        </p>
-                        <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
-                          <span className="text-xs font-medium text-gold">
-                            {module.label}
-                          </span>
-                        </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-foreground mb-2">
+                        {module.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {module.subtitle}
+                      </p>
+                      <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-gold/10 border border-gold/20">
+                        <span className="text-xs font-medium text-gold">
+                          {module.label}
+                        </span>
                       </div>
                     </div>
                   </div>
-                )
+                </div>
               ))}
             </div>
           </div>

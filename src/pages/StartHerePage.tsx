@@ -81,7 +81,7 @@ const platformAreas = [
     title: "Resources", 
     description: "Downloads, scripts, PDFs",
     icon: FolderOpen,
-    link: "/leads-marketing"
+    link: "/forms-library"
   },
   { 
     title: "Support", 
