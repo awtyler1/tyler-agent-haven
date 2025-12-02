@@ -2,42 +2,27 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, Loader2, Upload } from "lucide-react";
-import * as pdfjsLib from "pdfjs-dist";
+import { CheckCircle2, XCircle, Loader2, Upload, PlayCircle, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-
-interface ProcessingStatus {
-  filename: string;
-  status: "pending" | "processing" | "success" | "error";
-  message?: string;
-  chunksProcessed?: number;
-  currentChunk?: number;
-  totalChunks?: number;
+interface ProcessingJob {
+  id: string;
+  status: string;
+  total_documents: number;
+  processed_documents: number;
+  failed_documents: number;
+  current_document: string | null;
+  started_at: string;
+  completed_at: string | null;
 }
 
 export default function DocumentManagementPage() {
-  const [processingStatuses, setProcessingStatuses] = useState<ProcessingStatus[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [processedDocs, setProcessedDocs] = useState<Set<string>>(new Set());
+  const [currentJob, setCurrentJob] = useState<ProcessingJob | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
 
-  // Check which documents are already processed on mount
-  useEffect(() => {
-    const checkProcessedDocs = async () => {
-      const { data, error } = await supabase
-        .from('document_chunks')
-        .select('document_name');
-      
-      if (!error && data) {
-        const processed = new Set(data.map(d => d.document_name));
-        setProcessedDocs(processed);
-      }
-    };
-    checkProcessedDocs();
-  }, []);
-
+  // List of all PDF files
   const pdfFiles = [
     // Aetna (46 files)
     "2026_Aetna_Medicare_EBC_Broker_Playbook.pdf",
@@ -218,243 +203,115 @@ export default function DocumentManagementPage() {
     "Tyler_Insurance_Group_Contracting_Packet.pdf",
   ];
 
-  const extractMetadata = (filename: string) => {
-    const parts = filename.replace(".pdf", "").split("_");
-    let carrier = "unknown";
-    let documentType = "guide";
-
-    // Extract carrier from filename
-    if (filename.toLowerCase().includes("aetna")) carrier = "aetna";
-    else if (filename.toLowerCase().includes("anthem")) carrier = "anthem";
-    else if (filename.toLowerCase().includes("devoted")) carrier = "devoted";
-    else if (filename.toLowerCase().includes("humana")) carrier = "humana";
-    else if (filename.toLowerCase().includes("uhc") || filename.toLowerCase().includes("united")) carrier = "unitedhealth";
-    else if (filename.toLowerCase().includes("wellcare")) carrier = "wellcare";
-
-    // Determine document type
-    if (filename.includes("SOB")) documentType = "sob";
-    else if (filename.includes("EOC")) documentType = "eoc";
-    else if (filename.includes("ANOC")) documentType = "anoc";
-    else if (filename.includes("Formulary")) documentType = "formulary";
-    else if (filename.includes("Certification")) documentType = "certification";
-    else if (filename.includes("Manual") || filename.includes("Guide") || filename.includes("Playbook")) documentType = "guide";
-
-    return { carrier, documentType };
-  };
-
-  // Chunk text on client side before sending to edge function
-  const chunkTextClient = (text: string, chunkSize: number = 800): string[] => {
-    const chunks: string[] = [];
-    const words = text.split(/\s+/);
-    let currentChunk = "";
-
-    for (const word of words) {
-      if ((currentChunk + word).length > chunkSize && currentChunk.length > 0) {
-        chunks.push(currentChunk.trim());
-        currentChunk = word + " ";
-      } else {
-        currentChunk += word + " ";
-      }
-    }
-
-    if (currentChunk.trim()) {
-      chunks.push(currentChunk.trim());
-    }
-
-    return chunks;
-  };
-
-  const processDocument = async (filename: string): Promise<{ chunksProcessed: number }> => {
-    try {
-      // Fetch PDF from public folder
-      const response = await fetch(`/downloads/${filename}`);
-      if (!response.ok) throw new Error("Failed to fetch PDF");
-
-      const arrayBuffer = await response.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-      let fullText = "";
-      // Reduce to 20 pages to avoid memory issues
-      const maxPages = Math.min(pdf.numPages, 20);
-
-      for (let i = 1; i <= maxPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str).join(" ");
-        fullText += pageText + " ";
-        
-        // Clear page from memory
-        page.cleanup();
-      }
-
-      if (!fullText.trim()) {
-        throw new Error("No text could be extracted");
-      }
-
-      const { carrier, documentType } = extractMetadata(filename);
-
-      // Chunk the text on client side
-      const textChunks = chunkTextClient(fullText);
+  // Check which documents are already processed on mount
+  useEffect(() => {
+    const checkProcessedDocs = async () => {
+      const { data, error } = await supabase
+        .from('document_chunks')
+        .select('document_name');
       
-      // Report total chunks to UI
-      setProcessingStatuses((prev) =>
-        prev.map((s) =>
-          s.filename === filename
-            ? { ...s, totalChunks: textChunks.length, currentChunk: 0 }
-            : s
-        )
-      );
-      
-      // Process chunks in parallel batches for speed
-      let successfulChunks = 0;
-      const BATCH_SIZE = 5; // Reduced: Only 5 chunks at a time to prevent network overwhelm
-      
-      for (let i = 0; i < textChunks.length; i += BATCH_SIZE) {
-        const batch = textChunks.slice(i, Math.min(i + BATCH_SIZE, textChunks.length));
-        const batchPromises = batch.map((chunk, batchIndex) => {
-          const chunkIndex = i + batchIndex;
-          return fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-document`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-              },
-              body: JSON.stringify({
-                documentText: chunk,
-                documentName: filename,
-                documentType,
-                carrier,
-                chunkIndex,
-                isChunked: true,
-              }),
-            }
-          )
-            .then(async (response) => {
-              if (!response.ok) {
-                const errorData = await response.json();
-                console.error(`Failed to process chunk ${chunkIndex}:`, errorData);
-                return null;
-              }
-              return chunkIndex;
-            })
-            .catch((error) => {
-              console.error(`Error processing chunk ${chunkIndex}:`, error);
-              return null;
-            });
-        });
-
-        const results = await Promise.all(batchPromises);
-        successfulChunks += results.filter(r => r !== null).length;
-        
-        // Update current chunk progress
-        setProcessingStatuses((prev) =>
-          prev.map((s) =>
-            s.filename === filename
-              ? { ...s, currentChunk: Math.min(i + BATCH_SIZE, textChunks.length) }
-              : s
-          )
-        );
-        
-        // Small delay between batches for network stability
-        if (i + BATCH_SIZE < textChunks.length) {
-          await new Promise(resolve => setTimeout(resolve, 200));
-        }
+      if (!error && data) {
+        const processed = new Set(data.map(d => d.document_name));
+        setProcessedDocs(processed);
       }
+    };
+    checkProcessedDocs();
+  }, []);
 
-      return { chunksProcessed: successfulChunks };
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const processAllDocuments = async () => {
-    console.log("Starting batch processing of documents");
-    setIsProcessing(true);
-
-    // Filter out already-processed documents
-    const unprocessedFiles = pdfFiles.filter(file => !processedDocs.has(file));
-    
-    if (unprocessedFiles.length === 0) {
-      toast.success("All documents have already been processed!");
-      setIsProcessing(false);
+  // Poll for job status updates
+  useEffect(() => {
+    if (!currentJob || currentJob.status === 'completed' || currentJob.status === 'failed') {
       return;
     }
 
-    console.log(`Processing ${unprocessedFiles.length} new documents (${processedDocs.size} already processed)`);
+    const pollInterval = setInterval(async () => {
+      const { data } = await supabase
+        .from('processing_jobs')
+        .select('*')
+        .eq('id', currentJob.id)
+        .single();
 
-    const statuses: ProcessingStatus[] = unprocessedFiles.map((filename) => ({
-      filename,
-      status: "pending",
-    }));
-    setProcessingStatuses(statuses);
-
-    const CONCURRENT_DOCS = 1; // Process 1 document at a time (network stability)
-    
-    for (let i = 0; i < unprocessedFiles.length; i += CONCURRENT_DOCS) {
-      const batch = unprocessedFiles.slice(i, Math.min(i + CONCURRENT_DOCS, unprocessedFiles.length));
-      
-      // Process batch of documents in parallel
-      await Promise.all(
-        batch.map(async (filename) => {
-          setProcessingStatuses((prev) =>
-            prev.map((s) =>
-              s.filename === filename ? { ...s, status: "processing" } : s
-            )
-          );
-
-          try {
-            const result = await processDocument(filename);
-            setProcessingStatuses((prev) =>
-              prev.map((s) =>
-                s.filename === filename
-                  ? {
-                      ...s,
-                      status: "success",
-                      message: `Processed ${result.chunksProcessed} chunks`,
-                      chunksProcessed: result.chunksProcessed,
-                    }
-                  : s
-              )
-            );
-          } catch (error) {
-            setProcessingStatuses((prev) =>
-              prev.map((s) =>
-                s.filename === filename
-                  ? {
-                      ...s,
-                      status: "error",
-                      message: error instanceof Error ? error.message : "Failed",
-                    }
-                  : s
-              )
-            );
+      if (data) {
+        setCurrentJob(data as ProcessingJob);
+        
+        if (data.status === 'completed') {
+          toast.success(`Processing complete! ${data.processed_documents} documents processed`);
+          // Refresh processed docs list
+          const { data: chunks } = await supabase
+            .from('document_chunks')
+            .select('document_name');
+          if (chunks) {
+            setProcessedDocs(new Set(chunks.map(d => d.document_name)));
           }
-        })
-      );
+        } else if (data.status === 'failed') {
+          toast.error('Processing failed');
+        }
+      }
+    }, 2000); // Poll every 2 seconds
 
-      // Mark newly processed documents
-      batch.forEach(file => {
-        setProcessedDocs(prev => new Set([...prev, file]));
+    return () => clearInterval(pollInterval);
+  }, [currentJob]);
+
+  const startBackgroundProcessing = async () => {
+    setIsStarting(true);
+
+    try {
+      // Filter out already-processed documents
+      const unprocessedFiles = pdfFiles.filter(file => !processedDocs.has(file));
+      
+      if (unprocessedFiles.length === 0) {
+        toast.success("All documents have already been processed!");
+        setIsStarting(false);
+        return;
+      }
+
+      // Start background job
+      const { data, error } = await supabase.functions.invoke('process-documents-background', {
+        body: { documents: unprocessedFiles }
       });
 
-      // Minimal delay between document batches
-      if (i + CONCURRENT_DOCS < unprocessedFiles.length) {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-      }
-    }
+      if (error) throw error;
 
-    console.log("Batch processing complete");
-    setIsProcessing(false);
-    toast.success(`Successfully processed ${unprocessedFiles.length} new documents!`);
+      if (data?.jobId) {
+        // Fetch the job details
+        const { data: job } = await supabase
+          .from('processing_jobs')
+          .select('*')
+          .eq('id', data.jobId)
+          .single();
+
+        if (job) {
+          setCurrentJob(job as ProcessingJob);
+          toast.success(`Started processing ${unprocessedFiles.length} documents in background. You can close this page.`);
+        }
+      }
+    } catch (error) {
+      console.error('Error starting background processing:', error);
+      toast.error('Failed to start background processing');
+    } finally {
+      setIsStarting(false);
+    }
   };
 
-  const successCount = processingStatuses.filter((s) => s.status === "success").length;
-  const errorCount = processingStatuses.filter((s) => s.status === "error").length;
-  const progress = processingStatuses.length > 0 
-    ? ((successCount + errorCount) / processingStatuses.length) * 100 
+  const refreshJobStatus = async () => {
+    if (!currentJob) return;
+
+    const { data } = await supabase
+      .from('processing_jobs')
+      .select('*')
+      .eq('id', currentJob.id)
+      .single();
+
+    if (data) {
+      setCurrentJob(data as ProcessingJob);
+    }
+  };
+
+  const progress = currentJob 
+    ? (currentJob.processed_documents / currentJob.total_documents) * 100 
     : 0;
+
+  const isProcessing = currentJob && currentJob.status === 'processing';
 
   return (
     <div className="min-h-screen bg-background">
@@ -462,91 +319,125 @@ export default function DocumentManagementPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Document Management</h1>
           <p className="text-lg text-muted-foreground">
-            Process PDFs to enable AI chatbot document search
+            Background processing system - close the browser anytime
           </p>
         </div>
 
         <Card className="p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-semibold mb-2">Batch Process Documents</h2>
+              <h2 className="text-2xl font-semibold mb-2">Background Processing</h2>
               <p className="text-muted-foreground">
                 {processedDocs.size} of {pdfFiles.length} documents already processed
               </p>
             </div>
-            <Button
-              onClick={processAllDocuments}
-              disabled={isProcessing}
-              size="lg"
-              className="gap-2"
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Upload className="h-5 w-5" />
-                  Process New Documents ({pdfFiles.length - processedDocs.size})
-                </>
+            <div className="flex gap-2">
+              {currentJob && (
+                <Button
+                  onClick={refreshJobStatus}
+                  variant="outline"
+                  size="lg"
+                  className="gap-2"
+                >
+                  <RefreshCw className="h-5 w-5" />
+                  Refresh
+                </Button>
               )}
-            </Button>
+              <Button
+                onClick={startBackgroundProcessing}
+                disabled={isStarting || isProcessing}
+                size="lg"
+                className="gap-2"
+              >
+                {isStarting ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Starting...
+                  </>
+                ) : isProcessing ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle className="h-5 w-5" />
+                    Start Background Processing ({pdfFiles.length - processedDocs.size})
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
-          {processingStatuses.length > 0 && (
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Progress</span>
-                  <span>
-                    {successCount} success, {errorCount} errors
-                  </span>
+          {currentJob && (
+            <div className="space-y-4 border-t pt-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="font-semibold mb-1">Current Job Status</h3>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    Status: {currentJob.status}
+                  </p>
                 </div>
-                <Progress value={progress} className="h-2" />
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{Math.round(progress)}%</div>
+                  <div className="text-sm text-muted-foreground">
+                    {currentJob.processed_documents} / {currentJob.total_documents}
+                  </div>
+                </div>
               </div>
 
-              <div className="max-h-96 overflow-y-auto space-y-2 border rounded-lg p-4">
-                {processingStatuses.map((status) => (
-                  <div
-                    key={status.filename}
-                    className="flex items-center justify-between p-3 bg-muted/30 rounded"
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      {status.status === "success" && (
-                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-                      )}
-                      {status.status === "error" && (
-                        <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-                      )}
-                      {status.status === "processing" && (
-                        <Loader2 className="h-5 w-5 animate-spin text-primary flex-shrink-0" />
-                      )}
-                      {status.status === "pending" && (
-                        <div className="h-5 w-5 rounded-full border-2 border-muted flex-shrink-0" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {status.filename}
-                        </p>
-                        {status.status === "processing" && status.currentChunk !== undefined && status.totalChunks !== undefined && (
-                          <p className="text-xs text-primary font-medium">
-                            Processing chunk {status.currentChunk}/{status.totalChunks}
-                          </p>
-                        )}
-                        {status.message && status.status !== "processing" && (
-                          <p className="text-xs text-muted-foreground">
-                            {status.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <Progress value={progress} className="h-2" />
+
+              {currentJob.current_document && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-muted-foreground">Processing:</span>
+                  <span className="font-medium">{currentJob.current_document}</span>
+                </div>
+              )}
+
+              {currentJob.status === 'completed' && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span>
+                    Completed! Processed {currentJob.processed_documents} documents
+                    {currentJob.failed_documents > 0 && ` (${currentJob.failed_documents} failed)`}
+                  </span>
+                </div>
+              )}
+
+              {currentJob.status === 'failed' && (
+                <div className="flex items-center gap-2 text-sm text-red-600">
+                  <XCircle className="h-5 w-5" />
+                  <span>Processing failed</span>
+                </div>
+              )}
+
+              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                <h4 className="font-semibold text-sm">Background Processing Benefits:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>✓ Close this page - processing continues on server</li>
+                  <li>✓ No need to keep browser open</li>
+                  <li>✓ Return anytime to check progress</li>
+                  <li>✓ All chunks saved to database automatically</li>
+                </ul>
               </div>
             </div>
           )}
         </Card>
+
+        {!currentJob && (
+          <Card className="p-6 bg-muted/30">
+            <h3 className="font-semibold mb-2">How it works</h3>
+            <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+              <li>Click "Start Background Processing" to begin</li>
+              <li>Server processes all unprocessed PDFs automatically</li>
+              <li>Each PDF is extracted (20 pages), chunked (800 chars), and embedded</li>
+              <li>Close the browser - processing continues in background</li>
+              <li>Return anytime and click "Refresh" to see current progress</li>
+            </ol>
+          </Card>
+        )}
       </div>
     </div>
   );
