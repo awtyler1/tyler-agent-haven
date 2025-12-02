@@ -6,9 +6,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Generate embedding for search query
+// Generate embedding for search query using OpenAI
 async function generateEmbedding(text: string, apiKey: string): Promise<number[]> {
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
+  const response = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -37,11 +37,12 @@ serve(async (req) => {
   try {
     const { messages, carrier, documentType } = await req.json();
     
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     
-    if (!LOVABLE_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    if (!OPENAI_API_KEY || !LOVABLE_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error("Missing required environment variables");
     }
 
@@ -50,8 +51,8 @@ serve(async (req) => {
     // Get the last user message for context search
     const lastUserMessage = messages.filter((m: any) => m.role === "user").pop()?.content || "";
 
-    // Generate embedding for the query
-    const queryEmbedding = await generateEmbedding(lastUserMessage, LOVABLE_API_KEY);
+    // Generate embedding for the query using OpenAI
+    const queryEmbedding = await generateEmbedding(lastUserMessage, OPENAI_API_KEY);
 
     // Search for relevant document chunks
     const { data: relevantChunks, error: searchError } = await supabase.rpc(
