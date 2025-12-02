@@ -52,15 +52,12 @@ const FormsLibraryPage = () => {
       <Navigation />
       
       <main className="flex-1">
-        {/* Title Section */}
-        <section className="section-padding border-b border-border">
-          <div className="container-narrow">
-            <h1 className="heading-display text-foreground mb-4">Forms Library</h1>
-            <p className="text-xl text-gold font-medium mb-4">
+        {/* Hero */}
+        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="container-narrow text-center">
+            <h1 className="heading-display text-foreground mb-3">Forms Library</h1>
+            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
               Essential sales forms and documents for your appointments.
-            </p>
-            <p className="text-body max-w-3xl">
-              Download the forms you need before, during, and after client appointments. These documents support compliant, clean, and professional sales interactions.
             </p>
           </div>
         </section>

@@ -82,10 +82,10 @@ const CertificationsPage = () => {
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
-          <div className="container-narrow">
-            <h1 className="heading-display mb-4">Certifications</h1>
-            <p className="text-body max-w-2xl">
+        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20 bg-cream">
+          <div className="container-narrow text-center">
+            <h1 className="heading-display mb-3">Certifications</h1>
+            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
               Complete your annual AHIP and carrier certifications to stay compliant and ready to sell.
             </p>
           </div>
