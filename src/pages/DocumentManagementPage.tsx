@@ -289,7 +289,7 @@ export default function DocumentManagementPage() {
       
       // Process chunks in parallel batches for speed
       let successfulChunks = 0;
-      const BATCH_SIZE = 20; // Process 20 chunks at a time for faster throughput
+      const BATCH_SIZE = 5; // Reduced: Only 5 chunks at a time to prevent network overwhelm
       
       for (let i = 0; i < textChunks.length; i += BATCH_SIZE) {
         const batch = textChunks.slice(i, Math.min(i + BATCH_SIZE, textChunks.length));
@@ -339,9 +339,9 @@ export default function DocumentManagementPage() {
           )
         );
         
-        // Minimal delay between batches
+        // Small delay between batches for network stability
         if (i + BATCH_SIZE < textChunks.length) {
-          await new Promise(resolve => setTimeout(resolve, 50));
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
       }
 
@@ -359,7 +359,7 @@ export default function DocumentManagementPage() {
     }));
     setProcessingStatuses(statuses);
 
-    const CONCURRENT_DOCS = 3; // Process 3 documents at a time
+    const CONCURRENT_DOCS = 1; // Process 1 document at a time (network stability)
     
     for (let i = 0; i < pdfFiles.length; i += CONCURRENT_DOCS) {
       const batch = pdfFiles.slice(i, Math.min(i + CONCURRENT_DOCS, pdfFiles.length));
