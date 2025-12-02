@@ -229,16 +229,6 @@ const ContractingHubPage = () => {
                     <li className="list-disc">Receive commissions without delays</li>
                   </ul>
                 </div>
-                <p className="text-[11px] text-muted-foreground pt-0.5">
-                  For help, email{" "}
-                  <a 
-                    href="mailto:caroline@tylerinsurancegroup.com"
-                    className="text-gold hover:text-gold/80 transition-colors font-medium"
-                  >
-                    caroline@tylerinsurancegroup.com
-                  </a>
-                  .
-                </p>
               </div>
             </div>
           </div>
