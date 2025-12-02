@@ -7,13 +7,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+interface FileAttachment {
+  name: string;
+  fileName: string;
+  content: string; // base64 encoded
+  type: string;
+}
+
 interface ContractingSubmission {
   name: string;
   npn: string;
   email?: string;
-  fileName: string;
-  fileContent: string; // base64 encoded
-  fileType: string;
+  phone: string;
+  residentState: string;
+  contractingType: "individual" | "agency";
+  files: FileAttachment[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -23,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { name, npn, email, fileName, fileContent, fileType }: ContractingSubmission = await req.json();
+    const { name, npn, email, phone, residentState, contractingType, files }: ContractingSubmission = await req.json();
 
     // Server-side validation
     if (!name || typeof name !== "string" || name.trim().length === 0 || name.length > 100) {
@@ -47,31 +55,45 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    if (!fileContent || typeof fileContent !== "string") {
+    if (!phone || typeof phone !== "string" || phone.trim().length === 0) {
       return new Response(
-        JSON.stringify({ success: false, error: "File content is required" }),
+        JSON.stringify({ success: false, error: "Phone number is required" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Validate file type
-    if (fileType !== "application/pdf") {
+    if (!residentState || typeof residentState !== "string" || residentState.trim().length === 0) {
       return new Response(
-        JSON.stringify({ success: false, error: "Only PDF files are allowed" }),
+        JSON.stringify({ success: false, error: "Resident state is required" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Validate file size (base64 is ~33% larger, so 10MB file = ~13.3MB base64)
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      return new Response(
+        JSON.stringify({ success: false, error: "At least one file is required" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate file size for all files
     const maxBase64Size = 15 * 1024 * 1024;
-    if (fileContent.length > maxBase64Size) {
-      return new Response(
-        JSON.stringify({ success: false, error: "File size exceeds 10MB limit" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+    for (const file of files) {
+      if (file.content.length > maxBase64Size) {
+        return new Response(
+          JSON.stringify({ success: false, error: `File ${file.fileName} exceeds 10MB limit` }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
     }
 
     console.log(`Processing contracting submission from ${name.trim()} (NPN: ${npn.trim()})`);
+
+    // Prepare attachments
+    const attachments = files.map(file => ({
+      filename: file.fileName,
+      content: file.content,
+    }));
 
     // Send email using Resend API directly via fetch
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -83,20 +105,22 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "Tyler Insurance Group <onboarding@resend.dev>",
         to: ["caroline@tylerinsurancegroup.com"],
-        subject: `New Contracting Submission from ${name.trim()} – NPN ${npn.trim()}`,
+        subject: `New Contracting Packet – ${name.trim()} – ${npn.trim()}`,
         html: `
           <h2>New Contracting Packet Submission</h2>
           <p><strong>Name:</strong> ${name.trim()}</p>
           <p><strong>NPN:</strong> ${npn.trim()}</p>
           <p><strong>Email:</strong> ${email?.trim() || "Not provided"}</p>
-          <p>Please find the attached contracting packet.</p>
+          <p><strong>Phone:</strong> ${phone.trim()}</p>
+          <p><strong>Resident State:</strong> ${residentState.trim()}</p>
+          <p><strong>Contracting Type:</strong> ${contractingType === "individual" ? "Individual" : "Agency"}</p>
+          <hr style="margin: 20px 0;" />
+          <p><strong>Attached Documents:</strong></p>
+          <ul>
+            ${files.map(file => `<li>${file.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}: ${file.fileName}</li>`).join('')}
+          </ul>
         `,
-        attachments: [
-          {
-            filename: fileName || "contracting-packet.pdf",
-            content: fileContent,
-          },
-        ],
+        attachments,
       }),
     });
 
