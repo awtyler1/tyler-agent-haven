@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PasswordGate from "./components/PasswordGate";
+import { AgentChatWidget } from "./components/AgentChatWidget";
 import Index from "./pages/Index";
 import StartHerePage from "./pages/StartHerePage";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/about" element={<AboutPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <AgentChatWidget />
         </BrowserRouter>
       </PasswordGate>
     </TooltipProvider>
