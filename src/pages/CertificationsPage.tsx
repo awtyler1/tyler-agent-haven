@@ -89,14 +89,14 @@ const carrierCertificationsByState: Record<State, Array<{
       url: "https://www.bcbst.com/providers/",
       howToCertifyUrl: "",
       howToCertifyTitle: "BlueCross BlueShield of Tennessee 2026 Certification Instructions",
-      logo: anthemLogo, // Placeholder - needs actual BCBSTN logo
+      logo: ahipLogo, // PLACEHOLDER - needs actual BCBSTN logo
     },
     {
       name: "Cigna",
       url: "https://www.cignahealthcarepartners.com/",
       howToCertifyUrl: "",
       howToCertifyTitle: "Cigna 2026 Certification Instructions",
-      logo: aetnaLogo, // Placeholder - needs actual Cigna logo
+      logo: ahipLogo, // PLACEHOLDER - needs actual Cigna logo
     },
     {
       name: "Devoted Health",
@@ -131,14 +131,14 @@ const carrierCertificationsByState: Record<State, Array<{
       url: "https://www.elevancehealth.com/",
       howToCertifyUrl: "",
       howToCertifyTitle: "Wellpoint 2026 Certification Instructions",
-      logo: anthemLogo, // Placeholder - needs actual Wellpoint logo
+      logo: ahipLogo, // PLACEHOLDER - needs actual Wellpoint logo
     },
     {
       name: "Zing Health",
       url: "https://www.zinghealth.com/",
       howToCertifyUrl: "",
       howToCertifyTitle: "Zing Health 2026 Certification Instructions",
-      logo: humanaLogo, // Placeholder - needs actual Zing Health logo
+      logo: ahipLogo, // PLACEHOLDER - needs actual Zing Health logo
     },
   ],
   Ohio: [],
