@@ -1,10 +1,9 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { ExternalLink, Monitor, Mail, Clock } from "lucide-react";
+import { ExternalLink, Monitor } from "lucide-react";
 import connect4Logo from "@/assets/connect4insurance-logo.png";
 import sunfireLogo from "@/assets/sunfire-logo.png";
 import bossCrmLogo from "@/assets/boss-crm-logo.png";
-import carolineHeadshot from "@/assets/caroline-headshot.jpg";
 
 const toolCards = [
   {
@@ -129,58 +128,6 @@ const AgentToolsPage = () => {
                 </a>
               </div>
             </a>
-          </div>
-        </section>
-
-        {/* Support Section */}
-        <section className="section-padding bg-cream">
-          <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-10">
-              <h2 className="heading-section mb-2">Need Help?</h2>
-              <p className="text-body">
-                If you cannot access a tool or need credential resets:
-              </p>
-            </div>
-
-            <div className="max-w-md mb-10">
-              <div className="card-premium text-center">
-                <img 
-                  src={carolineHeadshot} 
-                  alt="Caroline Horn"
-                  className="w-24 h-24 rounded-full object-cover object-top mx-auto mb-4 border-2 border-gold/20"
-                />
-                <h3 className="heading-subsection mb-1">Caroline Horn</h3>
-                <p className="text-sm text-gold font-medium mb-4">Contracting Support</p>
-                
-                <a 
-                  href="mailto:caroline@tylerinsurancegroup.com"
-                  className="flex items-center justify-center gap-2 text-foreground hover:text-gold transition-smooth text-sm mb-6"
-                >
-                  <Mail size={14} className="text-gold" />
-                  <span>caroline@tylerinsurancegroup.com</span>
-                </a>
-
-                <a 
-                  href="mailto:caroline@tylerinsurancegroup.com"
-                  className="btn-primary-gold text-center text-sm py-2 px-6 inline-block"
-                >
-                  Email Caroline
-                </a>
-              </div>
-            </div>
-
-            <div className="card-premium">
-              <div className="flex items-center gap-3 mb-4">
-                <Clock className="w-5 h-5 text-gold" />
-                <div>
-                  <p className="font-medium text-foreground">Office Hours</p>
-                  <p className="text-body-small">Monday - Friday: 9:00 AM - 5:00 PM EST</p>
-                </div>
-              </div>
-              <p className="text-body-small">
-                <span className="text-gold font-medium">Response Time:</span> Within 24 hours for credential resets and tool access issues.
-              </p>
-            </div>
           </div>
         </section>
       </main>
