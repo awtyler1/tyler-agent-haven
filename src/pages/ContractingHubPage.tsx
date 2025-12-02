@@ -200,31 +200,31 @@ const ContractingHubPage = () => {
       
       <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Header - Title */}
-        <section className="pt-20 pb-4 md:pt-24 md:pb-5 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pt-20 pb-8 md:pt-24 md:pb-10 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="container-narrow text-center">
             <h1 className="text-3xl md:text-4xl font-serif font-medium text-foreground tracking-tight">Contracting Hub</h1>
           </div>
         </section>
 
         {/* Two-Column Layout */}
-        <section className="pb-6 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pb-8 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-8">
               
               {/* LEFT COLUMN - Steps 1 & 2 */}
-              <div className="space-y-5">
+              <div className="space-y-6">
                 
                 {/* Step 1 - Gather Required Documents */}
-                <div className="bg-white border border-[#E5E2DB] rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
+                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
-                      <span className="text-xs font-bold text-gold">1</span>
+                      <span className="text-xs font-extrabold text-gold">1</span>
                     </div>
                     <h2 className="text-base font-bold text-foreground pt-0.5">
                       Gather Required Documents
                     </h2>
                   </div>
-                  <div className="space-y-1.5 text-[12px]">
+                  <div className="space-y-2 text-[12px] leading-relaxed">
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-3.5 h-3.5 text-gold mt-0.5 flex-shrink-0" />
                       <span className="text-foreground">State insurance license</span>
@@ -253,10 +253,10 @@ const ContractingHubPage = () => {
                 </div>
 
                 {/* Step 2 - Download Contracting Packet */}
-                <div className="bg-white border border-[#E5E2DB] rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
+                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
-                      <span className="text-xs font-bold text-gold">2</span>
+                      <span className="text-xs font-extrabold text-gold">2</span>
                     </div>
                     <h2 className="text-base font-bold text-foreground pt-0.5">
                       Download Contracting Packet
@@ -264,12 +264,12 @@ const ContractingHubPage = () => {
                   </div>
                   <Button 
                     onClick={() => setIsPdfModalOpen(true)}
-                    className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold px-5 py-4 text-sm shadow-sm hover:shadow-md transition-all"
+                    className="w-full bg-gold hover:bg-gold/90 hover:shadow-md text-charcoal font-semibold px-5 py-4 text-sm shadow-sm transition-all duration-150"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Download Contracting Packet (PDF)
                   </Button>
-                  <div className="mt-2.5 text-[11px] text-muted-foreground space-y-0.5">
+                  <div className="mt-2.5 text-[11px] text-muted-foreground space-y-0.5 leading-relaxed">
                     <p>Complete all pages and sign where indicated.</p>
                     <p>Replace the sample E&O page with your own certificate.</p>
                   </div>
@@ -278,12 +278,12 @@ const ContractingHubPage = () => {
 
               {/* RIGHT COLUMN - Step 3 */}
               <div>
-                <div className="bg-white border border-[#E5E2DB] rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] transition-all duration-150">
+                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] transition-all duration-150">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
-                      <span className="text-xs font-bold text-gold">3</span>
+                      <span className="text-xs font-extrabold text-gold">3</span>
                     </div>
-                    <h2 className="text-base font-bold text-foreground pt-0.5">
+                    <h2 className="text-[17px] font-bold text-foreground/95 pt-0.5">
                       Upload Your Completed Packet
                     </h2>
                   </div>
@@ -526,9 +526,9 @@ const ContractingHubPage = () => {
                         <div className="pt-2 flex flex-col items-center gap-1.5">
                           <Button 
                             type="submit" 
-                            className={`w-full font-bold py-3 text-xs rounded-lg transition-all ${
+                            className={`w-full font-bold py-3 text-xs rounded-lg transition-all duration-150 ${
                               isFormComplete
-                                ? 'bg-gold hover:bg-gold/90 text-charcoal shadow-md hover:shadow-lg'
+                                ? 'bg-gold hover:bg-gold/90 text-charcoal shadow-md hover:shadow-lg hover:-translate-y-0.5'
                                 : 'bg-muted hover:bg-muted text-muted-foreground'
                             }`}
                             disabled={isSubmitting}
@@ -537,7 +537,7 @@ const ContractingHubPage = () => {
                           </Button>
                           
                           <div className="text-center">
-                            <p className="text-[9px] text-muted-foreground/80">
+                            <p className="text-[9px] text-muted-foreground/80 leading-relaxed">
                               We review submissions within 2–3 business days. We'll email you if anything is missing.
                             </p>
                           </div>
@@ -552,7 +552,7 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Caroline Contact Line - Bottom */}
-        <section className="pb-4 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pb-6 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto text-center">
             <p className="text-[11px] text-muted-foreground">
               Need help? Contact Caroline at{" "}
