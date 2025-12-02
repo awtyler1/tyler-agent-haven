@@ -22,6 +22,7 @@ import CertificationsPage from "./pages/CertificationsPage";
 import FormsLibraryPage from "./pages/FormsLibraryPage";
 import CarrierPortalsPage from "./pages/CarrierPortalsPage";
 import CarrierPlansPage from "./pages/CarrierPlansPage";
+import DocumentManagementPage from "./pages/DocumentManagementPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/certifications" element={<CertificationsPage />} />
             <Route path="/forms-library" element={<FormsLibraryPage />} />
             <Route path="/carrier-portals" element={<CarrierPortalsPage />} />
+            <Route path="/admin/documents" element={<DocumentManagementPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="*" element={<NotFound />} />

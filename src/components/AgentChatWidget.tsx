@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Paperclip } from "lucide-react";
+import { MessageCircle, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,10 +15,8 @@ export const AgentChatWidget = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -31,98 +29,6 @@ export const AgentChatWidget = () => {
       textareaRef.current.focus();
     }
   }, [isOpen]);
-
-  const handleFileUpload = async (file: File) => {
-    if (!file.type.includes("pdf")) {
-      alert("Please upload a PDF file");
-      return;
-    }
-
-    setIsProcessing(true);
-    
-    // Show immediate feedback
-    setMessages([
-      ...messages,
-      {
-        role: "assistant",
-        content: `📄 Processing "${file.name}"... This may take a minute for large documents.`,
-      },
-    ]);
-
-    try {
-      // Use PDF.js to extract text properly
-      const pdfjsLib = await import("pdfjs-dist");
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      
-      let fullText = "";
-      const maxPages = Math.min(pdf.numPages, 50); // Limit to first 50 pages to avoid memory issues
-      
-      for (let i = 1; i <= maxPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str).join(" ");
-        fullText += pageText + "\n\n";
-      }
-
-      if (!fullText.trim()) {
-        throw new Error("No text could be extracted from the PDF");
-      }
-
-      // Extract metadata from filename
-      const parts = file.name.replace(".pdf", "").split("_");
-      const carrier = parts[0] || "unknown";
-      const documentType = parts.includes("SOB") ? "sob" : 
-                          parts.includes("EOC") ? "eoc" :
-                          parts.includes("ANOC") ? "anoc" :
-                          parts.includes("Formulary") ? "formulary" : "other";
-      
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-document`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            documentText: fullText,
-            documentName: file.name,
-            documentType,
-            carrier: carrier.toLowerCase(),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to process document");
-      }
-      
-      const data = await response.json();
-      
-      setMessages(prev => [
-        ...prev.slice(0, -1), // Remove processing message
-        {
-          role: "assistant",
-          content: `✓ Successfully processed "${file.name}"! I extracted text from ${maxPages} pages and created ${data.chunksProcessed} searchable chunks. Ask me anything about this document!`,
-        },
-      ]);
-    } catch (error) {
-      console.error("File upload error:", error);
-      setMessages(prev => [
-        ...prev.slice(0, -1), // Remove processing message
-        {
-          role: "assistant",
-          content: `❌ Failed to process document: ${error instanceof Error ? error.message : "Unknown error"}. Please try again with a different PDF.`,
-        },
-      ]);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   const streamChat = async (userMessage: string) => {
     const newMessages = [...messages, { role: "user" as const, content: userMessage }];
@@ -306,52 +212,24 @@ export const AgentChatWidget = () => {
         className="border-t border-border bg-muted/30 p-4"
       >
         <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
-              className="min-h-[60px] max-h-[120px] resize-none pr-10"
-              disabled={isLoading || isProcessing}
-            />
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFileUpload(file);
-              }}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isLoading || isProcessing}
-              className="absolute bottom-2 right-2 h-8 w-8"
-              title="Upload PDF document"
-            >
-              <Paperclip className="h-4 w-4" />
-            </Button>
-          </div>
+          <Textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask me anything..."
+            className="min-h-[60px] max-h-[120px] resize-none flex-1"
+            disabled={isLoading}
+          />
           <Button
             type="submit"
             size="icon"
-            disabled={!input.trim() || isLoading || isProcessing}
+            disabled={!input.trim() || isLoading}
             className="h-[60px] w-[60px] shrink-0"
           >
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        {isProcessing && (
-          <p className="text-xs text-muted-foreground mt-2">
-            Processing document...
-          </p>
-        )}
       </form>
     </div>
   );
