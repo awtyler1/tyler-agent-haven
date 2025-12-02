@@ -21,56 +21,31 @@ const ContractingHubPage = () => {
     name: "",
     npn: "",
     email: "",
-    phone: "",
     residentState: "",
-    contractingType: "individual" as "individual" | "agency"
-  });
-
-  const [files, setFiles] = useState({
-    contractingPacket: null as File | null,
-    license: null as File | null,
-    eo: null as File | null,
-    voidedCheck: null as File | null,
-    amlCe: null as File | null,
-    additional: null as File | null
-  });
-
-  const [checkboxes, setCheckboxes] = useState({
-    completedSigned: false,
-    attachedDocs: false,
-    yesExplanations: false,
-    corporateDocs: false
+    files: [] as File[]
   });
 
   const requiredDocuments = [
-    { text: "State insurance license", icon: CheckCircle },
-    { text: "E&O certificate with your correct name", icon: CheckCircle },
-    { text: "AML certificate (and CE if your state requires it)", icon: CheckCircle },
-    { text: "Voided check (personal or corporate)", icon: CheckCircle },
-    { text: "Any corporate documents if contracting as an agency (corporate license + corporate bank info)", icon: CheckCircle },
-    { text: "Written explanations for any \"Yes\" answers in the legal questionnaire", icon: CheckCircle }
+    { text: "State insurance license" },
+    { text: "E&O certificate with your correct name" },
+    { text: "AML certificate (and CE if your state requires it)" },
+    { text: "Voided check (personal or corporate)" },
+    { text: "Any corporate documents if contracting as an agency (corporate license + corporate bank info)" },
+    { text: "Written explanations for any \"Yes\" answers in the legal questionnaire" }
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (field: keyof typeof files) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFiles(prev => ({ ...prev, [field]: e.target.files![0] }));
-    }
-  };
-
-  const handleCheckboxChange = (field: keyof typeof checkboxes) => (checked: boolean) => {
-    setCheckboxes(prev => ({ ...prev, [field]: checked }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
-    if (!formData.name.trim() || !formData.npn.trim() || !formData.phone.trim() || !formData.residentState.trim()) {
+    if (!formData.name.trim() || !formData.npn.trim() || !formData.email.trim() || !formData.residentState.trim()) {
       toast({
         title: "Missing Required Fields",
         description: "Please fill in all required fields marked with *",
@@ -80,20 +55,10 @@ const ContractingHubPage = () => {
     }
 
     // Validate required files
-    if (!files.contractingPacket || !files.license || !files.eo || !files.voidedCheck || !files.amlCe) {
+    if (!formData.files || formData.files.length === 0) {
       toast({
         title: "Missing Required Files",
         description: "Please upload all required documents.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate checkboxes
-    if (!checkboxes.completedSigned || !checkboxes.attachedDocs || !checkboxes.yesExplanations || !checkboxes.corporateDocs) {
-      toast({
-        title: "Confirmation Required",
-        description: "Please check all required confirmation boxes before submitting.",
         variant: "destructive"
       });
       return;
@@ -116,53 +81,21 @@ const ContractingHubPage = () => {
         });
       };
 
-      const fileData = await Promise.all([
-        convertToBase64(files.contractingPacket).then(content => ({ 
-          name: "contracting-packet", 
-          fileName: files.contractingPacket!.name, 
-          content, 
-          type: files.contractingPacket!.type 
-        })),
-        convertToBase64(files.license).then(content => ({ 
-          name: "license", 
-          fileName: files.license!.name, 
-          content, 
-          type: files.license!.type 
-        })),
-        convertToBase64(files.eo).then(content => ({ 
-          name: "eo-certificate", 
-          fileName: files.eo!.name, 
-          content, 
-          type: files.eo!.type 
-        })),
-        convertToBase64(files.voidedCheck).then(content => ({ 
-          name: "voided-check", 
-          fileName: files.voidedCheck!.name, 
-          content, 
-          type: files.voidedCheck!.type 
-        })),
-        convertToBase64(files.amlCe).then(content => ({ 
-          name: "aml-ce-certificate", 
-          fileName: files.amlCe!.name, 
-          content, 
-          type: files.amlCe!.type 
-        })),
-        ...(files.additional ? [convertToBase64(files.additional).then(content => ({ 
-          name: "additional-documents", 
-          fileName: files.additional!.name, 
-          content, 
-          type: files.additional!.type 
-        }))] : [])
-      ]);
+      const fileData = await Promise.all(
+        formData.files.map(async (file, index) => ({
+          name: `document-${index + 1}`,
+          fileName: file.name,
+          content: await convertToBase64(file),
+          type: file.type
+        }))
+      );
 
       const { error } = await supabase.functions.invoke('send-contracting-packet', {
         body: {
           name: formData.name.trim(),
           npn: formData.npn.trim(),
           email: formData.email.trim() || undefined,
-          phone: formData.phone.trim(),
           residentState: formData.residentState.trim(),
-          contractingType: formData.contractingType,
           files: fileData
         },
       });
@@ -175,16 +108,11 @@ const ContractingHubPage = () => {
       });
 
       // Reset form
-      setFormData({ name: "", npn: "", email: "", phone: "", residentState: "", contractingType: "individual" });
-      setFiles({ contractingPacket: null, license: null, eo: null, voidedCheck: null, amlCe: null, additional: null });
-      setCheckboxes({ completedSigned: false, attachedDocs: false, yesExplanations: false, corporateDocs: false });
+      setFormData({ name: "", npn: "", email: "", residentState: "", files: [] });
       
-      // Reset file inputs
-      const fileInputs = ["packet", "license", "eo", "check", "aml", "additional"];
-      fileInputs.forEach(id => {
-        const input = document.getElementById(id) as HTMLInputElement;
-        if (input) input.value = "";
-      });
+      // Reset file input
+      const fileInput = document.getElementById("documents") as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
     } catch (error: any) {
       console.error("Error submitting contracting packet:", error);
       toast({
@@ -335,11 +263,11 @@ const ContractingHubPage = () => {
           </div>
         </section>
 
-        {/* Upload Form - Full Details Below - Compressed */}
-        <section id="upload-form" className="py-8 md:py-10 px-6 md:px-12 lg:px-20 bg-cream/20">
-          <div className="container-narrow max-w-3xl">
-            <div className="text-center mb-6">
-              <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+        {/* Upload Form - Compact Card */}
+        <section id="upload-form" className="py-6 md:py-8 px-6 md:px-12 lg:px-20 bg-cream/20">
+          <div className="container-narrow max-w-2xl">
+            <div className="text-center mb-4">
+              <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-1.5">
                 Step 3: Upload Your Completed Packet
               </h2>
               <p className="text-[13px] text-muted-foreground">
@@ -347,191 +275,192 @@ const ContractingHubPage = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="name" className="text-sm">Full Name <span className="text-destructive">*</span></Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Enter your full legal name"
-                    className="h-9"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="npn" className="text-sm">NPN <span className="text-destructive">*</span></Label>
-                  <Input
-                    id="npn"
-                    name="npn"
-                    value={formData.npn}
-                    onChange={handleInputChange}
-                    placeholder="Enter your NPN"
-                    className="h-9"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-sm">Email <span className="text-destructive">*</span></Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="your@email.com"
-                    className="h-9"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="phone" className="text-sm">Phone <span className="text-destructive">*</span></Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="(555) 123-4567"
-                    className="h-9"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="residentState" className="text-sm">Resident State <span className="text-destructive">*</span></Label>
-                  <Input
-                    id="residentState"
-                    name="residentState"
-                    value={formData.residentState}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Kentucky"
-                    className="h-9"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm">Contracting Type <span className="text-destructive">*</span></Label>
-                  <RadioGroup
-                    value={formData.contractingType}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, contractingType: value as "individual" | "agency" }))}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="individual" id="individual" />
-                      <Label htmlFor="individual" className="font-normal cursor-pointer text-sm">Individual</Label>
+            <Card className="border-gold/20 bg-card shadow-sm">
+              <CardContent className="pt-5 pb-5 px-5">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  
+                  {/* Required Document Checklist */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-foreground">Required Documents:</Label>
+                    <div className="space-y-1 text-[12px] text-muted-foreground">
+                      <div className="flex items-start gap-2">
+                        <span>□</span>
+                        <span>State insurance license</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span>□</span>
+                        <span>E&O certificate with your correct name</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span>□</span>
+                        <span>Voided check (personal or corporate)</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span>□</span>
+                        <span>AML certificate (and CE if required by your state)</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span>□</span>
+                        <span>Explanation documents for any "Yes" answers in the legal section</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span>□</span>
+                        <span>Corporate license + corporate bank info (if contracting as an agency)</span>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="agency" id="agency" />
-                      <Label htmlFor="agency" className="font-normal cursor-pointer text-sm">Agency</Label>
+                  </div>
+
+                  {/* Multi-File Upload */}
+                  <div className="space-y-1.5 pt-2">
+                    <Label htmlFor="documents" className="text-sm font-semibold">
+                      Upload Documents <span className="text-destructive">*</span>
+                    </Label>
+                    <p className="text-[12px] text-muted-foreground mb-1.5">
+                      Attach your completed contracting packet and all required documents.
+                    </p>
+                    <Input 
+                      id="documents" 
+                      type="file" 
+                      accept=".pdf,.jpg,.jpeg,.png" 
+                      multiple
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        setFormData(prev => ({ ...prev, files }));
+                      }}
+                      className="h-10 text-sm" 
+                      required 
+                    />
+                  </div>
+
+                  {/* Personal Info Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="name" className="text-sm">Full Name <span className="text-destructive">*</span></Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="Enter your full legal name"
+                        className="h-9"
+                        required
+                      />
                     </div>
-                  </RadioGroup>
-                </div>
-              </div>
 
-              {/* File Uploads */}
-              <div className="pt-3 space-y-3">
-                <h3 className="text-base font-semibold text-foreground">File Upload Fields</h3>
-                
-                <div className="space-y-1.5">
-                  <Label htmlFor="packet" className="text-sm">Completed Contracting Packet (PDF) <span className="text-destructive">*</span></Label>
-                  <Input id="packet" type="file" accept=".pdf" onChange={handleFileChange("contractingPacket")} className="h-9 text-sm" required />
-                </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="email" className="text-sm">Email <span className="text-destructive">*</span></Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="your@email.com"
+                        className="h-9"
+                        required
+                      />
+                    </div>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="license" className="text-sm">Insurance License <span className="text-destructive">*</span></Label>
-                  <Input id="license" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("license")} className="h-9 text-sm" required />
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="npn" className="text-sm">NPN <span className="text-destructive">*</span></Label>
+                      <Input
+                        id="npn"
+                        name="npn"
+                        value={formData.npn}
+                        onChange={handleInputChange}
+                        placeholder="Enter your NPN"
+                        className="h-9"
+                        required
+                      />
+                    </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="eo" className="text-sm">E&O Certificate <span className="text-destructive">*</span></Label>
-                  <Input id="eo" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("eo")} className="h-9 text-sm" required />
-                </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="residentState" className="text-sm">Resident State <span className="text-destructive">*</span></Label>
+                      <select
+                        id="residentState"
+                        name="residentState"
+                        value={formData.residentState}
+                        onChange={handleInputChange}
+                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        required
+                      >
+                        <option value="">Select state</option>
+                        <option value="AL">Alabama</option>
+                        <option value="AK">Alaska</option>
+                        <option value="AZ">Arizona</option>
+                        <option value="AR">Arkansas</option>
+                        <option value="CA">California</option>
+                        <option value="CO">Colorado</option>
+                        <option value="CT">Connecticut</option>
+                        <option value="DE">Delaware</option>
+                        <option value="DC">District of Columbia</option>
+                        <option value="FL">Florida</option>
+                        <option value="GA">Georgia</option>
+                        <option value="HI">Hawaii</option>
+                        <option value="ID">Idaho</option>
+                        <option value="IL">Illinois</option>
+                        <option value="IN">Indiana</option>
+                        <option value="IA">Iowa</option>
+                        <option value="KS">Kansas</option>
+                        <option value="KY">Kentucky</option>
+                        <option value="LA">Louisiana</option>
+                        <option value="ME">Maine</option>
+                        <option value="MD">Maryland</option>
+                        <option value="MA">Massachusetts</option>
+                        <option value="MI">Michigan</option>
+                        <option value="MN">Minnesota</option>
+                        <option value="MS">Mississippi</option>
+                        <option value="MO">Missouri</option>
+                        <option value="MT">Montana</option>
+                        <option value="NE">Nebraska</option>
+                        <option value="NV">Nevada</option>
+                        <option value="NH">New Hampshire</option>
+                        <option value="NJ">New Jersey</option>
+                        <option value="NM">New Mexico</option>
+                        <option value="NY">New York</option>
+                        <option value="NC">North Carolina</option>
+                        <option value="ND">North Dakota</option>
+                        <option value="OH">Ohio</option>
+                        <option value="OK">Oklahoma</option>
+                        <option value="OR">Oregon</option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="RI">Rhode Island</option>
+                        <option value="SC">South Carolina</option>
+                        <option value="SD">South Dakota</option>
+                        <option value="TN">Tennessee</option>
+                        <option value="TX">Texas</option>
+                        <option value="UT">Utah</option>
+                        <option value="VT">Vermont</option>
+                        <option value="VA">Virginia</option>
+                        <option value="WA">Washington</option>
+                        <option value="WV">West Virginia</option>
+                        <option value="WI">Wisconsin</option>
+                        <option value="WY">Wyoming</option>
+                      </select>
+                    </div>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="check" className="text-sm">Voided Check <span className="text-destructive">*</span></Label>
-                  <Input id="check" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("voidedCheck")} className="h-9 text-sm" required />
-                </div>
+                  {/* Submit Button */}
+                  <div className="pt-3 flex flex-col items-center gap-2.5">
+                    <Button 
+                      type="submit" 
+                      className="w-full max-w-md bg-gold hover:bg-gold/90 text-charcoal font-semibold py-4 text-sm"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit Contracting Packet →"}
+                    </Button>
+                    
+                    <p className="text-[11px] text-muted-foreground text-center max-w-md">
+                      We review submissions within 2–3 business days.<br />
+                      We'll email you if anything is missing.
+                    </p>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="aml" className="text-sm">AML / CE Certificate(s) <span className="text-destructive">*</span></Label>
-                  <Input id="aml" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("amlCe")} className="h-9 text-sm" required />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="additional" className="text-sm">Additional Documents <span className="text-muted-foreground text-xs">(Optional)</span></Label>
-                  <Input id="additional" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("additional")} className="h-9 text-sm" />
-                  <p className="text-[11px] text-muted-foreground">Background explanations, corporate resolutions, SelectHealth add-ons, etc.</p>
-                </div>
-              </div>
-
-              {/* Required Checkboxes */}
-              <div className="pt-3 space-y-2.5 border-t border-border">
-                <h3 className="text-base font-semibold text-foreground">Required Confirmations</h3>
-                
-                <div className="flex items-start space-x-2.5">
-                  <Checkbox 
-                    id="check1" 
-                    checked={checkboxes.completedSigned}
-                    onCheckedChange={handleCheckboxChange("completedSigned")}
-                  />
-                  <Label htmlFor="check1" className="font-normal leading-snug cursor-pointer text-[13px]">
-                    I completed and signed all required pages of the contracting packet.
-                  </Label>
-                </div>
-
-                <div className="flex items-start space-x-2.5">
-                  <Checkbox 
-                    id="check2" 
-                    checked={checkboxes.attachedDocs}
-                    onCheckedChange={handleCheckboxChange("attachedDocs")}
-                  />
-                  <Label htmlFor="check2" className="font-normal leading-snug cursor-pointer text-[13px]">
-                    I attached my license, E&O, voided check, and AML/CE certificates.
-                  </Label>
-                </div>
-
-                <div className="flex items-start space-x-2.5">
-                  <Checkbox 
-                    id="check3" 
-                    checked={checkboxes.yesExplanations}
-                    onCheckedChange={handleCheckboxChange("yesExplanations")}
-                  />
-                  <Label htmlFor="check3" className="font-normal leading-snug cursor-pointer text-[13px]">
-                    If I answered "Yes" to any legal questions, I have uploaded written explanations.
-                  </Label>
-                </div>
-
-                <div className="flex items-start space-x-2.5">
-                  <Checkbox 
-                    id="check4" 
-                    checked={checkboxes.corporateDocs}
-                    onCheckedChange={handleCheckboxChange("corporateDocs")}
-                  />
-                  <Label htmlFor="check4" className="font-normal leading-snug cursor-pointer text-[13px]">
-                    If contracting as a corporation, I included corporate license and bank documents.
-                  </Label>
-                </div>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-5 mt-5"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit Contracting Packet"}
-              </Button>
-            </form>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </section>
       </main>
