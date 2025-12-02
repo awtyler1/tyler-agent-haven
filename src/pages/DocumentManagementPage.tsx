@@ -232,13 +232,17 @@ export default function DocumentManagementPage() {
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
       let fullText = "";
-      const maxPages = Math.min(pdf.numPages, 50);
+      // Reduce to 25 pages to avoid memory issues
+      const maxPages = Math.min(pdf.numPages, 25);
 
       for (let i = 1; i <= maxPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map((item: any) => item.str).join(" ");
         fullText += pageText + "\n\n";
+        
+        // Clear page from memory
+        page.cleanup();
       }
 
       if (!fullText.trim()) {
@@ -322,8 +326,8 @@ export default function DocumentManagementPage() {
         );
       }
 
-      // Small delay to avoid overwhelming the system
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Longer delay to allow edge function memory cleanup
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
 
     setIsProcessing(false);
@@ -350,7 +354,7 @@ export default function DocumentManagementPage() {
             <div>
               <h2 className="text-2xl font-semibold mb-2">Batch Process Documents</h2>
               <p className="text-muted-foreground">
-                Process {pdfFiles.length} PDF files from the downloads folder
+                Process {pdfFiles.length} PDF files from the downloads folder (25 pages per PDF, 3 second intervals)
               </p>
             </div>
             <Button
