@@ -59,48 +59,6 @@ export type Database = {
         }
         Relationships: []
       }
-      processing_jobs: {
-        Row: {
-          completed_at: string | null
-          created_at: string | null
-          current_document: string | null
-          error_message: string | null
-          failed_documents: number
-          id: string
-          processed_documents: number
-          started_at: string | null
-          status: string
-          total_documents: number
-          updated_at: string | null
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string | null
-          current_document?: string | null
-          error_message?: string | null
-          failed_documents?: number
-          id?: string
-          processed_documents?: number
-          started_at?: string | null
-          status?: string
-          total_documents?: number
-          updated_at?: string | null
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string | null
-          current_document?: string | null
-          error_message?: string | null
-          failed_documents?: number
-          id?: string
-          processed_documents?: number
-          started_at?: string | null
-          status?: string
-          total_documents?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never

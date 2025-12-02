@@ -20,37 +20,29 @@ function chunkText(text: string, chunkSize: number = 800, overlap: number = 150)
   return chunks;
 }
 
-// Generate embeddings using Lovable AI with retry logic
-async function generateEmbedding(text: string, apiKey: string, retries = 3): Promise<number[]> {
-  for (let attempt = 0; attempt < retries; attempt++) {
-    try {
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "text-embedding-3-small",
-          input: text,
-        }),
-      });
+// Generate embeddings using OpenAI
+async function generateEmbedding(text: string, apiKey: string): Promise<number[]> {
+  const response = await fetch("https://api.openai.com/v1/embeddings", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "text-embedding-3-small",
+      input: text,
+      encoding_format: "float",
+    }),
+  });
 
-      if (!response.ok) {
-        const error = await response.text();
-        console.error("Embedding error:", error);
-        throw new Error(`Failed to generate embedding: ${response.status} - ${error}`);
-      }
-
-      const data = await response.json();
-      return data.data[0].embedding;
-    } catch (error) {
-      if (attempt === retries - 1) throw error;
-      console.log(`Retry attempt ${attempt + 1}/${retries} for embedding`);
-      await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-    }
+  if (!response.ok) {
+    const error = await response.text();
+    console.error("Embedding error:", error);
+    throw new Error(`Failed to generate embedding: ${response.status}`);
   }
-  throw new Error("Failed after retries");
+
+  const data = await response.json();
+  return data.data[0].embedding;
 }
 
 serve(async (req) => {
@@ -61,11 +53,11 @@ serve(async (req) => {
   try {
     const { documentText, documentName, documentType, carrier, planName, chunkIndex, isChunked } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!LOVABLE_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    if (!OPENAI_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error("Missing required environment variables");
     }
 
@@ -76,36 +68,22 @@ serve(async (req) => {
       const cleanText = documentText.replace(/\s+/g, " ").trim();
       
       // Generate embedding for this chunk
-      const embedding = await generateEmbedding(cleanText, LOVABLE_API_KEY);
+      const embedding = await generateEmbedding(cleanText, OPENAI_API_KEY);
 
-      // Store in database with retry logic
-      let insertError = null;
-      for (let attempt = 0; attempt < 3; attempt++) {
-        const { error } = await supabase.from("document_chunks").insert({
-          document_name: documentName,
-          document_type: documentType.toLowerCase(),
-          carrier: carrier?.toLowerCase(),
-          plan_name: planName,
-          chunk_text: cleanText,
-          chunk_index: chunkIndex || 0,
-          embedding: embedding,
-        });
+      // Store in database
+      const { error } = await supabase.from("document_chunks").insert({
+        document_name: documentName,
+        document_type: documentType.toLowerCase(),
+        carrier: carrier?.toLowerCase(),
+        plan_name: planName,
+        chunk_text: cleanText,
+        chunk_index: chunkIndex || 0,
+        embedding: embedding,
+      });
 
-        if (!error) {
-          insertError = null;
-          break;
-        }
-        
-        insertError = error;
-        console.error(`Error inserting chunk (attempt ${attempt + 1}/3):`, error);
-        
-        if (attempt < 2) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-        }
-      }
-
-      if (insertError) {
-        throw insertError;
+      if (error) {
+        console.error(`Error inserting chunk:`, error);
+        throw error;
       }
 
       console.log(`Successfully processed chunk ${chunkIndex} for ${documentName}`);
@@ -128,7 +106,7 @@ serve(async (req) => {
 
     // Process only first chunk to avoid memory issues
     const chunk = chunks[0];
-    const embedding = await generateEmbedding(chunk, LOVABLE_API_KEY);
+    const embedding = await generateEmbedding(chunk, OPENAI_API_KEY);
 
     const { error } = await supabase.from("document_chunks").insert({
       document_name: documentName,
