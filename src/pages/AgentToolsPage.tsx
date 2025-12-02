@@ -46,12 +46,14 @@ const AgentToolsPage = () => {
   // Get carrier portals with state-specific URLs
   const carrierPortals = carriers.map(carrier => {
     const stateData = carrier.stateData[selectedState];
+    
+    // Try to find a portal-specific link first, otherwise use the first link
     const brokerPortalLink = stateData?.links.find(link => 
       link.name.toLowerCase().includes('portal') || 
       link.name.toLowerCase().includes('agent portal') ||
       link.name.toLowerCase().includes('broker portal') ||
       link.name.toLowerCase().includes('vantage')
-    );
+    ) || stateData?.links[0]; // Fallback to first link if no portal-specific link found
     
     return {
       name: carrier.name,
