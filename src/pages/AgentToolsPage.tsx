@@ -102,7 +102,7 @@ const AgentToolsPage = () => {
         <section className="pb-1.5 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <h2 className="text-center text-sm font-medium text-foreground/70 mb-3">Carrier Portals</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 min-h-[140px]">
               {carrierPortals.map((carrier) => 
                 carrier.hasUrl ? (
                   <a
