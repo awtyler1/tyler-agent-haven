@@ -319,25 +319,37 @@ const ContractingHubPage = () => {
                       Attach your completed contracting packet and all required documents.<br />
                       Accepted formats: PDF, JPG, PNG. Multiple files allowed.
                     </p>
-                    <Input 
-                      id="documents" 
-                      type="file" 
-                      accept=".pdf,.jpg,.jpeg,.png" 
-                      multiple
-                      onChange={(e) => {
-                        const newFiles = Array.from(e.target.files || []);
-                        setFormData(prev => ({ 
-                          ...prev, 
-                          files: [...prev.files, ...newFiles]
-                        }));
-                      }}
-                      className="h-10 text-sm" 
-                      required 
-                    />
+                    
+                    {/* Custom Upload Button to hide default file input display */}
+                    <div className="relative">
+                      <Input 
+                        id="documents" 
+                        type="file" 
+                        accept=".pdf,.jpg,.jpeg,.png" 
+                        multiple
+                        onChange={(e) => {
+                          const newFiles = Array.from(e.target.files || []);
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            files: [...prev.files, ...newFiles]
+                          }));
+                          // Reset the input value to allow re-selecting the same file
+                          e.target.value = '';
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        required={formData.files.length === 0}
+                      />
+                      <div className="h-10 px-3 py-2 border border-input rounded-md bg-background flex items-center justify-between cursor-pointer hover:border-gold/40 transition-colors">
+                        <span className="text-sm text-muted-foreground">
+                          {formData.files.length === 0 ? 'Choose files...' : 'Add more files...'}
+                        </span>
+                        <span className="text-xs text-muted-foreground">Browse</span>
+                      </div>
+                    </div>
                     
                     {/* File Preview Chips */}
                     {formData.files.length > 0 && (
-                      <div className="space-y-2 mt-2">
+                      <div className="space-y-2 mt-2.5">
                         <div className="flex flex-wrap gap-2">
                           {formData.files.map((file, index) => {
                             const isPDF = file.type === 'application/pdf';
@@ -346,19 +358,22 @@ const ContractingHubPage = () => {
                             return (
                               <div
                                 key={`${file.name}-${index}`}
-                                className="flex items-center gap-2 bg-cream/40 border border-gold/20 rounded-md px-3 py-1.5 text-[12px] group hover:border-gold/40 transition-colors"
+                                className="flex items-center gap-2 bg-cream/60 border border-gold/30 rounded-md px-3 py-2 text-[12px] group hover:border-gold/50 transition-colors shadow-sm"
                               >
                                 {isPDF ? (
-                                  <FileText className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                  <FileText className="w-4 h-4 text-gold flex-shrink-0" />
                                 ) : isImage ? (
-                                  <ImageIcon className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                  <ImageIcon className="w-4 h-4 text-gold flex-shrink-0" />
                                 ) : (
-                                  <FileText className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                  <FileText className="w-4 h-4 text-gold flex-shrink-0" />
                                 )}
-                                <span className="text-foreground truncate max-w-[200px]">
+                                <span className="text-foreground/90 font-semibold truncate max-w-[180px]">
                                   {file.name}
                                 </span>
-                                <Check className="w-3 h-3 text-gold flex-shrink-0" />
+                                <div className="flex items-center gap-1 ml-1">
+                                  <Check className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                  <span className="text-[10px] text-gold font-medium">Uploaded</span>
+                                </div>
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -370,15 +385,16 @@ const ContractingHubPage = () => {
                                   className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
                                   aria-label={`Remove ${file.name}`}
                                 >
-                                  <X className="w-3.5 h-3.5" />
+                                  <X className="w-4 h-4" />
                                 </button>
                               </div>
                             );
                           })}
                         </div>
-                        <p className="text-[11px] text-muted-foreground">
-                          Documents attached: {formData.files.length} {formData.files.length === 1 ? 'file' : 'files'}
-                        </p>
+                        <div className="flex items-center gap-1.5 text-[11px] text-gold font-medium">
+                          <Check className="w-3.5 h-3.5" />
+                          <span>All files successfully attached ({formData.files.length} {formData.files.length === 1 ? 'file' : 'files'})</span>
+                        </div>
                       </div>
                     )}
                   </div>
