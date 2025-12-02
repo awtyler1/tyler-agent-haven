@@ -10,13 +10,21 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Download, Mail, FileText, Image as ImageIcon, X, Check } from "lucide-react";
+import { CheckCircle, Download, Mail, FileText, Image as ImageIcon, X, Check, HelpCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ContractingHubPage = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    email: "",
+    npn: "",
+    state: "",
+    files: ""
+  });
   
   const [formData, setFormData] = useState({
     name: "",
@@ -27,18 +35,45 @@ const ContractingHubPage = () => {
   });
 
   const requiredDocuments = [
-    { text: "State insurance license" },
-    { text: "E&O certificate with your correct name" },
-    { text: "AML certificate (and CE if your state requires it)" },
-    { text: "Voided check (personal or corporate)" },
-    { text: "Any corporate documents if contracting as an agency (corporate license + corporate bank info)" },
-    { text: "Written explanations for any \"Yes\" answers in the legal questionnaire" }
+    { text: "State insurance license", tag: "Required" },
+    { text: "E&O certificate with your correct name", tag: "Required" },
+    { text: "Voided check (personal or corporate)", tag: "Required" },
+    { text: "AML certificate (and CE if your state requires it)", tag: "If state requires" },
+    { text: "Explanation documents for any \"Yes\" answers in the legal section", tag: "If answering Yes" },
+    { text: "Corporate license + corporate bank info (if contracting as an agency)", tag: "Agency only" }
   ];
+
+  // Validation logic
+  const validateEmail = (email: string) => {
+    return email.includes("@") && email.length > 3;
+  };
+
+  const validateNPN = (npn: string) => {
+    return /^\d{1,10}$/.test(npn);
+  };
+
+  const isFormComplete = 
+    formData.name.trim() !== "" &&
+    validateEmail(formData.email) &&
+    validateNPN(formData.npn) &&
+    formData.residentState !== "" &&
+    formData.files.length > 0;
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear validation errors on input
+    if (name === "email" && validateEmail(value)) {
+      setValidationErrors(prev => ({ ...prev, email: "" }));
+    }
+    if (name === "npn" && validateNPN(value)) {
+      setValidationErrors(prev => ({ ...prev, npn: "" }));
+    }
+    if (name === "residentState" && value !== "") {
+      setValidationErrors(prev => ({ ...prev, state: "" }));
+    }
   };
 
   const handleFileChange = (newFiles: File[]) => {
@@ -46,6 +81,9 @@ const ContractingHubPage = () => {
       ...prev, 
       files: [...prev.files, ...newFiles]
     }));
+    if (newFiles.length > 0) {
+      setValidationErrors(prev => ({ ...prev, files: "" }));
+    }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -76,23 +114,36 @@ const ContractingHubPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate required fields
-    if (!formData.name.trim() || !formData.npn.trim() || !formData.email.trim() || !formData.residentState.trim()) {
-      toast({
-        title: "Missing Required Fields",
-        description: "Please fill in all required fields marked with *",
-        variant: "destructive"
-      });
-      return;
+    // Validate all fields
+    let hasErrors = false;
+    const errors = { email: "", npn: "", state: "", files: "" };
+    
+    if (!formData.name.trim()) {
+      hasErrors = true;
     }
-
-    // Validate required files
-    if (!formData.files || formData.files.length === 0) {
-      toast({
-        title: "Missing Required Files",
-        description: "Please upload all required documents.",
-        variant: "destructive"
-      });
+    
+    if (!validateEmail(formData.email)) {
+      errors.email = "Please enter a valid email address";
+      hasErrors = true;
+    }
+    
+    if (!validateNPN(formData.npn)) {
+      errors.npn = "NPN must be numeric (up to 10 digits)";
+      hasErrors = true;
+    }
+    
+    if (!formData.residentState) {
+      errors.state = "Please select your resident state";
+      hasErrors = true;
+    }
+    
+    if (formData.files.length === 0) {
+      errors.files = "Please upload at least one document";
+      hasErrors = true;
+    }
+    
+    if (hasErrors) {
+      setValidationErrors(errors);
       return;
     }
 
@@ -134,17 +185,17 @@ const ContractingHubPage = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Submission Received",
-        description: "Thank you. Your contracting packet has been sent to our team. We'll contact you within 2-3 business days."
-      });
+      setIsSubmitted(true);
 
-      // Reset form
-      setFormData({ name: "", npn: "", email: "", residentState: "", files: [] });
-      
-      // Reset file input
-      const fileInput = document.getElementById("documents") as HTMLInputElement;
-      if (fileInput) fileInput.value = "";
+      // Reset form after short delay
+      setTimeout(() => {
+        setFormData({ name: "", npn: "", email: "", residentState: "", files: [] });
+        setIsSubmitted(false);
+        
+        // Reset file input
+        const fileInput = document.getElementById("documents") as HTMLInputElement;
+        if (fileInput) fileInput.value = "";
+      }, 5000);
     } catch (error: any) {
       console.error("Error submitting contracting packet:", error);
       toast({
@@ -315,38 +366,33 @@ const ContractingHubPage = () => {
                   <div className="space-y-2">
                     <Label className="text-sm font-semibold text-foreground">Required Documents:</Label>
                     <div className="space-y-1 text-[12px] text-muted-foreground">
-                      <div className="flex items-start gap-2">
-                        <span>□</span>
-                        <span>State insurance license</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span>□</span>
-                        <span>E&O certificate with your correct name</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span>□</span>
-                        <span>Voided check (personal or corporate)</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span>□</span>
-                        <span>AML certificate (and CE if required by your state)</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span>□</span>
-                        <span>Explanation documents for any "Yes" answers in the legal section</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span>□</span>
-                        <span>Corporate license + corporate bank info (if contracting as an agency)</span>
-                      </div>
+                      {requiredDocuments.map((doc, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <span>□</span>
+                          <span className="flex-1">{doc.text}</span>
+                          <span className="text-[10px] text-gold font-medium">({doc.tag})</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
                   {/* Multi-File Upload with Drag & Drop */}
                   <div className="space-y-2 pt-2">
-                    <Label htmlFor="documents" className="text-sm font-semibold">
-                      Upload Documents <span className="text-destructive">*</span>
-                    </Label>
+                    <div className="flex items-center gap-1.5">
+                      <Label htmlFor="documents" className="text-sm font-semibold">
+                        Upload Documents <span className="text-destructive">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs text-[11px]">
+                            <p>If you're unsure which documents to include, refer to the checklist above or email Caroline at caroline@tylerinsurancegroup.com</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <p className="text-[12px] text-muted-foreground mb-1.5">
                       Attach your completed contracting packet and all required documents.<br />
                       Accepted formats: PDF, JPG, PNG. Multiple files allowed.
@@ -456,6 +502,9 @@ const ContractingHubPage = () => {
                         </div>
                       </div>
                     )}
+                    {validationErrors.files && (
+                      <p className="text-[11px] text-destructive mt-1">{validationErrors.files}</p>
+                    )}
                   </div>
 
                   {/* Personal Info Fields */}
@@ -485,6 +534,9 @@ const ContractingHubPage = () => {
                         className="h-9"
                         required
                       />
+                      {validationErrors.email && (
+                        <p className="text-[11px] text-destructive">{validationErrors.email}</p>
+                      )}
                     </div>
                   </div>
 
@@ -500,6 +552,9 @@ const ContractingHubPage = () => {
                         className="h-9"
                         required
                       />
+                      {validationErrors.npn && (
+                        <p className="text-[11px] text-destructive">{validationErrors.npn}</p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -565,24 +620,89 @@ const ContractingHubPage = () => {
                         <option value="WI">Wisconsin</option>
                         <option value="WY">Wyoming</option>
                       </select>
+                      {validationErrors.state && (
+                        <p className="text-[11px] text-destructive">{validationErrors.state}</p>
+                      )}
                     </div>
                   </div>
 
+                  {/* Quick Review Summary */}
+                  {(formData.name || formData.email || formData.npn || formData.residentState || formData.files.length > 0) && (
+                    <div className="pt-4 mt-4 border-t border-border">
+                      <h3 className="text-sm font-semibold text-foreground mb-2.5">Quick Review</h3>
+                      <div className="space-y-1.5 text-[12px]">
+                        {formData.name && (
+                          <div className="flex gap-2">
+                            <span className="text-muted-foreground min-w-[110px]">Full Name:</span>
+                            <span className="text-foreground">{formData.name}</span>
+                          </div>
+                        )}
+                        {formData.email && (
+                          <div className="flex gap-2">
+                            <span className="text-muted-foreground min-w-[110px]">Email:</span>
+                            <span className="text-foreground">{formData.email}</span>
+                          </div>
+                        )}
+                        {formData.npn && (
+                          <div className="flex gap-2">
+                            <span className="text-muted-foreground min-w-[110px]">NPN:</span>
+                            <span className="text-foreground">{formData.npn}</span>
+                          </div>
+                        )}
+                        {formData.residentState && (
+                          <div className="flex gap-2">
+                            <span className="text-muted-foreground min-w-[110px]">Resident State:</span>
+                            <span className="text-foreground">{formData.residentState}</span>
+                          </div>
+                        )}
+                        {formData.files.length > 0 && (
+                          <div className="flex gap-2">
+                            <span className="text-muted-foreground min-w-[110px]">Documents:</span>
+                            <span className="text-foreground">{formData.files.length} {formData.files.length === 1 ? 'file' : 'files'} attached</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Post-Submission Success Message */}
+                  {isSubmitted && (
+                    <div className="pt-4 mt-4 border-t border-gold/20 bg-gold/5 -mx-5 px-5 py-4 rounded-md animate-fade-in">
+                      <div className="flex items-start gap-2.5">
+                        <Check className="w-5 h-5 text-gold flex-shrink-0 mt-0.5 animate-scale-in" />
+                        <div>
+                          <p className="text-sm font-semibold text-foreground mb-1">
+                            Contracting packet submitted successfully
+                          </p>
+                          <p className="text-[12px] text-muted-foreground">
+                            We will review your documents within 2–3 business days and email you if anything is missing.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Submit Button */}
-                  <div className="pt-3 flex flex-col items-center gap-2.5">
-                    <Button 
-                      type="submit" 
-                      className="w-full max-w-md bg-gold hover:bg-gold/90 text-charcoal font-semibold py-4 text-sm"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Submitting..." : "Submit Contracting Packet →"}
-                    </Button>
-                    
-                    <p className="text-[11px] text-muted-foreground text-center max-w-md">
-                      We review submissions within 2–3 business days.<br />
-                      We'll email you if anything is missing.
-                    </p>
-                  </div>
+                  {!isSubmitted && (
+                    <div className="pt-3 flex flex-col items-center gap-2.5">
+                      <Button 
+                        type="submit" 
+                        className={`w-full max-w-md font-semibold py-4 text-sm transition-colors ${
+                          isFormComplete
+                            ? 'bg-gold hover:bg-gold/90 text-charcoal'
+                            : 'bg-muted hover:bg-muted text-muted-foreground'
+                        }`}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Submitting..." : "Submit Contracting Packet →"}
+                      </Button>
+                      
+                      <p className="text-[11px] text-muted-foreground text-center max-w-md">
+                        We review submissions within 2–3 business days.<br />
+                        We'll email you if anything is missing.
+                      </p>
+                    </div>
+                  )}
 
                 </form>
               </CardContent>
