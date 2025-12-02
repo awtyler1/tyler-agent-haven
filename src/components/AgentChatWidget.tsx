@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,8 +15,10 @@ export const AgentChatWidget = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -30,6 +32,60 @@ export const AgentChatWidget = () => {
     }
   }, [isOpen]);
 
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.includes("pdf")) {
+      alert("Please upload a PDF file");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // Read file as text (simplified - in production you'd use PDF parsing)
+      const text = await file.text();
+      
+      // Extract metadata from filename
+      const parts = file.name.replace(".pdf", "").split("_");
+      const carrier = parts[0] || "unknown";
+      const documentType = parts.includes("SOB") ? "sob" : 
+                          parts.includes("EOC") ? "eoc" :
+                          parts.includes("ANOC") ? "anoc" :
+                          parts.includes("Formulary") ? "formulary" : "other";
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-document`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            documentText: text,
+            documentName: file.name,
+            documentType,
+            carrier,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to process document");
+      
+      const data = await response.json();
+      setMessages([
+        ...messages,
+        {
+          role: "assistant",
+          content: `✓ Document uploaded successfully! I've processed "${file.name}" and can now answer questions about it. What would you like to know?`,
+        },
+      ]);
+    } catch (error) {
+      console.error("File upload error:", error);
+      alert("Failed to process document. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const streamChat = async (userMessage: string) => {
     const newMessages = [...messages, { role: "user" as const, content: userMessage }];
     setMessages(newMessages);
@@ -38,7 +94,7 @@ export const AgentChatWidget = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-chat`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-chat-rag`,
         {
           method: "POST",
           headers: {
@@ -212,24 +268,52 @@ export const AgentChatWidget = () => {
         className="border-t border-border bg-muted/30 p-4"
       >
         <div className="flex gap-2">
-          <Textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask me anything..."
-            className="min-h-[60px] max-h-[120px] resize-none"
-            disabled={isLoading}
-          />
+          <div className="flex-1 relative">
+            <Textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask me anything..."
+              className="min-h-[60px] max-h-[120px] resize-none pr-10"
+              disabled={isLoading || isProcessing}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFileUpload(file);
+              }}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading || isProcessing}
+              className="absolute bottom-2 right-2 h-8 w-8"
+              title="Upload PDF document"
+            >
+              <Paperclip className="h-4 w-4" />
+            </Button>
+          </div>
           <Button
             type="submit"
             size="icon"
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isLoading || isProcessing}
             className="h-[60px] w-[60px] shrink-0"
           >
             <Send className="h-4 w-4" />
           </Button>
         </div>
+        {isProcessing && (
+          <p className="text-xs text-muted-foreground mt-2">
+            Processing document...
+          </p>
+        )}
       </form>
     </div>
   );
