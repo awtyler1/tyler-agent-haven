@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, Loader2, Upload } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 interface ProcessingStatus {
   filename: string;
