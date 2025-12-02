@@ -59,15 +59,6 @@ const controlCenterTiles = [
   }
 ];
 
-const quickLinks = [
-  { name: "AHIP", url: "https://www.ahip.org/", external: true },
-  { name: "Sunfire", url: "https://www.sunfirematrix.com/app/agent/pfs", external: true },
-  { name: "BOSS CRM", url: "https://fmo.kizen.com/login", external: true },
-  { name: "Carrier Support", link: "/contact" },
-  { name: "Contracting Hub", link: "/contracting-hub" },
-  { name: "Compliance Center", link: "/compliance" }
-];
-
 const fmoIs = [
   "The strategic engine behind your Medicare business",
   "The bridge between you and the carriers",
@@ -292,37 +283,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Quick Links Section */}
-        <section className="py-12 px-6 md:px-12 lg:px-20">
-          <div className="container-narrow">
-            <h2 className="text-sm font-medium tracking-widest text-gold uppercase text-center mb-8">Quick Links</h2>
-            <div className="flex flex-wrap justify-center gap-4">
-              {quickLinks.map((item, index) => (
-                item.external ? (
-                  <a
-                    key={index}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-[#E5E2DB] rounded-md text-sm font-medium text-foreground hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-150"
-                  >
-                    {item.name}
-                    <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
-                  </a>
-                ) : (
-                  <Link
-                    key={index}
-                    to={item.link!}
-                    onClick={() => window.scrollTo(0, 0)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-[#E5E2DB] rounded-md text-sm font-medium text-foreground hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-150"
-                  >
-                    {item.name}
-                  </Link>
-                )
-              ))}
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
     </div>
