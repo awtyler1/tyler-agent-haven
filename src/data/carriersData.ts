@@ -729,10 +729,9 @@ export const carriers = [
     name: "Wellcare",
     logo: wellcareLogo,
     contacts: [
-      { type: "John Hensley - Sales Director", subtitle: "Kentucky", number: "(502) 608-5464", email: "John.Hensley@Wellcare.com" },
-      { type: "Lindsey Wiglesworth - Broker Manager", subtitle: "Eastern Kentucky", number: "(859) 421-6048", email: "Lindsey.Wiglesworth@Wellcare.com" },
-      { type: "Marissa Mudd - Broker Manager", subtitle: "Louisville and Western Kentucky", number: "(502) 407-0009", email: "Marissa.Mudd@Wellcare.com" },
-      { type: "Wellcare Broker Services", number: "(866) 594-5456", email: "brokerservices@wellcare.com" },
+      { name: "Austin Compton", role: "Regional Agency Manager", region: "Kentucky", phone: "(859) 297-8759", email: "Austin.Compton@wellcare.com" },
+      { name: "Melanie Barton", role: "Sales Manager", region: "KY, IN & TN", phone: "(615) 653-8234", email: "Melanie.Barton@wellcare.com" },
+      { name: "Kimberly Scott", role: "Regional Sales Director", region: "Central Region", email: "Kimberly.J.Scott@wellcare.com" },
     ],
     links: [
       { name: "Broker Portal", url: "https://brokerportal.wellcare.com/login" },
