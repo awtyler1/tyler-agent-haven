@@ -200,13 +200,9 @@ const ContractingHubPage = () => {
       
       <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Header - Title */}
-        <section className="pt-16 pb-6 md:pt-20 md:pb-7 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-5">
-              <h1 className="heading-display">
-                Contracting Hub
-              </h1>
-            </div>
+        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+          <div className="container-narrow text-center">
+            <h1 className="heading-display mb-3">Contracting Hub</h1>
           </div>
         </section>
 
