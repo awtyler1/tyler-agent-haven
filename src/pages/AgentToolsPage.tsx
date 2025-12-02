@@ -48,10 +48,10 @@ const AgentToolsPage = () => {
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-16 pb-1.5 md:pt-20 md:pb-2 px-6 md:px-12 lg:px-20">
+        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-1">Agent Tools</h1>
-            <p className="text-body max-w-2xl mx-auto" style={{ color: 'hsl(30 10% 20%)' }}>
+            <h1 className="heading-display mb-3">Agent Tools</h1>
+            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
               Your command center for quoting, applications, CRM, and essential platforms.
             </p>
           </div>
