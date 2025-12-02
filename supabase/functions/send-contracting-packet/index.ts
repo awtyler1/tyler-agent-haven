@@ -18,9 +18,7 @@ interface ContractingSubmission {
   name: string;
   npn: string;
   email?: string;
-  phone: string;
   residentState: string;
-  contractingType: "individual" | "agency";
   files: FileAttachment[];
 }
 
@@ -31,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { name, npn, email, phone, residentState, contractingType, files }: ContractingSubmission = await req.json();
+    const { name, npn, email, residentState, files }: ContractingSubmission = await req.json();
 
     // Server-side validation
     if (!name || typeof name !== "string" || name.trim().length === 0 || name.length > 100) {
@@ -51,13 +49,6 @@ const handler = async (req: Request): Promise<Response> => {
     if (email && (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid email provided" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    if (!phone || typeof phone !== "string" || phone.trim().length === 0) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Phone number is required" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -105,20 +96,22 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "Tyler Insurance Group <onboarding@resend.dev>",
         to: ["caroline@tylerinsurancegroup.com"],
-        subject: `New Contracting Packet – ${name.trim()} – ${npn.trim()}`,
+        subject: `New Contracting Packet – ${name.trim()} – NPN ${npn.trim()}`,
         html: `
-          <h2>New Contracting Packet Submission</h2>
-          <p><strong>Name:</strong> ${name.trim()}</p>
-          <p><strong>NPN:</strong> ${npn.trim()}</p>
-          <p><strong>Email:</strong> ${email?.trim() || "Not provided"}</p>
-          <p><strong>Phone:</strong> ${phone.trim()}</p>
-          <p><strong>Resident State:</strong> ${residentState.trim()}</p>
-          <p><strong>Contracting Type:</strong> ${contractingType === "individual" ? "Individual" : "Agency"}</p>
-          <hr style="margin: 20px 0;" />
-          <p><strong>Attached Documents:</strong></p>
-          <ul>
-            ${files.map(file => `<li>${file.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}: ${file.fileName}</li>`).join('')}
+          <p>A new contracting packet has been submitted through the Tyler Insurance Group Agent Platform.</p>
+          
+          <h3>Agent Information:</h3>
+          <ul style="list-style-type: none; padding-left: 0;">
+            <li>• <strong>Full Name:</strong> ${name.trim()}</li>
+            <li>• <strong>Email:</strong> ${email?.trim() || "Not provided"}</li>
+            <li>• <strong>NPN:</strong> ${npn.trim()}</li>
+            <li>• <strong>Resident State:</strong> ${residentState.trim()}</li>
           </ul>
+          
+          <h3>Documents:</h3>
+          <p>• <strong>Total files attached:</strong> ${files.length}</p>
+          
+          <p>All uploaded files are attached to this email for review.</p>
         `,
         attachments,
       }),
