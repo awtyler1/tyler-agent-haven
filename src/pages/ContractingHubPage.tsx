@@ -202,31 +202,22 @@ const ContractingHubPage = () => {
       <Navigation />
       
       <main>
-        {/* Hero - Compressed */}
-        <section className="pt-20 pb-3 md:pt-24 md:pb-4 px-6 md:px-12 lg:px-20 bg-background">
+        {/* Hero - Dashboard Style */}
+        <section className="pt-20 pb-4 md:pt-24 md:pb-5 px-6 md:px-12 lg:px-20 bg-background">
           <div className="container-narrow text-center">
             <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-1.5">
               Contracting Hub
             </h1>
             <p className="text-[15px] md:text-[17px] text-foreground max-w-2xl mx-auto">
-              Your guided path to completing contracting with Tyler Insurance Group.
+              Your three-step path to completing contracting with Tyler Insurance Group.
             </p>
           </div>
         </section>
 
-        {/* Quick Orientation - Compressed */}
-        <section className="py-3.5 px-6 md:px-12 lg:px-20 bg-cream/20">
-          <div className="container-narrow max-w-4xl">
-            <p className="text-[13px] md:text-[14px] leading-snug text-foreground text-center">
-              Welcome aboard. Follow these three steps in order to complete your contracting smoothly. If you need help, contact Caroline at the bottom of this page.
-            </p>
-          </div>
-        </section>
-
-        {/* Three Steps - Side by Side Above the Fold - Compressed */}
-        <section className="py-3.5 px-6 md:px-12 lg:px-16 bg-background">
+        {/* Three Steps - Side by Side Above the Fold */}
+        <section className="py-4 px-6 md:px-12 lg:px-16 bg-background">
           <div className="max-w-[90%] mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
               
               {/* Step 1: Required Documents */}
               <Card className="border-gold/20 bg-card h-full">
@@ -326,6 +317,21 @@ const ContractingHubPage = () => {
               </Card>
 
             </div>
+          </div>
+        </section>
+
+        {/* Support Line - Below Cards */}
+        <section className="py-4 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="text-center">
+            <p className="text-[13px] text-muted-foreground">
+              Need help? Contact Caroline at{" "}
+              <a 
+                href="mailto:caroline@tylerinsurancegroup.com"
+                className="text-gold hover:text-gold/80 transition-colors"
+              >
+                caroline@tylerinsurancegroup.com
+              </a>
+            </p>
           </div>
         </section>
 
@@ -526,21 +532,6 @@ const ContractingHubPage = () => {
                 {isSubmitting ? "Submitting..." : "Submit Contracting Packet"}
               </Button>
             </form>
-          </div>
-        </section>
-
-        {/* Support Contact - Compressed */}
-        <section className="py-6 px-6 md:px-12 lg:px-20 bg-background border-t border-border">
-          <div className="container-narrow text-center">
-            <p className="text-[11px] text-muted-foreground mb-2">Need help with contracting?</p>
-            <p className="text-[13px] text-foreground font-medium mb-1.5">Caroline Horn</p>
-            <a 
-              href="mailto:caroline@tylerinsurancegroup.com"
-              className="inline-flex items-center gap-2 text-gold hover:text-gold/80 transition-colors text-sm"
-            >
-              <Mail className="w-3.5 h-3.5" />
-              caroline@tylerinsurancegroup.com
-            </a>
           </div>
         </section>
       </main>
