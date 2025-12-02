@@ -202,83 +202,83 @@ const ContractingHubPage = () => {
       <Navigation />
       
       <main>
-        {/* Hero - Compact */}
-        <section className="pt-28 pb-6 md:pt-32 md:pb-8 px-6 md:px-12 lg:px-20 bg-background">
+        {/* Hero - Compressed */}
+        <section className="pt-20 pb-3 md:pt-24 md:pb-4 px-6 md:px-12 lg:px-20 bg-background">
           <div className="container-narrow text-center">
-            <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-2">
+            <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-1.5">
               Contracting Hub
             </h1>
-            <p className="text-base md:text-lg text-foreground max-w-2xl mx-auto">
+            <p className="text-[15px] md:text-[17px] text-foreground max-w-2xl mx-auto">
               Your guided path to completing contracting with Tyler Insurance Group.
             </p>
           </div>
         </section>
 
-        {/* Quick Orientation - Compact */}
-        <section className="py-6 px-6 md:px-12 lg:px-20 bg-cream/20">
+        {/* Quick Orientation - Compressed */}
+        <section className="py-3.5 px-6 md:px-12 lg:px-20 bg-cream/20">
           <div className="container-narrow max-w-4xl">
-            <p className="text-sm md:text-base leading-relaxed text-foreground text-center">
+            <p className="text-[13px] md:text-[14px] leading-snug text-foreground text-center">
               Welcome aboard. Follow these three steps in order to complete your contracting smoothly. If you need help, contact Caroline at the bottom of this page.
             </p>
           </div>
         </section>
 
-        {/* Three Steps - Side by Side Above the Fold */}
-        <section className="py-8 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-[1400px] mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Three Steps - Side by Side Above the Fold - Compressed */}
+        <section className="py-3.5 px-6 md:px-12 lg:px-16 bg-background">
+          <div className="max-w-[90%] mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               
               {/* Step 1: Required Documents */}
-              <Card className="border-gold/20 bg-card">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-semibold text-lg">1</span>
+              <Card className="border-gold/20 bg-card h-full">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-gold font-semibold text-base">1</span>
                     </div>
-                    <h2 className="text-xl font-semibold text-foreground">
+                    <h2 className="text-[19px] font-semibold text-foreground">
                       Gather Documents
                     </h2>
                   </div>
                   
-                  <div className="space-y-2.5">
+                  <div className="space-y-[0.35em]">
                     {requiredDocuments.map((doc, index) => (
                       <div key={index} className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-foreground leading-snug">{doc.text}</span>
+                        <span className="text-[13px] text-foreground leading-snug">{doc.text}</span>
                       </div>
                     ))}
                   </div>
                   
-                  <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border">
+                  <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border">
                     Having these ready prevents delays.
                   </p>
                 </CardContent>
               </Card>
 
               {/* Step 2: Download Packet */}
-              <Card className="border-gold/20 bg-card">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-semibold text-lg">2</span>
+              <Card className="border-gold/20 bg-card h-full">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-gold font-semibold text-base">2</span>
                     </div>
-                    <h2 className="text-xl font-semibold text-foreground">
+                    <h2 className="text-[19px] font-semibold text-foreground">
                       Download Packet
                     </h2>
                   </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-2.5">
                     <Button 
                       onClick={() => setIsPdfModalOpen(true)}
-                      className="w-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6"
+                      className="w-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-4 text-sm"
                     >
-                      <Download className="w-5 h-5 mr-2" />
+                      <Download className="w-4 h-4 mr-2" />
                       Download Packet (PDF)
                     </Button>
                     
-                    <div className="space-y-2 pt-2">
-                      <p className="text-sm text-foreground font-medium">Instructions:</p>
-                      <ul className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="space-y-1.5 pt-1">
+                      <p className="text-[13px] text-foreground font-medium">Instructions:</p>
+                      <ul className="space-y-[0.35em] text-[11px] text-muted-foreground">
                         <li>• Complete all pages and sign</li>
                         <li>• SelectHealth section is optional</li>
                         <li>• Replace sample E&O with yours</li>
@@ -291,31 +291,31 @@ const ContractingHubPage = () => {
               </Card>
 
               {/* Step 3: Upload Form - Compact */}
-              <Card className="border-gold/20 bg-card">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-semibold text-lg">3</span>
+              <Card className="border-gold/20 bg-card h-full">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-gold font-semibold text-base">3</span>
                     </div>
-                    <h2 className="text-xl font-semibold text-foreground">
+                    <h2 className="text-[19px] font-semibold text-foreground">
                       Submit Packet
                     </h2>
                   </div>
 
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-[13px] text-muted-foreground mb-2.5">
                     Complete the form below with your info and upload all required documents.
                   </p>
 
                   <a 
                     href="#upload-form"
-                    className="block w-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 rounded-md text-center transition-colors"
+                    className="block w-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-4 rounded-md text-center transition-colors text-sm"
                   >
                     Go to Upload Form →
                   </a>
 
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-xs font-medium text-foreground mb-2">What Happens Next:</p>
-                    <ul className="space-y-1.5 text-xs text-muted-foreground">
+                  <div className="mt-2.5 pt-2.5 border-t border-border">
+                    <p className="text-[11px] font-medium text-foreground mb-1.5">What Happens Next:</p>
+                    <ul className="space-y-[0.35em] text-[11px] text-muted-foreground">
                       <li>• Review within 2-3 business days</li>
                       <li>• We'll email if anything is missing</li>
                       <li>• Notification when carriers approve</li>
@@ -329,49 +329,51 @@ const ContractingHubPage = () => {
           </div>
         </section>
 
-        {/* Upload Form - Full Details Below */}
-        <section id="upload-form" className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-cream/20">
+        {/* Upload Form - Full Details Below - Compressed */}
+        <section id="upload-form" className="py-8 md:py-10 px-6 md:px-12 lg:px-20 bg-cream/20">
           <div className="container-narrow max-w-3xl">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
+            <div className="text-center mb-6">
+              <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
                 Step 3: Upload Your Completed Packet
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-[13px] text-muted-foreground">
                 Fill out the form below and upload all required documents.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name <span className="text-destructive">*</span></Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="name" className="text-sm">Full Name <span className="text-destructive">*</span></Label>
                   <Input
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Enter your full legal name"
+                    className="h-9"
                     required
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="npn">NPN <span className="text-destructive">*</span></Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="npn" className="text-sm">NPN <span className="text-destructive">*</span></Label>
                   <Input
                     id="npn"
                     name="npn"
                     value={formData.npn}
                     onChange={handleInputChange}
                     placeholder="Enter your NPN"
+                    className="h-9"
                     required
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-sm">Email <span className="text-destructive">*</span></Label>
                   <Input
                     id="email"
                     name="email"
@@ -379,12 +381,13 @@ const ContractingHubPage = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="your@email.com"
+                    className="h-9"
                     required
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone <span className="text-destructive">*</span></Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone" className="text-sm">Phone <span className="text-destructive">*</span></Label>
                   <Input
                     id="phone"
                     name="phone"
@@ -392,122 +395,124 @@ const ContractingHubPage = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="(555) 123-4567"
+                    className="h-9"
                     required
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="residentState">Resident State <span className="text-destructive">*</span></Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="residentState" className="text-sm">Resident State <span className="text-destructive">*</span></Label>
                   <Input
                     id="residentState"
                     name="residentState"
                     value={formData.residentState}
                     onChange={handleInputChange}
                     placeholder="e.g., Kentucky"
+                    className="h-9"
                     required
                   />
                 </div>
 
-                <div className="space-y-3">
-                  <Label>Contracting Type <span className="text-destructive">*</span></Label>
+                <div className="space-y-2">
+                  <Label className="text-sm">Contracting Type <span className="text-destructive">*</span></Label>
                   <RadioGroup
                     value={formData.contractingType}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, contractingType: value as "individual" | "agency" }))}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="individual" id="individual" />
-                      <Label htmlFor="individual" className="font-normal cursor-pointer">Individual</Label>
+                      <Label htmlFor="individual" className="font-normal cursor-pointer text-sm">Individual</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="agency" id="agency" />
-                      <Label htmlFor="agency" className="font-normal cursor-pointer">Agency</Label>
+                      <Label htmlFor="agency" className="font-normal cursor-pointer text-sm">Agency</Label>
                     </div>
                   </RadioGroup>
                 </div>
               </div>
 
               {/* File Uploads */}
-              <div className="pt-4 space-y-4">
-                <h3 className="text-lg font-semibold text-foreground">File Upload Fields</h3>
+              <div className="pt-3 space-y-3">
+                <h3 className="text-base font-semibold text-foreground">File Upload Fields</h3>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="packet">Completed Contracting Packet (PDF) <span className="text-destructive">*</span></Label>
-                  <Input id="packet" type="file" accept=".pdf" onChange={handleFileChange("contractingPacket")} required />
+                <div className="space-y-1.5">
+                  <Label htmlFor="packet" className="text-sm">Completed Contracting Packet (PDF) <span className="text-destructive">*</span></Label>
+                  <Input id="packet" type="file" accept=".pdf" onChange={handleFileChange("contractingPacket")} className="h-9 text-sm" required />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="license">Insurance License <span className="text-destructive">*</span></Label>
-                  <Input id="license" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("license")} required />
+                <div className="space-y-1.5">
+                  <Label htmlFor="license" className="text-sm">Insurance License <span className="text-destructive">*</span></Label>
+                  <Input id="license" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("license")} className="h-9 text-sm" required />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="eo">E&O Certificate <span className="text-destructive">*</span></Label>
-                  <Input id="eo" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("eo")} required />
+                <div className="space-y-1.5">
+                  <Label htmlFor="eo" className="text-sm">E&O Certificate <span className="text-destructive">*</span></Label>
+                  <Input id="eo" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("eo")} className="h-9 text-sm" required />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="check">Voided Check <span className="text-destructive">*</span></Label>
-                  <Input id="check" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("voidedCheck")} required />
+                <div className="space-y-1.5">
+                  <Label htmlFor="check" className="text-sm">Voided Check <span className="text-destructive">*</span></Label>
+                  <Input id="check" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("voidedCheck")} className="h-9 text-sm" required />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="aml">AML / CE Certificate(s) <span className="text-destructive">*</span></Label>
-                  <Input id="aml" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("amlCe")} required />
+                <div className="space-y-1.5">
+                  <Label htmlFor="aml" className="text-sm">AML / CE Certificate(s) <span className="text-destructive">*</span></Label>
+                  <Input id="aml" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("amlCe")} className="h-9 text-sm" required />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="additional">Additional Documents <span className="text-muted-foreground text-sm">(Optional)</span></Label>
-                  <Input id="additional" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("additional")} />
-                  <p className="text-xs text-muted-foreground">Background explanations, corporate resolutions, SelectHealth add-ons, etc.</p>
+                <div className="space-y-1.5">
+                  <Label htmlFor="additional" className="text-sm">Additional Documents <span className="text-muted-foreground text-xs">(Optional)</span></Label>
+                  <Input id="additional" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("additional")} className="h-9 text-sm" />
+                  <p className="text-[11px] text-muted-foreground">Background explanations, corporate resolutions, SelectHealth add-ons, etc.</p>
                 </div>
               </div>
 
               {/* Required Checkboxes */}
-              <div className="pt-4 space-y-4 border-t border-border">
-                <h3 className="text-lg font-semibold text-foreground">Required Confirmations</h3>
+              <div className="pt-3 space-y-2.5 border-t border-border">
+                <h3 className="text-base font-semibold text-foreground">Required Confirmations</h3>
                 
-                <div className="flex items-start space-x-3">
+                <div className="flex items-start space-x-2.5">
                   <Checkbox 
                     id="check1" 
                     checked={checkboxes.completedSigned}
                     onCheckedChange={handleCheckboxChange("completedSigned")}
                   />
-                  <Label htmlFor="check1" className="font-normal leading-snug cursor-pointer">
+                  <Label htmlFor="check1" className="font-normal leading-snug cursor-pointer text-[13px]">
                     I completed and signed all required pages of the contracting packet.
                   </Label>
                 </div>
 
-                <div className="flex items-start space-x-3">
+                <div className="flex items-start space-x-2.5">
                   <Checkbox 
                     id="check2" 
                     checked={checkboxes.attachedDocs}
                     onCheckedChange={handleCheckboxChange("attachedDocs")}
                   />
-                  <Label htmlFor="check2" className="font-normal leading-snug cursor-pointer">
+                  <Label htmlFor="check2" className="font-normal leading-snug cursor-pointer text-[13px]">
                     I attached my license, E&O, voided check, and AML/CE certificates.
                   </Label>
                 </div>
 
-                <div className="flex items-start space-x-3">
+                <div className="flex items-start space-x-2.5">
                   <Checkbox 
                     id="check3" 
                     checked={checkboxes.yesExplanations}
                     onCheckedChange={handleCheckboxChange("yesExplanations")}
                   />
-                  <Label htmlFor="check3" className="font-normal leading-snug cursor-pointer">
+                  <Label htmlFor="check3" className="font-normal leading-snug cursor-pointer text-[13px]">
                     If I answered "Yes" to any legal questions, I have uploaded written explanations.
                   </Label>
                 </div>
 
-                <div className="flex items-start space-x-3">
+                <div className="flex items-start space-x-2.5">
                   <Checkbox 
                     id="check4" 
                     checked={checkboxes.corporateDocs}
                     onCheckedChange={handleCheckboxChange("corporateDocs")}
                   />
-                  <Label htmlFor="check4" className="font-normal leading-snug cursor-pointer">
+                  <Label htmlFor="check4" className="font-normal leading-snug cursor-pointer text-[13px]">
                     If contracting as a corporation, I included corporate license and bank documents.
                   </Label>
                 </div>
@@ -515,7 +520,7 @@ const ContractingHubPage = () => {
 
               <Button 
                 type="submit" 
-                className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-6 mt-8"
+                className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-5 mt-5"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : "Submit Contracting Packet"}
@@ -524,16 +529,16 @@ const ContractingHubPage = () => {
           </div>
         </section>
 
-        {/* Support Contact */}
-        <section className="py-10 px-6 md:px-12 lg:px-20 bg-background border-t border-border">
+        {/* Support Contact - Compressed */}
+        <section className="py-6 px-6 md:px-12 lg:px-20 bg-background border-t border-border">
           <div className="container-narrow text-center">
-            <p className="text-sm text-muted-foreground mb-3">Need help with contracting?</p>
-            <p className="text-foreground font-medium mb-2">Caroline Horn</p>
+            <p className="text-[11px] text-muted-foreground mb-2">Need help with contracting?</p>
+            <p className="text-[13px] text-foreground font-medium mb-1.5">Caroline Horn</p>
             <a 
               href="mailto:caroline@tylerinsurancegroup.com"
-              className="inline-flex items-center gap-2 text-gold hover:text-gold/80 transition-colors"
+              className="inline-flex items-center gap-2 text-gold hover:text-gold/80 transition-colors text-sm"
             >
-              <Mail className="w-4 h-4" />
+              <Mail className="w-3.5 h-3.5" />
               caroline@tylerinsurancegroup.com
             </a>
           </div>
