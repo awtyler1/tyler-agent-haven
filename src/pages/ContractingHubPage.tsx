@@ -1,63 +1,54 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  CheckCircle, 
-  FileText, 
-  Upload,
-  Award,
-  Wrench,
-  HelpCircle,
-  BookOpen,
-  GraduationCap,
-  Mail,
-  Eye
-} from "lucide-react";
+import { CheckCircle, Download, Mail } from "lucide-react";
 
 const ContractingHubPage = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: "",
     npn: "",
-    email: ""
+    email: "",
+    phone: "",
+    residentState: "",
+    contractingType: "individual" as "individual" | "agency"
   });
-  const [file, setFile] = useState<File | null>(null);
+
+  const [files, setFiles] = useState({
+    contractingPacket: null as File | null,
+    license: null as File | null,
+    eo: null as File | null,
+    voidedCheck: null as File | null,
+    amlCe: null as File | null,
+    additional: null as File | null
+  });
+
+  const [checkboxes, setCheckboxes] = useState({
+    completedSigned: false,
+    attachedDocs: false,
+    yesExplanations: false,
+    corporateDocs: false
+  });
 
   const requiredDocuments = [
-    "Copy of your insurance license",
-    "Copy of your E&O coverage (if applicable)",
-    "Copy of a voided check for direct deposit",
-    "Completed AML training certificate",
-    "CE certificate (if required by your state)",
-    "Written explanations for any \"Yes\" answers to background questions",
-    "Corporate license and corporate voided check (if contracting as a corporation)",
-    "Corporate signer list or corporate resolution (if contracting through a business entity)"
-  ];
-
-  const importantNotes = [
-    "Some carriers charge state appointment fees",
-    "All legal/background questions must be answered truthfully",
-    "Include written explanations for any \"Yes\" answers",
-    "Contracting cannot be processed until all required documents are submitted",
-    "Expect follow-up requests if corrections or missing items are identified"
-  ];
-
-  const quickLinks = [
-    { title: "Certifications", href: "/agent-tools", icon: Award },
-    { title: "Agent Tools", href: "/agent-tools", icon: Wrench },
-    { title: "Medicare Fundamentals", href: "/medicare-fundamentals", icon: BookOpen },
-    { title: "Sales Training", href: "/sales-training", icon: GraduationCap },
-    { title: "Support", href: "/contact", icon: HelpCircle }
+    { text: "State insurance license", icon: CheckCircle },
+    { text: "E&O certificate with your correct name", icon: CheckCircle },
+    { text: "AML certificate (and CE if your state requires it)", icon: CheckCircle },
+    { text: "Voided check (personal or corporate)", icon: CheckCircle },
+    { text: "Any corporate documents if contracting as an agency (corporate license + corporate bank info)", icon: CheckCircle },
+    { text: "Written explanations for any \"Yes\" answers in the legal questionnaire", icon: CheckCircle }
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,19 +56,44 @@ const ContractingHubPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (field: keyof typeof files) => (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      setFiles(prev => ({ ...prev, [field]: e.target.files![0] }));
     }
+  };
+
+  const handleCheckboxChange = (field: keyof typeof checkboxes) => (checked: boolean) => {
+    setCheckboxes(prev => ({ ...prev, [field]: checked }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.npn.trim() || !file) {
+    // Validate required fields
+    if (!formData.name.trim() || !formData.npn.trim() || !formData.phone.trim() || !formData.residentState.trim()) {
       toast({
         title: "Missing Required Fields",
-        description: "Please fill in your name, NPN, and upload your contracting packet.",
+        description: "Please fill in all required fields marked with *",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate required files
+    if (!files.contractingPacket || !files.license || !files.eo || !files.voidedCheck || !files.amlCe) {
+      toast({
+        title: "Missing Required Files",
+        description: "Please upload all required documents.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate checkboxes
+    if (!checkboxes.completedSigned || !checkboxes.attachedDocs || !checkboxes.yesExplanations || !checkboxes.corporateDocs) {
+      toast({
+        title: "Confirmation Required",
+        description: "Please check all required confirmation boxes before submitting.",
         variant: "destructive"
       });
       return;
@@ -86,27 +102,68 @@ const ContractingHubPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Convert file to base64
-      const reader = new FileReader();
-      const fileBase64 = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => {
-          const result = reader.result as string;
-          // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
-          const base64 = result.split(',')[1];
-          resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      // Convert files to base64
+      const convertToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            const base64 = result.split(',')[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      };
 
-      const { data, error } = await supabase.functions.invoke('send-contracting-packet', {
+      const fileData = await Promise.all([
+        convertToBase64(files.contractingPacket).then(content => ({ 
+          name: "contracting-packet", 
+          fileName: files.contractingPacket!.name, 
+          content, 
+          type: files.contractingPacket!.type 
+        })),
+        convertToBase64(files.license).then(content => ({ 
+          name: "license", 
+          fileName: files.license!.name, 
+          content, 
+          type: files.license!.type 
+        })),
+        convertToBase64(files.eo).then(content => ({ 
+          name: "eo-certificate", 
+          fileName: files.eo!.name, 
+          content, 
+          type: files.eo!.type 
+        })),
+        convertToBase64(files.voidedCheck).then(content => ({ 
+          name: "voided-check", 
+          fileName: files.voidedCheck!.name, 
+          content, 
+          type: files.voidedCheck!.type 
+        })),
+        convertToBase64(files.amlCe).then(content => ({ 
+          name: "aml-ce-certificate", 
+          fileName: files.amlCe!.name, 
+          content, 
+          type: files.amlCe!.type 
+        })),
+        ...(files.additional ? [convertToBase64(files.additional).then(content => ({ 
+          name: "additional-documents", 
+          fileName: files.additional!.name, 
+          content, 
+          type: files.additional!.type 
+        }))] : [])
+      ]);
+
+      const { error } = await supabase.functions.invoke('send-contracting-packet', {
         body: {
           name: formData.name.trim(),
           npn: formData.npn.trim(),
           email: formData.email.trim() || undefined,
-          fileName: file.name,
-          fileContent: fileBase64,
-          fileType: file.type || 'application/octet-stream',
+          phone: formData.phone.trim(),
+          residentState: formData.residentState.trim(),
+          contractingType: formData.contractingType,
+          files: fileData
         },
       });
 
@@ -114,17 +171,25 @@ const ContractingHubPage = () => {
 
       toast({
         title: "Submission Received",
-        description: "Thank you. Your contracting packet has been sent to our contracting team. We will contact you if additional information is needed."
+        description: "Thank you. Your contracting packet has been sent to our team. We'll contact you within 2-3 business days."
       });
-      setFormData({ name: "", npn: "", email: "" });
-      setFile(null);
-      const fileInput = document.getElementById("packet-upload") as HTMLInputElement;
-      if (fileInput) fileInput.value = "";
+
+      // Reset form
+      setFormData({ name: "", npn: "", email: "", phone: "", residentState: "", contractingType: "individual" });
+      setFiles({ contractingPacket: null, license: null, eo: null, voidedCheck: null, amlCe: null, additional: null });
+      setCheckboxes({ completedSigned: false, attachedDocs: false, yesExplanations: false, corporateDocs: false });
+      
+      // Reset file inputs
+      const fileInputs = ["packet", "license", "eo", "check", "aml", "additional"];
+      fileInputs.forEach(id => {
+        const input = document.getElementById(id) as HTMLInputElement;
+        if (input) input.value = "";
+      });
     } catch (error: any) {
       console.error("Error submitting contracting packet:", error);
       toast({
         title: "Submission Failed",
-        description: "There was an error sending your packet. Please try again or contact support directly.",
+        description: "There was an error sending your packet. Please try again or contact support.",
         variant: "destructive"
       });
     } finally {
@@ -144,347 +209,289 @@ const ContractingHubPage = () => {
               Contracting Hub
             </h1>
             <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
-              Get appointed with Tyler Insurance Group and our carrier partners.
+              Your guided path to completing contracting with Tyler Insurance Group.
             </p>
           </div>
         </section>
 
-        {/* Required Documents Section */}
-        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-cream/30">
-          <div className="container-narrow">
-            <div className="text-center mb-8">
-              <h2 className="heading-section text-foreground mb-4">
-                What You Need Before You Begin
-              </h2>
-            </div>
+        {/* Quick Orientation */}
+        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-cream/20">
+          <div className="container-narrow max-w-3xl">
+            <p className="text-base leading-relaxed text-foreground">
+              Welcome aboard. This page walks you step by step through completing your contracting packet and submitting the required documents. 
+              Follow each step in order and you'll move through contracting smoothly without confusion or delays. 
+              If you get stuck, our support contact is at the bottom of the page.
+            </p>
+          </div>
+        </section>
 
-            <Card className="border-gold/20 shadow-elegant">
-              <CardContent className="p-8">
-                <div className="grid gap-4 mb-8">
-                  {requiredDocuments.map((doc, index) => (
-                    <div key={index} className="flex items-start gap-4">
+        {/* Step 1: Required Documents */}
+        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="container-narrow">
+            <h2 className="text-2xl font-semibold text-foreground mb-6">
+              Step 1: Gather These Required Documents
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {requiredDocuments.map((doc, index) => (
+                <Card key={index} className="border-gold/20 bg-card hover:border-gold/30 transition-colors">
+                  <CardContent className="p-5">
+                    <div className="flex items-start gap-3">
                       <CheckCircle className="w-5 h-5 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">{doc}</span>
+                      <span className="text-sm text-foreground leading-snug">{doc.text}</span>
                     </div>
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground italic border-t border-border pt-6">
-                  Have these items ready before starting the contracting submission process.
-                </p>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <p className="text-sm text-muted-foreground mt-6 text-center">
+              Having these ready will prevent delays during review.
+            </p>
           </div>
         </section>
 
-        {/* Step-by-Step Process */}
-        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="container-narrow">
-            <div className="text-center mb-8">
-              <h2 className="heading-section text-foreground mb-4">
-                Step-by-Step Contracting Process
-              </h2>
-            </div>
-
-            <div className="space-y-6">
-              {/* Step 1 */}
-              <Card className="border-gold/20">
-                <CardContent className="p-8">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-serif text-xl font-bold">1</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-foreground mb-3">
-                        Download and Complete the Contracting Packet
-                      </h3>
-                      <Button 
-                        onClick={() => setIsPdfModalOpen(true)}
-                        className="bg-gold hover:bg-gold/90 text-charcoal"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Preview & Download Contracting Packet
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Step 2 */}
-              <Card className="border-gold/20">
-                <CardContent className="p-8">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-serif text-xl font-bold">2</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-foreground mb-3">
-                        Fill Out All Required Forms
-                      </h3>
-                      <p className="text-muted-foreground">
-                        Ensure every page is completed and signed. Missing signatures or unanswered questions will delay your appointment.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Step 3 */}
-              <Card className="border-gold/20">
-                <CardContent className="p-8">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-serif text-xl font-bold">3</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-foreground mb-3">
-                        Gather Required Documents
-                      </h3>
-                      <p className="text-muted-foreground">
-                        Collect all documents from the checklist above: license, E&O, voided check, AML certificate, and any applicable corporate documents.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Step 4 */}
-              <Card className="border-gold/20">
-                <CardContent className="p-8">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-serif text-xl font-bold">4</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-foreground mb-3">
-                        Select the Carriers You Want to Be Appointed With
-                      </h3>
-                      <p className="text-muted-foreground">
-                        Indicate your chosen carriers inside the contracting packet. You may add or remove carriers later.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Step 5 */}
-              <Card className="border-gold/20">
-                <CardContent className="p-8">
-                  <div className="flex items-start gap-6">
-                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-serif text-xl font-bold">5</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-foreground mb-3">
-                        Submit Your Packet Using the Upload Form Below
-                      </h3>
-                      <p className="text-muted-foreground">
-                        Once complete, use the submission form at the bottom of this page to upload your packet directly to our contracting team.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Step 2: Download Packet */}
+        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-cream/20">
+          <div className="container-narrow text-center">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">
+              Step 2: Download the Contracting Packet
+            </h2>
+            
+            <Button 
+              onClick={() => setIsPdfModalOpen(true)}
+              className="bg-gold hover:bg-gold/90 text-charcoal font-medium px-8 py-6 text-base"
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Download Contracting Packet (Fillable PDF)
+            </Button>
+            
+            <div className="mt-6 space-y-1">
+              <p className="text-sm text-muted-foreground">Complete all pages and sign where indicated.</p>
+              <p className="text-sm text-muted-foreground">SelectHealth section only applies if you plan to write SelectHealth.</p>
+              <p className="text-sm text-muted-foreground">Replace the sample E&O page with your actual certificate.</p>
             </div>
           </div>
         </section>
 
-        {/* Upload Form Section */}
-        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-cream/30">
-          <div className="container-narrow">
-            <Card className="border-gold/30 shadow-elegant max-w-2xl mx-auto">
-              <CardContent className="p-8 md:p-12">
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-6">
-                    <Upload className="w-8 h-8 text-gold" />
-                  </div>
-                  <h2 className="heading-section text-foreground mb-4">
-                    Submit Your Completed Contracting Packet
-                  </h2>
-                  <p className="text-muted-foreground">
-                    Upload your completed contracting packet and required documents here. Your submission will be sent directly to our contracting team.
-                  </p>
+        {/* Step 3: Upload Form */}
+        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="container-narrow max-w-3xl">
+            <h2 className="text-2xl font-semibold text-foreground mb-6">
+              Step 3: Upload Your Completed Packet
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter your full legal name"
+                    required
+                  />
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-foreground">
-                      Full Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      placeholder="Enter your full legal name"
-                      className="border-border focus:border-gold"
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="npn">NPN <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="npn"
+                    name="npn"
+                    value={formData.npn}
+                    onChange={handleInputChange}
+                    placeholder="Enter your NPN"
+                    required
+                  />
+                </div>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="npn" className="text-foreground">
-                      NPN (National Producer Number) <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="npn"
-                      name="npn"
-                      value={formData.npn}
-                      onChange={handleInputChange}
-                      placeholder="Enter your NPN"
-                      className="border-border focus:border-gold"
-                      required
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-foreground">
-                      Email Address <span className="text-muted-foreground text-sm">(optional)</span>
-                    </Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="Enter your email address"
-                      className="border-border focus:border-gold"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="(555) 123-4567"
+                    required
+                  />
+                </div>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="packet-upload" className="text-foreground">
-                      Upload Completed Contracting Packet <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="packet-upload"
-                      type="file"
-                      onChange={handleFileChange}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      className="border-border focus:border-gold cursor-pointer"
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Accepted formats: PDF, DOC, DOCX, JPG, PNG
-                    </p>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="residentState">Resident State <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="residentState"
+                    name="residentState"
+                    value={formData.residentState}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Kentucky"
+                    required
+                  />
+                </div>
 
-                  {file && (
-                    <div className="flex items-center gap-2 p-3 bg-cream/50 rounded-lg">
-                      <FileText className="w-4 h-4 text-gold" />
-                      <span className="text-sm text-foreground">{file.name}</span>
-                    </div>
-                  )}
-
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-6"
-                    disabled={isSubmitting}
+                <div className="space-y-3">
+                  <Label>Contracting Type <span className="text-destructive">*</span></Label>
+                  <RadioGroup
+                    value={formData.contractingType}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, contractingType: value as "individual" | "agency" }))}
                   >
-                    {isSubmitting ? (
-                      "Uploading..."
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload and Send to Contracting
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Important Notes */}
-        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="container-narrow">
-            <div className="text-center mb-8">
-              <h2 className="heading-section text-foreground mb-4">
-                Important Notes & Expectations
-              </h2>
-            </div>
-
-            <Card className="border-gold/20">
-              <CardContent className="p-8">
-                <div className="space-y-4 mb-8">
-                  {importantNotes.map((note, index) => (
-                    <div key={index} className="flex items-start gap-4">
-                      <FileText className="w-5 h-5 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">{note}</span>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="individual" id="individual" />
+                      <Label htmlFor="individual" className="font-normal cursor-pointer">Individual</Label>
                     </div>
-                  ))}
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="agency" id="agency" />
+                      <Label htmlFor="agency" className="font-normal cursor-pointer">Agency</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+
+              {/* File Uploads */}
+              <div className="pt-4 space-y-4">
+                <h3 className="text-lg font-semibold text-foreground">File Upload Fields</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="packet">Completed Contracting Packet (PDF) <span className="text-destructive">*</span></Label>
+                  <Input id="packet" type="file" accept=".pdf" onChange={handleFileChange("contractingPacket")} required />
                 </div>
 
-                <div className="bg-gold/10 border border-gold/30 rounded-lg p-6">
-                  <p className="text-foreground font-medium text-center">
-                    Accuracy and completeness prevent delays.
-                  </p>
+                <div className="space-y-2">
+                  <Label htmlFor="license">Insurance License <span className="text-destructive">*</span></Label>
+                  <Input id="license" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("license")} required />
                 </div>
-              </CardContent>
-            </Card>
+
+                <div className="space-y-2">
+                  <Label htmlFor="eo">E&O Certificate <span className="text-destructive">*</span></Label>
+                  <Input id="eo" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("eo")} required />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="check">Voided Check <span className="text-destructive">*</span></Label>
+                  <Input id="check" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("voidedCheck")} required />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="aml">AML / CE Certificate(s) <span className="text-destructive">*</span></Label>
+                  <Input id="aml" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("amlCe")} required />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="additional">Additional Documents <span className="text-muted-foreground text-sm">(Optional)</span></Label>
+                  <Input id="additional" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange("additional")} />
+                  <p className="text-xs text-muted-foreground">Background explanations, corporate resolutions, SelectHealth add-ons, etc.</p>
+                </div>
+              </div>
+
+              {/* Required Checkboxes */}
+              <div className="pt-4 space-y-4 border-t border-border">
+                <h3 className="text-lg font-semibold text-foreground">Required Confirmations</h3>
+                
+                <div className="flex items-start space-x-3">
+                  <Checkbox 
+                    id="check1" 
+                    checked={checkboxes.completedSigned}
+                    onCheckedChange={handleCheckboxChange("completedSigned")}
+                  />
+                  <Label htmlFor="check1" className="font-normal leading-snug cursor-pointer">
+                    I completed and signed all required pages of the contracting packet.
+                  </Label>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox 
+                    id="check2" 
+                    checked={checkboxes.attachedDocs}
+                    onCheckedChange={handleCheckboxChange("attachedDocs")}
+                  />
+                  <Label htmlFor="check2" className="font-normal leading-snug cursor-pointer">
+                    I attached my license, E&O, voided check, and AML/CE certificates.
+                  </Label>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox 
+                    id="check3" 
+                    checked={checkboxes.yesExplanations}
+                    onCheckedChange={handleCheckboxChange("yesExplanations")}
+                  />
+                  <Label htmlFor="check3" className="font-normal leading-snug cursor-pointer">
+                    If I answered "Yes" to any legal questions, I have uploaded written explanations.
+                  </Label>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox 
+                    id="check4" 
+                    checked={checkboxes.corporateDocs}
+                    onCheckedChange={handleCheckboxChange("corporateDocs")}
+                  />
+                  <Label htmlFor="check4" className="font-normal leading-snug cursor-pointer">
+                    If contracting as a corporation, I included corporate license and bank documents.
+                  </Label>
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-6 mt-8"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit Contracting Packet"}
+              </Button>
+            </form>
           </div>
         </section>
 
-        {/* Support Section */}
-        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-cream/30">
-          <div className="container-narrow">
-            <div className="text-center mb-8">
-              <h2 className="heading-section text-foreground mb-4">
-                Contracting Support
-              </h2>
-            </div>
-
-            <Card className="border-gold/20 max-w-xl mx-auto">
-              <CardContent className="p-8 text-center">
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  Caroline Horn
-                </h3>
-                <p className="text-muted-foreground mb-6">Contracting Specialist</p>
+        {/* Step 4: What Happens Next */}
+        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-cream/20">
+          <div className="container-narrow max-w-3xl">
+            <Card className="border-gold/20 bg-card">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">
+                  What Happens Next
+                </h2>
                 
-                <div className="space-y-3 mb-6">
+                <div className="space-y-4 text-foreground leading-relaxed">
+                  <p>Our contracting team reviews submissions within 2–3 business days.</p>
+                  <p>If anything is missing, we'll email you with clear instructions.</p>
+                  <p>We notify you as soon as each carrier approves your appointment.</p>
+                  <p>Once appointed, you can begin writing business immediately.</p>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-border text-center">
+                  <p className="text-sm text-muted-foreground mb-3">If you need help, contact Caroline at</p>
                   <a 
-                    href="mailto:caroline@tylerinsurancegroup.com" 
-                    className="flex items-center justify-center gap-2 text-gold hover:text-gold/80 transition-colors"
+                    href="mailto:caroline@tylerinsurancegroup.com"
+                    className="inline-flex items-center gap-2 text-gold hover:text-gold/80 transition-colors font-medium"
                   >
                     <Mail className="w-4 h-4" />
                     caroline@tylerinsurancegroup.com
                   </a>
                 </div>
-
-                <p className="text-sm text-muted-foreground border-t border-border pt-6">
-                  For general contracting questions, include your full name and NPN for faster support.
-                </p>
               </CardContent>
             </Card>
-          </div>
-        </section>
-
-        {/* Quick Links */}
-        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="container-narrow">
-            <div className="text-center mb-8">
-              <h2 className="heading-section text-foreground mb-4">
-                Quick Links
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-              {quickLinks.map((link, index) => {
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={index}
-                    to={link.href}
-                    className="flex flex-col items-center gap-3 p-6 rounded-xl border border-gold/20 bg-card hover:border-gold/40 hover:shadow-elegant transition-all duration-300 group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                      <Icon className="w-6 h-6 text-gold" />
-                    </div>
-                    <span className="text-sm font-medium text-foreground text-center">{link.title}</span>
-                  </Link>
-                );
-              })}
-            </div>
           </div>
         </section>
       </main>
