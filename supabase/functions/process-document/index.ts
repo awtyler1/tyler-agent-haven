@@ -6,8 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Simple text chunking function
-function chunkText(text: string, chunkSize: number = 1000, overlap: number = 200): string[] {
+// Simple text chunking function - reduced for memory efficiency
+function chunkText(text: string, chunkSize: number = 800, overlap: number = 150): string[] {
   const chunks: string[] = [];
   let start = 0;
   
@@ -65,12 +65,12 @@ serve(async (req) => {
 
     // Clean and chunk the document text
     const cleanText = documentText.replace(/\s+/g, " ").trim();
-    const chunks = chunkText(cleanText, 1000, 200);
+    const chunks = chunkText(cleanText, 800, 150);
 
     console.log(`Processing ${chunks.length} chunks for ${documentName}`);
 
-    // Process chunks in batches to avoid rate limits
-    const batchSize = 5;
+    // Process chunks in smaller batches to avoid memory issues
+    const batchSize = 3;
     for (let i = 0; i < chunks.length; i += batchSize) {
       const batch = chunks.slice(i, i + batchSize);
       
@@ -104,9 +104,9 @@ serve(async (req) => {
         })
       );
 
-      // Small delay between batches to respect rate limits
+      // Longer delay between batches to allow garbage collection
       if (i + batchSize < chunks.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
 
