@@ -76,8 +76,72 @@ const carrierCertificationsByState: Record<State, Array<{
       logo: wellcareLogo,
     },
   ],
+  Tennessee: [
+    {
+      name: "Aetna",
+      url: "https://www.aetna.com/producer_public/login.fcc",
+      howToCertifyUrl: "/downloads/TIG_2026_Aetna_Certification_Instructions.pdf",
+      howToCertifyTitle: "Aetna 2026 Certification Instructions",
+      logo: aetnaLogo,
+    },
+    {
+      name: "BlueCross BlueShield of Tennessee",
+      url: "https://www.bcbst.com/providers/",
+      howToCertifyUrl: "",
+      howToCertifyTitle: "BlueCross BlueShield of Tennessee 2026 Certification Instructions",
+      logo: anthemLogo, // Placeholder - needs actual BCBSTN logo
+    },
+    {
+      name: "Cigna",
+      url: "https://www.cignahealthcarepartners.com/",
+      howToCertifyUrl: "",
+      howToCertifyTitle: "Cigna 2026 Certification Instructions",
+      logo: aetnaLogo, // Placeholder - needs actual Cigna logo
+    },
+    {
+      name: "Devoted Health",
+      url: "https://agent.devoted.com/",
+      howToCertifyUrl: "/downloads/TIG_2026_Devoted_Certification_Instructions.pdf",
+      howToCertifyTitle: "Devoted Health 2026 Certification Instructions",
+      logo: devotedLogo,
+    },
+    {
+      name: "Humana",
+      url: "https://account.humana.com/",
+      howToCertifyUrl: "/downloads/TIG_2026_Humana_Certification_Instructions.pdf",
+      howToCertifyTitle: "Humana 2026 Certification Instructions",
+      logo: humanaLogo,
+    },
+    {
+      name: "UnitedHealthcare",
+      url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in",
+      howToCertifyUrl: "/downloads/TIG_2026_UHC_Certification_Instructions.pdf",
+      howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
+      logo: uhcLogo,
+    },
+    {
+      name: "Wellcare",
+      url: "https://www.wellcare.com/Broker-Resources/Broker-Resources",
+      howToCertifyUrl: "",
+      howToCertifyTitle: "Wellcare 2026 Certification Instructions",
+      logo: wellcareLogo,
+    },
+    {
+      name: "Wellpoint",
+      url: "https://www.elevancehealth.com/",
+      howToCertifyUrl: "",
+      howToCertifyTitle: "Wellpoint 2026 Certification Instructions",
+      logo: anthemLogo, // Placeholder - needs actual Wellpoint logo
+    },
+    {
+      name: "Zing Health",
+      url: "https://www.zinghealth.com/",
+      howToCertifyUrl: "",
+      howToCertifyTitle: "Zing Health 2026 Certification Instructions",
+      logo: humanaLogo, // Placeholder - needs actual Zing Health logo
+    },
+  ],
   Ohio: [],
-  Tennessee: [],
   Indiana: [],
   "West Virginia": [],
   Georgia: [],
