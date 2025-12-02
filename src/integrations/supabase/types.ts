@@ -14,13 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      document_chunks: {
+        Row: {
+          carrier: string | null
+          chunk_index: number
+          chunk_text: string
+          created_at: string | null
+          document_name: string
+          document_type: string
+          embedding: string | null
+          id: string
+          metadata: Json | null
+          page_number: number | null
+          plan_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          carrier?: string | null
+          chunk_index: number
+          chunk_text: string
+          created_at?: string | null
+          document_name: string
+          document_type: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          page_number?: number | null
+          plan_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          carrier?: string | null
+          chunk_index?: number
+          chunk_text?: string
+          created_at?: string | null
+          document_name?: string
+          document_type?: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          page_number?: number | null
+          plan_name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      search_documents: {
+        Args: {
+          filter_carrier?: string
+          filter_type?: string
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          carrier: string
+          chunk_text: string
+          document_name: string
+          document_type: string
+          id: string
+          page_number: number
+          plan_name: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
