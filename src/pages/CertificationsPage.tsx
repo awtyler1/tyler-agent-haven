@@ -96,23 +96,24 @@ const CertificationsPage = () => {
     const margin = 20;
     let yPos = 20;
 
-    // Add Tyler Insurance Group Logo
-    const logoWidth = 40;
-    const logoHeight = 12;
-    doc.addImage(tylerLogo, 'PNG', margin, yPos, logoWidth, logoHeight);
-    yPos += logoHeight + 10;
+    // Add Tyler Insurance Group Logo (centered)
+    const logoWidth = 60;
+    const logoHeight = 18;
+    const logoX = (pageWidth - logoWidth) / 2;
+    doc.addImage(tylerLogo, 'PNG', logoX, yPos, logoWidth, logoHeight);
+    yPos += logoHeight + 12;
 
     // Title
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("Annual Medicare Certification Checklist", margin, yPos);
+    doc.text("Annual Medicare Certification Checklist", pageWidth / 2, yPos, { align: 'center' });
     yPos += 10;
 
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
-    doc.text(`State: ${selectedState}`, margin, yPos);
+    doc.text(`State: ${selectedState}`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 6;
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, margin, yPos);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 15;
 
     // Section 1: AHIP
