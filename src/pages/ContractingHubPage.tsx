@@ -136,18 +136,15 @@ const ContractingHubPage = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-24">
-        {/* Title Section */}
-        <section className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-background">
+      <main>
+        {/* Hero */}
+        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20 bg-background">
           <div className="container-narrow text-center">
-            <h1 className="heading-display text-foreground mb-4">
+            <h1 className="heading-display text-foreground mb-3">
               Contracting Hub
             </h1>
-            <p className="text-xl text-gold font-medium mb-6">
+            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
               Get appointed with Tyler Insurance Group and our carrier partners.
-            </p>
-            <p className="text-body text-muted-foreground max-w-2xl mx-auto">
-              This page walks you through the contracting process from start to finish. Follow each step carefully to ensure fast and accurate appointments.
             </p>
           </div>
         </section>

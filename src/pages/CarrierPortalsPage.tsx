@@ -23,10 +23,10 @@ const CarrierPortalsPage = () => {
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-28 pb-6 md:pt-32 md:pb-8 px-6 md:px-12 lg:px-20 bg-cream">
-          <div className="container-narrow">
+        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20 bg-cream">
+          <div className="container-narrow text-center">
             <h1 className="heading-display mb-3">Carrier Portals</h1>
-            <p className="text-body max-w-2xl">
+            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
               Fast access to your carrier broker portals once contracted.
             </p>
           </div>
