@@ -165,54 +165,67 @@ const CertificationsPage = () => {
     doc.setFillColor(253, 251, 247); // #FDFBF7
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
     
-    let yPos = 30;
+    let yPos = 0;
+
+    // Premium gold accent bar at top
+    doc.setFillColor(188, 143, 79); // Gold accent
+    doc.rect(0, 0, pageWidth, 3, 'F');
+    yPos = 18;
 
     // Add Tyler Insurance Group Logo (centered)
-    const logoWidth = 80;
-    const logoHeight = 40;
+    const logoWidth = 70;
+    const logoHeight = 35;
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(tylerLogo, 'PNG', logoX, yPos, logoWidth, logoHeight);
-    yPos += logoHeight + 15;
+    yPos += logoHeight + 12;
 
     // Title Block
-    doc.setFontSize(22);
+    doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(40, 40, 40);
     doc.text("Annual Medicare Certification Checklist", pageWidth / 2, yPos, { align: 'center' });
-    yPos += 10;
+    yPos += 9;
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(120, 120, 120);
-    doc.text(`State: ${selectedState}  |  Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 8;
+    doc.setTextColor(100, 100, 100);
+    doc.text(`State: ${selectedState}  •  Updated ${new Date().toLocaleDateString()}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 10;
     
-    // Thin divider line
+    // Title block divider line
     doc.setDrawColor(212, 207, 196); // #D4CFC4
     doc.setLineWidth(0.5);
-    doc.line(margin + 20, yPos, pageWidth - margin - 20, yPos);
-    yPos += 15;
+    doc.line(margin + 15, yPos, pageWidth - margin - 15, yPos);
+    yPos += 16;
 
-    // AHIP Section (prominent box)
+    // STEP 1 Header with hierarchy
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(40, 40, 40);
+    doc.text("STEP 1 — AHIP Certification", margin, yPos);
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 100, 100);
+    doc.text("(Required First)", margin + 65, yPos);
+    yPos += 4;
+    
+    // Step divider
+    doc.setDrawColor(212, 207, 196);
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 10;
+
+    // AHIP Section box
     const ahipBoxY = yPos;
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 226, 219); // #E5E2DB
     doc.setLineWidth(0.5);
-    doc.roundedRect(margin, ahipBoxY, contentWidth, 42, 2, 2, 'FD');
+    doc.roundedRect(margin, ahipBoxY, contentWidth, 38, 3, 3, 'FD');
     
-    yPos += 8;
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(188, 143, 79); // Gold accent
-    doc.text("STEP 1 — AHIP Certification", margin + 8, yPos);
-    
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(120, 120, 120);
-    doc.text("(Required First)", margin + 68, yPos);
-    yPos += 8;
-
+    yPos += 9;
     doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
     doc.setTextColor(60, 60, 60);
     doc.text("Complete AHIP annual Medicare training", margin + 8, yPos);
     yPos += 6;
@@ -220,42 +233,54 @@ const CertificationsPage = () => {
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text("Portal: https://www.ahipmedicaretraining.com/page/login", margin + 8, yPos);
-    yPos += 6;
+    yPos += 8;
     
     doc.setFontSize(9);
-    doc.setTextColor(140, 140, 140);
-    doc.text("Completion Date: _______________________", margin + 8, yPos);
-    yPos += 20;
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(100, 100, 100);
+    doc.text("Completion Date:", margin + 8, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(180, 180, 180);
+    doc.text(" ____________________________", margin + 38, yPos);
+    yPos += 18;
 
-    // Step 2: Carrier Certifications Header
+    // STEP 2 Header with hierarchy
     doc.setFontSize(13);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(40, 40, 40);
     doc.text(`STEP 2 — Carrier Certifications for ${selectedState}`, margin, yPos);
+    yPos += 4;
+    
+    // Step divider
+    doc.setDrawColor(212, 207, 196);
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 12;
 
     if (carrierCertifications.length === 0) {
       const noCarriersBoxY = yPos;
       doc.setFillColor(250, 250, 250);
       doc.setDrawColor(229, 226, 219);
-      doc.roundedRect(margin, noCarriersBoxY, contentWidth, 25, 2, 2, 'FD');
+      doc.roundedRect(margin, noCarriersBoxY, contentWidth, 24, 3, 3, 'FD');
       
       yPos += 8;
       doc.setFontSize(10);
       doc.setFont("helvetica", "italic");
       doc.setTextColor(120, 120, 120);
       doc.text("No carrier certifications available yet for this state.", margin + 8, yPos);
-      yPos += 6;
+      yPos += 5;
       doc.text("Check back soon for updates.", margin + 8, yPos);
       yPos += 15;
     } else {
       carrierCertifications.forEach((cert, index) => {
         // Check if we need a new page
-        if (yPos > 240) {
+        if (yPos > 235) {
           doc.addPage();
           doc.setFillColor(253, 251, 247);
           doc.rect(0, 0, pageWidth, pageHeight, 'F');
-          yPos = 30;
+          doc.setFillColor(188, 143, 79);
+          doc.rect(0, 0, pageWidth, 3, 'F');
+          yPos = 25;
         }
 
         // Carrier box
@@ -263,52 +288,70 @@ const CertificationsPage = () => {
         doc.setFillColor(255, 255, 255);
         doc.setDrawColor(229, 226, 219);
         doc.setLineWidth(0.5);
-        doc.roundedRect(margin, carrierBoxY, contentWidth, 32, 2, 2, 'FD');
+        doc.roundedRect(margin, carrierBoxY, contentWidth, 29, 3, 3, 'FD');
         
         yPos += 8;
-        doc.setFontSize(11);
+        
+        // Add carrier logo (grayscale effect via filter)
+        const logoSize = 12;
+        try {
+          doc.addImage(cert.logo, 'PNG', margin + 8, yPos - 4, logoSize, logoSize);
+        } catch (e) {
+          // Skip if logo fails to load
+        }
+        
+        // Carrier name
+        doc.setFontSize(10);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(40, 40, 40);
-        doc.text(`${index + 1}. ${cert.name}`, margin + 8, yPos);
-        yPos += 7;
+        doc.text(cert.name, margin + 8 + logoSize + 4, yPos);
+        yPos += 6;
 
-        doc.setFontSize(9);
+        // URL (indented)
+        doc.setFontSize(8.5);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(100, 100, 100);
         const urlText = `Portal: ${cert.url}`;
-        const maxUrlWidth = contentWidth - 16;
+        const maxUrlWidth = contentWidth - 24;
         const splitUrl = doc.splitTextToSize(urlText, maxUrlWidth);
-        doc.text(splitUrl, margin + 8, yPos);
-        yPos += (splitUrl.length * 4.5);
+        doc.text(splitUrl, margin + 12, yPos);
+        yPos += (splitUrl.length * 4);
 
+        // Completion date
         doc.setFontSize(9);
-        doc.setTextColor(140, 140, 140);
-        doc.text("Completion Date: _______________________", margin + 8, yPos);
-        yPos += 12;
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(100, 100, 100);
+        doc.text("Completion Date:", margin + 12, yPos);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(180, 180, 180);
+        doc.text(" _________________________", margin + 42, yPos);
+        yPos += 10;
       });
     }
 
-    // Important Reminders Section (shaded box)
-    if (yPos > 210) {
+    // Important Reminders Section (premium shaded box)
+    if (yPos > 200) {
       doc.addPage();
       doc.setFillColor(253, 251, 247);
       doc.rect(0, 0, pageWidth, pageHeight, 'F');
-      yPos = 30;
+      doc.setFillColor(188, 143, 79);
+      doc.rect(0, 0, pageWidth, 3, 'F');
+      yPos = 25;
     }
 
-    yPos += 5;
+    yPos += 6;
     const remindersBoxY = yPos;
-    doc.setFillColor(248, 246, 240); // Soft cream shade
+    doc.setFillColor(248, 246, 240); // Soft beige shade
     doc.setDrawColor(229, 226, 219);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(margin, remindersBoxY, contentWidth, 42, 2, 2, 'FD');
+    doc.setLineWidth(1);
+    doc.roundedRect(margin, remindersBoxY, contentWidth, 44, 3, 3, 'FD');
     
-    yPos += 8;
-    doc.setFontSize(12);
+    yPos += 9;
+    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(40, 40, 40);
-    doc.text("Important Reminders", margin + 8, yPos);
-    yPos += 8;
+    doc.text("Important Reminders", margin + 10, yPos);
+    yPos += 9;
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
@@ -321,16 +364,22 @@ const CertificationsPage = () => {
     ];
 
     reminders.forEach(reminder => {
-      doc.text(reminder, margin + 8, yPos);
+      doc.text(reminder, margin + 14, yPos);
       yPos += 5.5;
     });
+    
+    yPos += 6;
 
-    // Footer
-    const footerY = pageHeight - 15;
+    // Footer separator
+    const footerY = pageHeight - 18;
+    doc.setDrawColor(212, 207, 196);
+    doc.setLineWidth(0.3);
+    doc.line(margin + 20, footerY, pageWidth - margin - 20, footerY);
+    
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(150, 150, 150);
-    doc.text("Tyler Insurance Group • Licensed Agent Platform", pageWidth / 2, footerY, { align: 'center' });
+    doc.text("Tyler Insurance Group • Licensed Agent Platform", pageWidth / 2, footerY + 6, { align: 'center' });
 
     // Save the PDF
     doc.save(`Certification_Checklist_${selectedState.replace(/\s+/g, '_')}_${new Date().getFullYear()}.pdf`);
