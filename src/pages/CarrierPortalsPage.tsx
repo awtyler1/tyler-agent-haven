@@ -46,7 +46,7 @@ const CarrierPortalsPage = () => {
           <div className="container-narrow text-center">
             <h1 className="heading-display mb-2">Carrier Portals</h1>
             <p className="text-base md:text-lg text-foreground font-medium max-w-3xl mx-auto">
-              Fast access to your carrier broker portals once contracted.
+              Fast access to your carrier broker portals.
             </p>
           </div>
         </section>
