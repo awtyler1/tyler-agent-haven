@@ -200,20 +200,20 @@ const ContractingHubPage = () => {
       
       <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Header - Title */}
-        <section className="pt-20 pb-8 md:pt-24 md:pb-10 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pt-16 pb-3 md:pt-20 md:pb-4 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="container-narrow text-center">
-            <h1 className="text-3xl md:text-4xl font-serif font-medium text-foreground tracking-tight">Contracting Hub</h1>
+            <h1 className="text-2xl md:text-3xl font-serif font-medium text-foreground tracking-tight">Contracting Hub</h1>
           </div>
         </section>
 
         {/* Before You Begin - Orientation Bar */}
-        <section className="pb-6 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pb-3 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
-            <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
-              <h2 className="text-base font-bold text-foreground mb-2">
+            <div className="bg-white border border-[#E5E2DB] rounded-lg p-3 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
+              <h2 className="text-sm font-bold text-foreground mb-1.5">
                 Before You Begin
               </h2>
-              <div className="space-y-2 text-[13px] text-foreground/90 leading-relaxed">
+              <div className="space-y-1.5 text-[12px] text-foreground/90 leading-snug">
                 <p>
                   Complete this step once to become fully contracted with every carrier we offer. Most agents finish in about 10 minutes.
                 </p>
@@ -221,15 +221,15 @@ const ContractingHubPage = () => {
                   After you submit your packet, our team reviews everything within 2–3 business days and notifies you as each carrier approves you.
                 </p>
                 <div>
-                  <p className="font-semibold mb-2">Once approved, you'll be able to:</p>
-                  <ul className="space-y-1.5 ml-5">
+                  <p className="font-semibold mb-1">Once approved, you'll be able to:</p>
+                  <ul className="space-y-0.5 ml-5">
                     <li className="list-disc">Submit and track applications</li>
                     <li className="list-disc">Access your carrier portals</li>
                     <li className="list-disc">Use all quoting and enrollment tools</li>
                     <li className="list-disc">Receive commissions without delays</li>
                   </ul>
                 </div>
-                <p className="text-[12px] text-muted-foreground pt-1">
+                <p className="text-[11px] text-muted-foreground pt-0.5">
                   For help, contact{" "}
                   <a 
                     href="mailto:caroline@tylerinsurancegroup.com"
@@ -245,69 +245,69 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Two-Column Layout */}
-        <section className="pb-8 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pb-4 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5">
               
               {/* LEFT COLUMN - Steps 1 & 2 */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 
                 {/* Step 1 - Gather Required Documents */}
-                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
-                      <span className="text-xs font-extrabold text-gold">1</span>
+                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
+                  <div className="flex items-start gap-2.5 mb-2.5">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
+                      <span className="text-[11px] font-extrabold text-gold">1</span>
                     </div>
-                    <h2 className="text-base font-bold text-foreground pt-0.5">
+                    <h2 className="text-sm font-bold text-foreground pt-0.5">
                       Gather Required Documents
                     </h2>
                   </div>
-                  <div className="space-y-2 text-[12px] leading-relaxed">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-gold mt-0.5 flex-shrink-0" />
+                  <div className="space-y-1.5 text-[11px] leading-snug">
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 text-gold mt-0.5 flex-shrink-0" />
                       <span className="text-foreground">State insurance license</span>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-gold mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 text-gold mt-0.5 flex-shrink-0" />
                       <span className="text-foreground">E&O certificate with your correct name</span>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-gold mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 text-gold mt-0.5 flex-shrink-0" />
                       <span className="text-foreground">Voided check (personal or corporate)</span>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-gold mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 text-gold mt-0.5 flex-shrink-0" />
                       <span className="text-foreground">AML certificate (and CE if required by your state)</span>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-gold mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 text-gold mt-0.5 flex-shrink-0" />
                       <span className="text-foreground">Explanation documents for any "Yes" answers in the legal section</span>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-gold mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 text-gold mt-0.5 flex-shrink-0" />
                       <span className="text-foreground">Corporate license + corporate bank info (if contracting as an agency)</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Step 2 - Download Contracting Packet */}
-                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
-                      <span className="text-xs font-extrabold text-gold">2</span>
+                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
+                  <div className="flex items-start gap-2.5 mb-2.5">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
+                      <span className="text-[11px] font-extrabold text-gold">2</span>
                     </div>
-                    <h2 className="text-base font-bold text-foreground pt-0.5">
+                    <h2 className="text-sm font-bold text-foreground pt-0.5">
                       Download Contracting Packet
                     </h2>
                   </div>
                   <Button 
                     onClick={() => setIsPdfModalOpen(true)}
-                    className="w-full bg-gold hover:bg-gold/90 hover:shadow-md text-charcoal font-semibold px-5 py-4 text-sm shadow-sm transition-all duration-150"
+                    className="w-full bg-gold hover:bg-gold/90 hover:shadow-md text-charcoal font-semibold px-4 py-3 text-xs shadow-sm transition-all duration-150"
                   >
-                    <Download className="w-4 h-4 mr-2" />
+                    <Download className="w-3.5 h-3.5 mr-2" />
                     Download Contracting Packet (PDF)
                   </Button>
-                  <div className="mt-2.5 text-[11px] text-muted-foreground space-y-0.5 leading-relaxed">
+                  <div className="mt-2 text-[10px] text-muted-foreground space-y-0.5 leading-snug">
                     <p>Complete all pages and sign where indicated.</p>
                     <p>Replace the sample E&O page with your own certificate.</p>
                   </div>
@@ -316,20 +316,20 @@ const ContractingHubPage = () => {
 
               {/* RIGHT COLUMN - Step 3 */}
               <div>
-                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] transition-all duration-150">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
-                      <span className="text-xs font-extrabold text-gold">3</span>
+                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] transition-all duration-150">
+                  <div className="flex items-start gap-2.5 mb-2.5">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
+                      <span className="text-[11px] font-extrabold text-gold">3</span>
                     </div>
-                    <h2 className="text-[17px] font-bold text-foreground/95 pt-0.5">
+                    <h2 className="text-sm font-bold text-foreground/95 pt-0.5">
                       Upload Your Completed Packet
                     </h2>
                   </div>
-                  <form onSubmit={handleSubmit} className="space-y-3">
+                  <form onSubmit={handleSubmit} className="space-y-2">
                       
                       {/* Multi-File Upload with Drag & Drop */}
-                      <div className="space-y-1.5">
-                        <Label htmlFor="documents" className="text-xs font-bold">
+                      <div className="space-y-1">
+                        <Label htmlFor="documents" className="text-[11px] font-bold">
                           Upload Documents <span className="text-destructive">*</span>
                         </Label>
                         
@@ -357,12 +357,12 @@ const ContractingHubPage = () => {
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                             required={formData.files.length === 0}
                           />
-                          <div className="h-16 px-3 py-2.5 flex flex-col items-center justify-center text-center cursor-pointer">
-                            <Upload className="w-3.5 h-3.5 text-gold mb-1" />
-                            <p className="text-[11px] text-foreground font-semibold mb-0.5">
+                          <div className="h-14 px-3 py-2 flex flex-col items-center justify-center text-center cursor-pointer">
+                            <Upload className="w-3 h-3 text-gold mb-0.5" />
+                            <p className="text-[10px] text-foreground font-semibold mb-0.5">
                               Drag and drop files here or click to browse
                             </p>
-                            <p className="text-[9px] text-muted-foreground/80">
+                            <p className="text-[8px] text-muted-foreground/80">
                               PDF, JPG, PNG accepted
                             </p>
                           </div>
@@ -425,21 +425,21 @@ const ContractingHubPage = () => {
                       </div>
 
                       {/* Personal Info Fields */}
-                      <div className="grid grid-cols-1 gap-2.5">
-                        <div className="space-y-1">
-                          <Label htmlFor="name" className="text-xs font-semibold">Full Name <span className="text-destructive">*</span></Label>
+                      <div className="grid grid-cols-1 gap-2">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="name" className="text-[11px] font-semibold">Full Name <span className="text-destructive">*</span></Label>
                           <Input
                             id="name"
                             name="name"
                             value={formData.name}
                             onChange={handleInputChange}
                             placeholder="Enter your full legal name"
-                            className="h-8 text-xs rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
+                            className="h-7 text-[11px] rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
                           />
                         </div>
 
-                        <div className="space-y-1">
-                          <Label htmlFor="email" className="text-xs font-semibold">Email <span className="text-destructive">*</span></Label>
+                        <div className="space-y-0.5">
+                          <Label htmlFor="email" className="text-[11px] font-semibold">Email <span className="text-destructive">*</span></Label>
                           <Input
                             id="email"
                             name="email"
@@ -447,38 +447,38 @@ const ContractingHubPage = () => {
                             value={formData.email}
                             onChange={handleInputChange}
                             placeholder="your@email.com"
-                            className="h-8 text-xs rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
+                            className="h-7 text-[11px] rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
                             required
                           />
                           {validationErrors.email && (
-                            <p className="text-[9px] text-destructive">{validationErrors.email}</p>
+                            <p className="text-[8px] text-destructive">{validationErrors.email}</p>
                           )}
                         </div>
 
-                        <div className="space-y-1">
-                          <Label htmlFor="npn" className="text-xs font-semibold">NPN <span className="text-destructive">*</span></Label>
+                        <div className="space-y-0.5">
+                          <Label htmlFor="npn" className="text-[11px] font-semibold">NPN <span className="text-destructive">*</span></Label>
                           <Input
                             id="npn"
                             name="npn"
                             value={formData.npn}
                             onChange={handleInputChange}
                             placeholder="Enter your NPN"
-                            className="h-8 text-xs rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
+                            className="h-7 text-[11px] rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
                             required
                           />
                           {validationErrors.npn && (
-                            <p className="text-[9px] text-destructive">{validationErrors.npn}</p>
+                            <p className="text-[8px] text-destructive">{validationErrors.npn}</p>
                           )}
                         </div>
 
-                        <div className="space-y-1">
-                          <Label htmlFor="residentState" className="text-xs font-semibold">Resident State <span className="text-destructive">*</span></Label>
+                        <div className="space-y-0.5">
+                          <Label htmlFor="residentState" className="text-[11px] font-semibold">Resident State <span className="text-destructive">*</span></Label>
                           <select
                             id="residentState"
                             name="residentState"
                             value={formData.residentState}
                             onChange={handleInputChange}
-                            className="flex h-8 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-xs shadow-sm transition-colors hover:border-gold/40 focus:border-gold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-muted-foreground/70"
+                            className="flex h-7 w-full rounded-lg border border-input bg-background px-3 py-1 text-[11px] shadow-sm transition-colors hover:border-gold/40 focus:border-gold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-muted-foreground/70"
                             required
                           >
                             <option value="">Select state</option>
@@ -542,16 +542,16 @@ const ContractingHubPage = () => {
 
                       {/* Post-Submission Success Message */}
                       {isSubmitted && (
-                        <div className="pt-2 mt-2 border-t border-gold/30 bg-gold/5 -mx-5 px-5 py-3 rounded-lg animate-fade-in">
-                          <div className="flex items-start gap-2">
-                            <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 animate-scale-in">
-                              <Check className="w-2.5 h-2.5 text-white" />
+                        <div className="pt-1.5 mt-1.5 border-t border-gold/30 bg-gold/5 -mx-4 px-4 py-2 rounded-lg animate-fade-in">
+                          <div className="flex items-start gap-1.5">
+                            <div className="w-3.5 h-3.5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 animate-scale-in">
+                              <Check className="w-2 h-2 text-white" />
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-foreground mb-0.5">
+                              <p className="text-[11px] font-bold text-foreground mb-0.5">
                                 Contracting packet submitted successfully
                               </p>
-                              <p className="text-[10px] text-muted-foreground/90">
+                              <p className="text-[9px] text-muted-foreground/90">
                                 We will review your documents within 2–3 business days and email you if anything is missing.
                               </p>
                             </div>
@@ -561,10 +561,10 @@ const ContractingHubPage = () => {
 
                       {/* Submit Button */}
                       {!isSubmitted && (
-                        <div className="pt-2 flex flex-col items-center gap-1.5">
+                        <div className="pt-1.5 flex flex-col items-center gap-1">
                           <Button 
                             type="submit" 
-                            className={`w-full font-bold py-3 text-xs rounded-lg transition-all duration-150 ${
+                            className={`w-full font-bold py-2.5 text-[11px] rounded-lg transition-all duration-150 ${
                               isFormComplete
                                 ? 'bg-gold hover:bg-gold/90 text-charcoal shadow-md hover:shadow-lg hover:-translate-y-0.5'
                                 : 'bg-muted hover:bg-muted text-muted-foreground'
@@ -575,7 +575,7 @@ const ContractingHubPage = () => {
                           </Button>
                           
                           <div className="text-center">
-                            <p className="text-[9px] text-muted-foreground/80 leading-relaxed">
+                            <p className="text-[8px] text-muted-foreground/80 leading-snug">
                               We review submissions within 2–3 business days. We'll email you if anything is missing.
                             </p>
                           </div>
@@ -590,9 +590,9 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Caroline Contact Line - Bottom */}
-        <section className="pb-6 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pb-3 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto text-center">
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground">
               Need help? Contact Caroline at{" "}
               <a 
                 href="mailto:caroline@tylerinsurancegroup.com"
