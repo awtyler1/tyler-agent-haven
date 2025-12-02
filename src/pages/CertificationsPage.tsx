@@ -105,7 +105,7 @@ const CertificationsPage = () => {
               href="https://www.ahipmedicaretraining.com/page/login"
               target="_blank"
               rel="noopener noreferrer"
-              className="group card-premium hover:border-gold transition-smooth block max-w-xl"
+              className="group card-premium border border-[#E5E2DB] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 block max-w-xl"
             >
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-20 h-14 rounded-lg bg-white flex items-center justify-center flex-shrink-0 p-2">
@@ -145,7 +145,7 @@ const CertificationsPage = () => {
                   href={cert.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group card-premium hover:border-gold transition-smooth block"
+                  className="group card-premium border border-[#E5E2DB] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 block"
                 >
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">

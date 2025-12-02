@@ -159,9 +159,9 @@ const Index = () => {
                   key={index}
                   to={tile.link}
                   onClick={() => window.scrollTo(0, 0)}
-                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+                  className="group bg-white border border-[#E5E2DB] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150"
                 >
-                  <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center mb-4 group-hover:bg-gold/17 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center mb-4">
                     <tile.icon className="w-5 h-5 text-gold" />
                   </div>
                   <h3 className="text-base font-semibold mb-1.5">{tile.title}</h3>
@@ -304,7 +304,7 @@ const Index = () => {
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-border rounded-md text-sm font-medium text-foreground hover:border-gold/40 hover:bg-gold/5 transition-all duration-200"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-[#E5E2DB] rounded-md text-sm font-medium text-foreground hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-150"
                   >
                     {item.name}
                     <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
@@ -314,7 +314,7 @@ const Index = () => {
                     key={index}
                     to={item.link!}
                     onClick={() => window.scrollTo(0, 0)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-border rounded-md text-sm font-medium text-foreground hover:border-gold/40 hover:bg-gold/5 transition-all duration-200"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-[#E5E2DB] rounded-md text-sm font-medium text-foreground hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-150"
                   >
                     {item.name}
                   </Link>

@@ -43,7 +43,7 @@ const StartHerePage = () => {
           <div className="container-narrow">
             <div className="grid md:grid-cols-3 gap-6">
               {/* Tile 1 - Contracting */}
-              <div className="bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300">
+              <div className="bg-white border border-[#E5E2DB] rounded-lg p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150">
                 <FileText className="w-6 h-6 text-gold mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Contracting</h3>
                 <p className="text-body-small text-muted-foreground mb-6">
@@ -52,14 +52,14 @@ const StartHerePage = () => {
                 <Link
                   to="/contracting-hub"
                   onClick={() => window.scrollTo(0, 0)}
-                  className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
+                  className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-150"
                 >
                   Go to Contracting Hub
                 </Link>
               </div>
 
               {/* Tile 2 - Certifications */}
-              <div className="bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300">
+              <div className="bg-white border border-[#E5E2DB] rounded-lg p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150">
                 <Award className="w-6 h-6 text-gold mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Certifications</h3>
                 <p className="text-body-small text-muted-foreground mb-6">
@@ -68,14 +68,14 @@ const StartHerePage = () => {
                 <Link
                   to="/certifications"
                   onClick={() => window.scrollTo(0, 0)}
-                  className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
+                  className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-150"
                 >
                   Go to Certifications
                 </Link>
               </div>
 
               {/* Tile 3 - Agent Tools */}
-              <div className="bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300">
+              <div className="bg-white border border-[#E5E2DB] rounded-lg p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150">
                 <GraduationCap className="w-6 h-6 text-gold mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Agent Tools</h3>
                 <p className="text-body-small text-muted-foreground mb-6">
@@ -84,7 +84,7 @@ const StartHerePage = () => {
                 <Link
                   to="/agent-tools"
                   onClick={() => window.scrollTo(0, 0)}
-                  className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
+                  className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-150"
                 >
                   Go to Agent Tools
                 </Link>

@@ -75,7 +75,7 @@ const FormsLibraryPage = () => {
                   key={form.name}
                   asChild
                   variant="outline"
-                  className="h-auto py-4 justify-start border-gold/30 hover:border-gold hover:bg-gold/5"
+                  className="h-auto py-4 justify-start border-[#E5E2DB] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-150"
                 >
                   <a href={form.file} download>
                     <Download className="w-4 h-4 mr-2 text-gold" />
@@ -92,7 +92,7 @@ const FormsLibraryPage = () => {
           <div className="container-narrow">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {formCategories.map((category) => (
-                <Card key={category.title} className="border-border">
+                <Card key={category.title} className="border-[#E5E2DB] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150">
                   <CardHeader>
                     <CardTitle className="text-xl font-serif text-gold">{category.title}</CardTitle>
                     <CardDescription className="text-muted-foreground">

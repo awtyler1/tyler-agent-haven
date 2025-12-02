@@ -21,7 +21,7 @@ const TrainingLibraryPage = () => {
         {/* Video Library Section */}
         <section className="px-6 md:px-12 lg:px-20 pb-12">
           <div className="container-narrow">
-            <div className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)]">
+            <div className="bg-white border border-[#E5E2DB] rounded-lg p-8 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] transition-all duration-150">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
                   <Video className="w-6 h-6 text-gold" />
@@ -48,7 +48,7 @@ const TrainingLibraryPage = () => {
         {/* Article Archive Section */}
         <section className="px-6 md:px-12 lg:px-20 pb-12">
           <div className="container-narrow">
-            <div className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)]">
+            <div className="bg-white border border-[#E5E2DB] rounded-lg p-8 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] transition-all duration-150">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
                   <FileText className="w-6 h-6 text-gold" />
@@ -81,7 +81,7 @@ const TrainingLibraryPage = () => {
         {/* Download Center Section */}
         <section className="px-6 md:px-12 lg:px-20 pb-12">
           <div className="container-narrow">
-            <div className="bg-white border border-[#EAE7E1] rounded-lg p-8 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)]">
+            <div className="bg-white border border-[#E5E2DB] rounded-lg p-8 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] transition-all duration-150">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
                   <Download className="w-6 h-6 text-gold" />
@@ -95,7 +95,7 @@ const TrainingLibraryPage = () => {
                 {[1, 2, 3, 4, 5, 6].map((item) => (
                   <div 
                     key={item}
-                    className="p-6 border border-[#EAE7E1] rounded-lg hover:border-gold/30 hover:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.06)] transition-all duration-200"
+                    className="p-6 border border-[#E5E2DB] rounded-lg hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-150"
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 rounded bg-gold/8 flex items-center justify-center flex-shrink-0">
@@ -119,7 +119,7 @@ const TrainingLibraryPage = () => {
           <div className="container-narrow text-center">
             <Link 
               to="/sales-training"
-              className="inline-flex items-center justify-center px-8 py-3 border-2 border-gold rounded-lg text-sm font-medium text-gold hover:bg-gold hover:text-white transition-all duration-200"
+              className="inline-flex items-center justify-center px-8 py-3 border-2 border-gold rounded-lg text-sm font-medium text-gold hover:bg-gold hover:text-white transition-all duration-150"
             >
               Back to Training Hub
             </Link>
