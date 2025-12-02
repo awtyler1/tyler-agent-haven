@@ -12,6 +12,8 @@ interface ProcessingStatus {
   status: "pending" | "processing" | "success" | "error";
   message?: string;
   chunksProcessed?: number;
+  currentChunk?: number;
+  totalChunks?: number;
 }
 
 export default function DocumentManagementPage() {
@@ -276,6 +278,15 @@ export default function DocumentManagementPage() {
       // Chunk the text on client side
       const textChunks = chunkTextClient(fullText);
       
+      // Report total chunks to UI
+      setProcessingStatuses((prev) =>
+        prev.map((s) =>
+          s.filename === filename
+            ? { ...s, totalChunks: textChunks.length, currentChunk: 0 }
+            : s
+        )
+      );
+      
       // Process chunks in parallel batches for speed
       let successfulChunks = 0;
       const BATCH_SIZE = 10; // Process 10 chunks at a time
@@ -318,6 +329,15 @@ export default function DocumentManagementPage() {
 
         const results = await Promise.all(batchPromises);
         successfulChunks += results.filter(r => r !== null).length;
+        
+        // Update current chunk progress
+        setProcessingStatuses((prev) =>
+          prev.map((s) =>
+            s.filename === filename
+              ? { ...s, currentChunk: Math.min(i + BATCH_SIZE, textChunks.length) }
+              : s
+          )
+        );
         
         // Minimal delay between batches
         if (i + BATCH_SIZE < textChunks.length) {
@@ -462,7 +482,12 @@ export default function DocumentManagementPage() {
                         <p className="text-sm font-medium truncate">
                           {status.filename}
                         </p>
-                        {status.message && (
+                        {status.status === "processing" && status.currentChunk !== undefined && status.totalChunks !== undefined && (
+                          <p className="text-xs text-primary font-medium">
+                            Processing chunk {status.currentChunk}/{status.totalChunks}
+                          </p>
+                        )}
+                        {status.message && status.status !== "processing" && (
                           <p className="text-xs text-muted-foreground">
                             {status.message}
                           </p>
