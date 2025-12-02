@@ -9,49 +9,7 @@ const navLinks = [
   { name: "Contracting Hub", href: "/contracting-hub" },
   { name: "Certifications", href: "/certifications" },
   { name: "Training Hub", href: "/sales-training" },
-  { 
-    name: "Agent Tools", 
-    href: "/agent-tools",
-    sections: [
-      {
-        title: "Tools & Resources",
-        items: [
-          { name: "Forms Library", href: "/forms-library", external: false },
-          { name: "Carrier Portals", href: "/carrier-portals", external: false },
-        ]
-      },
-      {
-        title: "Quoting Tools",
-        items: [
-          { name: "Connect4Insurance", href: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login", external: true },
-          { name: "Sunfire", href: "https://www.sunfirematrix.com/app/agent/pfs", external: true },
-        ]
-      },
-      {
-        title: "CRM",
-        items: [
-          { name: "BOSS CRM", href: "https://fmo.kizen.com/login", external: true },
-        ]
-      },
-      {
-        title: "Carrier Portal Links",
-        items: [
-          { name: "Aetna", href: "https://www.aetna.com/producer_public/login.fcc", external: true },
-          { name: "Anthem", href: "https://brokerportal.anthem.com/apps/ptb/login", external: true },
-          { name: "Devoted", href: "https://agent.devoted.com/", external: true },
-          { name: "Humana", href: "https://account.humana.com/", external: true },
-          { name: "United Healthcare", href: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in", external: true },
-          { name: "Wellcare", href: "https://www.wellcare.com/Broker-Resources/Broker-Resources", external: true },
-        ]
-      },
-      {
-        title: "Resources",
-        items: [
-          { name: "Carrier Resources", href: "/carrier-resources", external: false },
-        ]
-      }
-    ]
-  },
+  { name: "Agent Tools", href: "/agent-tools" },
   { name: "Compliance", href: "/compliance" },
   { name: "Support", href: "/contact" },
 ];
@@ -119,7 +77,7 @@ const Navigation = () => {
                   </div>
                 )}
                 
-                {'sections' in link && link.sections && openSubmenu === link.name && (
+                {'sections' in link && link.sections && openSubmenu === link.name && Array.isArray(link.sections) && (
                   <div className="absolute top-full left-0 pt-2 w-64 animate-fade-in">
                     <div className="bg-background border border-border rounded-lg shadow-elevated py-2">
                       {link.sections.map((section, sectionIndex) => (
@@ -206,7 +164,7 @@ const Navigation = () => {
                       ))}
                     </div>
                   )}
-                  {'sections' in link && link.sections && (
+                  {'sections' in link && link.sections && Array.isArray(link.sections) && (
                     <div className="pl-4 border-l border-border ml-2">
                       {link.sections.map((section) => (
                         <div key={section.title} className="mt-2">
