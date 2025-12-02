@@ -60,7 +60,7 @@ const AgentToolsPage = () => {
         {/* Carrier Portals - Row 1 */}
         <section className="pb-1.5 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <h2 className="text-center text-sm font-medium text-foreground/70 mb-2.5">Carrier Portals</h2>
+            <h2 className="text-center text-sm font-medium text-foreground/70 mb-3">Carrier Portals</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
               {carrierPortals.map((carrier) => (
                 <a
@@ -68,13 +68,14 @@ const AgentToolsPage = () => {
                   href={carrier.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white border border-[#D4CFC4] rounded-lg p-2.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#C4BFB0] hover:shadow-[0_7px_22px_-3px_rgba(0,0,0,0.14)] hover:-translate-y-1 transition-all duration-150 ease-in-out"
+                  className="group bg-white border border-[#D4CFC4] rounded-lg p-2.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[3px] transition-all duration-140 ease-in-out"
                 >
                   <div className="w-[76px] h-[76px] mb-1.5 flex items-center justify-center">
                     <img 
                       src={carrier.logo} 
                       alt={carrier.name} 
                       className="max-w-[76px] max-h-[76px] w-auto h-auto object-contain"
+                      style={{ filter: 'brightness(0.98) contrast(1.02)' }}
                     />
                   </div>
                   <p className="text-[11px] font-medium text-foreground mb-0.5">{carrier.name}</p>
@@ -96,13 +97,14 @@ const AgentToolsPage = () => {
                   href={tool.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white border border-[#D4CFC4] rounded-lg p-3.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#C4BFB0] hover:shadow-[0_7px_22px_-3px_rgba(0,0,0,0.14)] hover:-translate-y-1 transition-all duration-150 ease-in-out"
+                  className="group bg-white border border-[#D4CFC4] rounded-lg p-3.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[3px] transition-all duration-140 ease-in-out"
                 >
                   <div className="w-[76px] h-[76px] mb-2 flex items-center justify-center">
                     <img 
                       src={tool.logo} 
                       alt={tool.name} 
                       className="max-w-[76px] max-h-[76px] w-auto h-auto object-contain"
+                      style={{ filter: 'brightness(0.96) contrast(1.04)' }}
                     />
                   </div>
                   <h3 className="text-sm font-semibold mb-0.5">{tool.name}</h3>
@@ -120,7 +122,7 @@ const AgentToolsPage = () => {
             <Link
               to="/carrier-resources"
               onClick={() => window.scrollTo(0, 0)}
-              className="group bg-white border border-[#D4CFC4] rounded-lg p-3 flex items-center gap-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#C4BFB0] hover:shadow-[0_7px_22px_-3px_rgba(0,0,0,0.14)] hover:-translate-y-1 transition-all duration-150 ease-in-out"
+              className="group bg-white border border-[#D4CFC4] rounded-lg p-3 flex items-center gap-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.14)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out"
             >
               <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
                 <FileText className="w-5 h-5 text-gold" />
@@ -139,7 +141,7 @@ const AgentToolsPage = () => {
             <Link
               to="/forms-library"
               onClick={() => window.scrollTo(0, 0)}
-              className="group bg-white border border-[#D4CFC4] rounded-lg p-3 flex items-center gap-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#C4BFB0] hover:shadow-[0_7px_22px_-3px_rgba(0,0,0,0.14)] hover:-translate-y-1 transition-all duration-150 ease-in-out"
+              className="group bg-white border border-[#D4CFC4] rounded-lg p-3 flex items-center gap-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.14)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out"
             >
               <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
                 <FolderOpen className="w-5 h-5 text-gold" />
