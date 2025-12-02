@@ -48,7 +48,7 @@ const AgentToolsPage = () => {
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-20 pb-6 md:pt-24 md:pb-8 px-6 md:px-12 lg:px-20">
+        <section className="pt-20 pb-4 md:pt-24 md:pb-5 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <h1 className="heading-display mb-2">Agent Tools</h1>
             <p className="text-body max-w-2xl mx-auto" style={{ color: 'hsl(30 10% 20%)' }}>
@@ -58,7 +58,7 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Carrier Portals - Row 1 */}
-        <section className="pb-4 px-6 md:px-12 lg:px-20">
+        <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {carrierPortals.map((carrier) => (
@@ -85,7 +85,7 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Core Tools - Row 2 */}
-        <section className="pb-4 px-6 md:px-12 lg:px-20">
+        <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {coreTools.map((tool) => (
@@ -113,18 +113,18 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Carrier Resources - Full Width Bar */}
-        <section className="pb-4 px-6 md:px-12 lg:px-20">
+        <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <Link
               to="/carrier-resources"
               onClick={() => window.scrollTo(0, 0)}
-              className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex items-center gap-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+              className="group bg-white border border-[#EAE7E1] rounded-lg p-4 flex items-center gap-5 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
             >
-              <div className="w-14 h-14 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
-                <FileText className="w-7 h-7 text-gold" />
+              <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
+                <FileText className="w-6 h-6 text-gold" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-1">Carrier Resources</h3>
+                <h3 className="text-base font-semibold mb-0.5">Carrier Resources</h3>
                 <p className="text-sm text-muted-foreground">Contacts, Quick Links, Downloads, and Plan Documents</p>
               </div>
             </Link>
@@ -132,18 +132,18 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Forms Library - Full Width Bar */}
-        <section className="pb-16 px-6 md:px-12 lg:px-20">
+        <section className="pb-12 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <Link
               to="/forms-library"
               onClick={() => window.scrollTo(0, 0)}
-              className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex items-center gap-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+              className="group bg-white border border-[#EAE7E1] rounded-lg p-4 flex items-center gap-5 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
             >
-              <div className="w-14 h-14 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
-                <FolderOpen className="w-7 h-7 text-gold" />
+              <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
+                <FolderOpen className="w-6 h-6 text-gold" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-1">Forms Library</h3>
+                <h3 className="text-base font-semibold mb-0.5">Forms Library</h3>
                 <p className="text-sm text-muted-foreground">SOA Forms, CMS Forms, HIPAA Forms, and Essential Client Documents</p>
               </div>
             </Link>
