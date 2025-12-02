@@ -209,12 +209,11 @@ const ContractingHubPage = () => {
         {/* Before You Begin - Orientation Bar */}
         <section className="pb-6 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
-            <div className="bg-white border border-[#E5E2DB] rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
-              <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-                <span>⭐</span>
-                <span>Before You Begin</span>
+            <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
+              <h2 className="text-base font-bold text-foreground mb-2">
+                Before You Begin
               </h2>
-              <div className="space-y-3 text-[13px] text-foreground/90 leading-relaxed">
+              <div className="space-y-2 text-[13px] text-foreground/90 leading-relaxed">
                 <p>
                   Complete this step once to become fully contracted with every carrier we offer. Most agents finish in about 10 minutes.
                 </p>
