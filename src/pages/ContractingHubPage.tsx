@@ -209,11 +209,11 @@ const ContractingHubPage = () => {
         {/* Before You Begin - Orientation Bar */}
         <section className="pb-3 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
-            <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-3 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
+            <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]" style={{ paddingTop: '20px', paddingBottom: '20px', paddingLeft: '16px', paddingRight: '16px' }}>
               <h2 className="text-sm font-bold text-foreground mb-1.5">
                 Before You Begin
               </h2>
-              <div className="space-y-1.5 text-[12px] text-foreground/90 leading-snug">
+              <div className="space-y-1.5 text-[12px] text-foreground/90" style={{ lineHeight: '1.45' }}>
                 <p>
                   Complete this step once to get fully contracted with every carrier we offer. Most agents finish in about 10 minutes.
                 </p>
@@ -221,8 +221,8 @@ const ContractingHubPage = () => {
                   After you submit your packet, our team reviews everything within 2–3 business days and notifies you as you're approved.
                 </p>
                 <div>
-                  <p className="font-semibold mb-1">After approval, you can:</p>
-                  <ul className="space-y-0.5 ml-5">
+                  <p className="font-semibold mb-0.5">After approval, you can:</p>
+                  <ul className="space-y-0.5 ml-5" style={{ marginTop: '4px' }}>
                     <li className="list-disc">Submit and track applications</li>
                     <li className="list-disc">Access all carrier portals</li>
                     <li className="list-disc">Use quoting and enrollment tools</li>
