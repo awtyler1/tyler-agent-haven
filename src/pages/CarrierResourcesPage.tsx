@@ -4,17 +4,52 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { FileText, ExternalLink, Phone, Mail, ArrowRight } from "lucide-react";
 import { carriers } from "@/data/carriersData";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type State = "Kentucky" | "Tennessee" | "Ohio" | "Indiana" | "West Virginia" | "Georgia" | "Virginia";
+
+const states: State[] = ["Kentucky", "Tennessee", "Ohio", "Indiana", "West Virginia", "Georgia", "Virginia"];
 
 const CarrierResourcesPage = () => {
   const [selectedCarrier, setSelectedCarrier] = useState<string>(carriers[0].id);
+  const [selectedState, setSelectedState] = useState<State>("Kentucky");
   const activeCarrier = carriers.find(c => c.id === selectedCarrier);
+  const stateData = activeCarrier?.stateData?.[selectedState];
+  const hasStateData = stateData && (stateData.contacts.length > 0 || stateData.links.length > 0 || stateData.downloads.length > 0);
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       <main>
+        {/* State Selector */}
+        <section className="px-6 md:px-12 lg:px-20 pt-20 md:pt-24 pb-2">
+          <div className="container-narrow">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-sm text-muted-foreground font-medium">State:</span>
+              <Select value={selectedState} onValueChange={(value) => setSelectedState(value as State)}>
+                <SelectTrigger className="w-[180px] h-8 text-sm border-[#D4CFC4] bg-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-50">
+                  {states.map((state) => (
+                    <SelectItem key={state} value={state} className="text-sm">
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </section>
+
         {/* Carrier Selection Grid */}
-        <section className="px-6 md:px-12 lg:px-20 pt-20 md:pt-24 pb-3 bg-cream border-b border-border">
+        <section className="px-6 md:px-12 lg:px-20 pb-3 bg-cream border-b border-border">
           <div className="container-narrow">
             <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
               {carriers.map((carrier) => (
@@ -49,24 +84,37 @@ const CarrierResourcesPage = () => {
         {activeCarrier && (
           <section className="px-6 md:px-12 lg:px-20 py-4">
             <div className="container-narrow">
-              <div className="border border-border rounded-lg p-4 md:p-5 animate-fade-in">
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
-                  <div className="w-12 h-12 rounded-lg bg-white border border-border flex items-center justify-center p-2">
-                    <img 
-                      src={activeCarrier.logo} 
-                      alt={`${activeCarrier.name} logo`} 
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <h2 className="text-xl font-semibold text-foreground">{activeCarrier.name}</h2>
+              {!hasStateData ? (
+                <div className="border border-border rounded-lg p-6 text-center animate-fade-in bg-white">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Carrier information for {activeCarrier.name} in {selectedState} is not available yet.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Check back soon or select a different state.
+                  </p>
                 </div>
+              ) : (
+                <div className="border border-border rounded-lg p-4 md:p-5 animate-fade-in">
+                  <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
+                    <div className="w-12 h-12 rounded-lg bg-white border border-border flex items-center justify-center p-2">
+                      <img 
+                        src={activeCarrier.logo} 
+                        alt={`${activeCarrier.name} logo`} 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-foreground">{activeCarrier.name}</h2>
+                      <p className="text-xs text-muted-foreground">{selectedState}</p>
+                    </div>
+                  </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-5">
-                  {/* Contacts */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Contacts</h4>
-                    <div className="space-y-3">
-                      {activeCarrier.contacts.map((contact, index) => (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-5">
+                    {/* Contacts */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Contacts</h4>
+                      <div className="space-y-3">
+                        {stateData.contacts.map((contact, index) => (
                         <div key={index} className="space-y-0.5">
                           {'name' in contact ? (
                             <>
@@ -103,16 +151,16 @@ const CarrierResourcesPage = () => {
                               </a>
                             )}
                           </div>
-                        </div>
-                      ))}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Quick Links */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Quick Links</h4>
-                    <div className="space-y-2">
-                      {activeCarrier.links.map((link, index) => (
+                    {/* Quick Links */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Quick Links</h4>
+                      <div className="space-y-2">
+                        {stateData.links.map((link, index) => (
                         <div key={index}>
                           <a 
                             href={link.url}
@@ -126,17 +174,17 @@ const CarrierResourcesPage = () => {
                           {'subtext' in link && link.subtext && (
                             <p className="text-xs text-muted-foreground ml-[18px] mt-0.5">{link.subtext}</p>
                           )}
-                        </div>
-                      ))}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Downloads */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Downloads</h4>
-                    <div className="space-y-2">
-                      {'downloads' in activeCarrier && activeCarrier.downloads ? (
-                        activeCarrier.downloads.map((download, index) => (
+                    {/* Downloads */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Downloads</h4>
+                      <div className="space-y-2">
+                        {stateData.downloads.length > 0 ? (
+                          stateData.downloads.map((download, index) => (
                           <a 
                             key={index}
                             href={download.url}
@@ -147,29 +195,30 @@ const CarrierResourcesPage = () => {
                             <FileText size={12} className="text-gold" />
                             <span>{download.name}</span>
                           </a>
-                        ))
-                      ) : (
-                        <p className="text-xs text-muted-foreground">No downloads available</p>
-                      )}
+                          ))
+                        ) : (
+                          <p className="text-xs text-muted-foreground">No downloads available</p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Plan Documents Button */}
-                <div className="pt-4 border-t border-border">
-                  <Link
-                    to={`/carrier-resources/plans?carrier=${selectedCarrier}`}
-                    className="flex items-center justify-center gap-2.5 w-full px-5 py-3 bg-gold rounded-lg text-white text-sm font-semibold hover:bg-gold/90 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <FileText size={18} />
-                    <span>View Plan Documents</span>
-                    <ArrowRight size={18} />
-                  </Link>
-                  <p className="text-[11px] text-muted-foreground text-center mt-2">
-                    Access SOB, EOC, ANOC, and formulary documents for all {activeCarrier.name} plans
-                  </p>
+                  {/* Plan Documents Button */}
+                  <div className="pt-4 border-t border-border">
+                    <Link
+                      to={`/carrier-resources/plans?carrier=${selectedCarrier}&state=${selectedState}`}
+                      className="flex items-center justify-center gap-2.5 w-full px-5 py-3 bg-gold rounded-lg text-white text-sm font-semibold hover:bg-gold/90 transition-all duration-200 shadow-md hover:shadow-lg"
+                    >
+                      <FileText size={18} />
+                      <span>View Plan Documents</span>
+                      <ArrowRight size={18} />
+                    </Link>
+                    <p className="text-[11px] text-muted-foreground text-center mt-2">
+                      Access SOB, EOC, ANOC, and formulary documents for all {activeCarrier.name} plans in {selectedState}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </section>
         )}

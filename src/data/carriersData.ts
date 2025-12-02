@@ -10,21 +10,31 @@ export const carriers = [
     id: "aetna",
     name: "Aetna",
     logo: aetnaLogo,
-    contacts: [
-      { type: "Jonathan Lemaster - Broker Manager", subtitle: "Greater Lexington / Ashland / Eastern Kentucky", number: "(859) 333-5389", email: "lemasterj1@aetna.com" },
-      { type: "Will Coursey - Broker Manager", subtitle: "Greater Bowling Green, Owensboro, Western KY", number: "(270) 816-9531", email: "courseyw@aetna.com" },
-      { type: "Nina Grinestaff - Broker Manager", subtitle: "Greater Louisville, Northern KY", number: "(502) 443-5381", email: "grinestaff@aetna.com" },
-      { type: "Broker Services", number: "(866) 714-9301", email: "brokersupport@aetna.com" },
-    ],
-    links: [
-      { name: "Broker Portal", url: "https://www.aetna.com/producer_public/login.fcc" },
-      { name: "Kit Ordering Portal", url: "https://aetna-pek-ff-op.memberdoc.com/#/login", subtext: "Username and password are your NPN" },
-      { name: "Kentucky Broker Managers", url: "/downloads/Aetna_KY_Medicare_Broker_Managers.pdf" },
-    ],
-    downloads: [
-      { name: "Aetna Medicare 2026 KY Market Specific Training", url: "/downloads/Aetna_Medicare_2026_KY_Market_Specific_Training.pdf" },
-      { name: "Aetna Medicare Extra Benefits Card 2026 Broker Playbook", url: "/downloads/2026_Aetna_Medicare_EBC_Broker_Playbook.pdf" },
-    ],
+    stateData: {
+      "Kentucky": {
+        contacts: [
+          { type: "Jonathan Lemaster - Broker Manager", subtitle: "Greater Lexington / Ashland / Eastern Kentucky", number: "(859) 333-5389", email: "lemasterj1@aetna.com" },
+          { type: "Will Coursey - Broker Manager", subtitle: "Greater Bowling Green, Owensboro, Western KY", number: "(270) 816-9531", email: "courseyw@aetna.com" },
+          { type: "Nina Grinestaff - Broker Manager", subtitle: "Greater Louisville, Northern KY", number: "(502) 443-5381", email: "grinestaff@aetna.com" },
+          { type: "Broker Services", number: "(866) 714-9301", email: "brokersupport@aetna.com" },
+        ],
+        links: [
+          { name: "Broker Portal", url: "https://www.aetna.com/producer_public/login.fcc" },
+          { name: "Kit Ordering Portal", url: "https://aetna-pek-ff-op.memberdoc.com/#/login", subtext: "Username and password are your NPN" },
+          { name: "Kentucky Broker Managers", url: "/downloads/Aetna_KY_Medicare_Broker_Managers.pdf" },
+        ],
+        downloads: [
+          { name: "Aetna Medicare 2026 KY Market Specific Training", url: "/downloads/Aetna_Medicare_2026_KY_Market_Specific_Training.pdf" },
+          { name: "Aetna Medicare Extra Benefits Card 2026 Broker Playbook", url: "/downloads/2026_Aetna_Medicare_EBC_Broker_Playbook.pdf" },
+        ],
+      },
+      "Tennessee": { contacts: [], links: [], downloads: [] },
+      "Ohio": { contacts: [], links: [], downloads: [] },
+      "Indiana": { contacts: [], links: [], downloads: [] },
+      "West Virginia": { contacts: [], links: [], downloads: [] },
+      "Georgia": { contacts: [], links: [], downloads: [] },
+      "Virginia": { contacts: [], links: [], downloads: [] },
+    },
     summaryOfBenefits: {
       "Kentucky": {
         "HMO": [
@@ -178,21 +188,31 @@ export const carriers = [
     id: "anthem",
     name: "Anthem",
     logo: anthemLogo,
-    contacts: [
-      { type: "Sam Call", subtitle: "Western KY", email: "sam.call@anthem.com", number: "(502) 216-3480" },
-      { type: "Jordan Gentry", subtitle: "Eastern KY", email: "jordan.gentry@anthem.com", number: "(859) 585-8183" },
-      { type: "Todd Jarboe", subtitle: "Agency Services Rep", email: "todd.jarboe@anthem.com", number: "(502) 396-0695" },
-      { type: "Broker Services", number: "(800) 633-4368", email: "medicareagentsupport@anthem.com" },
-    ],
-    links: [
-      { name: "Producer World", url: "https://brokerportal.anthem.com/apps/ptb/login" },
-      { name: "mProducer", url: "https://mproducer.anthem.com/mproducer/public/login" },
-      { name: "Order Materials", url: "https://custompoint.rrd.com/xs2/prelogin?qwerty=25113007" },
-      { name: "Certification", url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV" },
-    ],
-    downloads: [
-      { name: "Non-Commissionable Plans", url: "/downloads/Anthem_Non-Commissionable-MA-Plans_ABCBS.pdf" },
-    ],
+    stateData: {
+      "Kentucky": {
+        contacts: [
+          { type: "Sam Call", subtitle: "Western KY", email: "sam.call@anthem.com", number: "(502) 216-3480" },
+          { type: "Jordan Gentry", subtitle: "Eastern KY", email: "jordan.gentry@anthem.com", number: "(859) 585-8183" },
+          { type: "Todd Jarboe", subtitle: "Agency Services Rep", email: "todd.jarboe@anthem.com", number: "(502) 396-0695" },
+          { type: "Broker Services", number: "(800) 633-4368", email: "medicareagentsupport@anthem.com" },
+        ],
+        links: [
+          { name: "Producer World", url: "https://brokerportal.anthem.com/apps/ptb/login" },
+          { name: "mProducer", url: "https://mproducer.anthem.com/mproducer/public/login" },
+          { name: "Order Materials", url: "https://custompoint.rrd.com/xs2/prelogin?qwerty=25113007" },
+          { name: "Certification", url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV" },
+        ],
+        downloads: [
+          { name: "Non-Commissionable Plans", url: "/downloads/Anthem_Non-Commissionable-MA-Plans_ABCBS.pdf" },
+        ],
+      },
+      "Tennessee": { contacts: [], links: [], downloads: [] },
+      "Ohio": { contacts: [], links: [], downloads: [] },
+      "Indiana": { contacts: [], links: [], downloads: [] },
+      "West Virginia": { contacts: [], links: [], downloads: [] },
+      "Georgia": { contacts: [], links: [], downloads: [] },
+      "Virginia": { contacts: [], links: [], downloads: [] },
+    },
     summaryOfBenefits: {
       "Kentucky": {
         "HMO": [
@@ -264,21 +284,31 @@ export const carriers = [
     id: "devoted",
     name: "Devoted",
     logo: devotedLogo,
-    contacts: [
-      { type: "Jotham Cortez - Sales Director", subtitle: "MO, AR, KY, KS", number: "(573) 356-4005", email: "jotham.cortez@devoted.com" },
-      { type: "Cole Lawson - Broker Manager", subtitle: "Kentucky", number: "(618) 946-1111", email: "cole.lawson@devoted.com" },
-      { type: "Hailey Lindenbauer - Broker Manager", subtitle: "KY (Eastern, Lexington, Southeastern)", number: "(502) 794-1717", email: "hailey.lindenbauer@devoted.com" },
-      { type: "Agent Support Team", number: "1-877-764-9446" },
-    ],
-    links: [
-      { name: "Agent Portal", url: "https://agent.devoted.com/" },
-      { name: "Search Drugs", url: "https://www.devoted.com/search-formulary/" },
-      { name: "Search Providers", url: "https://www.devoted.com/search-providers/" },
-    ],
-    downloads: [
-      { name: "Broker Manual", url: "/downloads/Devoted_Health_Broker_Manual.pdf" },
-      { name: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
-    ],
+    stateData: {
+      "Kentucky": {
+        contacts: [
+          { type: "Jotham Cortez - Sales Director", subtitle: "MO, AR, KY, KS", number: "(573) 356-4005", email: "jotham.cortez@devoted.com" },
+          { type: "Cole Lawson - Broker Manager", subtitle: "Kentucky", number: "(618) 946-1111", email: "cole.lawson@devoted.com" },
+          { type: "Hailey Lindenbauer - Broker Manager", subtitle: "KY (Eastern, Lexington, Southeastern)", number: "(502) 794-1717", email: "hailey.lindenbauer@devoted.com" },
+          { type: "Agent Support Team", number: "1-877-764-9446" },
+        ],
+        links: [
+          { name: "Agent Portal", url: "https://agent.devoted.com/" },
+          { name: "Search Drugs", url: "https://www.devoted.com/search-formulary/" },
+          { name: "Search Providers", url: "https://www.devoted.com/search-providers/" },
+        ],
+        downloads: [
+          { name: "Broker Manual", url: "/downloads/Devoted_Health_Broker_Manual.pdf" },
+          { name: "Formulary", url: "/downloads/Devoted_Drug_List_2026.pdf" },
+        ],
+      },
+      "Tennessee": { contacts: [], links: [], downloads: [] },
+      "Ohio": { contacts: [], links: [], downloads: [] },
+      "Indiana": { contacts: [], links: [], downloads: [] },
+      "West Virginia": { contacts: [], links: [], downloads: [] },
+      "Georgia": { contacts: [], links: [], downloads: [] },
+      "Virginia": { contacts: [], links: [], downloads: [] },
+    },
     summaryOfBenefits: {
       "Kentucky": {
         "C-SNP": [
@@ -358,22 +388,32 @@ export const carriers = [
     id: "humana",
     name: "Humana",
     logo: humanaLogo,
-    contacts: [
-      { type: "Horace Williams - Broker Relationship Executive", number: "(502) 313-7938", email: "hwilliams41@humana.com" },
-      { type: "Chris Baker - Broker Relationship Manager", subtitle: "Eastern Kentucky", number: "(859) 227-9256", email: "cbaker56@humana.com" },
-      { type: "Samantha Stevenson - Broker Relationship Manager", subtitle: "Western Kentucky", number: "(502) 438-3816", email: "sjones224@humana.com" },
-      { type: "Humana Agent Support Unit", number: "(800) 309-3163", email: "AgentSupport@Humana.com" },
-    ],
-    links: [
-      { name: "Vantage", url: "https://account.humana.com/" },
-      { name: "Medicare Drug List Search", url: "https://rxcalculator.humana.com/medicaredrugsearch" },
-      { name: "Find a Provider", url: "https://findcare.humana.com/" },
-    ],
-    downloads: [
-      { name: "KY Humana Market Product Guide 2026", url: "/downloads/KY_Humana_Market_Product_Guide_2026.pdf" },
-      { name: "Blank Verification of Chronic Condition (VCC) Form", url: "/downloads/Blank_Verification_of_Chronic_Condition_VCC.pdf" },
-      { name: "2026 OTC Catalog and Order Form", url: "/downloads/Humana_2026_OTC_Catalog_Order_Form.pdf" },
-    ],
+    stateData: {
+      "Kentucky": {
+        contacts: [
+          { type: "Horace Williams - Broker Relationship Executive", number: "(502) 313-7938", email: "hwilliams41@humana.com" },
+          { type: "Chris Baker - Broker Relationship Manager", subtitle: "Eastern Kentucky", number: "(859) 227-9256", email: "cbaker56@humana.com" },
+          { type: "Samantha Stevenson - Broker Relationship Manager", subtitle: "Western Kentucky", number: "(502) 438-3816", email: "sjones224@humana.com" },
+          { type: "Humana Agent Support Unit", number: "(800) 309-3163", email: "AgentSupport@Humana.com" },
+        ],
+        links: [
+          { name: "Vantage", url: "https://account.humana.com/" },
+          { name: "Medicare Drug List Search", url: "https://rxcalculator.humana.com/medicaredrugsearch" },
+          { name: "Find a Provider", url: "https://findcare.humana.com/" },
+        ],
+        downloads: [
+          { name: "KY Humana Market Product Guide 2026", url: "/downloads/KY_Humana_Market_Product_Guide_2026.pdf" },
+          { name: "Blank Verification of Chronic Condition (VCC) Form", url: "/downloads/Blank_Verification_of_Chronic_Condition_VCC.pdf" },
+          { name: "2026 OTC Catalog and Order Form", url: "/downloads/Humana_2026_OTC_Catalog_Order_Form.pdf" },
+        ],
+      },
+      "Tennessee": { contacts: [], links: [], downloads: [] },
+      "Ohio": { contacts: [], links: [], downloads: [] },
+      "Indiana": { contacts: [], links: [], downloads: [] },
+      "West Virginia": { contacts: [], links: [], downloads: [] },
+      "Georgia": { contacts: [], links: [], downloads: [] },
+      "Virginia": { contacts: [], links: [], downloads: [] },
+    },
     summaryOfBenefits: {
       "Kentucky": {
         "Humana Community": [
@@ -552,23 +592,33 @@ export const carriers = [
     id: "uhc",
     name: "United Healthcare",
     logo: uhcLogo,
-    contacts: [
-      { name: "Mark Reeder", role: "Market Growth Manager", phone: "(270) 566-1071", email: "Mark_Reeder@uhc.com" },
-      { type: "Producer Help Desk", number: "(888) 381-8581" },
-    ],
-    links: [
-      { name: "Agent Portal", url: "https://www.uhcagent.com" },
-      { name: "Plan Finder", url: "https://www.uhcmedicaresolutions.com/" },
-      { name: "Find a Provider", url: "https://connect.werally.com/uhc/home" },
-    ],
-    downloads: [
-      { name: "2026 UCard Quick Reference Guide", url: "/downloads/UHC_2026_UCard_Quick_Reference_Guide.pdf" },
-      { name: "2026 Fitness Quick Reference Guide", url: "/downloads/UHC_2026_Fitness_Quick_Reference_Guide.pdf" },
-      { name: "2026 OTC + Healthy Food + Utilities Quick Reference Guide", url: "/downloads/UHC_2026_OTC_Healthy_Food_Utilities_Quick_Reference_Guide.pdf" },
-      { name: "2026 Dental Quick Reference Guide", url: "/downloads/UHC_2026_Dental_Quick_Reference_Guide.pdf" },
-      { name: "2026 SSBCI Quick Reference Guide", url: "/downloads/UHC_2026_SSBCI_Quick_Reference_Guide.pdf" },
-      { name: "2026 Part D Formulary Changes", url: "/downloads/UHC_2026_Part_D_Formulary_Changes.pdf" },
-    ],
+    stateData: {
+      "Kentucky": {
+        contacts: [
+          { name: "Mark Reeder", role: "Market Growth Manager", phone: "(270) 566-1071", email: "Mark_Reeder@uhc.com" },
+          { type: "Producer Help Desk", number: "(888) 381-8581" },
+        ],
+        links: [
+          { name: "Agent Portal", url: "https://www.uhcagent.com" },
+          { name: "Plan Finder", url: "https://www.uhcmedicaresolutions.com/" },
+          { name: "Find a Provider", url: "https://connect.werally.com/uhc/home" },
+        ],
+        downloads: [
+          { name: "2026 UCard Quick Reference Guide", url: "/downloads/UHC_2026_UCard_Quick_Reference_Guide.pdf" },
+          { name: "2026 Fitness Quick Reference Guide", url: "/downloads/UHC_2026_Fitness_Quick_Reference_Guide.pdf" },
+          { name: "2026 OTC + Healthy Food + Utilities Quick Reference Guide", url: "/downloads/UHC_2026_OTC_Healthy_Food_Utilities_Quick_Reference_Guide.pdf" },
+          { name: "2026 Dental Quick Reference Guide", url: "/downloads/UHC_2026_Dental_Quick_Reference_Guide.pdf" },
+          { name: "2026 SSBCI Quick Reference Guide", url: "/downloads/UHC_2026_SSBCI_Quick_Reference_Guide.pdf" },
+          { name: "2026 Part D Formulary Changes", url: "/downloads/UHC_2026_Part_D_Formulary_Changes.pdf" },
+        ],
+      },
+      "Tennessee": { contacts: [], links: [], downloads: [] },
+      "Ohio": { contacts: [], links: [], downloads: [] },
+      "Indiana": { contacts: [], links: [], downloads: [] },
+      "West Virginia": { contacts: [], links: [], downloads: [] },
+      "Georgia": { contacts: [], links: [], downloads: [] },
+      "Virginia": { contacts: [], links: [], downloads: [] },
+    },
     summaryOfBenefits: {
       "Kentucky": {
         "AARP": [
@@ -728,22 +778,32 @@ export const carriers = [
     id: "wellcare",
     name: "Wellcare",
     logo: wellcareLogo,
-    contacts: [
-      { name: "Austin Compton", role: "Regional Agency Manager", region: "Kentucky", phone: "(859) 297-8759", email: "Austin.Compton@wellcare.com" },
-      { name: "Melanie Barton", role: "Sales Manager", region: "KY, IN & TN", phone: "(615) 653-8234", email: "Melanie.Barton@wellcare.com" },
-      { name: "Kimberly Scott", role: "Regional Sales Director", region: "Central Region", email: "Kimberly.J.Scott@wellcare.com" },
-    ],
-    links: [
-      { name: "Broker Portal", url: "https://brokerportal.wellcare.com/login" },
-      { name: "Provider Search", url: "https://www.wellcare.com/en/Medicare/Find-A-Doctor" },
-      { name: "Drug Search", url: "https://www.wellcare.com/en/Medicare/Prescription-Drug-Coverage" },
-    ],
-    downloads: [
-      { name: "2026 KY Market Highlights", url: "/downloads/Wellcare_2026_KY_Market_Highlights.pdf" },
-      { name: "Commitment to Broker Service Excellence 2026", url: "/downloads/Wellcare_Commitment_to_Broker_Service_Excellence_2026.pdf" },
-      { name: "Medicare Advantage Sales Presentation 2026", url: "/downloads/Wellcare_Medicare_Advantage_Sales_Presentation_2026.pdf" },
-      { name: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
-    ],
+    stateData: {
+      "Kentucky": {
+        contacts: [
+          { name: "Austin Compton", role: "Regional Agency Manager", region: "Kentucky", phone: "(859) 297-8759", email: "Austin.Compton@wellcare.com" },
+          { name: "Melanie Barton", role: "Sales Manager", region: "KY, IN & TN", phone: "(615) 653-8234", email: "Melanie.Barton@wellcare.com" },
+          { name: "Kimberly Scott", role: "Regional Sales Director", region: "Central Region", email: "Kimberly.J.Scott@wellcare.com" },
+        ],
+        links: [
+          { name: "Broker Portal", url: "https://brokerportal.wellcare.com/login" },
+          { name: "Provider Search", url: "https://www.wellcare.com/en/Medicare/Find-A-Doctor" },
+          { name: "Drug Search", url: "https://www.wellcare.com/en/Medicare/Prescription-Drug-Coverage" },
+        ],
+        downloads: [
+          { name: "2026 KY Market Highlights", url: "/downloads/Wellcare_2026_KY_Market_Highlights.pdf" },
+          { name: "Commitment to Broker Service Excellence 2026", url: "/downloads/Wellcare_Commitment_to_Broker_Service_Excellence_2026.pdf" },
+          { name: "Medicare Advantage Sales Presentation 2026", url: "/downloads/Wellcare_Medicare_Advantage_Sales_Presentation_2026.pdf" },
+          { name: "Formulary", url: "/downloads/Wellcare_Formulary_2026.pdf" },
+        ],
+      },
+      "Tennessee": { contacts: [], links: [], downloads: [] },
+      "Ohio": { contacts: [], links: [], downloads: [] },
+      "Indiana": { contacts: [], links: [], downloads: [] },
+      "West Virginia": { contacts: [], links: [], downloads: [] },
+      "Georgia": { contacts: [], links: [], downloads: [] },
+      "Virginia": { contacts: [], links: [], downloads: [] },
+    },
     summaryOfBenefits: {
       "Kentucky": {
         "HMO-POS": [
