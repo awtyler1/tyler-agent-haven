@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, Loader2, Upload } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
@@ -19,6 +21,22 @@ interface ProcessingStatus {
 export default function DocumentManagementPage() {
   const [processingStatuses, setProcessingStatuses] = useState<ProcessingStatus[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processedDocs, setProcessedDocs] = useState<Set<string>>(new Set());
+
+  // Check which documents are already processed on mount
+  useEffect(() => {
+    const checkProcessedDocs = async () => {
+      const { data, error } = await supabase
+        .from('document_chunks')
+        .select('document_name');
+      
+      if (!error && data) {
+        const processed = new Set(data.map(d => d.document_name));
+        setProcessedDocs(processed);
+      }
+    };
+    checkProcessedDocs();
+  }, []);
 
   const pdfFiles = [
     // Aetna (46 files)
@@ -352,8 +370,21 @@ export default function DocumentManagementPage() {
   };
 
   const processAllDocuments = async () => {
+    console.log("Starting batch processing of documents");
     setIsProcessing(true);
-    const statuses: ProcessingStatus[] = pdfFiles.map((filename) => ({
+
+    // Filter out already-processed documents
+    const unprocessedFiles = pdfFiles.filter(file => !processedDocs.has(file));
+    
+    if (unprocessedFiles.length === 0) {
+      toast.success("All documents have already been processed!");
+      setIsProcessing(false);
+      return;
+    }
+
+    console.log(`Processing ${unprocessedFiles.length} new documents (${processedDocs.size} already processed)`);
+
+    const statuses: ProcessingStatus[] = unprocessedFiles.map((filename) => ({
       filename,
       status: "pending",
     }));
@@ -361,8 +392,8 @@ export default function DocumentManagementPage() {
 
     const CONCURRENT_DOCS = 1; // Process 1 document at a time (network stability)
     
-    for (let i = 0; i < pdfFiles.length; i += CONCURRENT_DOCS) {
-      const batch = pdfFiles.slice(i, Math.min(i + CONCURRENT_DOCS, pdfFiles.length));
+    for (let i = 0; i < unprocessedFiles.length; i += CONCURRENT_DOCS) {
+      const batch = unprocessedFiles.slice(i, Math.min(i + CONCURRENT_DOCS, unprocessedFiles.length));
       
       // Process batch of documents in parallel
       await Promise.all(
@@ -403,13 +434,20 @@ export default function DocumentManagementPage() {
         })
       );
 
+      // Mark newly processed documents
+      batch.forEach(file => {
+        setProcessedDocs(prev => new Set([...prev, file]));
+      });
+
       // Minimal delay between document batches
-      if (i + CONCURRENT_DOCS < pdfFiles.length) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+      if (i + CONCURRENT_DOCS < unprocessedFiles.length) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     }
 
+    console.log("Batch processing complete");
     setIsProcessing(false);
+    toast.success(`Successfully processed ${unprocessedFiles.length} new documents!`);
   };
 
   const successCount = processingStatuses.filter((s) => s.status === "success").length;
@@ -433,7 +471,7 @@ export default function DocumentManagementPage() {
             <div>
               <h2 className="text-2xl font-semibold mb-2">Batch Process Documents</h2>
               <p className="text-muted-foreground">
-                Process {pdfFiles.length} PDF files (20 pages each, chunked on client, 3 sec intervals)
+                {processedDocs.size} of {pdfFiles.length} documents already processed
               </p>
             </div>
             <Button
@@ -450,7 +488,7 @@ export default function DocumentManagementPage() {
               ) : (
                 <>
                   <Upload className="h-5 w-5" />
-                  Start Processing
+                  Process New Documents ({pdfFiles.length - processedDocs.size})
                 </>
               )}
             </Button>
