@@ -553,13 +553,8 @@ export const carriers = [
     name: "United Healthcare",
     logo: uhcLogo,
     contacts: [
-      { name: "Joni Sena", role: "Broker Development Director", region: "Kentucky", phone: "(859) 608-2195", email: "Joni_Sena@uhc.com" },
-      { name: "Tim Kryzdlowski", role: "Territory Manager", region: "Western Kentucky", phone: "(502) 609-6806", email: "Timothy_Kryzdlowski@uhc.com" },
-      { name: "Lydia Poole", role: "Territory Manager", region: "Southern Kentucky", phone: "(615) 390-0878", email: "Lydia_Poole@uhc.com" },
-      { name: "Dana Ranck", role: "Territory Manager", region: "Central Kentucky", phone: "(859) 492-8662", email: "Dana_Ranck@uhc.com" },
-      { name: "Liz Maynard", role: "Territory Manager", region: "Northern Kentucky", phone: "(513) 827-3035", email: "Elizabeth_Maynard1@uhc.com" },
-      { name: "Stephanie Becher", role: "Territory Manager", region: "Eastern Kentucky", phone: "(859) 797-8577", email: "Stephanie_Becher@uhc.com" },
-      { type: "UHC Agent Support", number: "(800) 232-7242", email: "uhc_agent_service@uhc.com" },
+      { name: "Mark Reeder", role: "Market Growth Manager", phone: "(270) 566-1071", email: "Mark_Reeder@uhc.com" },
+      { type: "Producer Help Desk", number: "(888) 381-8581" },
     ],
     links: [
       { name: "Agent Portal", url: "https://www.uhcagent.com" },
