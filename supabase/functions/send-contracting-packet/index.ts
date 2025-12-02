@@ -105,7 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Tyler Insurance Group <austin@tylerinsurancegroup.com>",
+        from: "Tyler Insurance Group <austin@send.tylerinsurancegroup.com>",
         reply_to: "austin@tylerinsurancegroup.com",
         to: ["caroline@tylerinsurancegroup.com"],
         subject: `New Contracting Packet Submission — ${name.trim()} (NPN ${npn.trim()})`,
@@ -151,7 +151,7 @@ const handler = async (req: Request): Promise<Response> => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Tyler Insurance Group <austin@tylerinsurancegroup.com>",
+          from: "Tyler Insurance Group <austin@send.tylerinsurancegroup.com>",
           reply_to: "austin@tylerinsurancegroup.com",
           to: [email.trim()],
           subject: "We Received Your Contracting Packet",
