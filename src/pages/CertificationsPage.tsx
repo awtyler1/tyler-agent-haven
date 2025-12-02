@@ -3,6 +3,13 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ExternalLink, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
@@ -12,53 +19,74 @@ import uhcLogo from "@/assets/uhc-logo.png";
 import wellcareLogo from "@/assets/wellcare-logo.jpg";
 import ahipLogo from "@/assets/ahip-logo.png";
 
-const carrierCertifications = [
-  {
-    name: "Aetna",
-    url: "https://www.aetna.com/producer_public/login.fcc",
-    howToCertifyUrl: "/downloads/TIG_2026_Aetna_Certification_Instructions.pdf",
-    howToCertifyTitle: "Aetna 2026 Certification Instructions",
-    logo: aetnaLogo,
-  },
-  {
-    name: "Anthem",
-    url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV",
-    howToCertifyUrl: "/downloads/TIG_2026_Anthem_Certification_Instructions.pdf",
-    howToCertifyTitle: "Anthem 2026 Certification Instructions",
-    logo: anthemLogo,
-  },
-  {
-    name: "Devoted",
-    url: "https://agent.devoted.com/",
-    howToCertifyUrl: "/downloads/TIG_2026_Devoted_Certification_Instructions.pdf",
-    howToCertifyTitle: "Devoted 2026 Certification Instructions",
-    logo: devotedLogo,
-  },
-  {
-    name: "Humana",
-    url: "https://account.humana.com/",
-    howToCertifyUrl: "/downloads/TIG_2026_Humana_Certification_Instructions.pdf",
-    howToCertifyTitle: "Humana 2026 Certification Instructions",
-    logo: humanaLogo,
-  },
-  {
-    name: "UnitedHealthcare",
-    url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in",
-    howToCertifyUrl: "/downloads/TIG_2026_UHC_Certification_Instructions.pdf",
-    howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
-    logo: uhcLogo,
-  },
-  {
-    name: "Wellcare",
-    url: "https://www.wellcare.com/Broker-Resources/Broker-Resources",
-    howToCertifyUrl: "",
-    howToCertifyTitle: "Wellcare 2026 Certification Instructions",
-    logo: wellcareLogo,
-  },
-];
+type State = "Kentucky" | "Ohio" | "Tennessee" | "Indiana" | "West Virginia" | "Georgia" | "Virginia";
+
+const states: State[] = ["Kentucky", "Ohio", "Tennessee", "Indiana", "West Virginia", "Georgia", "Virginia"];
+
+const carrierCertificationsByState: Record<State, Array<{
+  name: string;
+  url: string;
+  howToCertifyUrl: string;
+  howToCertifyTitle: string;
+  logo: string;
+}>> = {
+  Kentucky: [
+    {
+      name: "Aetna",
+      url: "https://www.aetna.com/producer_public/login.fcc",
+      howToCertifyUrl: "/downloads/TIG_2026_Aetna_Certification_Instructions.pdf",
+      howToCertifyTitle: "Aetna 2026 Certification Instructions",
+      logo: aetnaLogo,
+    },
+    {
+      name: "Anthem",
+      url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV",
+      howToCertifyUrl: "/downloads/TIG_2026_Anthem_Certification_Instructions.pdf",
+      howToCertifyTitle: "Anthem 2026 Certification Instructions",
+      logo: anthemLogo,
+    },
+    {
+      name: "Devoted",
+      url: "https://agent.devoted.com/",
+      howToCertifyUrl: "/downloads/TIG_2026_Devoted_Certification_Instructions.pdf",
+      howToCertifyTitle: "Devoted 2026 Certification Instructions",
+      logo: devotedLogo,
+    },
+    {
+      name: "Humana",
+      url: "https://account.humana.com/",
+      howToCertifyUrl: "/downloads/TIG_2026_Humana_Certification_Instructions.pdf",
+      howToCertifyTitle: "Humana 2026 Certification Instructions",
+      logo: humanaLogo,
+    },
+    {
+      name: "UnitedHealthcare",
+      url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in",
+      howToCertifyUrl: "/downloads/TIG_2026_UHC_Certification_Instructions.pdf",
+      howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
+      logo: uhcLogo,
+    },
+    {
+      name: "Wellcare",
+      url: "https://www.wellcare.com/Broker-Resources/Broker-Resources",
+      howToCertifyUrl: "",
+      howToCertifyTitle: "Wellcare 2026 Certification Instructions",
+      logo: wellcareLogo,
+    },
+  ],
+  Ohio: [],
+  Tennessee: [],
+  Indiana: [],
+  "West Virginia": [],
+  Georgia: [],
+  Virginia: [],
+};
 
 const CertificationsPage = () => {
+  const [selectedState, setSelectedState] = useState<State>("Kentucky");
   const [pdfPreview, setPdfPreview] = useState<{ title: string; url: string } | null>(null);
+
+  const carrierCertifications = carrierCertificationsByState[selectedState];
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FDFBF7' }}>
@@ -71,11 +99,28 @@ const CertificationsPage = () => {
           </div>
         </section>
 
-        {/* Orientation Tile */}
+        {/* Orientation Tile + State Filter */}
         <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
-              <h2 className="text-base font-semibold mb-2">Annual Medicare Certifications</h2>
+              <div className="flex items-start justify-between gap-4 mb-2">
+                <h2 className="text-base font-semibold">Annual Medicare Certifications</h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">Select State:</span>
+                  <Select value={selectedState} onValueChange={(value) => setSelectedState(value as State)}>
+                    <SelectTrigger className="w-[140px] h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {states.map((state) => (
+                        <SelectItem key={state} value={state} className="text-xs">
+                          {state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <p className="text-sm text-muted-foreground leading-snug">
                 To write Medicare Advantage and Part D plans, you must complete AHIP and each carrier's annual certification. Start with AHIP, then complete the certifications for the carriers available in your state.
               </p>
@@ -111,8 +156,18 @@ const CertificationsPage = () => {
         {/* Carrier Certification Grid */}
         <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {carrierCertifications.map((cert) => (
+            {carrierCertifications.length === 0 ? (
+              <div className="bg-white border border-[#E5E2DB] rounded-lg p-8 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] text-center">
+                <p className="text-sm text-muted-foreground mb-2">
+                  No carrier certifications available for {selectedState} yet.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Carrier certifications for this state are coming soon.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {carrierCertifications.map((cert) => (
                 <div
                   key={cert.name}
                   className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 flex flex-col"
@@ -158,7 +213,8 @@ const CertificationsPage = () => {
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            )}
           </div>
         </section>
 
