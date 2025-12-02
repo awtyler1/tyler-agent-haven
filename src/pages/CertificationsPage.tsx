@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { jsPDF } from "jspdf";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
+import tylerLogo from "@/assets/tyler-logo.png";
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
 import devotedLogo from "@/assets/devoted-logo.png";
@@ -94,6 +95,12 @@ const CertificationsPage = () => {
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 20;
     let yPos = 20;
+
+    // Add Tyler Insurance Group Logo
+    const logoWidth = 40;
+    const logoHeight = 12;
+    doc.addImage(tylerLogo, 'PNG', margin, yPos, logoWidth, logoHeight);
+    yPos += logoHeight + 10;
 
     // Title
     doc.setFontSize(18);
