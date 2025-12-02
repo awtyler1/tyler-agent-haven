@@ -39,10 +39,38 @@ export const AgentChatWidget = () => {
     }
 
     setIsProcessing(true);
+    
+    // Show immediate feedback
+    setMessages([
+      ...messages,
+      {
+        role: "assistant",
+        content: `📄 Processing "${file.name}"... This may take a minute for large documents.`,
+      },
+    ]);
+
     try {
-      // Read file as text (simplified - in production you'd use PDF parsing)
-      const text = await file.text();
+      // Use PDF.js to extract text properly
+      const pdfjsLib = await import("pdfjs-dist");
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       
+      let fullText = "";
+      const maxPages = Math.min(pdf.numPages, 50); // Limit to first 50 pages to avoid memory issues
+      
+      for (let i = 1; i <= maxPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(" ");
+        fullText += pageText + "\n\n";
+      }
+
+      if (!fullText.trim()) {
+        throw new Error("No text could be extracted from the PDF");
+      }
+
       // Extract metadata from filename
       const parts = file.name.replace(".pdf", "").split("_");
       const carrier = parts[0] || "unknown";
@@ -60,27 +88,37 @@ export const AgentChatWidget = () => {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({
-            documentText: text,
+            documentText: fullText,
             documentName: file.name,
             documentType,
-            carrier,
+            carrier: carrier.toLowerCase(),
           }),
         }
       );
 
-      if (!response.ok) throw new Error("Failed to process document");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to process document");
+      }
       
       const data = await response.json();
-      setMessages([
-        ...messages,
+      
+      setMessages(prev => [
+        ...prev.slice(0, -1), // Remove processing message
         {
           role: "assistant",
-          content: `✓ Document uploaded successfully! I've processed "${file.name}" and can now answer questions about it. What would you like to know?`,
+          content: `✓ Successfully processed "${file.name}"! I extracted text from ${maxPages} pages and created ${data.chunksProcessed} searchable chunks. Ask me anything about this document!`,
         },
       ]);
     } catch (error) {
       console.error("File upload error:", error);
-      alert("Failed to process document. Please try again.");
+      setMessages(prev => [
+        ...prev.slice(0, -1), // Remove processing message
+        {
+          role: "assistant",
+          content: `❌ Failed to process document: ${error instanceof Error ? error.message : "Unknown error"}. Please try again with a different PDF.`,
+        },
+      ]);
     } finally {
       setIsProcessing(false);
     }
