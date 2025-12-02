@@ -32,7 +32,7 @@ const StartHerePage = () => {
       <Navigation />
       <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Hero Section */}
-        <section className="pt-20 pb-6 md:pt-24 md:pb-8 px-6 md:px-12 lg:px-20">
+        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <h1 className="heading-display mb-3">Your Onboarding Roadmap</h1>
           </div>
