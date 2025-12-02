@@ -209,28 +209,28 @@ const ContractingHubPage = () => {
         {/* Before You Begin - Orientation Bar */}
         <section className="pb-3 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
-            <div className="bg-white border border-[#E5E2DB] rounded-lg p-3 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
+            <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-3 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
               <h2 className="text-sm font-bold text-foreground mb-1.5">
                 Before You Begin
               </h2>
               <div className="space-y-1.5 text-[12px] text-foreground/90 leading-snug">
                 <p>
-                  Complete this step once to become fully contracted with every carrier we offer. Most agents finish in about 10 minutes.
+                  Complete this step once to get fully contracted with every carrier we offer. Most agents finish in about 10 minutes.
                 </p>
                 <p>
-                  After you submit your packet, our team reviews everything within 2–3 business days and notifies you as each carrier approves you.
+                  After you submit your packet, our team reviews everything within 2–3 business days and notifies you as you're approved.
                 </p>
                 <div>
-                  <p className="font-semibold mb-1">Once approved, you'll be able to:</p>
+                  <p className="font-semibold mb-1">After approval, you can:</p>
                   <ul className="space-y-0.5 ml-5">
                     <li className="list-disc">Submit and track applications</li>
-                    <li className="list-disc">Access your carrier portals</li>
-                    <li className="list-disc">Use all quoting and enrollment tools</li>
+                    <li className="list-disc">Access all carrier portals</li>
+                    <li className="list-disc">Use quoting and enrollment tools</li>
                     <li className="list-disc">Receive commissions without delays</li>
                   </ul>
                 </div>
                 <p className="text-[11px] text-muted-foreground pt-0.5">
-                  For help, contact{" "}
+                  For help, email{" "}
                   <a 
                     href="mailto:caroline@tylerinsurancegroup.com"
                     className="text-gold hover:text-gold/80 transition-colors font-medium"
@@ -316,7 +316,7 @@ const ContractingHubPage = () => {
 
               {/* RIGHT COLUMN - Step 3 */}
               <div>
-                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] transition-all duration-150">
+                <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
                   <div className="flex items-start gap-2.5 mb-2.5">
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
                       <span className="text-[11px] font-extrabold text-gold">3</span>
