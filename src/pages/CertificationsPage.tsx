@@ -283,14 +283,14 @@ const CertificationsPage = () => {
         doc.setFillColor(255, 255, 255);
         doc.setDrawColor(229, 226, 219);
         doc.setLineWidth(0.5);
-        doc.roundedRect(margin, carrierBoxY, contentWidth, 24, 3, 3, 'FD');
+        doc.roundedRect(margin, carrierBoxY, contentWidth, 28, 3, 3, 'FD');
         
-        yPos += 9;
+        yPos += 10;
         
         // Add carrier logo
-        const logoSize = 11;
+        const logoSize = 10;
         try {
-          doc.addImage(cert.logo, 'PNG', margin + 10, yPos - 4, logoSize, logoSize);
+          doc.addImage(cert.logo, 'PNG', margin + 10, yPos - 4.5, logoSize, logoSize);
         } catch (e) {
           // Skip if logo fails to load
         }
@@ -299,8 +299,8 @@ const CertificationsPage = () => {
         doc.setFontSize(10);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(40, 40, 40);
-        doc.text(cert.name, margin + 10 + logoSize + 4, yPos);
-        yPos += 9;
+        doc.text(cert.name, margin + 10 + logoSize + 5, yPos);
+        yPos += 10;
 
         // Completion date
         doc.setFontSize(9);
@@ -310,7 +310,7 @@ const CertificationsPage = () => {
         doc.setFont("helvetica", "normal");
         doc.setTextColor(180, 180, 180);
         doc.text(" _________________________", margin + 44, yPos);
-        yPos += 12;
+        yPos += 14;
       });
     }
 
