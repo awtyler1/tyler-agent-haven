@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { jsPDF } from "jspdf";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
@@ -89,51 +90,130 @@ const CertificationsPage = () => {
   const carrierCertifications = carrierCertificationsByState[selectedState];
 
   const handleDownloadChecklist = () => {
-    const checklistContent = `Annual Medicare Certification Checklist - ${selectedState}
-Generated: ${new Date().toLocaleDateString()}
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    let yPos = 20;
 
-═══════════════════════════════════════════════════════
+    // Title
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("Annual Medicare Certification Checklist", margin, yPos);
+    yPos += 10;
 
-STEP 1: AHIP CERTIFICATION (Required First)
-☐ Complete AHIP annual Medicare training
-☐ URL: https://www.ahipmedicaretraining.com/page/login
-☐ Completion Date: _______________
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text(`State: ${selectedState}`, margin, yPos);
+    yPos += 6;
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, margin, yPos);
+    yPos += 15;
 
-═══════════════════════════════════════════════════════
+    // Section 1: AHIP
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("STEP 1: AHIP CERTIFICATION (Required First)", margin, yPos);
+    yPos += 8;
 
-STEP 2: CARRIER CERTIFICATIONS FOR ${selectedState.toUpperCase()}
-${carrierCertifications.length === 0 
-  ? '\n☐ No carrier certifications available yet for this state.\n   Check back soon for updates.\n'
-  : carrierCertifications.map((cert, index) => `
-${index + 1}. ${cert.name.toUpperCase()} CERTIFICATION
-☐ Complete ${cert.name} annual certification
-☐ URL: ${cert.url}
-☐ Completion Date: _______________
-`).join('\n')}
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.rect(margin, yPos - 3, 3, 3); // Checkbox
+    doc.text("Complete AHIP annual Medicare training", margin + 6, yPos);
+    yPos += 7;
+    
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text("URL: https://www.ahipmedicaretraining.com/page/login", margin + 6, yPos);
+    yPos += 7;
+    
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Completion Date: _______________", margin + 6, yPos);
+    yPos += 15;
 
-═══════════════════════════════════════════════════════
+    // Section 2: Carrier Certifications
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(`STEP 2: CARRIER CERTIFICATIONS FOR ${selectedState.toUpperCase()}`, margin, yPos);
+    yPos += 10;
 
-IMPORTANT REMINDERS:
-• AHIP must be completed BEFORE carrier certifications
-• All certifications expire annually and must be renewed
-• Keep certificates saved for compliance records
-• Contact your upline with certification issues
+    if (carrierCertifications.length === 0) {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(100, 100, 100);
+      doc.text("No carrier certifications available yet for this state.", margin, yPos);
+      yPos += 6;
+      doc.text("Check back soon for updates.", margin, yPos);
+      yPos += 10;
+    } else {
+      carrierCertifications.forEach((cert, index) => {
+        // Check if we need a new page
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 20;
+        }
 
-═══════════════════════════════════════════════════════
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${index + 1}. ${cert.name.toUpperCase()} CERTIFICATION`, margin, yPos);
+        yPos += 8;
 
-Tyler Insurance Group
-Agent Certification Tracking System
-`;
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.rect(margin, yPos - 3, 3, 3); // Checkbox
+        doc.text(`Complete ${cert.name} annual certification`, margin + 6, yPos);
+        yPos += 7;
 
-    const blob = new Blob([checklistContent], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Certification_Checklist_${selectedState.replace(/\s+/g, '_')}_${new Date().getFullYear()}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        const urlText = `URL: ${cert.url}`;
+        const splitUrl = doc.splitTextToSize(urlText, pageWidth - margin * 2 - 6);
+        doc.text(splitUrl, margin + 6, yPos);
+        yPos += splitUrl.length * 5;
+
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text("Completion Date: _______________", margin + 6, yPos);
+        yPos += 12;
+      });
+    }
+
+    // Important Reminders
+    if (yPos > 220) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    yPos += 5;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("IMPORTANT REMINDERS", margin, yPos);
+    yPos += 10;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    const reminders = [
+      "• AHIP must be completed BEFORE carrier certifications",
+      "• All certifications expire annually and must be renewed",
+      "• Keep certificates saved for compliance records",
+      "• Contact your upline with certification issues"
+    ];
+
+    reminders.forEach(reminder => {
+      doc.text(reminder, margin, yPos);
+      yPos += 7;
+    });
+
+    // Footer
+    yPos += 10;
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text("Tyler Insurance Group", margin, yPos);
+    yPos += 5;
+    doc.text("Agent Certification Tracking System", margin, yPos);
+
+    // Save the PDF
+    doc.save(`Certification_Checklist_${selectedState.replace(/\s+/g, '_')}_${new Date().getFullYear()}.pdf`);
   };
 
   return (
