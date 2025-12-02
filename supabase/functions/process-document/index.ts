@@ -20,9 +20,9 @@ function chunkText(text: string, chunkSize: number = 800, overlap: number = 150)
   return chunks;
 }
 
-// Generate embeddings using Lovable AI
+// Generate embeddings using OpenAI
 async function generateEmbedding(text: string, apiKey: string): Promise<number[]> {
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
+  const response = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -53,11 +53,11 @@ serve(async (req) => {
   try {
     const { documentText, documentName, documentType, carrier, planName, chunkIndex, isChunked } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!LOVABLE_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    if (!OPENAI_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error("Missing required environment variables");
     }
 
@@ -68,7 +68,7 @@ serve(async (req) => {
       const cleanText = documentText.replace(/\s+/g, " ").trim();
       
       // Generate embedding for this chunk
-      const embedding = await generateEmbedding(cleanText, LOVABLE_API_KEY);
+      const embedding = await generateEmbedding(cleanText, OPENAI_API_KEY);
 
       // Store in database
       const { error } = await supabase.from("document_chunks").insert({
@@ -106,7 +106,7 @@ serve(async (req) => {
 
     // Process only first chunk to avoid memory issues
     const chunk = chunks[0];
-    const embedding = await generateEmbedding(chunk, LOVABLE_API_KEY);
+    const embedding = await generateEmbedding(chunk, OPENAI_API_KEY);
 
     const { error } = await supabase.from("document_chunks").insert({
       document_name: documentName,
