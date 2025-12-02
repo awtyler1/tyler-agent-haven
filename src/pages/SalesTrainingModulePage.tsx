@@ -110,7 +110,7 @@ const SalesTrainingModulePage = () => {
               {salesTrainingTiles.map((tile, index) => (
                 <div
                   key={index}
-                  className="group bg-white border border-[#EAE7E1] rounded-lg p-4 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_4px_30px_-2px_rgba(0,0,0,0.08)] hover:border-gold/30 cursor-pointer"
+                  className="group bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 cursor-pointer"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
@@ -136,7 +136,7 @@ const SalesTrainingModulePage = () => {
           <div className="container-narrow text-center">
             <Link
               to="/sales-training"
-              className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
+              className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-150"
             >
               Back to Training Hub
             </Link>

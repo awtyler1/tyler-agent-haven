@@ -60,7 +60,7 @@ const SalesTrainingPage = () => {
               {trainingModules.map((module, index) => (
                 <div
                   key={index}
-                  className="bg-white border border-[#EAE7E1] rounded-lg p-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_3px_24px_-2px_rgba(0,0,0,0.06)] hover:border-gold/20"
+                  className="bg-white border border-[#E5E2DB] rounded-lg p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150"
                 >
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
@@ -94,13 +94,13 @@ const SalesTrainingPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a 
                 href="mailto:austin@tylerinsurancegroup.com"
-                className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-150"
               >
                 Contact Austin Tyler
               </a>
               <a 
                 href="mailto:andrew@tylerinsurancegroup.com"
-                className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-200"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-150"
               >
                 Contact Andrew Horn
               </a>

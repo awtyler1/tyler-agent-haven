@@ -49,7 +49,7 @@ const CarrierPortalsPage = () => {
                   href={carrier.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group card-premium hover:border-gold transition-smooth text-center py-6 flex flex-col items-center"
+                  className="group card-premium border border-[#E5E2DB] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 text-center py-6 flex flex-col items-center"
                 >
                   {'logo' in carrier && carrier.logo ? (
                     <div className="w-24 h-16 mb-3 rounded-lg overflow-hidden group-hover:scale-110 transition-transform flex items-center justify-center">
