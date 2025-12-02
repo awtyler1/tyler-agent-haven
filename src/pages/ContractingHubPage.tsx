@@ -16,6 +16,7 @@ const ContractingHubPage = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -38,6 +39,37 @@ const ContractingHubPage = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (newFiles: File[]) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      files: [...prev.files, ...newFiles]
+    }));
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const droppedFiles = Array.from(e.dataTransfer.files).filter(file => {
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+      return validTypes.includes(file.type);
+    });
+    
+    if (droppedFiles.length > 0) {
+      handleFileChange(droppedFiles);
+    }
   };
 
 
@@ -310,7 +342,7 @@ const ContractingHubPage = () => {
                     </div>
                   </div>
 
-                  {/* Multi-File Upload */}
+                  {/* Multi-File Upload with Drag & Drop */}
                   <div className="space-y-2 pt-2">
                     <Label htmlFor="documents" className="text-sm font-semibold">
                       Upload Documents <span className="text-destructive">*</span>
@@ -320,8 +352,17 @@ const ContractingHubPage = () => {
                       Accepted formats: PDF, JPG, PNG. Multiple files allowed.
                     </p>
                     
-                    {/* Custom Upload Button to hide default file input display */}
-                    <div className="relative">
+                    {/* Drag & Drop Upload Area */}
+                    <div 
+                      className={`relative border-2 border-dashed rounded-md transition-colors ${
+                        isDragging 
+                          ? 'border-gold bg-gold/5' 
+                          : 'border-input hover:border-gold/40'
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
                       <Input 
                         id="documents" 
                         type="file" 
@@ -329,27 +370,25 @@ const ContractingHubPage = () => {
                         multiple
                         onChange={(e) => {
                           const newFiles = Array.from(e.target.files || []);
-                          setFormData(prev => ({ 
-                            ...prev, 
-                            files: [...prev.files, ...newFiles]
-                          }));
-                          // Reset the input value to allow re-selecting the same file
+                          handleFileChange(newFiles);
                           e.target.value = '';
                         }}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         required={formData.files.length === 0}
                       />
-                      <div className="h-10 px-3 py-2 border border-input rounded-md bg-background flex items-center justify-between cursor-pointer hover:border-gold/40 transition-colors">
-                        <span className="text-sm text-muted-foreground">
-                          {formData.files.length === 0 ? 'Choose files...' : 'Add more files...'}
-                        </span>
-                        <span className="text-xs text-muted-foreground">Browse</span>
+                      <div className="h-20 px-4 py-3 flex flex-col items-center justify-center text-center cursor-pointer">
+                        <p className="text-sm text-foreground font-medium mb-1">
+                          Drag and drop files here or click to browse
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          PDF, JPG, PNG accepted
+                        </p>
                       </div>
                     </div>
                     
                     {/* File Preview Chips */}
                     {formData.files.length > 0 && (
-                      <div className="space-y-2 mt-2.5">
+                      <div className="space-y-2.5 mt-3">
                         <div className="flex flex-wrap gap-2">
                           {formData.files.map((file, index) => {
                             const isPDF = file.type === 'application/pdf';
@@ -391,9 +430,29 @@ const ContractingHubPage = () => {
                             );
                           })}
                         </div>
-                        <div className="flex items-center gap-1.5 text-[11px] text-gold font-medium">
-                          <Check className="w-3.5 h-3.5" />
-                          <span>All files successfully attached ({formData.files.length} {formData.files.length === 1 ? 'file' : 'files'})</span>
+                        
+                        {/* File Count Indicator with Progress Bar */}
+                        <div className="space-y-1.5">
+                          <p className="text-[11px] text-muted-foreground">
+                            We typically expect at least 4–5 files (packet, license, E&O, voided check, AML, etc.).
+                          </p>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-[11px] text-foreground font-medium">
+                              Documents attached: {formData.files.length} {formData.files.length === 1 ? 'file' : 'files'}
+                            </span>
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4, 5].map((segment) => (
+                                <div
+                                  key={segment}
+                                  className={`w-6 h-1.5 rounded-full transition-colors ${
+                                    formData.files.length >= segment
+                                      ? 'bg-gold'
+                                      : 'bg-border'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
