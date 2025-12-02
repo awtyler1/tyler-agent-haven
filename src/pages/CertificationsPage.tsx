@@ -375,24 +375,24 @@ const CertificationsPage = () => {
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-32 pb-3 md:pt-36 md:pb-3 px-6 md:px-12 lg:px-20">
+        <section className="pt-28 pb-2 md:pt-32 md:pb-2 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-1.5">Certifications</h1>
-            <p className="text-base md:text-lg text-foreground font-medium max-w-3xl mx-auto">
+            <h1 className="heading-display mb-1">Certifications</h1>
+            <p className="text-sm md:text-base text-foreground font-medium max-w-3xl mx-auto">
               Complete AHIP once, then certify with each carrier listed below. Your available carriers update automatically based on the selected state.
             </p>
           </div>
         </section>
 
         {/* Filters Bar - Unified Tile */}
-        <section className="pb-2.5 px-6 md:px-12 lg:px-20">
+        <section className="pb-1.5 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="bg-white border border-[#D4CFC4] rounded-lg shadow-[0_2px_10px_-2px_rgba(0,0,0,0.08)] p-3 flex items-center justify-between">
+            <div className="bg-white border border-[#D4CFC4] rounded-lg shadow-[0_2px_10px_-2px_rgba(0,0,0,0.08)] p-2.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">Year:</span>
                   <Select value={selectedYear} onValueChange={(value) => setSelectedYear(value as Year)}>
-                    <SelectTrigger className="w-[90px] h-8 text-xs border-[#D4CFC4]">
+                    <SelectTrigger className="w-[90px] h-7 text-xs border-[#D4CFC4]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -407,7 +407,7 @@ const CertificationsPage = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">State:</span>
                   <Select value={selectedState} onValueChange={(value) => setSelectedState(value as State)}>
-                    <SelectTrigger className="w-[130px] h-8 text-xs border-[#D4CFC4]">
+                    <SelectTrigger className="w-[130px] h-7 text-xs border-[#D4CFC4]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -431,20 +431,20 @@ const CertificationsPage = () => {
         </section>
 
         {/* AHIP Hero Tile - Full Width with Gold Accent */}
-        <section className="pb-2 px-6 md:px-12 lg:px-20">
+        <section className="pb-1.5 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <div className="bg-white border-l-[3px] border-l-gold border-y border-r border-[#D4CFC4] rounded-lg shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out animate-fade-in">
-              <div className="flex items-center gap-5 p-5">
-                <div className="w-[64px] h-[64px] flex-shrink-0 flex items-center justify-center">
+              <div className="flex items-center gap-4 p-3.5">
+                <div className="w-[52px] h-[52px] flex-shrink-0 flex items-center justify-center">
                   <img 
                     src={ahipLogo} 
                     alt="AHIP" 
-                    className="max-w-[64px] max-h-[64px] object-contain"
+                    className="max-w-[52px] max-h-[52px] object-contain"
                     style={{ filter: 'brightness(0.98) contrast(1.02)' }}
                   />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-base font-semibold mb-1">AHIP Certification</h3>
+                  <h3 className="text-sm font-semibold mb-0.5">AHIP Certification</h3>
                   <p className="text-xs text-muted-foreground">
                     Required before all carrier certifications
                   </p>
@@ -455,22 +455,22 @@ const CertificationsPage = () => {
                   rel="noopener noreferrer"
                   className="flex-shrink-0"
                 >
-                  <Button className="bg-gold hover:bg-gold/90 text-white text-sm h-9 px-6">
+                  <Button className="bg-gold hover:bg-gold/90 text-white text-xs h-8 px-5">
                     Take AHIP Certification →
                   </Button>
                 </a>
               </div>
             </div>
             {/* Dotted Divider */}
-            <div className="border-b border-dashed border-[#D4CFC4] my-4"></div>
+            <div className="border-b border-dashed border-[#D4CFC4] my-2.5"></div>
           </div>
         </section>
 
         {/* Carrier Certification Grid */}
-        <section className="pb-8 px-6 md:px-12 lg:px-20">
+        <section className="pb-4 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             {carrierCertifications.length === 0 ? (
-              <div className="bg-white border border-[#D4CFC4] rounded-lg p-6 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] text-center animate-fade-in">
+              <div className="bg-white border border-[#D4CFC4] rounded-lg p-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] text-center animate-fade-in">
                 <p className="text-sm text-muted-foreground mb-1">
                   No carrier certifications available for {selectedState} in {selectedYear} yet.
                 </p>
@@ -479,7 +479,7 @@ const CertificationsPage = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2.5 gap-y-2">
                 {carrierCertifications.map((cert, index) => {
                   const isAvailable = cert.available !== false;
                   
@@ -488,31 +488,31 @@ const CertificationsPage = () => {
                     return (
                       <div
                         key={cert.name}
-                        className="bg-white border border-[#D4CFC4] rounded-lg p-3 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] opacity-60 cursor-not-allowed flex flex-col items-center text-center animate-fade-in"
+                        className="bg-white border border-[#D4CFC4] rounded-lg p-2.5 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] opacity-60 cursor-not-allowed flex flex-col items-center text-center animate-fade-in"
                         style={{ animationDelay: `${index * 40}ms` }}
                       >
-                        <div className="w-[56px] h-[56px] mb-2 flex items-center justify-center">
+                        <div className="w-[48px] h-[48px] mb-1.5 flex items-center justify-center">
                           <img 
                             src={cert.logo} 
                             alt={cert.name} 
-                            className="max-w-[56px] max-h-[56px] object-contain grayscale"
+                            className="max-w-[48px] max-h-[48px] object-contain grayscale"
                             style={{ filter: 'brightness(0.98) contrast(1.02) grayscale(100%)' }}
                           />
                         </div>
-                      <h4 className="font-semibold text-xs mb-1">{cert.name}</h4>
-                        <p className="text-[10px] text-red-600 italic mb-2.5">
+                      <h4 className="font-semibold text-xs mb-0.5">{cert.name}</h4>
+                        <p className="text-[10px] text-red-600 italic mb-2">
                           {selectedYear} Certifications Not Available
                         </p>
-                        <div className="space-y-2 mt-auto w-full">
+                        <div className="space-y-1.5 mt-auto w-full">
                           <Button 
-                            className="w-full bg-gold/50 text-white text-[11px] h-7 cursor-not-allowed" 
+                            className="w-full bg-gold/50 text-white text-[10px] h-6 cursor-not-allowed" 
                             disabled
                           >
                             Certification Portal →
                           </Button>
                           <Button
                             variant="outline"
-                            className="w-full text-[11px] h-7 cursor-not-allowed"
+                            className="w-full text-[10px] h-6 cursor-not-allowed"
                             disabled
                           >
                             How to Certify
@@ -526,33 +526,33 @@ const CertificationsPage = () => {
                   return (
                     <div
                       key={cert.name}
-                      className="bg-white border border-[#D4CFC4] rounded-lg p-3 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out flex flex-col items-center text-center animate-fade-in"
+                      className="bg-white border border-[#D4CFC4] rounded-lg p-2.5 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out flex flex-col items-center text-center animate-fade-in"
                       style={{ animationDelay: `${index * 40}ms` }}
                     >
-                      <div className="w-[56px] h-[56px] mb-2 flex items-center justify-center">
+                      <div className="w-[48px] h-[48px] mb-1.5 flex items-center justify-center">
                         <img 
                           src={cert.logo} 
                           alt={cert.name} 
-                          className="max-w-[56px] max-h-[56px] object-contain"
+                          className="max-w-[48px] max-h-[48px] object-contain"
                           style={{ filter: 'brightness(0.98) contrast(1.02)' }}
                         />
                       </div>
-                      <h4 className="font-semibold text-xs mb-2.5">{cert.name}</h4>
-                      <div className="space-y-2 mt-auto w-full">
+                      <h4 className="font-semibold text-xs mb-2">{cert.name}</h4>
+                      <div className="space-y-1.5 mt-auto w-full">
                         <a
                           href={cert.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block"
                         >
-                          <Button className="w-full bg-gold hover:bg-gold/90 text-white text-[11px] h-7">
+                          <Button className="w-full bg-gold hover:bg-gold/90 text-white text-[10px] h-6">
                             Certification Portal →
                           </Button>
                         </a>
                         {cert.howToCertifyUrl ? (
                           <Button
                             variant="outline"
-                            className="w-full text-[11px] h-7 hover:bg-accent"
+                            className="w-full text-[10px] h-6 hover:bg-accent"
                             onClick={() => setPdfPreview({ title: cert.howToCertifyTitle, url: cert.howToCertifyUrl })}
                           >
                             How to Certify
@@ -560,7 +560,7 @@ const CertificationsPage = () => {
                         ) : (
                           <Button
                             variant="outline"
-                            className="w-full text-[11px] h-7 opacity-50 cursor-not-allowed"
+                            className="w-full text-[10px] h-6 opacity-50 cursor-not-allowed"
                             disabled
                           >
                             How to Certify
