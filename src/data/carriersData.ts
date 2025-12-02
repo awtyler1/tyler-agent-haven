@@ -147,6 +147,31 @@ export const carriers = [
         "PPO": [],
         "D-SNP": [],
       },
+      "Ohio": {
+        "HMO": [],
+        "PPO": [],
+        "D-SNP": [],
+      },
+      "Indiana": {
+        "HMO": [],
+        "PPO": [],
+        "D-SNP": [],
+      },
+      "West Virginia": {
+        "HMO": [],
+        "PPO": [],
+        "D-SNP": [],
+      },
+      "Georgia": {
+        "HMO": [],
+        "PPO": [],
+        "D-SNP": [],
+      },
+      "Virginia": {
+        "HMO": [],
+        "PPO": [],
+        "D-SNP": [],
+      },
     },
   },
   {
@@ -218,6 +243,21 @@ export const carriers = [
       "Tennessee": {
         "HMO": [],
       },
+      "Ohio": {
+        "HMO": [],
+      },
+      "Indiana": {
+        "HMO": [],
+      },
+      "West Virginia": {
+        "HMO": [],
+      },
+      "Georgia": {
+        "HMO": [],
+      },
+      "Virginia": {
+        "HMO": [],
+      },
     },
   },
   {
@@ -283,6 +323,31 @@ export const carriers = [
         ],
       },
       "Tennessee": {
+        "C-SNP": [],
+        "PPO": [],
+        "Giveback": [],
+      },
+      "Ohio": {
+        "C-SNP": [],
+        "PPO": [],
+        "Giveback": [],
+      },
+      "Indiana": {
+        "C-SNP": [],
+        "PPO": [],
+        "Giveback": [],
+      },
+      "West Virginia": {
+        "C-SNP": [],
+        "PPO": [],
+        "Giveback": [],
+      },
+      "Georgia": {
+        "C-SNP": [],
+        "PPO": [],
+        "Giveback": [],
+      },
+      "Virginia": {
         "C-SNP": [],
         "PPO": [],
         "Giveback": [],
@@ -446,6 +511,41 @@ export const carriers = [
         "HumanaChoice": [],
         "Humana USAA Honor": [],
       },
+      "Ohio": {
+        "Humana Community": [],
+        "Humana Gold Plus": [],
+        "Humana Dual Select": [],
+        "HumanaChoice": [],
+        "Humana USAA Honor": [],
+      },
+      "Indiana": {
+        "Humana Community": [],
+        "Humana Gold Plus": [],
+        "Humana Dual Select": [],
+        "HumanaChoice": [],
+        "Humana USAA Honor": [],
+      },
+      "West Virginia": {
+        "Humana Community": [],
+        "Humana Gold Plus": [],
+        "Humana Dual Select": [],
+        "HumanaChoice": [],
+        "Humana USAA Honor": [],
+      },
+      "Georgia": {
+        "Humana Community": [],
+        "Humana Gold Plus": [],
+        "Humana Dual Select": [],
+        "HumanaChoice": [],
+        "Humana USAA Honor": [],
+      },
+      "Virginia": {
+        "Humana Community": [],
+        "Humana Gold Plus": [],
+        "Humana Dual Select": [],
+        "HumanaChoice": [],
+        "Humana USAA Honor": [],
+      },
     },
   },
   {
@@ -602,6 +702,31 @@ export const carriers = [
         "Dual Complete": [],
         "Complete Care": [],
       },
+      "Ohio": {
+        "AARP": [],
+        "Dual Complete": [],
+        "Complete Care": [],
+      },
+      "Indiana": {
+        "AARP": [],
+        "Dual Complete": [],
+        "Complete Care": [],
+      },
+      "West Virginia": {
+        "AARP": [],
+        "Dual Complete": [],
+        "Complete Care": [],
+      },
+      "Georgia": {
+        "AARP": [],
+        "Dual Complete": [],
+        "Complete Care": [],
+      },
+      "Virginia": {
+        "AARP": [],
+        "Dual Complete": [],
+        "Complete Care": [],
+      },
     },
   },
   {
@@ -689,6 +814,26 @@ export const carriers = [
         ],
       },
       "Tennessee": {
+        "HMO-POS": [],
+        "D-SNP": [],
+      },
+      "Ohio": {
+        "HMO-POS": [],
+        "D-SNP": [],
+      },
+      "Indiana": {
+        "HMO-POS": [],
+        "D-SNP": [],
+      },
+      "West Virginia": {
+        "HMO-POS": [],
+        "D-SNP": [],
+      },
+      "Georgia": {
+        "HMO-POS": [],
+        "D-SNP": [],
+      },
+      "Virginia": {
         "HMO-POS": [],
         "D-SNP": [],
       },
