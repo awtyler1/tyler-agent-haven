@@ -195,15 +195,15 @@ const ContractingHubPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: '#FDFBF7' }}>
       <Navigation />
       
-      <main>
+      <main style={{ backgroundColor: '#FDFBF7' }}>
         {/* Header - Title */}
-        <section className="pt-16 pb-6 md:pt-20 md:pb-7 px-6 md:px-12 lg:px-20 bg-background">
+        <section className="pt-16 pb-6 md:pt-20 md:pb-7 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-5">
-              <h1 className="text-3xl md:text-4xl font-semibold text-foreground">
+              <h1 className="heading-display">
                 Contracting Hub
               </h1>
             </div>
@@ -211,7 +211,7 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Two-Column Layout */}
-        <section className="pb-12 px-6 md:px-12 lg:px-20 bg-background">
+        <section className="pb-12 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
               
@@ -219,84 +219,79 @@ const ContractingHubPage = () => {
               <div className="space-y-6">
                 
                 {/* Step 1 - Gather Required Documents */}
-                <Card className="border border-border shadow-md hover:shadow-lg hover:border-gold/40 transition-all duration-150">
-                  <CardContent className="pt-5 pb-5 px-5">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
-                        <span className="text-sm font-bold text-gold">1</span>
-                      </div>
-                      <h2 className="text-lg font-bold text-foreground pt-0.5">
-                        Gather Required Documents
-                      </h2>
+                <div className="bg-white border border-[#E5E2DB] rounded-lg p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
+                      <span className="text-sm font-bold text-gold">1</span>
                     </div>
-                    <div className="space-y-2 text-[13px]">
-                      <div className="flex items-start gap-2.5">
-                        <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">State insurance license</span>
-                      </div>
-                      <div className="flex items-start gap-2.5">
-                        <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">E&O certificate with your correct name</span>
-                      </div>
-                      <div className="flex items-start gap-2.5">
-                        <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">Voided check (personal or corporate)</span>
-                      </div>
-                      <div className="flex items-start gap-2.5">
-                        <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">AML certificate (and CE if required by your state)</span>
-                      </div>
-                      <div className="flex items-start gap-2.5">
-                        <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">Explanation documents for any "Yes" answers in the legal section</span>
-                      </div>
-                      <div className="flex items-start gap-2.5">
-                        <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">Corporate license + corporate bank info (if contracting as an agency)</span>
-                      </div>
+                    <h2 className="text-lg font-bold text-foreground pt-0.5">
+                      Gather Required Documents
+                    </h2>
+                  </div>
+                  <div className="space-y-2 text-[13px]">
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">State insurance license</span>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">E&O certificate with your correct name</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">Voided check (personal or corporate)</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">AML certificate (and CE if required by your state)</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">Explanation documents for any "Yes" answers in the legal section</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">Corporate license + corporate bank info (if contracting as an agency)</span>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Step 2 - Download Contracting Packet */}
-                <Card className="border border-border shadow-md hover:shadow-lg hover:border-gold/40 transition-all duration-150">
-                  <CardContent className="pt-5 pb-5 px-5">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
-                        <span className="text-sm font-bold text-gold">2</span>
-                      </div>
-                      <h2 className="text-lg font-bold text-foreground pt-0.5">
-                        Download Contracting Packet
-                      </h2>
+                <div className="bg-white border border-[#E5E2DB] rounded-lg p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] hover:-translate-y-0.5 transition-all duration-150">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
+                      <span className="text-sm font-bold text-gold">2</span>
                     </div>
-                    <Button 
-                      onClick={() => setIsPdfModalOpen(true)}
-                      className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold px-6 py-5 text-sm shadow-sm hover:shadow-md transition-all"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Contracting Packet (PDF)
-                    </Button>
-                    <div className="mt-3 text-[12px] text-muted-foreground space-y-1">
-                      <p>Complete all pages and sign where indicated.</p>
-                      <p>Replace the sample E&O page with your own certificate.</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                    <h2 className="text-lg font-bold text-foreground pt-0.5">
+                      Download Contracting Packet
+                    </h2>
+                  </div>
+                  <Button 
+                    onClick={() => setIsPdfModalOpen(true)}
+                    className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold px-6 py-5 text-sm shadow-sm hover:shadow-md transition-all"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Contracting Packet (PDF)
+                  </Button>
+                  <div className="mt-3 text-[12px] text-muted-foreground space-y-1">
+                    <p>Complete all pages and sign where indicated.</p>
+                    <p>Replace the sample E&O page with your own certificate.</p>
+                  </div>
+                </div>
               </div>
 
               {/* RIGHT COLUMN - Step 3 */}
               <div>
-                <Card className="border-gold/30 bg-card shadow-md">
-                  <CardContent className="pt-5 pb-5 px-5">
-                    <div className="flex items-start gap-3 mb-5">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
-                        <span className="text-sm font-bold text-gold">3</span>
-                      </div>
-                      <h2 className="text-lg font-bold text-foreground pt-0.5">
-                        Upload Your Completed Packet
-                      </h2>
+                <div className="bg-white border border-[#E5E2DB] rounded-lg p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-[#D4CFC4] transition-all duration-150">
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/8 border border-gold/30 flex items-center justify-center">
+                      <span className="text-sm font-bold text-gold">3</span>
                     </div>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <h2 className="text-lg font-bold text-foreground pt-0.5">
+                      Upload Your Completed Packet
+                    </h2>
+                  </div>
+                  <form onSubmit={handleSubmit} className="space-y-4">
                       
                       {/* Multi-File Upload with Drag & Drop */}
                       <div className="space-y-2">
@@ -561,15 +556,14 @@ const ContractingHubPage = () => {
                       )}
 
                     </form>
-                  </CardContent>
-                </Card>
+                  </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Caroline Contact Line - Bottom */}
-        <section className="pb-10 px-6 md:px-12 lg:px-20 bg-background">
+        <section className="pb-10 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto text-center">
             <p className="text-[12px] text-muted-foreground">
               Need help? Contact Caroline at{" "}
