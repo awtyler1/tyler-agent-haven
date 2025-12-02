@@ -33,6 +33,7 @@ const carrierCertificationsByStateAndYear: Record<Year, Record<State, Array<{
   howToCertifyUrl: string;
   howToCertifyTitle: string;
   logo: string;
+  available?: boolean;
 }>>> = {
   "2026": {
     Kentucky: [
@@ -151,7 +152,56 @@ const carrierCertificationsByStateAndYear: Record<Year, Record<State, Array<{
     Virginia: [],
   },
   "2027": {
-    Kentucky: [],
+    Kentucky: [
+      {
+        name: "Aetna",
+        url: "",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Aetna 2027 Certification Instructions",
+        logo: aetnaLogo,
+        available: false,
+      },
+      {
+        name: "Anthem",
+        url: "",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Anthem 2027 Certification Instructions",
+        logo: anthemLogo,
+        available: false,
+      },
+      {
+        name: "Devoted",
+        url: "",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Devoted 2027 Certification Instructions",
+        logo: devotedLogo,
+        available: false,
+      },
+      {
+        name: "Humana",
+        url: "",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Humana 2027 Certification Instructions",
+        logo: humanaLogo,
+        available: false,
+      },
+      {
+        name: "UnitedHealthcare",
+        url: "",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "UnitedHealthcare 2027 Certification Instructions",
+        logo: uhcLogo,
+        available: false,
+      },
+      {
+        name: "Wellcare",
+        url: "",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Wellcare 2027 Certification Instructions",
+        logo: wellcareLogo,
+        available: false,
+      },
+    ],
     Ohio: [],
     Tennessee: [],
     Indiana: [],
@@ -480,52 +530,95 @@ const CertificationsPage = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {carrierCertifications.map((cert) => (
-                <div
-                  key={cert.name}
-                  className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 flex flex-col"
-                >
-                  <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
-                    <img 
-                      src={cert.logo} 
-                      alt={cert.name} 
-                      className="max-w-full max-h-full object-contain"
-                      style={{ filter: 'brightness(0.98) contrast(1.02)' }}
-                    />
-                  </div>
-                  <h4 className="text-center font-semibold text-sm mb-3">{cert.name}</h4>
-                  <div className="space-y-1.5 mt-auto">
-                    <a
-                      href={cert.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block"
+                {carrierCertifications.map((cert) => {
+                  const isAvailable = cert.available !== false;
+                  
+                  if (!isAvailable) {
+                    // Non-clickable tile for unavailable certifications
+                    return (
+                      <div
+                        key={cert.name}
+                        className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] opacity-60 cursor-not-allowed flex flex-col"
+                      >
+                        <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+                          <img 
+                            src={cert.logo} 
+                            alt={cert.name} 
+                            className="max-w-full max-h-full object-contain grayscale"
+                            style={{ filter: 'brightness(0.98) contrast(1.02) grayscale(100%)' }}
+                          />
+                        </div>
+                        <h4 className="text-center font-semibold text-sm mb-1">{cert.name}</h4>
+                        <p className="text-center text-xs text-red-600 italic mb-3">
+                          2027 Certifications Not Available
+                        </p>
+                        <div className="space-y-1.5 mt-auto">
+                          <Button 
+                            className="w-full bg-gold/50 text-white text-xs h-8 cursor-not-allowed" 
+                            disabled
+                          >
+                            Certification Portal
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full text-xs h-8 cursor-not-allowed"
+                            disabled
+                          >
+                            How to Certify
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  // Clickable tile for available certifications
+                  return (
+                    <div
+                      key={cert.name}
+                      className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 flex flex-col"
                     >
-                      <Button className="w-full bg-gold hover:bg-gold/90 text-white text-xs h-8">
-                        Certification Portal
-                        <ExternalLink className="w-3 h-3 ml-1.5" />
-                      </Button>
-                    </a>
-                    {cert.howToCertifyUrl ? (
-                      <Button
-                        variant="outline"
-                        className="w-full text-xs h-8"
-                        onClick={() => setPdfPreview({ title: cert.howToCertifyTitle, url: cert.howToCertifyUrl })}
-                      >
-                        How to Certify
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        className="w-full text-xs h-8 opacity-50 cursor-not-allowed"
-                        disabled
-                      >
-                        How to Certify
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                      <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+                        <img 
+                          src={cert.logo} 
+                          alt={cert.name} 
+                          className="max-w-full max-h-full object-contain"
+                          style={{ filter: 'brightness(0.98) contrast(1.02)' }}
+                        />
+                      </div>
+                      <h4 className="text-center font-semibold text-sm mb-3">{cert.name}</h4>
+                      <div className="space-y-1.5 mt-auto">
+                        <a
+                          href={cert.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          <Button className="w-full bg-gold hover:bg-gold/90 text-white text-xs h-8">
+                            Certification Portal
+                            <ExternalLink className="w-3 h-3 ml-1.5" />
+                          </Button>
+                        </a>
+                        {cert.howToCertifyUrl ? (
+                          <Button
+                            variant="outline"
+                            className="w-full text-xs h-8"
+                            onClick={() => setPdfPreview({ title: cert.howToCertifyTitle, url: cert.howToCertifyUrl })}
+                          >
+                            How to Certify
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            className="w-full text-xs h-8 opacity-50 cursor-not-allowed"
+                            disabled
+                          >
+                            How to Certify
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
