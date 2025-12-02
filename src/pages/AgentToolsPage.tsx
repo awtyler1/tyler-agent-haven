@@ -1,6 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { ExternalLink, FileText } from "lucide-react";
+import { ExternalLink, FileText, FolderOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
@@ -113,7 +113,7 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Carrier Resources - Full Width Bar */}
-        <section className="pb-16 px-6 md:px-12 lg:px-20">
+        <section className="pb-4 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <Link
               to="/carrier-resources"
@@ -126,6 +126,25 @@ const AgentToolsPage = () => {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold mb-1">Carrier Resources</h3>
                 <p className="text-sm text-muted-foreground">Contacts, Quick Links, Downloads, and Plan Documents</p>
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* Forms Library - Full Width Bar */}
+        <section className="pb-16 px-6 md:px-12 lg:px-20">
+          <div className="container-narrow">
+            <Link
+              to="/forms-library"
+              onClick={() => window.scrollTo(0, 0)}
+              className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex items-center gap-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+            >
+              <div className="w-14 h-14 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
+                <FolderOpen className="w-7 h-7 text-gold" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-1">Forms Library</h3>
+                <p className="text-sm text-muted-foreground">SOA Forms, CMS Forms, HIPAA Forms, and Essential Client Documents</p>
               </div>
             </Link>
           </div>
