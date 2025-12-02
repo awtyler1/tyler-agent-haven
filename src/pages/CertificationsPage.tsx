@@ -439,92 +439,89 @@ const CertificationsPage = () => {
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20">
+        <section className="pt-32 pb-4 md:pt-36 md:pb-5 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-3">Certifications</h1>
-            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
+            <h1 className="heading-display mb-2">Certifications</h1>
+            <p className="text-base md:text-lg text-foreground font-medium max-w-3xl mx-auto">
               Start with AHIP, then complete the certifications required by carriers in your selected state.
             </p>
           </div>
         </section>
 
-        {/* Orientation Tile */}
-        <section className="pb-1.5 px-6 md:px-12 lg:px-20">
+        {/* Filters Bar */}
+        <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="bg-white border border-[#D4CFC4] rounded-lg p-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] animate-fade-in">
-              <div className="flex items-start justify-between gap-6 mb-3">
-                <h2 className="text-base font-semibold">Annual Medicare Certifications</h2>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">Year:</span>
-                    <Select value={selectedYear} onValueChange={(value) => setSelectedYear(value as Year)}>
-                      <SelectTrigger className="w-[100px] h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {years.map((year) => (
-                          <SelectItem key={year} value={year} className="text-xs">
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">State:</span>
-                    <Select value={selectedState} onValueChange={(value) => setSelectedState(value as State)}>
-                      <SelectTrigger className="w-[140px] h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {states.map((state) => (
-                          <SelectItem key={state} value={state} className="text-xs">
-                            {state}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+            <div className="flex items-center justify-end gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Year:</span>
+                <Select value={selectedYear} onValueChange={(value) => setSelectedYear(value as Year)}>
+                  <SelectTrigger className="w-[90px] h-8 text-xs border-[#D4CFC4]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year} className="text-xs">
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                To write Medicare Advantage and Part D plans, you must complete AHIP and each carrier's annual certification. Start with AHIP, then complete the certifications for the carriers available in your state.
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">State:</span>
+                <Select value={selectedState} onValueChange={(value) => setSelectedState(value as State)}>
+                  <SelectTrigger className="w-[130px] h-8 text-xs border-[#D4CFC4]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {states.map((state) => (
+                      <SelectItem key={state} value={state} className="text-xs">
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <button
                 onClick={handleDownloadChecklist}
-                className="text-xs text-gold hover:text-gold/80 transition-colors underline decoration-gold/30 hover:decoration-gold/60 underline-offset-2"
+                className="text-xs text-gold hover:text-gold/80 transition-colors underline decoration-gold/30 hover:decoration-gold/60 underline-offset-2 ml-2"
               >
-                Download State Certification Checklist (PDF)
+                Download Checklist (PDF)
               </button>
             </div>
           </div>
         </section>
 
-        {/* AHIP Hero Card */}
-        <section className="pb-1.5 px-6 md:px-12 lg:px-20">
+        {/* AHIP Horizontal Tile */}
+        <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="bg-white border border-[#D4CFC4] rounded-lg p-6 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[3px] transition-all duration-140 ease-in-out max-w-2xl mx-auto text-center animate-fade-in">
-              <div className="w-[76px] h-[76px] mx-auto mb-4 flex items-center justify-center">
-                <img 
-                  src={ahipLogo} 
-                  alt="AHIP" 
-                  className="max-w-[76px] max-h-[76px] object-contain"
-                  style={{ filter: 'brightness(0.98) contrast(1.02)' }}
-                />
+            <div className="bg-white border border-[#D4CFC4] rounded-lg shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out animate-fade-in">
+              <div className="flex items-center gap-4 p-4">
+                <div className="w-[60px] h-[60px] flex-shrink-0 flex items-center justify-center">
+                  <img 
+                    src={ahipLogo} 
+                    alt="AHIP" 
+                    className="max-w-[60px] max-h-[60px] object-contain"
+                    style={{ filter: 'brightness(0.98) contrast(1.02)' }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold mb-0.5">AHIP Certification</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Required before all carrier certifications
+                  </p>
+                </div>
+                <a
+                  href="https://www.ahipmedicaretraining.com/page/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0"
+                >
+                  <Button className="bg-gold hover:bg-gold/90 text-white text-xs h-8 px-5">
+                    Take AHIP Certification →
+                  </Button>
+                </a>
               </div>
-              <h3 className="text-base font-semibold mb-1">AHIP Certification</h3>
-              <p className="text-xs text-muted-foreground mb-5">
-                Required before all carrier certifications
-              </p>
-              <a
-                href="https://www.ahipmedicaretraining.com/page/login"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button className="bg-gold hover:bg-gold/90 text-white text-sm h-9 px-6">
-                  Take AHIP Certification →
-                </Button>
-              </a>
             </div>
           </div>
         </section>
@@ -533,8 +530,8 @@ const CertificationsPage = () => {
         <section className="pb-8 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             {carrierCertifications.length === 0 ? (
-              <div className="bg-white border border-[#D4CFC4] rounded-lg p-8 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] text-center animate-fade-in">
-                <p className="text-sm text-muted-foreground mb-2">
+              <div className="bg-white border border-[#D4CFC4] rounded-lg p-6 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] text-center animate-fade-in">
+                <p className="text-sm text-muted-foreground mb-1">
                   No carrier certifications available for {selectedState} in {selectedYear} yet.
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -542,7 +539,7 @@ const CertificationsPage = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {carrierCertifications.map((cert, index) => {
                   const isAvailable = cert.available !== false;
                   
@@ -551,31 +548,31 @@ const CertificationsPage = () => {
                     return (
                       <div
                         key={cert.name}
-                        className="bg-white border border-[#D4CFC4] rounded-lg p-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] opacity-60 cursor-not-allowed flex flex-col items-center text-center animate-fade-in"
-                        style={{ animationDelay: `${index * 50}ms` }}
+                        className="bg-white border border-[#D4CFC4] rounded-lg p-3 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] opacity-60 cursor-not-allowed flex flex-col items-center text-center animate-fade-in"
+                        style={{ animationDelay: `${index * 40}ms` }}
                       >
-                        <div className="w-[76px] h-[76px] mb-3 flex items-center justify-center">
+                        <div className="w-[56px] h-[56px] mb-2 flex items-center justify-center">
                           <img 
                             src={cert.logo} 
                             alt={cert.name} 
-                            className="max-w-[76px] max-h-[76px] object-contain grayscale"
+                            className="max-w-[56px] max-h-[56px] object-contain grayscale"
                             style={{ filter: 'brightness(0.98) contrast(1.02) grayscale(100%)' }}
                           />
                         </div>
-                        <h4 className="font-semibold text-sm mb-1">{cert.name}</h4>
-                        <p className="text-xs text-red-600 italic mb-4">
+                        <h4 className="font-semibold text-xs mb-1">{cert.name}</h4>
+                        <p className="text-[10px] text-red-600 italic mb-3">
                           {selectedYear} Certifications Not Available
                         </p>
-                        <div className="space-y-2 mt-auto w-full">
+                        <div className="space-y-1.5 mt-auto w-full">
                           <Button 
-                            className="w-full bg-gold/50 text-white text-xs h-8 cursor-not-allowed" 
+                            className="w-full bg-gold/50 text-white text-[11px] h-7 cursor-not-allowed" 
                             disabled
                           >
                             Certification Portal →
                           </Button>
                           <Button
                             variant="outline"
-                            className="w-full text-xs h-8 cursor-not-allowed"
+                            className="w-full text-[11px] h-7 cursor-not-allowed"
                             disabled
                           >
                             How to Certify
@@ -589,33 +586,33 @@ const CertificationsPage = () => {
                   return (
                     <div
                       key={cert.name}
-                      className="bg-white border border-[#D4CFC4] rounded-lg p-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[3px] transition-all duration-140 ease-in-out flex flex-col items-center text-center animate-fade-in"
-                      style={{ animationDelay: `${index * 50}ms` }}
+                      className="bg-white border border-[#D4CFC4] rounded-lg p-3 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out flex flex-col items-center text-center animate-fade-in"
+                      style={{ animationDelay: `${index * 40}ms` }}
                     >
-                      <div className="w-[76px] h-[76px] mb-3 flex items-center justify-center">
+                      <div className="w-[56px] h-[56px] mb-2 flex items-center justify-center">
                         <img 
                           src={cert.logo} 
                           alt={cert.name} 
-                          className="max-w-[76px] max-h-[76px] object-contain"
+                          className="max-w-[56px] max-h-[56px] object-contain"
                           style={{ filter: 'brightness(0.98) contrast(1.02)' }}
                         />
                       </div>
-                      <h4 className="font-semibold text-sm mb-4">{cert.name}</h4>
-                      <div className="space-y-2 mt-auto w-full">
+                      <h4 className="font-semibold text-xs mb-3">{cert.name}</h4>
+                      <div className="space-y-1.5 mt-auto w-full">
                         <a
                           href={cert.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block"
                         >
-                          <Button className="w-full bg-gold hover:bg-gold/90 text-white text-xs h-8">
+                          <Button className="w-full bg-gold hover:bg-gold/90 text-white text-[11px] h-7">
                             Certification Portal →
                           </Button>
                         </a>
                         {cert.howToCertifyUrl ? (
                           <Button
                             variant="outline"
-                            className="w-full text-xs h-8 hover:bg-accent"
+                            className="w-full text-[11px] h-7 hover:bg-accent"
                             onClick={() => setPdfPreview({ title: cert.howToCertifyTitle, url: cert.howToCertifyUrl })}
                           >
                             How to Certify
@@ -623,7 +620,7 @@ const CertificationsPage = () => {
                         ) : (
                           <Button
                             variant="outline"
-                            className="w-full text-xs h-8 opacity-50 cursor-not-allowed"
+                            className="w-full text-[11px] h-7 opacity-50 cursor-not-allowed"
                             disabled
                           >
                             How to Certify
