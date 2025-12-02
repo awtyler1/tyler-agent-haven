@@ -206,6 +206,45 @@ const ContractingHubPage = () => {
           </div>
         </section>
 
+        {/* Before You Begin - Orientation Bar */}
+        <section className="pb-6 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-white border border-[#E5E2DB] rounded-lg p-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
+              <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+                <span>⭐</span>
+                <span>Before You Begin</span>
+              </h2>
+              <div className="space-y-3 text-[13px] text-foreground/90 leading-relaxed">
+                <p>
+                  This is where you complete your contracting with Tyler Insurance Group so you can write business with every carrier we offer. Most agents finish this in 10–15 minutes.
+                </p>
+                <p>
+                  Once you submit your packet, our team reviews everything within 2–3 business days and notifies you the moment each carrier approves you.
+                </p>
+                <div>
+                  <p className="font-semibold mb-2">After approval, you'll be able to:</p>
+                  <ul className="space-y-1.5 ml-5">
+                    <li className="list-disc">Submit and track applications</li>
+                    <li className="list-disc">Access your carrier portals</li>
+                    <li className="list-disc">Use all quoting and enrollment tools</li>
+                    <li className="list-disc">Receive commissions with no delays</li>
+                  </ul>
+                </div>
+                <p className="text-[12px] text-muted-foreground pt-1">
+                  If you need help at any point, contact Caroline at{" "}
+                  <a 
+                    href="mailto:caroline@tylerinsurancegroup.com"
+                    className="text-gold hover:text-gold/80 transition-colors font-medium"
+                  >
+                    caroline@tylerinsurancegroup.com
+                  </a>
+                  .
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Two-Column Layout */}
         <section className="pb-8 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
           <div className="max-w-6xl mx-auto">
