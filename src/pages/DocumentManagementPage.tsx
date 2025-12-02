@@ -222,6 +222,28 @@ export default function DocumentManagementPage() {
     return { carrier, documentType };
   };
 
+  // Chunk text on client side before sending to edge function
+  const chunkTextClient = (text: string, chunkSize: number = 800): string[] => {
+    const chunks: string[] = [];
+    const words = text.split(/\s+/);
+    let currentChunk = "";
+
+    for (const word of words) {
+      if ((currentChunk + word).length > chunkSize && currentChunk.length > 0) {
+        chunks.push(currentChunk.trim());
+        currentChunk = word + " ";
+      } else {
+        currentChunk += word + " ";
+      }
+    }
+
+    if (currentChunk.trim()) {
+      chunks.push(currentChunk.trim());
+    }
+
+    return chunks;
+  };
+
   const processDocument = async (filename: string): Promise<{ chunksProcessed: number }> => {
     try {
       // Fetch PDF from public folder
@@ -232,14 +254,14 @@ export default function DocumentManagementPage() {
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
       let fullText = "";
-      // Reduce to 25 pages to avoid memory issues
-      const maxPages = Math.min(pdf.numPages, 25);
+      // Reduce to 20 pages to avoid memory issues
+      const maxPages = Math.min(pdf.numPages, 20);
 
       for (let i = 1; i <= maxPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map((item: any) => item.str).join(" ");
-        fullText += pageText + "\n\n";
+        fullText += pageText + " ";
         
         // Clear page from memory
         page.cleanup();
@@ -251,31 +273,49 @@ export default function DocumentManagementPage() {
 
       const { carrier, documentType } = extractMetadata(filename);
 
-      // Send to processing edge function
-      const processResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-document`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            documentText: fullText,
-            documentName: filename,
-            documentType,
-            carrier,
-          }),
-        }
-      );
+      // Chunk the text on client side
+      const textChunks = chunkTextClient(fullText);
+      
+      // Send chunks one at a time to avoid memory issues
+      let successfulChunks = 0;
+      for (let i = 0; i < textChunks.length; i++) {
+        try {
+          const processResponse = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-document`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              },
+              body: JSON.stringify({
+                documentText: textChunks[i],
+                documentName: filename,
+                documentType,
+                carrier,
+                chunkIndex: i,
+                isChunked: true, // Flag to tell edge function this is pre-chunked
+              }),
+            }
+          );
 
-      if (!processResponse.ok) {
-        const errorData = await processResponse.json();
-        throw new Error(errorData.error || "Failed to process");
+          if (!processResponse.ok) {
+            const errorData = await processResponse.json();
+            console.error(`Failed to process chunk ${i}:`, errorData);
+            continue; // Skip failed chunks but continue processing
+          }
+
+          successfulChunks++;
+          
+          // Small delay between chunks
+          await new Promise(resolve => setTimeout(resolve, 200));
+        } catch (error) {
+          console.error(`Error processing chunk ${i}:`, error);
+          continue;
+        }
       }
 
-      const data = await processResponse.json();
-      return data;
+      return { chunksProcessed: successfulChunks };
     } catch (error) {
       throw error;
     }
@@ -354,7 +394,7 @@ export default function DocumentManagementPage() {
             <div>
               <h2 className="text-2xl font-semibold mb-2">Batch Process Documents</h2>
               <p className="text-muted-foreground">
-                Process {pdfFiles.length} PDF files from the downloads folder (25 pages per PDF, 3 second intervals)
+                Process {pdfFiles.length} PDF files (20 pages each, chunked on client, 3 sec intervals)
               </p>
             </div>
             <Button

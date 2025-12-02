@@ -51,7 +51,7 @@ serve(async (req) => {
   }
 
   try {
-    const { documentText, documentName, documentType, carrier, planName } = await req.json();
+    const { documentText, documentName, documentType, carrier, planName, chunkIndex, isChunked } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -63,51 +63,64 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Clean and chunk the document text
+    // If text is already chunked from client, just process the single chunk
+    if (isChunked) {
+      const cleanText = documentText.replace(/\s+/g, " ").trim();
+      
+      // Generate embedding for this chunk
+      const embedding = await generateEmbedding(cleanText, LOVABLE_API_KEY);
+
+      // Store in database
+      const { error } = await supabase.from("document_chunks").insert({
+        document_name: documentName,
+        document_type: documentType.toLowerCase(),
+        carrier: carrier?.toLowerCase(),
+        plan_name: planName,
+        chunk_text: cleanText,
+        chunk_index: chunkIndex || 0,
+        embedding: embedding,
+      });
+
+      if (error) {
+        console.error(`Error inserting chunk:`, error);
+        throw error;
+      }
+
+      console.log(`Successfully processed chunk ${chunkIndex} for ${documentName}`);
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          chunksProcessed: 1,
+          documentName 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Legacy path: chunk on server (for backward compatibility)
     const cleanText = documentText.replace(/\s+/g, " ").trim();
     const chunks = chunkText(cleanText, 800, 150);
 
     console.log(`Processing ${chunks.length} chunks for ${documentName}`);
 
-    // Process chunks in smaller batches to avoid memory issues
-    const batchSize = 3;
-    for (let i = 0; i < chunks.length; i += batchSize) {
-      const batch = chunks.slice(i, i + batchSize);
-      
-      await Promise.all(
-        batch.map(async (chunk, batchIndex) => {
-          const chunkIndex = i + batchIndex;
-          
-          try {
-            // Generate embedding for the chunk
-            const embedding = await generateEmbedding(chunk, LOVABLE_API_KEY);
+    // Process only first chunk to avoid memory issues
+    const chunk = chunks[0];
+    const embedding = await generateEmbedding(chunk, LOVABLE_API_KEY);
 
-            // Store in database
-            const { error } = await supabase.from("document_chunks").insert({
-              document_name: documentName,
-              document_type: documentType.toLowerCase(),
-              carrier: carrier?.toLowerCase(),
-              plan_name: planName,
-              chunk_text: chunk,
-              chunk_index: chunkIndex,
-              embedding: embedding,
-            });
+    const { error } = await supabase.from("document_chunks").insert({
+      document_name: documentName,
+      document_type: documentType.toLowerCase(),
+      carrier: carrier?.toLowerCase(),
+      plan_name: planName,
+      chunk_text: chunk,
+      chunk_index: 0,
+      embedding: embedding,
+    });
 
-            if (error) {
-              console.error(`Error inserting chunk ${chunkIndex}:`, error);
-              throw error;
-            }
-          } catch (error) {
-            console.error(`Error processing chunk ${chunkIndex}:`, error);
-            throw error;
-          }
-        })
-      );
-
-      // Longer delay between batches to allow garbage collection
-      if (i + batchSize < chunks.length) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
+    if (error) {
+      console.error(`Error inserting chunk:`, error);
+      throw error;
     }
 
     console.log(`Successfully processed ${documentName}`);
@@ -115,7 +128,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        chunksProcessed: chunks.length,
+        chunksProcessed: 1,
         documentName 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
