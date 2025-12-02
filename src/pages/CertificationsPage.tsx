@@ -88,6 +88,54 @@ const CertificationsPage = () => {
 
   const carrierCertifications = carrierCertificationsByState[selectedState];
 
+  const handleDownloadChecklist = () => {
+    const checklistContent = `Annual Medicare Certification Checklist - ${selectedState}
+Generated: ${new Date().toLocaleDateString()}
+
+═══════════════════════════════════════════════════════
+
+STEP 1: AHIP CERTIFICATION (Required First)
+☐ Complete AHIP annual Medicare training
+☐ URL: https://www.ahipmedicaretraining.com/page/login
+☐ Completion Date: _______________
+
+═══════════════════════════════════════════════════════
+
+STEP 2: CARRIER CERTIFICATIONS FOR ${selectedState.toUpperCase()}
+${carrierCertifications.length === 0 
+  ? '\n☐ No carrier certifications available yet for this state.\n   Check back soon for updates.\n'
+  : carrierCertifications.map((cert, index) => `
+${index + 1}. ${cert.name.toUpperCase()} CERTIFICATION
+☐ Complete ${cert.name} annual certification
+☐ URL: ${cert.url}
+☐ Completion Date: _______________
+`).join('\n')}
+
+═══════════════════════════════════════════════════════
+
+IMPORTANT REMINDERS:
+• AHIP must be completed BEFORE carrier certifications
+• All certifications expire annually and must be renewed
+• Keep certificates saved for compliance records
+• Contact your upline with certification issues
+
+═══════════════════════════════════════════════════════
+
+Tyler Insurance Group
+Agent Certification Tracking System
+`;
+
+    const blob = new Blob([checklistContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Certification_Checklist_${selectedState.replace(/\s+/g, '_')}_${new Date().getFullYear()}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FDFBF7' }}>
       <Navigation />
@@ -224,9 +272,12 @@ const CertificationsPage = () => {
             <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 max-w-xl mx-auto text-center">
               <h3 className="text-base font-semibold mb-2">Annual Certification Checklist</h3>
               <p className="text-xs text-muted-foreground mb-3">
-                A simple guide to ensure you complete every required certification.
+                Download a checklist for AHIP + {carrierCertifications.length > 0 ? `${carrierCertifications.length} ${selectedState} carriers` : selectedState}
               </p>
-              <Button className="bg-gold hover:bg-gold/90 text-white text-sm h-9">
+              <Button 
+                className="bg-gold hover:bg-gold/90 text-white text-sm h-9"
+                onClick={handleDownloadChecklist}
+              >
                 Download Checklist
                 <Download className="w-4 h-4 ml-2" />
               </Button>
