@@ -199,11 +199,11 @@ const ContractingHubPage = () => {
       <Navigation />
       
       <main>
-        {/* Top Section - Title, Subtitle, Step Indicator */}
-        <section className="pt-20 pb-8 md:pt-24 md:pb-10 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-6xl mx-auto">
+        {/* Header - Title, Subtitle, Step Indicator */}
+        <section className="pt-16 pb-6 md:pt-20 md:pb-7 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-4xl mx-auto">
             {/* Title and Subtitle */}
-            <div className="text-center mb-5">
+            <div className="text-center mb-4">
               <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-2">
                 Contracting Hub
               </h1>
@@ -213,85 +213,80 @@ const ContractingHubPage = () => {
             </div>
 
             {/* Slim Step Indicator Bar */}
-            <div className="flex items-center justify-center gap-3 text-[12px] md:text-[13px] text-muted-foreground">
+            <div className="flex items-center justify-center gap-2.5 text-[11px] md:text-[12px] text-muted-foreground">
               <span>Step 1: Gather Documents</span>
-              <span className="text-gold">|</span>
+              <span className="text-gold">•</span>
               <span>Step 2: Download Packet</span>
-              <span className="text-gold">|</span>
+              <span className="text-gold">•</span>
               <span>Step 3: Upload & Submit</span>
             </div>
           </div>
         </section>
 
-        {/* Two-Column Main Section */}
-        <section className="pb-10 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              
-              {/* LEFT COLUMN - Information */}
-              <div className="space-y-8">
-                
-                {/* Section A - Required Documents */}
-                <div>
-                  <h2 className="text-lg font-bold text-foreground mb-4">
-                    Required Documents
-                  </h2>
-                  <div className="space-y-2.5 text-[13px]">
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">State insurance license</span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">E&O certificate with your correct name</span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">Voided check (personal or corporate)</span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">AML certificate (and CE if required by your state)</span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">Explanation documents for any "Yes" answers in the legal section</span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">Corporate license + corporate bank info (if contracting as an agency)</span>
-                    </div>
-                  </div>
+        {/* Linear Three-Step Flow */}
+        <section className="pb-12 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-4xl mx-auto space-y-8">
+            
+            {/* Step 1 - Gather Required Documents */}
+            <div>
+              <h2 className="text-lg font-semibold text-foreground mb-3.5">
+                Step 1: Gather Required Documents
+              </h2>
+              <div className="space-y-2 text-[13px]">
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">State insurance license</span>
                 </div>
-
-                {/* Section B - Download Contracting Packet */}
-                <div>
-                  <h2 className="text-lg font-bold text-foreground mb-4">
-                    Download Contracting Packet
-                  </h2>
-                  <Button 
-                    onClick={() => setIsPdfModalOpen(true)}
-                    className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-5 text-sm shadow-sm hover:shadow-md transition-all"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Contracting Packet (PDF)
-                  </Button>
-                  <div className="mt-3 text-[12px] text-muted-foreground space-y-1">
-                    <p>Complete all pages and sign where indicated.</p>
-                    <p>Replace the sample E&O page with your own certificate.</p>
-                  </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">E&O certificate with your correct name</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Voided check (personal or corporate)</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">AML certificate (and CE if required by your state)</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Explanation documents for any "Yes" answers in the legal section</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Corporate license + corporate bank info (if contracting as an agency)</span>
                 </div>
               </div>
+            </div>
 
-              {/* RIGHT COLUMN - Upload Form */}
-              <div>
-                <h2 className="text-lg font-bold text-foreground mb-4">
-                  Upload Your Completed Packet
-                </h2>
-                
-                <Card className="border-gold/30 bg-card shadow-md">
-                  <CardContent className="pt-5 pb-5 px-5">
-                    <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Step 2 - Download Contracting Packet */}
+            <div>
+              <h2 className="text-lg font-semibold text-foreground mb-3.5">
+                Step 2: Download Contracting Packet
+              </h2>
+              <Button 
+                onClick={() => setIsPdfModalOpen(true)}
+                className="w-full md:w-auto bg-gold hover:bg-gold/90 text-charcoal font-semibold px-6 py-5 text-sm shadow-sm hover:shadow-md transition-all"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Contracting Packet (PDF)
+              </Button>
+              <div className="mt-2.5 text-[12px] text-muted-foreground space-y-1">
+                <p>Complete all pages and sign where indicated.</p>
+                <p>Replace the sample E&O page with your own certificate.</p>
+              </div>
+            </div>
+
+            {/* Step 3 - Upload Your Completed Packet */}
+            <div>
+              <h2 className="text-lg font-semibold text-foreground mb-3.5">
+                Step 3: Upload Your Completed Packet
+              </h2>
+              
+              <Card className="border-gold/30 bg-card shadow-md">
+                <CardContent className="pt-5 pb-5 px-5">
+                  <form onSubmit={handleSubmit} className="space-y-4">
                       
                       {/* Multi-File Upload with Drag & Drop */}
                       <div className="space-y-2">
@@ -559,14 +554,12 @@ const ContractingHubPage = () => {
                   </CardContent>
                 </Card>
               </div>
-
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Caroline Contact Line - Bottom */}
-        <section className="pb-10 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-6xl mx-auto text-center">
+          {/* Caroline Contact Line - Bottom */}
+          <section className="pb-10 px-6 md:px-12 lg:px-20 bg-background">
+            <div className="max-w-4xl mx-auto text-center">
             <p className="text-[12px] text-muted-foreground">
               Need help? Contact Caroline at{" "}
               <a 
