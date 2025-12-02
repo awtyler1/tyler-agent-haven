@@ -56,7 +56,8 @@ async function processDocument(
   jobId: string,
   supabase: any,
   supabaseUrl: string,
-  supabaseAnonKey: string
+  supabaseAnonKey: string,
+  projectOrigin: string
 ): Promise<{ success: boolean; chunksProcessed: number; error?: string }> {
   try {
     console.log(`Starting processing for ${filename}`);
@@ -65,8 +66,8 @@ async function processDocument(
     const pdfjsLib = await import("npm:pdfjs-dist@4.10.38");
     const pdfjsWorker = await import("npm:pdfjs-dist@4.10.38/build/pdf.worker.mjs");
     
-    // Fetch PDF from public folder
-    const pdfUrl = `${supabaseUrl.replace('/rest/v1', '')}/downloads/${filename}`;
+    // Fetch PDF from public folder served by the project
+    const pdfUrl = `${projectOrigin}/downloads/${filename}`;
     const response = await fetch(pdfUrl);
     
     if (!response.ok) {
@@ -157,7 +158,8 @@ async function backgroundProcessDocuments(
   jobId: string,
   supabaseUrl: string,
   supabaseAnonKey: string,
-  supabaseServiceKey: string
+  supabaseServiceKey: string,
+  projectOrigin: string
 ) {
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -185,7 +187,7 @@ async function backgroundProcessDocuments(
       })
       .eq('id', jobId);
 
-    const result = await processDocument(filename, jobId, supabase, supabaseUrl, supabaseAnonKey);
+    const result = await processDocument(filename, jobId, supabase, supabaseUrl, supabaseAnonKey, projectOrigin);
 
     if (result.success) {
       processedCount++;
@@ -218,11 +220,18 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { documents } = await req.json();
+    const { documents, projectOrigin } = await req.json();
     
     if (!documents || !Array.isArray(documents) || documents.length === 0) {
       return new Response(
         JSON.stringify({ error: "No documents provided" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!projectOrigin) {
+      return new Response(
+        JSON.stringify({ error: "Project origin is required" }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -258,7 +267,8 @@ Deno.serve(async (req) => {
         job.id, 
         supabaseUrl, 
         supabaseAnonKey,
-        supabaseServiceKey
+        supabaseServiceKey,
+        projectOrigin
       )
     );
 

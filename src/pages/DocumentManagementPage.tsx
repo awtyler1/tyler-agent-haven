@@ -267,7 +267,10 @@ export default function DocumentManagementPage() {
 
       // Start background job
       const { data, error } = await supabase.functions.invoke('process-documents-background', {
-        body: { documents: unprocessedFiles }
+        body: { 
+          documents: unprocessedFiles,
+          projectOrigin: window.location.origin
+        }
       });
 
       if (error) throw error;
