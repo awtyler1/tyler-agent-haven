@@ -22,137 +22,151 @@ import wellcareLogo from "@/assets/wellcare-logo.jpg";
 import ahipLogo from "@/assets/ahip-logo.png";
 
 type State = "Kentucky" | "Ohio" | "Tennessee" | "Indiana" | "West Virginia" | "Georgia" | "Virginia";
+type Year = "2026" | "2027";
 
 const states: State[] = ["Kentucky", "Ohio", "Tennessee", "Indiana", "West Virginia", "Georgia", "Virginia"];
+const years: Year[] = ["2026", "2027"];
 
-const carrierCertificationsByState: Record<State, Array<{
+const carrierCertificationsByStateAndYear: Record<Year, Record<State, Array<{
   name: string;
   url: string;
   howToCertifyUrl: string;
   howToCertifyTitle: string;
   logo: string;
-}>> = {
-  Kentucky: [
-    {
-      name: "Aetna",
-      url: "https://www.aetna.com/producer_public/login.fcc",
-      howToCertifyUrl: "/downloads/TIG_2026_Aetna_Certification_Instructions.pdf",
-      howToCertifyTitle: "Aetna 2026 Certification Instructions",
-      logo: aetnaLogo,
-    },
-    {
-      name: "Anthem",
-      url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV",
-      howToCertifyUrl: "/downloads/TIG_2026_Anthem_Certification_Instructions.pdf",
-      howToCertifyTitle: "Anthem 2026 Certification Instructions",
-      logo: anthemLogo,
-    },
-    {
-      name: "Devoted",
-      url: "https://agent.devoted.com/",
-      howToCertifyUrl: "/downloads/TIG_2026_Devoted_Certification_Instructions.pdf",
-      howToCertifyTitle: "Devoted 2026 Certification Instructions",
-      logo: devotedLogo,
-    },
-    {
-      name: "Humana",
-      url: "https://account.humana.com/",
-      howToCertifyUrl: "/downloads/TIG_2026_Humana_Certification_Instructions.pdf",
-      howToCertifyTitle: "Humana 2026 Certification Instructions",
-      logo: humanaLogo,
-    },
-    {
-      name: "UnitedHealthcare",
-      url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in",
-      howToCertifyUrl: "/downloads/TIG_2026_UHC_Certification_Instructions.pdf",
-      howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
-      logo: uhcLogo,
-    },
-    {
-      name: "Wellcare",
-      url: "https://www.wellcare.com/Broker-Resources/Broker-Resources",
-      howToCertifyUrl: "",
-      howToCertifyTitle: "Wellcare 2026 Certification Instructions",
-      logo: wellcareLogo,
-    },
-  ],
-  Tennessee: [
-    {
-      name: "Aetna",
-      url: "https://www.aetna.com/producer_public/login.fcc",
-      howToCertifyUrl: "/downloads/TIG_2026_Aetna_Certification_Instructions.pdf",
-      howToCertifyTitle: "Aetna 2026 Certification Instructions",
-      logo: aetnaLogo,
-    },
-    {
-      name: "BlueCross BlueShield of Tennessee",
-      url: "https://www.bcbst.com/providers/",
-      howToCertifyUrl: "",
-      howToCertifyTitle: "BlueCross BlueShield of Tennessee 2026 Certification Instructions",
-      logo: ahipLogo, // PLACEHOLDER - needs actual BCBSTN logo
-    },
-    {
-      name: "Cigna",
-      url: "https://www.cignahealthcarepartners.com/",
-      howToCertifyUrl: "",
-      howToCertifyTitle: "Cigna 2026 Certification Instructions",
-      logo: ahipLogo, // PLACEHOLDER - needs actual Cigna logo
-    },
-    {
-      name: "Devoted Health",
-      url: "https://agent.devoted.com/",
-      howToCertifyUrl: "/downloads/TIG_2026_Devoted_Certification_Instructions.pdf",
-      howToCertifyTitle: "Devoted Health 2026 Certification Instructions",
-      logo: devotedLogo,
-    },
-    {
-      name: "Humana",
-      url: "https://account.humana.com/",
-      howToCertifyUrl: "/downloads/TIG_2026_Humana_Certification_Instructions.pdf",
-      howToCertifyTitle: "Humana 2026 Certification Instructions",
-      logo: humanaLogo,
-    },
-    {
-      name: "UnitedHealthcare",
-      url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in",
-      howToCertifyUrl: "/downloads/TIG_2026_UHC_Certification_Instructions.pdf",
-      howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
-      logo: uhcLogo,
-    },
-    {
-      name: "Wellcare",
-      url: "https://www.wellcare.com/Broker-Resources/Broker-Resources",
-      howToCertifyUrl: "",
-      howToCertifyTitle: "Wellcare 2026 Certification Instructions",
-      logo: wellcareLogo,
-    },
-    {
-      name: "Wellpoint",
-      url: "https://www.elevancehealth.com/",
-      howToCertifyUrl: "",
-      howToCertifyTitle: "Wellpoint 2026 Certification Instructions",
-      logo: ahipLogo, // PLACEHOLDER - needs actual Wellpoint logo
-    },
-    {
-      name: "Zing Health",
-      url: "https://www.zinghealth.com/",
-      howToCertifyUrl: "",
-      howToCertifyTitle: "Zing Health 2026 Certification Instructions",
-      logo: ahipLogo, // PLACEHOLDER - needs actual Zing Health logo
-    },
-  ],
-  Ohio: [],
-  Indiana: [],
-  "West Virginia": [],
-  Georgia: [],
-  Virginia: [],
+}>>> = {
+  "2026": {
+    Kentucky: [
+      {
+        name: "Aetna",
+        url: "https://www.aetna.com/producer_public/login.fcc",
+        howToCertifyUrl: "/downloads/TIG_2026_Aetna_Certification_Instructions.pdf",
+        howToCertifyTitle: "Aetna 2026 Certification Instructions",
+        logo: aetnaLogo,
+      },
+      {
+        name: "Anthem",
+        url: "https://getcertified.elevancehealth.com/medicare/certify?brand=ELV",
+        howToCertifyUrl: "/downloads/TIG_2026_Anthem_Certification_Instructions.pdf",
+        howToCertifyTitle: "Anthem 2026 Certification Instructions",
+        logo: anthemLogo,
+      },
+      {
+        name: "Devoted",
+        url: "https://agent.devoted.com/",
+        howToCertifyUrl: "/downloads/TIG_2026_Devoted_Certification_Instructions.pdf",
+        howToCertifyTitle: "Devoted 2026 Certification Instructions",
+        logo: devotedLogo,
+      },
+      {
+        name: "Humana",
+        url: "https://account.humana.com/",
+        howToCertifyUrl: "/downloads/TIG_2026_Humana_Certification_Instructions.pdf",
+        howToCertifyTitle: "Humana 2026 Certification Instructions",
+        logo: humanaLogo,
+      },
+      {
+        name: "UnitedHealthcare",
+        url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in",
+        howToCertifyUrl: "/downloads/TIG_2026_UHC_Certification_Instructions.pdf",
+        howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
+        logo: uhcLogo,
+      },
+      {
+        name: "Wellcare",
+        url: "https://www.wellcare.com/Broker-Resources/Broker-Resources",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Wellcare 2026 Certification Instructions",
+        logo: wellcareLogo,
+      },
+    ],
+    Tennessee: [
+      {
+        name: "Aetna",
+        url: "https://www.aetna.com/producer_public/login.fcc",
+        howToCertifyUrl: "/downloads/TIG_2026_Aetna_Certification_Instructions.pdf",
+        howToCertifyTitle: "Aetna 2026 Certification Instructions",
+        logo: aetnaLogo,
+      },
+      {
+        name: "BlueCross BlueShield of Tennessee",
+        url: "https://www.bcbst.com/providers/",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "BlueCross BlueShield of Tennessee 2026 Certification Instructions",
+        logo: ahipLogo, // PLACEHOLDER - needs actual BCBSTN logo
+      },
+      {
+        name: "Cigna",
+        url: "https://www.cignahealthcarepartners.com/",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Cigna 2026 Certification Instructions",
+        logo: ahipLogo, // PLACEHOLDER - needs actual Cigna logo
+      },
+      {
+        name: "Devoted Health",
+        url: "https://agent.devoted.com/",
+        howToCertifyUrl: "/downloads/TIG_2026_Devoted_Certification_Instructions.pdf",
+        howToCertifyTitle: "Devoted Health 2026 Certification Instructions",
+        logo: devotedLogo,
+      },
+      {
+        name: "Humana",
+        url: "https://account.humana.com/",
+        howToCertifyUrl: "/downloads/TIG_2026_Humana_Certification_Instructions.pdf",
+        howToCertifyTitle: "Humana 2026 Certification Instructions",
+        logo: humanaLogo,
+      },
+      {
+        name: "UnitedHealthcare",
+        url: "https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in",
+        howToCertifyUrl: "/downloads/TIG_2026_UHC_Certification_Instructions.pdf",
+        howToCertifyTitle: "UnitedHealthcare 2026 Certification Instructions",
+        logo: uhcLogo,
+      },
+      {
+        name: "Wellcare",
+        url: "https://www.wellcare.com/Broker-Resources/Broker-Resources",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Wellcare 2026 Certification Instructions",
+        logo: wellcareLogo,
+      },
+      {
+        name: "Wellpoint",
+        url: "https://www.elevancehealth.com/",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Wellpoint 2026 Certification Instructions",
+        logo: ahipLogo, // PLACEHOLDER - needs actual Wellpoint logo
+      },
+      {
+        name: "Zing Health",
+        url: "https://www.zinghealth.com/",
+        howToCertifyUrl: "",
+        howToCertifyTitle: "Zing Health 2026 Certification Instructions",
+        logo: ahipLogo, // PLACEHOLDER - needs actual Zing Health logo
+      },
+    ],
+    Ohio: [],
+    Indiana: [],
+    "West Virginia": [],
+    Georgia: [],
+    Virginia: [],
+  },
+  "2027": {
+    Kentucky: [],
+    Ohio: [],
+    Tennessee: [],
+    Indiana: [],
+    "West Virginia": [],
+    Georgia: [],
+    Virginia: [],
+  },
 };
 
 const CertificationsPage = () => {
   const [selectedState, setSelectedState] = useState<State>("Kentucky");
+  const [selectedYear, setSelectedYear] = useState<Year>("2026");
   const [pdfPreview, setPdfPreview] = useState<{ title: string; url: string } | null>(null);
 
-  const carrierCertifications = carrierCertificationsByState[selectedState];
+  const carrierCertifications = carrierCertificationsByStateAndYear[selectedYear]?.[selectedState] || [];
 
   const handleDownloadChecklist = () => {
     const doc = new jsPDF();
@@ -189,7 +203,7 @@ const CertificationsPage = () => {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
-    doc.text(`State: ${selectedState}  •  Updated ${new Date().toLocaleDateString()}`, pageWidth / 2, yPos, { align: 'center' });
+    doc.text(`State: ${selectedState}  •  Year: ${selectedYear}  •  Updated ${new Date().toLocaleDateString()}`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 12;
     
     // Title block divider line
@@ -367,7 +381,7 @@ const CertificationsPage = () => {
     doc.text("Tyler Insurance Group • Licensed Agent Platform", pageWidth / 2, footerY + 6, { align: 'center' });
 
     // Save the PDF
-    doc.save(`Certification_Checklist_${selectedState.replace(/\s+/g, '_')}_${new Date().getFullYear()}.pdf`);
+    doc.save(`Certification_Checklist_${selectedYear}_${selectedState.replace(/\s+/g, '_')}.pdf`);
   };
 
   return (
@@ -381,26 +395,43 @@ const CertificationsPage = () => {
           </div>
         </section>
 
-        {/* Orientation Tile + State Filter */}
+        {/* Orientation Tile + State & Year Filters */}
         <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
               <div className="flex items-start justify-between gap-4 mb-2">
                 <h2 className="text-base font-semibold">Annual Medicare Certifications</h2>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">Select State:</span>
-                  <Select value={selectedState} onValueChange={(value) => setSelectedState(value as State)}>
-                    <SelectTrigger className="w-[140px] h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {states.map((state) => (
-                        <SelectItem key={state} value={state} className="text-xs">
-                          {state}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">Year:</span>
+                    <Select value={selectedYear} onValueChange={(value) => setSelectedYear(value as Year)}>
+                      <SelectTrigger className="w-[100px] h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {years.map((year) => (
+                          <SelectItem key={year} value={year} className="text-xs">
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">State:</span>
+                    <Select value={selectedState} onValueChange={(value) => setSelectedState(value as State)}>
+                      <SelectTrigger className="w-[140px] h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {states.map((state) => (
+                          <SelectItem key={state} value={state} className="text-xs">
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground leading-snug">
@@ -441,10 +472,10 @@ const CertificationsPage = () => {
             {carrierCertifications.length === 0 ? (
               <div className="bg-white border border-[#E5E2DB] rounded-lg p-8 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] text-center">
                 <p className="text-sm text-muted-foreground mb-2">
-                  No carrier certifications available for {selectedState} yet.
+                  No carrier certifications available for {selectedState} in {selectedYear} yet.
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Carrier certifications for this state are coming soon.
+                  Carrier certifications for this state and year are coming soon.
                 </p>
               </div>
             ) : (
@@ -506,7 +537,7 @@ const CertificationsPage = () => {
             <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 max-w-xl mx-auto text-center">
               <h3 className="text-base font-semibold mb-2">Annual Certification Checklist</h3>
               <p className="text-xs text-muted-foreground mb-3">
-                Download a checklist for AHIP + {carrierCertifications.length > 0 ? `${carrierCertifications.length} ${selectedState} carriers` : selectedState}
+                Download a checklist for AHIP + {carrierCertifications.length > 0 ? `${carrierCertifications.length} ${selectedState} carriers` : selectedState} ({selectedYear})
               </p>
               <Button 
                 className="bg-gold hover:bg-gold/90 text-white text-sm h-9"
