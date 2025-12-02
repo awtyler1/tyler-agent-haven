@@ -48,9 +48,9 @@ const AgentToolsPage = () => {
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-20 pb-4 md:pt-24 md:pb-5 px-6 md:px-12 lg:px-20">
+        <section className="pt-16 pb-2 md:pt-20 md:pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
-            <h1 className="heading-display mb-2">Agent Tools</h1>
+            <h1 className="heading-display mb-1">Agent Tools</h1>
             <p className="text-body max-w-2xl mx-auto" style={{ color: 'hsl(30 10% 20%)' }}>
               Your command center for quoting, applications, CRM, and essential platforms.
             </p>
@@ -58,27 +58,27 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Carrier Portals - Row 1 */}
-        <section className="pb-3 px-6 md:px-12 lg:px-20">
+        <section className="pb-2 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
               {carrierPortals.map((carrier) => (
                 <a
                   key={carrier.name}
                   href={carrier.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white border border-[#E5E2DB] rounded-lg p-4 flex flex-col items-center text-center shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
+                  className="group bg-white border border-[#E5E2DB] rounded-lg p-3 flex flex-col items-center text-center shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
                 >
-                  <div className="w-20 h-20 mb-3 flex items-center justify-center">
+                  <div className="w-16 h-16 mb-2 flex items-center justify-center">
                     <img 
                       src={carrier.logo} 
                       alt={carrier.name} 
-                      className="max-w-[80px] max-h-[80px] w-auto h-auto object-contain"
+                      className="max-w-[64px] max-h-[64px] w-auto h-auto object-contain"
                     />
                   </div>
-                  <p className="text-xs font-medium text-foreground mb-1">{carrier.name}</p>
-                  <p className="text-[10px] text-gold/70 mb-2">Portal Login →</p>
-                  <ExternalLink className="w-3 h-3 text-gold opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <p className="text-[11px] font-medium text-foreground mb-0.5">{carrier.name}</p>
+                  <p className="text-[9px] text-gold/70 mb-1.5">Portal Login →</p>
+                  <ExternalLink className="w-2.5 h-2.5 text-gold opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
               ))}
             </div>
@@ -86,27 +86,27 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Core Tools - Row 2 */}
-        <section className="pb-3 px-6 md:px-12 lg:px-20">
+        <section className="pb-2 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {coreTools.map((tool) => (
                 <a
                   key={tool.name}
                   href={tool.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white border border-[#E5E2DB] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
+                  className="group bg-white border border-[#E5E2DB] rounded-lg p-4 flex flex-col items-center text-center shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
                 >
-                  <div className="w-20 h-20 mb-4 flex items-center justify-center">
+                  <div className="w-16 h-16 mb-2.5 flex items-center justify-center">
                     <img 
                       src={tool.logo} 
                       alt={tool.name} 
-                      className="max-w-[80px] max-h-[80px] w-auto h-auto object-contain"
+                      className="max-w-[64px] max-h-[64px] w-auto h-auto object-contain"
                     />
                   </div>
-                  <h3 className="text-base font-semibold mb-1">{tool.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{tool.subtitle}</p>
-                  <ExternalLink className="w-4 h-4 text-gold opacity-60 group-hover:opacity-100 transition-opacity" />
+                  <h3 className="text-sm font-semibold mb-0.5">{tool.name}</h3>
+                  <p className="text-xs text-muted-foreground mb-2">{tool.subtitle}</p>
+                  <ExternalLink className="w-3.5 h-3.5 text-gold opacity-60 group-hover:opacity-100 transition-opacity" />
                 </a>
               ))}
             </div>
@@ -114,38 +114,38 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Carrier Resources - Full Width Bar */}
-        <section className="pb-3 px-6 md:px-12 lg:px-20">
+        <section className="pb-2 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <Link
               to="/carrier-resources"
               onClick={() => window.scrollTo(0, 0)}
-              className="group bg-white border border-[#E5E2DB] rounded-lg p-4 flex items-center gap-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
+              className="group bg-white border border-[#E5E2DB] rounded-lg p-3 flex items-center gap-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
-                <FileText className="w-6 h-6 text-gold" />
+              <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
+                <FileText className="w-5 h-5 text-gold" />
               </div>
               <div className="flex-1">
-                <h3 className="text-base font-semibold mb-0.5">Carrier Resources</h3>
-                <p className="text-sm text-muted-foreground">Contacts, Quick Links, Downloads, and Plan Documents</p>
+                <h3 className="text-sm font-semibold mb-0">Carrier Resources</h3>
+                <p className="text-xs text-muted-foreground">Contacts, Quick Links, Downloads, and Plan Documents</p>
               </div>
             </Link>
           </div>
         </section>
 
         {/* Forms Library - Full Width Bar */}
-        <section className="pb-12 px-6 md:px-12 lg:px-20">
+        <section className="pb-6 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <Link
               to="/forms-library"
               onClick={() => window.scrollTo(0, 0)}
-              className="group bg-white border border-[#E5E2DB] rounded-lg p-4 flex items-center gap-5 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
+              className="group bg-white border border-[#E5E2DB] rounded-lg p-3 flex items-center gap-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
-                <FolderOpen className="w-6 h-6 text-gold" />
+              <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
+                <FolderOpen className="w-5 h-5 text-gold" />
               </div>
               <div className="flex-1">
-                <h3 className="text-base font-semibold mb-0.5">Forms Library</h3>
-                <p className="text-sm text-muted-foreground">SOA Forms, CMS Forms, HIPAA Forms, and Essential Client Documents</p>
+                <h3 className="text-sm font-semibold mb-0">Forms Library</h3>
+                <p className="text-xs text-muted-foreground">SOA Forms, CMS Forms, HIPAA Forms, and Essential Client Documents</p>
               </div>
             </Link>
           </div>
