@@ -106,24 +106,28 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "Tyler Insurance Group <austin@tylerinsurancegroup.com>",
+        reply_to: "austin@tylerinsurancegroup.com",
         to: ["caroline@tylerinsurancegroup.com"],
         subject: `New Contracting Packet Submission — ${name.trim()} (NPN ${npn.trim()})`,
         html: `
-          <p>A new contracting packet has been submitted through the Tyler Insurance Group Agent Platform.</p>
-          
-          <h3>Agent Details:</h3>
-          <ul style="list-style-type: none; padding-left: 0;">
-            <li>• <strong>Full Name:</strong> ${name.trim()}</li>
-            <li>• <strong>Email:</strong> ${email?.trim() || "Not provided"}</li>
-            <li>• <strong>NPN:</strong> ${npn.trim()}</li>
-            <li>• <strong>Resident State:</strong> ${residentState.trim()}</li>
-            <li>• <strong>Submitted:</strong> ${submissionTimestamp}</li>
-          </ul>
-          
-          <h3>Documents:</h3>
-          <p>• <strong>Total files attached:</strong> ${files.length}</p>
-          
-          <p>All uploaded documents are attached to this email for review.</p>
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <p style="font-size: 16px; line-height: 1.5; color: #333;">Hi Caroline,</p>
+            
+            <p style="font-size: 16px; line-height: 1.5; color: #333;">A new contracting packet has been submitted through the agent platform.</p>
+            
+            <div style="background: #f8f8f8; border-left: 4px solid #C8A45C; padding: 15px; margin: 20px 0;">
+              <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">Agent Information</h3>
+              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Name:</strong> ${name.trim()}</p>
+              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Email:</strong> ${email?.trim() || "Not provided"}</p>
+              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>NPN:</strong> ${npn.trim()}</p>
+              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>State:</strong> ${residentState.trim()}</p>
+              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Submitted:</strong> ${submissionTimestamp}</p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.5; color: #333;">${files.length} document${files.length !== 1 ? 's' : ''} attached for review.</p>
+            
+            <p style="font-size: 14px; line-height: 1.5; color: #666; margin-top: 30px;">Tyler Insurance Group</p>
+          </div>
         `,
         attachments,
       }),
@@ -148,26 +152,31 @@ const handler = async (req: Request): Promise<Response> => {
         },
         body: JSON.stringify({
           from: "Tyler Insurance Group <austin@tylerinsurancegroup.com>",
+          reply_to: "austin@tylerinsurancegroup.com",
           to: [email.trim()],
           subject: "We Received Your Contracting Packet",
           html: `
-            <p>Hi ${name.trim()},</p>
-            
-            <p>Your contracting packet and documents have been successfully received.</p>
-            
-            <p>Our contracting team reviews all submissions within 2–3 business days. If anything is missing or we need clarification, we'll reach out to you at this email address. You'll also be notified as carriers begin approving you.</p>
-            
-            <p><strong>Once you're approved, you'll be able to:</strong></p>
-            <ul>
-              <li>Submit and track applications</li>
-              <li>Access all carrier portals</li>
-              <li>Use our quoting and enrollment tools</li>
-              <li>Receive commissions without delays</li>
-            </ul>
-            
-            <p>If you have questions at any point, you can contact Caroline at <a href="mailto:caroline@tylerinsurancegroup.com">caroline@tylerinsurancegroup.com</a>.</p>
-            
-            <p>— Tyler Insurance Group Contracting Team</p>
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <p style="font-size: 16px; line-height: 1.6; color: #333;">Hi ${name.trim()},</p>
+              
+              <p style="font-size: 16px; line-height: 1.6; color: #333;">Your contracting packet and documents have been successfully received.</p>
+              
+              <p style="font-size: 16px; line-height: 1.6; color: #333;">Our contracting team reviews all submissions within 2–3 business days. If anything is missing or we need clarification, we'll reach out to you at this email address. You'll also be notified as carriers begin approving you.</p>
+              
+              <div style="background: #f8f8f8; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold; color: #333;">Once you're approved, you'll be able to:</p>
+                <ul style="margin: 10px 0; padding-left: 20px; font-size: 15px; line-height: 1.8; color: #555;">
+                  <li>Submit and track applications</li>
+                  <li>Access all carrier portals</li>
+                  <li>Use our quoting and enrollment tools</li>
+                  <li>Receive commissions without delays</li>
+                </ul>
+              </div>
+              
+              <p style="font-size: 16px; line-height: 1.6; color: #333;">If you have questions at any point, you can contact Caroline at <a href="mailto:caroline@tylerinsurancegroup.com" style="color: #C8A45C; text-decoration: none;">caroline@tylerinsurancegroup.com</a>.</p>
+              
+              <p style="font-size: 14px; line-height: 1.5; color: #666; margin-top: 30px;">Tyler Insurance Group Contracting Team</p>
+            </div>
           `,
         }),
       });
