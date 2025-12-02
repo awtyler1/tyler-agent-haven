@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Download, Mail } from "lucide-react";
+import { CheckCircle, Download, Mail, FileText, Image as ImageIcon, X, Check } from "lucide-react";
 
 const ContractingHubPage = () => {
   const { toast } = useToast();
@@ -311,12 +311,13 @@ const ContractingHubPage = () => {
                   </div>
 
                   {/* Multi-File Upload */}
-                  <div className="space-y-1.5 pt-2">
+                  <div className="space-y-2 pt-2">
                     <Label htmlFor="documents" className="text-sm font-semibold">
                       Upload Documents <span className="text-destructive">*</span>
                     </Label>
                     <p className="text-[12px] text-muted-foreground mb-1.5">
-                      Attach your completed contracting packet and all required documents.
+                      Attach your completed contracting packet and all required documents.<br />
+                      Accepted formats: PDF, JPG, PNG. Multiple files allowed.
                     </p>
                     <Input 
                       id="documents" 
@@ -324,12 +325,62 @@ const ContractingHubPage = () => {
                       accept=".pdf,.jpg,.jpeg,.png" 
                       multiple
                       onChange={(e) => {
-                        const files = Array.from(e.target.files || []);
-                        setFormData(prev => ({ ...prev, files }));
+                        const newFiles = Array.from(e.target.files || []);
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          files: [...prev.files, ...newFiles]
+                        }));
                       }}
                       className="h-10 text-sm" 
                       required 
                     />
+                    
+                    {/* File Preview Chips */}
+                    {formData.files.length > 0 && (
+                      <div className="space-y-2 mt-2">
+                        <div className="flex flex-wrap gap-2">
+                          {formData.files.map((file, index) => {
+                            const isPDF = file.type === 'application/pdf';
+                            const isImage = file.type.startsWith('image/');
+                            
+                            return (
+                              <div
+                                key={`${file.name}-${index}`}
+                                className="flex items-center gap-2 bg-cream/40 border border-gold/20 rounded-md px-3 py-1.5 text-[12px] group hover:border-gold/40 transition-colors"
+                              >
+                                {isPDF ? (
+                                  <FileText className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                ) : isImage ? (
+                                  <ImageIcon className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                ) : (
+                                  <FileText className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                )}
+                                <span className="text-foreground truncate max-w-[200px]">
+                                  {file.name}
+                                </span>
+                                <Check className="w-3 h-3 text-gold flex-shrink-0" />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      files: prev.files.filter((_, i) => i !== index)
+                                    }));
+                                  }}
+                                  className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
+                                  aria-label={`Remove ${file.name}`}
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Documents attached: {formData.files.length} {formData.files.length === 1 ? 'file' : 'files'}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Personal Info Fields */}
