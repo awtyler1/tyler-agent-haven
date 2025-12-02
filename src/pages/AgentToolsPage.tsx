@@ -1,133 +1,137 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { ExternalLink, Monitor } from "lucide-react";
+import { ExternalLink, Building2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import aetnaLogo from "@/assets/aetna-logo.png";
+import anthemLogo from "@/assets/anthem-logo.jpg";
+import devotedLogo from "@/assets/devoted-logo.png";
+import humanaLogo from "@/assets/humana-logo.png";
+import uhcLogo from "@/assets/uhc-logo.png";
+import wellcareLogo from "@/assets/wellcare-logo.jpg";
 import connect4Logo from "@/assets/connect4insurance-logo.png";
 import sunfireLogo from "@/assets/sunfire-logo.png";
 import bossCrmLogo from "@/assets/boss-crm-logo.png";
 
-const toolCards = [
+const carrierPortals = [
+  { name: "Aetna", logo: aetnaLogo, url: "https://www.aetna.com/producer_public/login.fcc" },
+  { name: "Anthem", logo: anthemLogo, url: "https://brokerportal.anthem.com/apps/ptb/login" },
+  { name: "Devoted", logo: devotedLogo, url: "https://agent.devoted.com/" },
+  { name: "Humana", logo: humanaLogo, url: "https://account.humana.com/" },
+  { name: "United Healthcare", logo: uhcLogo, url: "https://www.uhcagent.com" },
+  { name: "Wellcare", logo: wellcareLogo, url: "https://brokerportal.wellcare.com/login" },
+];
+
+const coreTools = [
   {
     name: "Connect4Insurance",
-    description: "Quoting + E-apps. Carrier-agnostic. Fast comparisons.",
-    note: "Use your assigned credentials.",
+    subtitle: "Quoting & E-apps",
     url: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login",
-    icon: Monitor,
     logo: connect4Logo,
   },
   {
     name: "Sunfire",
-    description: "Quoting, enrollment, SOA capture, and plan comparison. Includes MA, PDP, and Med Supp.",
-    note: "Use your assigned login.",
+    subtitle: "Quoting & Enrollment",
     url: "https://www.sunfirematrix.com/app/agent/pfs",
-    icon: Monitor,
     logo: sunfireLogo,
+  },
+  {
+    name: "BOSS CRM",
+    subtitle: "Lead Management",
+    url: "https://fmo.kizen.com/login",
+    logo: bossCrmLogo,
+  },
+  {
+    name: "Carrier Resources",
+    subtitle: "Plans & Documents",
+    link: "/carrier-resources",
+    icon: Building2,
   },
 ];
 
 const AgentToolsPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: '#FDFBF7' }}>
       <Navigation />
       <main>
         {/* Hero */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
-          <div className="container-narrow">
-            <h1 className="heading-display mb-4">Agent Tools</h1>
-            <p className="text-body max-w-2xl">
+        <section className="pt-20 pb-6 md:pt-24 md:pb-8 px-6 md:px-12 lg:px-20">
+          <div className="container-narrow text-center">
+            <h1 className="heading-display mb-2">Agent Tools</h1>
+            <p className="text-body max-w-2xl mx-auto" style={{ color: 'hsl(30 10% 20%)' }}>
               Your command center for quoting, applications, CRM, and essential platforms.
             </p>
           </div>
         </section>
 
-        {/* Quoting Tools */}
-        <section className="section-padding">
+        {/* Carrier Portals - Row 1 */}
+        <section className="pb-4 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-10">
-              <h2 className="heading-section mb-2">Quoting & Enrollment Platforms</h2>
-              <p className="text-body">
-                Use these platforms to run quotes, compare plans, submit applications, and review member details.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {toolCards.map((tool) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {carrierPortals.map((carrier) => (
                 <a
-                  key={tool.name}
-                  href={tool.url}
+                  key={carrier.name}
+                  href={carrier.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group card-premium hover:border-gold transition-smooth block"
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-4 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
                 >
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-20 h-14 rounded-lg bg-cream flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {tool.logo ? (
-                        <img src={tool.logo} alt={tool.name} className="w-full h-full object-contain" />
-                      ) : (
-                        <tool.icon className="w-6 h-6 text-gold" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-subsection mb-1">{tool.name}</h3>
-                      <p className="text-body-small">{tool.description}</p>
-                    </div>
+                  <div className="w-full h-12 mb-3 flex items-center justify-center">
+                    <img 
+                      src={carrier.logo} 
+                      alt={carrier.name} 
+                      className="max-w-full max-h-full object-contain"
+                    />
                   </div>
-                  
-                  <p className="text-xs text-muted-foreground mb-6">{tool.note}</p>
-                  
-                  <div className="flex items-center justify-between pt-6 border-t border-border">
-                    <span className="btn-primary-gold inline-flex items-center gap-2 group-hover:bg-gold/90">
-                      Open {tool.name}
-                      <ExternalLink size={14} />
-                    </span>
-                  </div>
+                  <p className="text-xs font-medium text-foreground mb-2">{carrier.name}</p>
+                  <ExternalLink className="w-3 h-3 text-gold opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CRM Section */}
-        <section className="section-padding bg-cream">
+        {/* Core Tools - Row 2 */}
+        <section className="pb-16 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="border-l-4 border-gold pl-6 mb-10">
-              <h2 className="heading-section mb-2">CRM Access</h2>
-              <p className="text-body">
-                Manage your leads, track activity, log applications, and monitor your pipeline through our CRM.
-              </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {coreTools.map((tool) => (
+                tool.link ? (
+                  <Link
+                    key={tool.name}
+                    to={tool.link}
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+                  >
+                    <div className="w-16 h-16 mb-4 flex items-center justify-center rounded-lg bg-gold/8 group-hover:bg-gold/17 transition-colors">
+                      {tool.icon && <tool.icon className="w-7 h-7 text-gold" />}
+                    </div>
+                    <h3 className="text-base font-semibold mb-1">{tool.name}</h3>
+                    <p className="text-sm text-muted-foreground">{tool.subtitle}</p>
+                  </Link>
+                ) : (
+                  <a
+                    key={tool.name}
+                    href={tool.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+                  >
+                    <div className="w-16 h-16 mb-4 flex items-center justify-center overflow-hidden rounded-lg bg-cream/50">
+                      {tool.logo && (
+                        <img 
+                          src={tool.logo} 
+                          alt={tool.name} 
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      )}
+                    </div>
+                    <h3 className="text-base font-semibold mb-1">{tool.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-3">{tool.subtitle}</p>
+                    <ExternalLink className="w-4 h-4 text-gold opacity-60 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                )
+              ))}
             </div>
-
-            <a
-              href="https://fmo.kizen.com/login"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group card-premium hover:border-gold transition-smooth block max-w-xl"
-            >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-20 h-14 rounded-lg bg-background flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  <img src={bossCrmLogo} alt="BOSS CRM" className="w-full h-full object-contain" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="heading-subsection mb-1">BOSS CRM</h3>
-                  <p className="text-body-small">
-                    Lead management. Pipeline tracking. Client retention tools. Activity logging.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between pt-6 border-t border-border">
-                <span className="btn-primary-gold inline-flex items-center gap-2 group-hover:bg-gold/90">
-                  Open BOSS CRM
-                  <ExternalLink size={14} />
-                </span>
-                <a 
-                  href="/contact" 
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-xs text-gold hover:underline"
-                >
-                  Need help logging in?
-                </a>
-              </div>
-            </a>
           </div>
         </section>
       </main>
