@@ -110,9 +110,9 @@ const AgentToolsPage = () => {
                     href={carrier.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group bg-white border border-[#D4CFC4] rounded-lg p-2.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[3px] transition-all duration-140 ease-in-out"
+                    className="group bg-white border border-[#D4CFC4] rounded-lg p-2.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[3px] transition-all duration-140 ease-in-out min-h-[140px]"
                   >
-                    <div className="w-[76px] h-[76px] mb-1.5 flex items-center justify-center">
+                    <div className="w-[76px] h-[76px] mb-1.5 flex items-center justify-center flex-shrink-0">
                       <img 
                         src={carrier.logo} 
                         alt={carrier.name} 
@@ -120,16 +120,16 @@ const AgentToolsPage = () => {
                         style={{ filter: 'brightness(0.98) contrast(1.02)' }}
                       />
                     </div>
-                    <p className="text-[11px] font-medium text-foreground mb-0.5">{carrier.name}</p>
-                    <p className="text-[9px] text-gold/70 mb-1">Portal Login →</p>
-                    <ExternalLink className="w-2.5 h-2.5 text-gold opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <p className="text-[11px] font-medium text-foreground mb-0.5 leading-tight">{carrier.name}</p>
+                    <p className="text-[9px] text-gold/70 mb-1 leading-tight">Portal Login →</p>
+                    <ExternalLink className="w-2.5 h-2.5 text-gold opacity-0 group-hover:opacity-100 transition-opacity mt-auto" />
                   </a>
                 ) : (
                   <div
                     key={carrier.name}
-                    className="bg-white/60 border border-[#D4CFC4] rounded-lg p-2.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] opacity-50 cursor-not-allowed"
+                    className="bg-white/60 border border-[#D4CFC4] rounded-lg p-2.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] opacity-50 cursor-not-allowed min-h-[140px]"
                   >
-                    <div className="w-[76px] h-[76px] mb-1.5 flex items-center justify-center">
+                    <div className="w-[76px] h-[76px] mb-1.5 flex items-center justify-center flex-shrink-0">
                       <img 
                         src={carrier.logo} 
                         alt={carrier.name} 
@@ -137,8 +137,8 @@ const AgentToolsPage = () => {
                         style={{ filter: 'brightness(0.98) contrast(1.02) grayscale(100%)' }}
                       />
                     </div>
-                    <p className="text-[11px] font-medium text-foreground/60 mb-0.5">{carrier.name}</p>
-                    <p className="text-[9px] text-red-600/70 mb-1">Not Available</p>
+                    <p className="text-[11px] font-medium text-foreground/60 mb-0.5 leading-tight">{carrier.name}</p>
+                    <p className="text-[9px] text-red-600/70 mb-1 leading-tight">Not Available</p>
                   </div>
                 )
               )}
