@@ -112,8 +112,12 @@ const CarrierPlansPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Kentucky">Kentucky</SelectItem>
-                    <SelectItem value="Ohio" disabled>Ohio (Coming Soon)</SelectItem>
+                    <SelectItem value="Ohio">Ohio</SelectItem>
                     <SelectItem value="Tennessee">Tennessee</SelectItem>
+                    <SelectItem value="Indiana">Indiana</SelectItem>
+                    <SelectItem value="West Virginia">West Virginia</SelectItem>
+                    <SelectItem value="Georgia">Georgia</SelectItem>
+                    <SelectItem value="Virginia">Virginia</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
