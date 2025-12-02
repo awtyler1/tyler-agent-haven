@@ -5,12 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Download, Mail, FileText, Image as ImageIcon, X, Check, HelpCircle, Upload } from "lucide-react";
+import { CheckCircle, Download, FileText, Image as ImageIcon, X, Check, HelpCircle, Upload } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ContractingHubPage = () => {
@@ -213,128 +211,439 @@ const ContractingHubPage = () => {
       <Navigation />
       
       <main>
-        {/* Hero - Dashboard Style */}
-        <section className="pt-20 pb-4 md:pt-24 md:pb-5 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="container-narrow text-center">
-            <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-1.5">
+        {/* Hero - Compact */}
+        <section className="pt-20 pb-3 md:pt-24 md:pb-4 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-5xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-2">
               Contracting Hub
             </h1>
-            <p className="text-[15px] md:text-[17px] text-foreground max-w-2xl mx-auto">
-              Your three-step path to completing contracting with Tyler Insurance Group.
+            <p className="text-[15px] md:text-[17px] text-muted-foreground">
+              Your direct path to completing contracting with Tyler Insurance Group.
             </p>
           </div>
         </section>
 
-        {/* Three Steps - Side by Side Above the Fold */}
-        <section className="py-4 px-6 md:px-12 lg:px-16 bg-background">
-          <div className="max-w-[90%] mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
+        {/* Compact Horizontal Step Indicator */}
+        <section className="pb-6 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex items-center justify-center gap-3 text-[13px] md:text-sm text-muted-foreground font-medium">
+              <span>Step 1: Gather Documents</span>
+              <span className="text-gold">|</span>
+              <span>Step 2: Download Packet</span>
+              <span className="text-gold">|</span>
+              <span>Step 3: Upload & Submit</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Two-Column Layout - Steps 1 & 2 (Left) + Step 3 Form (Right) */}
+        <section className="pb-8 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               
-              {/* Step 1: Required Documents */}
-              <Card className="border-gold/20 bg-card h-full">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-semibold text-base">1</span>
+              {/* LEFT COLUMN: Steps 1 & 2 */}
+              <div className="space-y-6">
+                
+                {/* Step 1: Gather Required Documents */}
+                <div>
+                  <h2 className="text-lg font-bold text-foreground mb-3">
+                    Step 1: Gather Required Documents
+                  </h2>
+                  <div className="space-y-2.5 text-[13px]">
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">State insurance license</span>
                     </div>
-                    <h2 className="text-[19px] font-semibold text-foreground">
-                      Gather Documents
-                    </h2>
-                  </div>
-                  
-                  <div className="space-y-[0.35em]">
-                    {requiredDocuments.map((doc, index) => (
-                      <div key={index} className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                        <span className="text-[13px] text-foreground leading-snug">{doc.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border">
-                    Having these ready prevents delays.
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Step 2: Download Packet */}
-              <Card className="border-gold/20 bg-card h-full">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-semibold text-base">2</span>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">E&O certificate with your correct name</span>
                     </div>
-                    <h2 className="text-[19px] font-semibold text-foreground">
-                      Download Packet
-                    </h2>
-                  </div>
-                  
-                  <div className="space-y-2.5">
-                    <Button 
-                      onClick={() => setIsPdfModalOpen(true)}
-                      className="w-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-4 text-sm"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Packet (PDF)
-                    </Button>
-                    
-                    <div className="space-y-1.5 pt-1">
-                      <p className="text-[13px] text-foreground font-medium">Instructions:</p>
-                      <ul className="space-y-[0.35em] text-[11px] text-muted-foreground">
-                        <li>• Complete all pages and sign</li>
-                        <li>• SelectHealth section is optional</li>
-                        <li>• Replace sample E&O with yours</li>
-                        <li>• Answer all legal questions truthfully</li>
-                        <li>• Include written explanations for any "Yes" answers</li>
-                      </ul>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">Voided check (personal or corporate)</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">AML certificate (and CE if your state requires it)</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">Explanation documents for any "Yes" answers in the legal section</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <span className="text-foreground">Corporate license + corporate bank info (if contracting as an agency)</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              {/* Step 3: Upload Form - Compact */}
-              <Card className="border-gold/20 bg-card h-full">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-gold font-semibold text-base">3</span>
-                    </div>
-                    <h2 className="text-[19px] font-semibold text-foreground">
-                      Submit Packet
-                    </h2>
-                  </div>
-
-                  <p className="text-[13px] text-muted-foreground mb-2.5">
-                    Complete the form below with your info and upload all required documents.
-                  </p>
-
-                  <a 
-                    href="#upload-form"
-                    className="block w-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-4 rounded-md text-center transition-colors text-sm"
+                {/* Step 2: Download Contracting Packet */}
+                <div>
+                  <h2 className="text-lg font-bold text-foreground mb-3">
+                    Step 2: Download Contracting Packet
+                  </h2>
+                  <Button 
+                    onClick={() => setIsPdfModalOpen(true)}
+                    className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-5 text-sm shadow-sm hover:shadow-md transition-all"
                   >
-                    Go to Upload Form →
-                  </a>
-
-                  <div className="mt-2.5 pt-2.5 border-t border-border">
-                    <p className="text-[11px] font-medium text-foreground mb-1.5">What Happens Next:</p>
-                    <ul className="space-y-[0.35em] text-[11px] text-muted-foreground">
-                      <li>• Review within 2-3 business days</li>
-                      <li>• We'll email if anything is missing</li>
-                      <li>• Notification when carriers approve</li>
-                      <li>• Begin writing business immediately</li>
-                    </ul>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Contracting Packet (PDF)
+                  </Button>
+                  <div className="mt-3 text-[12px] text-muted-foreground space-y-1">
+                    <p>Complete all pages and sign where indicated.</p>
+                    <p>Replace the sample E&O page with your own certificate.</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: Step 3 Upload Form */}
+              <div>
+                <h2 className="text-lg font-bold text-foreground mb-4">
+                  Step 3: Upload Your Completed Packet
+                </h2>
+                
+                <Card className="border-gold/30 bg-card shadow-md">
+                  <CardContent className="pt-5 pb-5 px-5">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      
+                      {/* Required Document Checklist */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-bold text-foreground">Required Documents:</Label>
+                        <div className="space-y-1.5 text-[11px] text-muted-foreground pl-2">
+                          {requiredDocuments.map((doc, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <span className="text-gold">□</span>
+                              <span className="flex-1 leading-relaxed">{doc.text}</span>
+                              <span className="text-[10px] text-gold/80 font-semibold bg-gold/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                                {doc.tag}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Multi-File Upload with Drag & Drop */}
+                      <div className="space-y-2 pt-2">
+                        <div className="flex items-center gap-1.5">
+                          <Label htmlFor="documents" className="text-sm font-bold">
+                            Upload Documents <span className="text-destructive">*</span>
+                          </Label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground cursor-help hover:text-gold transition-colors" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs text-[11px]">
+                                <p>If you're unsure which documents to include, refer to the checklist above or email Caroline at caroline@tylerinsurancegroup.com</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground/90">
+                          Attach your completed contracting packet and all required documents. Accepted formats: PDF, JPG, PNG.
+                        </p>
+                        
+                        {/* Drag & Drop Upload Area */}
+                        <div 
+                          className={`relative border-2 border-dashed rounded-lg transition-all ${
+                            isDragging 
+                              ? 'border-gold bg-gold/10 shadow-sm' 
+                              : 'border-gold/40 hover:border-gold/60 bg-cream/30'
+                          }`}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                        >
+                          <Input 
+                            id="documents" 
+                            type="file" 
+                            accept=".pdf,.jpg,.jpeg,.png" 
+                            multiple
+                            onChange={(e) => {
+                              const newFiles = Array.from(e.target.files || []);
+                              handleFileChange(newFiles);
+                              e.target.value = '';
+                            }}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            required={formData.files.length === 0}
+                          />
+                          <div className="h-20 px-3 py-3 flex flex-col items-center justify-center text-center cursor-pointer">
+                            <Upload className="w-4 h-4 text-gold mb-1.5" />
+                            <p className="text-[12px] text-foreground font-semibold mb-0.5">
+                              Drag and drop files here or click to browse
+                            </p>
+                            <p className="text-[10px] text-muted-foreground/80">
+                              PDF, JPG, PNG accepted
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* File Preview Chips */}
+                        {formData.files.length > 0 && (
+                          <div className="space-y-2.5 mt-2.5">
+                            <div className="flex flex-wrap gap-2">
+                              {formData.files.map((file, index) => {
+                                const isPDF = file.type === 'application/pdf';
+                                const isImage = file.type.startsWith('image/');
+                                
+                                return (
+                                  <div
+                                    key={`${file.name}-${index}`}
+                                    className="flex items-center gap-2 bg-cream/70 border border-gold/40 rounded-lg px-2.5 py-1.5 text-[11px] group hover:border-gold/60 hover:shadow-sm transition-all"
+                                  >
+                                    {isPDF ? (
+                                      <FileText className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                    ) : isImage ? (
+                                      <ImageIcon className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                    ) : (
+                                      <FileText className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                                    )}
+                                    <span className="text-foreground font-semibold truncate max-w-[140px]">
+                                      {file.name}
+                                    </span>
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-3.5 h-3.5 rounded-full bg-green-500 flex items-center justify-center">
+                                        <Check className="w-2 h-2 text-white flex-shrink-0" />
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setFormData(prev => ({
+                                          ...prev,
+                                          files: prev.files.filter((_, i) => i !== index)
+                                        }));
+                                      }}
+                                      className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                                      aria-label={`Remove ${file.name}`}
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            <p className="text-[10px] text-muted-foreground">
+                              Documents attached: {formData.files.length} {formData.files.length === 1 ? 'file' : 'files'}
+                            </p>
+                          </div>
+                        )}
+                        {validationErrors.files && (
+                          <p className="text-[10px] text-destructive mt-1">{validationErrors.files}</p>
+                        )}
+                      </div>
+
+                      {/* Personal Info Fields */}
+                      <div className="grid grid-cols-1 gap-3.5 pt-2">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="name" className="text-sm font-semibold">Full Name <span className="text-destructive">*</span></Label>
+                          <Input
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            placeholder="Enter your full legal name"
+                            className="h-9 rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="email" className="text-sm font-semibold">Email <span className="text-destructive">*</span></Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder="your@email.com"
+                            className="h-9 rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
+                            required
+                          />
+                          {validationErrors.email && (
+                            <p className="text-[10px] text-destructive">{validationErrors.email}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="npn" className="text-sm font-semibold">NPN <span className="text-destructive">*</span></Label>
+                          <Input
+                            id="npn"
+                            name="npn"
+                            value={formData.npn}
+                            onChange={handleInputChange}
+                            placeholder="Enter your NPN"
+                            className="h-9 rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
+                            required
+                          />
+                          {validationErrors.npn && (
+                            <p className="text-[10px] text-destructive">{validationErrors.npn}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="residentState" className="text-sm font-semibold">Resident State <span className="text-destructive">*</span></Label>
+                          <select
+                            id="residentState"
+                            name="residentState"
+                            value={formData.residentState}
+                            onChange={handleInputChange}
+                            className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-gold/40 focus:border-gold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-muted-foreground/70"
+                            required
+                          >
+                            <option value="">Select state</option>
+                            <option value="AL">Alabama</option>
+                            <option value="AK">Alaska</option>
+                            <option value="AZ">Arizona</option>
+                            <option value="AR">Arkansas</option>
+                            <option value="CA">California</option>
+                            <option value="CO">Colorado</option>
+                            <option value="CT">Connecticut</option>
+                            <option value="DE">Delaware</option>
+                            <option value="DC">District of Columbia</option>
+                            <option value="FL">Florida</option>
+                            <option value="GA">Georgia</option>
+                            <option value="HI">Hawaii</option>
+                            <option value="ID">Idaho</option>
+                            <option value="IL">Illinois</option>
+                            <option value="IN">Indiana</option>
+                            <option value="IA">Iowa</option>
+                            <option value="KS">Kansas</option>
+                            <option value="KY">Kentucky</option>
+                            <option value="LA">Louisiana</option>
+                            <option value="ME">Maine</option>
+                            <option value="MD">Maryland</option>
+                            <option value="MA">Massachusetts</option>
+                            <option value="MI">Michigan</option>
+                            <option value="MN">Minnesota</option>
+                            <option value="MS">Mississippi</option>
+                            <option value="MO">Missouri</option>
+                            <option value="MT">Montana</option>
+                            <option value="NE">Nebraska</option>
+                            <option value="NV">Nevada</option>
+                            <option value="NH">New Hampshire</option>
+                            <option value="NJ">New Jersey</option>
+                            <option value="NM">New Mexico</option>
+                            <option value="NY">New York</option>
+                            <option value="NC">North Carolina</option>
+                            <option value="ND">North Dakota</option>
+                            <option value="OH">Ohio</option>
+                            <option value="OK">Oklahoma</option>
+                            <option value="OR">Oregon</option>
+                            <option value="PA">Pennsylvania</option>
+                            <option value="RI">Rhode Island</option>
+                            <option value="SC">South Carolina</option>
+                            <option value="SD">South Dakota</option>
+                            <option value="TN">Tennessee</option>
+                            <option value="TX">Texas</option>
+                            <option value="UT">Utah</option>
+                            <option value="VT">Vermont</option>
+                            <option value="VA">Virginia</option>
+                            <option value="WA">Washington</option>
+                            <option value="WV">West Virginia</option>
+                            <option value="WI">Wisconsin</option>
+                            <option value="WY">Wyoming</option>
+                          </select>
+                          {validationErrors.state && (
+                            <p className="text-[10px] text-destructive">{validationErrors.state}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Quick Review Summary */}
+                      {(formData.name || formData.email || formData.npn || formData.residentState || formData.files.length > 0) && (
+                        <div className="pt-4 mt-4 border-t border-border">
+                          <h3 className="text-sm font-bold text-foreground mb-2.5">Quick Review</h3>
+                          <div className="space-y-1.5 text-[11px]">
+                            {formData.name && (
+                              <div className="flex gap-2">
+                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">Full Name:</span>
+                                <span className="text-foreground font-semibold">{formData.name}</span>
+                              </div>
+                            )}
+                            {formData.email && (
+                              <div className="flex gap-2">
+                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">Email:</span>
+                                <span className="text-foreground font-semibold">{formData.email}</span>
+                              </div>
+                            )}
+                            {formData.npn && (
+                              <div className="flex gap-2">
+                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">NPN:</span>
+                                <span className="text-foreground font-semibold">{formData.npn}</span>
+                              </div>
+                            )}
+                            {formData.residentState && (
+                              <div className="flex gap-2">
+                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">Resident State:</span>
+                                <span className="text-foreground font-semibold">{formData.residentState}</span>
+                              </div>
+                            )}
+                            {formData.files.length > 0 && (
+                              <div className="flex gap-2">
+                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">Documents:</span>
+                                <span className="text-foreground font-semibold">{formData.files.length} {formData.files.length === 1 ? 'file' : 'files'} attached</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Post-Submission Success Message */}
+                      {isSubmitted && (
+                        <div className="pt-4 mt-4 border-t border-gold/30 bg-gold/5 -mx-5 px-5 py-4 rounded-lg animate-fade-in">
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 animate-scale-in">
+                              <Check className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-foreground mb-1">
+                                Contracting packet submitted successfully
+                              </p>
+                              <p className="text-[11px] text-muted-foreground/90">
+                                We will review your documents within 2–3 business days and email you if anything is missing.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Submit Button */}
+                      {!isSubmitted && (
+                        <div className="pt-3 flex flex-col items-center gap-2.5">
+                          <Button 
+                            type="submit" 
+                            className={`w-full font-bold py-4 text-sm rounded-lg transition-all ${
+                              isFormComplete
+                                ? 'bg-gold hover:bg-gold/90 text-charcoal shadow-md hover:shadow-lg'
+                                : 'bg-muted hover:bg-muted text-muted-foreground'
+                            }`}
+                            disabled={isSubmitting}
+                          >
+                            {isSubmitting ? "Submitting..." : "Submit Contracting Packet →"}
+                          </Button>
+                          
+                          <p className="text-[10px] text-muted-foreground/80 text-center">
+                            We review submissions within 2–3 business days.<br />
+                            We'll email you if anything is missing.
+                          </p>
+                        </div>
+                      )}
+
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
 
             </div>
           </div>
         </section>
 
-        {/* Support Line - Below Cards */}
-        <section className="py-4 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="text-center">
-            <p className="text-[13px] text-muted-foreground">
+        {/* Caroline Contact Line - Bottom */}
+        <section className="pb-8 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-5xl mx-auto text-center">
+            <p className="text-[12px] text-muted-foreground">
               Need help? Contact Caroline at{" "}
               <a 
                 href="mailto:caroline@tylerinsurancegroup.com"
@@ -343,379 +652,6 @@ const ContractingHubPage = () => {
                 caroline@tylerinsurancegroup.com
               </a>
             </p>
-          </div>
-        </section>
-
-        {/* Upload Form - Compact Card */}
-        <section id="upload-form" className="py-6 md:py-7 px-6 md:px-12 lg:px-20 bg-cream/20">
-          <div className="container-narrow max-w-2xl">
-            <div className="text-center mb-3">
-              <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-1.5">
-                Step 3: Upload Your Completed Packet
-              </h2>
-              <p className="text-[13px] text-muted-foreground">
-                Fill out the form below and upload all required documents.
-              </p>
-            </div>
-
-            <Card className="border-gold/30 bg-card shadow-md">
-              <CardContent className="pt-6 pb-6 px-6">
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  
-                  {/* Required Document Checklist */}
-                  <div className="space-y-2.5">
-                    <Label className="text-sm font-bold text-foreground">Required Documents:</Label>
-                    <div className="space-y-2 text-[12px] text-muted-foreground pl-3">
-                      {requiredDocuments.map((doc, index) => (
-                        <div key={index} className="flex items-start gap-2.5">
-                          <span className="text-gold">□</span>
-                          <span className="flex-1 leading-relaxed">{doc.text}</span>
-                          <span className="text-[10px] text-gold/80 font-semibold bg-gold/10 px-2 py-0.5 rounded-full whitespace-nowrap">
-                            {doc.tag}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Multi-File Upload with Drag & Drop */}
-                  <div className="space-y-2.5 pt-2">
-                    <div className="flex items-center gap-1.5">
-                      <Label htmlFor="documents" className="text-sm font-bold">
-                        Upload Documents <span className="text-destructive">*</span>
-                      </Label>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="w-3.5 h-3.5 text-muted-foreground cursor-help hover:text-gold transition-colors" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs text-[11px]">
-                            <p>If you're unsure which documents to include, refer to the checklist above or email Caroline at caroline@tylerinsurancegroup.com</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <p className="text-[12px] text-muted-foreground/90 mb-2">
-                      Attach your completed contracting packet and all required documents.<br />
-                      Accepted formats: PDF, JPG, PNG. Multiple files allowed.
-                    </p>
-                    
-                    {/* Drag & Drop Upload Area */}
-                    <div 
-                      className={`relative border-2 border-dashed rounded-lg transition-all ${
-                        isDragging 
-                          ? 'border-gold bg-gold/10 shadow-sm' 
-                          : 'border-gold/40 hover:border-gold/60 bg-cream/30'
-                      }`}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                    >
-                      <Input 
-                        id="documents" 
-                        type="file" 
-                        accept=".pdf,.jpg,.jpeg,.png" 
-                        multiple
-                        onChange={(e) => {
-                          const newFiles = Array.from(e.target.files || []);
-                          handleFileChange(newFiles);
-                          e.target.value = '';
-                        }}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                        required={formData.files.length === 0}
-                      />
-                      <div className="h-24 px-4 py-4 flex flex-col items-center justify-center text-center cursor-pointer">
-                        <Upload className="w-5 h-5 text-gold mb-2" />
-                        <p className="text-sm text-foreground font-semibold mb-1">
-                          Drag and drop files here or click to browse
-                        </p>
-                        <p className="text-[11px] text-muted-foreground/80">
-                          PDF, JPG, PNG accepted
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* File Preview Chips */}
-                    {formData.files.length > 0 && (
-                      <div className="space-y-3 mt-3">
-                        <div className="flex flex-wrap gap-2">
-                          {formData.files.map((file, index) => {
-                            const isPDF = file.type === 'application/pdf';
-                            const isImage = file.type.startsWith('image/');
-                            
-                            return (
-                              <div
-                                key={`${file.name}-${index}`}
-                                className="flex items-center gap-2 bg-cream/70 border border-gold/40 rounded-lg px-3 py-2 text-[12px] group hover:border-gold/60 hover:shadow-sm transition-all"
-                              >
-                                {isPDF ? (
-                                  <FileText className="w-4 h-4 text-gold flex-shrink-0" />
-                                ) : isImage ? (
-                                  <ImageIcon className="w-4 h-4 text-gold flex-shrink-0" />
-                                ) : (
-                                  <FileText className="w-4 h-4 text-gold flex-shrink-0" />
-                                )}
-                                <span className="text-foreground font-semibold truncate max-w-[180px]">
-                                  {file.name}
-                                </span>
-                                <div className="flex items-center gap-1 ml-1">
-                                  <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
-                                    <Check className="w-2.5 h-2.5 text-white flex-shrink-0" />
-                                  </div>
-                                  <span className="text-[10px] text-green-600 font-semibold">Uploaded</span>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      files: prev.files.filter((_, i) => i !== index)
-                                    }));
-                                  }}
-                                  className="ml-1 text-muted-foreground hover:text-destructive transition-colors"
-                                  aria-label={`Remove ${file.name}`}
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        
-                        {/* File Count Indicator with Progress Bar */}
-                        <div className="space-y-1.5">
-                          <p className="text-[11px] text-muted-foreground">
-                            We typically expect at least 4–5 files (packet, license, E&O, voided check, AML, etc.).
-                          </p>
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-[11px] text-foreground font-medium">
-                              Documents attached: {formData.files.length} {formData.files.length === 1 ? 'file' : 'files'}
-                            </span>
-                            <div className="flex gap-1">
-                              {[1, 2, 3, 4, 5].map((segment) => (
-                                <div
-                                  key={segment}
-                                  className={`w-6 h-1.5 rounded-full transition-colors ${
-                                    formData.files.length >= segment
-                                      ? 'bg-gold'
-                                      : 'bg-border'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    {validationErrors.files && (
-                      <p className="text-[11px] text-destructive mt-1">{validationErrors.files}</p>
-                    )}
-                  </div>
-
-                  {/* Personal Info Fields */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="name" className="text-sm font-semibold">Full Name <span className="text-destructive">*</span></Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Enter your full legal name"
-                        className="h-10 rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label htmlFor="email" className="text-sm font-semibold">Email <span className="text-destructive">*</span></Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="your@email.com"
-                        className="h-10 rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
-                        required
-                      />
-                      {validationErrors.email && (
-                        <p className="text-[11px] text-destructive">{validationErrors.email}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="npn" className="text-sm font-semibold">NPN <span className="text-destructive">*</span></Label>
-                      <Input
-                        id="npn"
-                        name="npn"
-                        value={formData.npn}
-                        onChange={handleInputChange}
-                        placeholder="Enter your NPN"
-                        className="h-10 rounded-lg border-input hover:border-gold/40 focus:border-gold transition-colors placeholder:text-muted-foreground/70"
-                        required
-                      />
-                      {validationErrors.npn && (
-                        <p className="text-[11px] text-destructive">{validationErrors.npn}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label htmlFor="residentState" className="text-sm font-semibold">Resident State <span className="text-destructive">*</span></Label>
-                      <select
-                        id="residentState"
-                        name="residentState"
-                        value={formData.residentState}
-                        onChange={handleInputChange}
-                        className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors hover:border-gold/40 focus:border-gold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-muted-foreground/70"
-                        required
-                      >
-                        <option value="">Select state</option>
-                        <option value="AL">Alabama</option>
-                        <option value="AK">Alaska</option>
-                        <option value="AZ">Arizona</option>
-                        <option value="AR">Arkansas</option>
-                        <option value="CA">California</option>
-                        <option value="CO">Colorado</option>
-                        <option value="CT">Connecticut</option>
-                        <option value="DE">Delaware</option>
-                        <option value="DC">District of Columbia</option>
-                        <option value="FL">Florida</option>
-                        <option value="GA">Georgia</option>
-                        <option value="HI">Hawaii</option>
-                        <option value="ID">Idaho</option>
-                        <option value="IL">Illinois</option>
-                        <option value="IN">Indiana</option>
-                        <option value="IA">Iowa</option>
-                        <option value="KS">Kansas</option>
-                        <option value="KY">Kentucky</option>
-                        <option value="LA">Louisiana</option>
-                        <option value="ME">Maine</option>
-                        <option value="MD">Maryland</option>
-                        <option value="MA">Massachusetts</option>
-                        <option value="MI">Michigan</option>
-                        <option value="MN">Minnesota</option>
-                        <option value="MS">Mississippi</option>
-                        <option value="MO">Missouri</option>
-                        <option value="MT">Montana</option>
-                        <option value="NE">Nebraska</option>
-                        <option value="NV">Nevada</option>
-                        <option value="NH">New Hampshire</option>
-                        <option value="NJ">New Jersey</option>
-                        <option value="NM">New Mexico</option>
-                        <option value="NY">New York</option>
-                        <option value="NC">North Carolina</option>
-                        <option value="ND">North Dakota</option>
-                        <option value="OH">Ohio</option>
-                        <option value="OK">Oklahoma</option>
-                        <option value="OR">Oregon</option>
-                        <option value="PA">Pennsylvania</option>
-                        <option value="RI">Rhode Island</option>
-                        <option value="SC">South Carolina</option>
-                        <option value="SD">South Dakota</option>
-                        <option value="TN">Tennessee</option>
-                        <option value="TX">Texas</option>
-                        <option value="UT">Utah</option>
-                        <option value="VT">Vermont</option>
-                        <option value="VA">Virginia</option>
-                        <option value="WA">Washington</option>
-                        <option value="WV">West Virginia</option>
-                        <option value="WI">Wisconsin</option>
-                        <option value="WY">Wyoming</option>
-                      </select>
-                      {validationErrors.state && (
-                        <p className="text-[11px] text-destructive">{validationErrors.state}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Quick Review Summary */}
-                  {(formData.name || formData.email || formData.npn || formData.residentState || formData.files.length > 0) && (
-                    <div className="pt-5 mt-5 border-t border-border">
-                      <h3 className="text-sm font-bold text-foreground mb-3">Quick Review</h3>
-                      <div className="space-y-2 text-[12px]">
-                        {formData.name && (
-                          <div className="flex gap-2.5">
-                            <span className="text-muted-foreground/80 min-w-[110px] font-medium">Full Name:</span>
-                            <span className="text-foreground font-semibold">{formData.name}</span>
-                          </div>
-                        )}
-                        {formData.email && (
-                          <div className="flex gap-2.5">
-                            <span className="text-muted-foreground/80 min-w-[110px] font-medium">Email:</span>
-                            <span className="text-foreground font-semibold">{formData.email}</span>
-                          </div>
-                        )}
-                        {formData.npn && (
-                          <div className="flex gap-2.5">
-                            <span className="text-muted-foreground/80 min-w-[110px] font-medium">NPN:</span>
-                            <span className="text-foreground font-semibold">{formData.npn}</span>
-                          </div>
-                        )}
-                        {formData.residentState && (
-                          <div className="flex gap-2.5">
-                            <span className="text-muted-foreground/80 min-w-[110px] font-medium">Resident State:</span>
-                            <span className="text-foreground font-semibold">{formData.residentState}</span>
-                          </div>
-                        )}
-                        {formData.files.length > 0 && (
-                          <div className="flex gap-2.5">
-                            <span className="text-muted-foreground/80 min-w-[110px] font-medium">Documents:</span>
-                            <span className="text-foreground font-semibold">{formData.files.length} {formData.files.length === 1 ? 'file' : 'files'} attached</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Post-Submission Success Message */}
-                  {isSubmitted && (
-                    <div className="pt-5 mt-5 border-t border-gold/30 bg-gold/5 -mx-6 px-6 py-5 rounded-lg animate-fade-in">
-                      <div className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 animate-scale-in">
-                          <Check className="w-4 h-4 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-foreground mb-1.5">
-                            Contracting packet submitted successfully
-                          </p>
-                          <p className="text-[12px] text-muted-foreground/90">
-                            We will review your documents within 2–3 business days and email you if anything is missing.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Submit Button */}
-                  {!isSubmitted && (
-                    <div className="pt-4 flex flex-col items-center gap-3">
-                      <Button 
-                        type="submit" 
-                        className={`w-full max-w-lg font-bold py-5 text-sm rounded-lg transition-all ${
-                          isFormComplete
-                            ? 'bg-gold hover:bg-gold/90 text-charcoal shadow-md hover:shadow-lg'
-                            : 'bg-muted hover:bg-muted text-muted-foreground'
-                        }`}
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Submitting..." : "Submit Contracting Packet →"}
-                      </Button>
-                      
-                      <div className="pt-2 border-t border-border/50 w-full">
-                        <p className="text-[11px] text-muted-foreground/80 text-center max-w-md mx-auto">
-                          We review submissions within 2–3 business days.<br />
-                          We'll email you if anything is missing.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                </form>
-              </CardContent>
-            </Card>
           </div>
         </section>
       </main>
