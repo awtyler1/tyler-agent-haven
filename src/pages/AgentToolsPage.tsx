@@ -76,7 +76,8 @@ const AgentToolsPage = () => {
                       className="max-w-[80px] max-h-[80px] w-auto h-auto object-contain"
                     />
                   </div>
-                  <p className="text-xs font-medium text-foreground mb-2">{carrier.name}</p>
+                  <p className="text-xs font-medium text-foreground mb-1">{carrier.name}</p>
+                  <p className="text-[10px] text-gold/70 mb-2">Portal Login →</p>
                   <ExternalLink className="w-3 h-3 text-gold opacity-0 group-hover:opacity-100 transition-opacity" />
                 </a>
               ))}
