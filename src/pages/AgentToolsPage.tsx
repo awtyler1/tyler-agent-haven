@@ -1,6 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { ExternalLink, Building2 } from "lucide-react";
+import { ExternalLink, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
@@ -39,12 +39,6 @@ const coreTools = [
     subtitle: "Lead Management",
     url: "https://fmo.kizen.com/login",
     logo: bossCrmLogo,
-  },
-  {
-    name: "Carrier Resources",
-    subtitle: "Plans & Documents",
-    link: "/carrier-resources",
-    icon: Building2,
   },
 ];
 
@@ -91,47 +85,49 @@ const AgentToolsPage = () => {
         </section>
 
         {/* Core Tools - Row 2 */}
-        <section className="pb-16 px-6 md:px-12 lg:px-20">
+        <section className="pb-4 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {coreTools.map((tool) => (
-                tool.link ? (
-                  <Link
-                    key={tool.name}
-                    to={tool.link}
-                    onClick={() => window.scrollTo(0, 0)}
-                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
-                  >
-                    <div className="w-16 h-16 mb-4 flex items-center justify-center rounded-lg bg-gold/8 group-hover:bg-gold/17 transition-colors">
-                      {tool.icon && <tool.icon className="w-7 h-7 text-gold" />}
-                    </div>
-                    <h3 className="text-base font-semibold mb-1">{tool.name}</h3>
-                    <p className="text-sm text-muted-foreground">{tool.subtitle}</p>
-                  </Link>
-                ) : (
-                  <a
-                    key={tool.name}
-                    href={tool.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
-                  >
-                    <div className="w-16 h-16 mb-4 flex items-center justify-center overflow-hidden rounded-lg bg-cream/50">
-                      {tool.logo && (
-                        <img 
-                          src={tool.logo} 
-                          alt={tool.name} 
-                          className="max-w-full max-h-full object-contain"
-                        />
-                      )}
-                    </div>
-                    <h3 className="text-base font-semibold mb-1">{tool.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-3">{tool.subtitle}</p>
-                    <ExternalLink className="w-4 h-4 text-gold opacity-60 group-hover:opacity-100 transition-opacity" />
-                  </a>
-                )
+                <a
+                  key={tool.name}
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+                >
+                  <div className="w-16 h-16 mb-4 flex items-center justify-center overflow-hidden rounded-lg bg-cream/50">
+                    <img 
+                      src={tool.logo} 
+                      alt={tool.name} 
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                  <h3 className="text-base font-semibold mb-1">{tool.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">{tool.subtitle}</p>
+                  <ExternalLink className="w-4 h-4 text-gold opacity-60 group-hover:opacity-100 transition-opacity" />
+                </a>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Carrier Resources - Full Width Bar */}
+        <section className="pb-16 px-6 md:px-12 lg:px-20">
+          <div className="container-narrow">
+            <Link
+              to="/carrier-resources"
+              onClick={() => window.scrollTo(0, 0)}
+              className="group bg-white border border-[#EAE7E1] rounded-lg p-6 flex items-center gap-6 shadow-[0_2px_20px_-1px_rgba(0,0,0,0.04)] hover:border-gold/40 hover:shadow-[0_10px_32px_-2px_rgba(0,0,0,0.08)] transition-all duration-300"
+            >
+              <div className="w-14 h-14 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
+                <FileText className="w-7 h-7 text-gold" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-1">Carrier Resources</h3>
+                <p className="text-sm text-muted-foreground">Contacts, Quick Links, Downloads, and Plan Documents</p>
+              </div>
+            </Link>
           </div>
         </section>
       </main>
