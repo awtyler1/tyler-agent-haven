@@ -359,45 +359,54 @@ export default function DocumentManagementPage() {
     }));
     setProcessingStatuses(statuses);
 
-    for (let i = 0; i < pdfFiles.length; i++) {
-      const filename = pdfFiles[i];
+    const CONCURRENT_DOCS = 3; // Process 3 documents at a time
+    
+    for (let i = 0; i < pdfFiles.length; i += CONCURRENT_DOCS) {
+      const batch = pdfFiles.slice(i, Math.min(i + CONCURRENT_DOCS, pdfFiles.length));
       
-      setProcessingStatuses((prev) =>
-        prev.map((s) =>
-          s.filename === filename ? { ...s, status: "processing" } : s
-        )
+      // Process batch of documents in parallel
+      await Promise.all(
+        batch.map(async (filename) => {
+          setProcessingStatuses((prev) =>
+            prev.map((s) =>
+              s.filename === filename ? { ...s, status: "processing" } : s
+            )
+          );
+
+          try {
+            const result = await processDocument(filename);
+            setProcessingStatuses((prev) =>
+              prev.map((s) =>
+                s.filename === filename
+                  ? {
+                      ...s,
+                      status: "success",
+                      message: `Processed ${result.chunksProcessed} chunks`,
+                      chunksProcessed: result.chunksProcessed,
+                    }
+                  : s
+              )
+            );
+          } catch (error) {
+            setProcessingStatuses((prev) =>
+              prev.map((s) =>
+                s.filename === filename
+                  ? {
+                      ...s,
+                      status: "error",
+                      message: error instanceof Error ? error.message : "Failed",
+                    }
+                  : s
+              )
+            );
+          }
+        })
       );
 
-      try {
-        const result = await processDocument(filename);
-        setProcessingStatuses((prev) =>
-          prev.map((s) =>
-            s.filename === filename
-              ? {
-                  ...s,
-                  status: "success",
-                  message: `Processed ${result.chunksProcessed} chunks`,
-                  chunksProcessed: result.chunksProcessed,
-                }
-              : s
-          )
-        );
-      } catch (error) {
-        setProcessingStatuses((prev) =>
-          prev.map((s) =>
-            s.filename === filename
-              ? {
-                  ...s,
-                  status: "error",
-                  message: error instanceof Error ? error.message : "Failed",
-                }
-              : s
-          )
-        );
+      // Minimal delay between document batches
+      if (i + CONCURRENT_DOCS < pdfFiles.length) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
-
-      // Minimal delay between documents
-      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     setIsProcessing(false);
