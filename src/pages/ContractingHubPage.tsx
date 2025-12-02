@@ -216,22 +216,22 @@ const ContractingHubPage = () => {
               </h2>
               <div className="space-y-3 text-[13px] text-foreground/90 leading-relaxed">
                 <p>
-                  This is where you complete your contracting with Tyler Insurance Group so you can write business with every carrier we offer. Most agents finish this in 10–15 minutes.
+                  Complete this step once to become fully contracted with every carrier we offer. Most agents finish in about 10 minutes.
                 </p>
                 <p>
-                  Once you submit your packet, our team reviews everything within 2–3 business days and notifies you the moment each carrier approves you.
+                  After you submit your packet, our team reviews everything within 2–3 business days and notifies you as each carrier approves you.
                 </p>
                 <div>
-                  <p className="font-semibold mb-2">After approval, you'll be able to:</p>
+                  <p className="font-semibold mb-2">Once approved, you'll be able to:</p>
                   <ul className="space-y-1.5 ml-5">
                     <li className="list-disc">Submit and track applications</li>
                     <li className="list-disc">Access your carrier portals</li>
                     <li className="list-disc">Use all quoting and enrollment tools</li>
-                    <li className="list-disc">Receive commissions with no delays</li>
+                    <li className="list-disc">Receive commissions without delays</li>
                   </ul>
                 </div>
                 <p className="text-[12px] text-muted-foreground pt-1">
-                  If you need help at any point, contact Caroline at{" "}
+                  For help, contact{" "}
                   <a 
                     href="mailto:caroline@tylerinsurancegroup.com"
                     className="text-gold hover:text-gold/80 transition-colors font-medium"
