@@ -8,8 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Download, FileText, Image as ImageIcon, X, Check, HelpCircle, Upload } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CheckCircle, Download, FileText, Image as ImageIcon, X, Check, Upload } from "lucide-react";
 
 const ContractingHubPage = () => {
   const { toast } = useToast();
@@ -32,15 +31,6 @@ const ContractingHubPage = () => {
     files: [] as File[]
   });
 
-  const requiredDocuments = [
-    { text: "State insurance license", tag: "Required" },
-    { text: "E&O certificate with your correct name", tag: "Required" },
-    { text: "Voided check (personal or corporate)", tag: "Required" },
-    { text: "AML certificate (and CE if your state requires it)", tag: "If state requires" },
-    { text: "Explanation documents for any \"Yes\" answers in the legal section", tag: "If answering Yes" },
-    { text: "Corporate license + corporate bank info (if contracting as an agency)", tag: "Agency only" }
-  ];
-
   // Validation logic
   const validateEmail = (email: string) => {
     return email.includes("@") && email.length > 3;
@@ -56,7 +46,6 @@ const ContractingHubPage = () => {
     validateNPN(formData.npn) &&
     formData.residentState !== "" &&
     formData.files.length > 0;
-
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -107,7 +96,6 @@ const ContractingHubPage = () => {
       handleFileChange(droppedFiles);
     }
   };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,22 +199,21 @@ const ContractingHubPage = () => {
       <Navigation />
       
       <main>
-        {/* Hero - Compact */}
-        <section className="pt-20 pb-3 md:pt-24 md:pb-4 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-2">
-              Contracting Hub
-            </h1>
-            <p className="text-[15px] md:text-[17px] text-muted-foreground">
-              Your direct path to completing contracting with Tyler Insurance Group.
-            </p>
-          </div>
-        </section>
+        {/* Top Section - Title, Subtitle, Step Indicator */}
+        <section className="pt-20 pb-8 md:pt-24 md:pb-10 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-6xl mx-auto">
+            {/* Title and Subtitle */}
+            <div className="text-center mb-5">
+              <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-2">
+                Contracting Hub
+              </h1>
+              <p className="text-[15px] md:text-[17px] text-muted-foreground">
+                Your direct path to completing contracting with Tyler Insurance Group.
+              </p>
+            </div>
 
-        {/* Compact Horizontal Step Indicator */}
-        <section className="pb-6 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-center justify-center gap-3 text-[13px] md:text-sm text-muted-foreground font-medium">
+            {/* Slim Step Indicator Bar */}
+            <div className="flex items-center justify-center gap-3 text-[12px] md:text-[13px] text-muted-foreground">
               <span>Step 1: Gather Documents</span>
               <span className="text-gold">|</span>
               <span>Step 2: Download Packet</span>
@@ -236,18 +223,18 @@ const ContractingHubPage = () => {
           </div>
         </section>
 
-        {/* Two-Column Layout - Steps 1 & 2 (Left) + Step 3 Form (Right) */}
-        <section className="pb-8 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Two-Column Main Section */}
+        <section className="pb-10 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               
-              {/* LEFT COLUMN: Steps 1 & 2 */}
-              <div className="space-y-6">
+              {/* LEFT COLUMN - Information */}
+              <div className="space-y-8">
                 
-                {/* Step 1: Gather Required Documents */}
+                {/* Section A - Required Documents */}
                 <div>
-                  <h2 className="text-lg font-bold text-foreground mb-3">
-                    Step 1: Gather Required Documents
+                  <h2 className="text-lg font-bold text-foreground mb-4">
+                    Required Documents
                   </h2>
                   <div className="space-y-2.5 text-[13px]">
                     <div className="flex items-start gap-2.5">
@@ -264,7 +251,7 @@ const ContractingHubPage = () => {
                     </div>
                     <div className="flex items-start gap-2.5">
                       <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-foreground">AML certificate (and CE if your state requires it)</span>
+                      <span className="text-foreground">AML certificate (and CE if required by your state)</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
@@ -277,10 +264,10 @@ const ContractingHubPage = () => {
                   </div>
                 </div>
 
-                {/* Step 2: Download Contracting Packet */}
+                {/* Section B - Download Contracting Packet */}
                 <div>
-                  <h2 className="text-lg font-bold text-foreground mb-3">
-                    Step 2: Download Contracting Packet
+                  <h2 className="text-lg font-bold text-foreground mb-4">
+                    Download Contracting Packet
                   </h2>
                   <Button 
                     onClick={() => setIsPdfModalOpen(true)}
@@ -296,50 +283,22 @@ const ContractingHubPage = () => {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN: Step 3 Upload Form */}
+              {/* RIGHT COLUMN - Upload Form */}
               <div>
                 <h2 className="text-lg font-bold text-foreground mb-4">
-                  Step 3: Upload Your Completed Packet
+                  Upload Your Completed Packet
                 </h2>
                 
                 <Card className="border-gold/30 bg-card shadow-md">
                   <CardContent className="pt-5 pb-5 px-5">
                     <form onSubmit={handleSubmit} className="space-y-4">
                       
-                      {/* Required Document Checklist */}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-bold text-foreground">Required Documents:</Label>
-                        <div className="space-y-1.5 text-[11px] text-muted-foreground pl-2">
-                          {requiredDocuments.map((doc, index) => (
-                            <div key={index} className="flex items-start gap-2">
-                              <span className="text-gold">□</span>
-                              <span className="flex-1 leading-relaxed">{doc.text}</span>
-                              <span className="text-[10px] text-gold/80 font-semibold bg-gold/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">
-                                {doc.tag}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
                       {/* Multi-File Upload with Drag & Drop */}
-                      <div className="space-y-2 pt-2">
-                        <div className="flex items-center gap-1.5">
-                          <Label htmlFor="documents" className="text-sm font-bold">
-                            Upload Documents <span className="text-destructive">*</span>
-                          </Label>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground cursor-help hover:text-gold transition-colors" />
-                              </TooltipTrigger>
-                              <TooltipContent className="max-w-xs text-[11px]">
-                                <p>If you're unsure which documents to include, refer to the checklist above or email Caroline at caroline@tylerinsurancegroup.com</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground/90">
+                      <div className="space-y-2">
+                        <Label htmlFor="documents" className="text-sm font-bold">
+                          Upload Documents <span className="text-destructive">*</span>
+                        </Label>
+                        <p className="text-[11px] text-muted-foreground/90 mb-2">
                           Attach your completed contracting packet and all required documents. Accepted formats: PDF, JPG, PNG.
                         </p>
                         
@@ -551,45 +510,6 @@ const ContractingHubPage = () => {
                         </div>
                       </div>
 
-                      {/* Quick Review Summary */}
-                      {(formData.name || formData.email || formData.npn || formData.residentState || formData.files.length > 0) && (
-                        <div className="pt-4 mt-4 border-t border-border">
-                          <h3 className="text-sm font-bold text-foreground mb-2.5">Quick Review</h3>
-                          <div className="space-y-1.5 text-[11px]">
-                            {formData.name && (
-                              <div className="flex gap-2">
-                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">Full Name:</span>
-                                <span className="text-foreground font-semibold">{formData.name}</span>
-                              </div>
-                            )}
-                            {formData.email && (
-                              <div className="flex gap-2">
-                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">Email:</span>
-                                <span className="text-foreground font-semibold">{formData.email}</span>
-                              </div>
-                            )}
-                            {formData.npn && (
-                              <div className="flex gap-2">
-                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">NPN:</span>
-                                <span className="text-foreground font-semibold">{formData.npn}</span>
-                              </div>
-                            )}
-                            {formData.residentState && (
-                              <div className="flex gap-2">
-                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">Resident State:</span>
-                                <span className="text-foreground font-semibold">{formData.residentState}</span>
-                              </div>
-                            )}
-                            {formData.files.length > 0 && (
-                              <div className="flex gap-2">
-                                <span className="text-muted-foreground/80 min-w-[90px] font-medium">Documents:</span>
-                                <span className="text-foreground font-semibold">{formData.files.length} {formData.files.length === 1 ? 'file' : 'files'} attached</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
                       {/* Post-Submission Success Message */}
                       {isSubmitted && (
                         <div className="pt-4 mt-4 border-t border-gold/30 bg-gold/5 -mx-5 px-5 py-4 rounded-lg animate-fade-in">
@@ -624,10 +544,14 @@ const ContractingHubPage = () => {
                             {isSubmitting ? "Submitting..." : "Submit Contracting Packet →"}
                           </Button>
                           
-                          <p className="text-[10px] text-muted-foreground/80 text-center">
-                            We review submissions within 2–3 business days.<br />
-                            We'll email you if anything is missing.
-                          </p>
+                          <div className="text-center">
+                            <p className="text-[10px] text-muted-foreground/80">
+                              We review submissions within 2–3 business days.
+                            </p>
+                            <p className="text-[10px] text-muted-foreground/80">
+                              We'll email you if anything is missing.
+                            </p>
+                          </div>
                         </div>
                       )}
 
@@ -641,8 +565,8 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Caroline Contact Line - Bottom */}
-        <section className="pb-8 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-5xl mx-auto text-center">
+        <section className="pb-10 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-6xl mx-auto text-center">
             <p className="text-[12px] text-muted-foreground">
               Need help? Contact Caroline at{" "}
               <a 
