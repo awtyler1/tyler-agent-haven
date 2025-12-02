@@ -220,6 +220,15 @@ const ContractingHubPage = () => {
                 <p>
                   After you submit your packet, our team reviews everything within 2–3 business days and notifies you as you're approved.
                 </p>
+                <p className="text-xs text-muted-foreground pt-1">
+                  Need help? Contact Caroline at{" "}
+                  <a 
+                    href="mailto:caroline@tylerinsurancegroup.com"
+                    className="text-gold hover:text-gold/80 transition-colors font-medium"
+                  >
+                    caroline@tylerinsurancegroup.com
+                  </a>
+                </p>
               </div>
             </div>
           </div>
@@ -567,21 +576,6 @@ const ContractingHubPage = () => {
                   </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Caroline Contact Line - Bottom */}
-        <section className="pb-4 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
-          <div className="max-w-6xl mx-auto text-center">
-            <p className="text-xs text-muted-foreground">
-              Need help? Contact Caroline at{" "}
-              <a 
-                href="mailto:caroline@tylerinsurancegroup.com"
-                className="text-gold hover:text-gold/80 transition-colors"
-              >
-                caroline@tylerinsurancegroup.com
-              </a>
-            </p>
           </div>
         </section>
       </main>
