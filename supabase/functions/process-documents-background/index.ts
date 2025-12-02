@@ -60,21 +60,23 @@ async function processDocument(
   projectOrigin: string
 ): Promise<{ success: boolean; chunksProcessed: number; error?: string }> {
   try {
-    console.log(`Starting processing for ${filename}`);
+    // Fetch PDF from public folder served by the project
+    const pdfUrl = `${projectOrigin}/downloads/${filename}`;
+    console.log(`Fetching PDF from: ${pdfUrl}`);
+    
+    const response = await fetch(pdfUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch PDF: ${response.status} - ${await response.text()}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    console.log(`Successfully fetched PDF, size: ${arrayBuffer.byteLength} bytes`);
 
     // Import pdfjs dynamically
     const pdfjsLib = await import("npm:pdfjs-dist@4.10.38");
     const pdfjsWorker = await import("npm:pdfjs-dist@4.10.38/build/pdf.worker.mjs");
     
-    // Fetch PDF from public folder served by the project
-    const pdfUrl = `${projectOrigin}/downloads/${filename}`;
-    const response = await fetch(pdfUrl);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch PDF: ${response.status}`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     const pdf = await loadingTask.promise;
 
