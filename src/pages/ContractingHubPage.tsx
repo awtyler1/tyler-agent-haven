@@ -202,84 +202,144 @@ const ContractingHubPage = () => {
       <Navigation />
       
       <main>
-        {/* Hero */}
-        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20 bg-background">
+        {/* Hero - Compact */}
+        <section className="pt-28 pb-6 md:pt-32 md:pb-8 px-6 md:px-12 lg:px-20 bg-background">
           <div className="container-narrow text-center">
-            <h1 className="heading-display text-foreground mb-3">
+            <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-2">
               Contracting Hub
             </h1>
-            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
+            <p className="text-base md:text-lg text-foreground max-w-2xl mx-auto">
               Your guided path to completing contracting with Tyler Insurance Group.
             </p>
           </div>
         </section>
 
-        {/* Quick Orientation */}
-        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-cream/20">
-          <div className="container-narrow max-w-3xl">
-            <p className="text-base leading-relaxed text-foreground">
-              Welcome aboard. This page walks you step by step through completing your contracting packet and submitting the required documents. 
-              Follow each step in order and you'll move through contracting smoothly without confusion or delays. 
-              If you get stuck, our support contact is at the bottom of the page.
+        {/* Quick Orientation - Compact */}
+        <section className="py-6 px-6 md:px-12 lg:px-20 bg-cream/20">
+          <div className="container-narrow max-w-4xl">
+            <p className="text-sm md:text-base leading-relaxed text-foreground text-center">
+              Welcome aboard. Follow these three steps in order to complete your contracting smoothly. If you need help, contact Caroline at the bottom of this page.
             </p>
           </div>
         </section>
 
-        {/* Step 1: Required Documents */}
-        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="container-narrow">
-            <h2 className="text-2xl font-semibold text-foreground mb-6">
-              Step 1: Gather These Required Documents
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {requiredDocuments.map((doc, index) => (
-                <Card key={index} className="border-gold/20 bg-card hover:border-gold/30 transition-colors">
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-gold mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-foreground leading-snug">{doc.text}</span>
+        {/* Three Steps - Side by Side Above the Fold */}
+        <section className="py-8 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-[1400px] mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Step 1: Required Documents */}
+              <Card className="border-gold/20 bg-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-gold font-semibold text-lg">1</span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    <h2 className="text-xl font-semibold text-foreground">
+                      Gather Documents
+                    </h2>
+                  </div>
+                  
+                  <div className="space-y-2.5">
+                    {requiredDocuments.map((doc, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-foreground leading-snug">{doc.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border">
+                    Having these ready prevents delays.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Step 2: Download Packet */}
+              <Card className="border-gold/20 bg-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-gold font-semibold text-lg">2</span>
+                    </div>
+                    <h2 className="text-xl font-semibold text-foreground">
+                      Download Packet
+                    </h2>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <Button 
+                      onClick={() => setIsPdfModalOpen(true)}
+                      className="w-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6"
+                    >
+                      <Download className="w-5 h-5 mr-2" />
+                      Download Packet (PDF)
+                    </Button>
+                    
+                    <div className="space-y-2 pt-2">
+                      <p className="text-sm text-foreground font-medium">Instructions:</p>
+                      <ul className="space-y-1.5 text-xs text-muted-foreground">
+                        <li>• Complete all pages and sign</li>
+                        <li>• SelectHealth section is optional</li>
+                        <li>• Replace sample E&O with yours</li>
+                        <li>• Answer all legal questions truthfully</li>
+                        <li>• Include written explanations for any "Yes" answers</li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Step 3: Upload Form - Compact */}
+              <Card className="border-gold/20 bg-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-gold font-semibold text-lg">3</span>
+                    </div>
+                    <h2 className="text-xl font-semibold text-foreground">
+                      Submit Packet
+                    </h2>
+                  </div>
+
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Complete the form below with your info and upload all required documents.
+                  </p>
+
+                  <a 
+                    href="#upload-form"
+                    className="block w-full bg-gold hover:bg-gold/90 text-charcoal font-medium py-6 rounded-md text-center transition-colors"
+                  >
+                    Go to Upload Form →
+                  </a>
+
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <p className="text-xs font-medium text-foreground mb-2">What Happens Next:</p>
+                    <ul className="space-y-1.5 text-xs text-muted-foreground">
+                      <li>• Review within 2-3 business days</li>
+                      <li>• We'll email if anything is missing</li>
+                      <li>• Notification when carriers approve</li>
+                      <li>• Begin writing business immediately</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+
             </div>
-            
-            <p className="text-sm text-muted-foreground mt-6 text-center">
-              Having these ready will prevent delays during review.
-            </p>
           </div>
         </section>
 
-        {/* Step 2: Download Packet */}
-        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-cream/20">
-          <div className="container-narrow text-center">
-            <h2 className="text-2xl font-semibold text-foreground mb-4">
-              Step 2: Download the Contracting Packet
-            </h2>
-            
-            <Button 
-              onClick={() => setIsPdfModalOpen(true)}
-              className="bg-gold hover:bg-gold/90 text-charcoal font-medium px-8 py-6 text-base"
-            >
-              <Download className="w-5 h-5 mr-2" />
-              Download Contracting Packet (Fillable PDF)
-            </Button>
-            
-            <div className="mt-6 space-y-1">
-              <p className="text-sm text-muted-foreground">Complete all pages and sign where indicated.</p>
-              <p className="text-sm text-muted-foreground">SelectHealth section only applies if you plan to write SelectHealth.</p>
-              <p className="text-sm text-muted-foreground">Replace the sample E&O page with your actual certificate.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Step 3: Upload Form */}
-        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-background">
+        {/* Upload Form - Full Details Below */}
+        <section id="upload-form" className="py-12 md:py-16 px-6 md:px-12 lg:px-20 bg-cream/20">
           <div className="container-narrow max-w-3xl">
-            <h2 className="text-2xl font-semibold text-foreground mb-6">
-              Step 3: Upload Your Completed Packet
-            </h2>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
+                Step 3: Upload Your Completed Packet
+              </h2>
+              <p className="text-muted-foreground">
+                Fill out the form below and upload all required documents.
+              </p>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Info */}
@@ -464,34 +524,18 @@ const ContractingHubPage = () => {
           </div>
         </section>
 
-        {/* Step 4: What Happens Next */}
-        <section className="py-12 md:py-14 px-6 md:px-12 lg:px-20 bg-cream/20">
-          <div className="container-narrow max-w-3xl">
-            <Card className="border-gold/20 bg-card">
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">
-                  What Happens Next
-                </h2>
-                
-                <div className="space-y-4 text-foreground leading-relaxed">
-                  <p>Our contracting team reviews submissions within 2–3 business days.</p>
-                  <p>If anything is missing, we'll email you with clear instructions.</p>
-                  <p>We notify you as soon as each carrier approves your appointment.</p>
-                  <p>Once appointed, you can begin writing business immediately.</p>
-                </div>
-
-                <div className="mt-8 pt-6 border-t border-border text-center">
-                  <p className="text-sm text-muted-foreground mb-3">If you need help, contact Caroline at</p>
-                  <a 
-                    href="mailto:caroline@tylerinsurancegroup.com"
-                    className="inline-flex items-center gap-2 text-gold hover:text-gold/80 transition-colors font-medium"
-                  >
-                    <Mail className="w-4 h-4" />
-                    caroline@tylerinsurancegroup.com
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Support Contact */}
+        <section className="py-10 px-6 md:px-12 lg:px-20 bg-background border-t border-border">
+          <div className="container-narrow text-center">
+            <p className="text-sm text-muted-foreground mb-3">Need help with contracting?</p>
+            <p className="text-foreground font-medium mb-2">Caroline Horn</p>
+            <a 
+              href="mailto:caroline@tylerinsurancegroup.com"
+              className="inline-flex items-center gap-2 text-gold hover:text-gold/80 transition-colors"
+            >
+              <Mail className="w-4 h-4" />
+              caroline@tylerinsurancegroup.com
+            </a>
           </div>
         </section>
       </main>
