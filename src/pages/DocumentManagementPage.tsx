@@ -276,11 +276,15 @@ export default function DocumentManagementPage() {
       // Chunk the text on client side
       const textChunks = chunkTextClient(fullText);
       
-      // Send chunks one at a time to avoid memory issues
+      // Process chunks in parallel batches for speed
       let successfulChunks = 0;
-      for (let i = 0; i < textChunks.length; i++) {
-        try {
-          const processResponse = await fetch(
+      const BATCH_SIZE = 10; // Process 10 chunks at a time
+      
+      for (let i = 0; i < textChunks.length; i += BATCH_SIZE) {
+        const batch = textChunks.slice(i, Math.min(i + BATCH_SIZE, textChunks.length));
+        const batchPromises = batch.map((chunk, batchIndex) => {
+          const chunkIndex = i + batchIndex;
+          return fetch(
             `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-document`,
             {
               method: "POST",
@@ -289,29 +293,35 @@ export default function DocumentManagementPage() {
                 Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
               },
               body: JSON.stringify({
-                documentText: textChunks[i],
+                documentText: chunk,
                 documentName: filename,
                 documentType,
                 carrier,
-                chunkIndex: i,
-                isChunked: true, // Flag to tell edge function this is pre-chunked
+                chunkIndex,
+                isChunked: true,
               }),
             }
-          );
+          )
+            .then(async (response) => {
+              if (!response.ok) {
+                const errorData = await response.json();
+                console.error(`Failed to process chunk ${chunkIndex}:`, errorData);
+                return null;
+              }
+              return chunkIndex;
+            })
+            .catch((error) => {
+              console.error(`Error processing chunk ${chunkIndex}:`, error);
+              return null;
+            });
+        });
 
-          if (!processResponse.ok) {
-            const errorData = await processResponse.json();
-            console.error(`Failed to process chunk ${i}:`, errorData);
-            continue; // Skip failed chunks but continue processing
-          }
-
-          successfulChunks++;
-          
-          // Small delay between chunks
-          await new Promise(resolve => setTimeout(resolve, 200));
-        } catch (error) {
-          console.error(`Error processing chunk ${i}:`, error);
-          continue;
+        const results = await Promise.all(batchPromises);
+        successfulChunks += results.filter(r => r !== null).length;
+        
+        // Minimal delay between batches
+        if (i + BATCH_SIZE < textChunks.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
 
@@ -366,8 +376,8 @@ export default function DocumentManagementPage() {
         );
       }
 
-      // Longer delay to allow edge function memory cleanup
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      // Short delay between documents
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     setIsProcessing(false);
