@@ -97,8 +97,8 @@ const CertificationsPage = () => {
     let yPos = 20;
 
     // Add Tyler Insurance Group Logo (centered)
-    const logoWidth = 60;
-    const logoHeight = 18;
+    const logoWidth = 70;
+    const logoHeight = 28;
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(tylerLogo, 'PNG', logoX, yPos, logoWidth, logoHeight);
     yPos += logoHeight + 12;
