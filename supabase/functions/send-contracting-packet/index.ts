@@ -80,14 +80,25 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Processing contracting submission from ${name.trim()} (NPN: ${npn.trim()})`);
 
-    // Prepare attachments
+    // Get current timestamp for submission
+    const submissionTimestamp = new Date().toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+
+    // Prepare attachments for Caroline's email
     const attachments = files.map(file => ({
       filename: file.fileName,
       content: file.content,
     }));
 
-    // Send email using Resend API directly via fetch
-    const emailResponse = await fetch("https://api.resend.com/emails", {
+    // 1. Send internal email to Caroline with attachments
+    const carolineEmailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${RESEND_API_KEY}`,
@@ -96,32 +107,83 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "Tyler Insurance Group <contracting@tylerinsurancegroup.com>",
         to: ["caroline@tylerinsurancegroup.com"],
-        subject: `New Contracting Packet – ${name.trim()} – NPN ${npn.trim()}`,
+        subject: `New Contracting Packet Submission — ${name.trim()} (NPN ${npn.trim()})`,
         html: `
           <p>A new contracting packet has been submitted through the Tyler Insurance Group Agent Platform.</p>
           
-          <h3>Agent Information:</h3>
+          <h3>Agent Details:</h3>
           <ul style="list-style-type: none; padding-left: 0;">
             <li>• <strong>Full Name:</strong> ${name.trim()}</li>
             <li>• <strong>Email:</strong> ${email?.trim() || "Not provided"}</li>
             <li>• <strong>NPN:</strong> ${npn.trim()}</li>
             <li>• <strong>Resident State:</strong> ${residentState.trim()}</li>
+            <li>• <strong>Submitted:</strong> ${submissionTimestamp}</li>
           </ul>
           
           <h3>Documents:</h3>
           <p>• <strong>Total files attached:</strong> ${files.length}</p>
           
-          <p>All uploaded files are attached to this email for review.</p>
+          <p>All uploaded documents are attached to this email for review.</p>
         `,
         attachments,
       }),
     });
 
-    const result = await emailResponse.json();
-    console.log("Email sent successfully:", result);
+    const carolineResult = await carolineEmailResponse.json();
+    
+    if (!carolineEmailResponse.ok) {
+      console.error("Failed to send email to Caroline:", carolineResult);
+      throw new Error("Failed to send internal notification email");
+    }
+    
+    console.log("Email sent to Caroline successfully:", carolineResult);
+
+    // 2. Send confirmation email to the agent (if email provided)
+    if (email && email.trim()) {
+      const agentEmailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Tyler Insurance Group <contracting@tylerinsurancegroup.com>",
+          to: [email.trim()],
+          subject: "We Received Your Contracting Packet",
+          html: `
+            <p>Hi ${name.trim()},</p>
+            
+            <p>Your contracting packet and documents have been successfully received.</p>
+            
+            <p>Our contracting team reviews all submissions within 2–3 business days. If anything is missing or we need clarification, we'll reach out to you at this email address. You'll also be notified as carriers begin approving you.</p>
+            
+            <p><strong>Once you're approved, you'll be able to:</strong></p>
+            <ul>
+              <li>Submit and track applications</li>
+              <li>Access all carrier portals</li>
+              <li>Use our quoting and enrollment tools</li>
+              <li>Receive commissions without delays</li>
+            </ul>
+            
+            <p>If you have questions at any point, you can contact Caroline at <a href="mailto:caroline@tylerinsurancegroup.com">caroline@tylerinsurancegroup.com</a>.</p>
+            
+            <p>— Tyler Insurance Group Contracting Team</p>
+          `,
+        }),
+      });
+
+      const agentResult = await agentEmailResponse.json();
+      
+      if (!agentEmailResponse.ok) {
+        console.error("Failed to send confirmation email to agent:", agentResult);
+        // Don't throw error - Caroline's email succeeded, which is critical
+      } else {
+        console.log("Confirmation email sent to agent successfully:", agentResult);
+      }
+    }
 
     return new Response(
-      JSON.stringify({ success: true, data: result }),
+      JSON.stringify({ success: true, data: carolineResult }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: any) {
