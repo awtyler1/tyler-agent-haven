@@ -220,15 +220,6 @@ const ContractingHubPage = () => {
                 <p>
                   After you submit your packet, our team reviews everything within 2–3 business days and notifies you as you're approved.
                 </p>
-                <div>
-                  <p className="font-semibold mb-0.5">After approval, you can:</p>
-                  <ul className="space-y-0.5 ml-5" style={{ marginTop: '4px' }}>
-                    <li className="list-disc">Submit and track applications</li>
-                    <li className="list-disc">Access all carrier portals</li>
-                    <li className="list-disc">Use quoting and enrollment tools</li>
-                    <li className="list-disc">Receive commissions without delays</li>
-                  </ul>
-                </div>
               </div>
             </div>
           </div>
