@@ -177,26 +177,26 @@ const CertificationsPage = () => {
     const logoHeight = 35;
     const logoX = (pageWidth - logoWidth) / 2;
     doc.addImage(tylerLogo, 'PNG', logoX, yPos, logoWidth, logoHeight);
-    yPos += logoHeight + 12;
+    yPos += logoHeight + 14;
 
     // Title Block
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(40, 40, 40);
     doc.text("Annual Medicare Certification Checklist", pageWidth / 2, yPos, { align: 'center' });
-    yPos += 9;
+    yPos += 10;
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
     doc.text(`State: ${selectedState}  •  Updated ${new Date().toLocaleDateString()}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 10;
+    yPos += 12;
     
     // Title block divider line
     doc.setDrawColor(212, 207, 196); // #D4CFC4
     doc.setLineWidth(0.5);
     doc.line(margin + 15, yPos, pageWidth - margin - 15, yPos);
-    yPos += 16;
+    yPos += 18;
 
     // STEP 1 Header with hierarchy
     doc.setFontSize(13);
@@ -208,48 +208,7 @@ const CertificationsPage = () => {
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100, 100, 100);
     doc.text("(Required First)", margin + 65, yPos);
-    yPos += 4;
-    
-    // Step divider
-    doc.setDrawColor(212, 207, 196);
-    doc.setLineWidth(0.3);
-    doc.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 10;
-
-    // AHIP Section box
-    const ahipBoxY = yPos;
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(229, 226, 219); // #E5E2DB
-    doc.setLineWidth(0.5);
-    doc.roundedRect(margin, ahipBoxY, contentWidth, 38, 3, 3, 'FD');
-    
-    yPos += 9;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(60, 60, 60);
-    doc.text("Complete AHIP annual Medicare training", margin + 8, yPos);
-    yPos += 6;
-    
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Portal: https://www.ahipmedicaretraining.com/page/login", margin + 8, yPos);
-    yPos += 8;
-    
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(100, 100, 100);
-    doc.text("Completion Date:", margin + 8, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(180, 180, 180);
-    doc.text(" ____________________________", margin + 38, yPos);
-    yPos += 18;
-
-    // STEP 2 Header with hierarchy
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(40, 40, 40);
-    doc.text(`STEP 2 — Carrier Certifications for ${selectedState}`, margin, yPos);
-    yPos += 4;
+    yPos += 5;
     
     // Step divider
     doc.setDrawColor(212, 207, 196);
@@ -257,24 +216,60 @@ const CertificationsPage = () => {
     doc.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 12;
 
+    // AHIP Section box
+    const ahipBoxY = yPos;
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(229, 226, 219); // #E5E2DB
+    doc.setLineWidth(0.5);
+    doc.roundedRect(margin, ahipBoxY, contentWidth, 30, 3, 3, 'FD');
+    
+    yPos += 10;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+    doc.text("Complete AHIP annual Medicare training", margin + 10, yPos);
+    yPos += 10;
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(100, 100, 100);
+    doc.text("Completion Date:", margin + 10, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(180, 180, 180);
+    doc.text(" ____________________________", margin + 40, yPos);
+    yPos += 20;
+
+    // STEP 2 Header with hierarchy
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(40, 40, 40);
+    doc.text(`STEP 2 — Carrier Certifications for ${selectedState}`, margin, yPos);
+    yPos += 5;
+    
+    // Step divider
+    doc.setDrawColor(212, 207, 196);
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 14;
+
     if (carrierCertifications.length === 0) {
       const noCarriersBoxY = yPos;
       doc.setFillColor(250, 250, 250);
       doc.setDrawColor(229, 226, 219);
-      doc.roundedRect(margin, noCarriersBoxY, contentWidth, 24, 3, 3, 'FD');
+      doc.roundedRect(margin, noCarriersBoxY, contentWidth, 26, 3, 3, 'FD');
       
-      yPos += 8;
+      yPos += 9;
       doc.setFontSize(10);
       doc.setFont("helvetica", "italic");
       doc.setTextColor(120, 120, 120);
-      doc.text("No carrier certifications available yet for this state.", margin + 8, yPos);
-      yPos += 5;
-      doc.text("Check back soon for updates.", margin + 8, yPos);
-      yPos += 15;
+      doc.text("No carrier certifications available yet for this state.", margin + 10, yPos);
+      yPos += 6;
+      doc.text("Check back soon for updates.", margin + 10, yPos);
+      yPos += 18;
     } else {
       carrierCertifications.forEach((cert, index) => {
         // Check if we need a new page
-        if (yPos > 235) {
+        if (yPos > 240) {
           doc.addPage();
           doc.setFillColor(253, 251, 247);
           doc.rect(0, 0, pageWidth, pageHeight, 'F');
@@ -288,14 +283,14 @@ const CertificationsPage = () => {
         doc.setFillColor(255, 255, 255);
         doc.setDrawColor(229, 226, 219);
         doc.setLineWidth(0.5);
-        doc.roundedRect(margin, carrierBoxY, contentWidth, 29, 3, 3, 'FD');
+        doc.roundedRect(margin, carrierBoxY, contentWidth, 24, 3, 3, 'FD');
         
-        yPos += 8;
+        yPos += 9;
         
-        // Add carrier logo (grayscale effect via filter)
-        const logoSize = 12;
+        // Add carrier logo
+        const logoSize = 11;
         try {
-          doc.addImage(cert.logo, 'PNG', margin + 8, yPos - 4, logoSize, logoSize);
+          doc.addImage(cert.logo, 'PNG', margin + 10, yPos - 4, logoSize, logoSize);
         } catch (e) {
           // Skip if logo fails to load
         }
@@ -304,33 +299,23 @@ const CertificationsPage = () => {
         doc.setFontSize(10);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(40, 40, 40);
-        doc.text(cert.name, margin + 8 + logoSize + 4, yPos);
-        yPos += 6;
-
-        // URL (indented)
-        doc.setFontSize(8.5);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(100, 100, 100);
-        const urlText = `Portal: ${cert.url}`;
-        const maxUrlWidth = contentWidth - 24;
-        const splitUrl = doc.splitTextToSize(urlText, maxUrlWidth);
-        doc.text(splitUrl, margin + 12, yPos);
-        yPos += (splitUrl.length * 4);
+        doc.text(cert.name, margin + 10 + logoSize + 4, yPos);
+        yPos += 9;
 
         // Completion date
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(100, 100, 100);
-        doc.text("Completion Date:", margin + 12, yPos);
+        doc.text("Completion Date:", margin + 14, yPos);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(180, 180, 180);
-        doc.text(" _________________________", margin + 42, yPos);
-        yPos += 10;
+        doc.text(" _________________________", margin + 44, yPos);
+        yPos += 12;
       });
     }
 
     // Important Reminders Section (premium shaded box)
-    if (yPos > 200) {
+    if (yPos > 205) {
       doc.addPage();
       doc.setFillColor(253, 251, 247);
       doc.rect(0, 0, pageWidth, pageHeight, 'F');
@@ -339,19 +324,19 @@ const CertificationsPage = () => {
       yPos = 25;
     }
 
-    yPos += 6;
+    yPos += 8;
     const remindersBoxY = yPos;
     doc.setFillColor(248, 246, 240); // Soft beige shade
     doc.setDrawColor(229, 226, 219);
     doc.setLineWidth(1);
-    doc.roundedRect(margin, remindersBoxY, contentWidth, 44, 3, 3, 'FD');
+    doc.roundedRect(margin, remindersBoxY, contentWidth, 46, 3, 3, 'FD');
     
-    yPos += 9;
+    yPos += 10;
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(40, 40, 40);
     doc.text("Important Reminders", margin + 10, yPos);
-    yPos += 9;
+    yPos += 10;
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
@@ -365,7 +350,7 @@ const CertificationsPage = () => {
 
     reminders.forEach(reminder => {
       doc.text(reminder, margin + 14, yPos);
-      yPos += 5.5;
+      yPos += 6;
     });
     
     yPos += 6;
