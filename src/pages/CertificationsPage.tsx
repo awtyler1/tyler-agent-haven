@@ -11,7 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { jsPDF } from "jspdf";
-import PdfPreviewModal from "@/components/PdfPreviewModal";
 import tylerLogo from "@/assets/tyler-logo.png";
 import aetnaLogo from "@/assets/aetna-logo.png";
 import anthemLogo from "@/assets/anthem-logo.jpg";
@@ -150,7 +149,6 @@ const carrierCertificationsByStateAndYear: Record<Year, Record<State, Array<{
 const CertificationsPage = () => {
   const [selectedState, setSelectedState] = useState<State>("Kentucky");
   const [selectedYear, setSelectedYear] = useState<Year>("2026");
-  const [pdfPreview, setPdfPreview] = useState<{ title: string; url: string } | null>(null);
 
   const carrierCertifications = carrierCertificationsByStateAndYear[selectedYear]?.[selectedState] || [];
 
@@ -550,13 +548,19 @@ const CertificationsPage = () => {
                           </Button>
                         </a>
                         {cert.howToCertifyUrl ? (
-                          <Button
-                            variant="outline"
-                            className="w-full text-[10px] h-6 hover:bg-accent"
-                            onClick={() => setPdfPreview({ title: cert.howToCertifyTitle, url: cert.howToCertifyUrl })}
+                          <a
+                            href={cert.howToCertifyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
                           >
-                            How to Certify
-                          </Button>
+                            <Button
+                              variant="outline"
+                              className="w-full text-[10px] h-6 hover:bg-accent"
+                            >
+                              How to Certify
+                            </Button>
+                          </a>
                         ) : (
                           <Button
                             variant="outline"
@@ -577,13 +581,6 @@ const CertificationsPage = () => {
       </main>
 
       <Footer />
-
-      <PdfPreviewModal
-        isOpen={!!pdfPreview}
-        onClose={() => setPdfPreview(null)}
-        pdfUrl={pdfPreview?.url || ""}
-        title={pdfPreview?.title || ""}
-      />
     </div>
   );
 };

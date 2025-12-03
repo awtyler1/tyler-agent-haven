@@ -199,8 +199,8 @@ const CarrierPlansPage = () => {
                                     <a
                                       key={docIndex}
                                       href={doc.url}
-                                      target={doc.isExternal ? "_blank" : undefined}
-                                      rel={doc.isExternal ? "noopener noreferrer" : undefined}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
                                       className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-white border border-border rounded hover:border-gold hover:text-gold transition-smooth"
                                     >
                                       {doc.isExternal ? (
