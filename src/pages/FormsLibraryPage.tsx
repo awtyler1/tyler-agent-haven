@@ -74,7 +74,7 @@ const FormsLibraryPage = () => {
                   variant="outline"
                   className="h-auto py-4 justify-start border-[#E5E2DB] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-150"
                 >
-                  <a href={form.file} download>
+                  <a href={form.file} target="_blank" rel="noopener noreferrer">
                     <Download className="w-4 h-4 mr-2 text-gold" />
                     <span className="font-medium">{form.name}</span>
                   </a>
@@ -104,7 +104,7 @@ const FormsLibraryPage = () => {
                         variant="ghost"
                         className="w-full justify-start text-left h-auto py-3 hover:bg-cream/30"
                       >
-                        <a href={form.file} download>
+                        <a href={form.file} target="_blank" rel="noopener noreferrer">
                           <Download className="w-4 h-4 mr-2 text-gold flex-shrink-0" />
                           <span>{form.name}</span>
                         </a>

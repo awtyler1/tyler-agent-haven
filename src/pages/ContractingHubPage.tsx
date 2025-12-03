@@ -6,14 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Download, FileText, Image as ImageIcon, X, Check, Upload } from "lucide-react";
 
 const ContractingHubPage = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [validationErrors, setValidationErrors] = useState({
@@ -290,13 +288,19 @@ const ContractingHubPage = () => {
                       Download Contracting Packet
                     </h2>
                   </div>
-                  <Button 
-                    onClick={() => setIsPdfModalOpen(true)}
-                    className="w-full bg-gold hover:bg-gold/90 hover:shadow-md text-charcoal font-semibold px-5 py-3.5 text-sm shadow-sm transition-all duration-150"
+                  <a 
+                    href="/downloads/Tyler_Insurance_Group_Contracting_Packet.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Contracting Packet (PDF)
-                  </Button>
+                    <Button 
+                      className="w-full bg-gold hover:bg-gold/90 hover:shadow-md text-charcoal font-semibold px-5 py-3.5 text-sm shadow-sm transition-all duration-150"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Contracting Packet (PDF)
+                    </Button>
+                  </a>
                   <div className="mt-2.5 text-[11px] text-muted-foreground space-y-0.5 leading-relaxed">
                     <p>Complete all pages and sign where indicated.</p>
                     <p>Replace the sample E&O page with your own certificate.</p>
@@ -581,13 +585,6 @@ const ContractingHubPage = () => {
       </main>
 
       <Footer />
-
-      <PdfPreviewModal
-        isOpen={isPdfModalOpen}
-        onClose={() => setIsPdfModalOpen(false)}
-        title="Tyler Insurance Group Contracting Packet"
-        pdfUrl="/downloads/Tyler_Insurance_Group_Contracting_Packet.pdf"
-      />
     </div>
   );
 };
