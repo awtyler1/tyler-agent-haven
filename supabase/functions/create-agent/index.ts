@@ -23,6 +23,7 @@ serve(async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const siteUrl = Deno.env.get("SITE_URL") || "https://preview--tig-broker-hub.lovable.app";
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }
@@ -59,8 +60,8 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Email and full name are required");
     }
 
-    // Generate a random temporary password
-    const tempPassword = crypto.randomUUID().slice(0, 16);
+    // Generate a random password (user won't know this - they'll set their own)
+    const tempPassword = crypto.randomUUID();
 
     // Create the user account
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -96,10 +97,26 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`Role assigned: ${role} for user ${newUser.user.id}`);
 
-    // Send setup email if requested
+    // Send setup email with password reset link if requested
     let emailSent = false;
     if (sendSetupEmail && resendApiKey) {
-      const siteUrl = Deno.env.get("SITE_URL") || "https://app.tylerinsurancegroup.com";
+      // Generate a password recovery link so user can set their own password
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email: email,
+        options: {
+          redirectTo: `${siteUrl}/auth/set-password`,
+        }
+      });
+
+      if (linkError) {
+        console.error("Failed to generate recovery link:", linkError);
+        throw new Error(`Failed to generate setup link: ${linkError.message}`);
+      }
+
+      // The link contains the token - we need to construct the proper URL
+      const setupLink = linkData.properties.action_link;
+      console.log(`Generated setup link for ${email}`);
 
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -110,7 +127,7 @@ serve(async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           from: "Tyler Insurance Group <onboarding@resend.dev>",
           to: [email],
-          subject: "Your Tyler Insurance Group Account Setup",
+          subject: "Welcome to Tyler Insurance Group - Set Up Your Account",
           html: `
             <!DOCTYPE html>
             <html>
@@ -119,9 +136,12 @@ serve(async (req: Request): Promise<Response> => {
                 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
                 .header { text-align: center; margin-bottom: 30px; }
-                .button { display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-                .credentials { background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; }
-                .footer { text-align: center; color: #666; font-size: 14px; margin-top: 30px; }
+                .header h1 { color: #1a1a1a; margin-bottom: 10px; }
+                .button { display: inline-block; background: #2563eb; color: white !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; margin: 24px 0; font-weight: 600; }
+                .button:hover { background: #1d4ed8; }
+                .info-box { background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb; }
+                .footer { text-align: center; color: #666; font-size: 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+                .highlight { color: #2563eb; font-weight: 600; }
               </style>
             </head>
             <body>
@@ -132,25 +152,31 @@ serve(async (req: Request): Promise<Response> => {
                 
                 <p>Hi ${fullName},</p>
                 
-                <p>Your account has been created on the Tyler Insurance Group platform. Use the credentials below to log in and get started.</p>
+                <p>Great news! Your account has been created on the Tyler Insurance Group platform. You're just one step away from getting started.</p>
                 
-                <div class="credentials">
-                  <h3>Your Login Credentials</h3>
-                  <p><strong>Email:</strong> ${email}</p>
-                  <p><strong>Temporary Password:</strong> ${tempPassword}</p>
+                <div class="info-box">
+                  <p style="margin: 0;"><strong>Your login email:</strong> <span class="highlight">${email}</span></p>
                 </div>
                 
-                <p><strong>Important:</strong> Please change your password after your first login for security.</p>
+                <p>Click the button below to set your password and activate your account:</p>
                 
                 <p style="text-align: center;">
-                  <a href="${siteUrl}/auth" class="button">Log In Now</a>
+                  <a href="${setupLink}" class="button">Set My Password</a>
                 </p>
                 
-                <p>Once logged in, you'll be guided through the onboarding process to complete your setup.</p>
+                <p style="font-size: 14px; color: #666;">This link will expire in 24 hours. If you need a new link, contact your administrator.</p>
+                
+                <p>Once you've set your password, you'll have access to:</p>
+                <ul>
+                  <li>Carrier resources and training materials</li>
+                  <li>Plan comparison tools</li>
+                  <li>Sales support and documentation</li>
+                  <li>And much more!</li>
+                </ul>
                 
                 <div class="footer">
-                  <p>Tyler Insurance Group</p>
-                  <p>If you didn't expect this email, please contact your administrator.</p>
+                  <p><strong>Tyler Insurance Group</strong></p>
+                  <p>If you didn't expect this email, you can safely ignore it.</p>
                 </div>
               </div>
             </body>
@@ -169,7 +195,8 @@ serve(async (req: Request): Promise<Response> => {
           .update({ setup_link_sent_at: new Date().toISOString() })
           .eq("user_id", newUser.user.id);
       } else {
-        console.error("Failed to send setup email:", await emailResponse.text());
+        const errorText = await emailResponse.text();
+        console.error("Failed to send setup email:", errorText);
       }
     }
 
