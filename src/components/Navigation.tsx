@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown, Shield } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, ChevronDown, Shield, LogIn, LogOut } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const navLinks = [
   { name: "Dashboard", href: "/" },
@@ -18,7 +20,14 @@ const navLinks = [
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-  const { canAccessAdmin } = useAuth();
+  const { canAccessAdmin, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logged out successfully");
+    navigate("/auth");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -125,6 +134,25 @@ const Navigation = () => {
                 Admin
               </Link>
             )}
+
+            {/* Auth Link */}
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <LogOut size={14} />
+                Log Out
+              </button>
+            ) : (
+              <Link
+                to="/auth"
+                className="text-[13px] font-medium text-primary hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <LogIn size={14} />
+                Log In
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -221,6 +249,29 @@ const Navigation = () => {
                 >
                   <Shield size={16} />
                   Admin
+                </Link>
+              )}
+
+              {/* Auth Link */}
+              {isAuthenticated ? (
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsOpen(false);
+                  }}
+                  className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Log Out
+                </button>
+              ) : (
+                <Link
+                  to="/auth"
+                  onClick={() => setIsOpen(false)}
+                  className="text-base font-medium text-primary hover:text-gold transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
+                >
+                  <LogIn size={16} />
+                  Log In
                 </Link>
               )}
             </div>
