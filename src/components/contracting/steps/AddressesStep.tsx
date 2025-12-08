@@ -209,7 +209,7 @@ export function AddressesStep({ application, onUpdate, onBack, onContinue }: Add
             <Button variant="outline" onClick={onBack}>
               Back
             </Button>
-            <Button onClick={onContinue} disabled={!isValid}>
+            <Button onClick={onContinue}>
               Continue
             </Button>
           </div>

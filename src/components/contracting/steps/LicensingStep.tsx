@@ -185,7 +185,7 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
             <Button variant="outline" onClick={onBack}>
               Back
             </Button>
-            <Button onClick={onContinue} disabled={!isValid}>
+            <Button onClick={onContinue}>
               Continue
             </Button>
           </div>
