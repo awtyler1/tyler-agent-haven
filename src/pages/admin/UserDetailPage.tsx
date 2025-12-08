@@ -264,6 +264,8 @@ export default function UserDetailPage() {
     }
   };
 
+  const isAgentRole = user?.role === 'agent';
+  
   const timelineEvents = user ? [
     { 
       label: 'Account Created', 
@@ -289,12 +291,13 @@ export default function UserDetailPage() {
       completed: !!user.first_login_at,
       icon: CheckCircle2 
     },
-    { 
+    // Only show Appointed for agents
+    ...(isAgentRole ? [{ 
       label: 'Appointed', 
       date: user.appointed_at, 
       completed: !!user.appointed_at,
       icon: FileText 
-    },
+    }] : []),
   ] : [];
 
   if (loading) {
