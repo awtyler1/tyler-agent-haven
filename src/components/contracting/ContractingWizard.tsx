@@ -13,7 +13,7 @@ import { Clock } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+
 
 export function ContractingWizard() {
   const {
@@ -26,33 +26,14 @@ export function ContractingWizard() {
     uploadDocument,
   } = useContractingApplication();
 
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [displayedStep, setDisplayedStep] = useState<number | null>(null);
-  const [transitionDirection, setTransitionDirection] = useState<'forward' | 'backward'>('forward');
+  const [animationKey, setAnimationKey] = useState(0);
 
-  // Initialize displayedStep when application loads
+  // Trigger re-animation when step changes
   useEffect(() => {
-    if (application && displayedStep === null) {
-      setDisplayedStep(application.current_step);
+    if (application) {
+      setAnimationKey(prev => prev + 1);
     }
-  }, [application, displayedStep]);
-
-  // Handle step transitions with animation
-  useEffect(() => {
-    if (application && displayedStep !== null && application.current_step !== displayedStep && !isTransitioning) {
-      setTransitionDirection(application.current_step > displayedStep ? 'forward' : 'backward');
-      setIsTransitioning(true);
-      
-      // Wait for exit animation, then switch step
-      const timer = setTimeout(() => {
-        setDisplayedStep(application.current_step);
-        // Allow enter animation to play
-        setTimeout(() => setIsTransitioning(false), 50);
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [application?.current_step, displayedStep, isTransitioning]);
+  }, [application?.current_step]);
 
   const handleLogout = async () => {
     try {
@@ -116,8 +97,7 @@ export function ContractingWizard() {
   }
 
   const renderStep = () => {
-    const stepToRender = displayedStep ?? application.current_step;
-    switch (stepToRender) {
+    switch (application.current_step) {
       case 1:
         return (
           <WelcomeStep
@@ -167,13 +147,13 @@ export function ContractingWizard() {
         return (
           <Card className="max-w-lg mx-auto text-center">
             <CardHeader>
-              <CardTitle>Step {stepToRender} Coming Soon</CardTitle>
+              <CardTitle>Step {application.current_step} Coming Soon</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
                 Steps 6-10 (Banking, Training, Carriers, Signature, Review) will be built next.
               </p>
-              <button onClick={() => goToStep(stepToRender - 1)} className="text-primary underline">
+              <button onClick={() => goToStep(application.current_step - 1)} className="text-primary underline">
                 Go back
               </button>
             </CardContent>
@@ -211,15 +191,11 @@ export function ContractingWizard() {
           </div>
         )}
 
-        {/* Current step with Apple-style transitions */}
-        <div className="mt-4 flex-1 relative overflow-hidden">
+        {/* Current step with Apple-style fade transition */}
+        <div className="mt-4 flex-1">
           <div
-            className={cn(
-              "transition-all duration-300 ease-out",
-              isTransitioning && transitionDirection === 'forward' && "opacity-0 translate-x-8",
-              isTransitioning && transitionDirection === 'backward' && "opacity-0 -translate-x-8",
-              !isTransitioning && "opacity-100 translate-x-0"
-            )}
+            key={animationKey}
+            className="animate-fade-in"
           >
             {renderStep()}
           </div>
