@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 // Public pages
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
+import SetPasswordPage from "./pages/auth/SetPasswordPage";
 import StartHerePage from "./pages/StartHerePage";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
 import SalesTrainingPage from "./pages/SalesTrainingPage";
@@ -48,6 +49,7 @@ const App = () => (
           <Routes>
             {/* Auth */}
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth/set-password" element={<SetPasswordPage />} />
             
             {/* Agent contracting (accessible only to agents needing contracting) */}
             <Route 
