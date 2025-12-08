@@ -115,16 +115,14 @@ const Navigation = () => {
               </div>
             ))}
             
-            {/* Admin Link - Only for Super Admins */}
-            {isSuperAdmin() && (
-              <Link
-                to="/admin/super"
-                className="text-[13px] font-medium text-primary hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
-              >
-                <Shield size={14} />
-                Admin
-              </Link>
-            )}
+            {/* Admin Link - Temporarily visible for testing */}
+            <Link
+              to="/admin/super"
+              className="text-[13px] font-medium text-primary hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <Shield size={14} />
+              Admin
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -212,17 +210,15 @@ const Navigation = () => {
                 </div>
               ))}
               
-              {/* Admin Link - Only for Super Admins */}
-              {isSuperAdmin() && (
-                <Link
-                  to="/admin/super"
-                  onClick={() => setIsOpen(false)}
-                  className="text-base font-medium text-primary hover:text-gold transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
-                >
-                  <Shield size={16} />
-                  Admin
-                </Link>
-              )}
+              {/* Admin Link - Temporarily visible for testing */}
+              <Link
+                to="/admin/super"
+                onClick={() => setIsOpen(false)}
+                className="text-base font-medium text-primary hover:text-gold transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
+              >
+                <Shield size={16} />
+                Admin
+              </Link>
             </div>
           </div>
         )}
