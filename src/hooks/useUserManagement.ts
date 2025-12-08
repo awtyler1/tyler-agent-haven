@@ -68,7 +68,7 @@ export function useUserManagement() {
     }
   }, []);
 
-  const createUser = async (data: { email: string; fullName: string; role: string; managerId?: string }) => {
+  const createUser = async (data: { email: string; fullName: string; role: string; managerId?: string; sendSetupEmail?: boolean }) => {
     try {
       const { data: result, error } = await supabase.functions.invoke('create-agent', {
         body: {
@@ -76,13 +76,17 @@ export function useUserManagement() {
           fullName: data.fullName,
           role: data.role,
           managerId: data.managerId || null,
+          sendSetupEmail: data.sendSetupEmail ?? true,
         },
       });
 
       if (error) throw error;
       if (result?.error) throw new Error(result.error);
 
-      toast.success('User created successfully');
+      const message = data.sendSetupEmail 
+        ? 'User created and setup email sent'
+        : 'User created successfully';
+      toast.success(message);
       await fetchUsers();
       return { success: true, userId: result.userId };
     } catch (err: any) {
