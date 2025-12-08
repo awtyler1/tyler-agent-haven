@@ -23,6 +23,7 @@ export default function AuthPage() {
   // Signup state
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
 
   useEffect(() => {
@@ -60,6 +61,17 @@ export default function AuthPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (signupPassword !== signupConfirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
+    if (signupPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -193,6 +205,18 @@ export default function AuthPage() {
                     placeholder="••••••••"
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                  <Input
+                    id="signup-confirm-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={signupConfirmPassword}
+                    onChange={(e) => setSignupConfirmPassword(e.target.value)}
                     required
                     minLength={6}
                   />
