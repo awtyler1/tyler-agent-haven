@@ -34,7 +34,7 @@ import {
 const formSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
-  role: z.enum(['super_admin', 'contracting_admin', 'broker_manager', 'agent']),
+  role: z.enum(['super_admin', 'admin', 'manager', 'agent']),
   sendSetupEmail: z.boolean().default(true),
 });
 
@@ -75,9 +75,9 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
   };
 
   const roleLabels: Record<string, string> = {
-    super_admin: 'Super Admin',
-    contracting_admin: 'Contracting Admin',
-    broker_manager: 'Broker Manager',
+    super_admin: 'Superadmin',
+    admin: 'Admin',
+    manager: 'Manager',
     agent: 'Agent',
   };
 
