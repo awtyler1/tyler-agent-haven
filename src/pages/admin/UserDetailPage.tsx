@@ -60,13 +60,14 @@ interface UserProfile {
   is_active: boolean;
 }
 
-type AppRole = 'super_admin' | 'admin' | 'manager' | 'agent';
+type AppRole = 'super_admin' | 'admin' | 'manager' | 'internal_tig_agent' | 'independent_agent';
 
 const roleLabels: Record<string, string> = {
   super_admin: 'Superadmin',
   admin: 'Admin',
   manager: 'Manager',
-  agent: 'Agent',
+  internal_tig_agent: 'Internal TIG Agent',
+  independent_agent: 'Independent Agent',
 };
 
 const onboardingStatusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
@@ -264,7 +265,7 @@ export default function UserDetailPage() {
     }
   };
 
-  const isAgentRole = user?.role === 'agent';
+  const isAgentRole = user?.role === 'independent_agent' || user?.role === 'internal_tig_agent';
   
   const timelineEvents = user ? [
     { 
@@ -348,8 +349,8 @@ export default function UserDetailPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant={user.role === 'agent' ? onboardingInfo.variant : 'secondary'} className="text-sm px-3 py-1">
-                {user.role === 'agent' ? onboardingInfo.label : roleLabels[user.role || 'agent']}
+              <Badge variant={isAgentRole ? onboardingInfo.variant : 'secondary'} className="text-sm px-3 py-1">
+                {isAgentRole ? onboardingInfo.label : roleLabels[user.role || 'independent_agent']}
               </Badge>
             </div>
           </div>
@@ -472,7 +473,7 @@ export default function UserDetailPage() {
                   </div>
                 ) : (
                   <Select
-                    value={user.role || 'agent'}
+                    value={user.role || 'independent_agent'}
                     onValueChange={(value) => handleRoleChange(value as AppRole)}
                   >
                     <SelectTrigger className="w-full">
@@ -490,7 +491,7 @@ export default function UserDetailPage() {
               </div>
 
               {/* Onboarding Status - only for agents */}
-              {user.role === 'agent' && (
+              {isAgentRole && (
                 <div className="space-y-2">
                   <Label>Onboarding Status</Label>
                   {updatingStatus ? (

@@ -115,7 +115,7 @@ export function useUserManagement() {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: 'super_admin' | 'admin' | 'manager' | 'agent') => {
+  const updateUserRole = async (userId: string, newRole: 'super_admin' | 'admin' | 'manager' | 'internal_tig_agent' | 'independent_agent') => {
     try {
       // Delete existing role
       await supabase
