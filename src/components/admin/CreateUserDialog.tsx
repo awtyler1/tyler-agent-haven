@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -19,8 +19,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -33,12 +35,13 @@ const formSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   role: z.enum(['super_admin', 'contracting_admin', 'broker_manager', 'agent']),
+  sendSetupEmail: z.boolean().default(true),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 interface CreateUserDialogProps {
-  onCreateUser: (data: { email: string; fullName: string; role: string }) => Promise<{ success: boolean }>;
+  onCreateUser: (data: { email: string; fullName: string; role: string; sendSetupEmail: boolean }) => Promise<{ success: boolean; userId?: string }>;
 }
 
 export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
@@ -51,6 +54,7 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
       fullName: '',
       email: '',
       role: 'agent',
+      sendSetupEmail: true,
     },
   });
 
@@ -60,6 +64,7 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
       email: data.email,
       fullName: data.fullName,
       role: data.role,
+      sendSetupEmail: data.sendSetupEmail,
     });
     setIsSubmitting(false);
     
@@ -88,7 +93,7 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
         <DialogHeader>
           <DialogTitle>Create New User</DialogTitle>
           <DialogDescription>
-            Add a new user to the platform. No setup link will be sent automatically.
+            Add a new user to the platform and optionally send them a setup email.
           </DialogDescription>
         </DialogHeader>
         
@@ -143,6 +148,30 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
                     </SelectContent>
                   </Select>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="sendSetupEmail"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Send setup email
+                    </FormLabel>
+                    <FormDescription>
+                      Email the user their login credentials immediately
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
