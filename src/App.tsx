@@ -1,8 +1,9 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AgentChatWidget } from "./components/AgentChatWidget";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -43,12 +44,30 @@ import NewAgentPage from "./pages/admin/NewAgentPage";
 
 const queryClient = new QueryClient();
 
+// Component to handle recovery token redirects
+function RecoveryRedirectHandler() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check if this is a recovery redirect (has type=recovery in hash)
+    const hash = window.location.hash;
+    if (hash && hash.includes('type=recovery')) {
+      // Redirect to set-password page while preserving the hash
+      navigate('/auth/set-password' + hash, { replace: true });
+    }
+  }, [navigate, location]);
+
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
+          <RecoveryRedirectHandler />
           <Routes>
             {/* Auth */}
             <Route path="/auth" element={<AuthPage />} />
