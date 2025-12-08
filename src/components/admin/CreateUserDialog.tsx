@@ -34,7 +34,7 @@ import {
 const formSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
-  role: z.enum(['super_admin', 'admin', 'manager', 'agent']),
+  role: z.enum(['super_admin', 'admin', 'manager', 'internal_tig_agent', 'independent_agent']),
   sendSetupEmail: z.boolean().default(true),
 });
 
@@ -53,7 +53,7 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
     defaultValues: {
       fullName: '',
       email: '',
-      role: 'agent',
+      role: 'independent_agent',
       sendSetupEmail: true,
     },
   });
@@ -78,7 +78,8 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
     super_admin: 'Superadmin',
     admin: 'Admin',
     manager: 'Manager',
-    agent: 'Agent',
+    internal_tig_agent: 'Internal TIG Agent',
+    independent_agent: 'Independent Agent',
   };
 
   return (

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
-export type AppRole = 'super_admin' | 'admin' | 'manager' | 'agent';
+export type AppRole = 'super_admin' | 'admin' | 'manager' | 'internal_tig_agent' | 'independent_agent';
 
 export interface UserRole {
   id: string;
@@ -61,7 +61,7 @@ export function useRole() {
       setRoles(userRoles);
 
       // Determine primary role by hierarchy
-      const roleHierarchy: AppRole[] = ['super_admin', 'admin', 'manager', 'agent'];
+      const roleHierarchy: AppRole[] = ['super_admin', 'admin', 'manager', 'internal_tig_agent', 'independent_agent'];
       const primary = roleHierarchy.find(role => userRoles.includes(role)) ?? null;
       setPrimaryRole(primary);
     } catch (err) {
@@ -82,7 +82,11 @@ export function useRole() {
   
   const isManager = (): boolean => hasRole('manager');
   
-  const isAgent = (): boolean => hasRole('agent');
+  const isAgent = (): boolean => hasRole('independent_agent') || hasRole('internal_tig_agent');
+  
+  const isIndependentAgent = (): boolean => hasRole('independent_agent');
+  
+  const isInternalTigAgent = (): boolean => hasRole('internal_tig_agent');
 
   const canAccessAdmin = (): boolean => isAdmin();
   
@@ -108,6 +112,8 @@ export function useRole() {
     isAdminRole,
     isManager,
     isAgent,
+    isIndependentAgent,
+    isInternalTigAgent,
     canAccessAdmin,
     canManageAgents,
     canViewTeam,

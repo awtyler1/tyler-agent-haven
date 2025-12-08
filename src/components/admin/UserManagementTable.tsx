@@ -31,7 +31,7 @@ import {
 import { CreateUserDialog } from './CreateUserDialog';
 import { useUserManagement, type ManagedUser } from '@/hooks/useUserManagement';
 
-type AppRole = 'super_admin' | 'admin' | 'manager' | 'agent';
+type AppRole = 'super_admin' | 'admin' | 'manager' | 'internal_tig_agent' | 'independent_agent';
 
 function getAccountStatus(user: ManagedUser): { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' } {
   if (user.first_login_at) {
@@ -57,7 +57,8 @@ const roleLabels: Record<string, string> = {
   super_admin: 'Superadmin',
   admin: 'Admin',
   manager: 'Manager',
-  agent: 'Agent',
+  internal_tig_agent: 'Internal TIG Agent',
+  independent_agent: 'Independent Agent',
 };
 
 export function UserManagementTable() {
@@ -119,7 +120,7 @@ export function UserManagementTable() {
               <TableBody>
                 {users.map((user) => {
                   const accountStatus = getAccountStatus(user);
-                  const isAgent = user.role === 'agent';
+                  const isAgent = user.role === 'independent_agent' || user.role === 'internal_tig_agent';
                   return (
                     <TableRow 
                       key={user.id} 
@@ -139,7 +140,7 @@ export function UserManagementTable() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {roleLabels[user.role || 'agent'] || user.role}
+                          {roleLabels[user.role || 'independent_agent'] || user.role}
                         </Badge>
                       </TableCell>
                       <TableCell>
