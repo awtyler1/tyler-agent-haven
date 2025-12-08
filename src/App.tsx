@@ -38,6 +38,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import SuperAdminDashboard from "./pages/admin/SuperAdminDashboard";
 import AgentsPage from "./pages/admin/AgentsPage";
 import UserDetailPage from "./pages/admin/UserDetailPage";
+import PlatformMapPage from "./pages/admin/PlatformMapPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
 
 const queryClient = new QueryClient();
@@ -80,6 +81,10 @@ const App = () => (
             <Route 
               path="/admin/users/:userId" 
               element={<UserDetailPage />} 
+            />
+            <Route 
+              path="/admin/platform-map" 
+              element={<PlatformMapPage />} 
             />
             <Route 
               path="/admin/agents" 
