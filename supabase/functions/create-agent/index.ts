@@ -118,6 +118,8 @@ serve(async (req: Request): Promise<Response> => {
       const setupLink = linkData.properties.action_link;
       console.log(`Generated setup link for ${email}`);
 
+      const firstName = fullName.split(' ')[0] || 'there';
+
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -125,58 +127,49 @@ serve(async (req: Request): Promise<Response> => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Tyler Insurance Group <onboarding@resend.dev>",
+          from: "Tyler Insurance Group <team@tylerinsurancegroup.com>",
           to: [email],
-          subject: "Welcome to Tyler Insurance Group - Set Up Your Account",
+          subject: "Your Agent Account Is Ready",
           html: `
             <!DOCTYPE html>
             <html>
             <head>
               <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .header h1 { color: #1a1a1a; margin-bottom: 10px; }
-                .button { display: inline-block; background: #2563eb; color: white !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; margin: 24px 0; font-weight: 600; }
-                .button:hover { background: #1d4ed8; }
-                .info-box { background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb; }
-                .footer { text-align: center; color: #666; font-size: 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-                .highlight { color: #2563eb; font-weight: 600; }
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; color: #1a1a1a; background-color: #f9fafb; margin: 0; padding: 0; }
+                .wrapper { background-color: #f9fafb; padding: 40px 20px; }
+                .container { max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+                .greeting { font-size: 18px; margin-bottom: 24px; }
+                .body-text { font-size: 16px; color: #374151; margin-bottom: 20px; }
+                .button { display: inline-block; background: #1a1a1a; color: #ffffff !important; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 24px 0; }
+                .button:hover { background: #333333; }
+                .note { font-size: 15px; color: #6b7280; margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; }
+                .footer { margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px; }
+                .signature { font-weight: 600; color: #1a1a1a; }
               </style>
             </head>
             <body>
-              <div class="container">
-                <div class="header">
-                  <h1>Welcome to Tyler Insurance Group!</h1>
-                </div>
-                
-                <p>Hi ${fullName},</p>
-                
-                <p>Great news! Your account has been created on the Tyler Insurance Group platform. You're just one step away from getting started.</p>
-                
-                <div class="info-box">
-                  <p style="margin: 0;"><strong>Your login email:</strong> <span class="highlight">${email}</span></p>
-                </div>
-                
-                <p>Click the button below to set your password and activate your account:</p>
-                
-                <p style="text-align: center;">
-                  <a href="${setupLink}" class="button">Set My Password</a>
-                </p>
-                
-                <p style="font-size: 14px; color: #666;">This link will expire in 24 hours. If you need a new link, contact your administrator.</p>
-                
-                <p>Once you've set your password, you'll have access to:</p>
-                <ul>
-                  <li>Carrier resources and training materials</li>
-                  <li>Plan comparison tools</li>
-                  <li>Sales support and documentation</li>
-                  <li>And much more!</li>
-                </ul>
-                
-                <div class="footer">
-                  <p><strong>Tyler Insurance Group</strong></p>
-                  <p>If you didn't expect this email, you can safely ignore it.</p>
+              <div class="wrapper">
+                <div class="container">
+                  <p class="greeting">Hi ${firstName},</p>
+                  
+                  <p class="body-text">Welcome. We set up your account and you're ready for the first step.</p>
+                  
+                  <p class="body-text">Use the link below to activate your profile and create your password.</p>
+                  
+                  <p style="text-align: center;">
+                    <a href="${setupLink}" class="button">Activate Your Account</a>
+                  </p>
+                  
+                  <p class="body-text">When you log in, you'll see one page. <strong>Contracting.</strong></p>
+                  
+                  <p class="body-text">Complete this section, and the rest of your tools will open automatically. The goal is simple. Remove friction. Give you a clean start. Set you up to do real work with confidence.</p>
+                  
+                  <p class="note">If you have a question at any point, reply to this message. You'll hear from a real person who knows how to help.</p>
+                  
+                  <div class="footer">
+                    <p>Glad to have you with us. You're building something important, and we're here to make sure you have the support to do it well.</p>
+                    <p class="signature">Tyler Insurance Group<br/>Agent Support Team</p>
+                  </div>
                 </div>
               </div>
             </body>
