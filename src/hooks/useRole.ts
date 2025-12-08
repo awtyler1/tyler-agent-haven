@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
-export type AppRole = 'super_admin' | 'contracting_admin' | 'broker_manager' | 'agent';
+export type AppRole = 'super_admin' | 'admin' | 'manager' | 'agent';
 
 export interface UserRole {
   id: string;
@@ -61,7 +61,7 @@ export function useRole() {
       setRoles(userRoles);
 
       // Determine primary role by hierarchy
-      const roleHierarchy: AppRole[] = ['super_admin', 'contracting_admin', 'broker_manager', 'agent'];
+      const roleHierarchy: AppRole[] = ['super_admin', 'admin', 'manager', 'agent'];
       const primary = roleHierarchy.find(role => userRoles.includes(role)) ?? null;
       setPrimaryRole(primary);
     } catch (err) {
@@ -74,13 +74,13 @@ export function useRole() {
   const hasRole = (role: AppRole): boolean => roles.includes(role);
   
   const isAdmin = (): boolean => 
-    hasRole('super_admin') || hasRole('contracting_admin');
+    hasRole('super_admin') || hasRole('admin');
   
   const isSuperAdmin = (): boolean => hasRole('super_admin');
   
-  const isContractingAdmin = (): boolean => hasRole('contracting_admin');
+  const isAdminRole = (): boolean => hasRole('admin');
   
-  const isBrokerManager = (): boolean => hasRole('broker_manager');
+  const isManager = (): boolean => hasRole('manager');
   
   const isAgent = (): boolean => hasRole('agent');
 
@@ -88,7 +88,7 @@ export function useRole() {
   
   const canManageAgents = (): boolean => isAdmin();
   
-  const canViewTeam = (): boolean => isBrokerManager() || isAdmin();
+  const canViewTeam = (): boolean => isManager() || isAdmin();
 
   const refetch = () => {
     if (user?.id) {
@@ -105,8 +105,8 @@ export function useRole() {
     hasRole,
     isAdmin,
     isSuperAdmin,
-    isContractingAdmin,
-    isBrokerManager,
+    isAdminRole,
+    isManager,
     isAgent,
     canAccessAdmin,
     canManageAgents,

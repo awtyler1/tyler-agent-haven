@@ -60,12 +60,12 @@ interface UserProfile {
   is_active: boolean;
 }
 
-type AppRole = 'super_admin' | 'contracting_admin' | 'broker_manager' | 'agent';
+type AppRole = 'super_admin' | 'admin' | 'manager' | 'agent';
 
 const roleLabels: Record<string, string> = {
-  super_admin: 'Super Admin',
-  contracting_admin: 'Contracting Admin',
-  broker_manager: 'Broker Manager',
+  super_admin: 'Superadmin',
+  admin: 'Admin',
+  manager: 'Manager',
   agent: 'Agent',
 };
 

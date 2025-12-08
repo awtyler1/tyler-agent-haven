@@ -549,7 +549,7 @@ export default function PlatformMapPage() {
               <h3 className="font-bold text-lg mb-3">user_roles</h3>
               <ul className="text-sm space-y-1">
                 <li><code className="bg-gray-100 px-1 rounded">user_id</code> — links to auth.users</li>
-                <li><code className="bg-gray-100 px-1 rounded">role</code> — enum: super_admin, contracting_admin, broker_manager, agent</li>
+                <li><code className="bg-gray-100 px-1 rounded">role</code> — enum: super_admin, admin, manager, agent</li>
               </ul>
             </div>
             <div className="border rounded-lg p-4">

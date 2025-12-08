@@ -31,7 +31,7 @@ import {
 import { CreateUserDialog } from './CreateUserDialog';
 import { useUserManagement, type ManagedUser } from '@/hooks/useUserManagement';
 
-type AppRole = 'super_admin' | 'contracting_admin' | 'broker_manager' | 'agent';
+type AppRole = 'super_admin' | 'admin' | 'manager' | 'agent';
 
 function getAccountStatus(user: ManagedUser): { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' } {
   if (user.first_login_at) {
@@ -54,9 +54,9 @@ const onboardingStatusLabels: Record<string, { label: string; variant: 'default'
 };
 
 const roleLabels: Record<string, string> = {
-  super_admin: 'Super Admin',
-  contracting_admin: 'Contracting Admin',
-  broker_manager: 'Broker Manager',
+  super_admin: 'Superadmin',
+  admin: 'Admin',
+  manager: 'Manager',
   agent: 'Agent',
 };
 

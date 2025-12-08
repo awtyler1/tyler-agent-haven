@@ -27,11 +27,11 @@ export default function NewAgentPage() {
 
   const fetchManagers = async () => {
     try {
-      // Fetch profiles that have broker_manager role
+      // Fetch profiles that have manager role
       const { data: managerRoles } = await supabase
         .from('user_roles')
         .select('user_id')
-        .eq('role', 'broker_manager');
+        .eq('role', 'manager');
 
       if (managerRoles && managerRoles.length > 0) {
         const managerIds = managerRoles.map(r => r.user_id);
