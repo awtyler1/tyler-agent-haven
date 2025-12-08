@@ -1,0 +1,245 @@
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  county: string;
+}
+
+export interface LegalQuestion {
+  answer: boolean | null;
+  explanation?: string;
+}
+
+export interface SelectedCarrier {
+  carrier_id: string;
+  carrier_name: string;
+  non_resident_states: string[];
+}
+
+export interface ContractingApplication {
+  id: string;
+  user_id: string;
+  current_step: number;
+  completed_steps: number[];
+  status: 'in_progress' | 'submitted' | 'approved' | 'rejected';
+  
+  // Step 1: Personal & Contact
+  full_legal_name: string | null;
+  agency_name: string | null;
+  gender: string | null;
+  birth_date: string | null;
+  npn_number: string | null;
+  insurance_license_number: string | null;
+  tax_id: string | null;
+  email_address: string | null;
+  phone_mobile: string | null;
+  phone_business: string | null;
+  phone_home: string | null;
+  fax: string | null;
+  preferred_contact_methods: string[];
+  
+  // Step 2: Addresses
+  home_address: Address;
+  mailing_address_same_as_home: boolean;
+  mailing_address: Address;
+  ups_address_same_as_home: boolean;
+  ups_address: Address;
+  previous_addresses: Address[];
+  
+  // Step 3: Licensing
+  resident_license_number: string | null;
+  resident_state: string | null;
+  license_expiration_date: string | null;
+  non_resident_states: string[];
+  drivers_license_number: string | null;
+  drivers_license_state: string | null;
+  
+  // Step 4: Legal Questions
+  legal_questions: Record<string, LegalQuestion>;
+  
+  // Step 5: Banking
+  bank_routing_number: string | null;
+  bank_account_number: string | null;
+  bank_branch_name: string | null;
+  beneficiary_name: string | null;
+  beneficiary_relationship: string | null;
+  requesting_commission_advancing: boolean;
+  
+  // Step 6: Training
+  aml_training_provider: string | null;
+  aml_completion_date: string | null;
+  has_ltc_certification: boolean;
+  state_requires_ce: boolean;
+  
+  // Step 7: Carriers
+  selected_carriers: SelectedCarrier[];
+  is_corporation: boolean;
+  
+  // Step 8: Agreements
+  agreements: Record<string, boolean>;
+  signature_name: string | null;
+  signature_initials: string | null;
+  signature_date: string | null;
+  
+  // Documents
+  uploaded_documents: Record<string, string>;
+  
+  created_at: string;
+  updated_at: string;
+  submitted_at: string | null;
+}
+
+export interface Carrier {
+  id: string;
+  name: string;
+  code: string;
+  is_active: boolean;
+  requires_non_resident_states: boolean;
+  requires_corporate_resolution: boolean;
+}
+
+export const WIZARD_STEPS = [
+  { id: 1, name: 'Welcome', shortName: 'Welcome' },
+  { id: 2, name: 'Personal & Contact Info', shortName: 'Personal' },
+  { id: 3, name: 'Addresses', shortName: 'Addresses' },
+  { id: 4, name: 'Licensing & IDs', shortName: 'Licensing' },
+  { id: 5, name: 'Legal Questions', shortName: 'Legal' },
+  { id: 6, name: 'Banking & Direct Deposit', shortName: 'Banking' },
+  { id: 7, name: 'Training & Certificates', shortName: 'Training' },
+  { id: 8, name: 'Carrier Selection', shortName: 'Carriers' },
+  { id: 9, name: 'Agreements & Signature', shortName: 'Signature' },
+  { id: 10, name: 'Review & Submit', shortName: 'Submit' },
+] as const;
+
+export const LEGAL_QUESTIONS = [
+  { id: '8b', text: 'Has any E&O carrier ever denied, paid claims on, or canceled your coverage, or have you ever had a claim filed against your E&O carrier?' },
+  { id: '9', text: 'Have you ever had an insurance or securities license denied, suspended, canceled, or revoked?' },
+  { id: '10', text: 'Has any state or federal regulatory body found you to have been a cause of an insurance or investment related business having its authorization to do business denied, suspended, revoked, or restricted?' },
+  { id: '11', text: 'Has any state or federal regulatory agency revoked or suspended your license as an attorney, accountant, or federal contractor?' },
+  { id: '12', text: 'Has any state or federal regulatory agency found you to have made any false statements or omissions, or been dishonest, unfair, or unethical?' },
+  { id: '13', text: 'Have you had any interruptions in licensing?' },
+  { id: '14', text: 'Has any state, federal, or self regulatory agency filed a complaint against you, fined, sanctioned, censured, penalized, or otherwise disciplined you?' },
+  { id: '14a', text: 'Has any regulatory body ever sanctioned, censured, penalized, or otherwise disciplined you?' },
+  { id: '14c', text: 'Have you ever been the subject of a consumer initiated complaint?' },
+  { id: '15', text: 'Have you personally or any insurance or securities brokerage firm with whom you have been associated filed a bankruptcy petition or declared bankruptcy?' },
+  { id: '15a', text: 'Have you personally filed a bankruptcy petition or declared bankruptcy?' },
+  { id: '15b', text: 'Has any insurance or securities brokerage firm with whom you have been associated filed a bankruptcy petition or been declared bankrupt during your association or within five years after it?' },
+  { id: '15c', text: 'Is any bankruptcy pending?' },
+  { id: '16', text: 'Have you ever had any judgments, garnishments, or liens against you?' },
+  { id: '17', text: 'Are you connected in any way with a bank, savings and loan, or other financial institution?' },
+  { id: '18', text: 'Have you ever used any other names or aliases?' },
+  { id: '19', text: 'Do you have any unresolved matters pending with the IRS or other taxing authorities?' },
+] as const;
+
+export const US_STATES = [
+  { code: 'AL', name: 'Alabama' },
+  { code: 'AK', name: 'Alaska' },
+  { code: 'AZ', name: 'Arizona' },
+  { code: 'AR', name: 'Arkansas' },
+  { code: 'CA', name: 'California' },
+  { code: 'CO', name: 'Colorado' },
+  { code: 'CT', name: 'Connecticut' },
+  { code: 'DE', name: 'Delaware' },
+  { code: 'FL', name: 'Florida' },
+  { code: 'GA', name: 'Georgia' },
+  { code: 'HI', name: 'Hawaii' },
+  { code: 'ID', name: 'Idaho' },
+  { code: 'IL', name: 'Illinois' },
+  { code: 'IN', name: 'Indiana' },
+  { code: 'IA', name: 'Iowa' },
+  { code: 'KS', name: 'Kansas' },
+  { code: 'KY', name: 'Kentucky' },
+  { code: 'LA', name: 'Louisiana' },
+  { code: 'ME', name: 'Maine' },
+  { code: 'MD', name: 'Maryland' },
+  { code: 'MA', name: 'Massachusetts' },
+  { code: 'MI', name: 'Michigan' },
+  { code: 'MN', name: 'Minnesota' },
+  { code: 'MS', name: 'Mississippi' },
+  { code: 'MO', name: 'Missouri' },
+  { code: 'MT', name: 'Montana' },
+  { code: 'NE', name: 'Nebraska' },
+  { code: 'NV', name: 'Nevada' },
+  { code: 'NH', name: 'New Hampshire' },
+  { code: 'NJ', name: 'New Jersey' },
+  { code: 'NM', name: 'New Mexico' },
+  { code: 'NY', name: 'New York' },
+  { code: 'NC', name: 'North Carolina' },
+  { code: 'ND', name: 'North Dakota' },
+  { code: 'OH', name: 'Ohio' },
+  { code: 'OK', name: 'Oklahoma' },
+  { code: 'OR', name: 'Oregon' },
+  { code: 'PA', name: 'Pennsylvania' },
+  { code: 'RI', name: 'Rhode Island' },
+  { code: 'SC', name: 'South Carolina' },
+  { code: 'SD', name: 'South Dakota' },
+  { code: 'TN', name: 'Tennessee' },
+  { code: 'TX', name: 'Texas' },
+  { code: 'UT', name: 'Utah' },
+  { code: 'VT', name: 'Vermont' },
+  { code: 'VA', name: 'Virginia' },
+  { code: 'WA', name: 'Washington' },
+  { code: 'WV', name: 'West Virginia' },
+  { code: 'WI', name: 'Wisconsin' },
+  { code: 'WY', name: 'Wyoming' },
+  { code: 'DC', name: 'District of Columbia' },
+] as const;
+
+export const EMPTY_ADDRESS: Address = {
+  street: '',
+  city: '',
+  state: '',
+  zip: '',
+  county: '',
+};
+
+export const getEmptyApplication = (userId: string): Partial<ContractingApplication> => ({
+  user_id: userId,
+  current_step: 1,
+  completed_steps: [],
+  status: 'in_progress',
+  full_legal_name: null,
+  agency_name: null,
+  gender: null,
+  birth_date: null,
+  npn_number: null,
+  insurance_license_number: null,
+  tax_id: null,
+  email_address: null,
+  phone_mobile: null,
+  phone_business: null,
+  phone_home: null,
+  fax: null,
+  preferred_contact_methods: [],
+  home_address: EMPTY_ADDRESS,
+  mailing_address_same_as_home: true,
+  mailing_address: EMPTY_ADDRESS,
+  ups_address_same_as_home: true,
+  ups_address: EMPTY_ADDRESS,
+  previous_addresses: [],
+  resident_license_number: null,
+  resident_state: null,
+  license_expiration_date: null,
+  non_resident_states: [],
+  drivers_license_number: null,
+  drivers_license_state: null,
+  legal_questions: {},
+  bank_routing_number: null,
+  bank_account_number: null,
+  bank_branch_name: null,
+  beneficiary_name: null,
+  beneficiary_relationship: null,
+  requesting_commission_advancing: false,
+  aml_training_provider: null,
+  aml_completion_date: null,
+  has_ltc_certification: false,
+  state_requires_ce: false,
+  selected_carriers: [],
+  is_corporation: false,
+  agreements: {},
+  signature_name: null,
+  signature_initials: null,
+  signature_date: null,
+  uploaded_documents: {},
+});

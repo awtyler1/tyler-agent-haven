@@ -14,6 +14,201 @@ export type Database = {
   }
   public: {
     Tables: {
+      carriers: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          requires_corporate_resolution: boolean
+          requires_non_resident_states: boolean
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          requires_corporate_resolution?: boolean
+          requires_non_resident_states?: boolean
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          requires_corporate_resolution?: boolean
+          requires_non_resident_states?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contracting_applications: {
+        Row: {
+          agency_name: string | null
+          agreements: Json | null
+          aml_completion_date: string | null
+          aml_training_provider: string | null
+          bank_account_number: string | null
+          bank_branch_name: string | null
+          bank_routing_number: string | null
+          beneficiary_name: string | null
+          beneficiary_relationship: string | null
+          birth_date: string | null
+          completed_steps: number[]
+          created_at: string
+          current_step: number
+          drivers_license_number: string | null
+          drivers_license_state: string | null
+          email_address: string | null
+          fax: string | null
+          full_legal_name: string | null
+          gender: string | null
+          has_ltc_certification: boolean | null
+          home_address: Json | null
+          id: string
+          insurance_license_number: string | null
+          is_corporation: boolean | null
+          legal_questions: Json | null
+          license_expiration_date: string | null
+          mailing_address: Json | null
+          mailing_address_same_as_home: boolean | null
+          non_resident_states: string[] | null
+          npn_number: string | null
+          phone_business: string | null
+          phone_home: string | null
+          phone_mobile: string | null
+          preferred_contact_methods: string[] | null
+          previous_addresses: Json | null
+          requesting_commission_advancing: boolean | null
+          resident_license_number: string | null
+          resident_state: string | null
+          selected_carriers: Json | null
+          signature_date: string | null
+          signature_initials: string | null
+          signature_name: string | null
+          state_requires_ce: boolean | null
+          status: string
+          submitted_at: string | null
+          tax_id: string | null
+          updated_at: string
+          uploaded_documents: Json | null
+          ups_address: Json | null
+          ups_address_same_as_home: boolean | null
+          user_id: string
+        }
+        Insert: {
+          agency_name?: string | null
+          agreements?: Json | null
+          aml_completion_date?: string | null
+          aml_training_provider?: string | null
+          bank_account_number?: string | null
+          bank_branch_name?: string | null
+          bank_routing_number?: string | null
+          beneficiary_name?: string | null
+          beneficiary_relationship?: string | null
+          birth_date?: string | null
+          completed_steps?: number[]
+          created_at?: string
+          current_step?: number
+          drivers_license_number?: string | null
+          drivers_license_state?: string | null
+          email_address?: string | null
+          fax?: string | null
+          full_legal_name?: string | null
+          gender?: string | null
+          has_ltc_certification?: boolean | null
+          home_address?: Json | null
+          id?: string
+          insurance_license_number?: string | null
+          is_corporation?: boolean | null
+          legal_questions?: Json | null
+          license_expiration_date?: string | null
+          mailing_address?: Json | null
+          mailing_address_same_as_home?: boolean | null
+          non_resident_states?: string[] | null
+          npn_number?: string | null
+          phone_business?: string | null
+          phone_home?: string | null
+          phone_mobile?: string | null
+          preferred_contact_methods?: string[] | null
+          previous_addresses?: Json | null
+          requesting_commission_advancing?: boolean | null
+          resident_license_number?: string | null
+          resident_state?: string | null
+          selected_carriers?: Json | null
+          signature_date?: string | null
+          signature_initials?: string | null
+          signature_name?: string | null
+          state_requires_ce?: boolean | null
+          status?: string
+          submitted_at?: string | null
+          tax_id?: string | null
+          updated_at?: string
+          uploaded_documents?: Json | null
+          ups_address?: Json | null
+          ups_address_same_as_home?: boolean | null
+          user_id: string
+        }
+        Update: {
+          agency_name?: string | null
+          agreements?: Json | null
+          aml_completion_date?: string | null
+          aml_training_provider?: string | null
+          bank_account_number?: string | null
+          bank_branch_name?: string | null
+          bank_routing_number?: string | null
+          beneficiary_name?: string | null
+          beneficiary_relationship?: string | null
+          birth_date?: string | null
+          completed_steps?: number[]
+          created_at?: string
+          current_step?: number
+          drivers_license_number?: string | null
+          drivers_license_state?: string | null
+          email_address?: string | null
+          fax?: string | null
+          full_legal_name?: string | null
+          gender?: string | null
+          has_ltc_certification?: boolean | null
+          home_address?: Json | null
+          id?: string
+          insurance_license_number?: string | null
+          is_corporation?: boolean | null
+          legal_questions?: Json | null
+          license_expiration_date?: string | null
+          mailing_address?: Json | null
+          mailing_address_same_as_home?: boolean | null
+          non_resident_states?: string[] | null
+          npn_number?: string | null
+          phone_business?: string | null
+          phone_home?: string | null
+          phone_mobile?: string | null
+          preferred_contact_methods?: string[] | null
+          previous_addresses?: Json | null
+          requesting_commission_advancing?: boolean | null
+          resident_license_number?: string | null
+          resident_state?: string | null
+          selected_carriers?: Json | null
+          signature_date?: string | null
+          signature_initials?: string | null
+          signature_name?: string | null
+          state_requires_ce?: boolean | null
+          status?: string
+          submitted_at?: string | null
+          tax_id?: string | null
+          updated_at?: string
+          uploaded_documents?: Json | null
+          ups_address?: Json | null
+          ups_address_same_as_home?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       document_chunks: {
         Row: {
           carrier: string | null
