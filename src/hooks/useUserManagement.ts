@@ -13,6 +13,7 @@ export interface ManagedUser {
   password_created_at: string | null;
   first_login_at: string | null;
   role: string | null;
+  is_active: boolean;
 }
 
 export function useUserManagement() {
@@ -56,6 +57,7 @@ export function useUserManagement() {
         password_created_at: p.password_created_at,
         first_login_at: p.first_login_at,
         role: roleMap[p.user_id] || null,
+        is_active: p.is_active ?? true,
       }));
 
       setUsers(usersWithRoles);
@@ -137,6 +139,42 @@ export function useUserManagement() {
     }
   };
 
+  const toggleUserActive = async (userId: string, isActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: isActive })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast.success(isActive ? 'Account activated' : 'Account deactivated');
+      await fetchUsers();
+      return { success: true };
+    } catch (err: any) {
+      toast.error(`Failed to update account status: ${err.message}`);
+      return { success: false, error: err.message };
+    }
+  };
+
+  const updateUserProfile = async (userId: string, data: { full_name?: string; email?: string }) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(data)
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast.success('Profile updated successfully');
+      await fetchUsers();
+      return { success: true };
+    } catch (err: any) {
+      toast.error(`Failed to update profile: ${err.message}`);
+      return { success: false, error: err.message };
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
@@ -149,5 +187,7 @@ export function useUserManagement() {
     createUser,
     sendSetupLink,
     updateUserRole,
+    toggleUserActive,
+    updateUserProfile,
   };
 }
