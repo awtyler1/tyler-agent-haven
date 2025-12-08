@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Shield } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
+import { useAuth } from "@/hooks/useAuth";
 
 const navLinks = [
   { name: "Dashboard", href: "/" },
@@ -17,6 +18,7 @@ const navLinks = [
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const { isSuperAdmin } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -112,6 +114,17 @@ const Navigation = () => {
                 )}
               </div>
             ))}
+            
+            {/* Admin Link - Only for Super Admins */}
+            {isSuperAdmin() && (
+              <Link
+                to="/admin/super"
+                className="text-[13px] font-medium text-primary hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <Shield size={14} />
+                Admin
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -198,6 +211,18 @@ const Navigation = () => {
                   )}
                 </div>
               ))}
+              
+              {/* Admin Link - Only for Super Admins */}
+              {isSuperAdmin() && (
+                <Link
+                  to="/admin/super"
+                  onClick={() => setIsOpen(false)}
+                  className="text-base font-medium text-primary hover:text-gold transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
+                >
+                  <Shield size={16} />
+                  Admin
+                </Link>
+              )}
             </div>
           </div>
         )}
