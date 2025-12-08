@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Send, MoreHorizontal, Loader2, RefreshCw } from 'lucide-react';
+import { Send, MoreHorizontal, Loader2, RefreshCw, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +33,7 @@ import { useUserManagement, type ManagedUser } from '@/hooks/useUserManagement';
 
 type AppRole = 'super_admin' | 'contracting_admin' | 'broker_manager' | 'agent';
 
-function getOnboardingStatus(user: ManagedUser): { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' } {
+function getAccountStatus(user: ManagedUser): { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' } {
   if (user.first_login_at) {
     return { label: 'Active', variant: 'default' };
   }
@@ -45,6 +46,13 @@ function getOnboardingStatus(user: ManagedUser): { label: string; variant: 'defa
   return { label: 'Created', variant: 'destructive' };
 }
 
+const onboardingStatusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
+  CONTRACTING_REQUIRED: { label: 'Contracting', variant: 'destructive' },
+  CONTRACT_SUBMITTED: { label: 'Submitted', variant: 'outline' },
+  APPOINTED: { label: 'Appointed', variant: 'default' },
+  SUSPENDED: { label: 'Suspended', variant: 'destructive' },
+};
+
 const roleLabels: Record<string, string> = {
   super_admin: 'Super Admin',
   contracting_admin: 'Contracting Admin',
@@ -53,6 +61,7 @@ const roleLabels: Record<string, string> = {
 };
 
 export function UserManagementTable() {
+  const navigate = useNavigate();
   const { users, loading, refetch, createUser, sendSetupLink, updateUserRole } = useUserManagement();
   const [sendingLinkFor, setSendingLinkFor] = useState<string | null>(null);
   const [updatingRoleFor, setUpdatingRoleFor] = useState<string | null>(null);
@@ -67,6 +76,10 @@ export function UserManagementTable() {
     setUpdatingRoleFor(userId);
     await updateUserRole(userId, newRole);
     setUpdatingRoleFor(null);
+  };
+
+  const handleViewUser = (userId: string) => {
+    navigate(`/admin/users/${userId}`);
   };
 
   return (
@@ -98,23 +111,29 @@ export function UserManagementTable() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Account</TableHead>
+                  <TableHead>Onboarding</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.map((user) => {
-                  const status = getOnboardingStatus(user);
+                  const accountStatus = getAccountStatus(user);
+                  const onboardingStatus = onboardingStatusLabels[user.onboarding_status] || { label: user.onboarding_status, variant: 'outline' as const };
                   return (
-                    <TableRow key={user.id}>
+                    <TableRow 
+                      key={user.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleViewUser(user.user_id)}
+                    >
                       <TableCell className="font-medium">
                         {user.full_name || '—'}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {user.email || '—'}
                       </TableCell>
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         {updatingRoleFor === user.user_id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
@@ -136,13 +155,24 @@ export function UserManagementTable() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={status.variant}>{status.label}</Badge>
+                        <Badge variant={accountStatus.variant}>{accountStatus.label}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={onboardingStatus.variant}>{onboardingStatus.label}</Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {format(new Date(user.created_at), 'MMM d, yyyy')}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewUser(user.user_id)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
                           {!user.setup_link_sent_at && (
                             <Button
                               variant="outline"
