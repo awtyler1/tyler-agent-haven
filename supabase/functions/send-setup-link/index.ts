@@ -104,47 +104,62 @@ serve(async (req: Request): Promise<Response> => {
           <!DOCTYPE html>
           <html>
           <head>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; color: #1a1a1a; background-color: #f9fafb; margin: 0; padding: 0; }
-              .wrapper { background-color: #f9fafb; padding: 40px 20px; }
-              .container { max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-              .greeting { font-size: 18px; margin-bottom: 24px; }
-              .body-text { font-size: 16px; color: #374151; margin-bottom: 20px; }
-              .button { display: inline-block; background: #1a1a1a; color: #ffffff !important; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 24px 0; }
-              .button:hover { background: #333333; }
-              .note { font-size: 15px; color: #6b7280; margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; }
-              .footer { margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px; }
-              .signature { font-weight: 600; color: #1a1a1a; }
-            </style>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
           </head>
-          <body>
-            <div class="wrapper">
-              <div class="container">
-                <div style="text-align: center; margin-bottom: 32px;">
-                  <img src="${siteUrl}/tyler-logo.png" alt="Tyler Insurance Group" style="max-width: 180px; height: auto;" />
-                </div>
-                <p class="greeting">Hi ${firstName},</p>
-                
-                <p class="body-text">Welcome. We set up your account and you're ready for the first step.</p>
-                
-                <p class="body-text">Use the link below to activate your profile and create your password.</p>
-                
-                <p style="text-align: center;">
-                  <a href="${setupLink}" class="button">Activate Your Account</a>
-                </p>
-                
-                <p class="body-text">When you log in, you'll see one page: <strong>Contracting.</strong></p>
-                
-                <p class="body-text">Complete this section, and the rest of your tools will open automatically.</p>
-                
-                <p class="note">If you have a question at any point, reply to this message. You'll hear from a real person who knows how to help.</p>
-                
-                <div class="footer">
-                  <p>Glad to have you with us. You're building something important, and we're here to make sure you have the support to do it well.</p>
-                  <p class="signature">Tyler Insurance Group<br/>Agent Support Team</p>
-                </div>
-              </div>
-            </div>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a1a1a; background-color: #f5f5f5; margin: 0; padding: 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+              <tr>
+                <td align="center">
+                  <table width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; background: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <tr>
+                      <td style="padding: 40px;">
+                        <!-- Logo -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td align="center" style="padding-bottom: 32px;">
+                              <img src="https://app.tylerinsurancegroup.com/tyler-logo.png" alt="Tyler Insurance Group" width="180" style="display: block; max-width: 180px; height: auto;" />
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <!-- Content -->
+                        <p style="font-size: 18px; color: #1a1a1a; margin: 0 0 24px 0;">Hi ${firstName},</p>
+                        
+                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px 0;">Welcome. We set up your account and you're ready for the first step.</p>
+                        
+                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Use the link below to activate your profile and create your password.</p>
+                        
+                        <!-- Button -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td align="center" style="padding: 16px 0 24px 0;">
+                              <a href="${setupLink}" style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Activate Your Account</a>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px 0;">When you log in, you'll see one page: <strong>Contracting.</strong></p>
+                        
+                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 32px 0;">Complete this section, and the rest of your tools will open automatically.</p>
+                        
+                        <!-- Divider -->
+                        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 24px 0;" />
+                        
+                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">If you have a question at any point, reply to this message. You'll hear from a real person who knows how to help.</p>
+                        
+                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Glad to have you with us. You're building something important, and we're here to make sure you have the support to do it well.</p>
+                        
+                        <p style="font-size: 16px; color: #1a1a1a; margin: 0;">
+                          <strong>Tyler Insurance Group</strong><br/>
+                          Agent Support Team
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </body>
           </html>
         `,
