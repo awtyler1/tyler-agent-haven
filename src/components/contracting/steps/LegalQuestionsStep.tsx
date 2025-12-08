@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
 import { AlertTriangle, Upload } from 'lucide-react';
 import { useRef } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface LegalQuestionsStepProps {
   application: ContractingApplication;
@@ -40,79 +41,72 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
   };
 
   const hasYesAnswers = Object.values(legalQuestions).some(q => q.answer === true);
-  const allAnswered = LEGAL_QUESTIONS.every(q => legalQuestions[q.id]?.answer !== null && legalQuestions[q.id]?.answer !== undefined);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5" />
+        <CardHeader className="py-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <AlertTriangle className="h-4 w-4" />
             Legal & Background Questions
           </CardTitle>
-          <CardDescription>
-            Answer each question carefully. If you answer Yes, you will be asked to provide more detail.
+          <CardDescription className="text-sm">
+            Answer each question. If Yes, provide details below.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {LEGAL_QUESTIONS.map((question, index) => {
-            const answer = legalQuestions[question.id];
-            const showExplanation = answer?.answer === true;
+        <CardContent className="space-y-3 pb-4">
+          <ScrollArea className="h-[340px] pr-4">
+            <div className="space-y-3">
+              {LEGAL_QUESTIONS.map((question, index) => {
+                const answer = legalQuestions[question.id];
+                const showExplanation = answer?.answer === true;
 
-            return (
-              <div key={question.id} className="space-y-3 pb-4 border-b last:border-0">
-                <div className="flex gap-4">
-                  <span className="font-medium text-muted-foreground shrink-0">
-                    {index + 1}.
-                  </span>
-                  <div className="flex-1 space-y-3">
-                    <p className="text-sm">{question.text}</p>
-                    
-                    <RadioGroup
-                      value={answer?.answer === true ? 'yes' : answer?.answer === false ? 'no' : ''}
-                      onValueChange={value => handleAnswerChange(question.id, value === 'yes')}
-                      className="flex gap-4"
-                    >
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="yes" id={`${question.id}_yes`} />
-                        <Label htmlFor={`${question.id}_yes`} className="font-normal cursor-pointer">
-                          Yes
-                        </Label>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="no" id={`${question.id}_no`} />
-                        <Label htmlFor={`${question.id}_no`} className="font-normal cursor-pointer">
-                          No
-                        </Label>
-                      </div>
-                    </RadioGroup>
+                return (
+                  <div key={question.id} className="space-y-2 pb-2 border-b last:border-0">
+                    <div className="flex gap-3 items-start">
+                      <span className="font-medium text-xs text-muted-foreground shrink-0 w-5">
+                        {index + 1}.
+                      </span>
+                      <p className="text-xs flex-1">{question.text}</p>
+                      <RadioGroup
+                        value={answer?.answer === true ? 'yes' : answer?.answer === false ? 'no' : ''}
+                        onValueChange={value => handleAnswerChange(question.id, value === 'yes')}
+                        className="flex gap-3 shrink-0"
+                      >
+                        <div className="flex items-center gap-1">
+                          <RadioGroupItem value="yes" id={`${question.id}_yes`} className="h-3 w-3" />
+                          <Label htmlFor={`${question.id}_yes`} className="text-xs font-normal cursor-pointer">
+                            Yes
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <RadioGroupItem value="no" id={`${question.id}_no`} className="h-3 w-3" />
+                          <Label htmlFor={`${question.id}_no`} className="text-xs font-normal cursor-pointer">
+                            No
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
 
                     {showExplanation && (
-                      <div className="space-y-2 ml-4 p-3 bg-muted/50 rounded-lg">
-                        <Label htmlFor={`${question.id}_explanation`}>
-                          Please explain (include dates, actions, and descriptions)
-                        </Label>
+                      <div className="ml-8 p-2 bg-muted/50 rounded">
                         <Textarea
-                          id={`${question.id}_explanation`}
                           value={answer?.explanation || ''}
                           onChange={e => handleExplanationChange(question.id, e.target.value)}
-                          placeholder="Provide details..."
-                          rows={3}
+                          placeholder="Explain with dates and details..."
+                          rows={2}
+                          className="text-xs"
                         />
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          </ScrollArea>
 
           {hasYesAnswers && (
-            <div className="space-y-3 pt-4 border-t">
-              <Label>Supporting Documents (optional)</Label>
-              <p className="text-sm text-muted-foreground">
-                Upload any court documents, letters, or other supporting documentation.
-              </p>
+            <div className="flex items-center gap-3 pt-2 border-t">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -122,21 +116,24 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
               />
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => fileInputRef.current?.click()}
+                className="h-7 text-xs"
               >
-                <Upload className="h-4 w-4 mr-2" />
+                <Upload className="h-3 w-3 mr-1" />
                 {application.uploaded_documents?.background_explanation_docs
-                  ? '✓ Documents uploaded'
-                  : 'Upload supporting documents'}
+                  ? '✓ Docs uploaded'
+                  : 'Upload supporting docs'}
               </Button>
+              <span className="text-xs text-muted-foreground">Optional: court docs, letters, etc.</span>
             </div>
           )}
 
-          <div className="flex justify-between pt-4">
-            <Button variant="outline" onClick={onBack}>
+          <div className="flex justify-between pt-2">
+            <Button variant="outline" onClick={onBack} size="sm">
               Back
             </Button>
-            <Button onClick={onContinue}>
+            <Button onClick={onContinue} size="sm">
               Continue
             </Button>
           </div>

@@ -14,7 +14,7 @@ interface AddressesStepProps {
   onContinue: () => void;
 }
 
-function AddressFields({ 
+function CompactAddressFields({ 
   address, 
   onChange, 
   prefix 
@@ -24,64 +24,64 @@ function AddressFields({
   prefix: string;
 }) {
   return (
-    <div className="grid gap-4">
-      <div className="space-y-2">
-        <Label htmlFor={`${prefix}_street`}>Street Address</Label>
+    <div className="grid gap-2 grid-cols-6">
+      <div className="col-span-2 space-y-1">
+        <Label htmlFor={`${prefix}_street`} className="text-xs">Street</Label>
         <Input
           id={`${prefix}_street`}
           value={address.street}
           onChange={e => onChange({ ...address, street: e.target.value })}
           placeholder="123 Main St"
+          className="h-8 text-sm"
         />
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor={`${prefix}_city`}>City</Label>
-          <Input
-            id={`${prefix}_city`}
-            value={address.city}
-            onChange={e => onChange({ ...address, city: e.target.value })}
-            placeholder="Louisville"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor={`${prefix}_state`}>State</Label>
-          <Select
-            value={address.state}
-            onValueChange={value => onChange({ ...address, state: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select state" />
-            </SelectTrigger>
-            <SelectContent>
-              {US_STATES.map(state => (
-                <SelectItem key={state.code} value={state.code}>
-                  {state.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-1">
+        <Label htmlFor={`${prefix}_city`} className="text-xs">City</Label>
+        <Input
+          id={`${prefix}_city`}
+          value={address.city}
+          onChange={e => onChange({ ...address, city: e.target.value })}
+          placeholder="Louisville"
+          className="h-8 text-sm"
+        />
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor={`${prefix}_zip`}>ZIP Code</Label>
-          <Input
-            id={`${prefix}_zip`}
-            value={address.zip}
-            onChange={e => onChange({ ...address, zip: e.target.value })}
-            placeholder="40202"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor={`${prefix}_county`}>County</Label>
-          <Input
-            id={`${prefix}_county`}
-            value={address.county}
-            onChange={e => onChange({ ...address, county: e.target.value })}
-            placeholder="Jefferson"
-          />
-        </div>
+      <div className="space-y-1">
+        <Label htmlFor={`${prefix}_state`} className="text-xs">State</Label>
+        <Select
+          value={address.state}
+          onValueChange={value => onChange({ ...address, state: value })}
+        >
+          <SelectTrigger className="h-8 text-sm">
+            <SelectValue placeholder="State" />
+          </SelectTrigger>
+          <SelectContent>
+            {US_STATES.map(state => (
+              <SelectItem key={state.code} value={state.code}>
+                {state.code}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor={`${prefix}_zip`} className="text-xs">ZIP</Label>
+        <Input
+          id={`${prefix}_zip`}
+          value={address.zip}
+          onChange={e => onChange({ ...address, zip: e.target.value })}
+          placeholder="40202"
+          className="h-8 text-sm"
+        />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor={`${prefix}_county`} className="text-xs">County</Label>
+        <Input
+          id={`${prefix}_county`}
+          value={address.county}
+          onChange={e => onChange({ ...address, county: e.target.value })}
+          placeholder="Jefferson"
+          className="h-8 text-sm"
+        />
       </div>
     </div>
   );
@@ -108,25 +108,23 @@ export function AddressesStep({ application, onUpdate, onBack, onContinue }: Add
     onUpdate('previous_addresses', updated);
   };
 
-  const isValid = homeAddress.street && homeAddress.city && homeAddress.state && homeAddress.zip;
-
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
+        <CardHeader className="py-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <MapPin className="h-4 w-4" />
             Address Information
           </CardTitle>
-          <CardDescription>
-            We use these addresses for licensing, contracting, and mail. Use your legal residential address.
+          <CardDescription className="text-sm">
+            We use these addresses for licensing, contracting, and mail.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-8">
+        <CardContent className="space-y-4 pb-4">
           {/* Home Address */}
-          <div className="space-y-4">
-            <h3 className="font-medium">Home Address *</h3>
-            <AddressFields
+          <div className="space-y-2">
+            <h3 className="font-medium text-sm">Home Address *</h3>
+            <CompactAddressFields
               address={homeAddress}
               onChange={addr => onUpdate('home_address', addr)}
               prefix="home"
@@ -134,20 +132,23 @@ export function AddressesStep({ application, onUpdate, onBack, onContinue }: Add
           </div>
 
           {/* Mailing Address */}
-          <div className="space-y-4">
-            <h3 className="font-medium">Mailing Address</h3>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="mailing_same"
-                checked={application.mailing_address_same_as_home}
-                onCheckedChange={checked => onUpdate('mailing_address_same_as_home', !!checked)}
-              />
-              <Label htmlFor="mailing_same" className="font-normal cursor-pointer">
-                Same as home address
-              </Label>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <h3 className="font-medium text-sm">Mailing Address</h3>
+              <div className="flex items-center gap-1.5">
+                <Checkbox
+                  id="mailing_same"
+                  checked={application.mailing_address_same_as_home}
+                  onCheckedChange={checked => onUpdate('mailing_address_same_as_home', !!checked)}
+                  className="h-3.5 w-3.5"
+                />
+                <Label htmlFor="mailing_same" className="text-xs font-normal cursor-pointer">
+                  Same as home
+                </Label>
+              </div>
             </div>
             {!application.mailing_address_same_as_home && (
-              <AddressFields
+              <CompactAddressFields
                 address={mailingAddress}
                 onChange={addr => onUpdate('mailing_address', addr)}
                 prefix="mailing"
@@ -156,20 +157,23 @@ export function AddressesStep({ application, onUpdate, onBack, onContinue }: Add
           </div>
 
           {/* UPS Address */}
-          <div className="space-y-4">
-            <h3 className="font-medium">UPS Street Address</h3>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="ups_same"
-                checked={application.ups_address_same_as_home}
-                onCheckedChange={checked => onUpdate('ups_address_same_as_home', !!checked)}
-              />
-              <Label htmlFor="ups_same" className="font-normal cursor-pointer">
-                Same as home address
-              </Label>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <h3 className="font-medium text-sm">UPS Street Address</h3>
+              <div className="flex items-center gap-1.5">
+                <Checkbox
+                  id="ups_same"
+                  checked={application.ups_address_same_as_home}
+                  onCheckedChange={checked => onUpdate('ups_address_same_as_home', !!checked)}
+                  className="h-3.5 w-3.5"
+                />
+                <Label htmlFor="ups_same" className="text-xs font-normal cursor-pointer">
+                  Same as home
+                </Label>
+              </div>
             </div>
             {!application.ups_address_same_as_home && (
-              <AddressFields
+              <CompactAddressFields
                 address={upsAddress}
                 onChange={addr => onUpdate('ups_address', addr)}
                 prefix="ups"
@@ -178,25 +182,25 @@ export function AddressesStep({ application, onUpdate, onBack, onContinue }: Add
           </div>
 
           {/* Previous Addresses */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium">Previous Addresses (within last 10 years)</h3>
-              <Button variant="outline" size="sm" onClick={addPreviousAddress}>
-                <Plus className="h-4 w-4 mr-1" />
+              <h3 className="font-medium text-sm">Previous Addresses (last 10 years)</h3>
+              <Button variant="outline" size="sm" onClick={addPreviousAddress} className="h-7 text-xs">
+                <Plus className="h-3 w-3 mr-1" />
                 Add
               </Button>
             </div>
             {previousAddresses.map((addr, index) => (
-              <div key={index} className="relative border rounded-lg p-4">
+              <div key={index} className="relative border rounded-lg p-3">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute top-2 right-2"
+                  className="absolute top-1 right-1 h-6 w-6"
                   onClick={() => removePreviousAddress(index)}
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </Button>
-                <AddressFields
+                <CompactAddressFields
                   address={addr}
                   onChange={newAddr => updatePreviousAddress(index, newAddr)}
                   prefix={`prev_${index}`}
@@ -205,11 +209,11 @@ export function AddressesStep({ application, onUpdate, onBack, onContinue }: Add
             ))}
           </div>
 
-          <div className="flex justify-between pt-4">
-            <Button variant="outline" onClick={onBack}>
+          <div className="flex justify-between pt-2">
+            <Button variant="outline" onClick={onBack} size="sm">
               Back
             </Button>
-            <Button onClick={onContinue}>
+            <Button onClick={onContinue} size="sm">
               Continue
             </Button>
           </div>
