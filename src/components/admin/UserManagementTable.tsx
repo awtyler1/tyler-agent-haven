@@ -112,7 +112,6 @@ export function UserManagementTable() {
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Account</TableHead>
-                  <TableHead>Onboarding</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -120,7 +119,7 @@ export function UserManagementTable() {
               <TableBody>
                 {users.map((user) => {
                   const accountStatus = getAccountStatus(user);
-                  const onboardingStatus = onboardingStatusLabels[user.onboarding_status] || { label: user.onboarding_status, variant: 'outline' as const };
+                  const isAgent = user.role === 'agent';
                   return (
                     <TableRow 
                       key={user.id} 
@@ -133,32 +132,13 @@ export function UserManagementTable() {
                       <TableCell className="text-muted-foreground">
                         {user.email || '—'}
                       </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        {updatingRoleFor === user.user_id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Select
-                            value={user.role || 'agent'}
-                            onValueChange={(value) => handleRoleChange(user.user_id, value as AppRole)}
-                          >
-                            <SelectTrigger className="w-[140px] h-8 text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(roleLabels).map(([value, label]) => (
-                                <SelectItem key={value} value={value} className="text-xs">
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
+                      <TableCell>
+                        <Badge variant="secondary">
+                          {roleLabels[user.role || 'agent'] || user.role}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant={accountStatus.variant}>{accountStatus.label}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={onboardingStatus.variant}>{onboardingStatus.label}</Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {format(new Date(user.created_at), 'MMM d, yyyy')}
@@ -203,6 +183,18 @@ export function UserManagementTable() {
                                 <Send className="h-4 w-4 mr-2" />
                                 {user.setup_link_sent_at ? 'Resend Setup Link' : 'Send Setup Link'}
                               </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel className="text-xs text-muted-foreground">Change Role</DropdownMenuLabel>
+                              {Object.entries(roleLabels).map(([value, label]) => (
+                                <DropdownMenuItem 
+                                  key={value}
+                                  disabled={user.role === value || updatingRoleFor === user.user_id}
+                                  onClick={() => handleRoleChange(user.user_id, value as AppRole)}
+                                >
+                                  {label}
+                                  {user.role === value && ' (current)'}
+                                </DropdownMenuItem>
+                              ))}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
