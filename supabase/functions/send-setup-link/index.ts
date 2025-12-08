@@ -70,19 +70,24 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("User not found");
     }
 
-    // Generate a new temporary password
-    const tempPassword = crypto.randomUUID().slice(0, 16);
+    const siteUrl = Deno.env.get("SITE_URL") || "https://app.tylerinsurancegroup.com";
 
-    // Update the user's password
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password: tempPassword,
+    // Generate a password recovery link so user can set their own password
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email: profile.email,
+      options: {
+        redirectTo: `${siteUrl}/auth/set-password`,
+      }
     });
 
-    if (updateError) {
-      throw new Error(`Failed to update password: ${updateError.message}`);
+    if (linkError) {
+      console.error("Failed to generate recovery link:", linkError);
+      throw new Error(`Failed to generate setup link: ${linkError.message}`);
     }
 
-    const siteUrl = Deno.env.get("SITE_URL") || "https://app.tylerinsurancegroup.com";
+    const setupLink = linkData.properties.action_link;
+    const firstName = profile.full_name?.split(' ')[0] || 'there';
 
     // Send the setup email
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -92,49 +97,49 @@ serve(async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Tyler Insurance Group <onboarding@resend.dev>",
+        from: "Tyler Insurance Group <team@tylerinsurancegroup.com>",
         to: [profile.email],
-        subject: "Your Tyler Insurance Group Account Setup",
+        subject: "Your Agent Account Is Ready",
         html: `
           <!DOCTYPE html>
           <html>
           <head>
             <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .button { display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-              .credentials { background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; }
-              .footer { text-align: center; color: #666; font-size: 14px; margin-top: 30px; }
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; color: #1a1a1a; background-color: #f9fafb; margin: 0; padding: 0; }
+              .wrapper { background-color: #f9fafb; padding: 40px 20px; }
+              .container { max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+              .greeting { font-size: 18px; margin-bottom: 24px; }
+              .body-text { font-size: 16px; color: #374151; margin-bottom: 20px; }
+              .button { display: inline-block; background: #1a1a1a; color: #ffffff !important; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 24px 0; }
+              .button:hover { background: #333333; }
+              .note { font-size: 15px; color: #6b7280; margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; }
+              .footer { margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px; }
+              .signature { font-weight: 600; color: #1a1a1a; }
             </style>
           </head>
           <body>
-            <div class="container">
-              <div class="header">
-                <h1>Welcome to Tyler Insurance Group!</h1>
-              </div>
-              
-              <p>Hi ${profile.full_name},</p>
-              
-              <p>Your account has been created on the Tyler Insurance Group platform. Use the credentials below to log in and get started.</p>
-              
-              <div class="credentials">
-                <h3>Your Login Credentials</h3>
-                <p><strong>Email:</strong> ${profile.email}</p>
-                <p><strong>Temporary Password:</strong> ${tempPassword}</p>
-              </div>
-              
-              <p><strong>Important:</strong> Please change your password after your first login for security.</p>
-              
-              <p style="text-align: center;">
-                <a href="${siteUrl}/auth" class="button">Log In Now</a>
-              </p>
-              
-              <p>Once logged in, you'll be guided through the onboarding process to complete your setup.</p>
-              
-              <div class="footer">
-                <p>Tyler Insurance Group</p>
-                <p>If you didn't expect this email, please contact your administrator.</p>
+            <div class="wrapper">
+              <div class="container">
+                <p class="greeting">Hi ${firstName},</p>
+                
+                <p class="body-text">Welcome. We set up your account and you're ready for the first step.</p>
+                
+                <p class="body-text">Use the link below to activate your profile and create your password.</p>
+                
+                <p style="text-align: center;">
+                  <a href="${setupLink}" class="button">Activate Your Account</a>
+                </p>
+                
+                <p class="body-text">When you log in, you'll see one page. <strong>Contracting.</strong></p>
+                
+                <p class="body-text">Complete this section, and the rest of your tools will open automatically. The goal is simple. Remove friction. Give you a clean start. Set you up to do real work with confidence.</p>
+                
+                <p class="note">If you have a question at any point, reply to this message. You'll hear from a real person who knows how to help.</p>
+                
+                <div class="footer">
+                  <p>Glad to have you with us. You're building something important, and we're here to make sure you have the support to do it well.</p>
+                  <p class="signature">Tyler Insurance Group<br/>Agent Support Team</p>
+                </div>
               </div>
             </div>
           </body>
