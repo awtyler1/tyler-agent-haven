@@ -101,6 +101,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          appointed_at: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          onboarding_status: Database["public"]["Enums"]["onboarding_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointed_at?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointed_at?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -127,7 +160,11 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      onboarding_status:
+        | "CONTRACTING_REQUIRED"
+        | "CONTRACT_SUBMITTED"
+        | "APPOINTED"
+        | "SUSPENDED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -254,6 +291,13 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      onboarding_status: [
+        "CONTRACTING_REQUIRED",
+        "CONTRACT_SUBMITTED",
+        "APPOINTED",
+        "SUSPENDED",
+      ],
+    },
   },
 } as const
