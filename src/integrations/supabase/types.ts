@@ -108,6 +108,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          manager_id: string | null
           onboarding_status: Database["public"]["Enums"]["onboarding_status"]
           updated_at: string
           user_id: string
@@ -118,6 +119,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          manager_id?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
           updated_at?: string
           user_id: string
@@ -128,8 +130,38 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          manager_id?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -139,6 +171,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       search_documents: {
         Args: {
           filter_carrier?: string
@@ -160,6 +203,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "super_admin" | "contracting_admin" | "broker_manager" | "agent"
       onboarding_status:
         | "CONTRACTING_REQUIRED"
         | "CONTRACT_SUBMITTED"
@@ -292,6 +336,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["super_admin", "contracting_admin", "broker_manager", "agent"],
       onboarding_status: [
         "CONTRACTING_REQUIRED",
         "CONTRACT_SUBMITTED",
