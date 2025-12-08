@@ -5,7 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PasswordGate from "./components/PasswordGate";
 import { AgentChatWidget } from "./components/AgentChatWidget";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+
+// Public pages
 import Index from "./pages/Index";
+import AuthPage from "./pages/AuthPage";
 import StartHerePage from "./pages/StartHerePage";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
 import SalesTrainingPage from "./pages/SalesTrainingPage";
@@ -25,6 +29,14 @@ import CarrierPlansPage from "./pages/CarrierPlansPage";
 import DocumentManagementPage from "./pages/DocumentManagementPage";
 import NotFound from "./pages/NotFound";
 
+// Agent-specific pages
+import ContractingPage from "./pages/ContractingPage";
+
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AgentsPage from "./pages/admin/AgentsPage";
+import NewAgentPage from "./pages/admin/NewAgentPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -35,6 +47,46 @@ const App = () => (
       <PasswordGate>
         <BrowserRouter>
           <Routes>
+            {/* Auth */}
+            <Route path="/auth" element={<AuthPage />} />
+            
+            {/* Agent contracting (accessible only to agents needing contracting) */}
+            <Route 
+              path="/contracting" 
+              element={
+                <ProtectedRoute requireAgent allowContractingOnly>
+                  <ContractingPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Admin routes */}
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/agents" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AgentsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/agents/new" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <NewAgentPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Main app routes */}
             <Route path="/" element={<Index />} />
             <Route path="/start-here" element={<StartHerePage />} />
             <Route path="/contracting-hub" element={<ContractingHubPage />} />
