@@ -150,6 +150,9 @@ serve(async (req: Request): Promise<Response> => {
             <body>
               <div class="wrapper">
                 <div class="container">
+                  <div style="text-align: center; margin-bottom: 32px;">
+                    <img src="${siteUrl}/tyler-logo.png" alt="Tyler Insurance Group" style="max-width: 180px; height: auto;" />
+                  </div>
                   <p class="greeting">Hi ${firstName},</p>
                   
                   <p class="body-text">Welcome. We set up your account and you're ready for the first step.</p>
