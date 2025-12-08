@@ -11,12 +11,18 @@ import {
   CheckCircle2, 
   Circle,
   Loader2,
-  FileText
+  FileText,
+  Power,
+  Save,
+  X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -24,6 +30,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -40,6 +57,7 @@ interface UserProfile {
   first_login_at: string | null;
   appointed_at: string | null;
   role: string | null;
+  is_active: boolean;
 }
 
 type AppRole = 'super_admin' | 'contracting_admin' | 'broker_manager' | 'agent';
@@ -66,6 +84,13 @@ export default function UserDetailPage() {
   const [sendingLink, setSendingLink] = useState(false);
   const [updatingRole, setUpdatingRole] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [togglingActive, setTogglingActive] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  
+  // Editable fields
+  const [editedName, setEditedName] = useState('');
+  const [editedEmail, setEditedEmail] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     async function fetchUser() {
@@ -85,12 +110,17 @@ export default function UserDetailPage() {
           .from('user_roles')
           .select('role')
           .eq('user_id', userId)
-          .single();
+          .maybeSingle();
 
-        setUser({
+        const userData = {
           ...profile,
           role: roleData?.role || null,
-        });
+          is_active: profile.is_active ?? true,
+        };
+        
+        setUser(userData);
+        setEditedName(userData.full_name || '');
+        setEditedEmail(userData.email || '');
       } catch (err: any) {
         console.error('Error fetching user:', err);
         toast.error('Failed to load user');
@@ -102,6 +132,14 @@ export default function UserDetailPage() {
 
     fetchUser();
   }, [userId, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      const nameChanged = editedName !== (user.full_name || '');
+      const emailChanged = editedEmail !== (user.email || '');
+      setHasChanges(nameChanged || emailChanged);
+    }
+  }, [editedName, editedEmail, user]);
 
   const handleSendSetupLink = async () => {
     if (!user) return;
@@ -146,6 +184,58 @@ export default function UserDetailPage() {
       toast.error(`Failed to update role: ${err.message}`);
     } finally {
       setUpdatingRole(false);
+    }
+  };
+
+  const handleToggleActive = async () => {
+    if (!user) return;
+    setTogglingActive(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: !user.is_active })
+        .eq('user_id', user.user_id);
+
+      if (error) throw error;
+
+      toast.success(user.is_active ? 'Account deactivated' : 'Account activated');
+      setUser(prev => prev ? { ...prev, is_active: !prev.is_active } : null);
+    } catch (err: any) {
+      toast.error(`Failed to update account status: ${err.message}`);
+    } finally {
+      setTogglingActive(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          full_name: editedName || null,
+          email: editedEmail || null 
+        })
+        .eq('user_id', user.user_id);
+
+      if (error) throw error;
+
+      toast.success('Profile updated successfully');
+      setUser(prev => prev ? { ...prev, full_name: editedName || null, email: editedEmail || null } : null);
+      setHasChanges(false);
+    } catch (err: any) {
+      toast.error(`Failed to update profile: ${err.message}`);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleCancelChanges = () => {
+    if (user) {
+      setEditedName(user.full_name || '');
+      setEditedEmail(user.email || '');
+      setHasChanges(false);
     }
   };
 
@@ -243,20 +333,127 @@ export default function UserDetailPage() {
           
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold">{user.full_name || 'Unnamed User'}</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold">{user.full_name || 'Unnamed User'}</h1>
+                {!user.is_active && (
+                  <Badge variant="destructive">Inactive</Badge>
+                )}
+              </div>
               <p className="text-muted-foreground flex items-center gap-2 mt-1">
                 <Mail className="h-4 w-4" />
                 {user.email}
               </p>
             </div>
-            <Badge variant={onboardingInfo.variant} className="text-sm px-3 py-1">
-              {onboardingInfo.label}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant={user.role === 'agent' ? onboardingInfo.variant : 'secondary'} className="text-sm px-3 py-1">
+                {user.role === 'agent' ? onboardingInfo.label : roleLabels[user.role || 'agent']}
+              </Badge>
+            </div>
           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {/* User Settings Card */}
+          {/* Profile Information Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <CardTitle className="text-lg">Profile Information</CardTitle>
+              {hasChanges && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancelChanges}
+                    disabled={savingProfile}
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleSaveProfile}
+                    disabled={savingProfile}
+                  >
+                    {savingProfile ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-1" />
+                    )}
+                    Save
+                  </Button>
+                </div>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="full_name">Full Name</Label>
+                <Input
+                  id="full_name"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editedEmail}
+                  onChange={(e) => setEditedEmail(e.target.value)}
+                  placeholder="Enter email"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Account Status Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Power className="h-5 w-5" />
+                Account Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between p-4 rounded-lg border">
+                <div>
+                  <p className="font-medium">Account Active</p>
+                  <p className="text-sm text-muted-foreground">
+                    {user.is_active ? 'User can access the platform' : 'User is blocked from accessing'}
+                  </p>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Switch
+                      checked={user.is_active}
+                      disabled={togglingActive}
+                    />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {user.is_active ? 'Deactivate Account?' : 'Activate Account?'}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {user.is_active 
+                          ? 'This will prevent the user from accessing the platform. They can be reactivated later.'
+                          : 'This will restore the user\'s access to the platform.'}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleToggleActive}>
+                        {user.is_active ? 'Deactivate' : 'Activate'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 mt-6">{/* User Settings Card */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">User Settings</CardTitle>
@@ -264,7 +461,7 @@ export default function UserDetailPage() {
             <CardContent className="space-y-6">
               {/* Role */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Role</label>
+                <Label>Role</Label>
                 {updatingRole ? (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -289,32 +486,34 @@ export default function UserDetailPage() {
                 )}
               </div>
 
-              {/* Onboarding Status */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Onboarding Status</label>
-                {updatingStatus ? (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Updating...
-                  </div>
-                ) : (
-                  <Select
-                    value={user.onboarding_status}
-                    onValueChange={handleStatusChange}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(onboardingStatusLabels).map(([value, { label }]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
+              {/* Onboarding Status - only for agents */}
+              {user.role === 'agent' && (
+                <div className="space-y-2">
+                  <Label>Onboarding Status</Label>
+                  {updatingStatus ? (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Updating...
+                    </div>
+                  ) : (
+                    <Select
+                      value={user.onboarding_status}
+                      onValueChange={handleStatusChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(onboardingStatusLabels).map(([value, { label }]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              )}
 
               {/* Send Setup Link */}
               <div className="pt-2">

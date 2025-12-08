@@ -127,7 +127,12 @@ export function UserManagementTable() {
                       onClick={() => handleViewUser(user.user_id)}
                     >
                       <TableCell className="font-medium">
-                        {user.full_name || '—'}
+                        <div className="flex items-center gap-2">
+                          {user.full_name || '—'}
+                          {!user.is_active && (
+                            <Badge variant="destructive" className="text-xs">Inactive</Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {user.email || '—'}
