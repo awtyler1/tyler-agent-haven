@@ -15,6 +15,7 @@ export interface Profile {
   full_name: string | null;
   onboarding_status: OnboardingStatus;
   appointed_at: string | null;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -83,6 +84,7 @@ export function useProfile() {
     loading,
     error,
     isAuthenticated: !!user,
+    isActive: profile?.is_active ?? true,
     onboardingStatus: profile?.onboarding_status ?? null,
     isAppointed: profile?.onboarding_status === 'APPOINTED',
     isContractingRequired: profile?.onboarding_status === 'CONTRACTING_REQUIRED',

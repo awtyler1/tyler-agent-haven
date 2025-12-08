@@ -37,7 +37,7 @@ export default function AuthPage() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
         password: loginPassword,
       });
@@ -49,6 +49,22 @@ export default function AuthPage() {
           toast.error(error.message);
         }
         return;
+      }
+
+      // Check if user account is active
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_active')
+          .eq('user_id', data.user.id)
+          .single();
+
+        if (profile && !profile.is_active) {
+          // Sign out the inactive user immediately
+          await supabase.auth.signOut();
+          toast.error('Your account has been deactivated. Please contact support.');
+          return;
+        }
       }
 
       toast.success('Welcome back!');
