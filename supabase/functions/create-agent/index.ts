@@ -160,9 +160,9 @@ serve(async (req: Request): Promise<Response> => {
                     <a href="${setupLink}" class="button">Activate Your Account</a>
                   </p>
                   
-                  <p class="body-text">When you log in, you'll see one page. <strong>Contracting.</strong></p>
+                  <p class="body-text">When you log in, you'll see one page: <strong>Contracting.</strong></p>
                   
-                  <p class="body-text">Complete this section, and the rest of your tools will open automatically. The goal is simple. Remove friction. Give you a clean start. Set you up to do real work with confidence.</p>
+                  <p class="body-text">Complete this section, and the rest of your tools will open automatically.</p>
                   
                   <p class="note">If you have a question at any point, reply to this message. You'll hear from a real person who knows how to help.</p>
                   
