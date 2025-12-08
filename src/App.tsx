@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import SetPasswordPage from "./pages/auth/SetPasswordPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import StartHerePage from "./pages/StartHerePage";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
 import SalesTrainingPage from "./pages/SalesTrainingPage";
@@ -50,6 +51,7 @@ const App = () => (
             {/* Auth */}
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/auth/set-password" element={<SetPasswordPage />} />
+            <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
             
             {/* Agent contracting (accessible only to agents needing contracting) */}
             <Route 
