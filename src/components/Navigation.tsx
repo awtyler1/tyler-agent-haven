@@ -27,7 +27,12 @@ const Navigation = () => {
   const showFullNavigation = !isAgent() || !isContractingRequired;
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (error) {
+      // Even if server logout fails, clear local state
+      console.log('Logout error (clearing local state anyway):', error);
+    }
     toast.success("Logged out successfully");
     navigate("/auth");
   };
