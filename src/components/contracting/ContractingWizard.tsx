@@ -27,12 +27,19 @@ export function ContractingWizard() {
   } = useContractingApplication();
 
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [displayedStep, setDisplayedStep] = useState(1);
+  const [displayedStep, setDisplayedStep] = useState<number | null>(null);
   const [transitionDirection, setTransitionDirection] = useState<'forward' | 'backward'>('forward');
+
+  // Initialize displayedStep when application loads
+  useEffect(() => {
+    if (application && displayedStep === null) {
+      setDisplayedStep(application.current_step);
+    }
+  }, [application, displayedStep]);
 
   // Handle step transitions with animation
   useEffect(() => {
-    if (application && application.current_step !== displayedStep && !isTransitioning) {
+    if (application && displayedStep !== null && application.current_step !== displayedStep && !isTransitioning) {
       setTransitionDirection(application.current_step > displayedStep ? 'forward' : 'backward');
       setIsTransitioning(true);
       
@@ -46,13 +53,6 @@ export function ContractingWizard() {
       return () => clearTimeout(timer);
     }
   }, [application?.current_step, displayedStep, isTransitioning]);
-
-  // Initialize displayedStep when application loads
-  useEffect(() => {
-    if (application && displayedStep !== application.current_step && !isTransitioning) {
-      setDisplayedStep(application.current_step);
-    }
-  }, [application?.id]);
 
   const handleLogout = async () => {
     try {
@@ -116,7 +116,8 @@ export function ContractingWizard() {
   }
 
   const renderStep = () => {
-    switch (displayedStep) {
+    const stepToRender = displayedStep ?? application.current_step;
+    switch (stepToRender) {
       case 1:
         return (
           <WelcomeStep
@@ -166,13 +167,13 @@ export function ContractingWizard() {
         return (
           <Card className="max-w-lg mx-auto text-center">
             <CardHeader>
-              <CardTitle>Step {displayedStep} Coming Soon</CardTitle>
+              <CardTitle>Step {stepToRender} Coming Soon</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
                 Steps 6-10 (Banking, Training, Carriers, Signature, Review) will be built next.
               </p>
-              <button onClick={() => goToStep(displayedStep - 1)} className="text-primary underline">
+              <button onClick={() => goToStep(stepToRender - 1)} className="text-primary underline">
                 Go back
               </button>
             </CardContent>
