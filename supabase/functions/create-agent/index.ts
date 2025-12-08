@@ -127,7 +127,7 @@ serve(async (req: Request): Promise<Response> => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Tyler Insurance Group <caroline@tylerinsurancegroup.com>",
+          from: "Caroline Tyler <caroline@tylerinsurancegroup.com>",
           to: [email],
           subject: "Your Agent Account Is Ready",
           html: `
@@ -156,33 +156,48 @@ serve(async (req: Request): Promise<Response> => {
                           <!-- Content -->
                           <p style="font-size: 18px; color: #1a1a1a; margin: 0 0 24px 0;">Hi ${firstName},</p>
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px 0;">Welcome. We set up your account and you're ready for the first step.</p>
+                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Your account is set up and ready for activation.</p>
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Use the link below to activate your profile and create your password.</p>
+                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 8px 0;"><strong>Start here:</strong></p>
                           
                           <!-- Button -->
                           <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
-                              <td align="center" style="padding: 16px 0 24px 0;">
-                                <a href="${setupLink}" style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Activate Your Account</a>
+                              <td align="center" style="padding: 16px 0 32px 0;">
+                                <a href="${setupLink}" style="display: inline-block; background: #A38529; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Activate Your Account</a>
                               </td>
                             </tr>
                           </table>
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px 0;">When you log in, you'll see one page: <strong>Contracting.</strong></p>
+                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">When you sign in for the first time, you will land on the <strong>Contracting</strong> page. That page guides you through everything you need to complete before your full agent tools unlock.</p>
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 32px 0;">Complete this section, and the rest of your tools will open automatically.</p>
+                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 12px 0;"><strong>You'll be able to:</strong></p>
                           
-                          <!-- Divider -->
-                          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 24px 0;" />
+                          <!-- Bullet List -->
+                          <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0;">
+                            <tr>
+                              <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Download required forms</td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Upload your documents</td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Track what's complete and what still needs attention</td>
+                            </tr>
+                          </table>
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">If you have a question at any point, reply to this message. You'll hear from a real person who knows how to help.</p>
+                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Once every item on that page is finished, the rest of your platform will open automatically.</p>
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Glad to have you with us. You're building something important, and we're here to make sure you have the support to do it well.</p>
+                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 32px 0;">If anything is unclear, reply to this email and our team will help.</p>
                           
+                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Welcome aboard.</p>
+                          
+                          <!-- Signature -->
                           <p style="font-size: 16px; color: #1a1a1a; margin: 0;">
-                            <strong>Tyler Insurance Group</strong><br/>
-                            Agent Support Team
+                            <strong>Caroline</strong><br/>
+                            Head of Contracting<br/>
+                            Tyler Insurance Group<br/>
+                            <a href="mailto:caroline@tylerinsurancegroup.com" style="color: #A38529; text-decoration: none;">caroline@tylerinsurancegroup.com</a>
                           </p>
                         </td>
                       </tr>
