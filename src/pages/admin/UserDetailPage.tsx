@@ -432,38 +432,50 @@ export default function UserDetailPage() {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between p-4 rounded-lg border">
                 <div>
-                  <p className="font-medium">Account Active</p>
+                  <p className="font-medium">Account Status</p>
                   <p className="text-sm text-muted-foreground">
                     {user.is_active ? 'User can access the platform' : 'User is blocked from accessing'}
                   </p>
                 </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Switch
-                      checked={user.is_active}
-                      disabled={togglingActive}
-                    />
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {user.is_active ? 'Deactivate Account?' : 'Activate Account?'}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {user.is_active 
-                          ? 'This will prevent the user from accessing the platform. They can be reactivated later.'
-                          : 'This will restore the user\'s access to the platform.'}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleToggleActive}>
-                        {user.is_active ? 'Deactivate' : 'Activate'}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Badge variant={user.is_active ? 'default' : 'destructive'}>
+                  {user.is_active ? 'Active' : 'Inactive'}
+                </Badge>
               </div>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant={user.is_active ? 'destructive' : 'default'}
+                    className="w-full"
+                    disabled={togglingActive}
+                  >
+                    {togglingActive ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Power className="h-4 w-4 mr-2" />
+                    )}
+                    {user.is_active ? 'Deactivate Account' : 'Activate Account'}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {user.is_active ? 'Deactivate Account?' : 'Activate Account?'}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {user.is_active 
+                        ? 'This will prevent the user from accessing the platform. They can be reactivated later.'
+                        : 'This will restore the user\'s access to the platform.'}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleToggleActive}>
+                      {user.is_active ? 'Deactivate' : 'Activate'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </CardContent>
           </Card>
         </div>
