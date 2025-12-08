@@ -20,8 +20,11 @@ const navLinks = [
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-  const { canAccessAdmin, isAuthenticated } = useAuth();
+  const { canAccessAdmin, isAuthenticated, isAgent, isContractingRequired } = useAuth();
   const navigate = useNavigate();
+
+  // Hide navigation for agents who need to complete contracting
+  const showFullNavigation = !isAgent() || !isContractingRequired;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -44,7 +47,7 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-5">
-            {navLinks.map((link) => (
+            {showFullNavigation && navLinks.map((link) => (
               <div 
                 key={link.name} 
                 className="relative group"
@@ -169,7 +172,7 @@ const Navigation = () => {
         {isOpen && (
           <div className="lg:hidden py-6 border-t border-border animate-fade-in">
             <div className="flex flex-col gap-2">
-              {navLinks.map((link) => (
+              {showFullNavigation && navLinks.map((link) => (
                 <div key={link.name}>
                   <Link
                     to={link.href}
