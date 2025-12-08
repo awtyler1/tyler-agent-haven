@@ -34,7 +34,8 @@ const Navigation = () => {
       console.log('Logout error (clearing local state anyway):', error);
     }
     toast.success("Logged out successfully");
-    navigate("/auth");
+    // Force a full page reload to clear all cached state
+    window.location.href = '/auth';
   };
 
   return (
