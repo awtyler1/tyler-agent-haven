@@ -122,25 +122,25 @@ const App = () => (
               } 
             />
             
-            {/* Main app routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/start-here" element={<StartHerePage />} />
-            <Route path="/contracting-hub" element={<ContractingHubPage />} />
-            <Route path="/industry-updates" element={<IndustryUpdatesPage />} />
-            <Route path="/sales-training" element={<SalesTrainingPage />} />
-            <Route path="/sales-training-module" element={<SalesTrainingModulePage />} />
-            <Route path="/training-library" element={<TrainingLibraryPage />} />
-            <Route path="/medicare-fundamentals" element={<MedicareFundamentalsPage />} />
-            <Route path="/compliance" element={<CompliancePage />} />
-            <Route path="/carrier-resources" element={<CarrierResourcesPage />} />
-            <Route path="/carrier-resources/plans" element={<CarrierPlansPage />} />
-            <Route path="/agent-tools" element={<AgentToolsPage />} />
-            <Route path="/certifications" element={<CertificationsPage />} />
-            <Route path="/forms-library" element={<FormsLibraryPage />} />
-            <Route path="/carrier-portals" element={<CarrierPortalsPage />} />
-            <Route path="/admin/documents" element={<DocumentManagementPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/about" element={<AboutPage />} />
+            {/* Main app routes - protected to redirect agents in contracting mode */}
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
+            <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
+            <Route path="/industry-updates" element={<ProtectedRoute><IndustryUpdatesPage /></ProtectedRoute>} />
+            <Route path="/sales-training" element={<ProtectedRoute><SalesTrainingPage /></ProtectedRoute>} />
+            <Route path="/sales-training-module" element={<ProtectedRoute><SalesTrainingModulePage /></ProtectedRoute>} />
+            <Route path="/training-library" element={<ProtectedRoute><TrainingLibraryPage /></ProtectedRoute>} />
+            <Route path="/medicare-fundamentals" element={<ProtectedRoute><MedicareFundamentalsPage /></ProtectedRoute>} />
+            <Route path="/compliance" element={<ProtectedRoute><CompliancePage /></ProtectedRoute>} />
+            <Route path="/carrier-resources" element={<ProtectedRoute><CarrierResourcesPage /></ProtectedRoute>} />
+            <Route path="/carrier-resources/plans" element={<ProtectedRoute><CarrierPlansPage /></ProtectedRoute>} />
+            <Route path="/agent-tools" element={<ProtectedRoute><AgentToolsPage /></ProtectedRoute>} />
+            <Route path="/certifications" element={<ProtectedRoute><CertificationsPage /></ProtectedRoute>} />
+            <Route path="/forms-library" element={<ProtectedRoute><FormsLibraryPage /></ProtectedRoute>} />
+            <Route path="/carrier-portals" element={<ProtectedRoute><CarrierPortalsPage /></ProtectedRoute>} />
+            <Route path="/admin/documents" element={<ProtectedRoute requireAdmin><DocumentManagementPage /></ProtectedRoute>} />
+            <Route path="/contact" element={<ProtectedRoute><ContactPage /></ProtectedRoute>} />
+            <Route path="/about" element={<ProtectedRoute><AboutPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <AgentChatWidget />
