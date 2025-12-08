@@ -30,9 +30,15 @@ const Navigation = () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
     } catch (error) {
-      // Even if server logout fails, clear local state
-      console.log('Logout error (clearing local state anyway):', error);
+      console.log('Logout error:', error);
     }
+    // Force clear all Supabase auth data from localStorage
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
     toast.success("Logged out successfully");
     // Force a full page reload to clear all cached state
     window.location.href = '/auth';
