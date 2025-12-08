@@ -26,14 +26,6 @@ export function ContractingWizard() {
     uploadDocument,
   } = useContractingApplication();
 
-  const [animationKey, setAnimationKey] = useState(0);
-
-  // Trigger re-animation when step changes
-  useEffect(() => {
-    if (application) {
-      setAnimationKey(prev => prev + 1);
-    }
-  }, [application?.current_step]);
 
   const handleLogout = async () => {
     try {
@@ -191,14 +183,9 @@ export function ContractingWizard() {
           </div>
         )}
 
-        {/* Current step with Apple-style fade transition */}
+        {/* Current step */}
         <div className="mt-4 flex-1">
-          <div
-            key={animationKey}
-            className="animate-fade-in"
-          >
-            {renderStep()}
-          </div>
+          {renderStep()}
         </div>
       </div>
     </div>
