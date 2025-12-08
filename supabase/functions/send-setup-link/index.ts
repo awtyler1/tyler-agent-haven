@@ -97,7 +97,7 @@ serve(async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Tyler Insurance Group <team@tylerinsurancegroup.com>",
+        from: "Tyler Insurance Group <austin@tylerinsurancegroup.com>",
         to: [profile.email],
         subject: "Your Agent Account Is Ready",
         html: `
