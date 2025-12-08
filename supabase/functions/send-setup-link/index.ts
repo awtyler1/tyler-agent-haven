@@ -114,15 +114,6 @@ serve(async (req: Request): Promise<Response> => {
                   <table width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; background: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                     <tr>
                       <td style="padding: 40px;">
-                        <!-- Logo -->
-                        <table width="100%" cellpadding="0" cellspacing="0">
-                          <tr>
-                            <td align="center" style="padding-bottom: 32px;">
-                              <img src="https://app.tylerinsurancegroup.com/tyler-logo.png" alt="Tyler Insurance Group" width="180" style="display: block; max-width: 180px; height: auto;" />
-                            </td>
-                          </tr>
-                        </table>
-                        
                         <!-- Content -->
                         <p style="font-size: 18px; color: #1a1a1a; margin: 0 0 24px 0;">Hi ${firstName},</p>
                         
