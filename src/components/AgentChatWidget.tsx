@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   role: "user" | "assistant";
@@ -15,8 +17,27 @@ export const AgentChatWidget = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -37,13 +58,28 @@ export const AgentChatWidget = () => {
     setIsLoading(true);
 
     try {
+      // Get the current session to use the user's JWT token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        setMessages([
+          ...newMessages,
+          {
+            role: "assistant",
+            content: "You need to be logged in to use the assistant. Please sign in and try again.",
+          },
+        ]);
+        setIsLoading(false);
+        return;
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-chat-rag`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ messages: newMessages }),
         }
@@ -161,7 +197,18 @@ export const AgentChatWidget = () => {
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        {messages.length === 0 && (
+        {/* Show login prompt if not authenticated */}
+        {isAuthenticated === false ? (
+          <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
+            <LogIn className="mb-4 h-12 w-12 opacity-20" />
+            <p className="text-sm mb-4">
+              Please sign in to use the Agent Assistant.
+            </p>
+            <Button onClick={() => navigate('/auth')} variant="default" size="sm">
+              Sign In
+            </Button>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
             <MessageCircle className="mb-4 h-12 w-12 opacity-20" />
             <p className="text-sm">
@@ -170,7 +217,7 @@ export const AgentChatWidget = () => {
               Ask me about Medicare, platform features, or sales guidance.
             </p>
           </div>
-        )}
+        ) : null}
         <div className="space-y-4">
           {messages.map((message, idx) => (
             <div
@@ -217,14 +264,14 @@ export const AgentChatWidget = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask me anything..."
+            placeholder={isAuthenticated ? "Ask me anything..." : "Sign in to chat..."}
             className="min-h-[60px] max-h-[120px] resize-none flex-1"
-            disabled={isLoading}
+            disabled={isLoading || !isAuthenticated}
           />
           <Button
             type="submit"
             size="icon"
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isLoading || !isAuthenticated}
             className="h-[60px] w-[60px] shrink-0"
           >
             <Send className="h-4 w-4" />
