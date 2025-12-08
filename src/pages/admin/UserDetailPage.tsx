@@ -17,6 +17,7 @@ import {
   X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useRole } from '@/hooks/useRole';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -62,13 +63,19 @@ interface UserProfile {
 
 type AppRole = 'super_admin' | 'admin' | 'manager' | 'internal_tig_agent' | 'independent_agent';
 
-const roleLabels: Record<string, string> = {
+const roleLabels: Record<AppRole, string> = {
   super_admin: 'Superadmin',
   admin: 'Admin',
   manager: 'Manager',
   internal_tig_agent: 'Internal TIG Agent',
   independent_agent: 'Independent Agent',
 };
+
+// Roles that Admins can assign (not Super Admin or Admin)
+const adminAssignableRoles: AppRole[] = ['manager', 'internal_tig_agent', 'independent_agent'];
+
+// All roles for Super Admins
+const allRoles: AppRole[] = ['super_admin', 'admin', 'manager', 'internal_tig_agent', 'independent_agent'];
 
 const onboardingStatusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   CONTRACTING_REQUIRED: { label: 'Contracting Required', variant: 'destructive' },
@@ -80,6 +87,7 @@ const onboardingStatusLabels: Record<string, { label: string; variant: 'default'
 export default function UserDetailPage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const { isSuperAdmin } = useRole();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingLink, setSendingLink] = useState(false);
@@ -87,6 +95,9 @@ export default function UserDetailPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [togglingActive, setTogglingActive] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+  
+  // Determine which roles the current user can assign
+  const assignableRoles = isSuperAdmin() ? allRoles : adminAssignableRoles;
   
   // Editable fields
   const [editedName, setEditedName] = useState('');
@@ -480,9 +491,9 @@ export default function UserDetailPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(roleLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
+                      {assignableRoles.map((role) => (
+                        <SelectItem key={role} value={role}>
+                          {roleLabels[role]}
                         </SelectItem>
                       ))}
                     </SelectContent>

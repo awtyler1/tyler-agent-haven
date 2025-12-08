@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useRole, AppRole } from '@/hooks/useRole';
 
 const formSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -44,9 +45,27 @@ interface CreateUserDialogProps {
   onCreateUser: (data: { email: string; fullName: string; role: string; sendSetupEmail: boolean }) => Promise<{ success: boolean; userId?: string }>;
 }
 
+const allRoleLabels: Record<AppRole, string> = {
+  super_admin: 'Superadmin',
+  admin: 'Admin',
+  manager: 'Manager',
+  internal_tig_agent: 'Internal TIG Agent',
+  independent_agent: 'Independent Agent',
+};
+
+// Roles that Admins can assign (not Super Admin or Admin)
+const adminAssignableRoles: AppRole[] = ['manager', 'internal_tig_agent', 'independent_agent'];
+
+// All roles for Super Admins
+const allRoles: AppRole[] = ['super_admin', 'admin', 'manager', 'internal_tig_agent', 'independent_agent'];
+
 export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isSuperAdmin } = useRole();
+
+  // Determine which roles the current user can assign
+  const assignableRoles = isSuperAdmin() ? allRoles : adminAssignableRoles;
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -72,14 +91,6 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
       form.reset();
       setOpen(false);
     }
-  };
-
-  const roleLabels: Record<string, string> = {
-    super_admin: 'Superadmin',
-    admin: 'Admin',
-    manager: 'Manager',
-    internal_tig_agent: 'Internal TIG Agent',
-    independent_agent: 'Independent Agent',
   };
 
   return (
@@ -141,9 +152,9 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(roleLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
+                      {assignableRoles.map((role) => (
+                        <SelectItem key={role} value={role}>
+                          {allRoleLabels[role]}
                         </SelectItem>
                       ))}
                     </SelectContent>
