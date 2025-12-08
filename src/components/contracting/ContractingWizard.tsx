@@ -129,8 +129,8 @@ export function ContractingWizard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      <div className="container max-w-4xl mx-auto py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted flex flex-col">
+      <div className="container max-w-5xl mx-auto py-4 px-4 flex flex-col flex-1">
         {/* Progress bar */}
         <WizardProgress
           currentStep={currentStep}
@@ -140,14 +140,14 @@ export function ContractingWizard() {
 
         {/* Saving indicator */}
         {saving && (
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-2">
             <Loader2 className="h-3 w-3 animate-spin" />
             Saving...
           </div>
         )}
 
         {/* Current step */}
-        <div className="mt-6">
+        <div className="mt-4 flex-1">
           {renderStep()}
         </div>
       </div>
