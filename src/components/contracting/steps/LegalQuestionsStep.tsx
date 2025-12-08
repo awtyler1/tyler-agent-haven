@@ -136,7 +136,7 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
             <Button variant="outline" onClick={onBack}>
               Back
             </Button>
-            <Button onClick={onContinue} disabled={!allAnswered}>
+            <Button onClick={onContinue}>
               Continue
             </Button>
           </div>

@@ -199,7 +199,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
             <Button variant="outline" onClick={onBack}>
               Back
             </Button>
-            <Button onClick={onContinue} disabled={!isValid}>
+            <Button onClick={onContinue}>
               Continue
             </Button>
           </div>
