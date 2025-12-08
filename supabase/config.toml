@@ -1,1 +1,7 @@
 project_id = "hikhnmuckfopyzxkdeus"
+
+[functions.create-agent]
+verify_jwt = true
+
+[functions.send-setup-link]
+verify_jwt = true

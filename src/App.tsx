@@ -33,6 +33,7 @@ import ContractingPage from "./pages/ContractingPage";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import SuperAdminDashboard from "./pages/admin/SuperAdminDashboard";
 import AgentsPage from "./pages/admin/AgentsPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
 
@@ -66,6 +67,10 @@ const App = () => (
                   <AdminDashboard />
                 </ProtectedRoute>
               } 
+            />
+            <Route 
+              path="/admin/super" 
+              element={<SuperAdminDashboard />} 
             />
             <Route 
               path="/admin/agents" 
