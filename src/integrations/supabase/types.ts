@@ -106,10 +106,13 @@ export type Database = {
           appointed_at: string | null
           created_at: string
           email: string | null
+          first_login_at: string | null
           full_name: string | null
           id: string
           manager_id: string | null
           onboarding_status: Database["public"]["Enums"]["onboarding_status"]
+          password_created_at: string | null
+          setup_link_sent_at: string | null
           updated_at: string
           user_id: string
         }
@@ -117,10 +120,13 @@ export type Database = {
           appointed_at?: string | null
           created_at?: string
           email?: string | null
+          first_login_at?: string | null
           full_name?: string | null
           id?: string
           manager_id?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
+          password_created_at?: string | null
+          setup_link_sent_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -128,10 +134,13 @@ export type Database = {
           appointed_at?: string | null
           created_at?: string
           email?: string | null
+          first_login_at?: string | null
           full_name?: string | null
           id?: string
           manager_id?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
+          password_created_at?: string | null
+          setup_link_sent_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -144,6 +153,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      system_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value?: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

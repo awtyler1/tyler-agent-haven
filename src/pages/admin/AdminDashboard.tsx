@@ -31,11 +31,11 @@ export default function AdminDashboard() {
   ];
 
   if (isSuperAdmin()) {
-    adminCards.push({
-      title: 'System Settings',
-      description: 'Configure system-wide settings',
+    adminCards.unshift({
+      title: 'Super Admin Dashboard',
+      description: 'Full platform control center',
       icon: Settings,
-      href: '/admin/settings',
+      href: '/admin/super',
       color: 'text-purple-500',
     });
   }
