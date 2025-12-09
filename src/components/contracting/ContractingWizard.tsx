@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Loader2, LogOut } from 'lucide-react';
 import { useContractingApplication } from '@/hooks/useContractingApplication';
 import { WizardProgress } from './WizardProgress';
@@ -7,13 +6,17 @@ import { PersonalInfoStep } from './steps/PersonalInfoStep';
 import { AddressesStep } from './steps/AddressesStep';
 import { LicensingStep } from './steps/LicensingStep';
 import { LegalQuestionsStep } from './steps/LegalQuestionsStep';
+import { BankingStep } from './steps/BankingStep';
+import { TrainingStep } from './steps/TrainingStep';
+import { CarrierSelectionStep } from './steps/CarrierSelectionStep';
+import { AgreementsStep } from './steps/AgreementsStep';
+import { ReviewStep } from './steps/ReviewStep';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
 
 export function ContractingWizard() {
   const {
@@ -23,9 +26,9 @@ export function ContractingWizard() {
     updateField,
     goToStep,
     completeStepAndNext,
+    submitApplication,
     uploadDocument,
   } = useContractingApplication();
-
 
   const handleLogout = async () => {
     try {
@@ -135,22 +138,55 @@ export function ContractingWizard() {
             onContinue={() => completeStepAndNext(5)}
           />
         );
-      default:
+      case 6:
         return (
-          <Card className="max-w-lg mx-auto text-center">
-            <CardHeader>
-              <CardTitle>Step {application.current_step} Coming Soon</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                Steps 6-10 (Banking, Training, Carriers, Signature, Review) will be built next.
-              </p>
-              <button onClick={() => goToStep(application.current_step - 1)} className="text-primary underline">
-                Go back
-              </button>
-            </CardContent>
-          </Card>
+          <BankingStep
+            application={application}
+            onUpdate={updateField}
+            onUpload={uploadDocument}
+            onBack={() => goToStep(5)}
+            onContinue={() => completeStepAndNext(6)}
+          />
         );
+      case 7:
+        return (
+          <TrainingStep
+            application={application}
+            onUpdate={updateField}
+            onUpload={uploadDocument}
+            onBack={() => goToStep(6)}
+            onContinue={() => completeStepAndNext(7)}
+          />
+        );
+      case 8:
+        return (
+          <CarrierSelectionStep
+            application={application}
+            onUpdate={updateField}
+            onUpload={uploadDocument}
+            onBack={() => goToStep(7)}
+            onContinue={() => completeStepAndNext(8)}
+          />
+        );
+      case 9:
+        return (
+          <AgreementsStep
+            application={application}
+            onUpdate={updateField}
+            onBack={() => goToStep(8)}
+            onContinue={() => completeStepAndNext(9)}
+          />
+        );
+      case 10:
+        return (
+          <ReviewStep
+            application={application}
+            onBack={() => goToStep(9)}
+            onSubmit={submitApplication}
+          />
+        );
+      default:
+        return null;
     }
   };
 
