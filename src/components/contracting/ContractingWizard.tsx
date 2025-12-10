@@ -3,7 +3,6 @@ import { useContractingApplication } from '@/hooks/useContractingApplication';
 import { WizardProgress } from './WizardProgress';
 import { WelcomeStep } from './steps/WelcomeStep';
 import { PersonalInfoStep } from './steps/PersonalInfoStep';
-import { AddressesStep } from './steps/AddressesStep';
 import { LicensingStep } from './steps/LicensingStep';
 import { LegalQuestionsStep } from './steps/LegalQuestionsStep';
 import { BankingStep } from './steps/BankingStep';
@@ -111,16 +110,17 @@ export function ContractingWizard() {
         );
       case 3:
         return (
-          <AddressesStep
+          <LicensingStep
             application={application}
             onUpdate={updateField}
+            onUpload={uploadDocument}
             onBack={() => goToStep(2)}
             onContinue={() => completeStepAndNext(3)}
           />
         );
       case 4:
         return (
-          <LicensingStep
+          <LegalQuestionsStep
             application={application}
             onUpdate={updateField}
             onUpload={uploadDocument}
@@ -130,7 +130,7 @@ export function ContractingWizard() {
         );
       case 5:
         return (
-          <LegalQuestionsStep
+          <BankingStep
             application={application}
             onUpdate={updateField}
             onUpload={uploadDocument}
@@ -140,7 +140,7 @@ export function ContractingWizard() {
         );
       case 6:
         return (
-          <BankingStep
+          <TrainingStep
             application={application}
             onUpdate={updateField}
             onUpload={uploadDocument}
@@ -150,7 +150,7 @@ export function ContractingWizard() {
         );
       case 7:
         return (
-          <TrainingStep
+          <CarrierSelectionStep
             application={application}
             onUpdate={updateField}
             onUpload={uploadDocument}
@@ -160,28 +160,18 @@ export function ContractingWizard() {
         );
       case 8:
         return (
-          <CarrierSelectionStep
+          <AgreementsStep
             application={application}
             onUpdate={updateField}
-            onUpload={uploadDocument}
             onBack={() => goToStep(7)}
             onContinue={() => completeStepAndNext(8)}
           />
         );
       case 9:
         return (
-          <AgreementsStep
-            application={application}
-            onUpdate={updateField}
-            onBack={() => goToStep(8)}
-            onContinue={() => completeStepAndNext(9)}
-          />
-        );
-      case 10:
-        return (
           <ReviewStep
             application={application}
-            onBack={() => goToStep(9)}
+            onBack={() => goToStep(8)}
             onSubmit={submitApplication}
           />
         );
