@@ -1,12 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
-import { User, MapPin, Plus, X } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChevronDown, Plus, X } from 'lucide-react';
+import { useState } from 'react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface PersonalInfoStepProps {
   application: ContractingApplication;
@@ -15,7 +15,7 @@ interface PersonalInfoStepProps {
   onContinue: () => void;
 }
 
-function CompactAddressFields({ 
+function InlineAddressFields({ 
   address, 
   onChange, 
   prefix 
@@ -25,70 +25,58 @@ function CompactAddressFields({
   prefix: string;
 }) {
   return (
-    <div className="grid gap-2 grid-cols-6">
-      <div className="col-span-2 space-y-1">
-        <Label htmlFor={`${prefix}_street`} className="text-xs">Street</Label>
-        <Input
-          id={`${prefix}_street`}
-          value={address.street}
-          onChange={e => onChange({ ...address, street: e.target.value })}
-          placeholder="123 Main St"
-          className="h-8 text-sm"
-        />
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor={`${prefix}_city`} className="text-xs">City</Label>
-        <Input
-          id={`${prefix}_city`}
-          value={address.city}
-          onChange={e => onChange({ ...address, city: e.target.value })}
-          placeholder="Louisville"
-          className="h-8 text-sm"
-        />
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor={`${prefix}_state`} className="text-xs">State</Label>
-        <Select
-          value={address.state}
-          onValueChange={value => onChange({ ...address, state: value })}
-        >
-          <SelectTrigger className="h-8 text-sm">
-            <SelectValue placeholder="State" />
-          </SelectTrigger>
-          <SelectContent>
-            {US_STATES.map(state => (
-              <SelectItem key={state.code} value={state.code}>
-                {state.code}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor={`${prefix}_zip`} className="text-xs">ZIP</Label>
-        <Input
-          id={`${prefix}_zip`}
-          value={address.zip}
-          onChange={e => onChange({ ...address, zip: e.target.value })}
-          placeholder="40202"
-          className="h-8 text-sm"
-        />
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor={`${prefix}_county`} className="text-xs">County</Label>
-        <Input
-          id={`${prefix}_county`}
-          value={address.county}
-          onChange={e => onChange({ ...address, county: e.target.value })}
-          placeholder="Jefferson"
-          className="h-8 text-sm"
-        />
-      </div>
+    <div className="flex gap-2 flex-wrap">
+      <Input
+        id={`${prefix}_street`}
+        value={address.street}
+        onChange={e => onChange({ ...address, street: e.target.value })}
+        placeholder="Street address"
+        className="h-9 flex-[2] min-w-[180px]"
+      />
+      <Input
+        id={`${prefix}_city`}
+        value={address.city}
+        onChange={e => onChange({ ...address, city: e.target.value })}
+        placeholder="City"
+        className="h-9 flex-1 min-w-[100px]"
+      />
+      <Select
+        value={address.state}
+        onValueChange={value => onChange({ ...address, state: value })}
+      >
+        <SelectTrigger className="h-9 w-[80px]">
+          <SelectValue placeholder="State" />
+        </SelectTrigger>
+        <SelectContent>
+          {US_STATES.map(state => (
+            <SelectItem key={state.code} value={state.code}>
+              {state.code}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Input
+        id={`${prefix}_zip`}
+        value={address.zip}
+        onChange={e => onChange({ ...address, zip: e.target.value })}
+        placeholder="ZIP"
+        className="h-9 w-[80px]"
+      />
+      <Input
+        id={`${prefix}_county`}
+        value={address.county}
+        onChange={e => onChange({ ...address, county: e.target.value })}
+        placeholder="County"
+        className="h-9 w-[100px]"
+      />
     </div>
   );
 }
 
 export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: PersonalInfoStepProps) {
+  const [showOptional, setShowOptional] = useState(false);
+  const [showPrevAddresses, setShowPrevAddresses] = useState(false);
+  
   const homeAddress = (application.home_address as Address) || EMPTY_ADDRESS;
   const mailingAddress = (application.mailing_address as Address) || EMPTY_ADDRESS;
   const upsAddress = (application.ups_address as Address) || EMPTY_ADDRESS;
@@ -96,6 +84,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
 
   const addPreviousAddress = () => {
     onUpdate('previous_addresses', [...previousAddresses, EMPTY_ADDRESS]);
+    setShowPrevAddresses(true);
   };
 
   const removePreviousAddress = (index: number) => {
@@ -112,299 +101,276 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
   const personalInfoAcknowledged = application.agreements?.personal_info_acknowledged || false;
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <Card>
-        <CardHeader className="py-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <User className="h-4 w-4" />
-            Personal & Contact Information
-          </CardTitle>
-          <CardDescription className="text-sm">
-            Enter your personal details, contact info, and addresses
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pb-4">
-          <ScrollArea className="h-[420px] pr-4">
-            <div className="space-y-4">
-              {/* Personal Details */}
-              <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-                <div className="space-y-1">
-                  <Label htmlFor="full_legal_name" className="text-xs">Full Legal Name *</Label>
-                  <Input
-                    id="full_legal_name"
-                    value={application.full_legal_name || ''}
-                    onChange={e => onUpdate('full_legal_name', e.target.value)}
-                    placeholder="John Doe"
-                    className="h-8 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="agency_name" className="text-xs">Agency Name (if applicable)</Label>
-                  <Input
-                    id="agency_name"
-                    value={application.agency_name || ''}
-                    onChange={e => onUpdate('agency_name', e.target.value)}
-                    placeholder="Your Agency LLC"
-                    className="h-8 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="gender" className="text-xs">Gender</Label>
-                  <Select
-                    value={application.gender || ''}
-                    onValueChange={value => onUpdate('gender', value)}
-                  >
-                    <SelectTrigger className="h-8 text-sm">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="birth_date" className="text-xs">Birth Date</Label>
-                  <Input
-                    id="birth_date"
-                    type="date"
-                    value={application.birth_date || ''}
-                    onChange={e => onUpdate('birth_date', e.target.value)}
-                    className="h-8 text-sm"
-                  />
-                </div>
-              </div>
+    <div className="max-w-4xl mx-auto space-y-5">
+      {/* Header */}
+      <div className="text-center space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Tell us about yourself</h1>
+        <p className="text-muted-foreground text-sm">We just need a few details to get started</p>
+      </div>
 
-              {/* License & ID Info */}
-              <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-                <div className="space-y-1">
-                  <Label htmlFor="npn_number" className="text-xs">NPN Number *</Label>
-                  <Input
-                    id="npn_number"
-                    value={application.npn_number || ''}
-                    onChange={e => onUpdate('npn_number', e.target.value)}
-                    placeholder="12345678"
-                    className="h-8 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="insurance_license_number" className="text-xs">Insurance License # *</Label>
-                  <Input
-                    id="insurance_license_number"
-                    value={application.insurance_license_number || ''}
-                    onChange={e => onUpdate('insurance_license_number', e.target.value)}
-                    placeholder="ABC123456"
-                    className="h-8 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="tax_id" className="text-xs">SSN or EIN (if applicable)</Label>
-                  <Input
-                    id="tax_id"
-                    value={application.tax_id || ''}
-                    onChange={e => onUpdate('tax_id', e.target.value)}
-                    placeholder="XXX-XX-XXXX"
-                    className="h-8 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="email_address" className="text-xs">Email Address *</Label>
-                  <Input
-                    id="email_address"
-                    type="email"
-                    value={application.email_address || ''}
-                    onChange={e => onUpdate('email_address', e.target.value)}
-                    placeholder="you@example.com"
-                    className="h-8 text-sm"
-                  />
-                </div>
-              </div>
+      {/* Essential Info - Always Visible */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="col-span-2 md:col-span-1">
+          <Label htmlFor="full_legal_name" className="text-xs text-muted-foreground">Full Name *</Label>
+          <Input
+            id="full_legal_name"
+            value={application.full_legal_name || ''}
+            onChange={e => onUpdate('full_legal_name', e.target.value)}
+            placeholder="John Doe"
+            className="h-9 mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor="npn_number" className="text-xs text-muted-foreground">NPN *</Label>
+          <Input
+            id="npn_number"
+            value={application.npn_number || ''}
+            onChange={e => onUpdate('npn_number', e.target.value)}
+            placeholder="12345678"
+            className="h-9 mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor="insurance_license_number" className="text-xs text-muted-foreground">License # *</Label>
+          <Input
+            id="insurance_license_number"
+            value={application.insurance_license_number || ''}
+            onChange={e => onUpdate('insurance_license_number', e.target.value)}
+            placeholder="ABC123456"
+            className="h-9 mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor="phone_mobile" className="text-xs text-muted-foreground">Mobile *</Label>
+          <Input
+            id="phone_mobile"
+            type="tel"
+            value={application.phone_mobile || ''}
+            onChange={e => onUpdate('phone_mobile', e.target.value)}
+            placeholder="(555) 123-4567"
+            className="h-9 mt-1"
+          />
+        </div>
+      </div>
 
-              {/* Phone Numbers */}
-              <div className="grid gap-3 grid-cols-2">
-                <div className="space-y-1">
-                  <Label htmlFor="phone_mobile" className="text-xs">Mobile Phone *</Label>
-                  <Input
-                    id="phone_mobile"
-                    type="tel"
-                    value={application.phone_mobile || ''}
-                    onChange={e => onUpdate('phone_mobile', e.target.value)}
-                    placeholder="(555) 123-4567"
-                    className="h-8 text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="phone_business" className="text-xs">Business Phone</Label>
-                  <Input
-                    id="phone_business"
-                    type="tel"
-                    value={application.phone_business || ''}
-                    onChange={e => onUpdate('phone_business', e.target.value)}
-                    placeholder="(555) 123-4567"
-                    className="h-8 text-sm"
-                  />
-                </div>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <Label htmlFor="email_address" className="text-xs text-muted-foreground">Email *</Label>
+          <Input
+            id="email_address"
+            type="email"
+            value={application.email_address || ''}
+            onChange={e => onUpdate('email_address', e.target.value)}
+            placeholder="you@example.com"
+            className="h-9 mt-1"
+          />
+        </div>
+        <Collapsible open={showOptional} onOpenChange={setShowOptional}>
+          <CollapsibleTrigger asChild>
+            <button className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 mt-6 transition-colors">
+              <ChevronDown className={`h-3 w-3 transition-transform ${showOptional ? 'rotate-180' : ''}`} />
+              {showOptional ? 'Hide' : 'Show'} optional fields
+            </button>
+          </CollapsibleTrigger>
+        </Collapsible>
+      </div>
 
-              {/* Divider */}
-              <div className="flex items-center gap-2 pt-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">Address Information</h3>
-              </div>
-
-              {/* Home Address */}
-              <div className="space-y-2">
-                <h4 className="font-medium text-xs text-muted-foreground">Home Address *</h4>
-                <CompactAddressFields
-                  address={homeAddress}
-                  onChange={addr => onUpdate('home_address', addr)}
-                  prefix="home"
-                />
-              </div>
-
-              {/* Mailing Address */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <h4 className="font-medium text-xs text-muted-foreground">Mailing Address</h4>
-                  <div className="flex items-center gap-1.5">
-                    <Checkbox
-                      id="mailing_same"
-                      checked={application.mailing_address_same_as_home}
-                      onCheckedChange={checked => onUpdate('mailing_address_same_as_home', !!checked)}
-                      className="h-3.5 w-3.5"
-                    />
-                    <Label htmlFor="mailing_same" className="text-xs font-normal cursor-pointer">
-                      Same as home
-                    </Label>
-                  </div>
-                </div>
-                {!application.mailing_address_same_as_home && (
-                  <CompactAddressFields
-                    address={mailingAddress}
-                    onChange={addr => onUpdate('mailing_address', addr)}
-                    prefix="mailing"
-                  />
-                )}
-              </div>
-
-              {/* UPS Address */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <h4 className="font-medium text-xs text-muted-foreground">UPS Street Address</h4>
-                  <div className="flex items-center gap-1.5">
-                    <Checkbox
-                      id="ups_same"
-                      checked={application.ups_address_same_as_home}
-                      onCheckedChange={checked => onUpdate('ups_address_same_as_home', !!checked)}
-                      className="h-3.5 w-3.5"
-                    />
-                    <Label htmlFor="ups_same" className="text-xs font-normal cursor-pointer">
-                      Same as home
-                    </Label>
-                  </div>
-                </div>
-                {!application.ups_address_same_as_home && (
-                  <CompactAddressFields
-                    address={upsAddress}
-                    onChange={addr => onUpdate('ups_address', addr)}
-                    prefix="ups"
-                  />
-                )}
-              </div>
-
-              {/* Previous Addresses */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-xs text-muted-foreground">Previous Addresses (last 10 years)</h4>
-                  <Button variant="outline" size="sm" onClick={addPreviousAddress} className="h-7 text-xs">
-                    <Plus className="h-3 w-3 mr-1" />
-                    Add
-                  </Button>
-                </div>
-                {previousAddresses.map((addr, index) => (
-                  <div key={index} className="relative border rounded-lg p-3">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-1 right-1 h-6 w-6"
-                      onClick={() => removePreviousAddress(index)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                    <CompactAddressFields
-                      address={addr}
-                      onChange={newAddr => updatePreviousAddress(index, newAddr)}
-                      prefix={`prev_${index}`}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Acknowledgment & Signature Section */}
-              <div className="border-t pt-4 mt-4 space-y-4">
-                <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                  <p className="text-xs leading-relaxed">
-                    By signing this form, I acknowledge that all information is true and correct to the best of my knowledge.
-                    I agree to receive all carrier required emails, and Tyler Insurance Group Compliance updates.
-                    Additionally, by checking here, I agree to let Tyler Insurance Group send me information about
-                    carriers, products, and lead opportunities.
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="personal_info_acknowledged"
-                      checked={personalInfoAcknowledged}
-                      onCheckedChange={checked => {
-                        onUpdate('agreements', {
-                          ...application.agreements,
-                          personal_info_acknowledged: !!checked
-                        });
-                      }}
-                      className="h-4 w-4"
-                    />
-                    <Label htmlFor="personal_info_acknowledged" className="text-xs font-medium cursor-pointer">
-                      I agree to the above statement *
-                    </Label>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 items-end">
-                  <div className="space-y-1 flex-1 max-w-[200px]">
-                    <Label htmlFor="personal_info_initials" className="text-xs">Initials *</Label>
-                    <Input
-                      id="personal_info_initials"
-                      value={application.signature_initials || ''}
-                      onChange={e => onUpdate('signature_initials', e.target.value.toUpperCase())}
-                      placeholder="JD"
-                      maxLength={4}
-                      className="h-10 text-center text-lg font-semibold tracking-widest uppercase"
-                    />
-                  </div>
-                  <div className="space-y-1 flex-1 max-w-[200px]">
-                    <Label htmlFor="personal_info_date" className="text-xs">Date *</Label>
-                    <Input
-                      id="personal_info_date"
-                      type="date"
-                      value={application.signature_date?.split('T')[0] || new Date().toISOString().split('T')[0]}
-                      onChange={e => onUpdate('signature_date', e.target.value)}
-                      className="h-10 text-sm"
-                    />
-                  </div>
-                </div>
-              </div>
+      {/* Optional Fields - Collapsible */}
+      <Collapsible open={showOptional} onOpenChange={setShowOptional}>
+        <CollapsibleContent className="space-y-3 animate-fade-in">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-dashed">
+            <div>
+              <Label htmlFor="agency_name" className="text-xs text-muted-foreground">Agency Name</Label>
+              <Input
+                id="agency_name"
+                value={application.agency_name || ''}
+                onChange={e => onUpdate('agency_name', e.target.value)}
+                placeholder="Your Agency LLC"
+                className="h-9 mt-1"
+              />
             </div>
-          </ScrollArea>
+            <div>
+              <Label htmlFor="tax_id" className="text-xs text-muted-foreground">SSN/EIN</Label>
+              <Input
+                id="tax_id"
+                value={application.tax_id || ''}
+                onChange={e => onUpdate('tax_id', e.target.value)}
+                placeholder="XXX-XX-XXXX"
+                className="h-9 mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="birth_date" className="text-xs text-muted-foreground">Birth Date</Label>
+              <Input
+                id="birth_date"
+                type="date"
+                value={application.birth_date || ''}
+                onChange={e => onUpdate('birth_date', e.target.value)}
+                className="h-9 mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone_business" className="text-xs text-muted-foreground">Business Phone</Label>
+              <Input
+                id="phone_business"
+                type="tel"
+                value={application.phone_business || ''}
+                onChange={e => onUpdate('phone_business', e.target.value)}
+                placeholder="(555) 123-4567"
+                className="h-9 mt-1"
+              />
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
-          <div className="flex justify-between pt-4 border-t mt-4">
-            <Button variant="outline" onClick={onBack} size="sm">
-              Back
-            </Button>
-            <Button onClick={onContinue} size="sm">
-              Continue
+      {/* Address Section */}
+      <div className="space-y-3 pt-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Home Address *</span>
+        </div>
+        <InlineAddressFields
+          address={homeAddress}
+          onChange={addr => onUpdate('home_address', addr)}
+          prefix="home"
+        />
+
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              id="mailing_same"
+              checked={application.mailing_address_same_as_home}
+              onCheckedChange={checked => onUpdate('mailing_address_same_as_home', !!checked)}
+              className="h-4 w-4"
+            />
+            <span className="text-muted-foreground">Mailing address same as home</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              id="ups_same"
+              checked={application.ups_address_same_as_home}
+              onCheckedChange={checked => onUpdate('ups_address_same_as_home', !!checked)}
+              className="h-4 w-4"
+            />
+            <span className="text-muted-foreground">UPS address same as home</span>
+          </label>
+        </div>
+
+        {!application.mailing_address_same_as_home && (
+          <div className="space-y-1 animate-fade-in">
+            <span className="text-xs text-muted-foreground">Mailing Address</span>
+            <InlineAddressFields
+              address={mailingAddress}
+              onChange={addr => onUpdate('mailing_address', addr)}
+              prefix="mailing"
+            />
+          </div>
+        )}
+
+        {!application.ups_address_same_as_home && (
+          <div className="space-y-1 animate-fade-in">
+            <span className="text-xs text-muted-foreground">UPS Address</span>
+            <InlineAddressFields
+              address={upsAddress}
+              onChange={addr => onUpdate('ups_address', addr)}
+              prefix="ups"
+            />
+          </div>
+        )}
+
+        {/* Previous Addresses */}
+        <Collapsible open={showPrevAddresses} onOpenChange={setShowPrevAddresses}>
+          <div className="flex items-center gap-2">
+            <CollapsibleTrigger asChild>
+              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronDown className={`h-3 w-3 transition-transform ${showPrevAddresses ? 'rotate-180' : ''}`} />
+                Previous addresses (last 10 years)
+              </button>
+            </CollapsibleTrigger>
+            <Button variant="ghost" size="sm" onClick={addPreviousAddress} className="h-6 text-xs px-2">
+              <Plus className="h-3 w-3" />
             </Button>
           </div>
-        </CardContent>
-      </Card>
+          <CollapsibleContent className="space-y-2 mt-2">
+            {previousAddresses.map((addr, index) => (
+              <div key={index} className="flex gap-2 items-start animate-fade-in">
+                <div className="flex-1">
+                  <InlineAddressFields
+                    address={addr}
+                    onChange={newAddr => updatePreviousAddress(index, newAddr)}
+                    prefix={`prev_${index}`}
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 shrink-0"
+                  onClick={() => removePreviousAddress(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
+      {/* Agreement & Signature */}
+      <div className="rounded-xl bg-muted/40 p-4 space-y-3">
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          By signing, I confirm all information is accurate. I agree to receive carrier emails and Tyler Insurance Group updates, 
+          including information about carriers, products, and lead opportunities.
+        </p>
+        
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              id="personal_info_acknowledged"
+              checked={personalInfoAcknowledged}
+              onCheckedChange={checked => {
+                onUpdate('agreements', {
+                  ...application.agreements,
+                  personal_info_acknowledged: !!checked
+                });
+              }}
+              className="h-4 w-4"
+            />
+            <span className="text-sm font-medium">I agree *</span>
+          </label>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Initials</span>
+              <Input
+                value={application.signature_initials || ''}
+                onChange={e => onUpdate('signature_initials', e.target.value.toUpperCase())}
+                placeholder="AB"
+                maxLength={4}
+                className="h-9 w-16 text-center font-semibold tracking-wider uppercase"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Date</span>
+              <Input
+                type="date"
+                value={application.signature_date?.split('T')[0] || new Date().toISOString().split('T')[0]}
+                onChange={e => onUpdate('signature_date', e.target.value)}
+                className="h-9 w-[130px]"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex justify-between pt-2">
+        <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
+          Back
+        </Button>
+        <Button onClick={onContinue} className="px-8">
+          Continue
+        </Button>
+      </div>
     </div>
   );
 }
