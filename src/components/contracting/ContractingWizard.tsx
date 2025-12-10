@@ -180,15 +180,26 @@ export function ContractingWizard() {
     }
   };
 
+  const isWelcomeStep = application.current_step === 1;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted flex flex-col">
-      {/* Header with logo and logout */}
-      <div className="border-b bg-background/80 backdrop-blur-sm">
-        <div className="container max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <img src={tylerLogo} alt="Tyler Insurance Group" className="h-8" />
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2 text-muted-foreground hover:text-foreground">
+      {/* Header with logo and logout - subtle on welcome step */}
+      <div className={`border-b bg-background/80 backdrop-blur-sm ${isWelcomeStep ? 'border-transparent' : ''}`}>
+        <div className="container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          {isWelcomeStep ? (
+            <div /> 
+          ) : (
+            <img src={tylerLogo} alt="Tyler Insurance Group" className="h-8" />
+          )}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleLogout} 
+            className={`gap-2 ${isWelcomeStep ? 'text-muted-foreground/50 hover:text-muted-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          >
             <LogOut className="h-4 w-4" />
-            Log Out
+            {!isWelcomeStep && 'Log Out'}
           </Button>
         </div>
       </div>
