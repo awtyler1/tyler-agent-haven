@@ -61,6 +61,15 @@ function RecoveryRedirectHandler() {
   return null;
 }
 
+// Conditionally show chat widget (hide during contracting flow)
+function ConditionalChatWidget() {
+  const location = useLocation();
+  const isContractingPage = location.pathname === '/contracting';
+  
+  if (isContractingPage) return null;
+  return <AgentChatWidget />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -143,7 +152,7 @@ const App = () => (
             <Route path="/about" element={<ProtectedRoute><AboutPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <AgentChatWidget />
+          <ConditionalChatWidget />
         </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
