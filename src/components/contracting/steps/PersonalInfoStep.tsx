@@ -104,7 +104,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
   return (
     <div className="max-w-6xl mx-auto">
       <Card>
-        <CardHeader className="py-4">
+        <CardHeader className="py-3">
           <CardTitle className="flex items-center gap-2 text-lg">
             <User className="h-4 w-4" />
             Personal Information & Addresses
@@ -113,7 +113,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
             Please provide your personal details and contact information
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5 pb-5">
+        <CardContent className="space-y-4 pb-4">
           {/* Row 1: Basic Info */}
           <div className="grid gap-x-4 gap-y-3 grid-cols-2 md:grid-cols-4 lg:grid-cols-8">
             <div className="space-y-1.5 col-span-2">
@@ -249,14 +249,14 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
           </div>
 
           {/* Acknowledgment & Signature */}
-          <div className="rounded-lg bg-muted/50 p-4 space-y-3 border">
+          <div className="rounded-lg bg-muted/50 p-3 space-y-2 border">
             <p className="text-xs text-muted-foreground leading-relaxed">
               By signing this form, I acknowledge that all information is true and correct to the best of my knowledge.
               I agree to receive all carrier required emails, and Tyler Insurance Group Compliance updates.
               Additionally, by checking here, I agree to let Tyler Insurance Group send me information about carriers, products, and lead opportunities.
             </p>
             
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox
                   checked={personalInfoAcknowledged}
@@ -268,7 +268,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                 <span className="text-sm font-medium">I acknowledge and agree *</span>
               </label>
 
-              <div className="flex items-center gap-4 sm:ml-auto">
+              <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <Label className="text-xs text-muted-foreground shrink-0">Initials *</Label>
                   <Input
@@ -285,7 +285,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                     type="date"
                     value={application.signature_date?.split('T')[0] || new Date().toISOString().split('T')[0]}
                     onChange={e => onUpdate('signature_date', e.target.value)}
-                    className="h-8 w-[130px] text-sm"
+                    className="h-8 w-36 text-sm"
                   />
                 </div>
               </div>
