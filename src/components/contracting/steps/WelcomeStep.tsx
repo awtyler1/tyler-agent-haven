@@ -29,7 +29,7 @@ export function WelcomeStep({ fullName, onContinue }: WelcomeStepProps) {
               Welcome, {firstName}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Complete your setup to activate your account and begin selling with our carrier partners.
+              Complete your agent setup to activate your account and fulfill the requirements to contract with our carrier partners.
             </p>
           </div>
 
@@ -67,28 +67,21 @@ export function WelcomeStep({ fullName, onContinue }: WelcomeStepProps) {
             </div>
           </div>
 
-          {/* Progress */}
-          <div className="flex items-center justify-center gap-1">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((step) => (
-              <div
-                key={step}
-                className={`h-1 rounded-full ${
-                  step === 1 ? 'w-5 bg-primary' : 'w-1 bg-muted-foreground/20'
-                }`}
-              />
-            ))}
-            <span className="text-[10px] text-muted-foreground ml-2">1 of 9</span>
-          </div>
+          {/* Reassurance */}
+          <p className="text-xs text-center text-muted-foreground">
+            You'll be guided step by step. You can pause anytime and return without losing progress.
+          </p>
 
           {/* CTA */}
-          <Button onClick={onContinue} className="w-full h-10 font-medium gap-1">
-            Begin Agent Setup
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          
-          <p className="text-[10px] text-center text-muted-foreground">
-            Your information is encrypted and securely stored
-          </p>
+          <div>
+            <Button onClick={onContinue} className="w-full h-10 font-medium gap-1">
+              Begin Agent Setup
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <p className="text-[10px] text-center text-muted-foreground mt-2">
+              Step 1 of 9 · Your information is encrypted and securely stored
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
