@@ -129,7 +129,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
             </div>
           </div>
 
-          <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1">
               <Label htmlFor="phone_mobile" className="text-xs">Mobile Phone *</Label>
               <Input
@@ -159,17 +159,6 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                 type="tel"
                 value={application.phone_home || ''}
                 onChange={e => onUpdate('phone_home', e.target.value)}
-                placeholder="(555) 123-4567"
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="fax" className="text-xs">Fax</Label>
-              <Input
-                id="fax"
-                type="tel"
-                value={application.fax || ''}
-                onChange={e => onUpdate('fax', e.target.value)}
                 placeholder="(555) 123-4567"
                 className="h-8 text-sm"
               />
