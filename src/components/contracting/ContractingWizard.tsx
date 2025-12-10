@@ -193,7 +193,7 @@ export function ContractingWizard() {
         </div>
       </div>
 
-      <div className="container max-w-5xl mx-auto py-4 px-4 flex flex-col flex-1">
+      <div className="container max-w-6xl mx-auto py-2 px-4 flex flex-col flex-1">
         {/* Progress bar */}
         <WizardProgress
           currentStep={application.current_step}
@@ -202,7 +202,7 @@ export function ContractingWizard() {
         />
 
         {/* Saving indicator - fixed height to prevent layout shift */}
-        <div className="h-6 mt-2 flex items-center justify-center">
+        <div className="h-5 mt-1 flex items-center justify-center">
           {saving && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -212,7 +212,7 @@ export function ContractingWizard() {
         </div>
 
         {/* Current step */}
-        <div className="mt-4 flex-1">
+        <div className="mt-2 flex-1">
           {renderStep()}
         </div>
       </div>
