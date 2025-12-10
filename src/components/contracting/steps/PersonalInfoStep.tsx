@@ -5,8 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
-import { User, Plus, X } from 'lucide-react';
+import { User, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface PersonalInfoStepProps {
   application: ContractingApplication;
@@ -15,67 +16,9 @@ interface PersonalInfoStepProps {
   onContinue: () => void;
 }
 
-function CompactAddress({ 
-  address, 
-  onChange,
-  label
-}: { 
-  address: Address; 
-  onChange: (address: Address) => void;
-  label: string;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
-      <div className="flex gap-2">
-        <Input
-          value={address.street}
-          onChange={e => onChange({ ...address, street: e.target.value })}
-          placeholder="Street"
-          className="h-8 text-sm flex-[3]"
-        />
-        <Input
-          value={address.city}
-          onChange={e => onChange({ ...address, city: e.target.value })}
-          placeholder="City"
-          className="h-8 text-sm flex-[2]"
-        />
-        <Select value={address.state} onValueChange={value => onChange({ ...address, state: value })}>
-          <SelectTrigger className="h-8 text-sm w-[70px]">
-            <SelectValue placeholder="ST" />
-          </SelectTrigger>
-          <SelectContent>
-            {US_STATES.map(state => (
-              <SelectItem key={state.code} value={state.code}>{state.code}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input
-          value={address.zip}
-          onChange={e => onChange({ ...address, zip: e.target.value })}
-          placeholder="ZIP"
-          className="h-8 text-sm w-[70px]"
-        />
-        <Input
-          value={address.county}
-          onChange={e => onChange({ ...address, county: e.target.value })}
-          placeholder="County"
-          className="h-8 text-sm w-24"
-        />
-      </div>
-    </div>
-  );
-}
-
 export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: PersonalInfoStepProps) {
-  const [showPrevAddresses, setShowPrevAddresses] = useState(false);
-  
+  const [showOptional, setShowOptional] = useState(false);
   const homeAddress = (application.home_address as Address) || EMPTY_ADDRESS;
-  const mailingAddress = (application.mailing_address as Address) || EMPTY_ADDRESS;
-  const upsAddress = (application.ups_address as Address) || EMPTY_ADDRESS;
-  const previousAddresses = (application.previous_addresses as Address[]) || [];
-
-  const personalInfoAcknowledged = application.agreements?.personal_info_acknowledged || false;
 
   const toggleContactMethod = (method: string) => {
     const current = application.preferred_contact_methods || [];
@@ -86,217 +29,180 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
     }
   };
 
-  const addPreviousAddress = () => {
-    onUpdate('previous_addresses', [...previousAddresses, EMPTY_ADDRESS]);
-    setShowPrevAddresses(true);
-  };
-
-  const removePreviousAddress = (index: number) => {
-    onUpdate('previous_addresses', previousAddresses.filter((_, i) => i !== index));
-  };
-
-  const updatePreviousAddress = (index: number, address: Address) => {
-    const updated = [...previousAddresses];
-    updated[index] = address;
-    onUpdate('previous_addresses', updated);
+  const updateHomeAddress = (field: keyof Address, value: string) => {
+    onUpdate('home_address', { ...homeAddress, [field]: value });
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <Card>
-        <CardHeader className="py-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <User className="h-4 w-4" />
-            Personal Information & Addresses
-          </CardTitle>
+    <div className="max-w-xl mx-auto">
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="py-4 text-center">
+          <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+            <User className="h-5 w-5 text-primary" />
+          </div>
+          <CardTitle className="text-xl">Contact Information</CardTitle>
           <CardDescription className="text-sm">
-            Please provide your personal details and contact information
+            We use this information to stay in touch with you throughout the contracting process and beyond.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 pb-4">
-          {/* Row 1: Basic Info */}
-          <div className="grid gap-x-4 gap-y-3 grid-cols-2 md:grid-cols-4 lg:grid-cols-8">
-            <div className="space-y-1.5 col-span-2">
-              <Label className="text-xs">Full Legal Name *</Label>
+        <CardContent className="space-y-4 pb-5">
+          {/* Core Required Fields */}
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="full_legal_name" className="text-sm font-medium">Full Legal Name *</Label>
               <Input
+                id="full_legal_name"
                 value={application.full_legal_name || ''}
                 onChange={e => onUpdate('full_legal_name', e.target.value)}
                 placeholder="First Middle Last"
-                className="h-8 text-sm"
+                className="h-10"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Gender</Label>
-              <Select value={application.gender || ''} onValueChange={value => onUpdate('gender', value)}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Birth Date</Label>
-              <Input type="date" value={application.birth_date || ''} onChange={e => onUpdate('birth_date', e.target.value)} className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">SSN/Tax ID *</Label>
-              <Input value={application.tax_id || ''} onChange={e => onUpdate('tax_id', e.target.value)} placeholder="XXX-XX-XXXX" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">NPN *</Label>
-              <Input value={application.npn_number || ''} onChange={e => onUpdate('npn_number', e.target.value)} placeholder="12345678" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">License # *</Label>
-              <Input value={application.insurance_license_number || ''} onChange={e => onUpdate('insurance_license_number', e.target.value)} placeholder="ABC123" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Agency Name</Label>
-              <Input value={application.agency_name || ''} onChange={e => onUpdate('agency_name', e.target.value)} placeholder="If applicable" className="h-8 text-sm" />
-            </div>
-          </div>
 
-          {/* Row 2: Contact & License Details */}
-          <div className="grid gap-x-4 gap-y-3 grid-cols-2 md:grid-cols-4 lg:grid-cols-8">
-            <div className="space-y-1.5 col-span-2">
-              <Label className="text-xs">Email *</Label>
-              <Input type="email" value={application.email_address || ''} onChange={e => onUpdate('email_address', e.target.value)} placeholder="you@example.com" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Mobile *</Label>
-              <Input type="tel" value={application.phone_mobile || ''} onChange={e => onUpdate('phone_mobile', e.target.value)} placeholder="(555) 123-4567" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Home Phone</Label>
-              <Input type="tel" value={application.phone_home || ''} onChange={e => onUpdate('phone_home', e.target.value)} placeholder="(555) 123-4567" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Business Phone</Label>
-              <Input type="tel" value={application.phone_business || ''} onChange={e => onUpdate('phone_business', e.target.value)} placeholder="(555) 123-4567" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Fax</Label>
-              <Input type="tel" value={application.fax || ''} onChange={e => onUpdate('fax', e.target.value)} placeholder="(555) 123-4567" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Driver's License #</Label>
-              <Input value={application.drivers_license_number || ''} onChange={e => onUpdate('drivers_license_number', e.target.value)} placeholder="D12345678" className="h-8 text-sm" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">DL State</Label>
-              <Select value={application.drivers_license_state || ''} onValueChange={value => onUpdate('drivers_license_state', value)}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="ST" /></SelectTrigger>
-                <SelectContent>
-                  {US_STATES.map(state => (<SelectItem key={state.code} value={state.code}>{state.code}</SelectItem>))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Row 3: Preferred Contact & Corporation */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm py-1">
-            <span className="text-muted-foreground text-xs">Preferred contact:</span>
-            {['Email', 'Mobile', 'Home', 'Business', 'Fax'].map(method => (
-              <label key={method} className="flex items-center gap-1.5 cursor-pointer">
-                <Checkbox checked={(application.preferred_contact_methods || []).includes(method)} onCheckedChange={() => toggleContactMethod(method)} className="h-4 w-4" />
-                <span className="text-xs">{method}</span>
-              </label>
-            ))}
-            <div className="ml-auto flex items-center gap-1.5">
-              <Checkbox checked={application.is_corporation || false} onCheckedChange={checked => onUpdate('is_corporation', !!checked)} className="h-4 w-4" />
-              <span className="text-xs">Operating as corporation</span>
-            </div>
-          </div>
-
-          {/* Addresses Section */}
-          <div className="space-y-3 pt-3 border-t">
-            <CompactAddress address={homeAddress} onChange={addr => onUpdate('home_address', addr)} label="Home Address *" />
-            
-            <div className="flex gap-6 text-sm">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <Checkbox checked={application.mailing_address_same_as_home} onCheckedChange={checked => onUpdate('mailing_address_same_as_home', !!checked)} className="h-4 w-4" />
-                <span className="text-xs">Mailing same as home</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <Checkbox checked={application.ups_address_same_as_home} onCheckedChange={checked => onUpdate('ups_address_same_as_home', !!checked)} className="h-4 w-4" />
-                <span className="text-xs">UPS same as home</span>
-              </label>
-              <button onClick={addPreviousAddress} className="flex items-center gap-1 text-primary hover:underline ml-auto text-xs">
-                <Plus className="h-3 w-3" /> Add previous address
-              </button>
-            </div>
-
-            {!application.mailing_address_same_as_home && (
-              <CompactAddress address={mailingAddress} onChange={addr => onUpdate('mailing_address', addr)} label="Mailing Address" />
-            )}
-
-            {!application.ups_address_same_as_home && (
-              <CompactAddress address={upsAddress} onChange={addr => onUpdate('ups_address', addr)} label="UPS/Shipping Address" />
-            )}
-
-            {previousAddresses.map((addr, index) => (
-              <div key={index} className="flex gap-2 items-end">
-                <div className="flex-1">
-                  <CompactAddress address={addr} onChange={newAddr => updatePreviousAddress(index, newAddr)} label={`Previous Address ${index + 1}`} />
-                </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 mb-0.5" onClick={() => removePreviousAddress(index)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-
-          {/* Acknowledgment & Signature */}
-          <div className="rounded-lg bg-muted/50 p-3 space-y-2 border">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              By signing this form, I acknowledge that all information is true and correct to the best of my knowledge.
-              I agree to receive all carrier required emails, and Tyler Insurance Group Compliance updates.
-              Additionally, by checking here, I agree to let Tyler Insurance Group send me information about carriers, products, and lead opportunities.
-            </p>
-            
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Checkbox
-                  checked={personalInfoAcknowledged}
-                  onCheckedChange={checked => {
-                    onUpdate('agreements', { ...application.agreements, personal_info_acknowledged: !!checked });
-                  }}
-                  className="h-4 w-4"
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="email_address" className="text-sm font-medium">Email Address *</Label>
+                <Input
+                  id="email_address"
+                  type="email"
+                  value={application.email_address || ''}
+                  onChange={e => onUpdate('email_address', e.target.value)}
+                  placeholder="you@example.com"
+                  className="h-10"
                 />
-                <span className="text-sm font-medium">I acknowledge and agree *</span>
-              </label>
-
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs text-muted-foreground shrink-0">Initials *</Label>
-                  <Input
-                    value={application.signature_initials || ''}
-                    onChange={e => onUpdate('signature_initials', e.target.value.toUpperCase())}
-                    placeholder="AB"
-                    maxLength={4}
-                    className="h-8 w-14 text-center font-semibold tracking-wider uppercase text-sm"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs text-muted-foreground shrink-0">Date *</Label>
-                  <Input
-                    type="date"
-                    value={application.signature_date?.split('T')[0] || new Date().toISOString().split('T')[0]}
-                    onChange={e => onUpdate('signature_date', e.target.value)}
-                    className="h-8 w-36 text-sm"
-                  />
-                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="phone_mobile" className="text-sm font-medium">Mobile Phone *</Label>
+                <Input
+                  id="phone_mobile"
+                  type="tel"
+                  value={application.phone_mobile || ''}
+                  onChange={e => onUpdate('phone_mobile', e.target.value)}
+                  placeholder="(555) 123-4567"
+                  className="h-10"
+                />
               </div>
             </div>
           </div>
+
+          {/* Home Address */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Home Address *</Label>
+            <div className="space-y-2">
+              <Input
+                value={homeAddress.street}
+                onChange={e => updateHomeAddress('street', e.target.value)}
+                placeholder="Street address"
+                className="h-10"
+              />
+              <div className="grid grid-cols-6 gap-2">
+                <Input
+                  value={homeAddress.city}
+                  onChange={e => updateHomeAddress('city', e.target.value)}
+                  placeholder="City"
+                  className="h-10 col-span-2"
+                />
+                <Select value={homeAddress.state} onValueChange={value => updateHomeAddress('state', value)}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="State" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {US_STATES.map(state => (
+                      <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  value={homeAddress.zip}
+                  onChange={e => updateHomeAddress('zip', e.target.value)}
+                  placeholder="ZIP"
+                  className="h-10"
+                />
+                <Input
+                  value={homeAddress.county}
+                  onChange={e => updateHomeAddress('county', e.target.value)}
+                  placeholder="County"
+                  className="h-10 col-span-2"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Preferred Contact Method */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Preferred Contact Method *</Label>
+            <div className="flex flex-wrap gap-4">
+              {['Email', 'Mobile', 'Text'].map(method => (
+                <label key={method} className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox 
+                    checked={(application.preferred_contact_methods || []).includes(method)} 
+                    onCheckedChange={() => toggleContactMethod(method)} 
+                  />
+                  <span className="text-sm">{method}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Optional Fields - Progressive Disclosure */}
+          <Collapsible open={showOptional} onOpenChange={setShowOptional}>
+            <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors w-full justify-center py-2">
+              <ChevronDown className={`h-4 w-4 transition-transform ${showOptional ? 'rotate-180' : ''}`} />
+              {showOptional ? 'Hide' : 'Add'} additional contact details
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-3 pt-2">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone_home" className="text-xs text-muted-foreground">Home Phone</Label>
+                  <Input
+                    id="phone_home"
+                    type="tel"
+                    value={application.phone_home || ''}
+                    onChange={e => onUpdate('phone_home', e.target.value)}
+                    placeholder="(555) 123-4567"
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone_business" className="text-xs text-muted-foreground">Business Phone</Label>
+                  <Input
+                    id="phone_business"
+                    type="tel"
+                    value={application.phone_business || ''}
+                    onChange={e => onUpdate('phone_business', e.target.value)}
+                    placeholder="(555) 123-4567"
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="fax" className="text-xs text-muted-foreground">Fax</Label>
+                  <Input
+                    id="fax"
+                    type="tel"
+                    value={application.fax || ''}
+                    onChange={e => onUpdate('fax', e.target.value)}
+                    placeholder="(555) 123-4567"
+                    className="h-9 text-sm"
+                  />
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Navigation */}
-          <div className="flex justify-between pt-2">
-            <Button variant="outline" onClick={onBack}>Back</Button>
-            <Button onClick={onContinue}>Continue</Button>
+          <div className="flex justify-between pt-3 border-t">
+            <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
+              Back
+            </Button>
+            <Button onClick={onContinue}>
+              Continue
+            </Button>
           </div>
+
+          {/* Progress */}
+          <p className="text-[10px] text-center text-muted-foreground">
+            Step 2 of 9
+          </p>
         </CardContent>
       </Card>
     </div>
