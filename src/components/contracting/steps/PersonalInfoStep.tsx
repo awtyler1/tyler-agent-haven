@@ -48,7 +48,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="agency_name" className="text-xs">Agency Name</Label>
+              <Label htmlFor="agency_name" className="text-xs">Agency Name (if applicable)</Label>
               <Input
                 id="agency_name"
                 value={application.agency_name || ''}
@@ -107,7 +107,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="tax_id" className="text-xs">SSN or EIN</Label>
+              <Label htmlFor="tax_id" className="text-xs">SSN or EIN (if applicable)</Label>
               <Input
                 id="tax_id"
                 value={application.tax_id || ''}
