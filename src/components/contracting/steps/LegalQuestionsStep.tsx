@@ -55,19 +55,24 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pb-4">
-          <ScrollArea className="h-[340px] pr-4">
-            <div className="space-y-3">
-              {LEGAL_QUESTIONS.map((question, index) => {
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-2">
+              {LEGAL_QUESTIONS.map((question) => {
                 const answer = legalQuestions[question.id];
                 const showExplanation = answer?.answer === true;
+                const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;
+                const isParent = 'isParent' in question && question.isParent;
 
                 return (
-                  <div key={question.id} className="space-y-2 pb-2 border-b last:border-0">
-                    <div className="flex gap-3 items-start">
-                      <span className="font-medium text-xs text-muted-foreground shrink-0 w-5">
-                        {index + 1}.
+                  <div 
+                    key={question.id} 
+                    className={`space-y-1.5 pb-2 ${isSubQuestion ? 'ml-6 border-l-2 border-muted pl-3' : 'border-b last:border-0'} ${isParent ? 'bg-muted/30 p-2 rounded' : ''}`}
+                  >
+                    <div className="flex gap-2 items-start">
+                      <span className={`font-medium text-xs text-muted-foreground shrink-0 ${isSubQuestion ? 'w-6' : 'w-5'}`}>
+                        {question.id.toUpperCase()}.
                       </span>
-                      <p className="text-xs flex-1">{question.text}</p>
+                      <p className={`text-xs flex-1 ${isParent ? 'font-medium' : ''}`}>{question.text}</p>
                       <RadioGroup
                         value={answer?.answer === true ? 'yes' : answer?.answer === false ? 'no' : ''}
                         onValueChange={value => handleAnswerChange(question.id, value === 'yes')}
@@ -89,7 +94,7 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
                     </div>
 
                     {showExplanation && (
-                      <div className="ml-8 p-2 bg-muted/50 rounded">
+                      <div className={`p-2 bg-muted/50 rounded ${isSubQuestion ? '' : 'ml-5'}`}>
                         <Textarea
                           value={answer?.explanation || ''}
                           onChange={e => handleExplanationChange(question.id, e.target.value)}
