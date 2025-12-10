@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
 import { User } from 'lucide-react';
 
@@ -15,13 +14,6 @@ interface PersonalInfoStepProps {
 }
 
 export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: PersonalInfoStepProps) {
-  const handleContactMethodChange = (method: string, checked: boolean) => {
-    const current = application.preferred_contact_methods || [];
-    const updated = checked
-      ? [...current, method]
-      : current.filter(m => m !== method);
-    onUpdate('preferred_contact_methods', updated);
-  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -129,7 +121,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
             </div>
           </div>
 
-          <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="phone_mobile" className="text-xs">Mobile Phone *</Label>
               <Input
@@ -152,37 +144,8 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                 className="h-8 text-sm"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="phone_home" className="text-xs">Home Phone</Label>
-              <Input
-                id="phone_home"
-                type="tel"
-                value={application.phone_home || ''}
-                onChange={e => onUpdate('phone_home', e.target.value)}
-                placeholder="(555) 123-4567"
-                className="h-8 text-sm"
-              />
-            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Label className="text-xs">Preferred Contact:</Label>
-            <div className="flex gap-4">
-              {['Email', 'Phone', 'Text'].map(method => (
-                <div key={method} className="flex items-center gap-1.5">
-                  <Checkbox
-                    id={`contact_${method}`}
-                    checked={application.preferred_contact_methods?.includes(method.toLowerCase())}
-                    onCheckedChange={checked => handleContactMethodChange(method.toLowerCase(), !!checked)}
-                    className="h-3.5 w-3.5"
-                  />
-                  <Label htmlFor={`contact_${method}`} className="text-xs font-normal cursor-pointer">
-                    {method}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
 
           <div className="flex justify-between pt-2">
             <Button variant="outline" onClick={onBack} size="sm">
