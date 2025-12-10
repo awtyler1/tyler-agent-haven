@@ -211,13 +211,15 @@ export function ContractingWizard() {
           onStepClick={goToStep}
         />
 
-        {/* Saving indicator */}
-        {saving && (
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-2">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            Saving...
-          </div>
-        )}
+        {/* Saving indicator - fixed height to prevent layout shift */}
+        <div className="h-6 mt-2 flex items-center justify-center">
+          {saving && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Saving...
+            </div>
+          )}
+        </div>
 
         {/* Current step */}
         <div className="mt-4 flex-1">
