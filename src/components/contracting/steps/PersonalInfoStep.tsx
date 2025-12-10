@@ -256,7 +256,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
               Additionally, by checking here, I agree to let Tyler Insurance Group send me information about carriers, products, and lead opportunities.
             </p>
             
-            <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox
                   checked={personalInfoAcknowledged}
@@ -268,24 +268,24 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                 <span className="text-xs font-medium">I acknowledge and agree *</span>
               </label>
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs text-muted-foreground">Initials *</Label>
+              <div className="flex items-center gap-3 sm:ml-auto">
+                <div className="flex items-center gap-1.5">
+                  <Label className="text-xs text-muted-foreground shrink-0">Initials *</Label>
                   <Input
                     value={application.signature_initials || ''}
                     onChange={e => onUpdate('signature_initials', e.target.value.toUpperCase())}
                     placeholder="AB"
                     maxLength={4}
-                    className="h-7 w-14 text-center font-semibold tracking-wider uppercase text-xs"
+                    className="h-7 w-12 text-center font-semibold tracking-wider uppercase text-xs"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs text-muted-foreground">Date *</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label className="text-xs text-muted-foreground shrink-0">Date *</Label>
                   <Input
                     type="date"
                     value={application.signature_date?.split('T')[0] || new Date().toISOString().split('T')[0]}
                     onChange={e => onUpdate('signature_date', e.target.value)}
-                    className="h-7 w-32 text-xs"
+                    className="h-7 w-[120px] text-xs"
                   />
                 </div>
               </div>
