@@ -76,8 +76,49 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
         </div>
 
         <CardContent className="py-5 px-7 space-y-5">
-          {/* Section 1: Beneficiary */}
+          {/* Section 1: Bank Details */}
           <div className="space-y-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Bank Details</p>
+            <div className="grid gap-4 grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="bank_routing_number" className="text-sm">Routing Number</Label>
+                <Input
+                  id="bank_routing_number"
+                  value={application.bank_routing_number || ''}
+                  onChange={e => onUpdate('bank_routing_number', e.target.value.replace(/\D/g, '').slice(0, 9))}
+                  placeholder="123456789"
+                  maxLength={9}
+                  className="h-9"
+                />
+                <p className="text-[10px] text-muted-foreground/70">9-digit number</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="bank_account_number" className="text-sm">Account Number</Label>
+                <Input
+                  id="bank_account_number"
+                  value={application.bank_account_number || ''}
+                  onChange={e => onUpdate('bank_account_number', e.target.value)}
+                  placeholder="1234567890"
+                  className="h-9"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="bank_branch_name" className="text-sm flex items-center gap-1">
+                  Bank Name <span className="text-muted-foreground/50 font-normal">optional</span>
+                </Label>
+                <Input
+                  id="bank_branch_name"
+                  value={application.bank_branch_name || ''}
+                  onChange={e => onUpdate('bank_branch_name', e.target.value)}
+                  placeholder="Chase, Wells Fargo..."
+                  className="h-9"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Beneficiary */}
+          <div className="space-y-3 pt-2 border-t border-border/30">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">List a Beneficiary</p>
             <div className="grid gap-3 grid-cols-2">
               <div className="space-y-1.5">
@@ -125,47 +166,6 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Where commissions are deposited */}
-          <div className="space-y-3 pt-2 border-t border-border/30">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Bank Details</p>
-            <div className="grid gap-4 grid-cols-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="bank_routing_number" className="text-sm">Routing Number</Label>
-                <Input
-                  id="bank_routing_number"
-                  value={application.bank_routing_number || ''}
-                  onChange={e => onUpdate('bank_routing_number', e.target.value.replace(/\D/g, '').slice(0, 9))}
-                  placeholder="123456789"
-                  maxLength={9}
-                  className="h-9"
-                />
-                <p className="text-[10px] text-muted-foreground/70">9-digit number</p>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="bank_account_number" className="text-sm">Account Number</Label>
-                <Input
-                  id="bank_account_number"
-                  value={application.bank_account_number || ''}
-                  onChange={e => onUpdate('bank_account_number', e.target.value)}
-                  placeholder="1234567890"
-                  className="h-9"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="bank_branch_name" className="text-sm flex items-center gap-1">
-                  Bank Name <span className="text-muted-foreground/50 font-normal">optional</span>
-                </Label>
-                <Input
-                  id="bank_branch_name"
-                  value={application.bank_branch_name || ''}
-                  onChange={e => onUpdate('bank_branch_name', e.target.value)}
-                  placeholder="Chase, Wells Fargo..."
-                  className="h-9"
-                />
               </div>
             </div>
           </div>
