@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { GraduationCap, Shield, ArrowRight, BookOpen, Heart, ExternalLink } from 'lucide-react';
+import { GraduationCap, Shield, ArrowRight, BookOpen, Heart, ExternalLink, Briefcase } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { FileDropZone } from '../FileDropZone';
@@ -31,6 +32,15 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
+  };
+
+  // Validation for FINRA fields
+  const finraValid = !application.is_finra_registered || 
+    (application.finra_broker_dealer_name?.trim() && application.finra_crd_number?.trim());
+
+  const handleContinue = () => {
+    if (!finraValid) return;
+    onContinue();
   };
 
   return (
@@ -199,8 +209,63 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
             </div>
           </div>
 
+          {/* FINRA Registration Section */}
+          <div className="mt-4 pt-4 border-t border-border/30">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Briefcase className="h-3.5 w-3.5 text-primary" />
+              <span className="font-medium text-sm">FINRA Registration</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-3">
+              Are you a registered representative with FINRA?
+            </p>
+            <RadioGroup
+              value={application.is_finra_registered ? 'yes' : 'no'}
+              onValueChange={value => {
+                onUpdate('is_finra_registered', value === 'yes');
+                if (value === 'no') {
+                  onUpdate('finra_broker_dealer_name', null);
+                  onUpdate('finra_crd_number', null);
+                }
+              }}
+              className="flex gap-4 mb-3"
+            >
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="no" id="finra_no" className="h-4 w-4" />
+                <Label htmlFor="finra_no" className="text-xs cursor-pointer">No</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="yes" id="finra_yes" className="h-4 w-4" />
+                <Label htmlFor="finra_yes" className="text-xs cursor-pointer">Yes</Label>
+              </div>
+            </RadioGroup>
+            {application.is_finra_registered && (
+              <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                <div className="space-y-1.5">
+                  <Label htmlFor="finra_broker_dealer" className="text-xs">Broker/Dealer Name *</Label>
+                  <Input
+                    id="finra_broker_dealer"
+                    value={application.finra_broker_dealer_name || ''}
+                    onChange={e => onUpdate('finra_broker_dealer_name', e.target.value)}
+                    placeholder="Enter broker/dealer name"
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="finra_crd" className="text-xs">CRD # *</Label>
+                  <Input
+                    id="finra_crd"
+                    value={application.finra_crd_number || ''}
+                    onChange={e => onUpdate('finra_crd_number', e.target.value)}
+                    placeholder="Enter CRD number"
+                    className="h-8 text-xs"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Helper text */}
-          <p className="text-xs text-muted-foreground text-center mt-5 mb-4">
+          <p className="text-xs text-muted-foreground text-center mt-4 mb-4">
             You can continue without completing this step. We'll follow up on anything needed before appointments are finalized.
           </p>
 
@@ -216,7 +281,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
               <ArrowRight className="h-3 w-3" />
               <span className="text-foreground/70">Next: Carrier Selection</span>
             </p>
-            <Button onClick={onContinue}>
+            <Button onClick={handleContinue} disabled={!finraValid}>
               Continue
             </Button>
           </div>
