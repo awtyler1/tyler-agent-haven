@@ -47,7 +47,7 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
     onUpdate('agreements', { ...agreements, [agreementId]: checked });
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  
 
   // Validation
   const validation = useMemo(() => {
@@ -221,15 +221,10 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
                 )}
               </div>
               <div className="space-y-1">
-                <Label htmlFor="signature_date" className="text-[10px] font-medium">Date</Label>
-                <Input
-                  id="signature_date"
-                  type="date"
-                  value={application.signature_date || today}
-                  onChange={e => onUpdate('signature_date', e.target.value)}
-                  className="h-8 text-sm bg-background"
-                  readOnly
-                />
+                <Label className="text-[10px] font-medium">Date</Label>
+                <div className="h-8 px-3 flex items-center text-sm bg-muted/50 border border-border/50 rounded-md text-muted-foreground">
+                  {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </div>
               </div>
             </div>
 
