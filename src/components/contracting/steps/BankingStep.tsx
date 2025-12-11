@@ -113,11 +113,12 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
                 <Input
                   id="bank_routing_number"
                   value={application.bank_routing_number || ''}
-                  onChange={e => onUpdate('bank_routing_number', e.target.value)}
-                  placeholder="123456789"
+                  onChange={e => onUpdate('bank_routing_number', e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  maxLength={6}
                   className="h-9"
                 />
-                <p className="text-[10px] text-muted-foreground/70">9-digit number</p>
+                <p className="text-[10px] text-muted-foreground/70">6-digit number</p>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="bank_account_number" className="text-sm">Account Number</Label>
