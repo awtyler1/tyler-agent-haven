@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication } from '@/types/contracting';
 import { Landmark, Shield, ArrowRight, AlertCircle } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { FileDropZone } from '../FileDropZone';
@@ -31,6 +31,9 @@ interface BankingStepProps {
 }
 
 export function BankingStep({ application, initials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: BankingStepProps) {
+  const predefinedRelationships = ['Spouse', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Domestic Partner', 'Trust', 'Estate'];
+  const isOtherRelationship = application.beneficiary_relationship && !predefinedRelationships.includes(application.beneficiary_relationship);
+  const [showOtherInput, setShowOtherInput] = useState(isOtherRelationship);
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
@@ -45,6 +48,16 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
       return;
     }
     onContinue();
+  };
+
+  const handleRelationshipChange = (value: string) => {
+    if (value === 'Other') {
+      setShowOtherInput(true);
+      onUpdate('beneficiary_relationship', '');
+    } else {
+      setShowOtherInput(false);
+      onUpdate('beneficiary_relationship', value);
+    }
   };
 
   return (
@@ -134,8 +147,8 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
               <div className="space-y-1.5">
                 <Label htmlFor="beneficiary_relationship" className="text-sm">Relationship</Label>
                 <Select
-                  value={application.beneficiary_relationship || ''}
-                  onValueChange={value => onUpdate('beneficiary_relationship', value)}
+                  value={showOtherInput ? 'Other' : (application.beneficiary_relationship || '')}
+                  onValueChange={handleRelationshipChange}
                 >
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Select relationship" />
@@ -152,6 +165,15 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
                     <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                {showOtherInput && (
+                  <Input
+                    id="beneficiary_relationship_other"
+                    value={application.beneficiary_relationship || ''}
+                    onChange={e => onUpdate('beneficiary_relationship', e.target.value)}
+                    placeholder="Specify relationship"
+                    className="h-9 mt-2"
+                  />
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="beneficiary_drivers_license_number" className="text-sm">Driver's License #</Label>
