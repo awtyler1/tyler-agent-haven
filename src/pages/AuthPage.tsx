@@ -147,24 +147,28 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F5F2ED 0%, #FAFAFA 100%)' }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
       <Card 
-        className="w-full max-w-[480px] rounded-3xl border-0 bg-card relative" 
+        className="w-full max-w-[495px] rounded-[28px] border-0 relative" 
         style={{ 
-          boxShadow: '0px 4px 50px rgba(0, 0, 0, 0.06), 0px 0px 80px rgba(163, 133, 41, 0.04)'
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
+          boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
         }}
       >
-        <CardHeader className="text-center space-y-7 pt-12 pb-4">
-          <img src={tylerLogo} alt="Tyler Insurance Group" className="h-14 mx-auto" />
+        <CardHeader className="text-center space-y-8 pt-14 pb-2">
+          <div className="relative pb-6">
+            <img src={tylerLogo} alt="Tyler Insurance Group" className="h-[60px] mx-auto" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+          </div>
           <div className="space-y-3">
-            <CardTitle className="text-[2rem] font-serif" style={{ letterSpacing: '0.02em' }}>Welcome</CardTitle>
-            <CardDescription className="text-muted-foreground/70 font-light text-sm leading-relaxed">Sign in to access your account</CardDescription>
+            <CardTitle className="text-[2.125rem] font-serif" style={{ letterSpacing: '0.025em' }}>Welcome</CardTitle>
+            <CardDescription className="text-muted-foreground/60 font-light text-[13px] leading-[1.7]">Sign in to access your account</CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-10 px-10 pb-14">
-          <form onSubmit={handleLogin} className="space-y-7">
+        <CardContent className="space-y-12 px-11 pb-16">
+          <form onSubmit={handleLogin} className="space-y-8">
             <div className="space-y-3">
-              <Label htmlFor="login-email" className="text-[11px] font-medium uppercase tracking-widest text-foreground/60">Email</Label>
+              <Label htmlFor="login-email" className="text-[11px] font-medium uppercase tracking-widest text-foreground/55">Email</Label>
               <Input
                 id="login-email"
                 type="email"
@@ -172,12 +176,12 @@ export default function AuthPage() {
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
                 required
-                className="h-[52px] px-4 bg-card border-border/40 rounded-xl shadow-sm transition-all duration-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/10 focus:shadow-[0_0_0_4px_rgba(163,133,41,0.08)] placeholder:text-muted-foreground/40"
+                className="h-[56px] px-5 text-[15px] bg-white border-border/30 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 focus:border-primary/50 focus:ring-0 focus:shadow-[0_0_0_4px_rgba(163,133,41,0.1),0_1px_3px_rgba(0,0,0,0.04)] placeholder:text-muted-foreground/35"
               />
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="login-password" className="text-[11px] font-medium uppercase tracking-widest text-foreground/60">Password</Label>
+                <Label htmlFor="login-password" className="text-[11px] font-medium uppercase tracking-widest text-foreground/55">Password</Label>
                 <Link 
                   to="/auth/forgot-password" 
                   className="text-xs text-primary hover:underline font-medium"
@@ -192,23 +196,23 @@ export default function AuthPage() {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 required
-                className="h-[52px] px-4 bg-card border-border/40 rounded-xl shadow-sm transition-all duration-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/10 focus:shadow-[0_0_0_4px_rgba(163,133,41,0.08)] placeholder:text-muted-foreground/40"
+                className="h-[56px] px-5 text-[15px] bg-white border-border/30 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 focus:border-primary/50 focus:ring-0 focus:shadow-[0_0_0_4px_rgba(163,133,41,0.1),0_1px_3px_rgba(0,0,0,0.04)] placeholder:text-muted-foreground/35"
               />
             </div>
             <Button 
               type="submit" 
-              className="w-full h-[52px] mt-4 text-primary-foreground font-semibold text-[15px] rounded-xl transition-all duration-200 hover:-translate-y-0.5" 
+              className="w-full h-[54px] mt-2 text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5" 
               style={{ 
-                backgroundColor: 'hsl(43, 58%, 38%)',
-                boxShadow: '0px 4px 14px rgba(163, 133, 41, 0.25)'
+                background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',
+                boxShadow: '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(43, 62%, 32%)';
-                e.currentTarget.style.boxShadow = '0px 6px 20px rgba(163, 133, 41, 0.35)';
+                e.currentTarget.style.background = 'linear-gradient(180deg, hsl(43, 58%, 38%) 0%, hsl(43, 62%, 30%) 100%)';
+                e.currentTarget.style.boxShadow = '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 8px 20px rgba(163, 133, 41, 0.4)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(43, 58%, 38%)';
-                e.currentTarget.style.boxShadow = '0px 4px 14px rgba(163, 133, 41, 0.25)';
+                e.currentTarget.style.background = 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)';
+                e.currentTarget.style.boxShadow = '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)';
               }}
               disabled={isSubmitting}
             >
@@ -224,9 +228,9 @@ export default function AuthPage() {
           </form>
           
           {/* Contact section */}
-          <div className="pt-4">
-            <div className="h-px bg-border/40 mb-7" />
-            <p className="text-sm text-muted-foreground/80 text-center mb-6 leading-relaxed">
+          <div className="pt-2">
+            <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent mb-8" />
+            <p className="text-[13px] text-muted-foreground/70 text-center mb-7 leading-relaxed">
               Don't have an account? Contact us to get started.
             </p>
             <Dialog open={contactOpen} onOpenChange={(open) => {
@@ -234,7 +238,7 @@ export default function AuthPage() {
               if (!open) resetInquiryForm();
             }}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full h-12 border-foreground/15 hover:bg-secondary/40 hover:border-primary/30 font-medium rounded-xl transition-all duration-200">
+                <Button variant="outline" className="w-full h-[50px] border-foreground/12 hover:bg-secondary/30 hover:border-primary/25 font-medium text-foreground/80 rounded-2xl transition-all duration-200">
                   <Mail className="mr-2 h-4 w-4" />
                   Contact Us
                 </Button>
