@@ -4,9 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { PenTool, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { PenTool, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useState, useRef, useMemo } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
+import { cn } from '@/lib/utils';
 
 interface ProgressProps {
   currentStep: number;
@@ -36,6 +38,8 @@ const OPTIONAL_AGREEMENTS = [
 
 export function AgreementsStep({ application, initials, onUpdate, onBack, onContinue, progressProps }: AgreementsStepProps) {
   const agreements = (application.agreements as Record<string, boolean>) || {};
+  const [showErrors, setShowErrors] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const handleAgreementChange = (agreementId: string, checked: boolean) => {
     onUpdate('agreements', { ...agreements, [agreementId]: checked });
@@ -43,12 +47,50 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
 
   const today = new Date().toISOString().split('T')[0];
 
-  const allRequiredChecked = REQUIRED_AGREEMENTS.every(a => agreements[a.id]);
-  const hasSignature = application.signature_name?.trim() && application.signature_initials?.trim();
-  const canProceed = allRequiredChecked && hasSignature;
+  // Validation
+  const validation = useMemo(() => {
+    const errors: string[] = [];
+    const fieldErrors: Record<string, string> = {};
+    
+    const uncheckedAgreements = REQUIRED_AGREEMENTS.filter(a => !agreements[a.id]);
+    if (uncheckedAgreements.length > 0) {
+      errors.push('Please accept all required agreements');
+      fieldErrors.agreements = 'All required agreements must be accepted';
+    }
+    
+    if (!application.signature_name?.trim()) {
+      errors.push('Signature name is required');
+      fieldErrors.signature_name = 'Required';
+    }
+    
+    if (!application.signature_initials?.trim()) {
+      errors.push('Initials are required');
+      fieldErrors.signature_initials = 'Required';
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      fieldErrors,
+    };
+  }, [agreements, application.signature_name, application.signature_initials]);
+
+  const handleContinue = () => {
+    if (!validation.isValid) {
+      setShowErrors(true);
+      // Scroll to first error
+      if (formRef.current) {
+        const firstErrorField = Object.keys(validation.fieldErrors)[0];
+        const el = formRef.current.querySelector(`[data-field="${firstErrorField}"]`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    onContinue();
+  };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto" ref={formRef}>
       <Card 
         className="border-0 rounded-[24px]"
         style={{ 
@@ -72,17 +114,18 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
 
         <CardContent className="py-4 px-6 space-y-4">
           {/* Required Agreements Section */}
-          <div className="space-y-2">
+          <div className="space-y-2" data-field="agreements">
             <h3 className="text-[10px] font-medium text-foreground/80 uppercase tracking-wide">Required for Contracting</h3>
             <div className="space-y-2">
               {REQUIRED_AGREEMENTS.map(agreement => (
                 <div 
                   key={agreement.id} 
-                  className={`flex items-center gap-3 p-2.5 rounded-lg border transition-colors ${
-                    agreements[agreement.id] 
-                      ? 'bg-primary/5 border-primary/20' 
-                      : 'bg-background border-border/50 hover:border-border'
-                  }`}
+                  className={cn(
+                    "flex items-center gap-3 p-2.5 rounded-lg border transition-colors",
+                    agreements[agreement.id] && "bg-primary/5 border-primary/20",
+                    !agreements[agreement.id] && !showErrors && "bg-background border-border/50 hover:border-border",
+                    !agreements[agreement.id] && showErrors && "bg-background border-destructive"
+                  )}
                 >
                   <Checkbox
                     id={`agreement_${agreement.id}`}
@@ -102,6 +145,9 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
                 </div>
               ))}
             </div>
+            {showErrors && validation.fieldErrors.agreements && (
+              <p className="text-[10px] text-destructive animate-fade-in">{validation.fieldErrors.agreements}</p>
+            )}
           </div>
 
           {/* Optional Communications Section */}
@@ -139,26 +185,38 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
             </div>
             
             <div className="grid gap-3 grid-cols-3">
-              <div className="space-y-1">
-                <Label htmlFor="signature_name" className="text-[10px] font-medium">Full Legal Name</Label>
+              <div className="space-y-1" data-field="signature_name">
+                <Label htmlFor="signature_name" className="text-[10px] font-medium">Full Legal Name *</Label>
                 <Input
                   id="signature_name"
                   value={application.signature_name || ''}
                   onChange={e => onUpdate('signature_name', e.target.value)}
                   placeholder="Type your full name"
-                  className="h-8 text-sm bg-background"
+                  className={cn(
+                    "h-8 text-sm bg-background",
+                    showErrors && validation.fieldErrors.signature_name && "border-destructive focus:border-destructive focus:ring-destructive/20"
+                  )}
                 />
+                {showErrors && validation.fieldErrors.signature_name && (
+                  <p className="text-[10px] text-destructive animate-fade-in">{validation.fieldErrors.signature_name}</p>
+                )}
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="signature_initials" className="text-[10px] font-medium">Initials</Label>
+              <div className="space-y-1" data-field="signature_initials">
+                <Label htmlFor="signature_initials" className="text-[10px] font-medium">Initials *</Label>
                 <Input
                   id="signature_initials"
                   value={application.signature_initials || ''}
                   onChange={e => onUpdate('signature_initials', e.target.value.toUpperCase())}
                   placeholder="JD"
                   maxLength={4}
-                  className="h-8 text-sm uppercase bg-background"
+                  className={cn(
+                    "h-8 text-sm uppercase bg-background",
+                    showErrors && validation.fieldErrors.signature_initials && "border-destructive focus:border-destructive focus:ring-destructive/20"
+                  )}
                 />
+                {showErrors && validation.fieldErrors.signature_initials && (
+                  <p className="text-[10px] text-destructive animate-fade-in">{validation.fieldErrors.signature_initials}</p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label htmlFor="signature_date" className="text-[10px] font-medium">Date</Label>
@@ -185,6 +243,14 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
             This agreement is governed by the laws of the Commonwealth of Kentucky.
           </p>
 
+          {/* Validation Error */}
+          {showErrors && !validation.isValid && (
+            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
+              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>Please complete all required fields to continue</span>
+            </div>
+          )}
+
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={initials} />
 
@@ -194,17 +260,12 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
               Back
             </Button>
             <div className="flex items-center gap-3">
-              {!canProceed && (
-                <p className="text-[10px] text-muted-foreground">
-                  Complete all required items to continue
-                </p>
-              )}
               <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <ArrowRight className="h-3 w-3" />
                 <span className="text-foreground/70">Review & Submit</span>
               </p>
             </div>
-            <Button onClick={onContinue} disabled={!canProceed}>
+            <Button onClick={handleContinue}>
               Continue
             </Button>
           </div>

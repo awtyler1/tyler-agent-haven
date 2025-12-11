@@ -6,18 +6,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
 import { Shield, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle, Eye, EyeOff, CalendarIcon } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { FileDropZone } from '../FileDropZone';
 import { validateLicensing } from '@/hooks/useContractingValidation';
-import { toast } from 'sonner';
 import { formatSSN, formatEIN, maskSSN, maskEIN } from '@/lib/formatters';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 
 interface ProgressProps {
   currentStep: number;
@@ -39,6 +39,8 @@ interface LicensingStepProps {
 export function LicensingStep({ application, initials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: LicensingStepProps) {
   const [showNonResident, setShowNonResident] = useState(false);
   const [showTaxId, setShowTaxId] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const handleNonResidentStatesChange = (stateCode: string, checked: boolean) => {
     const current = application.non_resident_states || [];
@@ -61,14 +63,20 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
 
   const handleContinue = () => {
     if (!validation.isValid) {
-      toast.error(validation.errors[0]);
+      setShowErrors(true);
+      // Find first error field and scroll to it
+      const firstErrorField = Object.keys(validation.fieldErrors)[0];
+      if (firstErrorField && formRef.current) {
+        const el = formRef.current.querySelector(`[data-field="${firstErrorField}"]`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
     onContinue();
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto" ref={formRef}>
       <Card 
         className="border-0 rounded-[24px]"
         style={{ 
@@ -133,18 +141,19 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
             {/* Core Identity Fields */}
             <div className={`grid gap-3 ${application.is_corporation ? 'grid-cols-3' : 'grid-cols-2'}`}>
               {application.is_corporation && (
-                <div className="space-y-1.5">
+                <div className="space-y-1.5" data-field="agency_name">
                   <Label htmlFor="agency_name" className="text-xs">Business Name *</Label>
                   <Input
                     id="agency_name"
                     value={application.agency_name || ''}
                     onChange={e => onUpdate('agency_name', e.target.value)}
                     placeholder="Agency name"
-                    className="h-9"
+                    className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.agency_name, showErrors))}
                   />
+                  <FormFieldError error={validation.fieldErrors.agency_name} show={showErrors} />
                 </div>
               )}
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-field="birth_date">
                 <Label htmlFor="birth_date" className="text-xs">Date of Birth *</Label>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -152,7 +161,8 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                       variant="outline"
                       className={cn(
                         "h-9 w-full justify-start text-left font-normal",
-                        !application.birth_date && "text-muted-foreground"
+                        !application.birth_date && "text-muted-foreground",
+                        getFieldErrorClass(!!validation.fieldErrors.birth_date, showErrors)
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -172,8 +182,9 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                     />
                   </PopoverContent>
                 </Popover>
+                <FormFieldError error={validation.fieldErrors.birth_date} show={showErrors} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-field="tax_id">
                 <Label htmlFor="tax_id" className="text-xs">
                   {application.is_corporation ? 'EIN *' : 'SSN *'}
                 </Label>
@@ -190,7 +201,7 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                     }}
                     onFocus={() => setShowTaxId(true)}
                     placeholder={application.is_corporation ? 'XX-XXXXXXX' : 'XXX-XX-XXXX'}
-                    className="h-9 pr-9"
+                    className={cn("h-9 pr-9", getFieldErrorClass(!!validation.fieldErrors.tax_id, showErrors))}
                   />
                   <button
                     type="button"
@@ -200,6 +211,7 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                     {showTaxId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                <FormFieldError error={validation.fieldErrors.tax_id} show={showErrors} />
                 <p className="text-[10px] text-muted-foreground flex items-center gap-1">
                   <Lock className="h-2.5 w-2.5" /> Securely encrypted
                 </p>
@@ -217,33 +229,35 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
             
             {/* All licensing fields */}
             <div className="grid grid-cols-4 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-field="npn_number">
                 <Label htmlFor="npn_number" className="text-xs">NPN Number *</Label>
                 <Input
                   id="npn_number"
                   value={application.npn_number || ''}
                   onChange={e => onUpdate('npn_number', e.target.value)}
                   placeholder="12345678"
-                  className="h-9"
+                  className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.npn_number, showErrors))}
                 />
+                <FormFieldError error={validation.fieldErrors.npn_number} show={showErrors} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-field="insurance_license_number">
                 <Label htmlFor="insurance_license_number" className="text-xs">Resident License # *</Label>
                 <Input
                   id="insurance_license_number"
                   value={application.insurance_license_number || ''}
                   onChange={e => onUpdate('insurance_license_number', e.target.value)}
                   placeholder="ABC123456"
-                  className="h-9"
+                  className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.insurance_license_number, showErrors))}
                 />
+                <FormFieldError error={validation.fieldErrors.insurance_license_number} show={showErrors} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-field="resident_state">
                 <Label htmlFor="resident_state" className="text-xs">Resident State *</Label>
                 <Select
                   value={application.resident_state || ''}
                   onValueChange={value => onUpdate('resident_state', value)}
                 >
-                  <SelectTrigger className="h-9">
+                  <SelectTrigger className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.resident_state, showErrors))}>
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -252,8 +266,9 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                     ))}
                   </SelectContent>
                 </Select>
+                <FormFieldError error={validation.fieldErrors.resident_state} show={showErrors} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-field="license_expiration_date">
                 <Label htmlFor="license_expiration_date" className="text-xs">Expiration *</Label>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -261,7 +276,8 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                       variant="outline"
                       className={cn(
                         "h-9 w-full justify-start text-left font-normal",
-                        !application.license_expiration_date && "text-muted-foreground"
+                        !application.license_expiration_date && "text-muted-foreground",
+                        getFieldErrorClass(!!validation.fieldErrors.license_expiration_date, showErrors)
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -281,6 +297,7 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                     />
                   </PopoverContent>
                 </Popover>
+                <FormFieldError error={validation.fieldErrors.license_expiration_date} show={showErrors} />
               </div>
             </div>
 
@@ -328,7 +345,7 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
             </div>
             
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-field="insurance_license">
                 <Label className="text-xs">License Copy *</Label>
                 <FileDropZone
                   onFileSelect={(file) => handleFileUpload(file, 'insurance_license')}
@@ -336,9 +353,11 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                   isUploaded={hasLicenseUploaded}
                   uploadedLabel="Uploaded"
                   defaultLabel="Upload"
+                  hasError={showErrors && !!validation.fieldErrors.insurance_license}
                 />
+                <FormFieldError error={validation.fieldErrors.insurance_license} show={showErrors} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-field="government_id">
                 <Label className="text-xs">Government ID *</Label>
                 <FileDropZone
                   onFileSelect={(file) => handleFileUpload(file, 'government_id')}
@@ -346,7 +365,9 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                   isUploaded={hasIdUploaded}
                   uploadedLabel="Uploaded"
                   defaultLabel="Upload"
+                  hasError={showErrors && !!validation.fieldErrors.government_id}
                 />
+                <FormFieldError error={validation.fieldErrors.government_id} show={showErrors} />
               </div>
             </div>
           </div>
