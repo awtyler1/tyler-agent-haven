@@ -1,9 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ContractingApplication, Carrier, getEmptyApplication } from '@/types/contracting';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { Json } from '@/integrations/supabase/types';
+
+// Debounce delay for auto-save (ms)
+const SAVE_DEBOUNCE_MS = 800;
 
 // Helper to convert application data for Supabase
 const toDbFormat = (data: Partial<ContractingApplication>): Record<string, unknown> => {
@@ -24,6 +27,11 @@ export function useContractingApplication() {
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  
+  // Refs for debounced saving
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingUpdatesRef = useRef<Record<string, unknown>>({});
 
   // Fetch or create application
   useEffect(() => {
@@ -90,23 +98,23 @@ export function useContractingApplication() {
     fetchOrCreateApplication();
   }, [user?.id]);
 
-  // Update application field
-  const updateField = useCallback(async <K extends keyof ContractingApplication>(
-    field: K,
-    value: ContractingApplication[K]
-  ) => {
-    if (!application?.id) return;
-
-    setApplication(prev => prev ? { ...prev, [field]: value } : null);
-
+  // Debounced save to database
+  const flushSave = useCallback(async () => {
+    if (!application?.id || Object.keys(pendingUpdatesRef.current).length === 0) return;
+    
+    const updates = { ...pendingUpdatesRef.current };
+    pendingUpdatesRef.current = {};
+    
     setSaving(true);
     try {
+      const dbData = toDbFormat({ ...updates, updated_at: new Date().toISOString() });
       const { error } = await supabase
         .from('contracting_applications')
-        .update({ [field]: value, updated_at: new Date().toISOString() })
+        .update(dbData as never)
         .eq('id', application.id);
 
       if (error) throw error;
+      setLastSaved(new Date());
     } catch (error) {
       console.error('Error saving:', error);
       toast.error('Failed to save changes');
@@ -114,6 +122,30 @@ export function useContractingApplication() {
       setSaving(false);
     }
   }, [application?.id]);
+
+  // Update application field with debounced save
+  const updateField = useCallback(<K extends keyof ContractingApplication>(
+    field: K,
+    value: ContractingApplication[K]
+  ) => {
+    if (!application?.id) return;
+
+    // Update local state immediately
+    setApplication(prev => prev ? { ...prev, [field]: value } : null);
+    
+    // Queue the update
+    pendingUpdatesRef.current[field] = value;
+    
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    // Set new timeout for debounced save
+    saveTimeoutRef.current = setTimeout(() => {
+      flushSave();
+    }, SAVE_DEBOUNCE_MS);
+  }, [application?.id, flushSave]);
 
   // Update multiple fields at once
   const updateFields = useCallback(async (updates: Partial<ContractingApplication>) => {
@@ -251,11 +283,21 @@ export function useContractingApplication() {
     }
   }, [application?.id, application?.uploaded_documents, updateField]);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return {
     application,
     carriers,
     loading,
     saving,
+    lastSaved,
     updateField,
     updateFields,
     goToStep,
