@@ -142,7 +142,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log("Email sent to Caroline successfully:", carolineResult);
 
-    // 2. Send confirmation email to the agent (if email provided)
+    // 2. Send confirmation email to the agent with their PDF copy (if email provided)
     if (email && email.trim()) {
       const agentEmailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -161,6 +161,8 @@ const handler = async (req: Request): Promise<Response> => {
               
               <p style="font-size: 16px; line-height: 1.6; color: #333;">Your contracting packet and documents have been successfully received.</p>
               
+              <p style="font-size: 16px; line-height: 1.6; color: #333;"><strong>A copy of your submitted contracting packet is attached to this email for your records.</strong></p>
+              
               <p style="font-size: 16px; line-height: 1.6; color: #333;">Our contracting team reviews all submissions within 2–3 business days. If anything is missing or we need clarification, we'll reach out to you at this email address. You'll also be notified as carriers begin approving you.</p>
               
               <div style="background: #f8f8f8; padding: 20px; margin: 20px 0; border-radius: 8px;">
@@ -175,9 +177,14 @@ const handler = async (req: Request): Promise<Response> => {
               
               <p style="font-size: 16px; line-height: 1.6; color: #333;">If you have questions at any point, you can contact Caroline at <a href="mailto:caroline@tylerinsurancegroup.com" style="color: #C8A45C; text-decoration: none;">caroline@tylerinsurancegroup.com</a>.</p>
               
-              <p style="font-size: 14px; line-height: 1.5; color: #666; margin-top: 30px;">Tyler Insurance Group Contracting Team</p>
+              <p style="font-size: 14px; line-height: 1.5; color: #666; margin-top: 30px;">
+                Best,<br>
+                <strong>Austin Tyler</strong><br>
+                Tyler Insurance Group
+              </p>
             </div>
           `,
+          attachments, // Include the PDF attachment
         }),
       });
 
@@ -187,7 +194,7 @@ const handler = async (req: Request): Promise<Response> => {
         console.error("Failed to send confirmation email to agent:", agentResult);
         // Don't throw error - Caroline's email succeeded, which is critical
       } else {
-        console.log("Confirmation email sent to agent successfully:", agentResult);
+        console.log("Confirmation email sent to agent with PDF attachment:", agentResult);
       }
     }
 
