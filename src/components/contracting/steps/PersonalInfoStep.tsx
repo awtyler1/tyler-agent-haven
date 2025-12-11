@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,8 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
-import { User, Plus, X } from 'lucide-react';
+import { User, Plus, X, AlertCircle } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
+import { validatePersonalInfo } from '@/hooks/useContractingValidation';
+import { toast } from 'sonner';
 
 interface PreviousAddress extends Address {
   years_lived?: string;
@@ -78,6 +80,17 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
 
   // Check if email was prefilled (from invitation)
   const isEmailPrefilled = !!application.email_address;
+
+  // Validation
+  const validation = useMemo(() => validatePersonalInfo(application), [application]);
+
+  const handleContinue = () => {
+    if (!validation.isValid) {
+      toast.error(validation.errors[0]);
+      return;
+    }
+    onContinue();
+  };
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -361,12 +374,20 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
             ))}
           </div>
 
+          {/* Validation indicator */}
+          {!validation.isValid && (
+            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg">
+              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>Complete all required fields (*) to continue</span>
+            </div>
+          )}
+
           {/* Navigation */}
           <div className="flex justify-between pt-4 border-t">
             <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
               Back
             </Button>
-            <Button onClick={onContinue}>
+            <Button onClick={handleContinue} disabled={!validation.isValid}>
               Continue
             </Button>
           </div>
