@@ -6,12 +6,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication } from '@/types/contracting';
 import { Landmark, Shield, ArrowRight, AlertCircle } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { FileDropZone } from '../FileDropZone';
 import { validateBanking } from '@/hooks/useContractingValidation';
-import { toast } from 'sonner';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { cn } from '@/lib/utils';
 
 interface ProgressProps {
   currentStep: number;
@@ -34,6 +35,8 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
   const predefinedRelationships = ['Spouse', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Domestic Partner', 'Trust', 'Estate'];
   const isOtherRelationship = application.beneficiary_relationship && !predefinedRelationships.includes(application.beneficiary_relationship);
   const [showOtherInput, setShowOtherInput] = useState(isOtherRelationship);
+  const [showErrors, setShowErrors] = useState(false);
+  const firstErrorRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
@@ -41,10 +44,15 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
 
   // Validation
   const validation = useMemo(() => validateBanking(application), [application]);
+  const { fieldErrors } = validation;
 
   const handleContinue = () => {
     if (!validation.isValid) {
-      toast.error(validation.errors[0]);
+      setShowErrors(true);
+      setTimeout(() => {
+        firstErrorRef.current?.focus();
+        firstErrorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
       return;
     }
     onContinue();
@@ -94,26 +102,33 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Bank Details</p>
             <div className="grid gap-4 grid-cols-3">
               <div className="space-y-1.5">
-                <Label htmlFor="bank_routing_number" className="text-sm">Routing Number</Label>
+                <Label htmlFor="bank_routing_number" className="text-sm">Routing Number *</Label>
                 <Input
+                  ref={fieldErrors.bank_routing_number ? firstErrorRef : undefined}
                   id="bank_routing_number"
                   value={application.bank_routing_number || ''}
                   onChange={e => onUpdate('bank_routing_number', e.target.value.replace(/\D/g, '').slice(0, 9))}
                   placeholder="123456789"
                   maxLength={9}
-                  className="h-9"
+                  className={cn("h-9", getFieldErrorClass(!!fieldErrors.bank_routing_number, showErrors))}
                 />
-                <p className="text-[10px] text-muted-foreground/70">9-digit number</p>
+                {showErrors && fieldErrors.bank_routing_number ? (
+                  <FormFieldError error={fieldErrors.bank_routing_number} />
+                ) : (
+                  <p className="text-[10px] text-muted-foreground/70">9-digit number</p>
+                )}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="bank_account_number" className="text-sm">Account Number</Label>
+                <Label htmlFor="bank_account_number" className="text-sm">Account Number *</Label>
                 <Input
+                  ref={!fieldErrors.bank_routing_number && fieldErrors.bank_account_number ? firstErrorRef : undefined}
                   id="bank_account_number"
                   value={application.bank_account_number || ''}
                   onChange={e => onUpdate('bank_account_number', e.target.value)}
                   placeholder="1234567890"
-                  className="h-9"
+                  className={cn("h-9", getFieldErrorClass(!!fieldErrors.bank_account_number, showErrors))}
                 />
+                <FormFieldError error={fieldErrors.bank_account_number} show={showErrors} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="bank_branch_name" className="text-sm flex items-center gap-1">
@@ -208,19 +223,22 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
           <div className="space-y-3 pt-2 border-t border-border/30">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Account Verification</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Account Verification *</p>
                 <p className="text-[10px] text-muted-foreground/70 mt-0.5">
                   Prevents payment errors and confirms account ownership.
                 </p>
               </div>
             </div>
-            <FileDropZone
-              onFileSelect={(file) => handleFileUpload(file, 'voided_check')}
-              onRemove={() => onRemove('voided_check')}
-              isUploaded={!!application.uploaded_documents?.voided_check}
-              uploadedLabel="Voided check uploaded"
-              defaultLabel="Upload voided check or bank letter"
-            />
+            <div className={cn(showErrors && fieldErrors.voided_check && "ring-1 ring-destructive rounded-lg")}>
+              <FileDropZone
+                onFileSelect={(file) => handleFileUpload(file, 'voided_check')}
+                onRemove={() => onRemove('voided_check')}
+                isUploaded={!!application.uploaded_documents?.voided_check}
+                uploadedLabel="Voided check uploaded"
+                defaultLabel="Upload voided check or bank letter"
+              />
+            </div>
+            <FormFieldError error={fieldErrors.voided_check} show={showErrors} />
           </div>
 
           {/* Commission advancing option */}
@@ -243,11 +261,11 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
             </div>
           </div>
 
-          {/* Validation indicator */}
-          {!validation.isValid && (
-            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg">
+          {/* Validation indicator - only show after clicking Continue */}
+          {showErrors && !validation.isValid && (
+            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
               <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Complete all required fields and upload a voided check to continue</span>
+              <span>Please complete all required fields above</span>
             </div>
           )}
 
@@ -263,7 +281,7 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
               <ArrowRight className="h-3 w-3" />
               <span className="text-foreground/70">Next: Training</span>
             </p>
-            <Button onClick={handleContinue} disabled={!validation.isValid}>
+            <Button onClick={handleContinue}>
               Continue
             </Button>
           </div>

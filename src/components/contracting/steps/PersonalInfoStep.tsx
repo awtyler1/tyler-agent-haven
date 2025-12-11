@@ -10,8 +10,9 @@ import { User, Plus, X, AlertCircle } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { validatePersonalInfo } from '@/hooks/useContractingValidation';
-import { toast } from 'sonner';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 import { formatPhoneNumber, formatZipCode } from '@/lib/formatters';
+import { cn } from '@/lib/utils';
 
 interface PreviousAddress extends Address {
   years_lived?: string;
@@ -39,6 +40,8 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
   const previousAddresses = (application.previous_addresses as PreviousAddress[]) || [];
   const hasInitialized = useRef(false);
   const [showPreviousAddresses, setShowPreviousAddresses] = useState(previousAddresses.length > 0);
+  const [showErrors, setShowErrors] = useState(false);
+  const firstErrorRef = useRef<HTMLInputElement>(null);
 
   // Set Mobile as default preferred contact on first load
   useEffect(() => {
@@ -81,14 +84,18 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
     if (updated.length === 0) setShowPreviousAddresses(false);
   };
 
-  // Email is always prefilled from login and cannot be changed
-
   // Validation
   const validation = useMemo(() => validatePersonalInfo(application), [application]);
+  const { fieldErrors } = validation;
 
   const handleContinue = () => {
     if (!validation.isValid) {
-      toast.error(validation.errors[0]);
+      setShowErrors(true);
+      // Scroll to first error
+      setTimeout(() => {
+        firstErrorRef.current?.focus();
+        firstErrorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
       return;
     }
     onContinue();
@@ -122,12 +129,17 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
             <div className="col-span-4 space-y-1.5">
               <Label className="text-xs">Full Legal Name *</Label>
               <Input
+                ref={fieldErrors.full_legal_name ? firstErrorRef : undefined}
                 value={application.full_legal_name || ''}
                 onChange={e => onUpdate('full_legal_name', e.target.value)}
                 placeholder="First Middle Last"
-                className="h-9"
+                className={cn("h-9", getFieldErrorClass(!!fieldErrors.full_legal_name, showErrors))}
               />
-              <p className="text-[10px] text-muted-foreground">As it appears on your government ID or insurance license</p>
+              {showErrors && fieldErrors.full_legal_name ? (
+                <FormFieldError error={fieldErrors.full_legal_name} />
+              ) : (
+                <p className="text-[10px] text-muted-foreground">As it appears on your government ID or insurance license</p>
+              )}
             </div>
             <div className="col-span-2 space-y-1.5">
               <Label className="text-xs">Gender</Label>
@@ -145,12 +157,14 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
             <div className="col-span-3 space-y-1.5">
               <Label className="text-xs">Mobile *</Label>
               <Input
+                ref={!fieldErrors.full_legal_name && fieldErrors.phone_mobile ? firstErrorRef : undefined}
                 type="tel"
                 value={application.phone_mobile || ''}
                 onChange={e => onUpdate('phone_mobile', formatPhoneNumber(e.target.value))}
                 placeholder="(555) 123-4567"
-                className="h-9"
+                className={cn("h-9", getFieldErrorClass(!!fieldErrors.phone_mobile, showErrors))}
               />
+              <FormFieldError error={fieldErrors.phone_mobile} show={showErrors} />
             </div>
             <div className="col-span-3 space-y-1.5">
               <Label className="text-xs">Business Phone</Label>
@@ -392,11 +406,11 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
             ))}
           </div>
 
-          {/* Validation indicator */}
-          {!validation.isValid && (
-            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg">
+          {/* Validation indicator - only show after clicking Continue */}
+          {showErrors && !validation.isValid && (
+            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
               <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Complete all required fields (*) to continue</span>
+              <span>Please complete all required fields (*) above</span>
             </div>
           )}
 
@@ -408,7 +422,7 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
             <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
               Back
             </Button>
-            <Button onClick={handleContinue} disabled={!validation.isValid}>
+            <Button onClick={handleContinue}>
               Continue
             </Button>
           </div>
