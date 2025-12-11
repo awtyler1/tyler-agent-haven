@@ -103,26 +103,26 @@ export default function AgentsPage() {
         ) : (
           <div className="grid gap-4">
             {filteredAgents.map((agent) => (
-              <Card key={agent.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">
-                        {agent.full_name || 'Unnamed Agent'}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{agent.email}</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      {getStatusBadge(agent.onboarding_status)}
-                      <Link to={`/admin/users/${agent.user_id}`}>
+              <Link key={agent.id} to={`/admin/users/${agent.user_id}`}>
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="py-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-foreground">
+                          {agent.full_name || 'Unnamed Agent'}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{agent.email}</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {getStatusBadge(agent.onboarding_status)}
                         <Button variant="outline" size="sm">
                           View Details
                         </Button>
-                      </Link>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}
