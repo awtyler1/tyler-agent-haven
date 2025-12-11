@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { UserPlus, Search, Loader2, ArrowLeft } from 'lucide-react';
+import { UserPlus, Search, Loader2, ArrowLeft, ChevronRight } from 'lucide-react';
 import type { Profile } from '@/hooks/useProfile';
 
 export default function AgentsPage() {
@@ -103,8 +103,8 @@ export default function AgentsPage() {
         ) : (
           <div className="grid gap-4">
             {filteredAgents.map((agent) => (
-              <Link key={agent.id} to={`/admin/users/${agent.user_id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Link key={agent.id} to={`/admin/users/${agent.user_id}`} className="group">
+                <Card className="hover:shadow-md hover:border-primary/30 transition-all cursor-pointer">
                   <CardContent className="py-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -113,11 +113,9 @@ export default function AgentsPage() {
                         </h3>
                         <p className="text-sm text-muted-foreground">{agent.email}</p>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         {getStatusBadge(agent.onboarding_status)}
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                       </div>
                     </div>
                   </CardContent>
