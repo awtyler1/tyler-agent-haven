@@ -142,10 +142,13 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
                       className="flex items-center gap-2 text-left hover:bg-muted/50 rounded px-1.5 py-1 -mx-1.5 transition-colors group"
                     >
                       <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                      <span className="text-xs text-foreground group-hover:text-primary transition-colors">
+                      <span className="text-xs text-foreground group-hover:text-primary transition-colors flex-1">
                         {DOCUMENT_LABELS[docType]}
                       </span>
-                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground group-hover:text-primary transition-colors">
+                        View
+                        <ExternalLink className="h-3 w-3" />
+                      </span>
                     </button>
                   );
                 })}
