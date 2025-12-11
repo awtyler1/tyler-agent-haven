@@ -314,7 +314,7 @@ export default function UserDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
         <Navigation />
         <div className="flex items-center justify-center py-24">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -331,7 +331,7 @@ export default function UserDetailPage() {
   const onboardingInfo = onboardingStatusLabels[user.onboarding_status] || { label: user.onboarding_status, variant: 'outline' as const };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <Navigation />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}

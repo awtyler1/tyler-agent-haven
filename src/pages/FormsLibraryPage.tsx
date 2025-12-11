@@ -48,7 +48,7 @@ const FormsLibraryPage = () => {
 
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <Navigation />
       
       <main className="flex-1">

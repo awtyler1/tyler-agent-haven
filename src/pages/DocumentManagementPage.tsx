@@ -410,20 +410,20 @@ export default function DocumentManagementPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Document Management</h1>
-          <p className="text-lg text-muted-foreground">
+          <h1 className="text-4xl font-serif font-medium tracking-tight mb-4">Document Management</h1>
+          <p className="text-lg text-muted-foreground leading-relaxed">
             Process PDFs to enable AI chatbot document search
           </p>
         </div>
 
-        <Card className="p-8 mb-8">
+        <Card className="p-8 mb-8 bg-gradient-to-b from-white to-[#FEFDFB] border-[#E5E2DB] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_30px_-6px_rgba(0,0,0,0.12)]">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-semibold mb-2">Batch Process Documents</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-2xl font-serif font-medium mb-2">Batch Process Documents</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Process {pdfFiles.length} PDF files (20 pages each, chunked on client, 3 sec intervals)
               </p>
             </div>

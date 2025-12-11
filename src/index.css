@@ -116,6 +116,15 @@
     font-family: var(--font-serif);
     @apply tracking-tight;
   }
+
+  /* Premium Input Styling */
+  input, textarea, select {
+    @apply transition-all duration-200;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    box-shadow: 0 0 0 3px hsl(43 56% 41% / 0.15), 0 0 0 1px hsl(43 56% 41% / 0.3);
+  }
 }
 
 @layer utilities {
@@ -187,14 +196,17 @@
 
   .heading-display {
     @apply text-4xl md:text-5xl lg:text-6xl font-serif font-medium text-foreground leading-tight;
+    letter-spacing: -0.02em;
   }
 
   .heading-section {
     @apply text-3xl md:text-4xl font-serif font-medium text-foreground;
+    letter-spacing: -0.01em;
   }
 
   .heading-subsection {
     @apply text-xl md:text-2xl font-serif font-medium text-foreground;
+    letter-spacing: -0.01em;
   }
 
   .text-body {
@@ -213,7 +225,10 @@
   }
 
   .card-premium {
-    @apply bg-card border border-border rounded-lg p-8 shadow-card transition-smooth
-           hover:shadow-elevated hover:border-primary/30;
+    @apply bg-gradient-to-b from-white to-[#FEFDFB] border border-border rounded-xl p-8 
+           shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_-2px_rgba(0,0,0,0.08)] 
+           transition-all duration-200
+           hover:shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_30px_-6px_rgba(0,0,0,0.15)] 
+           hover:border-primary/30;
   }
 }
