@@ -165,10 +165,29 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
             <div className="text-center py-8 text-sm text-muted-foreground">Loading carriers...</div>
           ) : (
             <>
-              {/* Legend */}
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
-                <span>= Recommended carrier</span>
+              {/* Legend + Select all recommended */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                  <span>= Recommended carrier</span>
+                </div>
+                {carriers.filter(c => RECOMMENDED_CARRIER_CODES.includes(c.code) && !isCarrierSelected(c.id)).length > 0 && (
+                  <button
+                    onClick={() => {
+                      const recommendedToAdd = carriers
+                        .filter(c => RECOMMENDED_CARRIER_CODES.includes(c.code) && !isCarrierSelected(c.id))
+                        .map(c => ({
+                          carrier_id: c.id,
+                          carrier_name: c.name,
+                          non_resident_states: [],
+                        }));
+                      onUpdate('selected_carriers', [...selectedCarriers, ...recommendedToAdd]);
+                    }}
+                    className="text-[10px] text-primary hover:underline font-medium"
+                  >
+                    Select all recommended
+                  </button>
+                )}
               </div>
               
               <ScrollArea className="h-[260px]">
