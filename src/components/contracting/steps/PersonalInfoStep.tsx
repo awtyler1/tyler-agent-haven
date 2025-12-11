@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +19,20 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
   const homeAddress = (application.home_address as Address) || EMPTY_ADDRESS;
   const mailingAddress = (application.mailing_address as Address) || EMPTY_ADDRESS;
   const upsAddress = (application.ups_address as Address) || EMPTY_ADDRESS;
+  const hasAutoSelectedMobile = useRef(false);
+
+  // Auto-select Mobile as preferred contact when mobile number is entered (only once)
+  useEffect(() => {
+    if (
+      application.phone_mobile && 
+      application.phone_mobile.length >= 10 && 
+      !hasAutoSelectedMobile.current &&
+      (!application.preferred_contact_methods || application.preferred_contact_methods.length === 0)
+    ) {
+      onUpdate('preferred_contact_methods', ['Mobile']);
+      hasAutoSelectedMobile.current = true;
+    }
+  }, [application.phone_mobile, application.preferred_contact_methods, onUpdate]);
 
   const toggleContactMethod = (method: string) => {
     const current = application.preferred_contact_methods || [];
@@ -32,6 +47,9 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
     const current = type === 'home_address' ? homeAddress : type === 'mailing_address' ? mailingAddress : upsAddress;
     onUpdate(type, { ...current, [field]: value });
   };
+
+  // Check if email was prefilled (from invitation)
+  const isEmailPrefilled = !!application.email_address;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -56,6 +74,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                 placeholder="First Middle Last"
                 className="h-8 text-sm"
               />
+              <p className="text-[10px] text-muted-foreground">As it appears on your government ID or insurance license</p>
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Mobile *</Label>
@@ -78,27 +97,31 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
               onChange={e => onUpdate('email_address', e.target.value)}
               placeholder="you@example.com"
               className="h-8 text-sm"
+              disabled={isEmailPrefilled}
             />
+            {isEmailPrefilled && (
+              <p className="text-[10px] text-muted-foreground">This is your login email and cannot be changed here</p>
+            )}
           </div>
 
-          {/* Home Address */}
-          <div className="space-y-1">
+          {/* Home Address with grouped checkboxes */}
+          <div className="space-y-1.5 p-2.5 rounded-lg bg-muted/30 border border-border/50">
             <Label className="text-xs">Home Address *</Label>
             <div className="grid grid-cols-6 gap-1.5">
               <Input
                 value={homeAddress.street}
                 onChange={e => updateAddress('home_address', 'street', e.target.value)}
                 placeholder="Street address"
-                className="h-8 text-sm col-span-3"
+                className="h-8 text-sm col-span-3 bg-background"
               />
               <Input
                 value={homeAddress.city}
                 onChange={e => updateAddress('home_address', 'city', e.target.value)}
                 placeholder="City"
-                className="h-8 text-sm"
+                className="h-8 text-sm bg-background"
               />
               <Select value={homeAddress.state} onValueChange={value => updateAddress('home_address', 'state', value)}>
-                <SelectTrigger className="h-8 text-sm">
+                <SelectTrigger className="h-8 text-sm bg-background">
                   <SelectValue placeholder="ST" />
                 </SelectTrigger>
                 <SelectContent>
@@ -111,29 +134,28 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                 value={homeAddress.zip}
                 onChange={e => updateAddress('home_address', 'zip', e.target.value)}
                 placeholder="ZIP"
-                className="h-8 text-sm"
+                className="h-8 text-sm bg-background"
               />
             </div>
-          </div>
-
-          {/* Address same-as checkboxes */}
-          <div className="flex gap-6 text-xs">
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <Checkbox 
-                checked={application.mailing_address_same_as_home} 
-                onCheckedChange={checked => onUpdate('mailing_address_same_as_home', !!checked)} 
-                className="h-3.5 w-3.5"
-              />
-              <span>Mailing address same as home</span>
-            </label>
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <Checkbox 
-                checked={application.ups_address_same_as_home} 
-                onCheckedChange={checked => onUpdate('ups_address_same_as_home', !!checked)} 
-                className="h-3.5 w-3.5"
-              />
-              <span>UPS/Shipping same as home</span>
-            </label>
+            {/* Address same-as checkboxes - tightly grouped */}
+            <div className="flex gap-5 text-xs pt-1">
+              <label className="flex items-center gap-1.5 cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+                <Checkbox 
+                  checked={application.mailing_address_same_as_home} 
+                  onCheckedChange={checked => onUpdate('mailing_address_same_as_home', !!checked)} 
+                  className="h-3.5 w-3.5"
+                />
+                <span>Mailing address same as home</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+                <Checkbox 
+                  checked={application.ups_address_same_as_home} 
+                  onCheckedChange={checked => onUpdate('ups_address_same_as_home', !!checked)} 
+                  className="h-3.5 w-3.5"
+                />
+                <span>UPS/Shipping same as home</span>
+              </label>
+            </div>
           </div>
 
           {/* Mailing Address (if different) */}
