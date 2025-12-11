@@ -59,9 +59,6 @@ export function useContractingPdf() {
         return { success: false, error: errorMsg };
       }
 
-      // Get the template URL
-      const templateUrl = `${window.location.origin}/templates/TIG_Contracting_Packet_Template.pdf`;
-
       // Call the edge function
       const { data, error: fnError } = await supabase.functions.invoke('generate-contracting-pdf', {
         body: {
@@ -107,7 +104,6 @@ export function useContractingPdf() {
             signature_initials: application.signature_initials,
             signature_date: application.signature_date,
           },
-          templateUrl,
         },
       });
 
