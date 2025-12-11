@@ -88,14 +88,16 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
                 className="h-8 text-xs"
                 placeholder="Completion date"
               />
-              <FileDropZone
-                onFileSelect={(file) => handleFileUpload(file, 'aml_certificate')}
-                onRemove={() => onRemove('aml_certificate')}
-                isUploaded={!!application.uploaded_documents?.aml_certificate}
-                uploadedLabel="✓ Uploaded"
-                defaultLabel="Upload"
-                compact
-              />
+              {application.aml_training_provider === 'other' && (
+                <FileDropZone
+                  onFileSelect={(file) => handleFileUpload(file, 'aml_certificate')}
+                  onRemove={() => onRemove('aml_certificate')}
+                  isUploaded={!!application.uploaded_documents?.aml_certificate}
+                  uploadedLabel="✓ Uploaded"
+                  defaultLabel="Upload"
+                  compact
+                />
+              )}
             </div>
 
             {/* CE Training */}
