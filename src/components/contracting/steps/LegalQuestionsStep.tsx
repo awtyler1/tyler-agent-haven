@@ -308,11 +308,9 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
                   id="attestation_initials"
                   value={localInitials}
                   onChange={(e) => setLocalInitials(e.target.value.toUpperCase().slice(0, 4))}
-                  placeholder="ABC"
                   className="h-7 w-16 text-xs text-center uppercase"
                   maxLength={4}
                 />
-                <span className="text-[10px] text-muted-foreground/60">(optional)</span>
               </div>
             </div>
             {!acknowledged && (
