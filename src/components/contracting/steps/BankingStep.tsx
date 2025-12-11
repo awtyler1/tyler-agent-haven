@@ -46,27 +46,33 @@ export function BankingStep({ application, onUpdate, onUpload, onBack, onContinu
 
   return (
     <div className="max-w-3xl mx-auto">
-      <Card className="border-0 shadow-lg">
+      <Card 
+        className="border-0 rounded-[24px]"
+        style={{ 
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
+          boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
+        }}
+      >
         {/* Progress + Header */}
-        <div className="pt-4 pb-3 text-center border-b border-border/30">
+        <div className="pt-5 pb-4 text-center border-b border-border/20">
           <WizardProgress {...progressProps} compact />
           <div className="flex items-center justify-center gap-2.5 mt-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
               <Landmark className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold">Commission Deposit</h2>
+            <h2 className="text-xl font-semibold font-serif" style={{ letterSpacing: '0.015em' }}>Commission Deposit</h2>
           </div>
-          <p className="text-xs text-muted-foreground mt-1.5 max-w-md mx-auto">
+          <p className="text-xs text-muted-foreground/60 mt-1.5 max-w-md mx-auto">
             Where should we send your commissions?
           </p>
           {/* Security reassurance */}
-          <div className="flex items-center justify-center gap-1.5 mt-2 text-[10px] text-muted-foreground/70">
+          <div className="flex items-center justify-center gap-1.5 mt-2 text-[10px] text-muted-foreground/50">
             <Shield className="h-3 w-3" />
             <span>Banking details are encrypted and used only for commission deposits.</span>
           </div>
         </div>
 
-        <CardContent className="py-5 px-6 space-y-5">
+        <CardContent className="py-5 px-7 space-y-5">
           {/* Section 1: Who receives commissions */}
           <div className="space-y-3">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Account Holder</p>
