@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
-import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -62,6 +62,69 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
               <h3 className="text-sm font-medium">Identity Verification</h3>
             </div>
             
+            {/* Business Structure Selection */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Business Structure *</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => onUpdate('is_corporation', false)}
+                  className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
+                    !application.is_corporation
+                      ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                      : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                  }`}
+                >
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                    !application.is_corporation ? 'bg-primary/10' : 'bg-muted'
+                  }`}>
+                    <User className={`h-3.5 w-3.5 ${!application.is_corporation ? 'text-primary' : 'text-muted-foreground'}`} />
+                  </div>
+                  <div>
+                    <p className={`text-xs font-medium ${!application.is_corporation ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Individual / Sole Proprietor
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Personal SSN required</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdate('is_corporation', true)}
+                  className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
+                    application.is_corporation
+                      ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                      : 'border-border hover:border-primary/50 hover:bg-muted/30'
+                  }`}
+                >
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                    application.is_corporation ? 'bg-primary/10' : 'bg-muted'
+                  }`}>
+                    <Building2 className={`h-3.5 w-3.5 ${application.is_corporation ? 'text-primary' : 'text-muted-foreground'}`} />
+                  </div>
+                  <div>
+                    <p className={`text-xs font-medium ${application.is_corporation ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Corporation / Business Entity
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Business EIN required</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Agency Name - Only show for corporations */}
+            {application.is_corporation && (
+              <div className="space-y-1 animate-fade-in">
+                <Label htmlFor="agency_name" className="text-xs">Business / Agency Name *</Label>
+                <Input
+                  id="agency_name"
+                  value={application.agency_name || ''}
+                  onChange={e => onUpdate('agency_name', e.target.value)}
+                  placeholder="Your business or agency name"
+                  className="h-8 text-sm"
+                />
+              </div>
+            )}
+            
             {/* Core Identity Fields */}
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
@@ -75,17 +138,22 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="tax_id" className="text-xs">SSN / Tax ID *</Label>
+                <Label htmlFor="tax_id" className="text-xs">
+                  {application.is_corporation ? 'Tax ID (EIN) *' : 'Social Security Number *'}
+                </Label>
                 <Input
                   id="tax_id"
                   value={application.tax_id || ''}
                   onChange={e => onUpdate('tax_id', e.target.value)}
-                  placeholder="XXX-XX-XXXX"
+                  placeholder={application.is_corporation ? 'XX-XXXXXXX' : 'XXX-XX-XXXX'}
                   className="h-8 text-sm"
                 />
                 <p className="text-[10px] text-muted-foreground flex items-center gap-1">
                   <Lock className="h-2.5 w-2.5" />
-                  Used only for contracting. Securely encrypted.
+                  {application.is_corporation 
+                    ? 'Your business EIN for carrier contracting. Securely encrypted.'
+                    : 'Used only for contracting. Securely encrypted.'
+                  }
                 </p>
               </div>
             </div>
@@ -227,27 +295,6 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                 </div>
               </CollapsibleContent>
             </Collapsible>
-
-            {/* Business Entity - Optional */}
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/20 border border-border/30">
-              <Checkbox
-                id="is_corporation"
-                checked={application.is_corporation || false}
-                onCheckedChange={checked => onUpdate('is_corporation', !!checked)}
-                className="h-3.5 w-3.5"
-              />
-              <Label htmlFor="is_corporation" className="text-xs text-muted-foreground cursor-pointer flex-1">
-                I am operating as a corporation or business entity
-              </Label>
-              {application.is_corporation && (
-                <Input
-                  value={application.agency_name || ''}
-                  onChange={e => onUpdate('agency_name', e.target.value)}
-                  placeholder="Agency/Business name"
-                  className="h-7 text-xs w-40 bg-background"
-                />
-              )}
-            </div>
           </div>
 
           {/* Section 3: Document Uploads */}
