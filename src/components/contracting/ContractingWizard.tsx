@@ -31,6 +31,7 @@ export function ContractingWizard() {
     completeStepAndNext,
     submitApplication,
     uploadDocument,
+    deleteDocument,
   } = useContractingApplication();
 
   // Track when to show "Saved" confirmation
@@ -153,6 +154,7 @@ export function ContractingWizard() {
             initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
+            onRemove={deleteDocument}
             onBack={() => goToStep(2)}
             onContinue={() => completeStepAndNext(3)}
             progressProps={progressProps}
@@ -165,6 +167,7 @@ export function ContractingWizard() {
             initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
+            onRemove={deleteDocument}
             onBack={() => goToStep(3)}
             onContinue={() => completeStepAndNext(4)}
             progressProps={progressProps}
@@ -177,6 +180,7 @@ export function ContractingWizard() {
             initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
+            onRemove={deleteDocument}
             onBack={() => goToStep(4)}
             onContinue={() => completeStepAndNext(5)}
             progressProps={progressProps}
@@ -189,6 +193,7 @@ export function ContractingWizard() {
             initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
+            onRemove={deleteDocument}
             onBack={() => goToStep(5)}
             onContinue={() => completeStepAndNext(6)}
             progressProps={progressProps}

@@ -30,12 +30,13 @@ interface LicensingStepProps {
   initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
+  onRemove: (type: string) => void;
   onBack: () => void;
   onContinue: () => void;
   progressProps: ProgressProps;
 }
 
-export function LicensingStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: LicensingStepProps) {
+export function LicensingStep({ application, initials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: LicensingStepProps) {
   const [showNonResident, setShowNonResident] = useState(false);
   const [showOptionalIdentity, setShowOptionalIdentity] = useState(
     !!(application.gender || application.drivers_license_number)
@@ -384,6 +385,7 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onBac
                 <Label className="text-xs">License Copy *</Label>
                 <FileDropZone
                   onFileSelect={(file) => handleFileUpload(file, 'insurance_license')}
+                  onRemove={() => onRemove('insurance_license')}
                   isUploaded={hasLicenseUploaded}
                   uploadedLabel="Uploaded"
                   defaultLabel="Upload"
@@ -393,6 +395,7 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onBac
                 <Label className="text-xs">Government ID *</Label>
                 <FileDropZone
                   onFileSelect={(file) => handleFileUpload(file, 'government_id')}
+                  onRemove={() => onRemove('government_id')}
                   isUploaded={hasIdUploaded}
                   uploadedLabel="Uploaded"
                   defaultLabel="Upload"
