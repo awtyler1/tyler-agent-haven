@@ -229,7 +229,18 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
                           }}
                           className="text-[10px] text-primary hover:underline font-medium"
                         >
-                          Select all recommended
+                          Select all
+                        </button>
+                      )}
+                      {recommendedCarriers.some(c => isCarrierSelected(c.id)) && (
+                        <button
+                          onClick={() => {
+                            const recommendedIds = recommendedCarriers.map(c => c.id);
+                            onUpdate('selected_carriers', selectedCarriers.filter(c => !recommendedIds.includes(c.carrier_id)));
+                          }}
+                          className="text-[10px] text-muted-foreground hover:text-foreground hover:underline"
+                        >
+                          Deselect all
                         </button>
                       )}
                     </div>
