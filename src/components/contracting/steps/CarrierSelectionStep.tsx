@@ -6,11 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ContractingApplication, Carrier, SelectedCarrier, RECOMMENDED_CARRIER_CODES, US_STATES } from '@/types/contracting';
-import { Building2, Upload, Search, ArrowRight, Star, MapPin, X } from 'lucide-react';
+import { Building2, Upload, Search, ArrowRight, Star, MapPin, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { WizardProgress } from '../WizardProgress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { validateCarrierSelection } from '@/hooks/useContractingValidation';
+import { toast } from 'sonner';
 
 interface ProgressProps {
   currentStep: number;
@@ -112,6 +114,17 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
       const carrier = carriers.find(c => c.id === sc.carrier_id);
       return carrier?.requires_corporate_resolution;
     });
+
+  // Validation
+  const validation = useMemo(() => validateCarrierSelection(application, carriers), [application, carriers]);
+
+  const handleContinue = () => {
+    if (!validation.isValid) {
+      toast.error(validation.errors[0]);
+      return;
+    }
+    onContinue();
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -297,6 +310,14 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
             </div>
           )}
 
+          {/* Validation indicator */}
+          {!validation.isValid && (
+            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg">
+              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>{validation.errors[0]}</span>
+            </div>
+          )}
+
           {/* Navigation */}
           <div className="flex items-center justify-between pt-2 border-t border-border/30">
             <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
@@ -306,7 +327,7 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
               <ArrowRight className="h-3 w-3" />
               <span className="text-foreground/70">Next: Agreements</span>
             </p>
-            <Button onClick={onContinue}>
+            <Button onClick={handleContinue} disabled={!validation.isValid}>
               Continue
             </Button>
           </div>

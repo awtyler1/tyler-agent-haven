@@ -5,10 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
-import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle } from 'lucide-react';
+import { useRef, useState, useMemo } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
+import { validateLicensing } from '@/hooks/useContractingValidation';
+import { toast } from 'sonner';
 
 interface ProgressProps {
   currentStep: number;
@@ -48,6 +50,17 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
   const hasLicenseUploaded = !!application.uploaded_documents?.insurance_license;
   const hasIdUploaded = !!application.uploaded_documents?.government_id;
   const documentsComplete = hasLicenseUploaded && hasIdUploaded;
+
+  // Validation
+  const validation = useMemo(() => validateLicensing(application), [application]);
+
+  const handleContinue = () => {
+    if (!validation.isValid) {
+      toast.error(validation.errors[0]);
+      return;
+    }
+    onContinue();
+  };
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -345,6 +358,14 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
             </div>
           </div>
 
+          {/* Validation indicator */}
+          {!validation.isValid && (
+            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg">
+              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>Complete all required fields (*) and upload documents to continue</span>
+            </div>
+          )}
+
           {/* Navigation */}
           <div className="flex items-center justify-between pt-4 border-t">
             <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
@@ -354,7 +375,7 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
               <ArrowRight className="h-3 w-3" />
               <span className="text-foreground/70">Next: Background</span>
             </p>
-            <Button onClick={onContinue}>
+            <Button onClick={handleContinue} disabled={!validation.isValid}>
               Continue
             </Button>
           </div>
