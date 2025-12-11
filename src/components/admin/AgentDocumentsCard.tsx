@@ -183,11 +183,6 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
         <CardTitle className="text-lg flex items-center gap-2">
           <FolderOpen className="h-5 w-5" />
           Agent Documents
-          {hasDocuments && (
-            <Badge variant="secondary" className="ml-auto">
-              {documents.length} file{documents.length !== 1 ? 's' : ''}
-            </Badge>
-          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -197,66 +192,76 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
             <p className="text-sm">No documents uploaded yet</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {documents.map(({ docType, filePath, uploadedAt }) => {
-              const label = DOCUMENT_LABELS[docType] || docType.replace(/_/g, ' ');
-              const isContractingPacket = docType === 'contracting_packet';
-              const isDownloading = downloadingDoc === docType;
-              const formattedDate = formatUploadDate(uploadedAt);
-              
-              return (
-                <div 
-                  key={docType}
-                  className={`flex items-center justify-between p-3 rounded-lg border ${
-                    isContractingPacket ? 'bg-primary/5 border-primary/20' : 'bg-muted/30'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText className={`h-5 w-5 flex-shrink-0 ${isContractingPacket ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <div className="min-w-0">
-                      <p className={`font-medium text-sm ${isContractingPacket ? 'text-primary' : ''}`}>
-                        {label}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {formattedDate && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {formattedDate}
-                          </span>
-                        )}
+          <div className="space-y-3">
+            {/* Contracting Documents Folder */}
+            <div className="rounded-lg border bg-card">
+              <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/50 rounded-t-lg">
+                <FolderOpen className="h-4 w-4 text-primary" />
+                <span className="font-medium text-sm">Contracting Documents</span>
+                <Badge variant="outline" className="ml-auto text-xs">
+                  {documents.length} file{documents.length !== 1 ? 's' : ''}
+                </Badge>
+              </div>
+              <div className="p-2 space-y-1">
+                {documents.map(({ docType, filePath, uploadedAt }) => {
+                  const label = DOCUMENT_LABELS[docType] || docType.replace(/_/g, ' ');
+                  const isContractingPacket = docType === 'contracting_packet';
+                  const isDownloading = downloadingDoc === docType;
+                  const formattedDate = formatUploadDate(uploadedAt);
+                  
+                  return (
+                    <div 
+                      key={docType}
+                      className={`flex items-center justify-between p-2.5 rounded-md ${
+                        isContractingPacket ? 'bg-primary/5 border border-primary/20' : 'hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className={`h-4 w-4 flex-shrink-0 ${isContractingPacket ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <div className="min-w-0">
+                          <p className={`font-medium text-sm ${isContractingPacket ? 'text-primary' : ''}`}>
+                            {label}
+                          </p>
+                          {formattedDate && (
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {formattedDate}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewDocument(docType, filePath)}
+                          disabled={isDownloading}
+                          className="h-8 px-2"
+                        >
+                          {isDownloading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <ExternalLink className="h-4 w-4 mr-1" />
+                              View
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDownloadDocument(docType, filePath)}
+                          disabled={isDownloading}
+                          className="h-8 px-2"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewDocument(docType, filePath)}
-                      disabled={isDownloading}
-                      className="h-8 px-2"
-                    >
-                      {isDownloading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <ExternalLink className="h-4 w-4 mr-1" />
-                          View
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDownloadDocument(docType, filePath)}
-                      disabled={isDownloading}
-                      className="h-8 px-2"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
