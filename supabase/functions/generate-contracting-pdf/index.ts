@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { PDFDocument, StandardFonts, rgb } from "https://esm.sh/pdf-lib@1.17.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -66,6 +67,7 @@ interface ContractingData {
   signature_name: string;
   signature_initials: string;
   signature_date: string;
+  user_id?: string;
 }
 
 function formatDate(dateStr: string | undefined): string {
@@ -90,9 +92,13 @@ serve(async (req) => {
   }
 
   try {
-    const { application } = await req.json() as { application: ContractingData };
+    const { application, saveToStorage = false, userId } = await req.json() as { 
+      application: ContractingData; 
+      saveToStorage?: boolean;
+      userId?: string;
+    };
 
-    console.log('Generating PDF for:', application.full_legal_name);
+    console.log('Generating PDF for:', application.full_legal_name, 'saveToStorage:', saveToStorage);
 
     // Validate required fields
     const validationErrors: string[] = [];
@@ -355,6 +361,60 @@ serve(async (req) => {
 
     console.log('PDF generated successfully:', filename, 'Size:', pdfBytes.byteLength);
 
+    // Save to storage if requested
+    let storagePath: string | null = null;
+    
+    if (saveToStorage && userId) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      
+      storagePath = `${userId}/contracting_packet/${filename}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('contracting-documents')
+        .upload(storagePath, pdfBytes, {
+          contentType: 'application/pdf',
+          upsert: true, // Replace if exists
+        });
+      
+      if (uploadError) {
+        console.error('Failed to save PDF to storage:', uploadError);
+        // Don't fail the whole request, just log the error
+      } else {
+        console.log('PDF saved to storage:', storagePath);
+        
+        // Update the contracting application with the PDF path
+        const { error: updateError } = await supabase
+          .from('contracting_applications')
+          .update({ 
+            uploaded_documents: supabase.rpc('jsonb_set_key', {
+              target: null, // Will be handled in raw SQL
+              key: 'contracting_packet',
+              value: storagePath,
+            })
+          })
+          .eq('user_id', userId);
+        
+        // Alternative approach: fetch current docs, merge, and update
+        const { data: currentApp } = await supabase
+          .from('contracting_applications')
+          .select('uploaded_documents')
+          .eq('user_id', userId)
+          .single();
+        
+        if (currentApp) {
+          const currentDocs = (currentApp.uploaded_documents as Record<string, string>) || {};
+          const updatedDocs = { ...currentDocs, contracting_packet: storagePath };
+          
+          await supabase
+            .from('contracting_applications')
+            .update({ uploaded_documents: updatedDocs })
+            .eq('user_id', userId);
+        }
+      }
+    }
+
     // Return the PDF as base64
     const base64 = btoa(String.fromCharCode(...new Uint8Array(pdfBytes)));
 
@@ -363,7 +423,8 @@ serve(async (req) => {
         success: true,
         filename,
         pdf: base64,
-        size: pdfBytes.byteLength
+        size: pdfBytes.byteLength,
+        storagePath,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

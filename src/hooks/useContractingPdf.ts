@@ -45,7 +45,7 @@ export function useContractingPdf() {
     return errors;
   };
 
-  const generatePdf = async (application: ContractingApplication): Promise<PdfGenerationResult> => {
+  const generatePdf = async (application: ContractingApplication, saveToStorage = true): Promise<PdfGenerationResult> => {
     setGenerating(true);
     setError(null);
 
@@ -104,6 +104,8 @@ export function useContractingPdf() {
             signature_initials: application.signature_initials,
             signature_date: application.signature_date,
           },
+          saveToStorage,
+          userId: application.user_id,
         },
       });
 

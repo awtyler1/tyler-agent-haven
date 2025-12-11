@@ -45,6 +45,7 @@ import {
 import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { AgentDocumentsCard } from '@/components/admin/AgentDocumentsCard';
 
 interface UserProfile {
   id: string;
@@ -603,6 +604,13 @@ export default function UserDetailPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Agent Documents - only for agent roles */}
+        {isAgentRole && (
+          <div className="mt-6">
+            <AgentDocumentsCard userId={user.user_id} />
+          </div>
+        )}
       </main>
       <Footer />
     </div>
