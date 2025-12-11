@@ -5,13 +5,14 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication } from '@/types/contracting';
-import { Landmark, Shield, ArrowRight, AlertCircle } from 'lucide-react';
+import { Landmark, Shield, ArrowRight } from 'lucide-react';
 import { useMemo, useState, useRef } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { FileDropZone } from '../FileDropZone';
 import { validateBanking } from '@/hooks/useContractingValidation';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { ValidationBanner } from '../ValidationBanner';
 import { cn } from '@/lib/utils';
 
 interface ProgressProps {
@@ -261,13 +262,8 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
             </div>
           </div>
 
-          {/* Validation indicator - only show after clicking Continue */}
-          {showErrors && !validation.isValid && (
-            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
-              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Please complete all required fields above</span>
-            </div>
-          )}
+          {/* Validation Banner */}
+          <ValidationBanner show={showErrors && !validation.isValid} />
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={initials} />

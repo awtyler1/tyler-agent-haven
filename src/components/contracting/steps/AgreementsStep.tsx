@@ -4,11 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { PenTool, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { PenTool, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useState, useRef, useMemo } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
+import { ValidationBanner } from '../ValidationBanner';
 import { cn } from '@/lib/utils';
+import { VALIDATION_MESSAGES } from '@/hooks/useContractingValidation';
 
 interface ProgressProps {
   currentStep: number;
@@ -243,13 +245,17 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
             This agreement is governed by the laws of the Commonwealth of Kentucky.
           </p>
 
-          {/* Validation Error */}
-          {showErrors && !validation.isValid && (
-            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
-              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Please complete all required fields to continue</span>
-            </div>
-          )}
+          {/* Validation Banner */}
+          <ValidationBanner 
+            show={showErrors && !validation.isValid}
+            message={
+              validation.fieldErrors.agreements 
+                ? VALIDATION_MESSAGES.agreementsRequired
+                : validation.fieldErrors.signature_name 
+                  ? VALIDATION_MESSAGES.signatureRequired
+                  : VALIDATION_MESSAGES.required
+            }
+          />
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={initials} />

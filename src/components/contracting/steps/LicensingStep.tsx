@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
-import { Shield, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle, Eye, EyeOff, CalendarIcon } from 'lucide-react';
+import { Shield, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, Eye, EyeOff, CalendarIcon } from 'lucide-react';
 import { useState, useMemo, useRef } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { ValidationBanner } from '../ValidationBanner';
 
 interface ProgressProps {
   currentStep: number;
@@ -372,13 +373,8 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
             </div>
           </div>
 
-          {/* Validation indicator */}
-          {!validation.isValid && (
-            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg">
-              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Complete all required fields (*) and upload documents to continue</span>
-            </div>
-          )}
+          {/* Validation Banner */}
+          <ValidationBanner show={showErrors && !validation.isValid} />
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={initials} />
@@ -390,9 +386,9 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
             </Button>
             <p className="text-xs text-muted-foreground flex items-center gap-1.5">
               <ArrowRight className="h-3 w-3" />
-              <span className="text-foreground/70">Next: Background</span>
+              <span className="text-foreground/70">Next: Background Questions</span>
             </p>
-            <Button onClick={handleContinue} disabled={!validation.isValid}>
+            <Button onClick={handleContinue}>
               Continue
             </Button>
           </div>
