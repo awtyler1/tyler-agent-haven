@@ -21,12 +21,13 @@ interface TrainingStepProps {
   initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
+  onRemove: (type: string) => void;
   onBack: () => void;
   onContinue: () => void;
   progressProps: ProgressProps;
 }
 
-export function TrainingStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: TrainingStepProps) {
+export function TrainingStep({ application, initials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: TrainingStepProps) {
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
@@ -89,6 +90,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onBack
               />
               <FileDropZone
                 onFileSelect={(file) => handleFileUpload(file, 'aml_certificate')}
+                onRemove={() => onRemove('aml_certificate')}
                 isUploaded={!!application.uploaded_documents?.aml_certificate}
                 uploadedLabel="✓ Uploaded"
                 defaultLabel="Upload"
@@ -119,6 +121,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onBack
               {application.state_requires_ce && (
                 <FileDropZone
                   onFileSelect={(file) => handleFileUpload(file, 'ce_certificate')}
+                  onRemove={() => onRemove('ce_certificate')}
                   isUploaded={!!application.uploaded_documents?.ce_certificate}
                   uploadedLabel="✓ Uploaded"
                   defaultLabel="Upload CE"
@@ -150,6 +153,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onBack
               {application.has_ltc_certification && (
                 <FileDropZone
                   onFileSelect={(file) => handleFileUpload(file, 'ltc_certificate')}
+                  onRemove={() => onRemove('ltc_certificate')}
                   isUploaded={!!application.uploaded_documents?.ltc_certificate}
                   uploadedLabel="✓ Uploaded"
                   defaultLabel="Upload LTC"
@@ -188,6 +192,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onBack
                   />
                   <FileDropZone
                     onFileSelect={(file) => handleFileUpload(file, 'eo_certificate')}
+                    onRemove={() => onRemove('eo_certificate')}
                     isUploaded={!!application.uploaded_documents?.eo_certificate}
                     uploadedLabel="✓ Uploaded"
                     defaultLabel="Upload"

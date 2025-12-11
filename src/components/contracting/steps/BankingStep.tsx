@@ -23,12 +23,13 @@ interface BankingStepProps {
   initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
+  onRemove: (type: string) => void;
   onBack: () => void;
   onContinue: () => void;
   progressProps: ProgressProps;
 }
 
-export function BankingStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: BankingStepProps) {
+export function BankingStep({ application, initials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: BankingStepProps) {
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
@@ -155,6 +156,7 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onBack,
             </div>
             <FileDropZone
               onFileSelect={(file) => handleFileUpload(file, 'voided_check')}
+              onRemove={() => onRemove('voided_check')}
               isUploaded={!!application.uploaded_documents?.voided_check}
               uploadedLabel="Voided check uploaded"
               defaultLabel="Upload voided check or bank letter"

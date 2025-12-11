@@ -23,6 +23,7 @@ interface LegalQuestionsStepProps {
   initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
+  onRemove: (type: string) => void;
   onBack: () => void;
   onContinue: () => void;
   progressProps: ProgressProps;
@@ -48,7 +49,7 @@ const groupedQuestions = LEGAL_QUESTIONS.reduce((acc, question) => {
   return acc;
 }, [] as { primary: typeof LEGAL_QUESTIONS[number]; subQuestions: typeof LEGAL_QUESTIONS[number][] }[]);
 
-export function LegalQuestionsStep({ application, initials: pageInitials, onUpdate, onUpload, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
+export function LegalQuestionsStep({ application, initials: pageInitials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const legalQuestions = (application.legal_questions as Record<string, LegalQuestion>) || {};
   const [acknowledged, setAcknowledged] = useState(false);
