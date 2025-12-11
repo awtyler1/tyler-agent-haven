@@ -16,8 +16,10 @@ import { Clock } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useProfile } from '@/hooks/useProfile';
 
 export function ContractingWizard() {
+  const { profile } = useProfile();
   const {
     application,
     loading,
@@ -101,7 +103,7 @@ export function ContractingWizard() {
       case 1:
         return (
           <WelcomeStep
-            fullName={application.full_legal_name}
+            fullName={profile?.full_name || application.full_legal_name}
             onContinue={() => completeStepAndNext(1)}
           />
         );
