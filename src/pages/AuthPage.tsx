@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Loader2, Mail } from 'lucide-react';
+import { Loader2, Mail, Phone } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
 
 export default function AuthPage() {
@@ -135,16 +136,56 @@ export default function AuthPage() {
             <p className="text-sm text-muted-foreground text-center mb-3">
               Don't have an account? Contact us to get started.
             </p>
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              asChild
-            >
-              <Link to="/contact">
-                <Mail className="mr-2 h-4 w-4" />
-                Contact Us
-              </Link>
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full">
+                  <Mail className="mr-2 h-4 w-4" />
+                  Contact Us
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Get in Touch</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <p className="text-sm text-muted-foreground">
+                    Interested in becoming an agent with Tyler Insurance Group? Reach out to our team.
+                  </p>
+                  
+                  {/* Austin */}
+                  <div className="p-4 rounded-lg border bg-muted/30">
+                    <p className="font-medium">Austin Tyler, MBA</p>
+                    <p className="text-sm text-muted-foreground mb-2">Broker Development</p>
+                    <div className="flex flex-col gap-2">
+                      <a href="tel:8596196672" className="text-sm flex items-center gap-2 text-primary hover:underline">
+                        <Phone className="h-3.5 w-3.5" />
+                        (859) 619-6672
+                      </a>
+                      <a href="mailto:austin@tylerinsurancegroup.com" className="text-sm flex items-center gap-2 text-primary hover:underline">
+                        <Mail className="h-3.5 w-3.5" />
+                        austin@tylerinsurancegroup.com
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Andrew */}
+                  <div className="p-4 rounded-lg border bg-muted/30">
+                    <p className="font-medium">Andrew Horn, MHA</p>
+                    <p className="text-sm text-muted-foreground mb-2">Broker Development</p>
+                    <div className="flex flex-col gap-2">
+                      <a href="tel:2107225597" className="text-sm flex items-center gap-2 text-primary hover:underline">
+                        <Phone className="h-3.5 w-3.5" />
+                        (210) 722-5597
+                      </a>
+                      <a href="mailto:andrew@tylerinsurancegroup.com" className="text-sm flex items-center gap-2 text-primary hover:underline">
+                        <Mail className="h-3.5 w-3.5" />
+                        andrew@tylerinsurancegroup.com
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
