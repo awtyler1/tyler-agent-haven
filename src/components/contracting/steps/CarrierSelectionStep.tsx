@@ -208,11 +208,30 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
                 {/* Recommended carriers */}
                 {recommendedCarriers.length > 0 && (
                   <div className="space-y-1.5">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <Star className="h-3 w-3 text-amber-500" />
-                      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                        {hasActiveFilters ? 'Matching Recommended' : 'Popular Carriers'}
-                      </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1.5">
+                        <Star className="h-3 w-3 text-amber-500" />
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+                          {hasActiveFilters ? 'Matching Recommended' : 'Recommended Carriers'}
+                        </span>
+                      </div>
+                      {recommendedCarriers.some(c => !isCarrierSelected(c.id)) && (
+                        <button
+                          onClick={() => {
+                            const newSelections = recommendedCarriers
+                              .filter(c => !isCarrierSelected(c.id))
+                              .map(c => ({
+                                carrier_id: c.id,
+                                carrier_name: c.name,
+                                non_resident_states: [],
+                              }));
+                            onUpdate('selected_carriers', [...selectedCarriers, ...newSelections]);
+                          }}
+                          className="text-[10px] text-primary hover:underline font-medium"
+                        >
+                          Select all recommended
+                        </button>
+                      )}
                     </div>
                     {recommendedCarriers.map(carrier => (
                       <CarrierRow
@@ -376,7 +395,7 @@ function CarrierRow({
           {carrier.name}
           {isRecommended && !selected && (
             <span className="text-[9px] text-amber-600 dark:text-amber-400 bg-amber-100/50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">
-              Popular
+              Recommended
             </span>
           )}
         </Label>
