@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, UserPlus, FileText, Settings } from 'lucide-react';
+import { Users, UserPlus, FileText, Settings, UserCog } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
@@ -31,6 +31,13 @@ export default function AdminDashboard() {
   ];
 
   if (isSuperAdmin()) {
+    adminCards.unshift({
+      title: 'Manage Managers',
+      description: 'View and manage broker managers',
+      icon: UserCog,
+      href: '/admin/managers',
+      color: 'text-indigo-500',
+    });
     adminCards.unshift({
       title: 'Super Admin Dashboard',
       description: 'Full platform control center',

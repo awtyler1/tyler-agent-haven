@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireSuperAdmin?: boolean;
   requireAgent?: boolean;
   allowContractingOnly?: boolean;
 }
@@ -12,6 +13,7 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ 
   children, 
   requireAdmin = false,
+  requireSuperAdmin = false,
   requireAgent = false,
   allowContractingOnly = false,
 }: ProtectedRouteProps) {
@@ -21,6 +23,7 @@ export function ProtectedRoute({
     isContractingRequired, 
     canAccessAdmin,
     isAgent,
+    isSuperAdmin,
   } = useAuth();
   const location = useLocation();
 
@@ -35,6 +38,11 @@ export function ProtectedRoute({
   // Not logged in - redirect to auth
   if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // Super admin route but user is not super admin
+  if (requireSuperAdmin && !isSuperAdmin()) {
+    return <Navigate to="/" replace />;
   }
 
   // Admin route but user is not admin
