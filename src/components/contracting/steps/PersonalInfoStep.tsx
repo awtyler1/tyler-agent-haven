@@ -81,8 +81,7 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
     if (updated.length === 0) setShowPreviousAddresses(false);
   };
 
-  // Check if email was prefilled (from invitation)
-  const isEmailPrefilled = !!application.email_address;
+  // Email is always prefilled from login and cannot be changed
 
   // Validation
   const validation = useMemo(() => validatePersonalInfo(application), [application]);
@@ -152,20 +151,17 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
             </div>
           </div>
 
-          {/* Row 2: Email (full width) */}
+          {/* Row 2: Email (full width) - Always disabled, prefilled from login */}
           <div className="space-y-1.5">
             <Label className="text-xs">Email *</Label>
             <Input
               type="email"
               value={application.email_address || ''}
-              onChange={e => onUpdate('email_address', e.target.value)}
-              placeholder="you@example.com"
-              className="h-9"
-              disabled={isEmailPrefilled}
+              readOnly
+              disabled
+              className="h-9 bg-muted/50 cursor-not-allowed"
             />
-            {isEmailPrefilled && (
-              <p className="text-[10px] text-muted-foreground">This is your login email and cannot be changed here</p>
-            )}
+            <p className="text-[10px] text-muted-foreground">This is your login email and cannot be changed here</p>
           </div>
 
           {/* Home Address with grouped checkboxes */}
