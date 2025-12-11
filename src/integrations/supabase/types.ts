@@ -62,6 +62,8 @@ export type Database = {
           bank_account_number: string | null
           bank_branch_name: string | null
           bank_routing_number: string | null
+          beneficiary_drivers_license_number: string | null
+          beneficiary_drivers_license_state: string | null
           beneficiary_name: string | null
           beneficiary_relationship: string | null
           birth_date: string | null
@@ -118,6 +120,8 @@ export type Database = {
           bank_account_number?: string | null
           bank_branch_name?: string | null
           bank_routing_number?: string | null
+          beneficiary_drivers_license_number?: string | null
+          beneficiary_drivers_license_state?: string | null
           beneficiary_name?: string | null
           beneficiary_relationship?: string | null
           birth_date?: string | null
@@ -174,6 +178,8 @@ export type Database = {
           bank_account_number?: string | null
           bank_branch_name?: string | null
           bank_routing_number?: string | null
+          beneficiary_drivers_license_number?: string | null
+          beneficiary_drivers_license_state?: string | null
           beneficiary_name?: string | null
           beneficiary_relationship?: string | null
           birth_date?: string | null

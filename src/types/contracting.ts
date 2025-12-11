@@ -18,6 +18,9 @@ export interface SelectedCarrier {
 }
 
 export interface ContractingApplication {
+  // Beneficiary driver's license fields
+  beneficiary_drivers_license_number?: string | null;
+  beneficiary_drivers_license_state?: string | null;
   id: string;
   user_id: string;
   current_step: number;
