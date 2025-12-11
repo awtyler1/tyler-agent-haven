@@ -53,22 +53,19 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
         Dropdown: ({ value, onChange, children, ...dropdownProps }) => {
           return (
-            <div className="relative">
-              <select
-                value={value}
-                onChange={onChange}
-                className={cn(
-                  "h-8 px-2 pr-6 text-sm font-medium rounded-md border border-input bg-background",
-                  "hover:bg-accent hover:text-accent-foreground",
-                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                  "appearance-none cursor-pointer"
-                )}
-                {...dropdownProps}
-              >
-                {children}
-              </select>
-              <ChevronRight className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 rotate-90 opacity-50 pointer-events-none" />
-            </div>
+            <select
+              value={value}
+              onChange={onChange}
+              className={cn(
+                "h-8 px-2 text-sm font-medium rounded-md border border-input bg-background",
+                "hover:bg-accent hover:text-accent-foreground",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                "cursor-pointer"
+              )}
+              {...dropdownProps}
+            >
+              {children}
+            </select>
           );
         },
       }}
