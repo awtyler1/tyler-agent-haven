@@ -1,12 +1,26 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Users, UserPlus, FileText, Settings, UserCog } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
+interface AdminCard {
+  title: string;
+  description: string;
+  icon: typeof Users;
+  href: string;
+  color: string;
+  secondaryAction?: {
+    label: string;
+    href: string;
+  };
+}
 
 export default function AdminDashboard() {
   const { profile, isSuperAdmin } = useAuth();
+  const navigate = useNavigate();
 
-  const adminCards = [
+  const adminCards: AdminCard[] = [
     {
       title: 'Manage Agents',
       description: 'View and manage all agents in the system',
@@ -37,6 +51,10 @@ export default function AdminDashboard() {
       icon: UserCog,
       href: '/admin/managers',
       color: 'text-indigo-500',
+      secondaryAction: {
+        label: 'Add Manager',
+        href: '/admin/managers/new',
+      },
     });
     adminCards.unshift({
       title: 'Super Admin Dashboard',
@@ -71,6 +89,20 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription>{card.description}</CardDescription>
+                  {card.secondaryAction && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(card.secondaryAction!.href);
+                      }}
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      {card.secondaryAction.label}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </Link>
