@@ -14,7 +14,8 @@ import {
   FileText,
   Power,
   Save,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useRole } from '@/hooks/useRole';
@@ -96,6 +97,7 @@ export default function UserDetailPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [togglingActive, setTogglingActive] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [deletingUser, setDeletingUser] = useState(false);
   
   // Determine which roles the current user can assign
   const assignableRoles = isSuperAdmin() ? allRoles : adminAssignableRoles;
@@ -274,6 +276,26 @@ export default function UserDetailPage() {
       toast.error(`Failed to update status: ${err.message}`);
     } finally {
       setUpdatingStatus(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!user) return;
+    setDeletingUser(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId: user.user_id },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success('User deleted successfully');
+      navigate('/admin/agents');
+    } catch (err: any) {
+      toast.error(`Failed to delete user: ${err.message}`);
+    } finally {
+      setDeletingUser(false);
     }
   };
 
@@ -477,6 +499,56 @@ export default function UserDetailPage() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+
+              {/* Delete Account - Super Admin Only */}
+              {isSuperAdmin() && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      disabled={deletingUser}
+                    >
+                      {deletingUser ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 mr-2" />
+                      )}
+                      Delete Account Permanently
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-destructive">
+                        Permanently Delete Account?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="space-y-2">
+                        <p>
+                          This will permanently delete <strong>{user.full_name || user.email}</strong> and all associated data:
+                        </p>
+                        <ul className="list-disc list-inside text-sm space-y-1 mt-2">
+                          <li>User profile and login credentials</li>
+                          <li>Contracting application and data</li>
+                          <li>All uploaded documents</li>
+                          <li>Role assignments</li>
+                        </ul>
+                        <p className="text-destructive font-medium mt-3">
+                          This action cannot be undone.
+                        </p>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDeleteUser}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete Permanently
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </CardContent>
           </Card>
         </div>
