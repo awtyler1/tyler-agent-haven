@@ -97,7 +97,25 @@ export interface Carrier {
   is_active: boolean;
   requires_non_resident_states: boolean;
   requires_corporate_resolution: boolean;
+  product_tags: string[];
+  notes: string | null;
 }
+
+// Product tag definitions for UI display
+export const PRODUCT_TAGS = [
+  { id: 'medicare_advantage', label: 'Medicare Advantage', description: 'MA, MA-PD plans' },
+  { id: 'medicare_supplement', label: 'Medicare Supplement', description: 'Medigap policies' },
+  { id: 'pdp', label: 'PDP', description: 'Part D prescription plans' },
+  { id: 'aca', label: 'ACA / Health', description: 'Marketplace plans' },
+  { id: 'life', label: 'Life Insurance', description: 'Term, whole, final expense' },
+  { id: 'final_expense', label: 'Final Expense', description: 'Burial insurance' },
+  { id: 'annuity', label: 'Annuities', description: 'Fixed and indexed' },
+  { id: 'dental', label: 'Dental', description: 'Dental coverage' },
+  { id: 'ancillary', label: 'Ancillary', description: 'Vision, supplemental' },
+] as const;
+
+// Popular/recommended carriers (by code)
+export const RECOMMENDED_CARRIER_CODES = ['AETNA_MA', 'HUMANA', 'UHC', 'ANTHEM', 'WELLCARE', 'DEVOTED'];
 
 export const WIZARD_STEPS = [
   { id: 1, name: 'Welcome', shortName: 'Welcome' },
