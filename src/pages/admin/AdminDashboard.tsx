@@ -80,13 +80,6 @@ export default function AdminDashboard() {
       },
     },
     {
-      title: 'Add New Agent',
-      description: 'Create a new agent and send welcome email',
-      icon: UserPlus,
-      href: '/admin/agents/new',
-      color: 'text-green-500',
-    },
-    {
       title: 'Contracting Queue',
       description: 'Review pending contracting submissions',
       icon: FileText,
