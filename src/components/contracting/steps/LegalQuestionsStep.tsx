@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
-import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight } from 'lucide-react';
+import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight, RotateCcw } from 'lucide-react';
 import { useRef, useMemo, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WizardProgress } from '../WizardProgress';
@@ -82,6 +82,12 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
     return groupedQuestions.filter(g => legalQuestions[g.primary.id]?.answer !== undefined && legalQuestions[g.primary.id]?.answer !== null).length;
   }, [legalQuestions]);
 
+  const handleClearAll = () => {
+    onUpdate('legal_questions', {});
+    setAcknowledged(false);
+    setLocalInitials('');
+  };
+
   const canContinue = acknowledged;
 
   return (
@@ -115,9 +121,21 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
             <span className="text-xs text-muted-foreground">
               {answeredCount} of {groupedQuestions.length} answered
             </span>
-            <span className="text-xs text-muted-foreground/70">
-              Select Yes or No for each
-            </span>
+            <div className="flex items-center gap-3">
+              {answeredCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  Clear all
+                </button>
+              )}
+              <span className="text-xs text-muted-foreground/70">
+                Select Yes or No for each
+              </span>
+            </div>
           </div>
 
           <ScrollArea className="h-[280px] pr-4">
