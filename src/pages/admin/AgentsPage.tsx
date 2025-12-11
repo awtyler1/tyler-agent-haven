@@ -8,8 +8,12 @@ import { Input } from '@/components/ui/input';
 import { UserPlus, Search, Loader2, ArrowLeft, ChevronRight } from 'lucide-react';
 import type { Profile } from '@/hooks/useProfile';
 
+interface AgentWithRole extends Profile {
+  role?: string;
+}
+
 export default function AgentsPage() {
-  const [agents, setAgents] = useState<Profile[]>([]);
+  const [agents, setAgents] = useState<AgentWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -19,13 +23,34 @@ export default function AgentsPage() {
 
   const fetchAgents = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setAgents(data as Profile[]);
+      if (profilesError) throw profilesError;
+
+      // Fetch roles
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Create role map
+      const roleMap = roles?.reduce((acc, r) => {
+        acc[r.user_id] = r.role;
+        return acc;
+      }, {} as Record<string, string>) || {};
+
+      // Filter to only include agents (not admins, super_admins, or managers)
+      const agentRoles = ['independent_agent', 'internal_tig_agent'];
+      const agentsOnly = (profiles || [])
+        .map(p => ({ ...p, role: roleMap[p.user_id] }))
+        .filter(p => agentRoles.includes(p.role || ''));
+
+      setAgents(agentsOnly as AgentWithRole[]);
     } catch (err) {
       console.error('Error fetching agents:', err);
     } finally {
