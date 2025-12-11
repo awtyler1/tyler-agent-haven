@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, UserPlus, FileText, Settings, UserCog } from 'lucide-react';
@@ -16,9 +18,54 @@ interface AdminCard {
   };
 }
 
+interface DashboardStats {
+  totalAgents: number;
+  pendingContracting: number;
+  appointedAgents: number;
+  brokerManagers: number;
+}
+
 export default function AdminDashboard() {
   const { profile, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalAgents: 0,
+    pendingContracting: 0,
+    appointedAgents: 0,
+    brokerManagers: 0,
+  });
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      // Fetch all profiles and roles
+      const { data: profiles } = await supabase.from('profiles').select('*');
+      const { data: roles } = await supabase.from('user_roles').select('user_id, role');
+
+      if (!profiles || !roles) return;
+
+      const roleMap = roles.reduce((acc, r) => {
+        acc[r.user_id] = r.role;
+        return acc;
+      }, {} as Record<string, string>);
+
+      const agentRoles = ['independent_agent', 'internal_tig_agent'];
+      const agents = profiles.filter(p => agentRoles.includes(roleMap[p.user_id] || ''));
+      const managers = profiles.filter(p => roleMap[p.user_id] === 'manager');
+
+      setStats({
+        totalAgents: agents.length,
+        pendingContracting: agents.filter(a => a.onboarding_status === 'CONTRACT_SUBMITTED').length,
+        appointedAgents: agents.filter(a => a.onboarding_status === 'APPOINTED').length,
+        brokerManagers: managers.length,
+      });
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    }
+  };
 
   const adminCards: AdminCard[] = [
     {
@@ -119,25 +166,25 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold">--</div>
+                <div className="text-2xl font-bold">{stats.totalAgents}</div>
                 <p className="text-sm text-muted-foreground">Total Agents</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-amber-500">--</div>
+                <div className="text-2xl font-bold text-amber-500">{stats.pendingContracting}</div>
                 <p className="text-sm text-muted-foreground">Pending Contracting</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-green-500">--</div>
+                <div className="text-2xl font-bold text-green-500">{stats.appointedAgents}</div>
                 <p className="text-sm text-muted-foreground">Appointed Agents</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-blue-500">--</div>
+                <div className="text-2xl font-bold text-indigo-500">{stats.brokerManagers}</div>
                 <p className="text-sm text-muted-foreground">Broker Managers</p>
               </CardContent>
             </Card>
