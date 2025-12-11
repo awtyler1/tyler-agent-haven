@@ -58,7 +58,7 @@ export function AgreementsStep({ application, onUpdate, onBack, onContinue, prog
             <h2 className="text-base font-semibold">Agreements & E-Signature</h2>
           </div>
           <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
-            These agreements allow us to submit your contracting accurately.
+            In exchange for access to carrier appointments, training, and agency resources, please confirm the following.
           </p>
         </div>
 
@@ -126,7 +126,7 @@ export function AgreementsStep({ application, onUpdate, onBack, onContinue, prog
             <div className="text-center">
               <h3 className="font-semibold text-sm">Electronic Signature</h3>
               <p className="text-[10px] text-muted-foreground">
-                By typing your name and initials, you are signing this application electronically.
+                By typing your name and initials below, you are providing a valid electronic signature under applicable law.
               </p>
             </div>
             
@@ -164,10 +164,21 @@ export function AgreementsStep({ application, onUpdate, onBack, onContinue, prog
                 />
               </div>
             </div>
+
+            {/* Binding Agreement Statement */}
+            <p className="text-[10px] text-center text-muted-foreground leading-relaxed pt-1">
+              By signing and submitting this application, I acknowledge this constitutes a legally binding agreement 
+              and that applicable agency policies, carrier requirements, and compliance standards are incorporated by reference.
+            </p>
           </div>
 
+          {/* Governing Law - Subtle */}
+          <p className="text-[9px] text-muted-foreground/70 text-center">
+            This agreement is governed by the laws of the Commonwealth of Kentucky.
+          </p>
+
           {/* Navigation */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-1">
             <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
               Back
             </Button>
