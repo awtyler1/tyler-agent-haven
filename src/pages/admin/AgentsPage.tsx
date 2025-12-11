@@ -117,12 +117,6 @@ export default function AgentsPage() {
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">No agents found</p>
-              <Link to="/admin/agents/new" className="mt-4 inline-block">
-                <Button variant="outline">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Add your first agent
-                </Button>
-              </Link>
             </CardContent>
           </Card>
         ) : (
