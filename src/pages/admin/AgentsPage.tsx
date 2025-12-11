@@ -114,9 +114,11 @@ export default function AgentsPage() {
                     </div>
                     <div className="flex items-center gap-4">
                       {getStatusBadge(agent.onboarding_status)}
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
+                      <Link to={`/admin/users/${agent.user_id}`}>
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </CardContent>
