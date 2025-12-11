@@ -97,7 +97,9 @@ const handler = async (req: Request): Promise<Response> => {
       content: file.content,
     }));
 
-    // 1. Send internal email to Caroline with attachments
+    // 1. Skip internal email to Caroline during testing phase
+    // TODO: Re-enable this when ready for production
+    /*
     const carolineEmailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -109,26 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
         reply_to: "austin@tylerinsurancegroup.com",
         to: ["caroline@tylerinsurancegroup.com"],
         subject: `New Contracting Packet Submission — ${name.trim()} (NPN ${npn.trim()})`,
-        html: `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <p style="font-size: 16px; line-height: 1.5; color: #333;">Hi Caroline,</p>
-            
-            <p style="font-size: 16px; line-height: 1.5; color: #333;">A new contracting packet has been submitted through the agent platform.</p>
-            
-            <div style="background: #f8f8f8; border-left: 4px solid #C8A45C; padding: 15px; margin: 20px 0;">
-              <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #333;">Agent Information</h3>
-              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Name:</strong> ${name.trim()}</p>
-              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Email:</strong> ${email?.trim() || "Not provided"}</p>
-              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>NPN:</strong> ${npn.trim()}</p>
-              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>State:</strong> ${residentState.trim()}</p>
-              <p style="margin: 5px 0; font-size: 14px; color: #555;"><strong>Submitted:</strong> ${submissionTimestamp}</p>
-            </div>
-            
-            <p style="font-size: 16px; line-height: 1.5; color: #333;">${files.length} document${files.length !== 1 ? 's' : ''} attached for review.</p>
-            
-            <p style="font-size: 14px; line-height: 1.5; color: #666; margin-top: 30px;">Tyler Insurance Group</p>
-          </div>
-        `,
+        html: `...`,
         attachments,
       }),
     });
@@ -141,6 +124,9 @@ const handler = async (req: Request): Promise<Response> => {
     }
     
     console.log("Email sent to Caroline successfully:", carolineResult);
+    */
+    
+    console.log("Skipping Caroline email (testing phase)");
 
     // 2. Send confirmation email to the agent with their PDF copy (if email provided)
     if (email && email.trim()) {
@@ -199,7 +185,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, data: carolineResult }),
+      JSON.stringify({ success: true, message: "Contracting packet submitted successfully" }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: any) {
