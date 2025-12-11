@@ -14,6 +14,7 @@ const requirements = [
   { icon: Shield, title: 'E&O Policy', hint: "We'll help if you need coverage" },
   { icon: CreditCard, title: 'Banking Details', hint: 'Voided check or direct deposit' },
   { icon: GraduationCap, title: 'AML Certificate', hint: "We'll guide you if needed" },
+  { icon: GraduationCap, title: 'CE Certificate', hint: 'If required by your state' },
 ];
 
 export function WelcomeStep({ fullName, onContinue }: WelcomeStepProps) {
