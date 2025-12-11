@@ -53,10 +53,10 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
   const checks = [
     { label: 'Personal information', passed: !!application.full_legal_name && !!application.email_address },
     { label: 'Home address', passed: !!homeAddress?.street && !!homeAddress?.city },
-    { label: 'Licensing information', passed: !!application.resident_license_number },
+    { label: 'Licensing information', passed: !!application.insurance_license_number && !!application.npn_number },
     { label: 'Legal questions answered', passed: Object.keys(application.legal_questions || {}).length > 0 },
     { label: 'Banking information', passed: !!application.bank_routing_number && !!application.bank_account_number },
-    { label: 'AML training', passed: !!application.aml_training_provider },
+    { label: 'E&O Insurance', passed: !!application.uploaded_documents?.eo_certificate },
     { label: 'Carrier selection', passed: selectedCarriers.length > 0 },
     { label: 'Required agreements', passed: agreements?.info_accurate && agreements?.receive_emails && agreements?.enter_info && agreements?.facsimile_signature },
     { label: 'Electronic signature', passed: !!application.signature_name && !!application.signature_initials },

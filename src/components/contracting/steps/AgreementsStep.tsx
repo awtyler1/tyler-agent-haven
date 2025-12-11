@@ -88,6 +88,9 @@ export function AgreementsStep({ application, initials, onUpdate, onBack, onCont
       }
       return;
     }
+    // Set signature date to today before continuing
+    const today = new Date().toISOString().split('T')[0];
+    onUpdate('signature_date', today);
     onContinue();
   };
 
