@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
-import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight, RotateCcw } from 'lucide-react';
+import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight, RotateCcw, AlertCircle } from 'lucide-react';
 import { useRef, useMemo, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WizardProgress } from '../WizardProgress';
@@ -82,13 +82,22 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
     return groupedQuestions.filter(g => legalQuestions[g.primary.id]?.answer !== undefined && legalQuestions[g.primary.id]?.answer !== null).length;
   }, [legalQuestions]);
 
+  // Find unanswered questions
+  const unansweredQuestions = useMemo(() => {
+    return groupedQuestions
+      .map((g, index) => ({ index: index + 1, id: g.primary.id, answered: legalQuestions[g.primary.id]?.answer !== undefined && legalQuestions[g.primary.id]?.answer !== null }))
+      .filter(q => !q.answered);
+  }, [legalQuestions]);
+
+  const allQuestionsAnswered = unansweredQuestions.length === 0;
+
   const handleClearAll = () => {
     onUpdate('legal_questions', {});
     setAcknowledged(false);
     setLocalInitials('');
   };
 
-  const canContinue = acknowledged;
+  const canContinue = acknowledged && allQuestionsAnswered;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -331,12 +340,25 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
                 />
               </div>
             </div>
-            {!acknowledged && (
+            {!acknowledged && allQuestionsAnswered && (
               <p className="text-[10px] text-muted-foreground/70 mt-2">
                 Please check the box above to continue.
               </p>
             )}
           </div>
+
+          {/* Unanswered questions warning */}
+          {!allQuestionsAnswered && (
+            <div className="flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg mt-4">
+              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+              <div>
+                <span className="font-medium">Please answer all questions. </span>
+                <span className="text-amber-600/80 dark:text-amber-400/80">
+                  Unanswered: Question{unansweredQuestions.length > 1 ? 's' : ''} {unansweredQuestions.map(q => q.index).join(', ')}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={pageInitials} />
