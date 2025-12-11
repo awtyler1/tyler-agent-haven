@@ -145,7 +145,7 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
                       <span className="text-xs text-foreground group-hover:text-primary transition-colors">
                         {DOCUMENT_LABELS[docType]}
                       </span>
-                      <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
                     </button>
                   );
                 })}
