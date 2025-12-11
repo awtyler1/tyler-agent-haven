@@ -5,8 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ContractingApplication, Carrier, SelectedCarrier } from '@/types/contracting';
-import { Building2, Upload, Search, ArrowRight } from 'lucide-react';
+import { ContractingApplication, Carrier, SelectedCarrier, RECOMMENDED_CARRIER_CODES } from '@/types/contracting';
+import { Building2, Upload, Search, ArrowRight, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { WizardProgress } from '../WizardProgress';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -116,14 +116,24 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
         </div>
 
         <CardContent className="py-4 px-5 space-y-3">
-          {/* Helper text + Selection count */}
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
+          {/* Helper text + Selection count + Actions */}
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground flex-1">
               Select carriers you plan to work with now. You can update selections anytime.
             </p>
-            <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full">
-              {selectedCarriers.length} selected
-            </span>
+            <div className="flex items-center gap-2">
+              {selectedCarriers.length > 0 && (
+                <button
+                  onClick={() => onUpdate('selected_carriers', [])}
+                  className="text-[10px] text-muted-foreground hover:text-foreground hover:underline"
+                >
+                  Deselect all
+                </button>
+              )}
+              <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full">
+                {selectedCarriers.length} selected
+              </span>
+            </div>
           </div>
 
           {/* Search */}
@@ -154,32 +164,41 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
           {loading ? (
             <div className="text-center py-8 text-sm text-muted-foreground">Loading carriers...</div>
           ) : (
-            <ScrollArea className="h-[280px]">
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 pr-3">
-                {/* Left column */}
-                <div className="space-y-1">
-                  {leftColumn.map(carrier => (
-                    <CarrierCheckbox
-                      key={carrier.id}
-                      carrier={carrier}
-                      selected={isCarrierSelected(carrier.id)}
-                      onToggle={toggleCarrier}
-                    />
-                  ))}
-                </div>
-                
-                {/* Right column */}
-                <div className="space-y-1">
-                  {rightColumn.map(carrier => (
-                    <CarrierCheckbox
-                      key={carrier.id}
-                      carrier={carrier}
-                      selected={isCarrierSelected(carrier.id)}
-                      onToggle={toggleCarrier}
-                    />
-                  ))}
-                </div>
+            <>
+              {/* Legend */}
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                <span>= Recommended carrier</span>
               </div>
+              
+              <ScrollArea className="h-[260px]">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 pr-3">
+                  {/* Left column */}
+                  <div className="space-y-1">
+                    {leftColumn.map(carrier => (
+                      <CarrierCheckbox
+                        key={carrier.id}
+                        carrier={carrier}
+                        selected={isCarrierSelected(carrier.id)}
+                        onToggle={toggleCarrier}
+                        isRecommended={RECOMMENDED_CARRIER_CODES.includes(carrier.code)}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Right column */}
+                  <div className="space-y-1">
+                    {rightColumn.map(carrier => (
+                      <CarrierCheckbox
+                        key={carrier.id}
+                        carrier={carrier}
+                        selected={isCarrierSelected(carrier.id)}
+                        onToggle={toggleCarrier}
+                        isRecommended={RECOMMENDED_CARRIER_CODES.includes(carrier.code)}
+                      />
+                    ))}
+                  </div>
+                </div>
 
               {filteredCarriers.length === 0 && (
                 <div className="text-center py-6 text-sm text-muted-foreground col-span-2">
@@ -187,29 +206,30 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
                 </div>
               )}
 
-              {/* Other option */}
-              <div className="mt-3 pt-3 border-t border-border/30">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="other_carrier"
-                    checked={showOtherInput}
-                    onCheckedChange={checked => setShowOtherInput(!!checked)}
-                    className="h-3.5 w-3.5"
-                  />
-                  <Label htmlFor="other_carrier" className="text-xs cursor-pointer text-muted-foreground">
-                    Other (not listed above)
-                  </Label>
+                {/* Other option */}
+                <div className="mt-3 pt-3 border-t border-border/30">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="other_carrier"
+                      checked={showOtherInput}
+                      onCheckedChange={checked => setShowOtherInput(!!checked)}
+                      className="h-3.5 w-3.5"
+                    />
+                    <Label htmlFor="other_carrier" className="text-xs cursor-pointer text-muted-foreground">
+                      Other (not listed above)
+                    </Label>
+                  </div>
+                  {showOtherInput && (
+                    <Textarea
+                      value={otherCarrierName}
+                      onChange={e => setOtherCarrierName(e.target.value)}
+                      placeholder="Enter carrier name(s) you'd like to request..."
+                      className="mt-2 text-xs h-16 resize-none"
+                    />
+                  )}
                 </div>
-                {showOtherInput && (
-                  <Textarea
-                    value={otherCarrierName}
-                    onChange={e => setOtherCarrierName(e.target.value)}
-                    placeholder="Enter carrier name(s) you'd like to request..."
-                    className="mt-2 text-xs h-16 resize-none"
-                  />
-                )}
-              </div>
-            </ScrollArea>
+              </ScrollArea>
+            </>
           )}
 
           {/* Corporate resolution upload */}
@@ -262,11 +282,13 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
 function CarrierCheckbox({ 
   carrier, 
   selected, 
-  onToggle 
+  onToggle,
+  isRecommended = false
 }: {
   carrier: Carrier;
   selected: boolean;
   onToggle: (carrier: Carrier, checked: boolean) => void;
+  isRecommended?: boolean;
 }) {
   return (
     <div className={`flex items-center gap-2 py-1.5 px-2 rounded transition-colors ${
@@ -280,10 +302,13 @@ function CarrierCheckbox({
       />
       <Label 
         htmlFor={`carrier_${carrier.id}`} 
-        className="text-xs font-normal cursor-pointer truncate flex-1"
+        className="text-xs font-normal cursor-pointer truncate flex-1 flex items-center gap-1"
         title={carrier.name}
       >
         {carrier.name}
+        {isRecommended && (
+          <Star className="h-3 w-3 text-amber-500 fill-amber-500 flex-shrink-0" />
+        )}
       </Label>
     </div>
   );
