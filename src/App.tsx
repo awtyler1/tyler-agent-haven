@@ -38,6 +38,7 @@ import ContractingPage from "./pages/ContractingPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import SuperAdminDashboard from "./pages/admin/SuperAdminDashboard";
 import AgentsPage from "./pages/admin/AgentsPage";
+import ManagersPage from "./pages/admin/ManagersPage";
 import UserDetailPage from "./pages/admin/UserDetailPage";
 import PlatformMapPage from "./pages/admin/PlatformMapPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
@@ -120,6 +121,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <AgentsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/managers" 
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <ManagersPage />
                 </ProtectedRoute>
               } 
             />
