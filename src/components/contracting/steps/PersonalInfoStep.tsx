@@ -117,9 +117,9 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
           </p>
         </div>
         <CardContent className="space-y-4 py-5 px-7">
-          {/* Row 1: Name, Mobile, Business Phone */}
-          <div className="grid grid-cols-4 gap-4">
-            <div className="col-span-2 space-y-1.5">
+          {/* Row 1: Name, Gender, Mobile, Business Phone */}
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-5 space-y-1.5">
               <Label className="text-xs">Full Legal Name *</Label>
               <Input
                 value={application.full_legal_name || ''}
@@ -129,7 +129,20 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
               />
               <p className="text-[10px] text-muted-foreground">As it appears on your government ID or insurance license</p>
             </div>
-            <div className="space-y-1.5">
+            <div className="col-span-2 space-y-1.5">
+              <Label className="text-xs">Gender</Label>
+              <Select value={application.gender || ''} onValueChange={value => onUpdate('gender', value)}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="col-span-2 space-y-1.5">
               <Label className="text-xs">Mobile *</Label>
               <Input
                 type="tel"
@@ -139,7 +152,7 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
                 className="h-9"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="col-span-3 space-y-1.5">
               <Label className="text-xs">Business Phone</Label>
               <Input
                 type="tel"
