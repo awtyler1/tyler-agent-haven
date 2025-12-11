@@ -5,13 +5,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { GraduationCap, Shield, ArrowRight, BookOpen, Heart, ExternalLink, Briefcase, AlertCircle } from 'lucide-react';
+import { GraduationCap, Shield, ArrowRight, BookOpen, Heart, ExternalLink, Briefcase } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { FileDropZone } from '../FileDropZone';
 import { validateTraining } from '@/hooks/useContractingValidation';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { ValidationBanner } from '../ValidationBanner';
 import { cn } from '@/lib/utils';
 import { useMemo, useState, useRef } from 'react';
 
@@ -288,13 +289,8 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
             You can continue without completing this step. We'll follow up on anything needed before appointments are finalized.
           </p>
 
-          {/* Validation indicator - only show after clicking Continue */}
-          {showErrors && !validation.isValid && (
-            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
-              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>Please complete all required FINRA fields above</span>
-            </div>
-          )}
+          {/* Validation Banner */}
+          <ValidationBanner show={showErrors && !validation.isValid} />
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={initials} />

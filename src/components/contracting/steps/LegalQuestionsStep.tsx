@@ -5,12 +5,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
-import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight, RotateCcw, AlertCircle } from 'lucide-react';
+import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight, RotateCcw } from 'lucide-react';
 import { useRef, useMemo, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
+import { ValidationBanner } from '../ValidationBanner';
 import { cn } from '@/lib/utils';
+import { VALIDATION_MESSAGES } from '@/hooks/useContractingValidation';
 
 interface ProgressProps {
   currentStep: number;
@@ -383,33 +385,17 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
             </div>
           </div>
 
-          {/* Validation warnings */}
-          {showErrors && !canContinue && (
-            <div className="flex items-start gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg mt-4 animate-fade-in">
-              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                {!allQuestionsAnswered && (
-                  <p>
-                    <span className="font-medium">Please answer all questions. </span>
-                    <span className="text-destructive/80">
-                      Unanswered: Question{unansweredQuestions.length > 1 ? 's' : ''} {unansweredQuestions.map(q => q.index).join(', ')}
-                    </span>
-                  </p>
-                )}
-                {!allExplanationsProvided && (
-                  <p>
-                    <span className="font-medium">Please provide details for "Yes" answers. </span>
-                    <span className="text-destructive/80">
-                      Missing explanation: Question{missingExplanations.length > 1 ? 's' : ''} {[...new Set(missingExplanations.map(q => q.index))].join(', ')}
-                    </span>
-                  </p>
-                )}
-                {!hasSigned && (
-                  <p><span className="font-medium">Please sign above to continue.</span></p>
-                )}
-              </div>
-            </div>
-          )}
+          {/* Validation Banner */}
+          <ValidationBanner 
+            show={showErrors && !canContinue}
+            message={
+              !allQuestionsAnswered 
+                ? `Please answer all questions (${unansweredQuestions.length} remaining).`
+                : !allExplanationsProvided 
+                  ? VALIDATION_MESSAGES.explanationRequired
+                  : VALIDATION_MESSAGES.signatureRequired
+            }
+          />
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={pageInitials} />

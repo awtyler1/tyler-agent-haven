@@ -6,10 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ContractingApplication, Carrier, SelectedCarrier, RECOMMENDED_CARRIER_CODES, US_STATES } from '@/types/contracting';
-import { Building2, Upload, Search, ArrowRight, Star, MapPin, AlertCircle } from 'lucide-react';
+import { Building2, Upload, Search, ArrowRight, Star, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
+import { ValidationBanner } from '../ValidationBanner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { validateCarrierSelection } from '@/hooks/useContractingValidation';
@@ -323,13 +324,11 @@ export function CarrierSelectionStep({ application, initials, onUpdate, onUpload
             </div>
           )}
 
-          {/* Validation indicator */}
-          {showErrors && !validation.isValid && (
-            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
-              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>{validation.errors[0]}</span>
-            </div>
-          )}
+          {/* Validation Banner */}
+          <ValidationBanner 
+            show={showErrors && !validation.isValid}
+            message={validation.errors[0]}
+          />
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={initials} />
