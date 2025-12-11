@@ -1,4 +1,4 @@
-import { Loader2, LogOut } from 'lucide-react';
+import { Loader2, LogOut, Check } from 'lucide-react';
 import { useContractingApplication } from '@/hooks/useContractingApplication';
 import { WizardProgress } from './WizardProgress';
 import { WelcomeStep } from './steps/WelcomeStep';
@@ -17,6 +17,7 @@ import tylerLogo from '@/assets/tyler-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useProfile } from '@/hooks/useProfile';
+import { useState, useEffect } from 'react';
 
 export function ContractingWizard() {
   const { profile } = useProfile();
@@ -24,12 +25,24 @@ export function ContractingWizard() {
     application,
     loading,
     saving,
+    lastSaved,
     updateField,
     goToStep,
     completeStepAndNext,
     submitApplication,
     uploadDocument,
   } = useContractingApplication();
+
+  // Track when to show "Saved" confirmation
+  const [showSaved, setShowSaved] = useState(false);
+  
+  useEffect(() => {
+    if (lastSaved) {
+      setShowSaved(true);
+      const timer = setTimeout(() => setShowSaved(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [lastSaved]);
 
   const handleLogout = async () => {
     try {
@@ -243,14 +256,29 @@ export function ContractingWizard() {
       </div>
 
       <div className="container max-w-6xl mx-auto py-2 px-4 flex flex-col flex-1">
-        {/* Saving indicator - fixed height to prevent layout shift */}
+        {/* Elegant auto-save indicator - subtle and non-intrusive */}
         <div className="h-5 flex items-center justify-center">
-          {saving && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              Saving...
-            </div>
-          )}
+          <div 
+            className={`flex items-center gap-1.5 text-[11px] transition-all duration-300 ${
+              saving 
+                ? 'opacity-60 text-muted-foreground/50' 
+                : showSaved 
+                  ? 'opacity-100 text-primary/70' 
+                  : 'opacity-0'
+            }`}
+          >
+            {saving ? (
+              <>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+                <span>Saving</span>
+              </>
+            ) : showSaved ? (
+              <>
+                <Check className="h-3 w-3" />
+                <span>Saved</span>
+              </>
+            ) : null}
+          </div>
         </div>
 
         {/* Current step - progress is now inside each step card */}
