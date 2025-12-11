@@ -46,8 +46,8 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
             </div>
             <h2 className="text-lg font-semibold">Training & Certificates</h2>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Upload what you have ready. You can always add more later.
+          <p className="text-xs text-muted-foreground mt-1 max-w-lg mx-auto">
+            Upload certificates you have ready now. Missing something? No problem—continue and our team will help you complete anything outstanding.
           </p>
         </div>
 
@@ -56,10 +56,13 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
           <div className="grid grid-cols-4 gap-4">
             {/* AML Training */}
             <div className="space-y-2">
-              <div className="flex items-center gap-1.5 mb-2">
+              <div className="flex items-center gap-1.5">
                 <BookOpen className="h-3.5 w-3.5 text-primary" />
                 <span className="font-medium text-sm">AML Training</span>
               </div>
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                Required before appointments. Upload now or later.
+              </p>
               <Select
                 value={application.aml_training_provider || ''}
                 onValueChange={value => onUpdate('aml_training_provider', value)}
@@ -100,12 +103,13 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
 
             {/* CE Training */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <GraduationCap className="h-3.5 w-3.5 text-primary" />
-                  <span className="font-medium text-sm">CE Credits</span>
-                </div>
+              <div className="flex items-center gap-1.5">
+                <GraduationCap className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium text-sm">CE Credits</span>
               </div>
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                Requirements vary by state. We'll confirm what applies to you.
+              </p>
               <div className="flex items-center gap-2 h-8 px-2 border rounded-md bg-muted/20">
                 <Checkbox
                   id="state_requires_ce"
@@ -117,7 +121,7 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
                   My state requires CE
                 </Label>
               </div>
-              {application.state_requires_ce ? (
+              {application.state_requires_ce && (
                 <>
                   <input
                     type="file"
@@ -136,19 +140,18 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
                     {application.uploaded_documents?.ce_certificate ? '✓ Uploaded' : 'Upload CE'}
                   </Button>
                 </>
-              ) : (
-                <p className="text-[10px] text-muted-foreground px-1">
-                  Check if your state requires continuing education.
-                </p>
               )}
             </div>
 
             {/* LTC Certification */}
             <div className="space-y-2">
-              <div className="flex items-center gap-1.5 mb-2">
+              <div className="flex items-center gap-1.5">
                 <Heart className="h-3.5 w-3.5 text-primary" />
                 <span className="font-medium text-sm">LTC Cert</span>
               </div>
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                Only needed if you plan to sell long-term care products.
+              </p>
               <div className="flex items-center gap-2 h-8 px-2 border rounded-md bg-muted/20">
                 <Checkbox
                   id="has_ltc_certification"
@@ -160,7 +163,7 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
                   I have LTC cert
                 </Label>
               </div>
-              {application.has_ltc_certification ? (
+              {application.has_ltc_certification && (
                 <>
                   <input
                     type="file"
@@ -179,19 +182,18 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
                     {application.uploaded_documents?.ltc_certificate ? '✓ Uploaded' : 'Upload LTC'}
                   </Button>
                 </>
-              ) : (
-                <p className="text-[10px] text-muted-foreground px-1">
-                  Only needed if selling LTC products.
-                </p>
               )}
             </div>
 
             {/* E&O Insurance */}
             <div className="space-y-2">
-              <div className="flex items-center gap-1.5 mb-2">
+              <div className="flex items-center gap-1.5">
                 <Shield className="h-3.5 w-3.5 text-primary" />
                 <span className="font-medium text-sm">E&O Insurance</span>
               </div>
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                Required by most carriers. We'll help if you need coverage.
+              </p>
               <div className="flex items-center gap-2 h-8 px-2 border rounded-md bg-muted/20">
                 <Checkbox
                   id="eo_not_yet_covered"
@@ -203,11 +205,7 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
                   Not yet covered
                 </Label>
               </div>
-              {application.eo_not_yet_covered ? (
-                <p className="text-[10px] text-muted-foreground px-1">
-                  No problem—we'll help you get set up.
-                </p>
-              ) : (
+              {!application.eo_not_yet_covered && (
                 <>
                   <Input
                     value={application.eo_provider || ''}
@@ -238,7 +236,7 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
 
           {/* Helper text */}
           <p className="text-xs text-muted-foreground text-center mt-5 mb-4">
-            Don't have everything ready? That's okay—continue now and we'll follow up on anything missing.
+            You can continue without completing this step. We'll follow up on anything needed before appointments are finalized.
           </p>
 
           {/* Navigation */}
