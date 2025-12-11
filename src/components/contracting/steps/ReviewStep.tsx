@@ -1,11 +1,23 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ContractingApplication, SelectedCarrier, Address, WIZARD_STEPS } from '@/types/contracting';
-import { ClipboardCheck, CheckCircle, AlertCircle, Loader2, Download, FileText } from 'lucide-react';
+import { ClipboardCheck, CheckCircle, AlertCircle, Loader2, Download, FileText, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { useContractingPdf } from '@/hooks/useContractingPdf';
+import { supabase } from '@/integrations/supabase/client';
 
+const DOCUMENT_LABELS: Record<string, string> = {
+  insurance_license: 'Insurance License',
+  government_id: 'Government ID',
+  voided_check: 'Voided Check',
+  eo_certificate: 'E&O Certificate',
+  aml_certificate: 'AML Certificate',
+  ce_certificate: 'CE Certificate',
+  ltc_certificate: 'LTC Certificate',
+  corporate_resolution: 'Corporate Resolution',
+  background_explanation: 'Background Documentation',
+};
 interface ProgressProps {
   currentStep: number;
   completedSteps: number[];
@@ -110,60 +122,33 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
             <div className="border rounded-lg p-3">
               <h3 className="font-medium text-sm mb-2">Uploaded Documents ({docCount})</h3>
               <div className="grid grid-cols-2 gap-1.5">
-                {uploadedDocs?.insurance_license && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">Insurance License</span>
-                  </div>
-                )}
-                {uploadedDocs?.government_id && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">Government ID</span>
-                  </div>
-                )}
-                {uploadedDocs?.voided_check && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">Voided Check</span>
-                  </div>
-                )}
-                {uploadedDocs?.eo_certificate && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">E&O Certificate</span>
-                  </div>
-                )}
-                {uploadedDocs?.aml_certificate && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">AML Certificate</span>
-                  </div>
-                )}
-                {uploadedDocs?.ce_certificate && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">CE Certificate</span>
-                  </div>
-                )}
-                {uploadedDocs?.ltc_certificate && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">LTC Certificate</span>
-                  </div>
-                )}
-                {uploadedDocs?.corporate_resolution && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">Corporate Resolution</span>
-                  </div>
-                )}
-                {uploadedDocs?.background_explanation && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    <span className="text-xs text-foreground">Background Documentation</span>
-                  </div>
-                )}
+                {Object.entries(uploadedDocs || {}).map(([docType, filePath]) => {
+                  if (!filePath || !DOCUMENT_LABELS[docType]) return null;
+                  
+                  const handleViewDocument = async () => {
+                    const { data } = await supabase.storage
+                      .from('contracting-documents')
+                      .createSignedUrl(filePath as string, 300); // 5 min expiry
+                    
+                    if (data?.signedUrl) {
+                      window.open(data.signedUrl, '_blank');
+                    }
+                  };
+                  
+                  return (
+                    <button
+                      key={docType}
+                      onClick={handleViewDocument}
+                      className="flex items-center gap-2 text-left hover:bg-muted/50 rounded px-1.5 py-1 -mx-1.5 transition-colors group"
+                    >
+                      <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-foreground group-hover:text-primary transition-colors">
+                        {DOCUMENT_LABELS[docType]}
+                      </span>
+                      <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
