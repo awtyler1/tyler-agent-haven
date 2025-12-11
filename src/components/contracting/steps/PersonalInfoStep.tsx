@@ -46,24 +46,14 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pb-4">
-          {/* Row 1: Name, Email, Mobile */}
-          <div className="grid grid-cols-4 gap-2">
+          {/* Row 1: Name and Mobile */}
+          <div className="grid grid-cols-3 gap-2">
             <div className="col-span-2 space-y-1">
               <Label className="text-xs">Full Legal Name *</Label>
               <Input
                 value={application.full_legal_name || ''}
                 onChange={e => onUpdate('full_legal_name', e.target.value)}
                 placeholder="First Middle Last"
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Email *</Label>
-              <Input
-                type="email"
-                value={application.email_address || ''}
-                onChange={e => onUpdate('email_address', e.target.value)}
-                placeholder="you@example.com"
                 className="h-8 text-sm"
               />
             </div>
@@ -77,6 +67,18 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                 className="h-8 text-sm"
               />
             </div>
+          </div>
+
+          {/* Row 2: Email (full width) */}
+          <div className="space-y-1">
+            <Label className="text-xs">Email *</Label>
+            <Input
+              type="email"
+              value={application.email_address || ''}
+              onChange={e => onUpdate('email_address', e.target.value)}
+              placeholder="you@example.com"
+              className="h-8 text-sm"
+            />
           </div>
 
           {/* Home Address */}
