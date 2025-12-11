@@ -196,9 +196,9 @@ export function ContractingWizard() {
             variant="ghost" 
             size="sm" 
             onClick={handleLogout} 
-            className={`gap-2 ${isEarlyStep ? 'text-muted-foreground/40 hover:text-muted-foreground/70' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`gap-2 ${isEarlyStep ? 'text-muted-foreground/30 hover:text-muted-foreground/60 opacity-60' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-3.5 w-3.5" />
             {!isEarlyStep && 'Log Out'}
           </Button>
         </div>

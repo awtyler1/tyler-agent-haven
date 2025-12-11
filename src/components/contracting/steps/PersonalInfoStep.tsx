@@ -348,8 +348,6 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
               Continue
             </Button>
           </div>
-
-          <p className="text-[10px] text-center text-muted-foreground">Step 2 of 9</p>
         </CardContent>
       </Card>
     </div>
