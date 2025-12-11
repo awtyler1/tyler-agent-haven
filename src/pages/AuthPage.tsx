@@ -147,18 +147,18 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-cream to-secondary/50 p-4">
-      <Card className="w-full max-w-[460px] shadow-elevated rounded-2xl border-0 bg-card">
-        <CardHeader className="text-center space-y-5 pt-10 pb-2">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(180deg, #FAF8F4 0%, #FDFDFC 100%)' }}>
+      <Card className="w-full max-w-[460px] rounded-2xl border-0 bg-card" style={{ boxShadow: '0px 10px 35px rgba(0, 0, 0, 0.07)' }}>
+        <CardHeader className="text-center space-y-6 pt-10 pb-3">
           <img src={tylerLogo} alt="Tyler Insurance Group" className="h-14 mx-auto" />
           <div className="space-y-2">
             <CardTitle className="text-3xl font-serif tracking-tight">Welcome</CardTitle>
             <CardDescription className="text-muted-foreground/80 font-light text-sm">Sign in to access your account</CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-8 px-8 pb-10">
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div className="space-y-2.5">
+        <CardContent className="space-y-10 px-8 pb-12">
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-3">
               <Label htmlFor="login-email" className="text-xs font-medium uppercase tracking-wider text-foreground/70">Email</Label>
               <Input
                 id="login-email"
@@ -170,7 +170,7 @@ export default function AuthPage() {
                 className="h-12 bg-card border-border/60 shadow-sm focus:border-primary focus:ring-primary placeholder:text-muted-foreground/50"
               />
             </div>
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label htmlFor="login-password" className="text-xs font-medium uppercase tracking-wider text-foreground/70">Password</Label>
                 <Link 
@@ -192,7 +192,10 @@ export default function AuthPage() {
             </div>
             <Button 
               type="submit" 
-              className="w-full h-12 mt-2 bg-gold hover:bg-gold-dark text-primary-foreground font-semibold text-base shadow-md hover:shadow-lg transition-all duration-200" 
+              className="w-full h-12 mt-3 bg-gold text-primary-foreground font-semibold text-base shadow-md transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5" 
+              style={{ backgroundColor: 'hsl(43, 56%, 41%)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'hsl(43, 60%, 35%)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'hsl(43, 56%, 41%)'}
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -207,9 +210,9 @@ export default function AuthPage() {
           </form>
           
           {/* Contact section */}
-          <div className="pt-6">
-            <div className="h-px bg-border/60 mb-6" />
-            <p className="text-sm text-muted-foreground text-center mb-4">
+          <div className="pt-2">
+            <div className="h-px bg-border/50 mb-6" />
+            <p className="text-sm text-muted-foreground text-center mb-5">
               Don't have an account? Contact us to get started.
             </p>
             <Dialog open={contactOpen} onOpenChange={(open) => {
@@ -217,7 +220,7 @@ export default function AuthPage() {
               if (!open) resetInquiryForm();
             }}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full h-11 border-border/80 hover:bg-secondary/50 hover:border-primary/30 font-medium">
+                <Button variant="outline" className="w-full h-11 border-foreground/20 hover:bg-secondary/50 hover:border-primary/40 font-medium transition-all duration-200">
                   <Mail className="mr-2 h-4 w-4" />
                   Contact Us
                 </Button>
