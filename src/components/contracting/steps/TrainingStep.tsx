@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { GraduationCap, Shield, ArrowRight, BookOpen, Heart } from 'lucide-react';
+import { GraduationCap, Shield, ArrowRight, BookOpen, Heart, ExternalLink } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { FileDropZone } from '../FileDropZone';
@@ -169,37 +169,30 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
                 <span className="font-medium text-sm">E&O Insurance</span>
               </div>
               <p className="text-[10px] text-muted-foreground leading-tight">
-                Required by most carriers. We'll help if you need coverage.
+                Required by most carriers.
               </p>
-              <div className="flex items-center gap-2 h-8 px-2 border rounded-md bg-muted/20">
-                <Checkbox
-                  id="eo_not_yet_covered"
-                  checked={application.eo_not_yet_covered}
-                  onCheckedChange={checked => onUpdate('eo_not_yet_covered', !!checked)}
-                  className="h-3.5 w-3.5"
-                />
-                <Label htmlFor="eo_not_yet_covered" className="text-xs cursor-pointer">
-                  Not yet covered
-                </Label>
+              <div className="p-2 rounded-md bg-primary/5 border border-primary/20">
+                <p className="text-[10px] text-primary font-medium">
+                  First year agents: TIG covers your E&O!
+                </p>
               </div>
-              {!application.eo_not_yet_covered && (
-                <>
-                  <Input
-                    value={application.eo_provider || ''}
-                    onChange={e => onUpdate('eo_provider', e.target.value)}
-                    placeholder="Provider (e.g. Hiscox)"
-                    className="h-8 text-xs"
-                  />
-                  <FileDropZone
-                    onFileSelect={(file) => handleFileUpload(file, 'eo_certificate')}
-                    onRemove={() => onRemove('eo_certificate')}
-                    isUploaded={!!application.uploaded_documents?.eo_certificate}
-                    uploadedLabel="✓ Uploaded"
-                    defaultLabel="Upload"
-                    compact
-                  />
-                </>
-              )}
+              <a
+                href="https://www.napa-benefits.org/insurance/errors-and-omissions-eando-insurance"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-border bg-background hover:bg-muted/50 transition-colors"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Get E&O Coverage
+              </a>
+              <FileDropZone
+                onFileSelect={(file) => handleFileUpload(file, 'eo_certificate')}
+                onRemove={() => onRemove('eo_certificate')}
+                isUploaded={!!application.uploaded_documents?.eo_certificate}
+                uploadedLabel="✓ Uploaded"
+                defaultLabel="Upload cert"
+                compact
+              />
             </div>
           </div>
 
