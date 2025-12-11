@@ -1,10 +1,15 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Clock, Shield, CreditCard, FileCheck, IdCard, GraduationCap, ChevronRight } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
 
 interface WelcomeStepProps {
   fullName: string | null;
+  initials: string | null;
+  onInitialsChange: (initials: string) => void;
   onContinue: () => void;
 }
 
@@ -17,8 +22,47 @@ const requirements = [
   { icon: GraduationCap, title: 'CE Certificate', hint: 'If required by your state' },
 ];
 
-export function WelcomeStep({ fullName, onContinue }: WelcomeStepProps) {
+// Derive initials from full name
+function deriveInitials(name: string | null): string {
+  if (!name) return '';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '';
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+export function WelcomeStep({ fullName, initials, onInitialsChange, onContinue }: WelcomeStepProps) {
   const firstName = fullName?.split(' ')[0] || 'there';
+  const [localInitials, setLocalInitials] = useState(initials || '');
+  const [error, setError] = useState('');
+
+  // Auto-derive initials when name changes and initials are empty
+  useEffect(() => {
+    if (!localInitials && fullName) {
+      const derived = deriveInitials(fullName);
+      setLocalInitials(derived);
+      if (derived) {
+        onInitialsChange(derived);
+      }
+    }
+  }, [fullName]);
+
+  const handleInitialsChange = (value: string) => {
+    const cleaned = value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+    setLocalInitials(cleaned);
+    setError('');
+    if (cleaned) {
+      onInitialsChange(cleaned);
+    }
+  };
+
+  const handleContinue = () => {
+    if (!localInitials.trim()) {
+      setError('Please enter your initials. These will be applied throughout your contracting packet.');
+      return;
+    }
+    onContinue();
+  };
 
   return (
     <div className="max-w-xl mx-auto">
@@ -57,6 +101,30 @@ export function WelcomeStep({ fullName, onContinue }: WelcomeStepProps) {
             </div>
           </div>
 
+          {/* Initials Field */}
+          <div className="space-y-2 pt-1">
+            <Label htmlFor="initials" className="text-xs font-medium text-muted-foreground/70">
+              Your Initials <span className="text-muted-foreground/50">(used to acknowledge each page)</span>
+            </Label>
+            <Input
+              id="initials"
+              value={localInitials}
+              onChange={(e) => handleInitialsChange(e.target.value)}
+              placeholder="e.g. JD"
+              maxLength={4}
+              className="h-11 text-center font-medium tracking-widest uppercase max-w-[120px]"
+              style={{
+                borderColor: error ? 'hsl(0, 84%, 60%)' : 'hsl(var(--border) / 0.3)',
+                boxShadow: error 
+                  ? '0 0 0 3px hsl(0 84% 60% / 0.1)' 
+                  : '0 1px 2px rgba(0,0,0,0.04)'
+              }}
+            />
+            {error && (
+              <p className="text-xs text-red-500/80 mt-1">{error}</p>
+            )}
+          </div>
+
           {/* What You'll Need - Compact Grid */}
           <div className="space-y-3">
             <p className="text-[10px] font-medium text-center text-muted-foreground/60 uppercase tracking-widest">
@@ -86,7 +154,7 @@ export function WelcomeStep({ fullName, onContinue }: WelcomeStepProps) {
           {/* CTA */}
           <div className="pt-2">
             <Button 
-              onClick={onContinue} 
+              onClick={handleContinue} 
               className="w-full h-[52px] font-semibold text-[15px] gap-1.5 rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
               style={{ 
                 background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',

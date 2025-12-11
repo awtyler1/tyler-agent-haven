@@ -8,6 +8,7 @@ import { ContractingApplication } from '@/types/contracting';
 import { GraduationCap, Upload, Shield, ArrowRight, BookOpen, Heart } from 'lucide-react';
 import { useRef } from 'react';
 import { WizardProgress } from '../WizardProgress';
+import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 
 interface ProgressProps {
   currentStep: number;
@@ -17,6 +18,7 @@ interface ProgressProps {
 
 interface TrainingStepProps {
   application: ContractingApplication;
+  initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
@@ -24,7 +26,7 @@ interface TrainingStepProps {
   progressProps: ProgressProps;
 }
 
-export function TrainingStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: TrainingStepProps) {
+export function TrainingStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: TrainingStepProps) {
   const amlInputRef = useRef<HTMLInputElement>(null);
   const ceInputRef = useRef<HTMLInputElement>(null);
   const ltcInputRef = useRef<HTMLInputElement>(null);
@@ -244,6 +246,9 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
           <p className="text-xs text-muted-foreground text-center mt-5 mb-4">
             You can continue without completing this step. We'll follow up on anything needed before appointments are finalized.
           </p>
+
+          {/* Initials Acknowledgment */}
+          <InitialsAcknowledgmentBar initials={initials} />
 
           {/* Navigation */}
           <div className="flex items-center justify-between pt-2 border-t border-border/30">

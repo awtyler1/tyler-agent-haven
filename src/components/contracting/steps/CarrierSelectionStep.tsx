@@ -9,6 +9,7 @@ import { ContractingApplication, Carrier, SelectedCarrier, RECOMMENDED_CARRIER_C
 import { Building2, Upload, Search, ArrowRight, Star, MapPin, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { WizardProgress } from '../WizardProgress';
+import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { validateCarrierSelection } from '@/hooks/useContractingValidation';
@@ -22,6 +23,7 @@ interface ProgressProps {
 
 interface CarrierSelectionStepProps {
   application: ContractingApplication;
+  initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
@@ -29,7 +31,7 @@ interface CarrierSelectionStepProps {
   progressProps: ProgressProps;
 }
 
-export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: CarrierSelectionStepProps) {
+export function CarrierSelectionStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: CarrierSelectionStepProps) {
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -323,6 +325,9 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
               <span>{validation.errors[0]}</span>
             </div>
           )}
+
+          {/* Initials Acknowledgment */}
+          <InitialsAcknowledgmentBar initials={initials} />
 
           {/* Navigation */}
           <div className="flex items-center justify-between pt-2 border-t border-border/30">

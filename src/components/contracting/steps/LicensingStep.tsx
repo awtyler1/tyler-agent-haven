@@ -9,6 +9,7 @@ import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Buil
 import { useRef, useState, useMemo } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
+import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { validateLicensing } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
 import { formatSSN, formatEIN, maskSSN, maskEIN } from '@/lib/formatters';
@@ -25,6 +26,7 @@ interface ProgressProps {
 
 interface LicensingStepProps {
   application: ContractingApplication;
+  initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
@@ -32,7 +34,7 @@ interface LicensingStepProps {
   progressProps: ProgressProps;
 }
 
-export function LicensingStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: LicensingStepProps) {
+export function LicensingStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: LicensingStepProps) {
   const [showNonResident, setShowNonResident] = useState(false);
   const [showOptionalIdentity, setShowOptionalIdentity] = useState(
     !!(application.gender || application.drivers_license_number)
@@ -431,6 +433,9 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
               <span>Complete all required fields (*) and upload documents to continue</span>
             </div>
           )}
+
+          {/* Initials Acknowledgment */}
+          <InitialsAcknowledgmentBar initials={initials} />
 
           {/* Navigation */}
           <div className="flex items-center justify-between pt-4 border-t">

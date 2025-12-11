@@ -117,6 +117,8 @@ export function ContractingWizard() {
         return (
           <WelcomeStep
             fullName={profile?.full_name || application.full_legal_name}
+            initials={application.signature_initials}
+            onInitialsChange={(initials) => updateField('signature_initials', initials)}
             onContinue={() => completeStepAndNext(1)}
           />
         );
@@ -124,6 +126,7 @@ export function ContractingWizard() {
         return (
           <PersonalInfoStep
             application={application}
+            initials={application.signature_initials}
             onUpdate={updateField}
             onBack={() => goToStep(1)}
             onContinue={() => completeStepAndNext(2)}
@@ -134,6 +137,7 @@ export function ContractingWizard() {
         return (
           <LicensingStep
             application={application}
+            initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
             onBack={() => goToStep(2)}
@@ -145,6 +149,7 @@ export function ContractingWizard() {
         return (
           <LegalQuestionsStep
             application={application}
+            initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
             onBack={() => goToStep(3)}
@@ -156,6 +161,7 @@ export function ContractingWizard() {
         return (
           <BankingStep
             application={application}
+            initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
             onBack={() => goToStep(4)}
@@ -167,6 +173,7 @@ export function ContractingWizard() {
         return (
           <TrainingStep
             application={application}
+            initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
             onBack={() => goToStep(5)}
@@ -178,6 +185,7 @@ export function ContractingWizard() {
         return (
           <CarrierSelectionStep
             application={application}
+            initials={application.signature_initials}
             onUpdate={updateField}
             onUpload={uploadDocument}
             onBack={() => goToStep(6)}
@@ -189,6 +197,7 @@ export function ContractingWizard() {
         return (
           <AgreementsStep
             application={application}
+            initials={application.signature_initials}
             onUpdate={updateField}
             onBack={() => goToStep(7)}
             onContinue={() => completeStepAndNext(8)}
