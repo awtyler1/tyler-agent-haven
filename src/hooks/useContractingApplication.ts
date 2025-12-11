@@ -42,10 +42,23 @@ export function useContractingApplication() {
         if (fetchError) throw fetchError;
 
         if (existingApp) {
+          // Ensure email is always synced with login email
+          if (existingApp.email_address !== user.email && user.email) {
+            const { error: updateError } = await supabase
+              .from('contracting_applications')
+              .update({ email_address: user.email })
+              .eq('id', existingApp.id);
+            if (!updateError) {
+              existingApp.email_address = user.email;
+            }
+          }
           setApplication(existingApp as unknown as ContractingApplication);
         } else {
-          // Create new application
-          const newApp = getEmptyApplication(user.id);
+          // Create new application with email prefilled from login
+          const newApp = {
+            ...getEmptyApplication(user.id),
+            email_address: user.email || null,
+          };
           const dbData = toDbFormat(newApp);
           const { data: createdApp, error: createError } = await supabase
             .from('contracting_applications')
