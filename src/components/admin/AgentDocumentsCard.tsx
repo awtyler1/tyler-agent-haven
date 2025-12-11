@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { FileText, Download, ExternalLink, Loader2, FolderOpen } from 'lucide-react';
+import { FileText, Download, ExternalLink, Loader2, FolderOpen, Calendar } from 'lucide-react';
+import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,19 +20,26 @@ const DOCUMENT_LABELS: Record<string, string> = {
   contracting_packet: 'Contracting Packet (PDF)',
 };
 
+interface DocumentWithMeta {
+  docType: string;
+  filePath: string;
+  uploadedAt: string | null;
+}
+
 interface AgentDocumentsCardProps {
   userId: string;
 }
 
 export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
   const [loading, setLoading] = useState(true);
-  const [documents, setDocuments] = useState<Record<string, string>>({});
+  const [documents, setDocuments] = useState<DocumentWithMeta[]>([]);
   const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchDocuments() {
       setLoading(true);
       try {
+        // Get document paths from contracting application
         const { data, error } = await supabase
           .from('contracting_applications')
           .select('uploaded_documents')
@@ -41,7 +49,48 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
         if (error) throw error;
         
         if (data?.uploaded_documents) {
-          setDocuments(data.uploaded_documents as Record<string, string>);
+          const uploadedDocs = data.uploaded_documents as Record<string, string>;
+          const docEntries = Object.entries(uploadedDocs).filter(([_, path]) => path);
+          
+          // Fetch metadata for each document from storage
+          const docsWithMeta: DocumentWithMeta[] = await Promise.all(
+            docEntries.map(async ([docType, filePath]) => {
+              try {
+                // Extract folder path and filename
+                const pathParts = filePath.split('/');
+                const fileName = pathParts.pop() || '';
+                const folderPath = pathParts.join('/');
+                
+                // List files in the folder to get metadata
+                const { data: fileList } = await supabase.storage
+                  .from('contracting-documents')
+                  .list(folderPath);
+                
+                const fileInfo = fileList?.find(f => f.name === fileName);
+                
+                return {
+                  docType,
+                  filePath,
+                  uploadedAt: fileInfo?.created_at || null,
+                };
+              } catch {
+                return {
+                  docType,
+                  filePath,
+                  uploadedAt: null,
+                };
+              }
+            })
+          );
+          
+          // Sort by upload date (newest first)
+          docsWithMeta.sort((a, b) => {
+            if (!a.uploadedAt) return 1;
+            if (!b.uploadedAt) return -1;
+            return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+          });
+          
+          setDocuments(docsWithMeta);
         }
       } catch (err) {
         console.error('Error fetching documents:', err);
@@ -99,8 +148,16 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
     }
   };
 
-  const documentEntries = Object.entries(documents).filter(([_, path]) => path);
-  const hasDocuments = documentEntries.length > 0;
+  const formatUploadDate = (dateStr: string | null) => {
+    if (!dateStr) return null;
+    try {
+      return format(new Date(dateStr), 'MMM d, yyyy \'at\' h:mm a');
+    } catch {
+      return null;
+    }
+  };
+
+  const hasDocuments = documents.length > 0;
 
   if (loading) {
     return (
@@ -128,7 +185,7 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
           Agent Documents
           {hasDocuments && (
             <Badge variant="secondary" className="ml-auto">
-              {documentEntries.length} file{documentEntries.length !== 1 ? 's' : ''}
+              {documents.length} file{documents.length !== 1 ? 's' : ''}
             </Badge>
           )}
         </CardTitle>
@@ -141,10 +198,11 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
           </div>
         ) : (
           <div className="space-y-2">
-            {documentEntries.map(([docType, filePath]) => {
+            {documents.map(({ docType, filePath, uploadedAt }) => {
               const label = DOCUMENT_LABELS[docType] || docType.replace(/_/g, ' ');
               const isContractingPacket = docType === 'contracting_packet';
               const isDownloading = downloadingDoc === docType;
+              const formattedDate = formatUploadDate(uploadedAt);
               
               return (
                 <div 
@@ -154,17 +212,22 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <FileText className={`h-5 w-5 ${isContractingPacket ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <div>
+                    <FileText className={`h-5 w-5 flex-shrink-0 ${isContractingPacket ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div className="min-w-0">
                       <p className={`font-medium text-sm ${isContractingPacket ? 'text-primary' : ''}`}>
                         {label}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">
-                        {filePath.split('/').pop()}
-                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {formattedDate && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {formattedDate}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <Button
                       variant="ghost"
                       size="sm"
