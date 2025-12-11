@@ -8,6 +8,7 @@ import { Landmark, Upload, Shield, CheckCircle2, ArrowRight, AlertCircle } from 
 import { useRef, useMemo } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
+import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { validateBanking } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
 
@@ -19,6 +20,7 @@ interface ProgressProps {
 
 interface BankingStepProps {
   application: ContractingApplication;
+  initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
@@ -26,7 +28,7 @@ interface BankingStepProps {
   progressProps: ProgressProps;
 }
 
-export function BankingStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: BankingStepProps) {
+export function BankingStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: BankingStepProps) {
   const checkInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File, type: string) => {
@@ -209,6 +211,9 @@ export function BankingStep({ application, onUpdate, onUpload, onBack, onContinu
               <span>Complete all required fields and upload a voided check to continue</span>
             </div>
           )}
+
+          {/* Initials Acknowledgment */}
+          <InitialsAcknowledgmentBar initials={initials} />
 
           {/* Navigation */}
           <div className="flex items-center justify-between pt-4 border-t">

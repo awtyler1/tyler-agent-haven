@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
 import { User, Plus, X, AlertCircle } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
+import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { validatePersonalInfo } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
 import { formatPhoneNumber, formatZipCode } from '@/lib/formatters';
@@ -24,13 +25,14 @@ interface ProgressProps {
 
 interface PersonalInfoStepProps {
   application: ContractingApplication;
+  initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onBack: () => void;
   onContinue: () => void;
   progressProps: ProgressProps;
 }
 
-export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, progressProps }: PersonalInfoStepProps) {
+export function PersonalInfoStep({ application, initials, onUpdate, onBack, onContinue, progressProps }: PersonalInfoStepProps) {
   const homeAddress = (application.home_address as Address) || EMPTY_ADDRESS;
   const mailingAddress = (application.mailing_address as Address) || EMPTY_ADDRESS;
   const upsAddress = (application.ups_address as Address) || EMPTY_ADDRESS;
@@ -388,6 +390,9 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
               <span>Complete all required fields (*) to continue</span>
             </div>
           )}
+
+          {/* Initials Acknowledgment */}
+          <InitialsAcknowledgmentBar initials={initials} />
 
           {/* Navigation */}
           <div className="flex justify-between pt-4 border-t">

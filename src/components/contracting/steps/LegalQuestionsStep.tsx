@@ -10,6 +10,7 @@ import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight } from '
 import { useRef, useMemo, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WizardProgress } from '../WizardProgress';
+import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 
 interface ProgressProps {
   currentStep: number;
@@ -19,6 +20,7 @@ interface ProgressProps {
 
 interface LegalQuestionsStepProps {
   application: ContractingApplication;
+  initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
@@ -46,11 +48,11 @@ const groupedQuestions = LEGAL_QUESTIONS.reduce((acc, question) => {
   return acc;
 }, [] as { primary: typeof LEGAL_QUESTIONS[number]; subQuestions: typeof LEGAL_QUESTIONS[number][] }[]);
 
-export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
+export function LegalQuestionsStep({ application, initials: pageInitials, onUpdate, onUpload, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const legalQuestions = (application.legal_questions as Record<string, LegalQuestion>) || {};
   const [acknowledged, setAcknowledged] = useState(false);
-  const [initials, setInitials] = useState('');
+  const [localInitials, setLocalInitials] = useState('');
 
   const handleAnswerChange = (questionId: string, answer: boolean) => {
     const current = legalQuestions[questionId] || { answer: null };
@@ -298,13 +300,13 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
                 </Label>
               </div>
               <div className="flex items-center gap-2">
-                <Label htmlFor="initials" className="text-xs text-muted-foreground">
+                <Label htmlFor="attestation_initials" className="text-xs text-muted-foreground">
                   Initials
                 </Label>
                 <Input
-                  id="initials"
-                  value={initials}
-                  onChange={(e) => setInitials(e.target.value.toUpperCase().slice(0, 4))}
+                  id="attestation_initials"
+                  value={localInitials}
+                  onChange={(e) => setLocalInitials(e.target.value.toUpperCase().slice(0, 4))}
                   placeholder="ABC"
                   className="h-7 w-16 text-xs text-center uppercase"
                   maxLength={4}
@@ -318,6 +320,9 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
               </p>
             )}
           </div>
+
+          {/* Initials Acknowledgment */}
+          <InitialsAcknowledgmentBar initials={pageInitials} />
 
           {/* Navigation */}
           <div className="flex items-center justify-between pt-4 mt-4 border-t">

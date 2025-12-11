@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
 import { PenTool, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
+import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 
 interface ProgressProps {
   currentStep: number;
@@ -15,6 +16,7 @@ interface ProgressProps {
 
 interface AgreementsStepProps {
   application: ContractingApplication;
+  initials: string | null;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onBack: () => void;
   onContinue: () => void;
@@ -32,7 +34,7 @@ const OPTIONAL_AGREEMENTS = [
   { id: 'marketing', text: 'Send me information about carriers, products, and lead opportunities.' },
 ];
 
-export function AgreementsStep({ application, onUpdate, onBack, onContinue, progressProps }: AgreementsStepProps) {
+export function AgreementsStep({ application, initials, onUpdate, onBack, onContinue, progressProps }: AgreementsStepProps) {
   const agreements = (application.agreements as Record<string, boolean>) || {};
 
   const handleAgreementChange = (agreementId: string, checked: boolean) => {
@@ -182,6 +184,9 @@ export function AgreementsStep({ application, onUpdate, onBack, onContinue, prog
           <p className="text-[9px] text-muted-foreground/70 text-center">
             This agreement is governed by the laws of the Commonwealth of Kentucky.
           </p>
+
+          {/* Initials Acknowledgment */}
+          <InitialsAcknowledgmentBar initials={initials} />
 
           {/* Navigation */}
           <div className="flex items-center justify-between pt-1">
