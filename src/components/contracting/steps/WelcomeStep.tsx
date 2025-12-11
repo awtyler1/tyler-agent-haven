@@ -13,6 +13,7 @@ const requirements = [
   { icon: FileCheck, title: 'Insurance License', hint: 'Current state license info' },
   { icon: GraduationCap, title: 'AML Certificate', hint: "We'll guide you if needed" },
   { icon: CreditCard, title: 'Banking Details', hint: 'Voided check or direct deposit' },
+  { icon: Shield, title: 'E&O Policy', hint: "We'll help if you need coverage" },
 ];
 
 export function WelcomeStep({ fullName, onContinue }: WelcomeStepProps) {
