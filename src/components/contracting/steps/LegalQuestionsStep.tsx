@@ -10,6 +10,7 @@ import { useRef, useMemo, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
+import { cn } from '@/lib/utils';
 
 interface ProgressProps {
   currentStep: number;
@@ -50,8 +51,10 @@ const groupedQuestions = LEGAL_QUESTIONS.reduce((acc, question) => {
 
 export function LegalQuestionsStep({ application, initials: pageInitials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
   const legalQuestions = (application.legal_questions as Record<string, LegalQuestion>) || {};
   const [signature, setSignature] = useState('');
+  const [showErrors, setShowErrors] = useState(false);
 
   const handleAnswerChange = (questionId: string, answer: boolean) => {
     const current = legalQuestions[questionId] || { answer: null };
@@ -116,12 +119,34 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
   const handleClearAll = () => {
     onUpdate('legal_questions', {});
     setSignature('');
+    setShowErrors(false);
   };
 
   const canContinue = hasSigned && allQuestionsAnswered && allExplanationsProvided;
 
+  const handleContinue = () => {
+    if (!canContinue) {
+      setShowErrors(true);
+      // Scroll to first error
+      if (!allQuestionsAnswered && formRef.current) {
+        const firstUnanswered = unansweredQuestions[0];
+        const el = formRef.current.querySelector(`[data-question="${firstUnanswered.id}"]`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (!allExplanationsProvided && formRef.current) {
+        const firstMissing = missingExplanations[0];
+        const el = formRef.current.querySelector(`[data-question="${firstMissing.id}"]`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (!hasSigned && formRef.current) {
+        const el = formRef.current.querySelector('[data-field="signature"]');
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    onContinue();
+  };
+
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto" ref={formRef}>
       <Card 
         className="border-0 rounded-[24px]"
         style={{ 
@@ -176,16 +201,19 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
                 const isNo = primaryAnswer?.answer === false;
                 const hasSubQuestions = group.subQuestions.length > 0;
 
+                const isUnanswered = showErrors && !primaryAnswer?.answer && primaryAnswer?.answer !== false;
+                
                 return (
                   <div 
-                    key={group.primary.id} 
-                    className={`rounded-lg border transition-all ${
-                      isNo 
-                        ? 'border-border/30 bg-muted/10' 
-                        : primaryAnswer?.answer === true
-                          ? 'border-amber-200/50 bg-amber-50/30 dark:border-amber-900/30 dark:bg-amber-950/10'
-                          : 'border-border/50 bg-background'
-                    }`}
+                    key={group.primary.id}
+                    data-question={group.primary.id}
+                    className={cn(
+                      "rounded-lg border transition-all",
+                      isNo && "border-border/30 bg-muted/10",
+                      primaryAnswer?.answer === true && "border-amber-200/50 bg-amber-50/30 dark:border-amber-900/30 dark:bg-amber-950/10",
+                      !isNo && primaryAnswer?.answer !== true && "border-border/50 bg-background",
+                      isUnanswered && "border-destructive ring-1 ring-destructive/20"
+                    )}
                   >
                     {/* Primary Question */}
                     <div className="p-3">
@@ -333,7 +361,7 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
                 <li>I understand carriers may contact me with additional questions during contracting.</li>
               </ul>
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5" data-field="signature">
               <Label htmlFor="background_signature" className="text-xs">
                 Type your full legal name as signature *
               </Label>
@@ -342,25 +370,28 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
                 value={signature}
                 onChange={(e) => setSignature(e.target.value)}
                 placeholder={application.full_legal_name || "Full Legal Name"}
-                className="h-10 text-base font-serif italic max-w-sm"
+                className={cn(
+                  "h-10 text-base font-serif italic max-w-sm",
+                  showErrors && !hasSigned && "border-destructive focus:border-destructive focus:ring-destructive/20"
+                )}
               />
-              {!hasSigned && allQuestionsAnswered && allExplanationsProvided && (
-                <p className="text-[10px] text-muted-foreground/70">
-                  Please sign above to continue.
+              {showErrors && !hasSigned && (
+                <p className="text-[10px] text-destructive animate-fade-in">
+                  Signature required
                 </p>
               )}
             </div>
           </div>
 
           {/* Validation warnings */}
-          {(!allQuestionsAnswered || !allExplanationsProvided) && (
-            <div className="flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg mt-4">
+          {showErrors && !canContinue && (
+            <div className="flex items-start gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg mt-4 animate-fade-in">
               <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
               <div className="space-y-1">
                 {!allQuestionsAnswered && (
                   <p>
                     <span className="font-medium">Please answer all questions. </span>
-                    <span className="text-amber-600/80 dark:text-amber-400/80">
+                    <span className="text-destructive/80">
                       Unanswered: Question{unansweredQuestions.length > 1 ? 's' : ''} {unansweredQuestions.map(q => q.index).join(', ')}
                     </span>
                   </p>
@@ -368,10 +399,13 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
                 {!allExplanationsProvided && (
                   <p>
                     <span className="font-medium">Please provide details for "Yes" answers. </span>
-                    <span className="text-amber-600/80 dark:text-amber-400/80">
+                    <span className="text-destructive/80">
                       Missing explanation: Question{missingExplanations.length > 1 ? 's' : ''} {[...new Set(missingExplanations.map(q => q.index))].join(', ')}
                     </span>
                   </p>
+                )}
+                {!hasSigned && (
+                  <p><span className="font-medium">Please sign above to continue.</span></p>
                 )}
               </div>
             </div>
@@ -389,7 +423,7 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
               <ArrowRight className="h-3 w-3" />
               <span className="text-foreground/70">Next: Banking</span>
             </p>
-            <Button onClick={onContinue} disabled={!canContinue}>
+            <Button onClick={handleContinue}>
               Continue
             </Button>
           </div>

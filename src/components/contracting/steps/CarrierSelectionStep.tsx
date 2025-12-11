@@ -13,7 +13,6 @@ import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { validateCarrierSelection } from '@/hooks/useContractingValidation';
-import { toast } from 'sonner';
 
 interface ProgressProps {
   currentStep: number;
@@ -37,7 +36,9 @@ export function CarrierSelectionStep({ application, initials, onUpdate, onUpload
   const [searchQuery, setSearchQuery] = useState('');
   const [otherCarrierName, setOtherCarrierName] = useState('');
   const [showOtherInput, setShowOtherInput] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const corpResInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCarriers = async () => {
@@ -122,14 +123,18 @@ export function CarrierSelectionStep({ application, initials, onUpdate, onUpload
 
   const handleContinue = () => {
     if (!validation.isValid) {
-      toast.error(validation.errors[0]);
+      setShowErrors(true);
+      // Scroll to carriers section
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       return;
     }
     onContinue();
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto" ref={formRef}>
       <Card 
         className="border-0 rounded-[24px]"
         style={{ 
@@ -319,8 +324,8 @@ export function CarrierSelectionStep({ application, initials, onUpdate, onUpload
           )}
 
           {/* Validation indicator */}
-          {!validation.isValid && (
-            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg">
+          {showErrors && !validation.isValid && (
+            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
               <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
               <span>{validation.errors[0]}</span>
             </div>
@@ -338,7 +343,7 @@ export function CarrierSelectionStep({ application, initials, onUpdate, onUpload
               <ArrowRight className="h-3 w-3" />
               <span className="text-foreground/70">Next: Agreements</span>
             </p>
-            <Button onClick={handleContinue} disabled={!validation.isValid}>
+            <Button onClick={handleContinue}>
               Continue
             </Button>
           </div>

@@ -12,6 +12,7 @@ interface FileDropZoneProps {
   defaultLabel?: string;
   className?: string;
   compact?: boolean;
+  hasError?: boolean;
 }
 
 export function FileDropZone({
@@ -23,6 +24,7 @@ export function FileDropZone({
   defaultLabel = 'Upload',
   className,
   compact = false,
+  hasError = false,
 }: FileDropZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -149,7 +151,8 @@ export function FileDropZone({
           className={cn(
             "w-full justify-start h-9 transition-all duration-200",
             isDragging && "border-primary bg-primary/5 border-dashed border-2",
-            isUploaded && "text-primary border-primary/30 pr-10"
+            isUploaded && "text-primary border-primary/30 pr-10",
+            hasError && !isUploaded && "border-destructive focus:border-destructive"
           )}
           onClick={() => inputRef.current?.click()}
         >
