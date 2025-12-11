@@ -7,6 +7,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Delete user function called, method:', req.method);
+  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -19,7 +21,10 @@ serve(async (req) => {
     
     // Get the authorization header to verify the requesting user
     const authHeader = req.headers.get('Authorization');
+    console.log('Auth header present:', !!authHeader);
+    
     if (!authHeader) {
+      console.log('No authorization header found');
       return new Response(
         JSON.stringify({ error: 'No authorization header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -33,7 +38,10 @@ serve(async (req) => {
 
     // Get the requesting user
     const { data: { user: requestingUser }, error: authError } = await userClient.auth.getUser();
+    console.log('Auth getUser result - user:', requestingUser?.id, 'error:', authError?.message);
+    
     if (authError || !requestingUser) {
+      console.log('Auth failed:', authError?.message || 'No user returned');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
