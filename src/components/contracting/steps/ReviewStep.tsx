@@ -1,9 +1,10 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ContractingApplication, SelectedCarrier, Address, WIZARD_STEPS } from '@/types/contracting';
-import { ClipboardCheck, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { ClipboardCheck, CheckCircle, AlertCircle, Loader2, Download, FileText } from 'lucide-react';
 import { useState } from 'react';
 import { WizardProgress } from '../WizardProgress';
+import { useContractingPdf } from '@/hooks/useContractingPdf';
 
 interface ProgressProps {
   currentStep: number;
@@ -20,11 +21,27 @@ interface ReviewStepProps {
 
 export function ReviewStep({ application, onBack, onSubmit, progressProps }: ReviewStepProps) {
   const [submitting, setSubmitting] = useState(false);
+  const [pdfData, setPdfData] = useState<{ filename: string; pdf: string } | null>(null);
+  const { generating, generatePdf, downloadPdf, validateApplication } = useContractingPdf();
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    
+    // First generate the PDF
+    const pdfResult = await generatePdf(application);
+    if (pdfResult.success && pdfResult.pdf && pdfResult.filename) {
+      setPdfData({ filename: pdfResult.filename, pdf: pdfResult.pdf });
+    }
+    
+    // Then submit the application
     await onSubmit();
     setSubmitting(false);
+  };
+
+  const handleDownloadPdf = () => {
+    if (pdfData) {
+      downloadPdf(pdfData.pdf, pdfData.filename);
+    }
   };
 
   const selectedCarriers = (application.selected_carriers as SelectedCarrier[]) || [];
@@ -47,6 +64,10 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
 
   const allPassed = checks.every(c => c.passed);
   const docCount = Object.keys(uploadedDocs || {}).length;
+
+  // Pre-validation for PDF generation
+  const pdfValidationErrors = validateApplication(application);
+  const canGeneratePdf = pdfValidationErrors.length === 0;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -123,11 +144,46 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
             <h3 className="font-medium text-sm mb-1">Electronic Signature</h3>
             <p className="text-sm">{application.signature_name || 'Not signed'}</p>
             <p className="text-xs text-muted-foreground">
-              Signed on {application.signature_date || 'N/A'}
+              Initials: {application.signature_initials || 'N/A'} • Signed on {application.signature_date || 'N/A'}
             </p>
           </div>
 
-          {!allPassed && (
+          {/* PDF Generation Status */}
+          {pdfData && (
+            <div className="border rounded-lg p-3 bg-green-50 border-green-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-green-600" />
+                  <div>
+                    <p className="text-sm font-medium text-green-800">Contracting Packet Generated</p>
+                    <p className="text-xs text-green-600">{pdfData.filename}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadPdf}
+                  className="gap-1.5 text-green-700 border-green-300 hover:bg-green-100"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Download
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!canGeneratePdf && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-xs text-amber-800 font-medium mb-1">Cannot generate contracting packet:</p>
+              <ul className="text-xs text-amber-700 list-disc list-inside">
+                {pdfValidationErrors.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {!allPassed && canGeneratePdf && (
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-xs text-amber-800">
                 Some sections are incomplete. You can still submit, but completing all sections helps speed up processing.
@@ -139,9 +195,14 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
             <Button variant="outline" onClick={onBack} size="sm">
               Back
             </Button>
-            <Button onClick={handleSubmit} size="sm" disabled={submitting} className="gap-2">
-              {submitting && <Loader2 className="h-3 w-3 animate-spin" />}
-              Submit Application
+            <Button 
+              onClick={handleSubmit} 
+              size="sm" 
+              disabled={submitting || generating || !canGeneratePdf} 
+              className="gap-2"
+            >
+              {(submitting || generating) && <Loader2 className="h-3 w-3 animate-spin" />}
+              {generating ? 'Generating PDF...' : submitting ? 'Submitting...' : 'Submit Application'}
             </Button>
           </div>
         </CardContent>
