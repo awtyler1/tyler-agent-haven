@@ -5,20 +5,31 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Loader2, Mail, Phone } from 'lucide-react';
+import { Loader2, Mail, Phone, CheckCircle2, Send } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
+import { formatPhoneNumber } from '@/lib/formatters';
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const { isAuthenticated, loading, getDefaultRoute } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [inquirySubmitted, setInquirySubmitted] = useState(false);
+  const [inquirySubmitting, setInquirySubmitting] = useState(false);
   
   // Login state
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  
+  // Inquiry form state
+  const [inquiryName, setInquiryName] = useState('');
+  const [inquiryEmail, setInquiryEmail] = useState('');
+  const [inquiryPhone, setInquiryPhone] = useState('');
+  const [inquiryMessage, setInquiryMessage] = useState('');
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
@@ -67,6 +78,48 @@ export default function AuthPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleInquirySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!inquiryName.trim() || !inquiryEmail.trim()) {
+      toast.error('Please provide your name and email');
+      return;
+    }
+    
+    setInquirySubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('send-agent-inquiry', {
+        body: {
+          name: inquiryName.trim(),
+          email: inquiryEmail.trim(),
+          phone: inquiryPhone.trim(),
+          message: inquiryMessage.trim(),
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setInquirySubmitted(true);
+      toast.success('Inquiry sent! We\'ll be in touch soon.');
+    } catch (err: any) {
+      console.error('Inquiry error:', err);
+      toast.error('Failed to send inquiry. Please try again or contact us directly.');
+    } finally {
+      setInquirySubmitting(false);
+    }
+  };
+
+  const resetInquiryForm = () => {
+    setInquiryName('');
+    setInquiryEmail('');
+    setInquiryPhone('');
+    setInquiryMessage('');
+    setInquirySubmitted(false);
   };
 
   if (loading) {
@@ -136,7 +189,10 @@ export default function AuthPage() {
             <p className="text-sm text-muted-foreground text-center mb-3">
               Don't have an account? Contact us to get started.
             </p>
-            <Dialog>
+            <Dialog open={contactOpen} onOpenChange={(open) => {
+              setContactOpen(open);
+              if (!open) resetInquiryForm();
+            }}>
               <DialogTrigger asChild>
                 <Button variant="outline" className="w-full">
                   <Mail className="mr-2 h-4 w-4" />
@@ -145,45 +201,102 @@ export default function AuthPage() {
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Get in Touch</DialogTitle>
+                  <DialogTitle>Become an Agent</DialogTitle>
+                  <DialogDescription>
+                    Fill out the form below and our team will reach out to you.
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <p className="text-sm text-muted-foreground">
-                    Interested in becoming an agent with Tyler Insurance Group? Reach out to our team.
-                  </p>
-                  
-                  {/* Austin */}
-                  <div className="p-4 rounded-lg border bg-muted/30">
-                    <p className="font-medium">Austin Tyler, MBA</p>
-                    <p className="text-sm text-muted-foreground mb-2">Broker Development</p>
-                    <div className="flex flex-col gap-2">
-                      <a href="tel:8596196672" className="text-sm flex items-center gap-2 text-primary hover:underline">
-                        <Phone className="h-3.5 w-3.5" />
-                        (859) 619-6672
-                      </a>
-                      <a href="mailto:austin@tylerinsurancegroup.com" className="text-sm flex items-center gap-2 text-primary hover:underline">
-                        <Mail className="h-3.5 w-3.5" />
-                        austin@tylerinsurancegroup.com
-                      </a>
+                
+                {inquirySubmitted ? (
+                  <div className="py-8 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                      <CheckCircle2 className="h-8 w-8 text-primary" />
                     </div>
-                  </div>
-
-                  {/* Andrew */}
-                  <div className="p-4 rounded-lg border bg-muted/30">
-                    <p className="font-medium">Andrew Horn, MHA</p>
-                    <p className="text-sm text-muted-foreground mb-2">Broker Development</p>
-                    <div className="flex flex-col gap-2">
-                      <a href="tel:2107225597" className="text-sm flex items-center gap-2 text-primary hover:underline">
-                        <Phone className="h-3.5 w-3.5" />
-                        (210) 722-5597
-                      </a>
-                      <a href="mailto:andrew@tylerinsurancegroup.com" className="text-sm flex items-center gap-2 text-primary hover:underline">
-                        <Mail className="h-3.5 w-3.5" />
-                        andrew@tylerinsurancegroup.com
-                      </a>
+                    <div>
+                      <h3 className="font-semibold text-lg">Thank you!</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        We've received your inquiry and will be in touch shortly.
+                      </p>
                     </div>
+                    <Button variant="outline" onClick={() => setContactOpen(false)}>
+                      Close
+                    </Button>
                   </div>
-                </div>
+                ) : (
+                  <form onSubmit={handleInquirySubmit} className="space-y-4 py-2">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="inquiry-name">Name *</Label>
+                        <Input
+                          id="inquiry-name"
+                          value={inquiryName}
+                          onChange={(e) => setInquiryName(e.target.value)}
+                          placeholder="Your name"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="inquiry-phone">Phone</Label>
+                        <Input
+                          id="inquiry-phone"
+                          type="tel"
+                          value={inquiryPhone}
+                          onChange={(e) => setInquiryPhone(formatPhoneNumber(e.target.value))}
+                          placeholder="(555) 123-4567"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="inquiry-email">Email *</Label>
+                      <Input
+                        id="inquiry-email"
+                        type="email"
+                        value={inquiryEmail}
+                        onChange={(e) => setInquiryEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="inquiry-message">Message</Label>
+                      <Textarea
+                        id="inquiry-message"
+                        value={inquiryMessage}
+                        onChange={(e) => setInquiryMessage(e.target.value)}
+                        placeholder="Tell us about your experience and what you're looking for..."
+                        rows={3}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={inquirySubmitting}>
+                      {inquirySubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          Send Inquiry
+                        </>
+                      )}
+                    </Button>
+                    
+                    {/* Direct contact fallback */}
+                    <div className="pt-4 border-t text-center">
+                      <p className="text-xs text-muted-foreground mb-2">Or reach us directly:</p>
+                      <div className="flex justify-center gap-4 text-xs">
+                        <a href="tel:8596196672" className="flex items-center gap-1 text-primary hover:underline">
+                          <Phone className="h-3 w-3" />
+                          Austin
+                        </a>
+                        <a href="tel:2107225597" className="flex items-center gap-1 text-primary hover:underline">
+                          <Phone className="h-3 w-3" />
+                          Andrew
+                        </a>
+                      </div>
+                    </div>
+                  </form>
+                )}
               </DialogContent>
             </Dialog>
           </div>

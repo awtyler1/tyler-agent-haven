@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.process-document]
 verify_jwt = true
+
+[functions.send-agent-inquiry]
+verify_jwt = false
