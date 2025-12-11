@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { GraduationCap, Upload, Shield, ArrowRight } from 'lucide-react';
+import { GraduationCap, Upload, Shield, ArrowRight, BookOpen, Heart } from 'lucide-react';
 import { useRef } from 'react';
 import { WizardProgress } from '../WizardProgress';
 
@@ -35,59 +35,51 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <Card className="border-0 shadow-lg">
         {/* Progress + Header */}
-        <div className="pt-3 pb-2 text-center border-b border-border/30">
+        <div className="pt-4 pb-3 text-center border-b border-border/30">
           <WizardProgress {...progressProps} compact />
           <div className="flex items-center justify-center gap-2 mt-2">
-            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-              <GraduationCap className="h-3.5 w-3.5 text-primary" />
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <GraduationCap className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-base font-semibold">Training & Certificates</h2>
+            <h2 className="text-lg font-semibold">Training & Certificates</h2>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5 max-w-md mx-auto leading-relaxed">
-            Upload any certificates you have ready now. Missing something? Continue and upload later.
+          <p className="text-xs text-muted-foreground mt-1">
+            Upload what you have ready. You can always add more later.
           </p>
         </div>
 
-        <CardContent className="space-y-3 py-3 px-4">
-          {/* Two column layout for AML and CE */}
-          <div className="grid grid-cols-2 gap-3">
+        <CardContent className="py-4 px-6">
+          {/* Main grid - 4 items in a row */}
+          <div className="grid grid-cols-4 gap-4">
             {/* AML Training */}
-            <div className="p-3 border rounded-lg space-y-2">
-              <div>
-                <h3 className="font-medium text-sm">AML Training</h3>
-                <p className="text-[10px] text-muted-foreground">Required for carrier appointments.</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5 mb-2">
+                <BookOpen className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium text-sm">AML Training</span>
               </div>
-              <div className="grid gap-2 grid-cols-2">
-                <div className="space-y-1">
-                  <Label htmlFor="aml_training_provider" className="text-[10px]">Provider</Label>
-                  <Select
-                    value={application.aml_training_provider || ''}
-                    onValueChange={value => onUpdate('aml_training_provider', value)}
-                  >
-                    <SelectTrigger className="h-7 text-xs">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="limra">LIMRA</SelectItem>
-                      <SelectItem value="carrier">Carrier</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="aml_completion_date" className="text-[10px]">Completion</Label>
-                  <Input
-                    id="aml_completion_date"
-                    type="date"
-                    value={application.aml_completion_date || ''}
-                    onChange={e => onUpdate('aml_completion_date', e.target.value)}
-                    className="h-7 text-xs"
-                  />
-                </div>
-              </div>
+              <Select
+                value={application.aml_training_provider || ''}
+                onValueChange={value => onUpdate('aml_training_provider', value)}
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="limra">LIMRA</SelectItem>
+                  <SelectItem value="carrier">Carrier</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="date"
+                value={application.aml_completion_date || ''}
+                onChange={e => onUpdate('aml_completion_date', e.target.value)}
+                className="h-8 text-xs"
+                placeholder="Completion date"
+              />
               <input
                 type="file"
                 ref={amlInputRef}
@@ -98,32 +90,34 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
               <Button
                 variant="outline"
                 size="sm"
-                className="h-6 text-[10px] w-full"
+                className="h-8 text-xs w-full"
                 onClick={() => amlInputRef.current?.click()}
               >
-                <Upload className="h-2.5 w-2.5 mr-1" />
-                {application.uploaded_documents?.aml_certificate ? '✓ Uploaded' : 'Upload certificate'}
+                <Upload className="h-3 w-3 mr-1.5" />
+                {application.uploaded_documents?.aml_certificate ? '✓ Uploaded' : 'Upload'}
               </Button>
             </div>
 
             {/* CE Training */}
-            <div className="p-3 border rounded-lg space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-medium text-sm">Continuing Education</h3>
-                  <p className="text-[10px] text-muted-foreground">Requirements vary by state.</p>
-                </div>
-                <div className="flex items-center gap-1 pt-0.5">
-                  <Checkbox
-                    id="state_requires_ce"
-                    checked={application.state_requires_ce}
-                    onCheckedChange={checked => onUpdate('state_requires_ce', !!checked)}
-                    className="h-3 w-3"
-                  />
-                  <Label htmlFor="state_requires_ce" className="text-[10px] cursor-pointer">Required</Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <GraduationCap className="h-3.5 w-3.5 text-primary" />
+                  <span className="font-medium text-sm">CE Credits</span>
                 </div>
               </div>
-              {application.state_requires_ce && (
+              <div className="flex items-center gap-2 h-8 px-2 border rounded-md bg-muted/20">
+                <Checkbox
+                  id="state_requires_ce"
+                  checked={application.state_requires_ce}
+                  onCheckedChange={checked => onUpdate('state_requires_ce', !!checked)}
+                  className="h-3.5 w-3.5"
+                />
+                <Label htmlFor="state_requires_ce" className="text-xs cursor-pointer">
+                  My state requires CE
+                </Label>
+              </div>
+              {application.state_requires_ce ? (
                 <>
                   <input
                     type="file"
@@ -135,37 +129,38 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-6 text-[10px] w-full"
+                    className="h-8 text-xs w-full"
                     onClick={() => ceInputRef.current?.click()}
                   >
-                    <Upload className="h-2.5 w-2.5 mr-1" />
-                    {application.uploaded_documents?.ce_certificate ? '✓ Uploaded' : 'Upload CE certificate'}
+                    <Upload className="h-3 w-3 mr-1.5" />
+                    {application.uploaded_documents?.ce_certificate ? '✓ Uploaded' : 'Upload CE'}
                   </Button>
                 </>
+              ) : (
+                <p className="text-[10px] text-muted-foreground px-1">
+                  Check if your state requires continuing education.
+                </p>
               )}
             </div>
-          </div>
 
-          {/* Two column layout for LTC and E&O */}
-          <div className="grid grid-cols-2 gap-3">
             {/* LTC Certification */}
-            <div className="p-3 border rounded-lg space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-medium text-sm">Long-Term Care</h3>
-                  <p className="text-[10px] text-muted-foreground">Only if selling LTC products.</p>
-                </div>
-                <div className="flex items-center gap-1 pt-0.5">
-                  <Checkbox
-                    id="has_ltc_certification"
-                    checked={application.has_ltc_certification}
-                    onCheckedChange={checked => onUpdate('has_ltc_certification', !!checked)}
-                    className="h-3 w-3"
-                  />
-                  <Label htmlFor="has_ltc_certification" className="text-[10px] cursor-pointer">I have LTC</Label>
-                </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Heart className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium text-sm">LTC Cert</span>
               </div>
-              {application.has_ltc_certification && (
+              <div className="flex items-center gap-2 h-8 px-2 border rounded-md bg-muted/20">
+                <Checkbox
+                  id="has_ltc_certification"
+                  checked={application.has_ltc_certification}
+                  onCheckedChange={checked => onUpdate('has_ltc_certification', !!checked)}
+                  className="h-3.5 w-3.5"
+                />
+                <Label htmlFor="has_ltc_certification" className="text-xs cursor-pointer">
+                  I have LTC cert
+                </Label>
+              </div>
+              {application.has_ltc_certification ? (
                 <>
                   <input
                     type="file"
@@ -177,101 +172,77 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-6 text-[10px] w-full"
+                    className="h-8 text-xs w-full"
                     onClick={() => ltcInputRef.current?.click()}
                   >
-                    <Upload className="h-2.5 w-2.5 mr-1" />
-                    {application.uploaded_documents?.ltc_certificate ? '✓ Uploaded' : 'Upload LTC certificate'}
+                    <Upload className="h-3 w-3 mr-1.5" />
+                    {application.uploaded_documents?.ltc_certificate ? '✓ Uploaded' : 'Upload LTC'}
                   </Button>
                 </>
+              ) : (
+                <p className="text-[10px] text-muted-foreground px-1">
+                  Only needed if selling LTC products.
+                </p>
               )}
             </div>
 
             {/* E&O Insurance */}
-            <div className="p-3 border rounded-lg space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-1.5">
-                  <Shield className="h-3.5 w-3.5 text-primary" />
-                  <h3 className="font-medium text-sm">E&O Insurance</h3>
-                </div>
-                <div className="flex items-center gap-1 pt-0.5">
-                  <Checkbox
-                    id="eo_not_yet_covered"
-                    checked={application.eo_not_yet_covered}
-                    onCheckedChange={checked => onUpdate('eo_not_yet_covered', !!checked)}
-                    className="h-3 w-3"
-                  />
-                  <Label htmlFor="eo_not_yet_covered" className="text-[10px] cursor-pointer">Not yet</Label>
-                </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Shield className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium text-sm">E&O Insurance</span>
               </div>
-              
+              <div className="flex items-center gap-2 h-8 px-2 border rounded-md bg-muted/20">
+                <Checkbox
+                  id="eo_not_yet_covered"
+                  checked={application.eo_not_yet_covered}
+                  onCheckedChange={checked => onUpdate('eo_not_yet_covered', !!checked)}
+                  className="h-3.5 w-3.5"
+                />
+                <Label htmlFor="eo_not_yet_covered" className="text-xs cursor-pointer">
+                  Not yet covered
+                </Label>
+              </div>
               {application.eo_not_yet_covered ? (
-                <p className="text-[10px] text-muted-foreground bg-muted/30 rounded p-2">
-                  No problem—we'll help you get covered before appointments are finalized.
+                <p className="text-[10px] text-muted-foreground px-1">
+                  No problem—we'll help you get set up.
                 </p>
               ) : (
                 <>
-                  <div className="grid gap-2 grid-cols-2">
-                    <div className="space-y-1">
-                      <Label className="text-[10px]">Provider</Label>
-                      <Input
-                        value={application.eo_provider || ''}
-                        onChange={e => onUpdate('eo_provider', e.target.value)}
-                        placeholder="e.g. Hiscox"
-                        className="h-7 text-xs"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-[10px]">Policy #</Label>
-                      <Input
-                        value={application.eo_policy_number || ''}
-                        onChange={e => onUpdate('eo_policy_number', e.target.value)}
-                        placeholder="Optional"
-                        className="h-7 text-xs"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="flex-1 space-y-1">
-                      <Label className="text-[10px]">Expiration</Label>
-                      <Input
-                        type="date"
-                        value={application.eo_expiration_date || ''}
-                        onChange={e => onUpdate('eo_expiration_date', e.target.value)}
-                        className="h-7 text-xs"
-                      />
-                    </div>
-                    <div className="flex-1 pt-4">
-                      <input
-                        type="file"
-                        ref={eoInputRef}
-                        onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'eo_certificate')}
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        className="hidden"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-[10px] w-full"
-                        onClick={() => eoInputRef.current?.click()}
-                      >
-                        <Upload className="h-2.5 w-2.5 mr-1" />
-                        {application.uploaded_documents?.eo_certificate ? '✓ Uploaded' : 'Upload'}
-                      </Button>
-                    </div>
-                  </div>
+                  <Input
+                    value={application.eo_provider || ''}
+                    onChange={e => onUpdate('eo_provider', e.target.value)}
+                    placeholder="Provider (e.g. Hiscox)"
+                    className="h-8 text-xs"
+                  />
+                  <input
+                    type="file"
+                    ref={eoInputRef}
+                    onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'eo_certificate')}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs w-full"
+                    onClick={() => eoInputRef.current?.click()}
+                  >
+                    <Upload className="h-3 w-3 mr-1.5" />
+                    {application.uploaded_documents?.eo_certificate ? '✓ Uploaded' : 'Upload'}
+                  </Button>
                 </>
               )}
             </div>
           </div>
 
-          {/* E&O helper text */}
-          <p className="text-[10px] text-muted-foreground text-center px-4">
-            E&O coverage is required by most carriers before appointments. Don't have it yet? Continue now—we'll follow up.
+          {/* Helper text */}
+          <p className="text-xs text-muted-foreground text-center mt-5 mb-4">
+            Don't have everything ready? That's okay—continue now and we'll follow up on anything missing.
           </p>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-2 border-t border-border/30">
             <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
               Back
             </Button>
