@@ -89,7 +89,30 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
       .filter(q => !q.answered);
   }, [legalQuestions]);
 
+  // Find questions with Yes but no explanation
+  const missingExplanations = useMemo(() => {
+    const missing: { index: number; id: string }[] = [];
+    groupedQuestions.forEach((g, index) => {
+      const answer = legalQuestions[g.primary.id];
+      // If primary answered Yes and has no sub-questions, needs explanation
+      if (answer?.answer === true && g.subQuestions.length === 0 && !answer.explanation?.trim()) {
+        missing.push({ index: index + 1, id: g.primary.id });
+      }
+      // Check sub-questions if primary is Yes
+      if (answer?.answer === true && g.subQuestions.length > 0) {
+        g.subQuestions.forEach(subQ => {
+          const subAnswer = legalQuestions[subQ.id];
+          if (subAnswer?.answer === true && !subAnswer.explanation?.trim()) {
+            missing.push({ index: index + 1, id: subQ.id });
+          }
+        });
+      }
+    });
+    return missing;
+  }, [legalQuestions]);
+
   const allQuestionsAnswered = unansweredQuestions.length === 0;
+  const allExplanationsProvided = missingExplanations.length === 0;
 
   const handleClearAll = () => {
     onUpdate('legal_questions', {});
@@ -97,7 +120,7 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
     setLocalInitials('');
   };
 
-  const canContinue = acknowledged && allQuestionsAnswered;
+  const canContinue = acknowledged && allQuestionsAnswered && allExplanationsProvided;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -340,22 +363,34 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
                 />
               </div>
             </div>
-            {!acknowledged && allQuestionsAnswered && (
+            {!acknowledged && allQuestionsAnswered && allExplanationsProvided && (
               <p className="text-[10px] text-muted-foreground/70 mt-2">
                 Please check the box above to continue.
               </p>
             )}
           </div>
 
-          {/* Unanswered questions warning */}
-          {!allQuestionsAnswered && (
+          {/* Validation warnings */}
+          {(!allQuestionsAnswered || !allExplanationsProvided) && (
             <div className="flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 rounded-lg mt-4">
               <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-              <div>
-                <span className="font-medium">Please answer all questions. </span>
-                <span className="text-amber-600/80 dark:text-amber-400/80">
-                  Unanswered: Question{unansweredQuestions.length > 1 ? 's' : ''} {unansweredQuestions.map(q => q.index).join(', ')}
-                </span>
+              <div className="space-y-1">
+                {!allQuestionsAnswered && (
+                  <p>
+                    <span className="font-medium">Please answer all questions. </span>
+                    <span className="text-amber-600/80 dark:text-amber-400/80">
+                      Unanswered: Question{unansweredQuestions.length > 1 ? 's' : ''} {unansweredQuestions.map(q => q.index).join(', ')}
+                    </span>
+                  </p>
+                )}
+                {!allExplanationsProvided && (
+                  <p>
+                    <span className="font-medium">Please provide details for "Yes" answers. </span>
+                    <span className="text-amber-600/80 dark:text-amber-400/80">
+                      Missing explanation: Question{missingExplanations.length > 1 ? 's' : ''} {[...new Set(missingExplanations.map(q => q.index))].join(', ')}
+                    </span>
+                  </p>
+                )}
               </div>
             </div>
           )}
