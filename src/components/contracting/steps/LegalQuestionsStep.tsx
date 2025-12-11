@@ -2,10 +2,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
 import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight } from 'lucide-react';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WizardProgress } from '../WizardProgress';
 
@@ -47,6 +49,8 @@ const groupedQuestions = LEGAL_QUESTIONS.reduce((acc, question) => {
 export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const legalQuestions = (application.legal_questions as Record<string, LegalQuestion>) || {};
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [initials, setInitials] = useState('');
 
   const handleAnswerChange = (questionId: string, answer: boolean) => {
     const current = legalQuestions[questionId] || { answer: null };
@@ -74,6 +78,8 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
   const answeredCount = useMemo(() => {
     return groupedQuestions.filter(g => legalQuestions[g.primary.id]?.answer !== undefined && legalQuestions[g.primary.id]?.answer !== null).length;
   }, [legalQuestions]);
+
+  const canContinue = acknowledged;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -105,12 +111,11 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
             </span>
           </div>
 
-          <ScrollArea className="h-[340px] pr-4">
+          <ScrollArea className="h-[280px] pr-4">
             <div className="space-y-3">
               {groupedQuestions.map((group, index) => {
                 const primaryAnswer = legalQuestions[group.primary.id];
                 const showSubQuestions = primaryAnswer?.answer === true && group.subQuestions.length > 0;
-                const isAnswered = primaryAnswer?.answer !== undefined && primaryAnswer?.answer !== null;
                 const isNo = primaryAnswer?.answer === false;
                 const hasSubQuestions = group.subQuestions.length > 0;
 
@@ -260,12 +265,52 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
             </div>
           )}
 
-          {/* Reassurance message */}
-          <div className="mt-4 p-3 rounded-lg bg-muted/30 border border-border/30">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <span className="font-medium text-foreground/80">Honesty matters.</span> Answering "Yes" to any question does not automatically disqualify you. 
-              Disclosures are reviewed individually as part of standard carrier compliance. If you have questions, reach out before submitting.
-            </p>
+          {/* Attestation section */}
+          <div className="mt-4 p-4 rounded-lg bg-muted/20 border border-border/40">
+            <p className="text-xs font-medium text-foreground/80 mb-2">Acknowledgment</p>
+            <div className="space-y-2 text-xs text-muted-foreground leading-relaxed mb-3">
+              <p>By checking below, I confirm that:</p>
+              <ul className="list-disc list-inside space-y-1 ml-1">
+                <li>My answers above are true and complete to the best of my knowledge.</li>
+                <li>I will notify Tyler Insurance Group within five days if any information changes.</li>
+                <li>I understand carriers may contact me with additional questions during contracting.</li>
+              </ul>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="background_acknowledgment"
+                  checked={acknowledged}
+                  onCheckedChange={(checked) => setAcknowledged(!!checked)}
+                  className="h-4 w-4"
+                />
+                <Label 
+                  htmlFor="background_acknowledgment" 
+                  className="text-xs font-medium cursor-pointer"
+                >
+                  I acknowledge and agree
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="initials" className="text-xs text-muted-foreground">
+                  Initials
+                </Label>
+                <Input
+                  id="initials"
+                  value={initials}
+                  onChange={(e) => setInitials(e.target.value.toUpperCase().slice(0, 4))}
+                  placeholder="ABC"
+                  className="h-7 w-16 text-xs text-center uppercase"
+                  maxLength={4}
+                />
+                <span className="text-[10px] text-muted-foreground/60">(optional)</span>
+              </div>
+            </div>
+            {!acknowledged && (
+              <p className="text-[10px] text-muted-foreground/70 mt-2">
+                Please check the box above to continue.
+              </p>
+            )}
           </div>
 
           {/* Navigation */}
@@ -277,7 +322,7 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
               <ArrowRight className="h-3 w-3" />
               <span className="text-foreground/70">Next: Banking</span>
             </p>
-            <Button onClick={onContinue}>
+            <Button onClick={onContinue} disabled={!canContinue}>
               Continue
             </Button>
           </div>
