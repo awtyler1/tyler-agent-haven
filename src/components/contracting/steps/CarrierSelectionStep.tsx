@@ -5,11 +5,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ContractingApplication, Carrier, SelectedCarrier, RECOMMENDED_CARRIER_CODES } from '@/types/contracting';
-import { Building2, Upload, Search, ArrowRight, Star } from 'lucide-react';
+import { ContractingApplication, Carrier, SelectedCarrier, RECOMMENDED_CARRIER_CODES, US_STATES } from '@/types/contracting';
+import { Building2, Upload, Search, ArrowRight, Star, MapPin, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { WizardProgress } from '../WizardProgress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface ProgressProps {
   currentStep: number;
@@ -72,6 +73,17 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
     } else {
       onUpdate('selected_carriers', selectedCarriers.filter(c => c.carrier_id !== carrier.id));
     }
+  };
+
+  const updateCarrierStates = (carrierId: string, states: string[]) => {
+    const updated = selectedCarriers.map(c => 
+      c.carrier_id === carrierId ? { ...c, non_resident_states: states } : c
+    );
+    onUpdate('selected_carriers', updated);
+  };
+
+  const getSelectedCarrier = (carrierId: string) => {
+    return selectedCarriers.find(c => c.carrier_id === carrierId);
   };
 
   const handleFileUpload = async (file: File) => {
@@ -199,7 +211,9 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
                         key={carrier.id}
                         carrier={carrier}
                         selected={isCarrierSelected(carrier.id)}
+                        selectedCarrier={getSelectedCarrier(carrier.id)}
                         onToggle={toggleCarrier}
+                        onUpdateStates={updateCarrierStates}
                         isRecommended={RECOMMENDED_CARRIER_CODES.includes(carrier.code)}
                       />
                     ))}
@@ -212,7 +226,9 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
                         key={carrier.id}
                         carrier={carrier}
                         selected={isCarrierSelected(carrier.id)}
+                        selectedCarrier={getSelectedCarrier(carrier.id)}
                         onToggle={toggleCarrier}
+                        onUpdateStates={updateCarrierStates}
                         isRecommended={RECOMMENDED_CARRIER_CODES.includes(carrier.code)}
                       />
                     ))}
@@ -297,38 +313,112 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
   );
 }
 
-// Compact carrier checkbox component
+// Compact carrier checkbox component with non-resident state selection
 function CarrierCheckbox({ 
   carrier, 
   selected, 
+  selectedCarrier,
   onToggle,
+  onUpdateStates,
   isRecommended = false
 }: {
   carrier: Carrier;
   selected: boolean;
+  selectedCarrier?: SelectedCarrier;
   onToggle: (carrier: Carrier, checked: boolean) => void;
+  onUpdateStates: (carrierId: string, states: string[]) => void;
   isRecommended?: boolean;
 }) {
+  const nonResStates = selectedCarrier?.non_resident_states || [];
+
+  const toggleState = (stateCode: string) => {
+    if (nonResStates.includes(stateCode)) {
+      onUpdateStates(carrier.id, nonResStates.filter(s => s !== stateCode));
+    } else {
+      onUpdateStates(carrier.id, [...nonResStates, stateCode]);
+    }
+  };
+
   return (
-    <div className={`flex items-center gap-2 py-1.5 px-2 rounded transition-colors ${
+    <div className={`rounded transition-colors ${
       selected ? 'bg-primary/5' : 'hover:bg-muted/30'
     }`}>
-      <Checkbox
-        id={`carrier_${carrier.id}`}
-        checked={selected}
-        onCheckedChange={checked => onToggle(carrier, !!checked)}
-        className="h-3.5 w-3.5"
-      />
-      <Label 
-        htmlFor={`carrier_${carrier.id}`} 
-        className="text-xs font-normal cursor-pointer truncate flex-1 flex items-center gap-1"
-        title={carrier.name}
-      >
-        {carrier.name}
-        {isRecommended && (
-          <Star className="h-3 w-3 text-amber-500 fill-amber-500 flex-shrink-0" />
+      <div className="flex items-center gap-2 py-1.5 px-2">
+        <Checkbox
+          id={`carrier_${carrier.id}`}
+          checked={selected}
+          onCheckedChange={checked => onToggle(carrier, !!checked)}
+          className="h-3.5 w-3.5"
+        />
+        <Label 
+          htmlFor={`carrier_${carrier.id}`} 
+          className="text-xs font-normal cursor-pointer truncate flex-1 flex items-center gap-1"
+          title={carrier.name}
+        >
+          {carrier.name}
+          {isRecommended && (
+            <Star className="h-3 w-3 text-amber-500 fill-amber-500 flex-shrink-0" />
+          )}
+        </Label>
+        
+        {/* Non-resident states button */}
+        {selected && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button 
+                className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border transition-colors ${
+                  nonResStates.length > 0 
+                    ? 'bg-primary/10 border-primary/30 text-primary' 
+                    : 'bg-muted/50 border-border/50 text-muted-foreground hover:border-border'
+                }`}
+                onClick={e => e.stopPropagation()}
+              >
+                <MapPin className="h-2.5 w-2.5" />
+                {nonResStates.length > 0 ? nonResStates.join(', ') : '+ States'}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-64 p-2 bg-background border shadow-lg z-50" 
+              align="end"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium">Non-resident states</p>
+                  {nonResStates.length > 0 && (
+                    <button 
+                      onClick={() => onUpdateStates(carrier.id, [])}
+                      className="text-[10px] text-muted-foreground hover:text-foreground"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Select states where you want to contract with this carrier (in addition to your resident state)
+                </p>
+                <ScrollArea className="h-40">
+                  <div className="grid grid-cols-2 gap-1 pr-2">
+                    {US_STATES.map(state => (
+                      <button
+                        key={state.code}
+                        onClick={() => toggleState(state.code)}
+                        className={`text-left text-[11px] px-2 py-1 rounded transition-colors ${
+                          nonResStates.includes(state.code)
+                            ? 'bg-primary text-primary-foreground'
+                            : 'hover:bg-muted'
+                        }`}
+                      >
+                        {state.code} - {state.name}
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
-      </Label>
+      </div>
     </div>
   );
 }
