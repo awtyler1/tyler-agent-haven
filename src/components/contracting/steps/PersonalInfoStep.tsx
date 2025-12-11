@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
-import { User } from 'lucide-react';
+import { User, Plus, X } from 'lucide-react';
+
+interface PreviousAddress extends Address {
+  years_lived?: string;
+}
 
 interface PersonalInfoStepProps {
   application: ContractingApplication;
@@ -19,20 +23,19 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
   const homeAddress = (application.home_address as Address) || EMPTY_ADDRESS;
   const mailingAddress = (application.mailing_address as Address) || EMPTY_ADDRESS;
   const upsAddress = (application.ups_address as Address) || EMPTY_ADDRESS;
-  const hasAutoSelectedMobile = useRef(false);
+  const previousAddresses = (application.previous_addresses as PreviousAddress[]) || [];
+  const hasInitialized = useRef(false);
+  const [showPreviousAddresses, setShowPreviousAddresses] = useState(previousAddresses.length > 0);
 
-  // Auto-select Mobile as preferred contact when mobile number is entered (only once)
+  // Set Mobile as default preferred contact on first load
   useEffect(() => {
-    if (
-      application.phone_mobile && 
-      application.phone_mobile.length >= 10 && 
-      !hasAutoSelectedMobile.current &&
-      (!application.preferred_contact_methods || application.preferred_contact_methods.length === 0)
-    ) {
-      onUpdate('preferred_contact_methods', ['Mobile']);
-      hasAutoSelectedMobile.current = true;
+    if (!hasInitialized.current) {
+      if (!application.preferred_contact_methods || application.preferred_contact_methods.length === 0) {
+        onUpdate('preferred_contact_methods', ['Mobile']);
+      }
+      hasInitialized.current = true;
     }
-  }, [application.phone_mobile, application.preferred_contact_methods, onUpdate]);
+  }, [application.preferred_contact_methods, onUpdate]);
 
   const toggleContactMethod = (method: string) => {
     const current = application.preferred_contact_methods || [];
@@ -46,6 +49,23 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
   const updateAddress = (type: 'home_address' | 'mailing_address' | 'ups_address', field: keyof Address, value: string) => {
     const current = type === 'home_address' ? homeAddress : type === 'mailing_address' ? mailingAddress : upsAddress;
     onUpdate(type, { ...current, [field]: value });
+  };
+
+  const addPreviousAddress = () => {
+    onUpdate('previous_addresses', [...previousAddresses, { ...EMPTY_ADDRESS, years_lived: '' }]);
+    setShowPreviousAddresses(true);
+  };
+
+  const updatePreviousAddress = (index: number, field: keyof PreviousAddress, value: string) => {
+    const updated = [...previousAddresses];
+    updated[index] = { ...updated[index], [field]: value };
+    onUpdate('previous_addresses', updated);
+  };
+
+  const removePreviousAddress = (index: number) => {
+    const updated = previousAddresses.filter((_, i) => i !== index);
+    onUpdate('previous_addresses', updated);
+    if (updated.length === 0) setShowPreviousAddresses(false);
   };
 
   // Check if email was prefilled (from invitation)
@@ -232,13 +252,85 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
             </div>
           )}
 
+          {/* Previous Addresses (Optional) */}
+          <div className="space-y-1.5">
+            {!showPreviousAddresses ? (
+              <button
+                type="button"
+                onClick={addPreviousAddress}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <Plus className="h-3 w-3" />
+                Add previous address (within last 10 years)
+              </button>
+            ) : (
+              <div className="space-y-2 p-2.5 rounded-lg bg-muted/30 border border-border/50">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">Previous Addresses (last 10 years)</Label>
+                  <button
+                    type="button"
+                    onClick={addPreviousAddress}
+                    className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
+                  >
+                    <Plus className="h-3 w-3" />
+                    Add another
+                  </button>
+                </div>
+                {previousAddresses.map((addr, index) => (
+                  <div key={index} className="space-y-1.5 pt-1.5 border-t border-border/30 first:border-0 first:pt-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-muted-foreground">Address {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removePreviousAddress(index)}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-6 gap-1.5">
+                      <Input
+                        value={addr.street || ''}
+                        onChange={e => updatePreviousAddress(index, 'street', e.target.value)}
+                        placeholder="Street address"
+                        className="h-7 text-xs col-span-3 bg-background"
+                      />
+                      <Input
+                        value={addr.city || ''}
+                        onChange={e => updatePreviousAddress(index, 'city', e.target.value)}
+                        placeholder="City"
+                        className="h-7 text-xs bg-background"
+                      />
+                      <Select value={addr.state || ''} onValueChange={value => updatePreviousAddress(index, 'state', value)}>
+                        <SelectTrigger className="h-7 text-xs bg-background">
+                          <SelectValue placeholder="ST" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {US_STATES.map(state => (
+                            <SelectItem key={state.code} value={state.code}>{state.code}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        value={addr.zip || ''}
+                        onChange={e => updatePreviousAddress(index, 'zip', e.target.value)}
+                        placeholder="ZIP"
+                        className="h-7 text-xs bg-background"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Preferred Contact */}
           <div className="flex items-center gap-4 text-xs">
             <span className="text-muted-foreground">Preferred contact:</span>
             {['Email', 'Mobile', 'Text'].map(method => (
               <label key={method} className="flex items-center gap-1.5 cursor-pointer">
                 <Checkbox 
-                  checked={(application.preferred_contact_methods || []).includes(method)} 
+                  checked={(application.preferred_contact_methods || ['Mobile']).includes(method)} 
                   onCheckedChange={() => toggleContactMethod(method)} 
                   className="h-3.5 w-3.5"
                 />
