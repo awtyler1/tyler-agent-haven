@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication } from '@/types/contracting';
 import { Landmark, Shield, ArrowRight, AlertCircle } from 'lucide-react';
 import { useMemo } from 'react';
@@ -75,12 +76,12 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
         </div>
 
         <CardContent className="py-5 px-7 space-y-5">
-          {/* Section 1: Who receives commissions */}
+          {/* Section 1: Beneficiary */}
           <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Account Holder</p>
-            <div className="grid gap-4 grid-cols-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">List a Beneficiary</p>
+            <div className="grid gap-3 grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="beneficiary_name" className="text-sm">Name on Account</Label>
+                <Label htmlFor="beneficiary_name" className="text-sm">Beneficiary Name</Label>
                 <Input
                   id="beneficiary_name"
                   value={application.beneficiary_name || ''}
@@ -88,18 +89,42 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
                   placeholder="John Doe"
                   className="h-9"
                 />
-                <p className="text-[10px] text-muted-foreground/70">Must match the name on your bank account.</p>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="beneficiary_relationship" className="text-sm">Relationship to You</Label>
+                <Label htmlFor="beneficiary_relationship" className="text-sm">Relationship</Label>
                 <Input
                   id="beneficiary_relationship"
                   value={application.beneficiary_relationship || ''}
                   onChange={e => onUpdate('beneficiary_relationship', e.target.value)}
-                  placeholder='Self, Spouse, Business...'
+                  placeholder='Spouse, Child, Parent...'
                   className="h-9"
                 />
-                <p className="text-[10px] text-muted-foreground/70">Enter "Self" if this is your personal account.</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="beneficiary_drivers_license_number" className="text-sm">Driver's License #</Label>
+                <Input
+                  id="beneficiary_drivers_license_number"
+                  value={application.beneficiary_drivers_license_number || ''}
+                  onChange={e => onUpdate('beneficiary_drivers_license_number', e.target.value)}
+                  placeholder="Enter license number"
+                  className="h-9"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="beneficiary_drivers_license_state" className="text-sm">Resident Driver's License State</Label>
+                <Select
+                  value={application.beneficiary_drivers_license_state || ''}
+                  onValueChange={value => onUpdate('beneficiary_drivers_license_state', value)}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'].map(state => (
+                      <SelectItem key={state} value={state}>{state}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
