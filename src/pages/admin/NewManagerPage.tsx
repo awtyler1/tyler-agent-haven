@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, UserCog } from 'lucide-react';
+import { ArrowLeft, Loader2, UserCog, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 
 export default function NewManagerPage() {
   const navigate = useNavigate();
@@ -48,56 +49,61 @@ export default function NewManagerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center gap-4 mb-6">
-          <Link to="/admin/managers">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Add New Manager</h1>
-            <p className="text-muted-foreground">Create a new broker manager account</p>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+      <Navigation />
+      
+      <main className="flex-1 pt-28 pb-12">
+        <div className="max-w-xl mx-auto px-6">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8">
+            <Link to="/admin/managers">
+              <Button variant="ghost" size="icon" className="hover:bg-gold/10">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="heading-section">Add New Manager</h1>
+              <p className="text-sm text-muted-foreground">Create a new broker manager account</p>
+            </div>
           </div>
-        </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-muted text-indigo-500">
-                <UserCog className="h-6 w-6" />
+          {/* Form Card */}
+          <div className="bg-white border border-[#E5E2DB] rounded-xl p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+              <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center">
+                <UserCog className="w-5 h-5 text-gold" />
               </div>
               <div>
-                <CardTitle>Manager Information</CardTitle>
-                <CardDescription>
-                  Enter the manager's details. They will receive a setup link via email.
-                </CardDescription>
+                <h2 className="font-semibold text-foreground">Manager Information</h2>
+                <p className="text-xs text-muted-foreground">
+                  They will receive a setup link via email
+                </p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name *</Label>
+                <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
                 <Input
                   id="fullName"
                   placeholder="John Smith"
                   value={formData.fullName}
                   onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
                   required
+                  className="border-[#E5E2DB] focus:border-gold"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="manager@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   required
+                  className="border-[#E5E2DB] focus:border-gold"
                 />
               </div>
 
@@ -107,18 +113,34 @@ export default function NewManagerPage() {
                   variant="outline"
                   onClick={() => navigate('/admin/managers')}
                   disabled={loading}
+                  className="border-[#E5E2DB]"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Manager
+                <Button 
+                  type="submit" 
+                  disabled={loading}
+                  className="flex-1 bg-gold hover:bg-gold/90 text-white"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Create Manager
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 }
