@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { ContractingApplication, Carrier, SelectedCarrier, US_STATES } from '@/types/contracting';
+import { ContractingApplication, Carrier, SelectedCarrier, PRODUCT_TAGS, RECOMMENDED_CARRIER_CODES } from '@/types/contracting';
 import { Building2, Upload, Search, Star, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { WizardProgress } from '../WizardProgress';
@@ -25,38 +25,11 @@ interface CarrierSelectionStepProps {
   progressProps: ProgressProps;
 }
 
-// Product categories for guided selection
-const PRODUCT_CATEGORIES = [
-  { id: 'medicare_advantage', label: 'Medicare Advantage / PDP', description: 'MA, MA-PD, and Part D plans' },
-  { id: 'medicare_supplement', label: 'Medicare Supplement', description: 'Medigap policies' },
-  { id: 'aca', label: 'ACA / Health Insurance', description: 'Marketplace and individual plans' },
-  { id: 'life', label: 'Life Insurance', description: 'Term, whole life, final expense' },
-  { id: 'annuities', label: 'Annuities', description: 'Fixed and indexed annuities' },
-  { id: 'ancillary', label: 'Dental / Vision / Ancillary', description: 'Supplemental coverage' },
-];
-
-// Map carriers to categories (in a real app, this would come from the database)
-const CARRIER_CATEGORIES: Record<string, string[]> = {
-  'Aetna': ['medicare_advantage'],
-  'Anthem': ['medicare_advantage', 'aca'],
-  'Humana': ['medicare_advantage', 'medicare_supplement'],
-  'UnitedHealthcare': ['medicare_advantage', 'medicare_supplement'],
-  'Wellcare': ['medicare_advantage'],
-  'Devoted': ['medicare_advantage'],
-  'Mutual of Omaha': ['medicare_supplement', 'life'],
-  'Cigna': ['medicare_advantage', 'aca'],
-  'Athene': ['annuities'],
-  'default': ['medicare_advantage'], // fallback for unknown carriers
-};
-
-// Recommended/popular carriers (would come from database in production)
-const RECOMMENDED_CARRIERS = ['Aetna', 'Humana', 'UnitedHealthcare', 'Anthem', 'Wellcare'];
-
 export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: CarrierSelectionStepProps) {
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showAllCarriers, setShowAllCarriers] = useState(false);
   const corpResInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,7 +42,13 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
         .order('name');
       
       if (!error && data) {
-        setCarriers(data as Carrier[]);
+        // Map database response to Carrier type, handling missing product_tags
+        const mappedCarriers = data.map(c => ({
+          ...c,
+          product_tags: c.product_tags || [],
+          notes: c.notes || null,
+        })) as Carrier[];
+        setCarriers(mappedCarriers);
       }
       setLoading(false);
     };
@@ -106,20 +85,16 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
     await onUpload(file, 'corporate_resolution');
   };
 
-  const toggleCategory = (categoryId: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(categoryId) 
-        ? prev.filter(c => c !== categoryId)
-        : [...prev, categoryId]
+  const toggleTag = (tagId: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tagId) 
+        ? prev.filter(t => t !== tagId)
+        : [...prev, tagId]
     );
+    setShowAllCarriers(false); // Reset expansion when filters change
   };
 
-  // Get carrier's categories
-  const getCarrierCategories = (carrierName: string): string[] => {
-    return CARRIER_CATEGORIES[carrierName] || CARRIER_CATEGORIES['default'];
-  };
-
-  // Filter carriers based on search and selected categories
+  // Filter carriers based on search and selected tags
   const filteredCarriers = useMemo(() => {
     let result = carriers;
 
@@ -129,21 +104,21 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
       result = result.filter(c => c.name.toLowerCase().includes(query));
     }
 
-    // Filter by categories (if any selected)
-    if (selectedCategories.length > 0) {
+    // Filter by tags (if any selected) - carrier must have at least one matching tag
+    if (selectedTags.length > 0) {
       result = result.filter(c => {
-        const carrierCats = getCarrierCategories(c.name);
-        return selectedCategories.some(cat => carrierCats.includes(cat));
+        if (!c.product_tags || c.product_tags.length === 0) return false;
+        return selectedTags.some(tag => c.product_tags.includes(tag));
       });
     }
 
     return result;
-  }, [carriers, searchQuery, selectedCategories]);
+  }, [carriers, searchQuery, selectedTags]);
 
   // Separate recommended and other carriers
   const { recommendedCarriers, otherCarriers } = useMemo(() => {
-    const recommended = filteredCarriers.filter(c => RECOMMENDED_CARRIERS.includes(c.name));
-    const others = filteredCarriers.filter(c => !RECOMMENDED_CARRIERS.includes(c.name));
+    const recommended = filteredCarriers.filter(c => RECOMMENDED_CARRIER_CODES.includes(c.code));
+    const others = filteredCarriers.filter(c => !RECOMMENDED_CARRIER_CODES.includes(c.code));
     return { recommendedCarriers: recommended, otherCarriers: others };
   }, [filteredCarriers]);
 
@@ -154,7 +129,7 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
       return carrier?.requires_corporate_resolution;
     });
 
-  const hasActiveFilters = searchQuery.trim() || selectedCategories.length > 0;
+  const hasActiveFilters = searchQuery.trim() || selectedTags.length > 0;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -175,42 +150,41 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
 
         <CardContent className="py-4 px-5 space-y-4">
           {/* Corporation context (separated at top) */}
-          {application.is_corporation !== undefined && (
-            <div className="flex items-center justify-between p-2 bg-muted/30 rounded-lg border border-border/30">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="is_corporation"
-                  checked={application.is_corporation}
-                  onCheckedChange={checked => onUpdate('is_corporation', !!checked)}
-                  className="h-3.5 w-3.5"
-                />
-                <Label htmlFor="is_corporation" className="text-xs font-normal cursor-pointer text-muted-foreground">
-                  Applying as a corporation or business entity
-                </Label>
-              </div>
+          <div className="flex items-center justify-between p-2 bg-muted/30 rounded-lg border border-border/30">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="is_corporation"
+                checked={application.is_corporation}
+                onCheckedChange={checked => onUpdate('is_corporation', !!checked)}
+                className="h-3.5 w-3.5"
+              />
+              <Label htmlFor="is_corporation" className="text-xs font-normal cursor-pointer text-muted-foreground">
+                Applying as a corporation or business entity
+              </Label>
             </div>
-          )}
+          </div>
 
-          {/* Guided category selection */}
+          {/* Guided tag selection */}
           <div className="space-y-2">
             <p className="text-xs font-medium text-foreground/80">What products do you plan to sell?</p>
             <div className="flex flex-wrap gap-1.5">
-              {PRODUCT_CATEGORIES.map(cat => (
+              {PRODUCT_TAGS.map(tag => (
                 <button
-                  key={cat.id}
-                  onClick={() => toggleCategory(cat.id)}
+                  key={tag.id}
+                  onClick={() => toggleTag(tag.id)}
                   className={`px-2.5 py-1 rounded-full text-[11px] transition-all border ${
-                    selectedCategories.includes(cat.id)
+                    selectedTags.includes(tag.id)
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-background border-border/50 text-muted-foreground hover:border-border hover:text-foreground'
                   }`}
+                  title={tag.description}
                 >
-                  {cat.label}
+                  {tag.label}
                 </button>
               ))}
             </div>
-            {selectedCategories.length === 0 && (
-              <p className="text-[10px] text-muted-foreground/70">Select categories to filter, or browse all carriers below</p>
+            {selectedTags.length === 0 && (
+              <p className="text-[10px] text-muted-foreground/70">Select product types to filter, or browse all carriers below</p>
             )}
           </div>
 
@@ -264,7 +238,7 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
                         </span>
                       </div>
                     )}
-                    {(showAllCarriers || otherCarriers.length <= 5 ? otherCarriers : otherCarriers.slice(0, 5)).map(carrier => (
+                    {(showAllCarriers || otherCarriers.length <= 8 ? otherCarriers : otherCarriers.slice(0, 8)).map(carrier => (
                       <CarrierRow
                         key={carrier.id}
                         carrier={carrier}
@@ -274,16 +248,16 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
                         onUpdateStates={updateCarrierStates}
                       />
                     ))}
-                    {!showAllCarriers && otherCarriers.length > 5 && (
+                    {!showAllCarriers && otherCarriers.length > 8 && (
                       <button
                         onClick={() => setShowAllCarriers(true)}
                         className="flex items-center gap-1 text-xs text-primary hover:underline mt-2"
                       >
                         <ChevronDown className="h-3 w-3" />
-                        Show {otherCarriers.length - 5} more carriers
+                        Show {otherCarriers.length - 8} more carriers
                       </button>
                     )}
-                    {showAllCarriers && otherCarriers.length > 5 && (
+                    {showAllCarriers && otherCarriers.length > 8 && (
                       <button
                         onClick={() => setShowAllCarriers(false)}
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mt-2"
@@ -297,7 +271,9 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
 
                 {filteredCarriers.length === 0 && (
                   <div className="text-center py-6 text-sm text-muted-foreground">
-                    No carriers match your search or filters.
+                    {hasActiveFilters 
+                      ? 'No carriers match your search or filters.' 
+                      : 'No carriers available.'}
                   </div>
                 )}
               </div>
