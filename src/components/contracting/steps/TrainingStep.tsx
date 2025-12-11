@@ -190,7 +190,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
                 onRemove={() => onRemove('eo_certificate')}
                 isUploaded={!!application.uploaded_documents?.eo_certificate}
                 uploadedLabel="✓ Uploaded"
-                defaultLabel="Upload Certificate of Coverage"
+                defaultLabel="Upload COC"
                 compact
               />
             </div>
