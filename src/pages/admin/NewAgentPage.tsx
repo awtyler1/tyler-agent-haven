@@ -76,7 +76,7 @@ export default function NewAgentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-4 mb-6">
           <Link to="/admin/agents">

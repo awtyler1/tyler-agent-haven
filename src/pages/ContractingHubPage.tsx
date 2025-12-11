@@ -193,19 +193,19 @@ const ContractingHubPage = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FDFBF7' }}>
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <Navigation />
       
-      <main style={{ backgroundColor: '#FDFBF7' }}>
+      <main>
         {/* Header - Title */}
-        <section className="pt-16 pb-4 md:pt-20 md:pb-5 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pt-16 pb-4 md:pt-20 md:pb-5 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <h1 className="text-3xl md:text-4xl font-serif font-medium text-foreground tracking-tight">Contracting Hub</h1>
           </div>
         </section>
 
         {/* Before You Begin - Orientation Bar */}
-        <section className="pb-4 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pb-4 px-6 md:px-12 lg:px-20">
           <div className="max-w-6xl mx-auto">
             <div className="bg-white border border-[#E5E2DB] border-t-2 border-t-gold rounded-lg shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]" style={{ paddingTop: '20px', paddingBottom: '20px', paddingLeft: '20px', paddingRight: '20px' }}>
               <h2 className="text-base font-bold text-foreground mb-2">
@@ -233,7 +233,7 @@ const ContractingHubPage = () => {
         </section>
 
         {/* Two-Column Layout */}
-        <section className="pb-5 px-6 md:px-12 lg:px-20" style={{ backgroundColor: '#FDFBF7' }}>
+        <section className="pb-5 px-6 md:px-12 lg:px-20">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
               

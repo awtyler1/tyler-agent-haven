@@ -7,7 +7,7 @@ const TrainingLibraryPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main style={{ backgroundColor: '#FDFBF7' }}>
+      <main className="bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
         {/* Hero Section */}
         <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">

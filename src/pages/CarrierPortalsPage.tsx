@@ -38,7 +38,7 @@ const CarrierPortalsPage = () => {
     };
   });
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <Navigation />
       <main>
         {/* Hero */}

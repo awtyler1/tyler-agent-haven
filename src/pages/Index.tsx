@@ -120,7 +120,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main style={{ backgroundColor: '#FDFBF7' }}>
+      <main className="bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
         {/* Header / Identity Section */}
         <section className="pt-20 pb-8 md:pt-24 md:pb-10 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
@@ -150,7 +150,7 @@ const Index = () => {
                   key={index}
                   to={tile.link}
                   onClick={() => window.scrollTo(0, 0)}
-                  className="group bg-white border border-[#E5E2DB] rounded-lg p-6 flex flex-col items-center text-center shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150"
+                  className="group bg-gradient-to-b from-white to-[#FEFDFB] border border-[#E5E2DB] rounded-xl p-6 flex flex-col items-center text-center shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.15)] hover:border-[#D4CFC4] hover:-translate-y-1 transition-all duration-200"
                 >
                   <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center mb-4">
                     <tile.icon className="w-5 h-5 text-gold" />
