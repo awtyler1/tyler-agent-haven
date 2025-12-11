@@ -114,8 +114,24 @@ export const PRODUCT_TAGS = [
   { id: 'ancillary', label: 'Ancillary', description: 'Vision, supplemental' },
 ] as const;
 
-// Popular/recommended carriers (by code)
-export const RECOMMENDED_CARRIER_CODES = ['AETNA_MA', 'HUMANA', 'UHC', 'ANTHEM', 'WELLCARE', 'DEVOTED'];
+// Recommended carriers (by code)
+export const RECOMMENDED_CARRIER_CODES = [
+  'AETNA_MA',
+  'AETNA_MS',
+  'ANTHEM',
+  'CIGNA_FE_MS',
+  'CIGNA_HS',
+  'DEVOTED',
+  'GTL',
+  'HUMANA',
+  'MOLINA_ACA',
+  'MUT_OMAHA_MS_PDP',
+  'MUT_OMAHA',
+  'NATIONWIDE',
+  'NACOLAH',
+  'UHC',
+  'WELLCARE',
+];
 
 export const WIZARD_STEPS = [
   { id: 1, name: 'Welcome', shortName: 'Welcome' },
