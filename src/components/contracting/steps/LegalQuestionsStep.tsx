@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
-import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, Info, ArrowRight } from 'lucide-react';
+import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight } from 'lucide-react';
 import { useRef, useMemo } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WizardProgress } from '../WizardProgress';
@@ -100,10 +100,9 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
             <span className="text-xs text-muted-foreground">
               {answeredCount} of {groupedQuestions.length} answered
             </span>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Info className="h-3 w-3" />
-              <span>Answer each question to continue</span>
-            </div>
+            <span className="text-xs text-muted-foreground/70">
+              Select Yes or No for each
+            </span>
           </div>
 
           <ScrollArea className="h-[340px] pr-4">
@@ -133,7 +132,7 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
                           {index + 1}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm leading-relaxed pr-2">{group.primary.text}</p>
+                          <p className="text-sm leading-[1.6] pr-2 text-foreground/90">{group.primary.text}</p>
                           {hasSubQuestions && !showSubQuestions && (
                             <p className="text-[10px] text-muted-foreground/60 mt-1 flex items-center gap-1">
                               <ChevronRight className="h-2.5 w-2.5" />
