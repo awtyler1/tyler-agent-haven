@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
-import { FileCheck, Upload, ChevronDown } from 'lucide-react';
+import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -19,6 +19,9 @@ interface LicensingStepProps {
 
 export function LicensingStep({ application, onUpdate, onUpload, onBack, onContinue }: LicensingStepProps) {
   const [showNonResident, setShowNonResident] = useState(false);
+  const [showOptionalIdentity, setShowOptionalIdentity] = useState(
+    !!(application.gender || application.drivers_license_number)
+  );
   const licenseInputRef = useRef<HTMLInputElement>(null);
   const idInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,120 +37,149 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
     await onUpload(file, type);
   };
 
+  const hasLicenseUploaded = !!application.uploaded_documents?.insurance_license;
+  const hasIdUploaded = !!application.uploaded_documents?.government_id;
+  const documentsComplete = hasLicenseUploaded && hasIdUploaded;
+
   return (
     <div className="max-w-2xl mx-auto">
       <Card className="border-0 shadow-lg">
-        <CardHeader className="py-4 text-center">
-          <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-            <FileCheck className="h-5 w-5 text-primary" />
+        <CardHeader className="py-3 text-center">
+          <div className="mx-auto w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center mb-1">
+            <Shield className="h-4 w-4 text-primary" />
           </div>
-          <CardTitle className="text-xl">Identity & Licensing</CardTitle>
-          <CardDescription className="text-sm">
-            This information is required for carrier contracting and compliance verification.
+          <CardTitle className="text-lg">Identity & Licensing</CardTitle>
+          <CardDescription className="text-xs">
+            Required for carrier contracting and compliance verification.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 pb-5">
-          {/* Identity Information */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Identity</h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="birth_date" className="text-sm">Date of Birth *</Label>
+        <CardContent className="space-y-4 pb-4">
+          
+          {/* Section 1: Identity Verification */}
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-foreground bg-primary/10 px-2 py-0.5 rounded">1</span>
+              <h3 className="text-sm font-medium">Identity Verification</h3>
+            </div>
+            
+            {/* Core Identity Fields */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label htmlFor="birth_date" className="text-xs">Date of Birth *</Label>
                 <Input
                   id="birth_date"
                   type="date"
                   value={application.birth_date || ''}
                   onChange={e => onUpdate('birth_date', e.target.value)}
-                  className="h-10"
+                  className="h-8 text-sm"
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="tax_id" className="text-sm">SSN / Tax ID *</Label>
+              <div className="space-y-1">
+                <Label htmlFor="tax_id" className="text-xs">SSN / Tax ID *</Label>
                 <Input
                   id="tax_id"
                   value={application.tax_id || ''}
                   onChange={e => onUpdate('tax_id', e.target.value)}
                   placeholder="XXX-XX-XXXX"
-                  className="h-10"
+                  className="h-8 text-sm"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="gender" className="text-sm">Gender</Label>
-                <Select value={application.gender || ''} onValueChange={value => onUpdate('gender', value)}>
-                  <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <Lock className="h-2.5 w-2.5" />
+                  Used only for contracting. Securely encrypted.
+                </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="drivers_license_number" className="text-sm">Driver's License #</Label>
-                <Input
-                  id="drivers_license_number"
-                  value={application.drivers_license_number || ''}
-                  onChange={e => onUpdate('drivers_license_number', e.target.value)}
-                  placeholder="D12345678"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="drivers_license_state" className="text-sm">DL State</Label>
-                <Select
-                  value={application.drivers_license_state || ''}
-                  onValueChange={value => onUpdate('drivers_license_state', value)}
-                >
-                  <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Select state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {US_STATES.map(state => (
-                      <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+
+            {/* Optional Identity Fields - Progressive Disclosure */}
+            <Collapsible open={showOptionalIdentity} onOpenChange={setShowOptionalIdentity}>
+              <CollapsibleTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronDown className={`h-3 w-3 transition-transform ${showOptionalIdentity ? 'rotate-180' : ''}`} />
+                {showOptionalIdentity ? 'Hide' : 'Show'} additional identity fields
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <div className="grid grid-cols-3 gap-2 p-2 rounded-lg bg-muted/20 border border-border/30">
+                  <div className="space-y-1">
+                    <Label htmlFor="gender" className="text-xs text-muted-foreground">Gender</Label>
+                    <Select value={application.gender || ''} onValueChange={value => onUpdate('gender', value)}>
+                      <SelectTrigger className="h-8 text-sm bg-background">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="drivers_license_number" className="text-xs text-muted-foreground">Driver's License #</Label>
+                    <Input
+                      id="drivers_license_number"
+                      value={application.drivers_license_number || ''}
+                      onChange={e => onUpdate('drivers_license_number', e.target.value)}
+                      placeholder="D12345678"
+                      className="h-8 text-sm bg-background"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="drivers_license_state" className="text-xs text-muted-foreground">DL State</Label>
+                    <Select
+                      value={application.drivers_license_state || ''}
+                      onValueChange={value => onUpdate('drivers_license_state', value)}
+                    >
+                      <SelectTrigger className="h-8 text-sm bg-background">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {US_STATES.map(state => (
+                          <SelectItem key={state.code} value={state.code}>{state.code}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
 
-          {/* Licensing Information */}
-          <div className="space-y-3 pt-2 border-t">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Insurance Licensing</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="npn_number" className="text-sm">NPN Number *</Label>
+          {/* Section 2: Insurance Licensing */}
+          <div className="space-y-2.5 pt-2 border-t border-border/50">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-foreground bg-primary/10 px-2 py-0.5 rounded">2</span>
+              <h3 className="text-sm font-medium">Insurance Licensing</h3>
+            </div>
+            
+            {/* Core Licensing Fields */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label htmlFor="npn_number" className="text-xs">NPN Number *</Label>
                 <Input
                   id="npn_number"
                   value={application.npn_number || ''}
                   onChange={e => onUpdate('npn_number', e.target.value)}
                   placeholder="12345678"
-                  className="h-10"
+                  className="h-8 text-sm"
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="insurance_license_number" className="text-sm">Insurance License # *</Label>
+              <div className="space-y-1">
+                <Label htmlFor="insurance_license_number" className="text-xs">Insurance License # *</Label>
                 <Input
                   id="insurance_license_number"
                   value={application.insurance_license_number || ''}
                   onChange={e => onUpdate('insurance_license_number', e.target.value)}
                   placeholder="ABC123456"
-                  className="h-10"
+                  className="h-8 text-sm"
                 />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="resident_state" className="text-sm">Resident State *</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1">
+                <Label htmlFor="resident_state" className="text-xs">Resident State *</Label>
                 <Select
                   value={application.resident_state || ''}
                   onValueChange={value => onUpdate('resident_state', value)}
                 >
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-8 text-sm">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -157,47 +189,47 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="resident_license_number" className="text-sm">Resident License #</Label>
+              <div className="space-y-1">
+                <Label htmlFor="resident_license_number" className="text-xs text-muted-foreground">Resident License #</Label>
                 <Input
                   id="resident_license_number"
                   value={application.resident_license_number || ''}
                   onChange={e => onUpdate('resident_license_number', e.target.value)}
-                  placeholder="ABC123456"
-                  className="h-10"
+                  placeholder="If different"
+                  className="h-8 text-sm"
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="license_expiration_date" className="text-sm">Expiration Date *</Label>
+              <div className="space-y-1">
+                <Label htmlFor="license_expiration_date" className="text-xs">Expiration Date *</Label>
                 <Input
                   id="license_expiration_date"
                   type="date"
                   value={application.license_expiration_date || ''}
                   onChange={e => onUpdate('license_expiration_date', e.target.value)}
-                  className="h-10"
+                  className="h-8 text-sm"
                 />
               </div>
             </div>
 
             {/* Non-Resident States - Progressive Disclosure */}
             <Collapsible open={showNonResident} onOpenChange={setShowNonResident}>
-              <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronDown className={`h-4 w-4 transition-transform ${showNonResident ? 'rotate-180' : ''}`} />
+              <CollapsibleTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronDown className={`h-3 w-3 transition-transform ${showNonResident ? 'rotate-180' : ''}`} />
                 {showNonResident ? 'Hide' : 'Add'} non-resident state licenses
                 {(application.non_resident_states?.length || 0) > 0 && (
-                  <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded ml-1">
+                  <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded ml-1">
                     {application.non_resident_states?.length} selected
                   </span>
                 )}
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-2">
-                <div className="grid grid-cols-8 gap-1.5 p-3 border rounded-lg bg-muted/30">
+                <div className="grid grid-cols-8 gap-1 p-2 border rounded-lg bg-muted/20">
                   {US_STATES.filter(s => s.code !== application.resident_state).map(state => (
-                    <label key={state.code} className="flex items-center gap-1 text-xs cursor-pointer">
+                    <label key={state.code} className="flex items-center gap-1 text-[10px] cursor-pointer">
                       <Checkbox
                         checked={application.non_resident_states?.includes(state.code)}
                         onCheckedChange={checked => handleNonResidentStatesChange(state.code, !!checked)}
-                        className="h-3.5 w-3.5"
+                        className="h-3 w-3"
                       />
                       {state.code}
                     </label>
@@ -205,14 +237,42 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                 </div>
               </CollapsibleContent>
             </Collapsible>
+
+            {/* Business Entity - Optional */}
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/20 border border-border/30">
+              <Checkbox
+                id="is_corporation"
+                checked={application.is_corporation || false}
+                onCheckedChange={checked => onUpdate('is_corporation', !!checked)}
+                className="h-3.5 w-3.5"
+              />
+              <Label htmlFor="is_corporation" className="text-xs text-muted-foreground cursor-pointer flex-1">
+                I am operating as a corporation or business entity
+              </Label>
+              {application.is_corporation && (
+                <Input
+                  value={application.agency_name || ''}
+                  onChange={e => onUpdate('agency_name', e.target.value)}
+                  placeholder="Agency/Business name"
+                  className="h-7 text-xs w-40 bg-background"
+                />
+              )}
+            </div>
           </div>
 
-          {/* Document Uploads */}
-          <div className="space-y-3 pt-2 border-t">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Documents</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-sm">Insurance License Copy *</Label>
+          {/* Section 3: Document Uploads */}
+          <div className="space-y-2.5 pt-2 border-t border-border/50">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-foreground bg-primary/10 px-2 py-0.5 rounded">3</span>
+              <h3 className="text-sm font-medium">Document Uploads</h3>
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Upload clear photos or scans of your documents. These verify your identity and licensing for carrier appointments.
+            </p>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Insurance License Copy *</Label>
                 <input
                   type="file"
                   ref={licenseInputRef}
@@ -221,18 +281,25 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                   className="hidden"
                 />
                 <Button
-                  variant="outline"
-                  className="w-full justify-start h-10"
+                  variant={hasLicenseUploaded ? "secondary" : "outline"}
+                  className={`w-full justify-start h-8 text-xs ${hasLicenseUploaded ? 'text-primary border-primary/30' : ''}`}
                   onClick={() => licenseInputRef.current?.click()}
                 >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {application.uploaded_documents?.insurance_license
-                    ? '✓ License uploaded'
-                    : 'Upload license'}
+                  {hasLicenseUploaded ? (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-2 text-primary" />
+                      License uploaded
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-3.5 w-3.5 mr-2" />
+                      Upload license
+                    </>
+                  )}
                 </Button>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-sm">Government-Issued ID *</Label>
+              <div className="space-y-1">
+                <Label className="text-xs">Government-Issued ID *</Label>
                 <input
                   type="file"
                   ref={idInputRef}
@@ -241,55 +308,51 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                   className="hidden"
                 />
                 <Button
-                  variant="outline"
-                  className="w-full justify-start h-10"
+                  variant={hasIdUploaded ? "secondary" : "outline"}
+                  className={`w-full justify-start h-8 text-xs ${hasIdUploaded ? 'text-primary border-primary/30' : ''}`}
                   onClick={() => idInputRef.current?.click()}
                 >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {application.uploaded_documents?.government_id
-                    ? '✓ ID uploaded'
-                    : 'Upload ID'}
+                  {hasIdUploaded ? (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-2 text-primary" />
+                      ID uploaded
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-3.5 w-3.5 mr-2" />
+                      Upload ID
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
-          </div>
-
-          {/* Business Info - Optional */}
-          <div className="flex items-center gap-3 pt-2 border-t">
-            <Checkbox
-              id="is_corporation"
-              checked={application.is_corporation || false}
-              onCheckedChange={checked => onUpdate('is_corporation', !!checked)}
-            />
-            <div className="flex-1">
-              <Label htmlFor="is_corporation" className="text-sm cursor-pointer">
-                I am operating as a corporation or business entity
-              </Label>
-            </div>
-            {application.is_corporation && (
-              <Input
-                value={application.agency_name || ''}
-                onChange={e => onUpdate('agency_name', e.target.value)}
-                placeholder="Agency/Business name"
-                className="h-9 w-48"
-              />
+            
+            {documentsComplete && (
+              <p className="text-[10px] text-primary flex items-center gap-1 animate-fade-in">
+                <CheckCircle2 className="h-3 w-3" />
+                Documents uploaded. You're ready to continue.
+              </p>
             )}
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between pt-3 border-t">
-            <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
+          <div className="flex justify-between pt-2 border-t">
+            <Button variant="ghost" onClick={onBack} size="sm" className="text-muted-foreground">
               Back
             </Button>
-            <Button onClick={onContinue}>
+            <Button onClick={onContinue} size="sm">
               Continue
             </Button>
           </div>
 
-          {/* Progress */}
-          <p className="text-[10px] text-center text-muted-foreground">
-            Step 3 of 9
-          </p>
+          {/* Progress Cue */}
+          <div className="text-center">
+            <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+              <span>You're making great progress</span>
+              <ArrowRight className="h-2.5 w-2.5" />
+              <span className="text-foreground/70">Next: Background Questions</span>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
