@@ -68,16 +68,17 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
               <p className="text-[10px] text-muted-foreground leading-tight">
                 Required before appointments. Upload now or later.
               </p>
+              <Label className="text-[10px] text-muted-foreground">AML Provider</Label>
               <Select
                 value={application.aml_training_provider || ''}
                 onValueChange={value => onUpdate('aml_training_provider', value)}
               >
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Provider" />
+                  <SelectValue placeholder="Select provider" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="limra">LIMRA</SelectItem>
-                  <SelectItem value="carrier">Carrier</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
