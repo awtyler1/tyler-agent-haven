@@ -354,41 +354,42 @@ export default function UserDetailPage() {
   const onboardingInfo = onboardingStatusLabels[user.onboarding_status] || { label: user.onboarding_status, variant: 'outline' as const };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <Navigation />
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate('/admin/super')}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-          
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold">{user.full_name || 'Unnamed User'}</h1>
-                {!user.is_active && (
-                  <Badge variant="destructive">Inactive</Badge>
-                )}
+      <main className="flex-1 pt-28 pb-12">
+        <div className="container-narrow px-6 md:px-12 lg:px-20 max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate(-1)}
+              className="mb-4 hover:bg-gold/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="heading-section">{user.full_name || 'Unnamed User'}</h1>
+                  {!user.is_active && (
+                    <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-red-100 text-red-700">Inactive</span>
+                  )}
+                </div>
+                <p className="text-muted-foreground flex items-center gap-2 mt-1 text-sm">
+                  <Mail className="h-4 w-4" />
+                  {user.email}
+                </p>
               </div>
-              <p className="text-muted-foreground flex items-center gap-2 mt-1">
-                <Mail className="h-4 w-4" />
-                {user.email}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={isAgentRole ? onboardingInfo.variant : 'secondary'} className="text-sm px-3 py-1">
-                {isAgentRole ? onboardingInfo.label : roleLabels[user.role || 'independent_agent']}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${isAgentRole ? (onboardingInfo.variant === 'default' ? 'bg-green-100 text-green-700' : onboardingInfo.variant === 'destructive' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700') : 'bg-gold/10 text-gold'}`}>
+                  {isAgentRole ? onboardingInfo.label : roleLabels[user.role || 'independent_agent']}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Profile Information Card */}
@@ -683,6 +684,7 @@ export default function UserDetailPage() {
             <AgentDocumentsCard userId={user.user_id} />
           </div>
         )}
+        </div>
       </main>
       <Footer />
     </div>

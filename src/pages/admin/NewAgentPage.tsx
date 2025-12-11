@@ -4,10 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, UserPlus } from 'lucide-react';
+import { Loader2, ArrowLeft, UserPlus, Users } from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import type { Profile } from '@/hooks/useProfile';
 
 export default function NewAgentPage() {
@@ -27,7 +28,6 @@ export default function NewAgentPage() {
 
   const fetchManagers = async () => {
     try {
-      // Fetch profiles that have manager role
       const { data: managerRoles } = await supabase
         .from('user_roles')
         .select('user_id')
@@ -54,7 +54,6 @@ export default function NewAgentPage() {
     setIsSubmitting(true);
 
     try {
-      // Call edge function to create agent and send welcome email
       const { data, error } = await supabase.functions.invoke('create-agent', {
         body: {
           email: formData.email,
@@ -76,42 +75,53 @@ export default function NewAgentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center gap-4 mb-6">
-          <Link to="/admin/agents">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Add New Agent</h1>
-            <p className="text-muted-foreground">Create a new agent account</p>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+      <Navigation />
+      
+      <main className="flex-1 pt-28 pb-12">
+        <div className="max-w-xl mx-auto px-6">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8">
+            <Link to="/admin/agents">
+              <Button variant="ghost" size="icon" className="hover:bg-gold/10">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="heading-section">Add New Agent</h1>
+              <p className="text-sm text-muted-foreground">Create a new agent account</p>
+            </div>
           </div>
-        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Agent Information</CardTitle>
-            <CardDescription>
-              Enter the agent's details. They will receive a welcome email with instructions to set up their account.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Form Card */}
+          <div className="bg-white border border-[#E5E2DB] rounded-xl p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+              <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center">
+                <Users className="w-5 h-5 text-gold" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-foreground">Agent Information</h2>
+                <p className="text-xs text-muted-foreground">
+                  They will receive a welcome email with setup instructions
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
                 <Input
                   id="fullName"
-                  placeholder="John Doe"
+                  placeholder="John Smith"
                   value={formData.fullName}
                   onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
                   required
+                  className="border-[#E5E2DB] focus:border-gold"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -119,16 +129,17 @@ export default function NewAgentPage() {
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   required
+                  className="border-[#E5E2DB] focus:border-gold"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="manager">Assign Manager (Optional)</Label>
+                <Label htmlFor="manager" className="text-sm font-medium">Assign Manager (Optional)</Label>
                 <Select
                   value={formData.managerId || "none"}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, managerId: value === "none" ? "" : value }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-[#E5E2DB]">
                     <SelectValue placeholder="Select a manager" />
                   </SelectTrigger>
                   <SelectContent>
@@ -140,37 +151,44 @@ export default function NewAgentPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   The assigned manager will be able to view this agent's progress.
                 </p>
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/admin/agents')}
+                  className="border-[#E5E2DB]"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting} className="flex-1">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting} 
+                  className="flex-1 bg-gold hover:bg-gold/90 text-white"
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating Agent...
+                      Creating...
                     </>
                   ) : (
                     <>
                       <UserPlus className="mr-2 h-4 w-4" />
-                      Create Agent & Send Welcome Email
+                      Create Agent
                     </>
                   )}
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 }
