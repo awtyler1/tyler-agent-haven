@@ -38,9 +38,6 @@ interface LicensingStepProps {
 
 export function LicensingStep({ application, initials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: LicensingStepProps) {
   const [showNonResident, setShowNonResident] = useState(false);
-  const [showOptionalIdentity, setShowOptionalIdentity] = useState(
-    !!(application.gender || application.drivers_license_number)
-  );
   const [showTaxId, setShowTaxId] = useState(false);
 
   const handleNonResidentStatesChange = (stateCode: string, checked: boolean) => {
@@ -209,56 +206,6 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
               </div>
             </div>
 
-            {/* Optional Identity Fields */}
-            <Collapsible open={showOptionalIdentity} onOpenChange={setShowOptionalIdentity}>
-              <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground">
-                <ChevronDown className={`h-3 w-3 transition-transform ${showOptionalIdentity ? 'rotate-180' : ''}`} />
-                <span>Additional identity fields</span>
-                <span className="text-[10px] text-muted-foreground/50 italic">optional</span>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-2">
-                <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-muted/20 border border-border/30">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="gender" className="text-xs text-muted-foreground">Gender</Label>
-                    <Select value={application.gender || ''} onValueChange={value => onUpdate('gender', value)}>
-                      <SelectTrigger className="h-9 bg-background">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="drivers_license_number" className="text-xs text-muted-foreground">DL #</Label>
-                    <Input
-                      id="drivers_license_number"
-                      value={application.drivers_license_number || ''}
-                      onChange={e => onUpdate('drivers_license_number', e.target.value)}
-                      className="h-9 bg-background"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="drivers_license_state" className="text-xs text-muted-foreground">DL State</Label>
-                    <Select
-                      value={application.drivers_license_state || ''}
-                      onValueChange={value => onUpdate('drivers_license_state', value)}
-                    >
-                      <SelectTrigger className="h-9 bg-background">
-                        <SelectValue placeholder="State" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {US_STATES.map(state => (
-                          <SelectItem key={state.code} value={state.code}>{state.code}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
           </div>
 
           {/* Section 2: Insurance Licensing */}
