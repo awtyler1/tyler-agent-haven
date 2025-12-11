@@ -87,7 +87,7 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
               >
                 <User className={`h-4 w-4 ${!application.is_corporation ? 'text-primary' : 'text-muted-foreground'}`} />
                 <p className={`text-sm font-medium ${!application.is_corporation ? 'text-foreground' : 'text-muted-foreground'}`}>
-                  Individual
+                  Individual / Sole Proprietor
                 </p>
               </button>
               <button
@@ -149,9 +149,10 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
 
             {/* Optional Identity Fields */}
             <Collapsible open={showOptionalIdentity} onOpenChange={setShowOptionalIdentity}>
-              <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground">
                 <ChevronDown className={`h-3 w-3 transition-transform ${showOptionalIdentity ? 'rotate-180' : ''}`} />
-                Additional fields (gender, DL)
+                <span>Additional identity fields</span>
+                <span className="text-[10px] text-muted-foreground/50 italic">optional</span>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-2">
                 <div className="grid grid-cols-3 gap-3 p-3 rounded-lg bg-muted/20 border border-border/30">
@@ -208,7 +209,7 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
             {/* All licensing fields */}
             <div className="grid grid-cols-4 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="npn_number" className="text-xs">NPN *</Label>
+                <Label htmlFor="npn_number" className="text-xs">NPN Number *</Label>
                 <Input
                   id="npn_number"
                   value={application.npn_number || ''}
@@ -257,12 +258,13 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
 
             {/* Non-Resident States */}
             <Collapsible open={showNonResident} onOpenChange={setShowNonResident}>
-              <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground">
                 <ChevronDown className={`h-3 w-3 transition-transform ${showNonResident ? 'rotate-180' : ''}`} />
-                Non-resident licenses
+                <span>Non-resident licenses</span>
+                <span className="text-[10px] text-muted-foreground/50 italic">optional</span>
                 {(application.non_resident_states?.length || 0) > 0 && (
                   <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded ml-1">
-                    {application.non_resident_states?.length}
+                    {application.non_resident_states?.length} selected
                   </span>
                 )}
               </CollapsibleTrigger>
