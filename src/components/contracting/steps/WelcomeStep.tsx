@@ -12,8 +12,8 @@ const requirements = [
   { icon: IdCard, title: 'Government ID', hint: "Driver's license or passport" },
   { icon: FileCheck, title: 'Insurance License', hint: 'Current state license info' },
   { icon: Shield, title: 'E&O Policy', hint: "We'll help if you need coverage" },
-  { icon: GraduationCap, title: 'AML Certificate', hint: "We'll guide you if needed" },
   { icon: CreditCard, title: 'Banking Details', hint: 'Voided check or direct deposit' },
+  { icon: GraduationCap, title: 'AML Certificate', hint: "We'll guide you if needed" },
 ];
 
 export function WelcomeStep({ fullName, onContinue }: WelcomeStepProps) {
