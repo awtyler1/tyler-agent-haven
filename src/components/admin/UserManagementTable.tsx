@@ -83,10 +83,15 @@ export function UserManagementTable() {
     navigate(`/admin/users/${userId}`);
   };
 
+  // Filter to only show agents (not admins, super_admins, or managers)
+  const agents = users.filter(user => 
+    user.role === 'independent_agent' || user.role === 'internal_tig_agent'
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <CardTitle className="text-lg">User Management</CardTitle>
+        <CardTitle className="text-lg">Manage Agents</CardTitle>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -100,9 +105,9 @@ export function UserManagementTable() {
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
-        ) : users.length === 0 ? (
+        ) : agents.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            <p>No users found. Create your first user to get started.</p>
+            <p>No agents found. Create your first agent to get started.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -118,9 +123,8 @@ export function UserManagementTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => {
+                {agents.map((user) => {
                   const accountStatus = getAccountStatus(user);
-                  const isAgent = user.role === 'independent_agent' || user.role === 'internal_tig_agent';
                   return (
                     <TableRow 
                       key={user.id} 
