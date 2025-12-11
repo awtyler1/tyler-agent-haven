@@ -45,14 +45,21 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
             </div>
             <h2 className="text-base font-semibold">Training & Certificates</h2>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            Enter your training information and upload certificates
+          <p className="text-[10px] text-muted-foreground mt-0.5 max-w-md mx-auto leading-relaxed">
+            Upload any certificates you have ready now. If something is missing, 
+            you can continue and upload it later—our team will guide you.
           </p>
         </div>
-        <CardContent className="space-y-4 py-3">
+        <CardContent className="space-y-3 py-3">
           {/* AML Training */}
-          <div className="p-3 border rounded-lg space-y-3">
-            <h3 className="font-medium text-sm">AML (Anti-Money Laundering) Training</h3>
+          <div className="p-3 border rounded-lg space-y-2.5">
+            <div>
+              <h3 className="font-medium text-sm">AML (Anti-Money Laundering) Training</h3>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                Required for carrier appointments. Don't have your certificate yet? 
+                You can continue setup and upload it before final submission.
+              </p>
+            </div>
             <div className="grid gap-3 grid-cols-2">
               <div className="space-y-1">
                 <Label htmlFor="aml_training_provider" className="text-xs">Training Provider</Label>
@@ -104,17 +111,22 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
           </div>
 
           {/* CE Training */}
-          <div className="p-3 border rounded-lg space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium text-sm">Continuing Education (CE)</h3>
-              <div className="flex items-center gap-1.5">
+          <div className="p-3 border rounded-lg space-y-2.5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">Continuing Education (CE)</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  Requirements vary by state. We'll confirm what's needed based on your license.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 pt-0.5">
                 <Checkbox
                   id="state_requires_ce"
                   checked={application.state_requires_ce}
                   onCheckedChange={checked => onUpdate('state_requires_ce', !!checked)}
                   className="h-3.5 w-3.5"
                 />
-                <Label htmlFor="state_requires_ce" className="text-xs font-normal cursor-pointer">
+                <Label htmlFor="state_requires_ce" className="text-xs font-normal cursor-pointer whitespace-nowrap">
                   My state requires CE
                 </Label>
               </div>
@@ -144,17 +156,22 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
           </div>
 
           {/* LTC Certification */}
-          <div className="p-3 border rounded-lg space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium text-sm">Long-Term Care Partnership</h3>
-              <div className="flex items-center gap-1.5">
+          <div className="p-3 border rounded-lg space-y-2.5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">Long-Term Care Partnership</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  Only needed if you plan to sell long-term care products. Skip if not applicable.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 pt-0.5">
                 <Checkbox
                   id="has_ltc_certification"
                   checked={application.has_ltc_certification}
                   onCheckedChange={checked => onUpdate('has_ltc_certification', !!checked)}
                   className="h-3.5 w-3.5"
                 />
-                <Label htmlFor="has_ltc_certification" className="text-xs font-normal cursor-pointer">
+                <Label htmlFor="has_ltc_certification" className="text-xs font-normal cursor-pointer whitespace-nowrap">
                   I have LTC certification
                 </Label>
               </div>
