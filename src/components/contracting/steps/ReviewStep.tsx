@@ -50,21 +50,27 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card className="border-0 shadow-lg">
+      <Card 
+        className="border-0 rounded-[24px]"
+        style={{ 
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
+          boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
+        }}
+      >
         {/* Progress + Header */}
-        <div className="pt-3 pb-2 text-center border-b border-border/30">
+        <div className="pt-4 pb-3 text-center border-b border-border/20">
           <WizardProgress {...progressProps} compact />
-          <div className="flex items-center justify-center gap-2 mt-2">
-            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-              <ClipboardCheck className="h-3.5 w-3.5 text-primary" />
+          <div className="flex items-center justify-center gap-2.5 mt-2">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <ClipboardCheck className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-base font-semibold">Review & Submit</h2>
+            <h2 className="text-lg font-semibold font-serif" style={{ letterSpacing: '0.015em' }}>Review & Submit</h2>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-[11px] text-muted-foreground/60 mt-1">
             Review your application before submitting
           </p>
         </div>
-        <CardContent className="space-y-4 py-3">
+        <CardContent className="space-y-4 py-4 px-6">
           {/* Summary */}
           <div className="grid gap-3 grid-cols-2">
             <div className="p-3 bg-muted/50 rounded-lg">

@@ -49,10 +49,10 @@ export function ContractingWizard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading your application...</p>
+          <p className="text-sm text-muted-foreground/70">Loading your application...</p>
         </div>
       </div>
     );
@@ -60,8 +60,8 @@ export function ContractingWizard() {
 
   if (!application) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
-        <p>Unable to load application</p>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
+        <p className="text-muted-foreground">Unable to load application</p>
       </div>
     );
   }
@@ -69,20 +69,33 @@ export function ContractingWizard() {
   // Show submitted state
   if (application.status === 'submitted') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center p-4">
-        <Card className="max-w-lg w-full text-center">
-          <CardHeader className="space-y-4">
-            <img src={tylerLogo} alt="Tyler Insurance Group" className="h-12 mx-auto" />
-            <div className="mx-auto w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
+        <Card 
+          className="max-w-lg w-full text-center rounded-[28px] border-0"
+          style={{ 
+            background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
+            boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
+          }}
+        >
+          <CardHeader className="space-y-6 pt-12">
+            <div className="relative pb-6">
+              <img src={tylerLogo} alt="Tyler Insurance Group" className="h-14 mx-auto" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+            </div>
+            <div className="mx-auto w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center">
               <Clock className="h-8 w-8 text-amber-600" />
             </div>
-            <CardTitle className="text-2xl">Contracting Under Review</CardTitle>
+            <CardTitle className="text-2xl font-serif" style={{ letterSpacing: '0.025em' }}>Contracting Under Review</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
+          <CardContent className="space-y-6 pb-12 px-10">
+            <p className="text-muted-foreground/70 text-[15px] leading-relaxed">
               Your contracting documents have been submitted and are being reviewed. You'll receive an email once approved.
             </p>
-            <Button variant="outline" onClick={handleLogout} className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleLogout} 
+              className="gap-2 h-12 px-6 border-foreground/12 hover:bg-secondary/30 rounded-2xl"
+            >
               <LogOut className="h-4 w-4" />
               Log Out
             </Button>
@@ -199,9 +212,9 @@ export function ContractingWizard() {
   const isEarlyStep = application.current_step <= 2;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
       {/* Header with logo and logout - subtle on early steps */}
-      <div className={`border-b bg-background/80 backdrop-blur-sm ${isEarlyStep ? 'border-transparent' : ''}`}>
+      <div className={`border-b backdrop-blur-sm ${isEarlyStep ? 'border-transparent bg-transparent' : 'border-border/20 bg-white/60'}`}>
         <div className="container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           {isEarlyStep ? (
             <div /> 
@@ -224,7 +237,7 @@ export function ContractingWizard() {
         {/* Saving indicator - fixed height to prevent layout shift */}
         <div className="h-5 flex items-center justify-center">
           {saving && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
               <Loader2 className="h-3 w-3 animate-spin" />
               Saving...
             </div>
