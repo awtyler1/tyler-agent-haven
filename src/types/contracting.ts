@@ -75,6 +75,9 @@ export interface ContractingApplication {
   eo_provider: string | null;
   eo_policy_number: string | null;
   eo_expiration_date: string | null;
+  is_finra_registered: boolean;
+  finra_broker_dealer_name: string | null;
+  finra_crd_number: string | null;
   
   // Step 7: Carriers
   selected_carriers: SelectedCarrier[];
@@ -300,6 +303,9 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   eo_provider: null,
   eo_policy_number: null,
   eo_expiration_date: null,
+  is_finra_registered: false,
+  finra_broker_dealer_name: null,
+  finra_crd_number: null,
   selected_carriers: [],
   is_corporation: false,
   agreements: {},

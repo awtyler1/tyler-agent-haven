@@ -72,6 +72,8 @@ export type Database = {
           drivers_license_state: string | null
           email_address: string | null
           fax: string | null
+          finra_broker_dealer_name: string | null
+          finra_crd_number: string | null
           full_legal_name: string | null
           gender: string | null
           has_ltc_certification: boolean | null
@@ -79,6 +81,7 @@ export type Database = {
           id: string
           insurance_license_number: string | null
           is_corporation: boolean | null
+          is_finra_registered: boolean | null
           legal_questions: Json | null
           license_expiration_date: string | null
           mailing_address: Json | null
@@ -125,6 +128,8 @@ export type Database = {
           drivers_license_state?: string | null
           email_address?: string | null
           fax?: string | null
+          finra_broker_dealer_name?: string | null
+          finra_crd_number?: string | null
           full_legal_name?: string | null
           gender?: string | null
           has_ltc_certification?: boolean | null
@@ -132,6 +137,7 @@ export type Database = {
           id?: string
           insurance_license_number?: string | null
           is_corporation?: boolean | null
+          is_finra_registered?: boolean | null
           legal_questions?: Json | null
           license_expiration_date?: string | null
           mailing_address?: Json | null
@@ -178,6 +184,8 @@ export type Database = {
           drivers_license_state?: string | null
           email_address?: string | null
           fax?: string | null
+          finra_broker_dealer_name?: string | null
+          finra_crd_number?: string | null
           full_legal_name?: string | null
           gender?: string | null
           has_ltc_certification?: boolean | null
@@ -185,6 +193,7 @@ export type Database = {
           id?: string
           insurance_license_number?: string | null
           is_corporation?: boolean | null
+          is_finra_registered?: boolean | null
           legal_questions?: Json | null
           license_expiration_date?: string | null
           mailing_address?: Json | null
