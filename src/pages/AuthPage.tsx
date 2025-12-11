@@ -88,6 +88,15 @@ export default function AuthPage() {
       return;
     }
     
+    // Client-side rate limiting
+    const lastSubmission = localStorage.getItem('inquiry_last_submit');
+    const cooldownMs = 10 * 60 * 1000; // 10 minutes
+    if (lastSubmission && Date.now() - parseInt(lastSubmission) < cooldownMs) {
+      const minutesLeft = Math.ceil((cooldownMs - (Date.now() - parseInt(lastSubmission))) / 60000);
+      toast.error(`Please wait ${minutesLeft} minute(s) before submitting again.`);
+      return;
+    }
+    
     setInquirySubmitting(true);
 
     try {
@@ -104,11 +113,18 @@ export default function AuthPage() {
         throw error;
       }
 
+      // Store submission time for client-side rate limiting
+      localStorage.setItem('inquiry_last_submit', Date.now().toString());
+      
       setInquirySubmitted(true);
       toast.success('Inquiry sent! We\'ll be in touch soon.');
     } catch (err: any) {
       console.error('Inquiry error:', err);
-      toast.error('Failed to send inquiry. Please try again or contact us directly.');
+      if (err?.message?.includes('429') || err?.message?.includes('Too many')) {
+        toast.error('Too many requests. Please try again later.');
+      } else {
+        toast.error('Failed to send inquiry. Please try again or contact us directly.');
+      }
     } finally {
       setInquirySubmitting(false);
     }

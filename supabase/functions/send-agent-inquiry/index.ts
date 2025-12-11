@@ -15,6 +15,31 @@ interface AgentInquiryRequest {
   message: string;
 }
 
+// Simple in-memory rate limiting (resets on function cold start)
+const rateLimitMap = new Map<string, number>();
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_REQUESTS_PER_WINDOW = 2;
+
+function isRateLimited(email: string): boolean {
+  const now = Date.now();
+  const key = email.toLowerCase().trim();
+  
+  // Clean up old entries
+  for (const [k, timestamp] of rateLimitMap.entries()) {
+    if (now - timestamp > RATE_LIMIT_WINDOW_MS) {
+      rateLimitMap.delete(k);
+    }
+  }
+  
+  const lastRequest = rateLimitMap.get(key);
+  if (lastRequest && (now - lastRequest) < RATE_LIMIT_WINDOW_MS) {
+    return true;
+  }
+  
+  rateLimitMap.set(key, now);
+  return false;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -32,6 +57,18 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ error: "Name and email are required" }),
         {
           status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Check rate limit
+    if (isRateLimited(email)) {
+      console.log("Rate limited:", email);
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please try again later." }),
+        {
+          status: 429,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
