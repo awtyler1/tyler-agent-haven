@@ -219,6 +219,38 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
               </div>
             </div>
 
+            {/* Driver's License Fields */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5" data-field="drivers_license_number">
+                <Label htmlFor="drivers_license_number" className="text-xs">Driver's License # *</Label>
+                <Input
+                  id="drivers_license_number"
+                  value={application.drivers_license_number || ''}
+                  onChange={e => onUpdate('drivers_license_number', e.target.value)}
+                  placeholder="Enter license number"
+                  className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.drivers_license_number, showErrors))}
+                />
+                <FormFieldError error={validation.fieldErrors.drivers_license_number} show={showErrors} />
+              </div>
+              <div className="space-y-1.5" data-field="drivers_license_state">
+                <Label htmlFor="drivers_license_state" className="text-xs">Driver's License State *</Label>
+                <Select
+                  value={application.drivers_license_state || ''}
+                  onValueChange={value => onUpdate('drivers_license_state', value)}
+                >
+                  <SelectTrigger className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.drivers_license_state, showErrors))}>
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {US_STATES.map(state => (
+                      <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormFieldError error={validation.fieldErrors.drivers_license_state} show={showErrors} />
+              </div>
+            </div>
+
           </div>
 
           {/* Section 2: Insurance Licensing */}
