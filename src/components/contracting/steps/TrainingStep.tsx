@@ -5,11 +5,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { GraduationCap, Shield, ArrowRight, BookOpen, Heart, ExternalLink, Briefcase } from 'lucide-react';
+import { GraduationCap, Shield, ArrowRight, BookOpen, Heart, ExternalLink, Briefcase, AlertCircle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
 import { FileDropZone } from '../FileDropZone';
+import { validateTraining } from '@/hooks/useContractingValidation';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { cn } from '@/lib/utils';
+import { useMemo, useState, useRef } from 'react';
 
 interface ProgressProps {
   currentStep: number;
@@ -29,17 +33,26 @@ interface TrainingStepProps {
 }
 
 export function TrainingStep({ application, initials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: TrainingStepProps) {
+  const [showErrors, setShowErrors] = useState(false);
+  const firstErrorRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
   };
 
-  // Validation for FINRA fields
-  const finraValid = !application.is_finra_registered || 
-    (application.finra_broker_dealer_name?.trim() && application.finra_crd_number?.trim());
+  // Validation
+  const validation = useMemo(() => validateTraining(application), [application]);
+  const { fieldErrors } = validation;
 
   const handleContinue = () => {
-    if (!finraValid) return;
+    if (!validation.isValid) {
+      setShowErrors(true);
+      setTimeout(() => {
+        firstErrorRef.current?.focus();
+        firstErrorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      return;
+    }
     onContinue();
   };
 
@@ -245,22 +258,26 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
                 <div className="space-y-1.5">
                   <Label htmlFor="finra_broker_dealer" className="text-xs">Broker/Dealer Name *</Label>
                   <Input
+                    ref={fieldErrors.finra_broker_dealer_name ? firstErrorRef : undefined}
                     id="finra_broker_dealer"
                     value={application.finra_broker_dealer_name || ''}
                     onChange={e => onUpdate('finra_broker_dealer_name', e.target.value)}
                     placeholder="Enter broker/dealer name"
-                    className="h-8 text-xs"
+                    className={cn("h-8 text-xs", getFieldErrorClass(!!fieldErrors.finra_broker_dealer_name, showErrors))}
                   />
+                  <FormFieldError error={fieldErrors.finra_broker_dealer_name} show={showErrors} />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="finra_crd" className="text-xs">CRD # *</Label>
                   <Input
+                    ref={!fieldErrors.finra_broker_dealer_name && fieldErrors.finra_crd_number ? firstErrorRef : undefined}
                     id="finra_crd"
                     value={application.finra_crd_number || ''}
                     onChange={e => onUpdate('finra_crd_number', e.target.value)}
                     placeholder="Enter CRD number"
-                    className="h-8 text-xs"
+                    className={cn("h-8 text-xs", getFieldErrorClass(!!fieldErrors.finra_crd_number, showErrors))}
                   />
+                  <FormFieldError error={fieldErrors.finra_crd_number} show={showErrors} />
                 </div>
               </div>
             )}
@@ -270,6 +287,14 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
           <p className="text-xs text-muted-foreground text-center mt-4 mb-4">
             You can continue without completing this step. We'll follow up on anything needed before appointments are finalized.
           </p>
+
+          {/* Validation indicator - only show after clicking Continue */}
+          {showErrors && !validation.isValid && (
+            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg animate-fade-in">
+              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>Please complete all required FINRA fields above</span>
+            </div>
+          )}
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={initials} />
@@ -283,7 +308,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
               <ArrowRight className="h-3 w-3" />
               <span className="text-foreground/70">Next: Carrier Selection</span>
             </p>
-            <Button onClick={handleContinue} disabled={!finraValid}>
+            <Button onClick={handleContinue}>
               Continue
             </Button>
           </div>
