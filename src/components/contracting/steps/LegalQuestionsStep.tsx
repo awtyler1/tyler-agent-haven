@@ -4,8 +4,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
-import { AlertTriangle, Upload } from 'lucide-react';
-import { useRef } from 'react';
+import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, Info, ArrowRight } from 'lucide-react';
+import { useRef, useMemo } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WizardProgress } from '../WizardProgress';
 
@@ -23,6 +23,26 @@ interface LegalQuestionsStepProps {
   onContinue: () => void;
   progressProps: ProgressProps;
 }
+
+// Group questions: primary questions and their sub-questions
+const groupedQuestions = LEGAL_QUESTIONS.reduce((acc, question) => {
+  const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;
+  
+  if (!isSubQuestion) {
+    acc.push({
+      primary: question,
+      subQuestions: [] as typeof LEGAL_QUESTIONS[number][],
+    });
+  } else {
+    // Find the parent by matching the number prefix (e.g., "1a" belongs to "1")
+    const parentId = question.id.replace(/[a-z]+$/, '');
+    const parentGroup = acc.find(g => g.primary.id === parentId);
+    if (parentGroup) {
+      parentGroup.subQuestions.push(question);
+    }
+  }
+  return acc;
+}, [] as { primary: typeof LEGAL_QUESTIONS[number]; subQuestions: typeof LEGAL_QUESTIONS[number][] }[]);
 
 export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,71 +69,164 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
   };
 
   const hasYesAnswers = Object.values(legalQuestions).some(q => q.answer === true);
+  
+  // Count answered questions for progress
+  const answeredCount = useMemo(() => {
+    return groupedQuestions.filter(g => legalQuestions[g.primary.id]?.answer !== undefined && legalQuestions[g.primary.id]?.answer !== null).length;
+  }, [legalQuestions]);
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <Card className="border-0 shadow-lg">
         {/* Progress + Header */}
-        <div className="pt-3 pb-2 text-center border-b border-border/30">
+        <div className="pt-4 pb-3 text-center border-b border-border/30">
           <WizardProgress {...progressProps} compact />
-          <div className="flex items-center justify-center gap-2 mt-2">
-            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-              <AlertTriangle className="h-3.5 w-3.5 text-primary" />
+          <div className="flex items-center justify-center gap-2.5 mt-3">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <ClipboardCheck className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-base font-semibold">Background Questions</h2>
+            <h2 className="text-lg font-semibold">Background Questions</h2>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            Answer each question. If Yes, provide details below.
+          <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
+            Standard compliance questions required by our carrier partners.
+            <br />
+            <span className="text-muted-foreground/70">Most agents answer "No" to all and continue in under a minute.</span>
           </p>
         </div>
-        <CardContent className="space-y-3 py-3">
-          <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-2">
-              {LEGAL_QUESTIONS.map((question) => {
-                const answer = legalQuestions[question.id];
-                const showExplanation = answer?.answer === true;
-                const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;
-                const isParent = 'isParent' in question && question.isParent;
+
+        <CardContent className="py-5 px-6">
+          {/* Progress indicator */}
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/30">
+            <span className="text-xs text-muted-foreground">
+              {answeredCount} of {groupedQuestions.length} answered
+            </span>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Info className="h-3 w-3" />
+              <span>Answer each question to continue</span>
+            </div>
+          </div>
+
+          <ScrollArea className="h-[340px] pr-4">
+            <div className="space-y-3">
+              {groupedQuestions.map((group, index) => {
+                const primaryAnswer = legalQuestions[group.primary.id];
+                const showSubQuestions = primaryAnswer?.answer === true && group.subQuestions.length > 0;
+                const isAnswered = primaryAnswer?.answer !== undefined && primaryAnswer?.answer !== null;
+                const isNo = primaryAnswer?.answer === false;
+                const hasSubQuestions = group.subQuestions.length > 0;
 
                 return (
                   <div 
-                    key={question.id} 
-                    className={`space-y-1.5 pb-2 ${isSubQuestion ? 'ml-6 border-l-2 border-muted pl-3' : 'border-b last:border-0'} ${isParent ? 'bg-muted/30 p-2 rounded' : ''}`}
+                    key={group.primary.id} 
+                    className={`rounded-lg border transition-all ${
+                      isNo 
+                        ? 'border-border/30 bg-muted/10' 
+                        : primaryAnswer?.answer === true
+                          ? 'border-amber-200/50 bg-amber-50/30 dark:border-amber-900/30 dark:bg-amber-950/10'
+                          : 'border-border/50 bg-background'
+                    }`}
                   >
-                    <div className="flex gap-2 items-start">
-                      <span className={`font-medium text-xs text-muted-foreground shrink-0 ${isSubQuestion ? 'w-6' : 'w-5'}`}>
-                        {question.id.toUpperCase()}.
-                      </span>
-                      <p className={`text-xs flex-1 ${isParent ? 'font-medium' : ''}`}>{question.text}</p>
-                      <RadioGroup
-                        value={answer?.answer === true ? 'yes' : answer?.answer === false ? 'no' : ''}
-                        onValueChange={value => handleAnswerChange(question.id, value === 'yes')}
-                        className="flex gap-3 shrink-0"
-                      >
-                        <div className="flex items-center gap-1">
-                          <RadioGroupItem value="yes" id={`${question.id}_yes`} className="h-3 w-3" />
-                          <Label htmlFor={`${question.id}_yes`} className="text-xs font-normal cursor-pointer">
-                            Yes
-                          </Label>
+                    {/* Primary Question */}
+                    <div className="p-3">
+                      <div className="flex gap-3 items-start">
+                        <span className="text-xs font-semibold text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded shrink-0">
+                          {index + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm leading-relaxed pr-2">{group.primary.text}</p>
+                          {hasSubQuestions && !showSubQuestions && (
+                            <p className="text-[10px] text-muted-foreground/60 mt-1 flex items-center gap-1">
+                              <ChevronRight className="h-2.5 w-2.5" />
+                              {isNo ? 'No follow-up needed' : 'Answering "Yes" will show follow-up questions'}
+                            </p>
+                          )}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <RadioGroupItem value="no" id={`${question.id}_no`} className="h-3 w-3" />
-                          <Label htmlFor={`${question.id}_no`} className="text-xs font-normal cursor-pointer">
-                            No
-                          </Label>
+                        <RadioGroup
+                          value={primaryAnswer?.answer === true ? 'yes' : primaryAnswer?.answer === false ? 'no' : ''}
+                          onValueChange={value => handleAnswerChange(group.primary.id, value === 'yes')}
+                          className="flex gap-2 shrink-0"
+                        >
+                          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
+                            primaryAnswer?.answer === false 
+                              ? 'border-primary/50 bg-primary/5 text-primary' 
+                              : 'border-border/50 hover:border-border'
+                          }`}>
+                            <RadioGroupItem value="no" id={`${group.primary.id}_no`} className="h-3.5 w-3.5" />
+                            <Label htmlFor={`${group.primary.id}_no`} className="text-xs font-medium cursor-pointer">
+                              No
+                            </Label>
+                          </div>
+                          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
+                            primaryAnswer?.answer === true 
+                              ? 'border-amber-400/50 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400' 
+                              : 'border-border/50 hover:border-border'
+                          }`}>
+                            <RadioGroupItem value="yes" id={`${group.primary.id}_yes`} className="h-3.5 w-3.5" />
+                            <Label htmlFor={`${group.primary.id}_yes`} className="text-xs font-medium cursor-pointer">
+                              Yes
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+
+                      {/* Explanation for primary question if Yes and no sub-questions */}
+                      {primaryAnswer?.answer === true && group.subQuestions.length === 0 && (
+                        <div className="mt-3 ml-7">
+                          <Textarea
+                            value={primaryAnswer?.explanation || ''}
+                            onChange={e => handleExplanationChange(group.primary.id, e.target.value)}
+                            placeholder="Please provide details including dates and circumstances..."
+                            rows={2}
+                            className="text-sm bg-background"
+                          />
                         </div>
-                      </RadioGroup>
+                      )}
                     </div>
 
-                    {showExplanation && (
-                      <div className={`p-2 bg-muted/50 rounded ${isSubQuestion ? '' : 'ml-5'}`}>
-                        <Textarea
-                          value={answer?.explanation || ''}
-                          onChange={e => handleExplanationChange(question.id, e.target.value)}
-                          placeholder="Explain with dates and details..."
-                          rows={2}
-                          className="text-xs"
-                        />
+                    {/* Sub-questions (progressive disclosure) */}
+                    {showSubQuestions && (
+                      <div className="border-t border-amber-200/30 dark:border-amber-900/20 bg-amber-50/20 dark:bg-amber-950/5 px-3 py-2 space-y-2">
+                        <p className="text-[10px] text-amber-700/70 dark:text-amber-400/70 font-medium ml-7">
+                          Please answer the following related questions:
+                        </p>
+                        {group.subQuestions.map(subQ => {
+                          const subAnswer = legalQuestions[subQ.id];
+                          return (
+                            <div key={subQ.id} className="ml-7 pl-3 border-l-2 border-amber-300/40 dark:border-amber-700/30">
+                              <div className="flex gap-2 items-start">
+                                <span className="text-[10px] font-medium text-amber-600/70 dark:text-amber-500/70 shrink-0 uppercase">
+                                  {subQ.id}.
+                                </span>
+                                <p className="text-xs flex-1 text-muted-foreground leading-relaxed">{subQ.text}</p>
+                                <RadioGroup
+                                  value={subAnswer?.answer === true ? 'yes' : subAnswer?.answer === false ? 'no' : ''}
+                                  onValueChange={value => handleAnswerChange(subQ.id, value === 'yes')}
+                                  className="flex gap-2 shrink-0"
+                                >
+                                  <div className="flex items-center gap-1">
+                                    <RadioGroupItem value="no" id={`${subQ.id}_no`} className="h-3 w-3" />
+                                    <Label htmlFor={`${subQ.id}_no`} className="text-[10px] cursor-pointer">No</Label>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <RadioGroupItem value="yes" id={`${subQ.id}_yes`} className="h-3 w-3" />
+                                    <Label htmlFor={`${subQ.id}_yes`} className="text-[10px] cursor-pointer">Yes</Label>
+                                  </div>
+                                </RadioGroup>
+                              </div>
+                              {subAnswer?.answer === true && (
+                                <div className="mt-2">
+                                  <Textarea
+                                    value={subAnswer?.explanation || ''}
+                                    onChange={e => handleExplanationChange(subQ.id, e.target.value)}
+                                    placeholder="Please explain..."
+                                    rows={2}
+                                    className="text-xs bg-background"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -122,8 +235,9 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
             </div>
           </ScrollArea>
 
+          {/* Supporting documents upload (only if Yes answers) */}
           {hasYesAnswers && (
-            <div className="flex items-center gap-3 pt-2 border-t">
+            <div className="flex items-center gap-3 pt-4 mt-4 border-t border-border/50">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -135,22 +249,36 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
                 variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                className="h-7 text-xs"
+                className={application.uploaded_documents?.background_explanation_docs ? 'text-primary border-primary/30' : ''}
               >
-                <Upload className="h-3 w-3 mr-1" />
-                {application.uploaded_documents?.background_explanation_docs
-                  ? '✓ Docs uploaded'
-                  : 'Upload supporting docs'}
+                {application.uploaded_documents?.background_explanation_docs ? (
+                  <><CheckCircle2 className="h-3.5 w-3.5 mr-1.5 text-primary" />Documents uploaded</>
+                ) : (
+                  <><Upload className="h-3.5 w-3.5 mr-1.5" />Upload supporting documents</>
+                )}
               </Button>
-              <span className="text-xs text-muted-foreground">Optional: court docs, letters, etc.</span>
+              <span className="text-xs text-muted-foreground">Optional: court documents, letters, etc.</span>
             </div>
           )}
 
-          <div className="flex justify-between pt-2">
-            <Button variant="outline" onClick={onBack} size="sm">
+          {/* Reassurance message */}
+          <div className="mt-4 p-3 rounded-lg bg-muted/30 border border-border/30">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <span className="font-medium text-foreground/80">Honesty matters.</span> Answering "Yes" to any question does not automatically disqualify you. 
+              Disclosures are reviewed individually as part of standard carrier compliance. If you have questions, reach out before submitting.
+            </p>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between pt-4 mt-4 border-t">
+            <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
               Back
             </Button>
-            <Button onClick={onContinue} size="sm">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <ArrowRight className="h-3 w-3" />
+              <span className="text-foreground/70">Next: Banking</span>
+            </p>
+            <Button onClick={onContinue}>
               Continue
             </Button>
           </div>
