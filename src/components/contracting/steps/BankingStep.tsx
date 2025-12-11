@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { Landmark, Upload } from 'lucide-react';
+import { Landmark, Upload, Shield, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useRef } from 'react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
 
 interface ProgressProps {
@@ -31,119 +32,167 @@ export function BankingStep({ application, onUpdate, onUpload, onBack, onContinu
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <Card className="border-0 shadow-lg">
         {/* Progress + Header */}
-        <div className="pt-3 pb-2 text-center border-b border-border/30">
+        <div className="pt-4 pb-3 text-center border-b border-border/30">
           <WizardProgress {...progressProps} compact />
-          <div className="flex items-center justify-center gap-2 mt-2">
-            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-              <Landmark className="h-3.5 w-3.5 text-primary" />
+          <div className="flex items-center justify-center gap-2.5 mt-3">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <Landmark className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-base font-semibold">Banking & Direct Deposit</h2>
+            <h2 className="text-lg font-semibold">Commission Deposit</h2>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            For commission deposits. Be sure to attach a voided check.
+          <p className="text-xs text-muted-foreground mt-1.5 max-w-md mx-auto">
+            Where should we send your commissions?
           </p>
+          {/* Security reassurance */}
+          <div className="flex items-center justify-center gap-1.5 mt-2 text-[10px] text-muted-foreground/70">
+            <Shield className="h-3 w-3" />
+            <span>Banking details are encrypted and used only for commission deposits.</span>
+          </div>
         </div>
-        <CardContent className="space-y-4 py-3">
-          <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
-            <div className="space-y-1">
-              <Label htmlFor="bank_routing_number" className="text-xs">Bank Routing Number</Label>
-              <Input
-                id="bank_routing_number"
-                value={application.bank_routing_number || ''}
-                onChange={e => onUpdate('bank_routing_number', e.target.value)}
-                placeholder="123456789"
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="bank_account_number" className="text-xs">Account Number</Label>
-              <Input
-                id="bank_account_number"
-                value={application.bank_account_number || ''}
-                onChange={e => onUpdate('bank_account_number', e.target.value)}
-                placeholder="1234567890"
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="bank_branch_name" className="text-xs">Branch Name/Location</Label>
-              <Input
-                id="bank_branch_name"
-                value={application.bank_branch_name || ''}
-                onChange={e => onUpdate('bank_branch_name', e.target.value)}
-                placeholder="Main Street Branch"
-                className="h-8 text-sm"
-              />
+
+        <CardContent className="py-5 px-6 space-y-5">
+          {/* Section 1: Who receives commissions */}
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Account Holder</p>
+            <div className="grid gap-4 grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="beneficiary_name" className="text-sm">Name on Account</Label>
+                <Input
+                  id="beneficiary_name"
+                  value={application.beneficiary_name || ''}
+                  onChange={e => onUpdate('beneficiary_name', e.target.value)}
+                  placeholder="John Doe"
+                  className="h-9"
+                />
+                <p className="text-[10px] text-muted-foreground/70">Must match the name on your bank account.</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="beneficiary_relationship" className="text-sm">Relationship to You</Label>
+                <Input
+                  id="beneficiary_relationship"
+                  value={application.beneficiary_relationship || ''}
+                  onChange={e => onUpdate('beneficiary_relationship', e.target.value)}
+                  placeholder='Self, Spouse, Business...'
+                  className="h-9"
+                />
+                <p className="text-[10px] text-muted-foreground/70">Enter "Self" if this is your personal account.</p>
+              </div>
             </div>
           </div>
 
-          <div className="grid gap-3 grid-cols-2">
-            <div className="space-y-1">
-              <Label htmlFor="beneficiary_name" className="text-xs">Beneficiary Name</Label>
-              <Input
-                id="beneficiary_name"
-                value={application.beneficiary_name || ''}
-                onChange={e => onUpdate('beneficiary_name', e.target.value)}
-                placeholder="John Doe"
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="beneficiary_relationship" className="text-xs">Relationship to Agent</Label>
-              <Input
-                id="beneficiary_relationship"
-                value={application.beneficiary_relationship || ''}
-                onChange={e => onUpdate('beneficiary_relationship', e.target.value)}
-                placeholder="Spouse"
-                className="h-8 text-sm"
-              />
+          {/* Section 2: Where commissions are deposited */}
+          <div className="space-y-3 pt-2 border-t border-border/30">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Bank Details</p>
+            <div className="grid gap-4 grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="bank_routing_number" className="text-sm">Routing Number</Label>
+                <Input
+                  id="bank_routing_number"
+                  value={application.bank_routing_number || ''}
+                  onChange={e => onUpdate('bank_routing_number', e.target.value)}
+                  placeholder="123456789"
+                  className="h-9"
+                />
+                <p className="text-[10px] text-muted-foreground/70">9-digit number</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="bank_account_number" className="text-sm">Account Number</Label>
+                <Input
+                  id="bank_account_number"
+                  value={application.bank_account_number || ''}
+                  onChange={e => onUpdate('bank_account_number', e.target.value)}
+                  placeholder="1234567890"
+                  className="h-9"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="bank_branch_name" className="text-sm flex items-center gap-1">
+                  Bank Name <span className="text-muted-foreground/50 font-normal">optional</span>
+                </Label>
+                <Input
+                  id="bank_branch_name"
+                  value={application.bank_branch_name || ''}
+                  onChange={e => onUpdate('bank_branch_name', e.target.value)}
+                  placeholder="Chase, Wells Fargo..."
+                  className="h-9"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
-            <Checkbox
-              id="requesting_commission_advancing"
-              checked={application.requesting_commission_advancing}
-              onCheckedChange={checked => onUpdate('requesting_commission_advancing', !!checked)}
-              className="h-4 w-4"
+          {/* Section 3: Account verification */}
+          <div className="space-y-3 pt-2 border-t border-border/30">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Account Verification</p>
+                <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                  Prevents payment errors and confirms account ownership.
+                </p>
+              </div>
+            </div>
+            <input
+              type="file"
+              ref={checkInputRef}
+              onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'voided_check')}
+              accept=".pdf,.jpg,.jpeg,.png"
+              className="hidden"
             />
-            <Label htmlFor="requesting_commission_advancing" className="text-sm font-normal cursor-pointer">
-              I am requesting commission advancing
-            </Label>
+            <Button
+              variant="outline"
+              className={`w-full justify-start h-10 ${
+                application.uploaded_documents?.voided_check 
+                  ? 'border-primary/30 bg-primary/5' 
+                  : ''
+              }`}
+              onClick={() => checkInputRef.current?.click()}
+            >
+              {application.uploaded_documents?.voided_check ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-2 text-primary" />
+                  <span className="text-primary">Voided check uploaded</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload voided check or bank letter
+                </>
+              )}
+            </Button>
           </div>
 
-          <div className="pt-2 border-t">
-            <div className="space-y-1">
-              <Label className="text-xs">Voided Check</Label>
-              <input
-                type="file"
-                ref={checkInputRef}
-                onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'voided_check')}
-                accept=".pdf,.jpg,.jpeg,.png"
-                className="hidden"
+          {/* Commission advancing option */}
+          <div className="pt-2 border-t border-border/30">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="requesting_commission_advancing"
+                checked={application.requesting_commission_advancing}
+                onCheckedChange={checked => onUpdate('requesting_commission_advancing', !!checked)}
+                className="mt-0.5"
               />
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start h-8 text-xs"
-                onClick={() => checkInputRef.current?.click()}
-              >
-                <Upload className="h-3 w-3 mr-2" />
-                {application.uploaded_documents?.voided_check
-                  ? '✓ Voided check uploaded'
-                  : 'Upload voided check'}
-              </Button>
+              <div className="space-y-1">
+                <Label htmlFor="requesting_commission_advancing" className="text-sm font-normal cursor-pointer">
+                  I'd like to request commission advancing
+                </Label>
+                <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
+                  Optional. Receive a portion of your commission upfront when policies are issued, rather than waiting for the standard payment cycle.
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-between pt-2">
-            <Button variant="outline" onClick={onBack} size="sm">
+          {/* Navigation */}
+          <div className="flex items-center justify-between pt-4 border-t">
+            <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
               Back
             </Button>
-            <Button onClick={onContinue} size="sm">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <ArrowRight className="h-3 w-3" />
+              <span className="text-foreground/70">Next: Training</span>
+            </p>
+            <Button onClick={onContinue}>
               Continue
             </Button>
           </div>
