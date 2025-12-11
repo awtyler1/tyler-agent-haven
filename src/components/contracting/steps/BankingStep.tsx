@@ -4,11 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { Landmark, Upload, Shield, CheckCircle2, ArrowRight, AlertCircle } from 'lucide-react';
-import { useRef, useMemo } from 'react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Landmark, Shield, ArrowRight, AlertCircle } from 'lucide-react';
+import { useMemo } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
+import { FileDropZone } from '../FileDropZone';
 import { validateBanking } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
 
@@ -29,7 +29,6 @@ interface BankingStepProps {
 }
 
 export function BankingStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: BankingStepProps) {
-  const checkInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
@@ -154,34 +153,12 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onBack,
                 </p>
               </div>
             </div>
-            <input
-              type="file"
-              ref={checkInputRef}
-              onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'voided_check')}
-              accept=".pdf,.jpg,.jpeg,.png"
-              className="hidden"
+            <FileDropZone
+              onFileSelect={(file) => handleFileUpload(file, 'voided_check')}
+              isUploaded={!!application.uploaded_documents?.voided_check}
+              uploadedLabel="Voided check uploaded"
+              defaultLabel="Upload voided check or bank letter"
             />
-            <Button
-              variant="outline"
-              className={`w-full justify-start h-10 ${
-                application.uploaded_documents?.voided_check 
-                  ? 'border-primary/30 bg-primary/5' 
-                  : ''
-              }`}
-              onClick={() => checkInputRef.current?.click()}
-            >
-              {application.uploaded_documents?.voided_check ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4 mr-2 text-primary" />
-                  <span className="text-primary">Voided check uploaded</span>
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload voided check or bank letter
-                </>
-              )}
-            </Button>
           </div>
 
           {/* Commission advancing option */}

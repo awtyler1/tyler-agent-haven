@@ -5,11 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
-import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle, Eye, EyeOff, CalendarIcon } from 'lucide-react';
-import { useRef, useState, useMemo } from 'react';
+import { Shield, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle, Eye, EyeOff, CalendarIcon } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
+import { FileDropZone } from '../FileDropZone';
 import { validateLicensing } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
 import { formatSSN, formatEIN, maskSSN, maskEIN } from '@/lib/formatters';
@@ -40,8 +41,6 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onBac
     !!(application.gender || application.drivers_license_number)
   );
   const [showTaxId, setShowTaxId] = useState(false);
-  const licenseInputRef = useRef<HTMLInputElement>(null);
-  const idInputRef = useRef<HTMLInputElement>(null);
 
   const handleNonResidentStatesChange = (stateCode: string, checked: boolean) => {
     const current = application.non_resident_states || [];
@@ -383,45 +382,21 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onBac
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs">License Copy *</Label>
-                <input
-                  type="file"
-                  ref={licenseInputRef}
-                  onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'insurance_license')}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="hidden"
+                <FileDropZone
+                  onFileSelect={(file) => handleFileUpload(file, 'insurance_license')}
+                  isUploaded={hasLicenseUploaded}
+                  uploadedLabel="Uploaded"
+                  defaultLabel="Upload"
                 />
-                <Button
-                  variant={hasLicenseUploaded ? "secondary" : "outline"}
-                  className={`w-full justify-start h-9 ${hasLicenseUploaded ? 'text-primary border-primary/30' : ''}`}
-                  onClick={() => licenseInputRef.current?.click()}
-                >
-                  {hasLicenseUploaded ? (
-                    <><CheckCircle2 className="h-4 w-4 mr-2 text-primary" />Uploaded</>
-                  ) : (
-                    <><Upload className="h-4 w-4 mr-2" />Upload</>
-                  )}
-                </Button>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Government ID *</Label>
-                <input
-                  type="file"
-                  ref={idInputRef}
-                  onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'government_id')}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="hidden"
+                <FileDropZone
+                  onFileSelect={(file) => handleFileUpload(file, 'government_id')}
+                  isUploaded={hasIdUploaded}
+                  uploadedLabel="Uploaded"
+                  defaultLabel="Upload"
                 />
-                <Button
-                  variant={hasIdUploaded ? "secondary" : "outline"}
-                  className={`w-full justify-start h-9 ${hasIdUploaded ? 'text-primary border-primary/30' : ''}`}
-                  onClick={() => idInputRef.current?.click()}
-                >
-                  {hasIdUploaded ? (
-                    <><CheckCircle2 className="h-4 w-4 mr-2 text-primary" />Uploaded</>
-                  ) : (
-                    <><Upload className="h-4 w-4 mr-2" />Upload</>
-                  )}
-                </Button>
               </div>
             </div>
           </div>
