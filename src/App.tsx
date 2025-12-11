@@ -61,12 +61,13 @@ function RecoveryRedirectHandler() {
   return null;
 }
 
-// Conditionally show chat widget (hide during contracting flow)
+// Conditionally show chat widget (hide during contracting flow and auth pages)
 function ConditionalChatWidget() {
   const location = useLocation();
-  const isContractingPage = location.pathname === '/contracting';
+  const hiddenPaths = ['/contracting', '/auth'];
+  const shouldHide = hiddenPaths.some(path => location.pathname.startsWith(path));
   
-  if (isContractingPage) return null;
+  if (shouldHide) return null;
   return <AgentChatWidget />;
 }
 
