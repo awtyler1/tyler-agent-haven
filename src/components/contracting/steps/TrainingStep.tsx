@@ -92,13 +92,15 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
-              <Input
-                type="date"
-                value={application.aml_completion_date || ''}
-                onChange={e => onUpdate('aml_completion_date', e.target.value)}
-                className="h-8 text-xs"
-                placeholder="Completion date"
-              />
+              {application.aml_training_provider && application.aml_training_provider !== 'none' && (
+                <Input
+                  type="date"
+                  value={application.aml_completion_date || ''}
+                  onChange={e => onUpdate('aml_completion_date', e.target.value)}
+                  className="h-8 text-xs"
+                  placeholder="Completion date"
+                />
+              )}
               {application.aml_training_provider === 'other' && (
                 <FileDropZone
                   onFileSelect={(file) => handleFileUpload(file, 'aml_certificate')}
