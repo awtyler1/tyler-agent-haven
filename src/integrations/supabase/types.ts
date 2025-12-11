@@ -21,6 +21,8 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          notes: string | null
+          product_tags: string[] | null
           requires_corporate_resolution: boolean
           requires_non_resident_states: boolean
           updated_at: string
@@ -31,6 +33,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           name: string
+          notes?: string | null
+          product_tags?: string[] | null
           requires_corporate_resolution?: boolean
           requires_non_resident_states?: boolean
           updated_at?: string
@@ -41,6 +45,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           name?: string
+          notes?: string | null
+          product_tags?: string[] | null
           requires_corporate_resolution?: boolean
           requires_non_resident_states?: boolean
           updated_at?: string
