@@ -109,6 +109,17 @@ export const validateLicensing = (app: ContractingApplication): ValidationResult
     fieldErrors.tax_id = VALIDATION_MESSAGES.invalidSSN;
   }
   
+  // Driver's License validation (required)
+  if (!app.drivers_license_number?.trim()) {
+    errors.push('Driver\'s license number is required');
+    fieldErrors.drivers_license_number = VALIDATION_MESSAGES.required;
+  }
+  
+  if (!app.drivers_license_state) {
+    errors.push('Driver\'s license state is required');
+    fieldErrors.drivers_license_state = VALIDATION_MESSAGES.selectRequired;
+  }
+  
   if (!app.npn_number?.trim()) {
     errors.push('NPN number is required');
     fieldErrors.npn_number = VALIDATION_MESSAGES.required;
