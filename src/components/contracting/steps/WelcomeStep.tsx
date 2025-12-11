@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,30 +22,10 @@ const requirements = [
   { icon: GraduationCap, title: 'CE Certificate', hint: 'If required by your state' },
 ];
 
-// Derive initials from full name
-function deriveInitials(name: string | null): string {
-  if (!name) return '';
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '';
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-}
-
 export function WelcomeStep({ fullName, initials, onInitialsChange, onContinue }: WelcomeStepProps) {
   const firstName = fullName?.split(' ')[0] || 'there';
   const [localInitials, setLocalInitials] = useState(initials || '');
   const [error, setError] = useState('');
-
-  // Auto-derive initials when name changes and initials are empty
-  useEffect(() => {
-    if (!localInitials && fullName) {
-      const derived = deriveInitials(fullName);
-      setLocalInitials(derived);
-      if (derived) {
-        onInitialsChange(derived);
-      }
-    }
-  }, [fullName]);
 
   const handleInitialsChange = (value: string) => {
     const cleaned = value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
