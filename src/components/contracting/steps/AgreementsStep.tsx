@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { PenTool, ArrowRight, Check } from 'lucide-react';
+import { PenTool, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
 
 interface ProgressProps {
@@ -49,38 +49,38 @@ export function AgreementsStep({ application, onUpdate, onBack, onContinue, prog
     <div className="max-w-3xl mx-auto">
       <Card className="border-0 shadow-lg">
         {/* Progress + Header */}
-        <div className="pt-2 pb-1.5 text-center border-b border-border/30">
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
           <WizardProgress {...progressProps} compact />
-          <div className="flex items-center justify-center gap-2 mt-1.5">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-              <PenTool className="h-3 w-3 text-primary" />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <PenTool className="h-3.5 w-3.5 text-primary" />
             </div>
-            <h2 className="text-sm font-semibold">Agreements & E-Signature</h2>
+            <h2 className="text-base font-semibold">Agreements & E-Signature</h2>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
             These agreements allow us to submit your contracting accurately.
           </p>
         </div>
 
-        <CardContent className="py-3 px-4 space-y-3">
-          {/* Required Agreements */}
-          <div className="space-y-1.5">
-            <h3 className="text-[10px] font-medium text-foreground/70 uppercase tracking-wide">Required for Contracting</h3>
-            <div className="space-y-1.5">
+        <CardContent className="py-4 px-5 space-y-4">
+          {/* Required Agreements Section */}
+          <div className="space-y-2">
+            <h3 className="text-[10px] font-medium text-foreground/80 uppercase tracking-wide">Required for Contracting</h3>
+            <div className="space-y-2">
               {REQUIRED_AGREEMENTS.map(agreement => (
                 <div 
                   key={agreement.id} 
-                  className={`flex items-center gap-2 py-1.5 px-2 rounded-md border transition-colors ${
+                  className={`flex items-center gap-3 p-2.5 rounded-lg border transition-colors ${
                     agreements[agreement.id] 
                       ? 'bg-primary/5 border-primary/20' 
-                      : 'border-border/40 hover:border-border'
+                      : 'bg-background border-border/50 hover:border-border'
                   }`}
                 >
                   <Checkbox
                     id={`agreement_${agreement.id}`}
                     checked={agreements[agreement.id] || false}
                     onCheckedChange={checked => handleAgreementChange(agreement.id, !!checked)}
-                    className="h-3.5 w-3.5"
+                    className="h-4 w-4"
                   />
                   <Label 
                     htmlFor={`agreement_${agreement.id}`} 
@@ -89,76 +89,86 @@ export function AgreementsStep({ application, onUpdate, onBack, onContinue, prog
                     {agreement.text}
                   </Label>
                   {agreements[agreement.id] && (
-                    <Check className="h-3 w-3 text-primary flex-shrink-0" />
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
                   )}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Optional + Signature Row */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Optional */}
-            <div className="space-y-1.5">
-              <h3 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Optional</h3>
-              {OPTIONAL_AGREEMENTS.map(agreement => (
-                <div 
-                  key={agreement.id} 
-                  className="flex items-center gap-2 py-1.5 px-2 rounded-md bg-muted/30 border border-border/30"
+          {/* Optional Communications Section */}
+          <div className="space-y-2">
+            <h3 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Optional Communications</h3>
+            {OPTIONAL_AGREEMENTS.map(agreement => (
+              <div 
+                key={agreement.id} 
+                className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 border border-border/30"
+              >
+                <Checkbox
+                  id={`agreement_${agreement.id}`}
+                  checked={agreements[agreement.id] || false}
+                  onCheckedChange={checked => handleAgreementChange(agreement.id, !!checked)}
+                  className="h-4 w-4"
+                />
+                <Label 
+                  htmlFor={`agreement_${agreement.id}`} 
+                  className="text-xs font-normal cursor-pointer text-muted-foreground flex-1"
                 >
-                  <Checkbox
-                    id={`agreement_${agreement.id}`}
-                    checked={agreements[agreement.id] || false}
-                    onCheckedChange={checked => handleAgreementChange(agreement.id, !!checked)}
-                    className="h-3.5 w-3.5"
-                  />
-                  <Label 
-                    htmlFor={`agreement_${agreement.id}`} 
-                    className="text-xs font-normal cursor-pointer text-muted-foreground"
-                  >
-                    {agreement.text}
-                  </Label>
-                </div>
-              ))}
-            </div>
+                  {agreement.text}
+                  <span className="text-[10px] text-muted-foreground/70 ml-1">(optional)</span>
+                </Label>
+              </div>
+            ))}
+          </div>
 
-            {/* Signature */}
-            <div className="space-y-1.5">
-              <h3 className="text-[10px] font-medium text-foreground/70 uppercase tracking-wide">E-Signature</h3>
-              <div className="rounded-lg bg-muted/30 border border-border/40 p-2 space-y-2">
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="col-span-2 space-y-0.5">
-                    <Label htmlFor="signature_name" className="text-[10px] text-muted-foreground">Full Name</Label>
-                    <Input
-                      id="signature_name"
-                      value={application.signature_name || ''}
-                      onChange={e => onUpdate('signature_name', e.target.value)}
-                      placeholder="Type your full name"
-                      className="h-7 text-xs"
-                    />
-                  </div>
-                  <div className="space-y-0.5">
-                    <Label htmlFor="signature_initials" className="text-[10px] text-muted-foreground">Initials</Label>
-                    <Input
-                      id="signature_initials"
-                      value={application.signature_initials || ''}
-                      onChange={e => onUpdate('signature_initials', e.target.value.toUpperCase())}
-                      placeholder="JD"
-                      maxLength={4}
-                      className="h-7 text-xs uppercase"
-                    />
-                  </div>
-                </div>
-                <p className="text-[9px] text-muted-foreground/70 text-center">
-                  Typing above signs this application electronically • {new Date().toLocaleDateString()}
-                </p>
+          {/* Electronic Signature Section */}
+          <div className="rounded-xl bg-gradient-to-b from-muted/40 to-muted/20 border border-border/50 p-4 space-y-3">
+            <div className="text-center">
+              <h3 className="font-semibold text-sm">Electronic Signature</h3>
+              <p className="text-[10px] text-muted-foreground">
+                By typing your name and initials, you are signing this application electronically.
+              </p>
+            </div>
+            
+            <div className="grid gap-3 grid-cols-3">
+              <div className="space-y-1">
+                <Label htmlFor="signature_name" className="text-[10px] font-medium">Full Legal Name</Label>
+                <Input
+                  id="signature_name"
+                  value={application.signature_name || ''}
+                  onChange={e => onUpdate('signature_name', e.target.value)}
+                  placeholder="Type your full name"
+                  className="h-8 text-sm bg-background"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="signature_initials" className="text-[10px] font-medium">Initials</Label>
+                <Input
+                  id="signature_initials"
+                  value={application.signature_initials || ''}
+                  onChange={e => onUpdate('signature_initials', e.target.value.toUpperCase())}
+                  placeholder="JD"
+                  maxLength={4}
+                  className="h-8 text-sm uppercase bg-background"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="signature_date" className="text-[10px] font-medium">Date</Label>
+                <Input
+                  id="signature_date"
+                  type="date"
+                  value={application.signature_date || today}
+                  onChange={e => onUpdate('signature_date', e.target.value)}
+                  className="h-8 text-sm bg-background"
+                  readOnly
+                />
               </div>
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between pt-1 border-t border-border/30">
-            <Button variant="ghost" size="sm" onClick={onBack} className="text-muted-foreground h-8">
+          <div className="flex items-center justify-between pt-2">
+            <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
               Back
             </Button>
             <div className="flex items-center gap-3">
@@ -167,12 +177,12 @@ export function AgreementsStep({ application, onUpdate, onBack, onContinue, prog
                   Complete all required items to continue
                 </p>
               )}
-              <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                <ArrowRight className="h-2.5 w-2.5" />
-                <span>Review & Submit</span>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <ArrowRight className="h-3 w-3" />
+                <span className="text-foreground/70">Review & Submit</span>
               </p>
             </div>
-            <Button size="sm" onClick={onContinue} disabled={!canProceed} className="h-8">
+            <Button onClick={onContinue} disabled={!canProceed}>
               Continue
             </Button>
           </div>
