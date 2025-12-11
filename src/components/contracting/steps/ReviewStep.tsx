@@ -102,9 +102,71 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
             <div className="p-3 bg-muted/50 rounded-lg">
               <p className="text-xs text-muted-foreground">Carriers Selected</p>
               <p className="font-medium text-sm">{selectedCarriers.length} carrier{selectedCarriers.length !== 1 ? 's' : ''}</p>
-              <p className="text-xs text-muted-foreground">{docCount} document{docCount !== 1 ? 's' : ''} uploaded</p>
             </div>
           </div>
+
+          {/* Uploaded Documents */}
+          {docCount > 0 && (
+            <div className="border rounded-lg p-3">
+              <h3 className="font-medium text-sm mb-2">Uploaded Documents ({docCount})</h3>
+              <div className="grid grid-cols-2 gap-1.5">
+                {uploadedDocs?.insurance_license && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">Insurance License</span>
+                  </div>
+                )}
+                {uploadedDocs?.government_id && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">Government ID</span>
+                  </div>
+                )}
+                {uploadedDocs?.voided_check && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">Voided Check</span>
+                  </div>
+                )}
+                {uploadedDocs?.eo_certificate && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">E&O Certificate</span>
+                  </div>
+                )}
+                {uploadedDocs?.aml_certificate && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">AML Certificate</span>
+                  </div>
+                )}
+                {uploadedDocs?.ce_certificate && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">CE Certificate</span>
+                  </div>
+                )}
+                {uploadedDocs?.ltc_certificate && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">LTC Certificate</span>
+                  </div>
+                )}
+                {uploadedDocs?.corporate_resolution && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">Corporate Resolution</span>
+                  </div>
+                )}
+                {uploadedDocs?.background_explanation && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="text-xs text-foreground">Background Documentation</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Checklist */}
           <div className="border rounded-lg p-3">
