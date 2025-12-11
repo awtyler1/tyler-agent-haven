@@ -39,15 +39,41 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
   const handleSubmit = async () => {
     setSubmitting(true);
     
-    // First generate the PDF
-    const pdfResult = await generatePdf(application);
-    if (pdfResult.success && pdfResult.pdf && pdfResult.filename) {
-      setPdfData({ filename: pdfResult.filename, pdf: pdfResult.pdf });
+    try {
+      // First generate the PDF
+      const pdfResult = await generatePdf(application);
+      if (pdfResult.success && pdfResult.pdf && pdfResult.filename) {
+        setPdfData({ filename: pdfResult.filename, pdf: pdfResult.pdf });
+        
+        // Send the PDF to the applicant's email
+        if (application.email_address) {
+          const { error: emailError } = await supabase.functions.invoke('send-contracting-packet', {
+            body: {
+              name: application.full_legal_name || 'Agent',
+              npn: application.npn_number || '',
+              email: application.email_address,
+              residentState: application.resident_state || '',
+              files: [{
+                name: 'Contracting Packet',
+                fileName: pdfResult.filename,
+                content: pdfResult.pdf,
+                type: 'application/pdf',
+              }],
+            },
+          });
+          
+          if (emailError) {
+            console.error('Failed to send email:', emailError);
+            // Don't block submission if email fails
+          }
+        }
+      }
+      
+      // Then submit the application
+      await onSubmit();
+    } finally {
+      setSubmitting(false);
     }
-    
-    // Then submit the application
-    await onSubmit();
-    setSubmitting(false);
   };
 
   const handleDownloadPdf = () => {
