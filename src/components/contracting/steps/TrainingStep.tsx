@@ -5,10 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { GraduationCap, Upload, Shield, ArrowRight, BookOpen, Heart } from 'lucide-react';
-import { useRef } from 'react';
+import { GraduationCap, Shield, ArrowRight, BookOpen, Heart } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
+import { FileDropZone } from '../FileDropZone';
 
 interface ProgressProps {
   currentStep: number;
@@ -27,10 +27,6 @@ interface TrainingStepProps {
 }
 
 export function TrainingStep({ application, initials, onUpdate, onUpload, onBack, onContinue, progressProps }: TrainingStepProps) {
-  const amlInputRef = useRef<HTMLInputElement>(null);
-  const ceInputRef = useRef<HTMLInputElement>(null);
-  const ltcInputRef = useRef<HTMLInputElement>(null);
-  const eoInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
@@ -91,22 +87,13 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onBack
                 className="h-8 text-xs"
                 placeholder="Completion date"
               />
-              <input
-                type="file"
-                ref={amlInputRef}
-                onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'aml_certificate')}
-                accept=".pdf,.jpg,.jpeg,.png"
-                className="hidden"
+              <FileDropZone
+                onFileSelect={(file) => handleFileUpload(file, 'aml_certificate')}
+                isUploaded={!!application.uploaded_documents?.aml_certificate}
+                uploadedLabel="✓ Uploaded"
+                defaultLabel="Upload"
+                compact
               />
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 text-xs w-full"
-                onClick={() => amlInputRef.current?.click()}
-              >
-                <Upload className="h-3 w-3 mr-1.5" />
-                {application.uploaded_documents?.aml_certificate ? '✓ Uploaded' : 'Upload'}
-              </Button>
             </div>
 
             {/* CE Training */}
@@ -130,24 +117,13 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onBack
                 </Label>
               </div>
               {application.state_requires_ce && (
-                <>
-                  <input
-                    type="file"
-                    ref={ceInputRef}
-                    onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'ce_certificate')}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 text-xs w-full"
-                    onClick={() => ceInputRef.current?.click()}
-                  >
-                    <Upload className="h-3 w-3 mr-1.5" />
-                    {application.uploaded_documents?.ce_certificate ? '✓ Uploaded' : 'Upload CE'}
-                  </Button>
-                </>
+                <FileDropZone
+                  onFileSelect={(file) => handleFileUpload(file, 'ce_certificate')}
+                  isUploaded={!!application.uploaded_documents?.ce_certificate}
+                  uploadedLabel="✓ Uploaded"
+                  defaultLabel="Upload CE"
+                  compact
+                />
               )}
             </div>
 
@@ -172,24 +148,13 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onBack
                 </Label>
               </div>
               {application.has_ltc_certification && (
-                <>
-                  <input
-                    type="file"
-                    ref={ltcInputRef}
-                    onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'ltc_certificate')}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 text-xs w-full"
-                    onClick={() => ltcInputRef.current?.click()}
-                  >
-                    <Upload className="h-3 w-3 mr-1.5" />
-                    {application.uploaded_documents?.ltc_certificate ? '✓ Uploaded' : 'Upload LTC'}
-                  </Button>
-                </>
+                <FileDropZone
+                  onFileSelect={(file) => handleFileUpload(file, 'ltc_certificate')}
+                  isUploaded={!!application.uploaded_documents?.ltc_certificate}
+                  uploadedLabel="✓ Uploaded"
+                  defaultLabel="Upload LTC"
+                  compact
+                />
               )}
             </div>
 
@@ -221,22 +186,13 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onBack
                     placeholder="Provider (e.g. Hiscox)"
                     className="h-8 text-xs"
                   />
-                  <input
-                    type="file"
-                    ref={eoInputRef}
-                    onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'eo_certificate')}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
+                  <FileDropZone
+                    onFileSelect={(file) => handleFileUpload(file, 'eo_certificate')}
+                    isUploaded={!!application.uploaded_documents?.eo_certificate}
+                    uploadedLabel="✓ Uploaded"
+                    defaultLabel="Upload"
+                    compact
                   />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 text-xs w-full"
-                    onClick={() => eoInputRef.current?.click()}
-                  >
-                    <Upload className="h-3 w-3 mr-1.5" />
-                    {application.uploaded_documents?.eo_certificate ? '✓ Uploaded' : 'Upload'}
-                  </Button>
                 </>
               )}
             </div>
