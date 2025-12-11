@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
-import { GraduationCap, Upload } from 'lucide-react';
+import { GraduationCap, Upload, Shield, ArrowRight } from 'lucide-react';
 import { useRef } from 'react';
 import { WizardProgress } from '../WizardProgress';
 
@@ -28,6 +28,7 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
   const amlInputRef = useRef<HTMLInputElement>(null);
   const ceInputRef = useRef<HTMLInputElement>(null);
   const ltcInputRef = useRef<HTMLInputElement>(null);
+  const eoInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File, type: string) => {
     await onUpload(file, type);
@@ -46,49 +47,47 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
             <h2 className="text-base font-semibold">Training & Certificates</h2>
           </div>
           <p className="text-[10px] text-muted-foreground mt-0.5 max-w-md mx-auto leading-relaxed">
-            Upload any certificates you have ready now. If something is missing, 
-            you can continue and upload it later—our team will guide you.
+            Upload any certificates you have ready now. Missing something? Continue and upload later.
           </p>
         </div>
-        <CardContent className="space-y-3 py-3">
-          {/* AML Training */}
-          <div className="p-3 border rounded-lg space-y-2.5">
-            <div>
-              <h3 className="font-medium text-sm">AML (Anti-Money Laundering) Training</h3>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                Required for carrier appointments. Don't have your certificate yet? 
-                You can continue setup and upload it before final submission.
-              </p>
-            </div>
-            <div className="grid gap-3 grid-cols-2">
-              <div className="space-y-1">
-                <Label htmlFor="aml_training_provider" className="text-xs">Training Provider</Label>
-                <Select
-                  value={application.aml_training_provider || ''}
-                  onValueChange={value => onUpdate('aml_training_provider', value)}
-                >
-                  <SelectTrigger className="h-8 text-sm">
-                    <SelectValue placeholder="Select provider" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="limra">LIMRA</SelectItem>
-                    <SelectItem value="carrier">Carrier Training</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+
+        <CardContent className="space-y-3 py-3 px-4">
+          {/* Two column layout for AML and CE */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* AML Training */}
+            <div className="p-3 border rounded-lg space-y-2">
+              <div>
+                <h3 className="font-medium text-sm">AML Training</h3>
+                <p className="text-[10px] text-muted-foreground">Required for carrier appointments.</p>
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="aml_completion_date" className="text-xs">Completion Date</Label>
-                <Input
-                  id="aml_completion_date"
-                  type="date"
-                  value={application.aml_completion_date || ''}
-                  onChange={e => onUpdate('aml_completion_date', e.target.value)}
-                  className="h-8 text-sm"
-                />
+              <div className="grid gap-2 grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="aml_training_provider" className="text-[10px]">Provider</Label>
+                  <Select
+                    value={application.aml_training_provider || ''}
+                    onValueChange={value => onUpdate('aml_training_provider', value)}
+                  >
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="limra">LIMRA</SelectItem>
+                      <SelectItem value="carrier">Carrier</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="aml_completion_date" className="text-[10px]">Completion</Label>
+                  <Input
+                    id="aml_completion_date"
+                    type="date"
+                    value={application.aml_completion_date || ''}
+                    onChange={e => onUpdate('aml_completion_date', e.target.value)}
+                    className="h-7 text-xs"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="space-y-1">
               <input
                 type="file"
                 ref={amlInputRef}
@@ -99,112 +98,188 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 text-xs"
+                className="h-6 text-[10px] w-full"
                 onClick={() => amlInputRef.current?.click()}
               >
-                <Upload className="h-3 w-3 mr-1" />
-                {application.uploaded_documents?.aml_certificate
-                  ? '✓ AML certificate uploaded'
-                  : 'Upload AML certificate'}
+                <Upload className="h-2.5 w-2.5 mr-1" />
+                {application.uploaded_documents?.aml_certificate ? '✓ Uploaded' : 'Upload certificate'}
               </Button>
             </div>
-          </div>
 
-          {/* CE Training */}
-          <div className="p-3 border rounded-lg space-y-2.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <h3 className="font-medium text-sm">Continuing Education (CE)</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  Requirements vary by state. We'll confirm what's needed based on your license.
-                </p>
+            {/* CE Training */}
+            <div className="p-3 border rounded-lg space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <h3 className="font-medium text-sm">Continuing Education</h3>
+                  <p className="text-[10px] text-muted-foreground">Requirements vary by state.</p>
+                </div>
+                <div className="flex items-center gap-1 pt-0.5">
+                  <Checkbox
+                    id="state_requires_ce"
+                    checked={application.state_requires_ce}
+                    onCheckedChange={checked => onUpdate('state_requires_ce', !!checked)}
+                    className="h-3 w-3"
+                  />
+                  <Label htmlFor="state_requires_ce" className="text-[10px] cursor-pointer">Required</Label>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 pt-0.5">
-                <Checkbox
-                  id="state_requires_ce"
-                  checked={application.state_requires_ce}
-                  onCheckedChange={checked => onUpdate('state_requires_ce', !!checked)}
-                  className="h-3.5 w-3.5"
-                />
-                <Label htmlFor="state_requires_ce" className="text-xs font-normal cursor-pointer whitespace-nowrap">
-                  My state requires CE
-                </Label>
-              </div>
+              {application.state_requires_ce && (
+                <>
+                  <input
+                    type="file"
+                    ref={ceInputRef}
+                    onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'ce_certificate')}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 text-[10px] w-full"
+                    onClick={() => ceInputRef.current?.click()}
+                  >
+                    <Upload className="h-2.5 w-2.5 mr-1" />
+                    {application.uploaded_documents?.ce_certificate ? '✓ Uploaded' : 'Upload CE certificate'}
+                  </Button>
+                </>
+              )}
             </div>
-            {application.state_requires_ce && (
-              <div className="space-y-1">
-                <input
-                  type="file"
-                  ref={ceInputRef}
-                  onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'ce_certificate')}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="hidden"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
-                  onClick={() => ceInputRef.current?.click()}
-                >
-                  <Upload className="h-3 w-3 mr-1" />
-                  {application.uploaded_documents?.ce_certificate
-                    ? '✓ CE certificate uploaded'
-                    : 'Upload CE certificate'}
-                </Button>
-              </div>
-            )}
           </div>
 
-          {/* LTC Certification */}
-          <div className="p-3 border rounded-lg space-y-2.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <h3 className="font-medium text-sm">Long-Term Care Partnership</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  Only needed if you plan to sell long-term care products. Skip if not applicable.
-                </p>
+          {/* Two column layout for LTC and E&O */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* LTC Certification */}
+            <div className="p-3 border rounded-lg space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <h3 className="font-medium text-sm">Long-Term Care</h3>
+                  <p className="text-[10px] text-muted-foreground">Only if selling LTC products.</p>
+                </div>
+                <div className="flex items-center gap-1 pt-0.5">
+                  <Checkbox
+                    id="has_ltc_certification"
+                    checked={application.has_ltc_certification}
+                    onCheckedChange={checked => onUpdate('has_ltc_certification', !!checked)}
+                    className="h-3 w-3"
+                  />
+                  <Label htmlFor="has_ltc_certification" className="text-[10px] cursor-pointer">I have LTC</Label>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 pt-0.5">
-                <Checkbox
-                  id="has_ltc_certification"
-                  checked={application.has_ltc_certification}
-                  onCheckedChange={checked => onUpdate('has_ltc_certification', !!checked)}
-                  className="h-3.5 w-3.5"
-                />
-                <Label htmlFor="has_ltc_certification" className="text-xs font-normal cursor-pointer whitespace-nowrap">
-                  I have LTC certification
-                </Label>
-              </div>
+              {application.has_ltc_certification && (
+                <>
+                  <input
+                    type="file"
+                    ref={ltcInputRef}
+                    onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'ltc_certificate')}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 text-[10px] w-full"
+                    onClick={() => ltcInputRef.current?.click()}
+                  >
+                    <Upload className="h-2.5 w-2.5 mr-1" />
+                    {application.uploaded_documents?.ltc_certificate ? '✓ Uploaded' : 'Upload LTC certificate'}
+                  </Button>
+                </>
+              )}
             </div>
-            {application.has_ltc_certification && (
-              <div className="space-y-1">
-                <input
-                  type="file"
-                  ref={ltcInputRef}
-                  onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'ltc_certificate')}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="hidden"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
-                  onClick={() => ltcInputRef.current?.click()}
-                >
-                  <Upload className="h-3 w-3 mr-1" />
-                  {application.uploaded_documents?.ltc_certificate
-                    ? '✓ LTC certificate uploaded'
-                    : 'Upload LTC certificate'}
-                </Button>
+
+            {/* E&O Insurance */}
+            <div className="p-3 border rounded-lg space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="h-3.5 w-3.5 text-primary" />
+                  <h3 className="font-medium text-sm">E&O Insurance</h3>
+                </div>
+                <div className="flex items-center gap-1 pt-0.5">
+                  <Checkbox
+                    id="eo_not_yet_covered"
+                    checked={application.eo_not_yet_covered}
+                    onCheckedChange={checked => onUpdate('eo_not_yet_covered', !!checked)}
+                    className="h-3 w-3"
+                  />
+                  <Label htmlFor="eo_not_yet_covered" className="text-[10px] cursor-pointer">Not yet</Label>
+                </div>
               </div>
-            )}
+              
+              {application.eo_not_yet_covered ? (
+                <p className="text-[10px] text-muted-foreground bg-muted/30 rounded p-2">
+                  No problem—we'll help you get covered before appointments are finalized.
+                </p>
+              ) : (
+                <>
+                  <div className="grid gap-2 grid-cols-2">
+                    <div className="space-y-1">
+                      <Label className="text-[10px]">Provider</Label>
+                      <Input
+                        value={application.eo_provider || ''}
+                        onChange={e => onUpdate('eo_provider', e.target.value)}
+                        placeholder="e.g. Hiscox"
+                        className="h-7 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px]">Policy #</Label>
+                      <Input
+                        value={application.eo_policy_number || ''}
+                        onChange={e => onUpdate('eo_policy_number', e.target.value)}
+                        placeholder="Optional"
+                        className="h-7 text-xs"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-[10px]">Expiration</Label>
+                      <Input
+                        type="date"
+                        value={application.eo_expiration_date || ''}
+                        onChange={e => onUpdate('eo_expiration_date', e.target.value)}
+                        className="h-7 text-xs"
+                      />
+                    </div>
+                    <div className="flex-1 pt-4">
+                      <input
+                        type="file"
+                        ref={eoInputRef}
+                        onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'eo_certificate')}
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-[10px] w-full"
+                        onClick={() => eoInputRef.current?.click()}
+                      >
+                        <Upload className="h-2.5 w-2.5 mr-1" />
+                        {application.uploaded_documents?.eo_certificate ? '✓ Uploaded' : 'Upload'}
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
-          <div className="flex justify-between pt-2">
-            <Button variant="outline" onClick={onBack} size="sm">
+          {/* E&O helper text */}
+          <p className="text-[10px] text-muted-foreground text-center px-4">
+            E&O coverage is required by most carriers before appointments. Don't have it yet? Continue now—we'll follow up.
+          </p>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between pt-2">
+            <Button variant="ghost" onClick={onBack} className="text-muted-foreground">
               Back
             </Button>
-            <Button onClick={onContinue} size="sm">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <ArrowRight className="h-3 w-3" />
+              <span className="text-foreground/70">Next: Carrier Selection</span>
+            </p>
+            <Button onClick={onContinue}>
               Continue
             </Button>
           </div>
