@@ -66,11 +66,15 @@ export interface ContractingApplication {
   beneficiary_relationship: string | null;
   requesting_commission_advancing: boolean;
   
-  // Step 6: Training
+  // Step 6: Training & E&O
   aml_training_provider: string | null;
   aml_completion_date: string | null;
   has_ltc_certification: boolean;
   state_requires_ce: boolean;
+  eo_not_yet_covered: boolean;
+  eo_provider: string | null;
+  eo_policy_number: string | null;
+  eo_expiration_date: string | null;
   
   // Step 7: Carriers
   selected_carriers: SelectedCarrier[];
@@ -292,6 +296,10 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   aml_completion_date: null,
   has_ltc_certification: false,
   state_requires_ce: false,
+  eo_not_yet_covered: false,
+  eo_provider: null,
+  eo_policy_number: null,
+  eo_expiration_date: null,
   selected_carriers: [],
   is_corporation: false,
   agreements: {},
