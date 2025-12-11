@@ -31,13 +31,14 @@ serve(async (req) => {
       );
     }
 
-    // Create client with user's token to verify they're a super admin
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    // Extract the JWT token from the header
+    const token = authHeader.replace('Bearer ', '');
 
-    // Get the requesting user
-    const { data: { user: requestingUser }, error: authError } = await userClient.auth.getUser();
+    // Create client with service role to verify the user
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get the requesting user using the token
+    const { data: { user: requestingUser }, error: authError } = await adminClient.auth.getUser(token);
     console.log('Auth getUser result - user:', requestingUser?.id, 'error:', authError?.message);
     
     if (authError || !requestingUser) {
@@ -48,8 +49,8 @@ serve(async (req) => {
       );
     }
 
-    // Verify requesting user is a super admin
-    const { data: roleData, error: roleError } = await userClient
+    // Verify requesting user is a super admin using the admin client
+    const { data: roleData, error: roleError } = await adminClient
       .from('user_roles')
       .select('role')
       .eq('user_id', requestingUser.id)
@@ -83,8 +84,7 @@ serve(async (req) => {
 
     console.log('Deleting user:', userId, 'requested by:', requestingUser.id);
 
-    // Create admin client with service role key
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+    // Use the existing adminClient for all operations
 
     // 1. Delete uploaded documents from storage
     console.log('Step 1: Deleting storage files...');
