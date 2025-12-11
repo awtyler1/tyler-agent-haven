@@ -5,13 +5,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
-import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle, Eye, EyeOff, CalendarIcon } from 'lucide-react';
 import { useRef, useState, useMemo } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
 import { validateLicensing } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
 import { formatSSN, formatEIN, maskSSN, maskEIN } from '@/lib/formatters';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format, parse } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface ProgressProps {
   currentStep: number;
@@ -137,13 +141,32 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
               )}
               <div className="space-y-1.5">
                 <Label htmlFor="birth_date" className="text-xs">Date of Birth *</Label>
-                <Input
-                  id="birth_date"
-                  type="date"
-                  value={application.birth_date || ''}
-                  onChange={e => onUpdate('birth_date', e.target.value)}
-                  className="h-9"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "h-9 w-full justify-start text-left font-normal",
+                        !application.birth_date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {application.birth_date ? format(parse(application.birth_date, 'yyyy-MM-dd', new Date()), 'MMM d, yyyy') : <span>Select date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={application.birth_date ? parse(application.birth_date, 'yyyy-MM-dd', new Date()) : undefined}
+                      onSelect={(date) => onUpdate('birth_date', date ? format(date, 'yyyy-MM-dd') : '')}
+                      disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                      initialFocus
+                      captionLayout="dropdown-buttons"
+                      fromYear={1930}
+                      toYear={new Date().getFullYear()}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="tax_id" className="text-xs">
@@ -277,13 +300,32 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="license_expiration_date" className="text-xs">Expiration *</Label>
-                <Input
-                  id="license_expiration_date"
-                  type="date"
-                  value={application.license_expiration_date || ''}
-                  onChange={e => onUpdate('license_expiration_date', e.target.value)}
-                  className="h-9"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "h-9 w-full justify-start text-left font-normal",
+                        !application.license_expiration_date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {application.license_expiration_date ? format(parse(application.license_expiration_date, 'yyyy-MM-dd', new Date()), 'MMM d, yyyy') : <span>Select</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={application.license_expiration_date ? parse(application.license_expiration_date, 'yyyy-MM-dd', new Date()) : undefined}
+                      onSelect={(date) => onUpdate('license_expiration_date', date ? format(date, 'yyyy-MM-dd') : '')}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      captionLayout="dropdown-buttons"
+                      fromYear={new Date().getFullYear()}
+                      toYear={new Date().getFullYear() + 10}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 

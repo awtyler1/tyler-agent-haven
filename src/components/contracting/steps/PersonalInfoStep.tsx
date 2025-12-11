@@ -10,7 +10,7 @@ import { User, Plus, X, AlertCircle } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
 import { validatePersonalInfo } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
-import { formatPhoneNumber } from '@/lib/formatters';
+import { formatPhoneNumber, formatZipCode } from '@/lib/formatters';
 
 interface PreviousAddress extends Address {
   years_lived?: string;
@@ -188,7 +188,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
               </Select>
               <Input
                 value={homeAddress.zip}
-                onChange={e => updateAddress('home_address', 'zip', e.target.value)}
+                onChange={e => updateAddress('home_address', 'zip', formatZipCode(e.target.value))}
                 placeholder="ZIP"
                 className="h-9 bg-background"
               />
@@ -243,7 +243,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
                 </Select>
                 <Input
                   value={mailingAddress.zip}
-                  onChange={e => updateAddress('mailing_address', 'zip', e.target.value)}
+                  onChange={e => updateAddress('mailing_address', 'zip', formatZipCode(e.target.value))}
                   placeholder="ZIP"
                   className="h-9"
                 />
@@ -280,7 +280,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
                 </Select>
                 <Input
                   value={upsAddress.zip}
-                  onChange={e => updateAddress('ups_address', 'zip', e.target.value)}
+                  onChange={e => updateAddress('ups_address', 'zip', formatZipCode(e.target.value))}
                   placeholder="ZIP"
                   className="h-9"
                 />
@@ -349,7 +349,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
                       </Select>
                       <Input
                         value={addr.zip || ''}
-                        onChange={e => updatePreviousAddress(index, 'zip', e.target.value)}
+                        onChange={e => updatePreviousAddress(index, 'zip', formatZipCode(e.target.value))}
                         placeholder="ZIP"
                         className="h-8 text-sm bg-background"
                       />
