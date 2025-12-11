@@ -119,7 +119,7 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
         <CardContent className="space-y-4 py-5 px-7">
           {/* Row 1: Name, Gender, Mobile, Business Phone */}
           <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-5 space-y-1.5">
+            <div className="col-span-4 space-y-1.5">
               <Label className="text-xs">Full Legal Name *</Label>
               <Input
                 value={application.full_legal_name || ''}
@@ -142,7 +142,7 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-2 space-y-1.5">
+            <div className="col-span-3 space-y-1.5">
               <Label className="text-xs">Mobile *</Label>
               <Input
                 type="tel"
