@@ -10,6 +10,7 @@ import { User, Plus, X, AlertCircle } from 'lucide-react';
 import { WizardProgress } from '../WizardProgress';
 import { validatePersonalInfo } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
+import { formatPhoneNumber } from '@/lib/formatters';
 
 interface PreviousAddress extends Address {
   years_lived?: string;
@@ -126,7 +127,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
               <Input
                 type="tel"
                 value={application.phone_mobile || ''}
-                onChange={e => onUpdate('phone_mobile', e.target.value)}
+                onChange={e => onUpdate('phone_mobile', formatPhoneNumber(e.target.value))}
                 placeholder="(555) 123-4567"
                 className="h-9"
               />
@@ -136,7 +137,7 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, pr
               <Input
                 type="tel"
                 value={application.phone_business || ''}
-                onChange={e => onUpdate('phone_business', e.target.value)}
+                onChange={e => onUpdate('phone_business', formatPhoneNumber(e.target.value))}
                 placeholder="(555) 123-4567"
                 className="h-9"
               />

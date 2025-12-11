@@ -5,12 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
-import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle } from 'lucide-react';
+import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useRef, useState, useMemo } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { WizardProgress } from '../WizardProgress';
 import { validateLicensing } from '@/hooks/useContractingValidation';
 import { toast } from 'sonner';
+import { formatSSN, formatEIN, maskSSN, maskEIN } from '@/lib/formatters';
 
 interface ProgressProps {
   currentStep: number;
@@ -32,6 +33,7 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
   const [showOptionalIdentity, setShowOptionalIdentity] = useState(
     !!(application.gender || application.drivers_license_number)
   );
+  const [showTaxId, setShowTaxId] = useState(false);
   const licenseInputRef = useRef<HTMLInputElement>(null);
   const idInputRef = useRef<HTMLInputElement>(null);
 
@@ -147,13 +149,29 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                 <Label htmlFor="tax_id" className="text-xs">
                   {application.is_corporation ? 'EIN *' : 'SSN *'}
                 </Label>
-                <Input
-                  id="tax_id"
-                  value={application.tax_id || ''}
-                  onChange={e => onUpdate('tax_id', e.target.value)}
-                  placeholder={application.is_corporation ? 'XX-XXXXXXX' : 'XXX-XX-XXXX'}
-                  className="h-9"
-                />
+                <div className="relative">
+                  <Input
+                    id="tax_id"
+                    value={showTaxId 
+                      ? (application.is_corporation ? formatEIN(application.tax_id || '') : formatSSN(application.tax_id || ''))
+                      : (application.tax_id ? (application.is_corporation ? maskEIN(application.tax_id) : maskSSN(application.tax_id)) : '')
+                    }
+                    onChange={e => {
+                      const formatter = application.is_corporation ? formatEIN : formatSSN;
+                      onUpdate('tax_id', formatter(e.target.value));
+                    }}
+                    onFocus={() => setShowTaxId(true)}
+                    placeholder={application.is_corporation ? 'XX-XXXXXXX' : 'XXX-XX-XXXX'}
+                    className="h-9 pr-9"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowTaxId(!showTaxId)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showTaxId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 <p className="text-[10px] text-muted-foreground flex items-center gap-1">
                   <Lock className="h-2.5 w-2.5" /> Securely encrypted
                 </p>
