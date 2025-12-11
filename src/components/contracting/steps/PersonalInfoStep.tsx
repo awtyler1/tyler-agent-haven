@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,9 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
 import { User, Plus, X } from 'lucide-react';
+import { WizardProgress } from '../WizardProgress';
 
 interface PreviousAddress extends Address {
   years_lived?: string;
+}
+
+interface ProgressProps {
+  currentStep: number;
+  completedSteps: number[];
+  onStepClick: (step: number) => void;
 }
 
 interface PersonalInfoStepProps {
@@ -17,9 +24,10 @@ interface PersonalInfoStepProps {
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onBack: () => void;
   onContinue: () => void;
+  progressProps: ProgressProps;
 }
 
-export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: PersonalInfoStepProps) {
+export function PersonalInfoStep({ application, onUpdate, onBack, onContinue, progressProps }: PersonalInfoStepProps) {
   const homeAddress = (application.home_address as Address) || EMPTY_ADDRESS;
   const mailingAddress = (application.mailing_address as Address) || EMPTY_ADDRESS;
   const upsAddress = (application.ups_address as Address) || EMPTY_ADDRESS;
@@ -74,16 +82,20 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
   return (
     <div className="max-w-2xl mx-auto">
       <Card className="border-0 shadow-lg">
-        <CardHeader className="py-3 text-center">
-          <div className="mx-auto w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center mb-1">
-            <User className="h-4 w-4 text-primary" />
+        {/* Progress + Header */}
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
+          <WizardProgress {...progressProps} compact />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold">Contact Information</h2>
           </div>
-          <CardTitle className="text-lg">Contact Information</CardTitle>
-          <CardDescription className="text-xs">
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             We use this to stay in touch throughout contracting and beyond.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 pb-4">
+          </p>
+        </div>
+        <CardContent className="space-y-3 py-3">
           {/* Row 1: Name, Mobile, Business Phone */}
           <div className="grid grid-cols-4 gap-2">
             <div className="col-span-2 space-y-1">

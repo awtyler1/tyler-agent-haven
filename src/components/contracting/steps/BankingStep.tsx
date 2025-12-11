@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,6 +6,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
 import { Landmark, Upload } from 'lucide-react';
 import { useRef } from 'react';
+import { WizardProgress } from '../WizardProgress';
+
+interface ProgressProps {
+  currentStep: number;
+  completedSteps: number[];
+  onStepClick: (step: number) => void;
+}
 
 interface BankingStepProps {
   application: ContractingApplication;
@@ -13,9 +20,10 @@ interface BankingStepProps {
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
   onContinue: () => void;
+  progressProps: ProgressProps;
 }
 
-export function BankingStep({ application, onUpdate, onUpload, onBack, onContinue }: BankingStepProps) {
+export function BankingStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: BankingStepProps) {
   const checkInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File, type: string) => {
@@ -24,17 +32,21 @@ export function BankingStep({ application, onUpdate, onUpload, onBack, onContinu
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card>
-        <CardHeader className="py-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Landmark className="h-4 w-4" />
-            Banking & Direct Deposit
-          </CardTitle>
-          <CardDescription className="text-sm">
-            We use this account for commission deposits. Be sure to attach a voided check.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 pb-4">
+      <Card className="border-0 shadow-lg">
+        {/* Progress + Header */}
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
+          <WizardProgress {...progressProps} compact />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <Landmark className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold">Banking & Direct Deposit</h2>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            For commission deposits. Be sure to attach a voided check.
+          </p>
+        </div>
+        <CardContent className="space-y-4 py-3">
           <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1">
               <Label htmlFor="bank_routing_number" className="text-xs">Bank Routing Number</Label>

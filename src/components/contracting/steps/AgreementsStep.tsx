@@ -1,16 +1,24 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
 import { PenTool } from 'lucide-react';
+import { WizardProgress } from '../WizardProgress';
+
+interface ProgressProps {
+  currentStep: number;
+  completedSteps: number[];
+  onStepClick: (step: number) => void;
+}
 
 interface AgreementsStepProps {
   application: ContractingApplication;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onBack: () => void;
   onContinue: () => void;
+  progressProps: ProgressProps;
 }
 
 const AGREEMENTS = [
@@ -21,7 +29,7 @@ const AGREEMENTS = [
   { id: 'facsimile_signature', text: 'I authorize Tyler Insurance Group to affix a facsimile of my signature to carrier documents for contracting, and agree to indemnify and hold harmless Tyler Insurance Group and relevant third parties as described.', required: true },
 ];
 
-export function AgreementsStep({ application, onUpdate, onBack, onContinue }: AgreementsStepProps) {
+export function AgreementsStep({ application, onUpdate, onBack, onContinue, progressProps }: AgreementsStepProps) {
   const agreements = (application.agreements as Record<string, boolean>) || {};
 
   const handleAgreementChange = (agreementId: string, checked: boolean) => {
@@ -32,17 +40,21 @@ export function AgreementsStep({ application, onUpdate, onBack, onContinue }: Ag
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card>
-        <CardHeader className="py-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <PenTool className="h-4 w-4" />
-            Agreements & E-Signature
-          </CardTitle>
-          <CardDescription className="text-sm">
+      <Card className="border-0 shadow-lg">
+        {/* Progress + Header */}
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
+          <WizardProgress {...progressProps} compact />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <PenTool className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold">Agreements & E-Signature</h2>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             Review and accept the agreements, then sign below
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 pb-4">
+          </p>
+        </div>
+        <CardContent className="space-y-4 py-3">
           {/* Agreements */}
           <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
             {AGREEMENTS.map(agreement => (

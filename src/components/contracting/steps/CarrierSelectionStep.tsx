@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,13 @@ import { Input } from '@/components/ui/input';
 import { ContractingApplication, Carrier, SelectedCarrier, US_STATES } from '@/types/contracting';
 import { Building2, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { WizardProgress } from '../WizardProgress';
+
+interface ProgressProps {
+  currentStep: number;
+  completedSteps: number[];
+  onStepClick: (step: number) => void;
+}
 
 interface CarrierSelectionStepProps {
   application: ContractingApplication;
@@ -14,9 +21,10 @@ interface CarrierSelectionStepProps {
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
   onContinue: () => void;
+  progressProps: ProgressProps;
 }
 
-export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, onContinue }: CarrierSelectionStepProps) {
+export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: CarrierSelectionStepProps) {
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
   const corpResInputRef = useRef<HTMLInputElement>(null);
@@ -76,17 +84,21 @@ export function CarrierSelectionStep({ application, onUpdate, onUpload, onBack, 
 
   return (
     <div className="max-w-5xl mx-auto">
-      <Card>
-        <CardHeader className="py-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Building2 className="h-4 w-4" />
-            Carrier Selection
-          </CardTitle>
-          <CardDescription className="text-sm">
-            Select the carriers you want to be contracted with. Some carriers may charge appointment fees.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 pb-4">
+      <Card className="border-0 shadow-lg">
+        {/* Progress + Header */}
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
+          <WizardProgress {...progressProps} compact />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <Building2 className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold">Carrier Selection</h2>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            Select the carriers you want to be contracted with
+          </p>
+        </div>
+        <CardContent className="space-y-4 py-3">
           {/* Corporation checkbox */}
           <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
             <Checkbox

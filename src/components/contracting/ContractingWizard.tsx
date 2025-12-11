@@ -91,6 +91,12 @@ export function ContractingWizard() {
   }
 
   const renderStep = () => {
+    const progressProps = {
+      currentStep: application.current_step,
+      completedSteps: application.completed_steps,
+      onStepClick: goToStep,
+    };
+
     switch (application.current_step) {
       case 1:
         return (
@@ -106,6 +112,7 @@ export function ContractingWizard() {
             onUpdate={updateField}
             onBack={() => goToStep(1)}
             onContinue={() => completeStepAndNext(2)}
+            progressProps={progressProps}
           />
         );
       case 3:
@@ -116,6 +123,7 @@ export function ContractingWizard() {
             onUpload={uploadDocument}
             onBack={() => goToStep(2)}
             onContinue={() => completeStepAndNext(3)}
+            progressProps={progressProps}
           />
         );
       case 4:
@@ -126,6 +134,7 @@ export function ContractingWizard() {
             onUpload={uploadDocument}
             onBack={() => goToStep(3)}
             onContinue={() => completeStepAndNext(4)}
+            progressProps={progressProps}
           />
         );
       case 5:
@@ -136,6 +145,7 @@ export function ContractingWizard() {
             onUpload={uploadDocument}
             onBack={() => goToStep(4)}
             onContinue={() => completeStepAndNext(5)}
+            progressProps={progressProps}
           />
         );
       case 6:
@@ -146,6 +156,7 @@ export function ContractingWizard() {
             onUpload={uploadDocument}
             onBack={() => goToStep(5)}
             onContinue={() => completeStepAndNext(6)}
+            progressProps={progressProps}
           />
         );
       case 7:
@@ -156,6 +167,7 @@ export function ContractingWizard() {
             onUpload={uploadDocument}
             onBack={() => goToStep(6)}
             onContinue={() => completeStepAndNext(7)}
+            progressProps={progressProps}
           />
         );
       case 8:
@@ -165,6 +177,7 @@ export function ContractingWizard() {
             onUpdate={updateField}
             onBack={() => goToStep(7)}
             onContinue={() => completeStepAndNext(8)}
+            progressProps={progressProps}
           />
         );
       case 9:
@@ -173,6 +186,7 @@ export function ContractingWizard() {
             application={application}
             onBack={() => goToStep(8)}
             onSubmit={submitApplication}
+            progressProps={progressProps}
           />
         );
       default:
@@ -205,15 +219,8 @@ export function ContractingWizard() {
       </div>
 
       <div className="container max-w-6xl mx-auto py-2 px-4 flex flex-col flex-1">
-        {/* Progress bar */}
-        <WizardProgress
-          currentStep={application.current_step}
-          completedSteps={application.completed_steps}
-          onStepClick={goToStep}
-        />
-
         {/* Saving indicator - fixed height to prevent layout shift */}
-        <div className="h-5 mt-1 flex items-center justify-center">
+        <div className="h-5 flex items-center justify-center">
           {saving && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -222,8 +229,8 @@ export function ContractingWizard() {
           )}
         </div>
 
-        {/* Current step */}
-        <div className="mt-2 flex-1">
+        {/* Current step - progress is now inside each step card */}
+        <div className="flex-1">
           {renderStep()}
         </div>
       </div>

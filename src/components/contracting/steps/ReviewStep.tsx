@@ -1,16 +1,24 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ContractingApplication, SelectedCarrier, Address, WIZARD_STEPS } from '@/types/contracting';
 import { ClipboardCheck, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { WizardProgress } from '../WizardProgress';
+
+interface ProgressProps {
+  currentStep: number;
+  completedSteps: number[];
+  onStepClick: (step: number) => void;
+}
 
 interface ReviewStepProps {
   application: ContractingApplication;
   onBack: () => void;
   onSubmit: () => Promise<boolean>;
+  progressProps: ProgressProps;
 }
 
-export function ReviewStep({ application, onBack, onSubmit }: ReviewStepProps) {
+export function ReviewStep({ application, onBack, onSubmit, progressProps }: ReviewStepProps) {
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -42,17 +50,21 @@ export function ReviewStep({ application, onBack, onSubmit }: ReviewStepProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card>
-        <CardHeader className="py-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <ClipboardCheck className="h-4 w-4" />
-            Review & Submit
-          </CardTitle>
-          <CardDescription className="text-sm">
+      <Card className="border-0 shadow-lg">
+        {/* Progress + Header */}
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
+          <WizardProgress {...progressProps} compact />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <ClipboardCheck className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold">Review & Submit</h2>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             Review your application before submitting
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 pb-4">
+          </p>
+        </div>
+        <CardContent className="space-y-4 py-3">
           {/* Summary */}
           <div className="grid gap-3 grid-cols-2">
             <div className="p-3 bg-muted/50 rounded-lg">

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
 import { GraduationCap, Upload } from 'lucide-react';
 import { useRef } from 'react';
+import { WizardProgress } from '../WizardProgress';
+
+interface ProgressProps {
+  currentStep: number;
+  completedSteps: number[];
+  onStepClick: (step: number) => void;
+}
 
 interface TrainingStepProps {
   application: ContractingApplication;
@@ -14,9 +21,10 @@ interface TrainingStepProps {
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
   onContinue: () => void;
+  progressProps: ProgressProps;
 }
 
-export function TrainingStep({ application, onUpdate, onUpload, onBack, onContinue }: TrainingStepProps) {
+export function TrainingStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: TrainingStepProps) {
   const amlInputRef = useRef<HTMLInputElement>(null);
   const ceInputRef = useRef<HTMLInputElement>(null);
   const ltcInputRef = useRef<HTMLInputElement>(null);
@@ -27,17 +35,21 @@ export function TrainingStep({ application, onUpdate, onUpload, onBack, onContin
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card>
-        <CardHeader className="py-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <GraduationCap className="h-4 w-4" />
-            Training & Certificates
-          </CardTitle>
-          <CardDescription className="text-sm">
+      <Card className="border-0 shadow-lg">
+        {/* Progress + Header */}
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
+          <WizardProgress {...progressProps} compact />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <GraduationCap className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold">Training & Certificates</h2>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             Enter your training information and upload certificates
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 pb-4">
+          </p>
+        </div>
+        <CardContent className="space-y-4 py-3">
           {/* AML Training */}
           <div className="p-3 border rounded-lg space-y-3">
             <h3 className="font-medium text-sm">AML (Anti-Money Laundering) Training</h3>
