@@ -191,32 +191,6 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
                   />
                 )}
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="beneficiary_drivers_license_number" className="text-sm">Driver's License #</Label>
-                <Input
-                  id="beneficiary_drivers_license_number"
-                  value={application.beneficiary_drivers_license_number || ''}
-                  onChange={e => onUpdate('beneficiary_drivers_license_number', e.target.value)}
-                  placeholder="Enter license number"
-                  className="h-9"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="beneficiary_drivers_license_state" className="text-sm">Resident Driver's License State</Label>
-                <Select
-                  value={application.beneficiary_drivers_license_state || ''}
-                  onValueChange={value => onUpdate('beneficiary_drivers_license_state', value)}
-                >
-                  <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Select state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'].map(state => (
-                      <SelectItem key={state} value={state}>{state}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
 
