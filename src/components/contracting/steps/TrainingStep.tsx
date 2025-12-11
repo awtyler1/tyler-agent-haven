@@ -192,10 +192,10 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
             </div>
 
             {/* E&O Insurance */}
-            <div className="space-y-2">
+            <div className="space-y-2" data-field="eo_certificate">
               <div className="flex items-center gap-1.5">
                 <Shield className="h-3.5 w-3.5 text-primary" />
-                <span className="font-medium text-sm">E&O Insurance</span>
+                <span className="font-medium text-sm">E&O Insurance *</span>
               </div>
               <p className="text-[10px] text-muted-foreground leading-tight">
                 Required by most carriers.
@@ -221,7 +221,9 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
                 uploadedLabel="✓ Uploaded"
                 defaultLabel="Upload E&O Cert"
                 compact
+                hasError={showErrors && !!fieldErrors.eo_certificate}
               />
+              <FormFieldError error={fieldErrors.eo_certificate} show={showErrors} />
             </div>
           </div>
 
@@ -286,7 +288,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
 
           {/* Helper text */}
           <p className="text-xs text-muted-foreground text-center mt-4 mb-4">
-            You can continue without completing this step. We'll follow up on anything needed before appointments are finalized.
+            E&O certificate is required. Other certificates are optional—we'll follow up on anything needed before appointments are finalized.
           </p>
 
           {/* Validation Banner */}

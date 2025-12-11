@@ -238,10 +238,16 @@ export const validateBanking = (app: ContractingApplication): ValidationResult =
   return { isValid: errors.length === 0, errors, fieldErrors };
 };
 
-// Step 6: Training - Optional with FINRA validation
+// Step 6: Training - E&O required + FINRA validation
 export const validateTraining = (app: ContractingApplication): ValidationResult => {
   const errors: string[] = [];
   const fieldErrors: Record<string, string> = {};
+  
+  // E&O Certificate is required
+  if (!app.uploaded_documents?.eo_certificate) {
+    errors.push('E&O certificate is required');
+    fieldErrors.eo_certificate = VALIDATION_MESSAGES.documentRequired;
+  }
   
   if (app.is_finra_registered) {
     if (!app.finra_broker_dealer_name?.trim()) {
