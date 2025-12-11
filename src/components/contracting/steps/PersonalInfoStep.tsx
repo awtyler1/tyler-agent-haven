@@ -84,8 +84,8 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pb-4">
-          {/* Row 1: Name and Mobile */}
-          <div className="grid grid-cols-3 gap-2">
+          {/* Row 1: Name, Mobile, Business Phone */}
+          <div className="grid grid-cols-4 gap-2">
             <div className="col-span-2 space-y-1">
               <Label className="text-xs">Full Legal Name *</Label>
               <Input
@@ -102,6 +102,16 @@ export function PersonalInfoStep({ application, onUpdate, onBack, onContinue }: 
                 type="tel"
                 value={application.phone_mobile || ''}
                 onChange={e => onUpdate('phone_mobile', e.target.value)}
+                placeholder="(555) 123-4567"
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Business Phone</Label>
+              <Input
+                type="tel"
+                value={application.phone_business || ''}
+                onChange={e => onUpdate('phone_business', e.target.value)}
                 placeholder="(555) 123-4567"
                 className="h-8 text-sm"
               />
