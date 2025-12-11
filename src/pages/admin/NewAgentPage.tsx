@@ -125,14 +125,14 @@ export default function NewAgentPage() {
               <div className="space-y-2">
                 <Label htmlFor="manager">Assign Manager (Optional)</Label>
                 <Select
-                  value={formData.managerId}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, managerId: value }))}
+                  value={formData.managerId || "none"}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, managerId: value === "none" ? "" : value }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a manager" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No manager</SelectItem>
+                    <SelectItem value="none">No manager</SelectItem>
                     {managers.map((manager) => (
                       <SelectItem key={manager.id} value={manager.id}>
                         {manager.full_name || manager.email}
