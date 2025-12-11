@@ -67,6 +67,7 @@ export interface ContractingApplication {
   bank_branch_name: string | null;
   beneficiary_name: string | null;
   beneficiary_relationship: string | null;
+  beneficiary_birth_date: string | null;
   requesting_commission_advancing: boolean;
   
   // Step 6: Training & E&O
@@ -297,6 +298,7 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   bank_branch_name: null,
   beneficiary_name: null,
   beneficiary_relationship: null,
+  beneficiary_birth_date: null,
   requesting_commission_advancing: false,
   aml_training_provider: null,
   aml_completion_date: null,

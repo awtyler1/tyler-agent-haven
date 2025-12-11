@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication } from '@/types/contracting';
-import { Landmark, Shield, ArrowRight } from 'lucide-react';
+import { Landmark, Shield, ArrowRight, CalendarIcon } from 'lucide-react';
 import { useMemo, useState, useRef } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { InitialsAcknowledgmentBar } from '../InitialsAcknowledgmentBar';
@@ -14,6 +14,9 @@ import { validateBanking } from '@/hooks/useContractingValidation';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 import { ValidationBanner } from '../ValidationBanner';
 import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format, parse } from 'date-fns';
 
 interface ProgressProps {
   currentStep: number;
@@ -149,7 +152,7 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
           {/* Section 2: Beneficiary */}
           <div className="space-y-3 pt-2 border-t border-border/30">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">List a Beneficiary</p>
-            <div className="grid gap-3 grid-cols-2">
+            <div className="grid gap-3 grid-cols-3">
               <div className="space-y-1.5">
                 <Label htmlFor="beneficiary_name" className="text-sm">Beneficiary Name</Label>
                 <Input
@@ -190,6 +193,35 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
                     className="h-9 mt-2"
                   />
                 )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="beneficiary_birth_date" className="text-sm">Date of Birth</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "h-9 w-full justify-start text-left font-normal",
+                        !application.beneficiary_birth_date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {application.beneficiary_birth_date ? format(parse(application.beneficiary_birth_date, 'yyyy-MM-dd', new Date()), 'MMM d, yyyy') : <span>Select date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={application.beneficiary_birth_date ? parse(application.beneficiary_birth_date, 'yyyy-MM-dd', new Date()) : undefined}
+                      onSelect={(date) => onUpdate('beneficiary_birth_date', date ? format(date, 'yyyy-MM-dd') : null)}
+                      disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                      initialFocus
+                      captionLayout="dropdown-buttons"
+                      fromYear={1930}
+                      toYear={new Date().getFullYear()}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>
