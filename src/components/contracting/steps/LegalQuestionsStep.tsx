@@ -4,7 +4,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
 import { ClipboardCheck, Upload, CheckCircle2, ChevronRight, ArrowRight, RotateCcw, AlertCircle } from 'lucide-react';
 import { useRef, useMemo, useState } from 'react';
@@ -52,8 +51,7 @@ const groupedQuestions = LEGAL_QUESTIONS.reduce((acc, question) => {
 export function LegalQuestionsStep({ application, initials: pageInitials, onUpdate, onUpload, onRemove, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const legalQuestions = (application.legal_questions as Record<string, LegalQuestion>) || {};
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [localInitials, setLocalInitials] = useState('');
+  const [signature, setSignature] = useState('');
 
   const handleAnswerChange = (questionId: string, answer: boolean) => {
     const current = legalQuestions[questionId] || { answer: null };
@@ -113,14 +111,14 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
 
   const allQuestionsAnswered = unansweredQuestions.length === 0;
   const allExplanationsProvided = missingExplanations.length === 0;
+  const hasSigned = signature.trim().length >= 2;
 
   const handleClearAll = () => {
     onUpdate('legal_questions', {});
-    setAcknowledged(false);
-    setLocalInitials('');
+    setSignature('');
   };
 
-  const canContinue = acknowledged && allQuestionsAnswered && allExplanationsProvided;
+  const canContinue = hasSigned && allQuestionsAnswered && allExplanationsProvided;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -324,50 +322,34 @@ export function LegalQuestionsStep({ application, initials: pageInitials, onUpda
             </div>
           )}
 
-          {/* Attestation section */}
+          {/* Signature section */}
           <div className="mt-4 p-4 rounded-lg bg-muted/20 border border-border/40">
-            <p className="text-xs font-medium text-foreground/80 mb-2">Acknowledgment</p>
+            <p className="text-xs font-medium text-foreground/80 mb-2">Electronic Signature</p>
             <div className="space-y-2 text-xs text-muted-foreground leading-relaxed mb-3">
-              <p>By checking below, I confirm that:</p>
+              <p>By signing below, I confirm that:</p>
               <ul className="list-disc list-inside space-y-1 ml-1">
                 <li>My answers above are true and complete to the best of my knowledge.</li>
                 <li>I will notify Tyler Insurance Group within five days if any information changes.</li>
                 <li>I understand carriers may contact me with additional questions during contracting.</li>
               </ul>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="background_acknowledgment"
-                  checked={acknowledged}
-                  onCheckedChange={(checked) => setAcknowledged(!!checked)}
-                  className="h-4 w-4"
-                />
-                <Label 
-                  htmlFor="background_acknowledgment" 
-                  className="text-xs font-medium cursor-pointer"
-                >
-                  I acknowledge and agree
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="attestation_initials" className="text-xs text-muted-foreground">
-                  Initials
-                </Label>
-                <Input
-                  id="attestation_initials"
-                  value={localInitials}
-                  onChange={(e) => setLocalInitials(e.target.value.toUpperCase().slice(0, 4))}
-                  className="h-7 w-16 text-xs text-center uppercase"
-                  maxLength={4}
-                />
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="background_signature" className="text-xs">
+                Type your full legal name as signature *
+              </Label>
+              <Input
+                id="background_signature"
+                value={signature}
+                onChange={(e) => setSignature(e.target.value)}
+                placeholder={application.full_legal_name || "Full Legal Name"}
+                className="h-10 text-base font-serif italic max-w-sm"
+              />
+              {!hasSigned && allQuestionsAnswered && allExplanationsProvided && (
+                <p className="text-[10px] text-muted-foreground/70">
+                  Please sign above to continue.
+                </p>
+              )}
             </div>
-            {!acknowledged && allQuestionsAnswered && allExplanationsProvided && (
-              <p className="text-[10px] text-muted-foreground/70 mt-2">
-                Please check the box above to continue.
-              </p>
-            )}
           </div>
 
           {/* Validation warnings */}
