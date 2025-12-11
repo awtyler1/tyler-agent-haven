@@ -162,7 +162,7 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="insurance_license_number" className="text-xs">Insurance License # *</Label>
+                <Label htmlFor="insurance_license_number" className="text-xs">Resident License # *</Label>
                 <Input
                   id="insurance_license_number"
                   value={application.insurance_license_number || ''}
@@ -172,7 +172,7 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                 />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
                 <Label htmlFor="resident_state" className="text-xs">Resident State *</Label>
                 <Select
@@ -188,16 +188,6 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="resident_license_number" className="text-xs text-muted-foreground">Resident License #</Label>
-                <Input
-                  id="resident_license_number"
-                  value={application.resident_license_number || ''}
-                  onChange={e => onUpdate('resident_license_number', e.target.value)}
-                  placeholder="If different"
-                  className="h-8 text-sm"
-                />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="license_expiration_date" className="text-xs">Expiration Date *</Label>
