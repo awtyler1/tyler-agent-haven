@@ -52,3 +52,19 @@ export function maskEIN(value: string): string {
 export function getDigitsOnly(value: string): string {
   return value.replace(/\D/g, '');
 }
+
+// ZIP code formatting - 5 digits or ZIP+4 (XXXXX or XXXXX-XXXX)
+export function formatZipCode(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  const limited = digits.slice(0, 9);
+  
+  if (limited.length === 0) return '';
+  if (limited.length <= 5) return limited;
+  return `${limited.slice(0, 5)}-${limited.slice(5)}`;
+}
+
+// Validate ZIP code (5 digits or ZIP+4)
+export function isValidZipCode(value: string): boolean {
+  const digits = value.replace(/\D/g, '');
+  return digits.length === 5 || digits.length === 9;
+}
