@@ -133,13 +133,25 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="beneficiary_relationship" className="text-sm">Relationship</Label>
-                <Input
-                  id="beneficiary_relationship"
+                <Select
                   value={application.beneficiary_relationship || ''}
-                  onChange={e => onUpdate('beneficiary_relationship', e.target.value)}
-                  placeholder='Spouse, Child, Parent...'
-                  className="h-9"
-                />
+                  onValueChange={value => onUpdate('beneficiary_relationship', value)}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select relationship" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background">
+                    <SelectItem value="Spouse">Spouse</SelectItem>
+                    <SelectItem value="Child">Child</SelectItem>
+                    <SelectItem value="Parent">Parent</SelectItem>
+                    <SelectItem value="Sibling">Sibling</SelectItem>
+                    <SelectItem value="Grandchild">Grandchild</SelectItem>
+                    <SelectItem value="Domestic Partner">Domestic Partner</SelectItem>
+                    <SelectItem value="Trust">Trust</SelectItem>
+                    <SelectItem value="Estate">Estate</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="beneficiary_drivers_license_number" className="text-sm">Driver's License #</Label>
