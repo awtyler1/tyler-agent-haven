@@ -27,6 +27,10 @@ export default function AdminDashboard() {
       icon: Users,
       href: '/admin/agents',
       color: 'text-blue-500',
+      secondaryAction: {
+        label: 'Add Agent',
+        href: '/admin/agents/new',
+      },
     },
     {
       title: 'Add New Agent',
