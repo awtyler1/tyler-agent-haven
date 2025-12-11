@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { FileText, Download, ExternalLink, Loader2, FolderOpen, Calendar } from 'lucide-react';
+import { FileText, Download, ExternalLink, Loader2, FolderOpen, Calendar, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 
 const DOCUMENT_LABELS: Record<string, string> = {
@@ -34,6 +35,7 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<DocumentWithMeta[]>([]);
   const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
     async function fetchDocuments() {
@@ -194,74 +196,81 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
         ) : (
           <div className="space-y-3">
             {/* Contracting Documents Folder */}
-            <div className="rounded-lg border bg-card">
-              <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/50 rounded-t-lg">
-                <FolderOpen className="h-4 w-4 text-primary" />
-                <span className="font-medium text-sm">Contracting Documents</span>
-                <Badge variant="outline" className="ml-auto text-xs">
-                  {documents.length} file{documents.length !== 1 ? 's' : ''}
-                </Badge>
-              </div>
-              <div className="p-2 space-y-1">
-                {documents.map(({ docType, filePath, uploadedAt }) => {
-                  const label = DOCUMENT_LABELS[docType] || docType.replace(/_/g, ' ');
-                  const isContractingPacket = docType === 'contracting_packet';
-                  const isDownloading = downloadingDoc === docType;
-                  const formattedDate = formatUploadDate(uploadedAt);
-                  
-                  return (
-                    <div 
-                      key={docType}
-                      className={`flex items-center justify-between p-2.5 rounded-md ${
-                        isContractingPacket ? 'bg-primary/5 border border-primary/20' : 'hover:bg-muted/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <FileText className={`h-4 w-4 flex-shrink-0 ${isContractingPacket ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <div className="min-w-0">
-                          <p className={`font-medium text-sm ${isContractingPacket ? 'text-primary' : ''}`}>
-                            {label}
-                          </p>
-                          {formattedDate && (
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Calendar className="h-3 w-3" />
-                              {formattedDate}
-                            </span>
-                          )}
+            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+              <div className="rounded-lg border bg-card">
+                <CollapsibleTrigger asChild>
+                  <button className="flex items-center gap-2 px-4 py-3 border-b bg-muted/50 rounded-t-lg w-full hover:bg-muted/70 transition-colors">
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? '' : '-rotate-90'}`} />
+                    <FolderOpen className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Contracting Documents</span>
+                    <Badge variant="outline" className="ml-auto text-xs">
+                      {documents.length} file{documents.length !== 1 ? 's' : ''}
+                    </Badge>
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="p-2 space-y-1">
+                    {documents.map(({ docType, filePath, uploadedAt }) => {
+                      const label = DOCUMENT_LABELS[docType] || docType.replace(/_/g, ' ');
+                      const isContractingPacket = docType === 'contracting_packet';
+                      const isDownloading = downloadingDoc === docType;
+                      const formattedDate = formatUploadDate(uploadedAt);
+                      
+                      return (
+                        <div 
+                          key={docType}
+                          className={`flex items-center justify-between p-2.5 rounded-md ${
+                            isContractingPacket ? 'bg-primary/5 border border-primary/20' : 'hover:bg-muted/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <FileText className={`h-4 w-4 flex-shrink-0 ${isContractingPacket ? 'text-primary' : 'text-muted-foreground'}`} />
+                            <div className="min-w-0">
+                              <p className={`font-medium text-sm ${isContractingPacket ? 'text-primary' : ''}`}>
+                                {label}
+                              </p>
+                              {formattedDate && (
+                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Calendar className="h-3 w-3" />
+                                  {formattedDate}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewDocument(docType, filePath)}
+                              disabled={isDownloading}
+                              className="h-8 px-2"
+                            >
+                              {isDownloading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <>
+                                  <ExternalLink className="h-4 w-4 mr-1" />
+                                  View
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDownloadDocument(docType, filePath)}
+                              disabled={isDownloading}
+                              className="h-8 px-2"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDocument(docType, filePath)}
-                          disabled={isDownloading}
-                          className="h-8 px-2"
-                        >
-                          {isDownloading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <>
-                              <ExternalLink className="h-4 w-4 mr-1" />
-                              View
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDownloadDocument(docType, filePath)}
-                          disabled={isDownloading}
-                          className="h-8 px-2"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                </CollapsibleContent>
               </div>
-            </div>
+            </Collapsible>
           </div>
         )}
       </CardContent>
