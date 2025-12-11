@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,6 +7,13 @@ import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/
 import { AlertTriangle, Upload } from 'lucide-react';
 import { useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { WizardProgress } from '../WizardProgress';
+
+interface ProgressProps {
+  currentStep: number;
+  completedSteps: number[];
+  onStepClick: (step: number) => void;
+}
 
 interface LegalQuestionsStepProps {
   application: ContractingApplication;
@@ -14,9 +21,10 @@ interface LegalQuestionsStepProps {
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
   onContinue: () => void;
+  progressProps: ProgressProps;
 }
 
-export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, onContinue }: LegalQuestionsStepProps) {
+export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: LegalQuestionsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const legalQuestions = (application.legal_questions as Record<string, LegalQuestion>) || {};
 
@@ -44,17 +52,21 @@ export function LegalQuestionsStep({ application, onUpdate, onUpload, onBack, on
 
   return (
     <div className="max-w-5xl mx-auto">
-      <Card>
-        <CardHeader className="py-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <AlertTriangle className="h-4 w-4" />
-            Legal & Background Questions
-          </CardTitle>
-          <CardDescription className="text-sm">
+      <Card className="border-0 shadow-lg">
+        {/* Progress + Header */}
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
+          <WizardProgress {...progressProps} compact />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <AlertTriangle className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold">Background Questions</h2>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             Answer each question. If Yes, provide details below.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 pb-4">
+          </p>
+        </div>
+        <CardContent className="space-y-3 py-3">
           <ScrollArea className="h-[400px] pr-4">
             <div className="space-y-2">
               {LEGAL_QUESTIONS.map((question) => {

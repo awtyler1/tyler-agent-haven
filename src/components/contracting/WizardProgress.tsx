@@ -1,4 +1,3 @@
-import { Check } from 'lucide-react';
 import { WIZARD_STEPS } from '@/types/contracting';
 import { cn } from '@/lib/utils';
 
@@ -6,13 +5,14 @@ interface WizardProgressProps {
   currentStep: number;
   completedSteps: number[];
   onStepClick?: (step: number) => void;
+  compact?: boolean;
 }
 
-export function WizardProgress({ currentStep, completedSteps, onStepClick }: WizardProgressProps) {
+export function WizardProgress({ currentStep, completedSteps, onStepClick, compact = false }: WizardProgressProps) {
   return (
-    <div className="w-full py-3">
-      {/* Progress dots - Apple style */}
-      <div className="flex items-center justify-center gap-2">
+    <div className={cn("w-full", compact ? "py-1" : "py-2")}>
+      {/* Progress dots */}
+      <div className="flex items-center justify-center gap-1.5">
         {WIZARD_STEPS.map((step) => {
           const isCompleted = completedSteps.includes(step.id);
           const isCurrent = currentStep === step.id;
@@ -25,9 +25,9 @@ export function WizardProgress({ currentStep, completedSteps, onStepClick }: Wiz
               disabled={!isClickable}
               className={cn(
                 "transition-all duration-300 ease-out rounded-full",
-                isCurrent && "w-8 h-2 bg-primary",
-                isCompleted && !isCurrent && "w-2 h-2 bg-green-500",
-                !isCurrent && !isCompleted && "w-2 h-2 bg-muted-foreground/30",
+                isCurrent && "w-6 h-1.5 bg-primary",
+                isCompleted && !isCurrent && "w-1.5 h-1.5 bg-green-500",
+                !isCurrent && !isCompleted && "w-1.5 h-1.5 bg-muted-foreground/30",
                 isClickable && "cursor-pointer hover:opacity-80",
                 !isClickable && "cursor-not-allowed"
               )}
@@ -37,15 +37,13 @@ export function WizardProgress({ currentStep, completedSteps, onStepClick }: Wiz
         })}
       </div>
 
-      {/* Step name with fade animation */}
-      <div className="mt-3 text-center">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider">
-          Step {currentStep} of {WIZARD_STEPS.length}
-        </p>
-        <h2 className="text-lg font-semibold text-foreground mt-0.5 transition-all duration-300">
-          {WIZARD_STEPS.find(s => s.id === currentStep)?.name}
-        </h2>
-      </div>
+      {/* Step counter */}
+      <p className={cn(
+        "text-center text-muted-foreground mt-1",
+        compact ? "text-[9px]" : "text-[10px]"
+      )}>
+        Step {currentStep} of {WIZARD_STEPS.length}
+      </p>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,13 @@ import { ContractingApplication, US_STATES } from '@/types/contracting';
 import { Shield, Upload, ChevronDown, Lock, CheckCircle2, ArrowRight, User, Building2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { WizardProgress } from '../WizardProgress';
+
+interface ProgressProps {
+  currentStep: number;
+  completedSteps: number[];
+  onStepClick: (step: number) => void;
+}
 
 interface LicensingStepProps {
   application: ContractingApplication;
@@ -15,9 +22,10 @@ interface LicensingStepProps {
   onUpload: (file: File, type: string) => Promise<string | null>;
   onBack: () => void;
   onContinue: () => void;
+  progressProps: ProgressProps;
 }
 
-export function LicensingStep({ application, onUpdate, onUpload, onBack, onContinue }: LicensingStepProps) {
+export function LicensingStep({ application, onUpdate, onUpload, onBack, onContinue, progressProps }: LicensingStepProps) {
   const [showNonResident, setShowNonResident] = useState(false);
   const [showOptionalIdentity, setShowOptionalIdentity] = useState(
     !!(application.gender || application.drivers_license_number)
@@ -44,16 +52,20 @@ export function LicensingStep({ application, onUpdate, onUpload, onBack, onConti
   return (
     <div className="max-w-2xl mx-auto">
       <Card className="border-0 shadow-lg">
-        <CardHeader className="py-2 text-center">
-          <div className="mx-auto w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-0.5">
-            <Shield className="h-3.5 w-3.5 text-primary" />
+        {/* Progress + Header */}
+        <div className="pt-3 pb-2 text-center border-b border-border/30">
+          <WizardProgress {...progressProps} compact />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <Shield className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <h2 className="text-base font-semibold">Identity & Licensing</h2>
           </div>
-          <CardTitle className="text-base">Identity & Licensing</CardTitle>
-          <CardDescription className="text-[10px]">
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             Required for carrier contracting and compliance.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2.5 pb-3 px-4">
+          </p>
+        </div>
+        <CardContent className="space-y-2.5 py-3 px-4">
           
           {/* Section 1: Identity Verification */}
           <div className="space-y-1.5">
