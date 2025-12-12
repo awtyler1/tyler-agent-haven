@@ -62,15 +62,16 @@ export function useContractingApplication() {
           }
           setApplication(existingApp as unknown as ContractingApplication);
         } else {
-          // Create new application with email prefilled from login
-          const newApp = {
-            ...getEmptyApplication(user.id),
-            email_address: user.email || null,
-          };
-          const dbData = toDbFormat(newApp);
+          // Create new application with only essential fields to avoid schema cache issues
           const { data: createdApp, error: createError } = await supabase
             .from('contracting_applications')
-            .insert(dbData as never)
+            .insert({
+              user_id: user.id,
+              email_address: user.email || null,
+              status: 'in_progress',
+              current_step: 1,
+              completed_steps: [],
+            } as never)
             .select()
             .single();
 

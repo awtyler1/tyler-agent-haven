@@ -320,5 +320,6 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   signature_name: null,
   signature_initials: null,
   signature_date: null,
+  section_acknowledgments: {},
   uploaded_documents: {},
 });
