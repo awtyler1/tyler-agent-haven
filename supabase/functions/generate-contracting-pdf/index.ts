@@ -179,28 +179,53 @@ const CARRIER_FIELD_MAP: Record<string, { checkbox: string; nonResStates: string
   'William Penn': { checkbox: 'fill_153', nonResStates: 'NONRES STATESWilliam Penn' },
 };
 
-// Legal question ID to Yes/No checkbox field mapping
-// Format: { yesField: 'field_name_for_yes', noField: 'field_name_for_no' }
-const LEGAL_QUESTION_CHECKBOX_MAP: Record<string, { yesField: string; noField: string }> = {
-  '1': { yesField: 'Yes1', noField: 'No1' },
-  '2': { yesField: 'Yes2', noField: 'No2' },
-  '3': { yesField: 'Yes3', noField: 'No3' },
-  '4': { yesField: 'Yes4', noField: 'No4' },
-  '5': { yesField: 'Yes5', noField: 'No5' },
-  '6': { yesField: 'Yes6', noField: 'No6' },
-  '7': { yesField: 'Yes7', noField: 'No7' },
-  '8': { yesField: 'Yes8', noField: 'No8' },
-  '9': { yesField: 'Yes9', noField: 'No9' },
-  '10': { yesField: 'Yes10', noField: 'No10' },
-  '11': { yesField: 'Yes11', noField: 'No11' },
-  '12': { yesField: 'Yes12', noField: 'No12' },
-  '13': { yesField: 'Yes13', noField: 'No13' },
-  '14': { yesField: 'Yes14', noField: 'No14' },
-  '15': { yesField: 'Yes15', noField: 'No15' },
-  '16': { yesField: 'Yes16', noField: 'No16' },
-  '17': { yesField: 'Yes17', noField: 'No17' },
-  '18': { yesField: 'Yes18', noField: 'No18' },
-  '19': { yesField: 'Yes19', noField: 'No19' },
+// Legal question ID to PDF text field mapping
+// The PDF uses TEXT fields (not checkboxes) for Yes/No - we fill them with 'X'
+// Based on the Pinnacle PDF field structure, Yes fields come before No fields
+const LEGAL_QUESTION_FIELD_MAP: Record<string, { yesField: string; noField: string; explanationField?: string }> = {
+  // Page 3 - Questions 1-8A (field numbers approximate based on PDF structure)
+  '1': { yesField: 'Yes', noField: 'No' },  // Main question 1
+  '1A': { yesField: 'Yes_2', noField: 'No_2' },
+  '1B': { yesField: 'Yes_3', noField: 'No_3' },
+  '1C': { yesField: 'Yes_4', noField: 'No_4' },
+  '1D': { yesField: 'Yes_5', noField: 'No_5' },
+  '1E': { yesField: 'Yes_6', noField: 'No_6' },
+  '1F': { yesField: 'Yes_7', noField: 'No_7' },
+  '1G': { yesField: 'Yes_8', noField: 'No_8' },
+  '1H': { yesField: 'Yes_9', noField: 'No_9' },
+  '2': { yesField: 'Yes_10', noField: 'No_10' },
+  '2A': { yesField: 'Yes_11', noField: 'No_11' },
+  '2B': { yesField: 'Yes_12', noField: 'No_12' },
+  '2C': { yesField: 'Yes_13', noField: 'No_13' },
+  '2D': { yesField: 'Yes_14', noField: 'No_14' },
+  '3': { yesField: 'Yes_15', noField: 'No_15' },
+  '4': { yesField: 'Yes_16', noField: 'No_16' },
+  '5': { yesField: 'Yes_17', noField: 'No_17' },
+  '5A': { yesField: 'Yes_18', noField: 'No_18' },
+  '5B': { yesField: 'Yes_19', noField: 'No_19' },
+  '5C': { yesField: 'Yes_20', noField: 'No_20' },
+  '6': { yesField: 'Yes_21', noField: 'No_21' },
+  '7': { yesField: 'Yes_22', noField: 'No_22' },
+  '8': { yesField: 'Yes_23', noField: 'No_23' },
+  '8A': { yesField: 'Yes_24', noField: 'No_24' },
+  // Page 4 - Questions 8B-19
+  '8B': { yesField: 'Yes_25', noField: 'No_25' },
+  '9': { yesField: 'Yes_26', noField: 'No_26' },
+  '10': { yesField: 'Yes_27', noField: 'No_27' },
+  '11': { yesField: 'Yes_28', noField: 'No_28' },
+  '12': { yesField: 'Yes_29', noField: 'No_29' },
+  '13': { yesField: 'Yes_30', noField: 'No_30' },
+  '14': { yesField: 'Yes_31', noField: 'No_31' },
+  '14A': { yesField: 'Yes_32', noField: 'No_32' },
+  '14C': { yesField: 'Yes_33', noField: 'No_33' },
+  '15': { yesField: 'Yes_34', noField: 'No_34' },
+  '15A': { yesField: 'Yes_35', noField: 'No_35' },
+  '15B': { yesField: 'Yes_36', noField: 'No_36' },
+  '15C': { yesField: 'Yes_37', noField: 'No_37' },
+  '16': { yesField: 'Yes_38', noField: 'No_38' },
+  '17': { yesField: 'Yes_39', noField: 'No_39' },
+  '18': { yesField: 'Yes_40', noField: 'No_40' },
+  '19': { yesField: 'Yes_41', noField: 'No_41' },
 };
 
 serve(async (req) => {
@@ -540,73 +565,38 @@ serve(async (req) => {
     
     console.log('Processing legal questions:', Object.keys(legalQuestions).length);
     
-    // Process each legal question and try to check Yes/No boxes
+    // Process each legal question - these are TEXT FIELDS not checkboxes
+    // We fill them with 'X' to mark Yes or No
     Object.entries(legalQuestions).forEach(([questionId, questionData]) => {
       const question = questionData as LegalQuestion;
       if (question && question.answer !== null && question.answer !== undefined) {
-        const mapping = LEGAL_QUESTION_CHECKBOX_MAP[questionId];
+        const mapping = LEGAL_QUESTION_FIELD_MAP[questionId];
         const isYes = question.answer === true;
         
         console.log(`Legal Q${questionId}: answer=${isYes ? 'Yes' : 'No'}`);
         
-        // Try multiple checkbox naming patterns
-        const checkboxPatterns = isYes ? [
-          mapping?.yesField,
-          `Yes${questionId}`,
-          `Yes_${questionId}`,
-          `Q${questionId}_Yes`,
-          `Question${questionId}_Yes`,
-          `fill_yes_${questionId}`,
-        ] : [
-          mapping?.noField,
-          `No${questionId}`,
-          `No_${questionId}`,
-          `Q${questionId}_No`,
-          `Question${questionId}_No`,
-          `fill_no_${questionId}`,
-        ];
-        
-        let checked = false;
-        for (const fieldName of checkboxPatterns) {
-          if (!fieldName) continue;
+        if (mapping) {
+          const targetField = isYes ? mapping.yesField : mapping.noField;
+          
+          // Try to set as text field with 'X'
           try {
-            const field = form.getCheckBox(fieldName);
-            field.check();
-            console.log(`Checked legal question checkbox: ${fieldName}`);
-            checked = true;
-            break;
+            const field = form.getTextField(targetField);
+            field.setText('X');
+            console.log(`Set legal question ${questionId} ${isYes ? 'Yes' : 'No'} field: ${targetField}`);
           } catch {
-            // Try as text field with X
-            try {
-              const field = form.getTextField(fieldName);
-              field.setText('X');
-              console.log(`Set legal question text field: ${fieldName}`);
-              checked = true;
-              break;
-            } catch { /* Field doesn't exist */ }
+            console.log(`Field not found: ${targetField} for question ${questionId}`);
           }
-        }
-        
-        if (!checked) {
-          console.log(`Could not find checkbox for legal question ${questionId}`);
+        } else {
+          console.log(`No mapping found for legal question ${questionId}`);
         }
         
         // If there's an explanation for a "Yes" answer, try to set it
-        if (isYes && question.explanation) {
-          const explanationFields = [
-            `Explanation${questionId}`,
-            `Explanation_${questionId}`,
-            `Q${questionId}_Explanation`,
-            `Details${questionId}`,
-          ];
-          for (const fieldName of explanationFields) {
-            try {
-              const field = form.getTextField(fieldName);
-              field.setText(question.explanation);
-              console.log(`Set explanation for Q${questionId}`);
-              break;
-            } catch { /* Field doesn't exist */ }
-          }
+        if (isYes && question.explanation && mapping?.explanationField) {
+          try {
+            const field = form.getTextField(mapping.explanationField);
+            field.setText(question.explanation);
+            console.log(`Set explanation for Q${questionId}`);
+          } catch { /* Field doesn't exist */ }
         }
       }
     });
