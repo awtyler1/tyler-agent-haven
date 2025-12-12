@@ -226,11 +226,12 @@ serve(async (req) => {
   }
 
   try {
-    const { application, saveToStorage = false, userId, templateUrl } = await req.json() as { 
+    const { application, saveToStorage = false, userId, templateUrl, templateBase64 } = await req.json() as { 
       application: ContractingData; 
       saveToStorage?: boolean;
       userId?: string;
       templateUrl?: string;
+      templateBase64?: string;
     };
 
     console.log('Generating PDF for:', application.full_legal_name, 'saveToStorage:', saveToStorage);
@@ -249,34 +250,51 @@ serve(async (req) => {
       );
     }
 
-    // Fetch the PDF template
-    const pdfTemplateUrl = templateUrl || 'https://wpczgwxsriezaubncuom.lovableproject.com/templates/TIG_Contracting_Packet_Template.pdf';
-    
-    console.log('Fetching PDF template from:', pdfTemplateUrl);
-    
-    // Try to fetch from multiple possible URLs
     let pdfBytes: ArrayBuffer | null = null;
-    const urls = [
-      pdfTemplateUrl,
-      'https://tyler-insurance-hub.lovable.app/templates/TIG_Contracting_Packet_Template.pdf',
-    ];
     
-    for (const url of urls) {
+    // First, try to use the base64 template if provided
+    if (templateBase64) {
+      console.log('Using base64 template provided by client');
       try {
-        const response = await fetch(url);
-        if (response.ok) {
-          pdfBytes = await response.arrayBuffer();
-          console.log('Successfully fetched template from:', url);
-          break;
+        const binaryString = atob(templateBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
         }
+        pdfBytes = bytes.buffer;
+        console.log('Template decoded from base64, size:', pdfBytes.byteLength);
       } catch (e) {
-        console.log('Failed to fetch from:', url, e);
+        console.log('Failed to decode base64 template:', e);
       }
     }
     
-    // If we couldn't fetch the template, create a simple PDF instead
+    // Fallback: try to fetch from URLs
     if (!pdfBytes) {
-      console.log('Could not fetch template, creating PDF from scratch');
+      const pdfTemplateUrl = templateUrl || 'https://wpczgwxsriezaubncuom.lovableproject.com/templates/TIG_Contracting_Packet_Template.pdf';
+      console.log('Fetching PDF template from:', pdfTemplateUrl);
+      
+      const urls = [
+        pdfTemplateUrl,
+        'https://tyler-insurance-hub.lovable.app/templates/TIG_Contracting_Packet_Template.pdf',
+      ];
+      
+      for (const url of urls) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            pdfBytes = await response.arrayBuffer();
+            console.log('Successfully fetched template from:', url);
+            break;
+          }
+        } catch (e) {
+          console.log('Failed to fetch from:', url, e);
+        }
+      }
+    }
+    
+    // If we couldn't get the template, create a simple PDF instead
+    if (!pdfBytes) {
+      console.log('Could not get template, creating PDF from scratch');
       return await createPdfFromScratch(application, saveToStorage, userId);
     }
 

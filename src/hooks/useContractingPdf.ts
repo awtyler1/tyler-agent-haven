@@ -59,6 +59,26 @@ export function useContractingPdf() {
         return { success: false, error: errorMsg };
       }
 
+      // Fetch the PDF template and convert to base64
+      let templateBase64: string | undefined;
+      try {
+        const templateResponse = await fetch('/templates/TIG_Contracting_Packet_Template.pdf');
+        if (templateResponse.ok) {
+          const templateBlob = await templateResponse.blob();
+          templateBase64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64 = (reader.result as string).split(',')[1];
+              resolve(base64);
+            };
+            reader.readAsDataURL(templateBlob);
+          });
+          console.log('Template loaded, size:', templateBase64.length);
+        }
+      } catch (e) {
+        console.log('Could not load template, will use fallback:', e);
+      }
+
       // Call the edge function
       const { data, error: fnError } = await supabase.functions.invoke('generate-contracting-pdf', {
         body: {
@@ -103,9 +123,13 @@ export function useContractingPdf() {
             signature_name: application.signature_name,
             signature_initials: application.signature_initials,
             signature_date: application.signature_date,
+            is_finra_registered: application.is_finra_registered,
+            finra_broker_dealer_name: application.finra_broker_dealer_name,
+            finra_crd_number: application.finra_crd_number,
           },
           saveToStorage,
           userId: application.user_id,
+          templateBase64,
         },
       });
 
