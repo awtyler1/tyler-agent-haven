@@ -43,6 +43,7 @@ import NewManagerPage from "./pages/admin/NewManagerPage";
 import UserDetailPage from "./pages/admin/UserDetailPage";
 import PlatformMapPage from "./pages/admin/PlatformMapPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
+import PdfFieldExtractorPage from "./pages/admin/PdfFieldExtractorPage";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +119,14 @@ const App = () => (
               element={<PlatformMapPage />} 
             />
             <Route 
+              path="/admin/pdf-extractor" 
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <PdfFieldExtractorPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route
               path="/admin/agents" 
               element={
                 <ProtectedRoute requireAdmin>
