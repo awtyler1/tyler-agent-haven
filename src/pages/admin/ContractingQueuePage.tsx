@@ -18,10 +18,22 @@ import {
   AlertCircle,
   ExternalLink,
   Loader2,
-  FolderOpen
+  FolderOpen,
+  XCircle,
+  Check
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ContractingSubmission {
   id: string;
@@ -52,8 +64,14 @@ export default function ContractingQueuePage() {
   const [submissions, setSubmissions] = useState<ContractingSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'submitted' | 'in_progress'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'submitted' | 'in_progress' | 'approved' | 'rejected'>('all');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    action: 'approve' | 'reject' | null;
+    submission: ContractingSubmission | null;
+  }>({ open: false, action: null, submission: null });
 
   useEffect(() => {
     fetchSubmissions();
@@ -122,12 +140,69 @@ export default function ContractingQueuePage() {
     }
   };
 
+  const handleApprove = async (submission: ContractingSubmission) => {
+    setProcessingId(submission.id);
+    try {
+      // Update contracting application status to approved
+      const { error: appError } = await supabase
+        .from('contracting_applications')
+        .update({ status: 'approved' })
+        .eq('id', submission.id);
+
+      if (appError) throw appError;
+
+      // Update agent's profile onboarding status to APPOINTED
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          onboarding_status: 'APPOINTED',
+          appointed_at: new Date().toISOString()
+        })
+        .eq('user_id', submission.user_id);
+
+      if (profileError) throw profileError;
+
+      toast.success(`${submission.full_legal_name || 'Agent'} has been approved and appointed`);
+      fetchSubmissions();
+    } catch (err) {
+      console.error('Error approving application:', err);
+      toast.error('Failed to approve application');
+    } finally {
+      setProcessingId(null);
+      setConfirmDialog({ open: false, action: null, submission: null });
+    }
+  };
+
+  const handleReject = async (submission: ContractingSubmission) => {
+    setProcessingId(submission.id);
+    try {
+      // Update contracting application status to rejected
+      const { error: appError } = await supabase
+        .from('contracting_applications')
+        .update({ status: 'rejected' })
+        .eq('id', submission.id);
+
+      if (appError) throw appError;
+
+      toast.success(`${submission.full_legal_name || 'Agent'}'s application has been rejected`);
+      fetchSubmissions();
+    } catch (err) {
+      console.error('Error rejecting application:', err);
+      toast.error('Failed to reject application');
+    } finally {
+      setProcessingId(null);
+      setConfirmDialog({ open: false, action: null, submission: null });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'submitted':
         return <Badge className="bg-amber-100 text-amber-800 border-amber-200"><Clock className="h-3 w-3 mr-1" />Pending Review</Badge>;
       case 'approved':
         return <Badge className="bg-green-100 text-green-800 border-green-200"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>;
+      case 'rejected':
+        return <Badge className="bg-red-100 text-red-800 border-red-200"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
       case 'in_progress':
         return <Badge className="bg-blue-100 text-blue-800 border-blue-200"><AlertCircle className="h-3 w-3 mr-1" />In Progress</Badge>;
       default:
@@ -145,6 +220,9 @@ export default function ContractingQueuePage() {
     
     return matchesSearch && matchesStatus;
   });
+
+  const approvedCount = submissions.filter(s => s.status === 'approved').length;
+  const rejectedCount = submissions.filter(s => s.status === 'rejected').length;
 
   const submittedCount = submissions.filter(s => s.status === 'submitted').length;
   const inProgressCount = submissions.filter(s => s.status === 'in_progress').length;
@@ -210,7 +288,7 @@ export default function ContractingQueuePage() {
                 className="pl-9"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant={statusFilter === 'all' ? 'default' : 'outline'}
                 size="sm"
@@ -231,6 +309,20 @@ export default function ContractingQueuePage() {
                 onClick={() => setStatusFilter('in_progress')}
               >
                 In Progress ({inProgressCount})
+              </Button>
+              <Button
+                variant={statusFilter === 'approved' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setStatusFilter('approved')}
+              >
+                Approved ({approvedCount})
+              </Button>
+              <Button
+                variant={statusFilter === 'rejected' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setStatusFilter('rejected')}
+              >
+                Rejected ({rejectedCount})
               </Button>
             </div>
           </div>
@@ -326,7 +418,7 @@ export default function ContractingQueuePage() {
                         </div>
 
                         {/* Actions Sidebar */}
-                        <div className="lg:w-48 bg-muted/30 p-4 flex flex-row lg:flex-col gap-2 border-t lg:border-t-0 lg:border-l">
+                        <div className="lg:w-52 bg-muted/30 p-4 flex flex-row lg:flex-col gap-2 border-t lg:border-t-0 lg:border-l">
                           {hasPacket ? (
                             <Button
                               onClick={() => downloadContractingPacket(submission)}
@@ -355,6 +447,43 @@ export default function ContractingQueuePage() {
                             <User className="h-4 w-4" />
                             View Profile
                           </Button>
+                          
+                          {/* Approve/Reject Actions - only show for submitted applications */}
+                          {submission.status === 'submitted' && (
+                            <div className="flex gap-2 lg:flex-col lg:pt-2 lg:border-t lg:mt-2">
+                              <Button
+                                size="sm"
+                                className="flex-1 gap-1.5 bg-green-600 hover:bg-green-700"
+                                disabled={processingId === submission.id}
+                                onClick={() => setConfirmDialog({
+                                  open: true,
+                                  action: 'approve',
+                                  submission
+                                })}
+                              >
+                                {processingId === submission.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Check className="h-3.5 w-3.5" />
+                                )}
+                                Approve
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                                disabled={processingId === submission.id}
+                                onClick={() => setConfirmDialog({
+                                  open: true,
+                                  action: 'reject',
+                                  submission
+                                })}
+                              >
+                                <XCircle className="h-3.5 w-3.5" />
+                                Reject
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -367,6 +496,56 @@ export default function ContractingQueuePage() {
       </main>
 
       <Footer />
+
+      {/* Confirmation Dialog */}
+      <AlertDialog 
+        open={confirmDialog.open} 
+        onOpenChange={(open) => !open && setConfirmDialog({ open: false, action: null, submission: null })}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmDialog.action === 'approve' ? 'Approve Application' : 'Reject Application'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDialog.action === 'approve' ? (
+                <>
+                  Are you sure you want to approve <strong>{confirmDialog.submission?.full_legal_name}</strong>'s contracting application?
+                  <br /><br />
+                  This will update their onboarding status to <strong>APPOINTED</strong> and grant them full platform access.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to reject <strong>{confirmDialog.submission?.full_legal_name}</strong>'s contracting application?
+                  <br /><br />
+                  The agent will need to resubmit their application.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={processingId !== null}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className={confirmDialog.action === 'approve' 
+                ? 'bg-green-600 hover:bg-green-700' 
+                : 'bg-red-600 hover:bg-red-700'}
+              disabled={processingId !== null}
+              onClick={() => {
+                if (confirmDialog.action === 'approve' && confirmDialog.submission) {
+                  handleApprove(confirmDialog.submission);
+                } else if (confirmDialog.action === 'reject' && confirmDialog.submission) {
+                  handleReject(confirmDialog.submission);
+                }
+              }}
+            >
+              {processingId !== null ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              {confirmDialog.action === 'approve' ? 'Approve' : 'Reject'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
