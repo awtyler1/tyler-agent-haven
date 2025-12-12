@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { PDFDocument } from "https://esm.sh/pdf-lib@1.17.1";
+import { PDFDocument, rgb } from "https://esm.sh/pdf-lib@1.17.1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
@@ -73,6 +73,9 @@ interface ContractingData {
   finra_crd_number?: string;
   agreements?: Record<string, boolean>;
   uploaded_documents?: Record<string, string>;
+  initials_image?: string; // base64 PNG of drawn initials
+  signature_image?: string; // base64 PNG of drawn signature (background/legal)
+  final_signature_image?: string; // base64 PNG of final signature
 }
 
 function formatDate(dateStr: string | undefined): string {
@@ -303,8 +306,96 @@ serve(async (req) => {
     // Load the PDF template
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const form = pdfDoc.getForm();
+    const pages = pdfDoc.getPages();
     
     console.log('PDF template loaded, filling form fields...');
+    console.log('Total pages:', pages.length);
+
+    // Helper to embed image from base64 data URL
+    const embedImageFromDataUrl = async (dataUrl: string) => {
+      try {
+        if (!dataUrl) return null;
+        const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+        const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+        
+        // Check if PNG or try as PNG (signature pads typically output PNG)
+        if (dataUrl.includes('image/png')) {
+          return await pdfDoc.embedPng(imageBytes);
+        } else {
+          // Try PNG first, fallback to JPEG
+          try {
+            return await pdfDoc.embedPng(imageBytes);
+          } catch {
+            return await pdfDoc.embedJpg(imageBytes);
+          }
+        }
+      } catch (e) {
+        console.log('Failed to embed image:', e);
+        return null;
+      }
+    };
+
+    // Embed drawn initials and signature images if provided
+    let initialsImage = null;
+    let backgroundSignatureImage = null;
+    let finalSignatureImage = null;
+
+    const uploadedDocs = application.uploaded_documents || {};
+    
+    if (uploadedDocs.initials_image) {
+      console.log('Embedding drawn initials image');
+      initialsImage = await embedImageFromDataUrl(uploadedDocs.initials_image);
+    }
+    
+    if (uploadedDocs.background_signature) {
+      console.log('Embedding background signature image (after legal questions)');
+      backgroundSignatureImage = await embedImageFromDataUrl(uploadedDocs.background_signature);
+    }
+    
+    if (uploadedDocs.final_signature) {
+      console.log('Embedding final signature image');
+      finalSignatureImage = await embedImageFromDataUrl(uploadedDocs.final_signature);
+    }
+
+    // Helper to draw initials on a page at specific position
+    const drawInitialsOnPage = (pageIndex: number, x: number, y: number, width = 60, height = 25) => {
+      if (initialsImage && pageIndex < pages.length) {
+        try {
+          const page = pages[pageIndex];
+          const dims = initialsImage.scale(1);
+          const scaleFactor = Math.min(width / dims.width, height / dims.height);
+          page.drawImage(initialsImage, {
+            x,
+            y,
+            width: dims.width * scaleFactor,
+            height: dims.height * scaleFactor,
+          });
+          console.log(`Drew initials on page ${pageIndex + 1} at (${x}, ${y})`);
+        } catch (e) {
+          console.log(`Failed to draw initials on page ${pageIndex + 1}:`, e);
+        }
+      }
+    };
+
+    // Helper to draw signature on a page
+    const drawSignatureOnPage = (signatureImg: typeof initialsImage, pageIndex: number, x: number, y: number, width = 200, height = 50) => {
+      if (signatureImg && pageIndex < pages.length) {
+        try {
+          const page = pages[pageIndex];
+          const dims = signatureImg.scale(1);
+          const scaleFactor = Math.min(width / dims.width, height / dims.height);
+          page.drawImage(signatureImg, {
+            x,
+            y,
+            width: dims.width * scaleFactor,
+            height: dims.height * scaleFactor,
+          });
+          console.log(`Drew signature on page ${pageIndex + 1} at (${x}, ${y})`);
+        } catch (e) {
+          console.log(`Failed to draw signature on page ${pageIndex + 1}:`, e);
+        }
+      }
+    };
 
     // Helper to safely set text field
     const setTextField = (fieldName: string, value: string | undefined | null) => {
@@ -628,6 +719,42 @@ serve(async (req) => {
     
     setTextField('INITIALS_8', application.signature_initials);
     setTextField('DATE_9', formatDate(application.signature_date));
+
+    // ==================== DRAW INITIALS AND SIGNATURES AS IMAGES ====================
+    // Draw initials on each page footer (positions may need adjustment based on template)
+    // Page indices are 0-based
+    if (initialsImage) {
+      // Draw initials at bottom of each page - adjust coordinates based on actual PDF layout
+      // These are approximate positions - typical footer initials location
+      const initialsPositions = [
+        { page: 0, x: 50, y: 30 },   // Page 1
+        { page: 1, x: 50, y: 30 },   // Page 2
+        { page: 2, x: 50, y: 30 },   // Page 3
+        { page: 3, x: 50, y: 30 },   // Page 4
+        { page: 4, x: 50, y: 30 },   // Page 5
+        { page: 5, x: 50, y: 30 },   // Page 6
+        { page: 6, x: 50, y: 30 },   // Page 7
+        { page: 7, x: 50, y: 30 },   // Page 8
+        { page: 8, x: 50, y: 30 },   // Page 9
+        { page: 9, x: 50, y: 30 },   // Page 10
+      ];
+      
+      for (const pos of initialsPositions) {
+        drawInitialsOnPage(pos.page, pos.x, pos.y);
+      }
+    }
+    
+    // Draw background signature on page 3 (after legal questions) - 0-indexed so page 2
+    if (backgroundSignatureImage) {
+      // Position in signature area at bottom of page 3
+      drawSignatureOnPage(backgroundSignatureImage, 2, 150, 100, 250, 60);
+    }
+    
+    // Draw final signature on signature page (page 9 typically) - 0-indexed so page 8
+    if (finalSignatureImage) {
+      // Position in main signature box
+      drawSignatureOnPage(finalSignatureImage, 8, 180, 350, 250, 80);
+    }
 
     // Flatten the form to prevent further editing
     form.flatten();
