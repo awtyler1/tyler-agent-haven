@@ -523,22 +523,73 @@ serve(async (req) => {
     // ==================== PAGE 10: Carrier Selection ====================
     const selectedCarriers = application.selected_carriers || [];
     
+    console.log('Processing carriers:', selectedCarriers.length);
+    
     selectedCarriers.forEach((carrier) => {
-      // Find matching carrier in our map
-      const carrierKey = Object.keys(CARRIER_FIELD_MAP).find(key => 
-        carrier.carrier_name.toLowerCase().includes(key.toLowerCase()) ||
-        key.toLowerCase().includes(carrier.carrier_name.toLowerCase())
-      );
+      console.log('Looking for carrier:', carrier.carrier_name);
+      
+      // Normalize carrier name for matching
+      const normalizedCarrierName = carrier.carrier_name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      
+      // Find matching carrier in our map using multiple strategies
+      let carrierKey = Object.keys(CARRIER_FIELD_MAP).find(key => {
+        const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+        
+        // Exact match after normalization
+        if (normalizedKey === normalizedCarrierName) return true;
+        
+        // Key contains carrier name or vice versa
+        if (normalizedKey.includes(normalizedCarrierName) || normalizedCarrierName.includes(normalizedKey)) return true;
+        
+        // Check for common abbreviations/variations
+        const keyWords = key.toLowerCase().split(/\s+/);
+        const carrierWords = carrier.carrier_name.toLowerCase().split(/\s+/);
+        
+        // If first word matches (e.g., "Humana" matches "Humana Medicare")
+        if (keyWords[0] === carrierWords[0] && keyWords[0].length > 3) return true;
+        
+        return false;
+      });
       
       if (carrierKey) {
         const mapping = CARRIER_FIELD_MAP[carrierKey];
-        setCheckbox(mapping.checkbox, true);
+        console.log('Found mapping for', carrier.carrier_name, '-> checkbox:', mapping.checkbox);
         
+        // Try to check the checkbox
+        try {
+          const field = form.getCheckBox(mapping.checkbox);
+          field.check();
+          console.log('Successfully checked:', mapping.checkbox);
+        } catch (e) {
+          console.log('Checkbox not found:', mapping.checkbox, '- trying as text field');
+          setTextField(mapping.checkbox, 'X');
+        }
+        
+        // Set non-resident states if any
         if (carrier.non_resident_states && carrier.non_resident_states.length > 0) {
+          console.log('Setting non-resident states:', carrier.non_resident_states.join(', '));
           setTextField(mapping.nonResStates, carrier.non_resident_states.join(', '));
         }
       } else {
         console.log('No mapping found for carrier:', carrier.carrier_name);
+        // Try to find by first word as fallback
+        const firstWord = carrier.carrier_name.split(/\s+/)[0];
+        const fallbackKey = Object.keys(CARRIER_FIELD_MAP).find(key => 
+          key.toLowerCase().startsWith(firstWord.toLowerCase())
+        );
+        if (fallbackKey) {
+          const mapping = CARRIER_FIELD_MAP[fallbackKey];
+          console.log('Using fallback mapping:', fallbackKey, '-> checkbox:', mapping.checkbox);
+          try {
+            const field = form.getCheckBox(mapping.checkbox);
+            field.check();
+          } catch {
+            setTextField(mapping.checkbox, 'X');
+          }
+          if (carrier.non_resident_states && carrier.non_resident_states.length > 0) {
+            setTextField(mapping.nonResStates, carrier.non_resident_states.join(', '));
+          }
+        }
       }
     });
     
