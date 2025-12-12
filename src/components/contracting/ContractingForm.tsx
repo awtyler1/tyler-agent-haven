@@ -525,7 +525,6 @@ export function ContractingForm() {
               showValidation={validationState.hasValidated && !validationState.isFormValid}
               onClearError={clearFieldError}
             />
-            />
             <SectionAcknowledgment
               sectionId="carriers"
               sectionName="Carrier Selection"
