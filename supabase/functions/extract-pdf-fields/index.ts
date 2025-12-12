@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { PDFDocument } from "https://esm.sh/pdf-lib@1.17.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -93,6 +94,21 @@ serve(async (req) => {
       other: fieldInfo.filter((f: any) => !['PDFTextField', 'PDFCheckBox', 'PDFDropdown', 'PDFRadioGroup'].includes(f.type)),
     };
     
+    // Save to system_config for later retrieval
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    await supabase
+      .from('system_config')
+      .upsert({
+        config_key: 'pdf_template_fields',
+        config_value: { fields: fieldInfo, grouped, totalFields: fields.length, pageCount: pdfDoc.getPageCount() },
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'config_key' });
+    
+    console.log('Saved field info to system_config');
+    
     return new Response(
       JSON.stringify({
         success: true,
@@ -100,6 +116,7 @@ serve(async (req) => {
         pageCount: pdfDoc.getPageCount(),
         fields: fieldInfo,
         grouped,
+        savedToDb: true,
       }, null, 2),
       { 
         status: 200, 
