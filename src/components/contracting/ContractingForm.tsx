@@ -203,7 +203,7 @@ export function ContractingForm() {
     );
   }
 
-  // Show submitted state
+  // Show submitted state (pending review)
   if (application.status === 'submitted') {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
@@ -238,6 +238,19 @@ export function ContractingForm() {
         </Card>
       </div>
     );
+  }
+
+  // Show rejected state - allow re-editing
+  if (application.status === 'rejected') {
+    // Check if signature fields need to be reset for re-signing
+    const needsResign = !application.signature_date || 
+      new Date(application.signature_date).getTime() < (application.submitted_at ? new Date(application.submitted_at).getTime() : 0);
+    
+    if (needsResign && (application.signature_name || application.signature_date)) {
+      // Reset signature fields so they must re-sign
+      updateField('signature_name', null);
+      updateField('signature_date', null);
+    }
   }
 
   const initialsEntered = !!application.signature_initials;
