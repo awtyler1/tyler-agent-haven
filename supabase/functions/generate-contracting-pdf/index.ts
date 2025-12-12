@@ -321,17 +321,20 @@ serve(async (req) => {
     const allFields = form.getFields();
     console.log('Total form fields found:', allFields.length);
     
-    // Log ALL field names to find the Yes/No patterns
-    console.log('=== ALL FORM FIELD NAMES ===');
+    // Log field names that look like Yes/No or checkbox fields
+    console.log('=== SEARCHING FOR YES/NO FIELDS ===');
     allFields.forEach((f: any, idx: number) => {
       const name = f.getName();
       const type = f.constructor.name;
-      // Only log fields that might be related to Yes/No (pages 2-4 typically)
-      if (idx < 150) { // First 150 fields should cover legal questions section
-        console.log(`Field ${idx}: ${name} (${type})`);
+      const lowerName = name.toLowerCase();
+      // Log fields that might be Yes/No related
+      if (lowerName.includes('yes') || lowerName.includes('no') || 
+          lowerName.includes('check') || lowerName.includes('box') ||
+          type.includes('Check') || type.includes('Button')) {
+        console.log(`CHECKBOX/YESNO Field ${idx}: ${name} (type: ${type})`);
       }
     });
-    console.log('=== END FIELD NAMES ===');
+    console.log('=== END YESNO FIELD SEARCH ===');
 
     // Helper to embed image from base64 data URL
     const embedImageFromDataUrl = async (dataUrl: string) => {
@@ -565,28 +568,33 @@ serve(async (req) => {
     // ==================== PAGES 2-3: Legal Questions ====================
     const legalQuestions = application.legal_questions || {};
     
-    console.log('Processing legal questions:', Object.keys(legalQuestions).length);
+    console.log('=== LEGAL QUESTIONS PROCESSING START ===');
+    console.log('Number of legal questions:', Object.keys(legalQuestions).length);
+    console.log('Question IDs:', Object.keys(legalQuestions).join(', '));
     
     // Process each legal question - these are TEXT FIELDS not checkboxes
     // We fill them with 'X' to mark Yes or No
     Object.entries(legalQuestions).forEach(([questionId, questionData]) => {
       const question = questionData as LegalQuestion;
+      console.log(`Processing Q${questionId}: answer=${question?.answer}, type=${typeof question?.answer}`);
+      
       if (question && question.answer !== null && question.answer !== undefined) {
         const mapping = LEGAL_QUESTION_FIELD_MAP[questionId];
         const isYes = question.answer === true;
         
-        console.log(`Legal Q${questionId}: answer=${isYes ? 'Yes' : 'No'}`);
+        console.log(`Legal Q${questionId}: answer=${isYes ? 'Yes' : 'No'}, mapping exists: ${!!mapping}`);
         
         if (mapping) {
           const targetField = isYes ? mapping.yesField : mapping.noField;
+          console.log(`Trying to set field: ${targetField}`);
           
           // Try to set as text field with 'X'
           try {
             const field = form.getTextField(targetField);
             field.setText('X');
-            console.log(`Set legal question ${questionId} ${isYes ? 'Yes' : 'No'} field: ${targetField}`);
-          } catch {
-            console.log(`Field not found: ${targetField} for question ${questionId}`);
+            console.log(`SUCCESS: Set legal question ${questionId} ${isYes ? 'Yes' : 'No'} field: ${targetField}`);
+          } catch (e) {
+            console.log(`FAILED: Field not found: ${targetField} for question ${questionId}`, e);
           }
         } else {
           console.log(`No mapping found for legal question ${questionId}`);
@@ -602,6 +610,8 @@ serve(async (req) => {
         }
       }
     });
+    
+    console.log('=== LEGAL QUESTIONS PROCESSING END ===');
     
     // Initials on page 2
     setTextField('INITIALS_2', application.signature_initials);
