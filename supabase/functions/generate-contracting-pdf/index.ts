@@ -289,6 +289,28 @@ serve(async (req) => {
     
     console.log('PDF template loaded, filling form fields...');
     console.log('Total pages:', pages.length);
+    
+    // Log all form fields for debugging
+    const allFields = form.getFields();
+    console.log('Total form fields found:', allFields.length);
+    
+    // Find all checkbox fields (likely for Yes/No questions)
+    const checkboxFields = allFields.filter(f => f.constructor.name === 'PDFCheckBox');
+    console.log('Checkbox fields found:', checkboxFields.length);
+    checkboxFields.forEach((f: any) => {
+      console.log('Checkbox field:', f.getName());
+    });
+    
+    // Find text fields that might be Yes/No related
+    const textFields = allFields.filter(f => f.constructor.name === 'PDFTextField');
+    const yesNoFields = textFields.filter((f: any) => {
+      const name = f.getName().toLowerCase();
+      return name.includes('yes') || name.includes('no') || name.includes('legal') || name.includes('question');
+    });
+    console.log('Yes/No related text fields:', yesNoFields.length);
+    yesNoFields.forEach((f: any) => {
+      console.log('Yes/No text field:', f.getName());
+    });
 
     // Helper to embed image from base64 data URL
     const embedImageFromDataUrl = async (dataUrl: string) => {
