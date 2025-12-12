@@ -6,6 +6,7 @@ import { ContractingApplication } from '@/types/contracting';
 import { SectionStatus } from '../ContractingForm';
 import { PenLine, Lock, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { SignaturePad } from '../SignaturePad';
 
 interface SignatureSectionProps {
   application: ContractingApplication;
@@ -32,9 +33,23 @@ export function SignatureSection({
     .filter(([id, status]) => !['initials', 'signature'].includes(id) && !status.acknowledged)
     .map(([, status]) => status.name);
 
+  // Check if signature drawing exists (stored in uploaded_documents)
+  const hasDrawnSignature = !!(application.uploaded_documents as Record<string, string>)?.signature_image;
+
   const isReadyToSign = allSectionsAcknowledged && 
     application.signature_name && 
-    application.signature_initials;
+    application.signature_initials &&
+    hasDrawnSignature;
+
+  const handleSignatureChange = (signatureData: string | null) => {
+    const docs = (application.uploaded_documents || {}) as Record<string, string>;
+    if (signatureData) {
+      onUpdate('uploaded_documents', { ...docs, signature_image: signatureData });
+    } else {
+      const { signature_image, ...rest } = docs;
+      onUpdate('uploaded_documents', rest);
+    }
+  };
 
   const handleSubmit = () => {
     // Set the signature date before submitting
@@ -128,7 +143,7 @@ export function SignatureSection({
             </p>
           </div>
 
-          {/* Signature fields */}
+          {/* Typed name and initials */}
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="signature_name">Type Your Full Legal Name <span className="text-destructive">*</span></Label>
@@ -156,6 +171,16 @@ export function SignatureSection({
             </div>
           </div>
 
+          {/* Drawn signature */}
+          <div className="space-y-2">
+            <Label>Draw Your Signature <span className="text-destructive">*</span></Label>
+            <SignaturePad
+              value={(application.uploaded_documents as Record<string, string>)?.signature_image}
+              onChange={handleSignatureChange}
+              disabled={disabled}
+            />
+          </div>
+
           {/* Submit button */}
           <div className="pt-4">
             <Button
@@ -176,7 +201,10 @@ export function SignatureSection({
             
             {!isReadyToSign && (
               <p className="text-xs text-center text-muted-foreground/60 mt-3">
-                Complete all sections and enter your signature to submit
+                {!hasDrawnSignature 
+                  ? 'Please draw your signature above to submit'
+                  : 'Complete all sections and enter your signature to submit'
+                }
               </p>
             )}
           </div>
