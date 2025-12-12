@@ -1,4 +1,3 @@
-import { AlertCircle, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SectionError {
@@ -20,7 +19,7 @@ export function ValidationBanner({
   show, 
   sectionErrors,
   onSectionClick,
-  message = "Please complete the highlighted fields before continuing.",
+  message,
   className 
 }: ValidationBannerProps) {
   if (!show) return null;
@@ -29,61 +28,41 @@ export function ValidationBanner({
     ? Object.values(sectionErrors).filter(s => !s.isValid)
     : [];
 
-  // Simple banner without section details
-  if (invalidSections.length === 0 || !onSectionClick) {
-    return (
-      <div className={cn(
-        "flex items-center gap-2.5 px-4 py-2.5 rounded-xl",
-        "bg-destructive/5 border border-destructive/20",
-        "animate-fade-in",
-        className
-      )}>
-        <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
-        <p className="text-xs text-destructive font-medium">
-          {message}
-        </p>
-      </div>
-    );
-  }
+  if (invalidSections.length === 0) return null;
 
-  // Detailed banner with section links
   return (
     <div 
       className={cn(
-        "p-4 rounded-2xl bg-destructive/5 border border-destructive/20 animate-fade-in",
+        "sticky top-[57px] z-40 transition-all duration-500 ease-out",
         className
       )}
+      style={{ animation: 'fade-in 0.3s ease-out' }}
     >
-      <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0 mt-0.5">
-          <AlertCircle className="h-4 w-4 text-destructive" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground/80 mb-2">
-            Please complete the following sections
+      <div className="container max-w-4xl mx-auto px-4 py-3">
+        <div 
+          className="rounded-2xl px-5 py-4 border border-rose-200/50"
+          style={{ 
+            background: 'linear-gradient(180deg, rgba(255, 251, 250, 0.97) 0%, rgba(254, 249, 248, 0.97) 100%)',
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.03)'
+          }}
+        >
+          <p className="text-[13px] text-rose-800/70 leading-relaxed font-medium">
+            Please review the highlighted sections below to continue.
           </p>
-          <div className="space-y-1.5">
-            {invalidSections.map(section => (
-              <button
-                key={section.sectionId}
-                onClick={() => onSectionClick(section.sectionId)}
-                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-destructive/5 transition-colors group text-left"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-destructive/60" />
-                  <span className="text-sm text-foreground/70 group-hover:text-foreground transition-colors">
-                    {section.sectionName}
-                  </span>
-                  {section.needsAcknowledgment && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
-                      Needs Acknowledgment
-                    </span>
-                  )}
-                </div>
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-foreground/60 transition-colors" />
-              </button>
-            ))}
-          </div>
+          {onSectionClick && invalidSections.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {invalidSections.map((section) => (
+                <button
+                  key={section.sectionId}
+                  onClick={() => onSectionClick(section.sectionId)}
+                  className="text-[11px] px-3 py-1.5 rounded-full bg-rose-100/50 text-rose-600/80 hover:bg-rose-100/80 hover:text-rose-700 transition-all duration-200 font-medium"
+                >
+                  {section.sectionName}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

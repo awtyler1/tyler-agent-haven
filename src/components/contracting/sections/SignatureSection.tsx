@@ -115,29 +115,27 @@ export function SignatureSection({
         )}
 
         <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-6">
-          {/* Validation Banner - shows when validation fails */}
-          {showValidation && Object.values(sectionErrors).some(s => !s.isValid) && (
-            <ValidationBanner
-              show={true}
-              sectionErrors={sectionErrors}
-              onSectionClick={onScrollToSection}
-            />
-          )}
-
-          {/* Section status summary - only show if not showing validation errors */}
-          {!showValidation && !allSectionsAcknowledged && (
-            <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/30">
+          {/* Section status summary - calm, informational */}
+          {!allSectionsAcknowledged && !showValidation && (
+            <div 
+              className="p-4 rounded-2xl border border-amber-200/40"
+              style={{ 
+                background: 'linear-gradient(180deg, rgba(255, 251, 245, 0.6) 0%, rgba(254, 252, 247, 0.4) 100%)'
+              }}
+            >
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div 
+                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                  style={{ background: 'rgba(251, 191, 36, 0.15)' }}
+                >
+                  <div className="w-2 h-2 rounded-full bg-amber-400/80" />
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-amber-800">Sections to Complete</p>
-                  <p className="text-xs text-amber-700/70 mt-1">
-                    Acknowledge the following sections before signing:
-                  </p>
-                  <ul className="mt-2 space-y-1">
+                  <p className="text-[13px] font-medium text-amber-800/80">Sections to complete</p>
+                  <ul className="mt-2 space-y-1.5">
                     {unacknowledgedSections.map((name) => (
-                      <li key={name} className="text-xs text-amber-700/80 flex items-center gap-1.5">
-                        <span className="w-1 h-1 rounded-full bg-amber-400" />
+                      <li key={name} className="text-[12px] text-amber-700/70 flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-amber-400/70" />
                         {name}
                       </li>
                     ))}
@@ -148,14 +146,22 @@ export function SignatureSection({
           )}
 
           {allSectionsAcknowledged && !showValidation && (
-            <div className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-200/30">
+            <div 
+              className="p-4 rounded-2xl border border-emerald-200/40"
+              style={{ 
+                background: 'linear-gradient(180deg, rgba(236, 253, 245, 0.5) 0%, rgba(236, 253, 245, 0.3) 100%)'
+              }}
+            >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                <div 
+                  className="w-7 h-7 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(16, 185, 129, 0.12)' }}
+                >
                   <Check className="h-4 w-4 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-emerald-800">All Sections Complete</p>
-                  <p className="text-xs text-emerald-700/70">You're ready to sign and submit</p>
+                  <p className="text-[13px] font-medium text-emerald-800/80">All sections complete</p>
+                  <p className="text-[11px] text-emerald-700/60 mt-0.5">Ready to sign and submit</p>
                 </div>
               </div>
             </div>
@@ -180,14 +186,16 @@ export function SignatureSection({
           {/* Typed name and initials */}
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="signature_name">Type Your Full Legal Name <span className="text-destructive">*</span></Label>
+              <Label htmlFor="signature_name" className="text-[13px] text-foreground/70">
+                Type Your Full Legal Name <span className="text-rose-400/80">*</span>
+              </Label>
               <Input
                 id="signature_name"
                 value={application.signature_name || ''}
                 onChange={(e) => onUpdate('signature_name', e.target.value)}
                 placeholder="Your legal name"
                 className={cn(
-                  "h-11 rounded-xl font-medium",
+                  "h-11 rounded-xl font-medium transition-all duration-300",
                   getFieldErrorClass(!!fieldErrors.signature_name, showValidation)
                 )}
               />
@@ -211,10 +219,12 @@ export function SignatureSection({
 
           {/* Drawn signature */}
           <div className="space-y-2">
-            <Label>Draw Your Signature <span className="text-destructive">*</span></Label>
+            <Label className="text-[13px] text-foreground/70">
+              Draw Your Signature <span className="text-rose-400/80">*</span>
+            </Label>
             <div className={cn(
-              "rounded-xl transition-all duration-200",
-              showValidation && fieldErrors.final_signature && "ring-2 ring-destructive/30"
+              "rounded-xl transition-all duration-300",
+              showValidation && fieldErrors.final_signature && "ring-2 ring-rose-200/70"
             )}>
               <SignaturePad
                 value={uploadedDocs.final_signature}
@@ -230,7 +240,7 @@ export function SignatureSection({
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full h-14 text-base font-medium rounded-2xl"
+              className="w-full h-14 text-[15px] font-medium rounded-2xl transition-all duration-200"
               size="lg"
             >
               {isSubmitting ? (
@@ -243,9 +253,9 @@ export function SignatureSection({
               )}
             </Button>
             
-            {/* Helper text - shows what's incomplete */}
+            {/* Helper text - calm, informational guidance */}
             {!showValidation && getIncompleteMessage() && (
-              <p className="text-xs text-center text-muted-foreground/60 mt-3">
+              <p className="text-[11px] text-center text-muted-foreground/50 mt-4 leading-relaxed">
                 {getIncompleteMessage()}
               </p>
             )}

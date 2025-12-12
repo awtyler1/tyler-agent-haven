@@ -11,7 +11,8 @@ export function FormFieldError({ error, show = true, className }: FormFieldError
   
   return (
     <p className={cn(
-      "text-[10px] text-destructive mt-1 animate-fade-in leading-tight",
+      "text-[11px] text-rose-600/80 mt-1.5 leading-relaxed transition-all duration-300 ease-out",
+      "animate-[fade-in_0.2s_ease-out]",
       className
     )}>
       {error}
@@ -19,15 +20,15 @@ export function FormFieldError({ error, show = true, className }: FormFieldError
   );
 }
 
-// Helper to get error border class - soft red border style
+// Refined error border class - soft, muted rose that feels refined, not alarming
 export function getFieldErrorClass(hasError: boolean, showErrors: boolean): string {
   if (!hasError || !showErrors) return '';
-  return 'border-destructive/60 focus:border-destructive focus:ring-destructive/20 bg-destructive/[0.02]';
+  return 'border-rose-300/70 focus:border-rose-400/80 focus:ring-rose-100 bg-rose-50/30 transition-all duration-300';
 }
 
-// Helper for shake animation on error (optional enhancement)
-export function getFieldShakeClass(hasError: boolean, showErrors: boolean): string {
+// Helper for select triggers with error state
+export function getSelectErrorClass(hasError: boolean, showErrors: boolean): string {
   if (!hasError || !showErrors) return '';
-  return 'animate-[shake_0.5s_ease-in-out]';
+  return 'border-rose-300/70 bg-rose-50/30 transition-all duration-300';
 }
 

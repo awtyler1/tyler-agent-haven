@@ -26,24 +26,25 @@ export interface ValidationState {
   firstErrorField: string | null;
 }
 
-// Validation messages - calm and professional
+// Validation messages - calm, neutral, factual (Apple-inspired tone)
 const MESSAGES = {
-  required: 'This field is required',
-  invalidEmail: 'Please enter a valid email address',
-  invalidPhone: 'Please enter a valid 10-digit phone number',
-  invalidSSN: 'Please enter a valid 9-digit SSN',
-  invalidEIN: 'Please enter a valid 9-digit EIN',
-  explanationRequired: 'Please provide an explanation',
-  documentRequired: 'Please upload this document',
-  numbersOnly: 'Please enter numbers only',
-  invalidDate: 'Please enter a valid date',
-  selectRequired: 'Please make a selection',
-  addressIncomplete: 'Please complete all address fields',
-  signatureRequired: 'Your signature is required',
-  carrierRequired: 'Please select at least one carrier',
-  initialsRequired: 'Please draw your initials',
-  sectionNeedsAcknowledgment: 'Please acknowledge this section',
-  backgroundSignatureRequired: 'Please sign after reviewing background questions',
+  required: 'This field is required.',
+  invalidEmail: 'Please enter a valid email address.',
+  invalidPhone: 'Please enter a valid phone number.',
+  invalidSSN: 'Please enter a valid format.',
+  invalidEIN: 'Please enter a valid format.',
+  explanationRequired: 'Please provide a brief explanation.',
+  documentRequired: 'Please upload the required document.',
+  numbersOnly: 'Numbers only.',
+  invalidDate: 'Please enter a valid date.',
+  selectRequired: 'Please make a selection.',
+  addressIncomplete: 'Please complete all address fields.',
+  signatureRequired: 'Please sign to continue.',
+  carrierRequired: 'Please select at least one carrier.',
+  initialsRequired: 'Please draw your initials.',
+  sectionNeedsAcknowledgment: 'Please confirm this section.',
+  backgroundSignatureRequired: 'Please sign to confirm.',
+  invalidRouting: 'Please enter a valid 9-digit routing number.',
 };
 
 // Helpers
@@ -284,8 +285,8 @@ export function useFormValidation() {
       addError('bank_routing_number', MESSAGES.required, 'banking');
       bankingErrors.push({ field: 'bank_routing_number', message: MESSAGES.required, sectionId: 'banking' });
     } else if (!/^\d{9}$/.test(application.bank_routing_number.replace(/\D/g, ''))) {
-      addError('bank_routing_number', 'Please enter a valid 9-digit routing number', 'banking');
-      bankingErrors.push({ field: 'bank_routing_number', message: 'Please enter a valid 9-digit routing number', sectionId: 'banking' });
+      addError('bank_routing_number', MESSAGES.invalidRouting, 'banking');
+      bankingErrors.push({ field: 'bank_routing_number', message: MESSAGES.invalidRouting, sectionId: 'banking' });
     }
     if (!application.bank_account_number?.trim()) {
       addError('bank_account_number', MESSAGES.required, 'banking');
