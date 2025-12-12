@@ -7,6 +7,16 @@ import { SectionStatus } from '../ContractingForm';
 import { PenLine, Lock, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { SignaturePad } from '../SignaturePad';
+import { ValidationBanner } from '../ValidationBanner';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { cn } from '@/lib/utils';
+
+interface SectionError {
+  sectionId: string;
+  sectionName: string;
+  isValid: boolean;
+  needsAcknowledgment: boolean;
+}
 
 interface SignatureSectionProps {
   application: ContractingApplication;
@@ -15,6 +25,10 @@ interface SignatureSectionProps {
   onSubmit: () => void;
   isSubmitting: boolean;
   disabled?: boolean;
+  fieldErrors?: Record<string, string>;
+  sectionErrors?: Record<string, SectionError>;
+  showValidation?: boolean;
+  onScrollToSection?: (sectionId: string) => void;
 }
 
 export function SignatureSection({ 
@@ -23,7 +37,11 @@ export function SignatureSection({
   onUpdate, 
   onSubmit,
   isSubmitting,
-  disabled 
+  disabled,
+  fieldErrors = {},
+  sectionErrors = {},
+  showValidation = false,
+  onScrollToSection,
 }: SignatureSectionProps) {
   const allSectionsAcknowledged = Object.entries(sectionStatuses)
     .filter(([id]) => !['initials', 'signature'].includes(id))
@@ -34,19 +52,15 @@ export function SignatureSection({
     .map(([, status]) => status.name);
 
   // Check if signature drawing exists (stored in uploaded_documents)
-  const hasDrawnSignature = !!(application.uploaded_documents as Record<string, string>)?.signature_image;
-
-  const isReadyToSign = allSectionsAcknowledged && 
-    application.signature_name && 
-    application.signature_initials &&
-    hasDrawnSignature;
+  const uploadedDocs = (application.uploaded_documents || {}) as Record<string, string>;
+  const hasDrawnSignature = !!uploadedDocs.final_signature;
 
   const handleSignatureChange = (signatureData: string | null) => {
     const docs = (application.uploaded_documents || {}) as Record<string, string>;
     if (signatureData) {
-      onUpdate('uploaded_documents', { ...docs, signature_image: signatureData });
+      onUpdate('uploaded_documents', { ...docs, final_signature: signatureData });
     } else {
-      const { signature_image, ...rest } = docs;
+      const { final_signature, ...rest } = docs;
       onUpdate('uploaded_documents', rest);
     }
   };
@@ -60,6 +74,17 @@ export function SignatureSection({
     setTimeout(() => {
       onSubmit();
     }, 100);
+  };
+
+  // Determine what's incomplete for helper text
+  const getIncompleteMessage = () => {
+    const issues = [];
+    if (!application.signature_name) issues.push('type your legal name');
+    if (!hasDrawnSignature) issues.push('draw your signature');
+    if (!allSectionsAcknowledged) issues.push('acknowledge all sections');
+    
+    if (issues.length === 0) return null;
+    return `Please ${issues.join(' and ')} to submit`;
   };
 
   return (
@@ -90,15 +115,24 @@ export function SignatureSection({
         )}
 
         <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-6">
-          {/* Section status summary */}
-          {!allSectionsAcknowledged && (
+          {/* Validation Banner - shows when validation fails */}
+          {showValidation && Object.values(sectionErrors).some(s => !s.isValid) && (
+            <ValidationBanner
+              show={true}
+              sectionErrors={sectionErrors}
+              onSectionClick={onScrollToSection}
+            />
+          )}
+
+          {/* Section status summary - only show if not showing validation errors */}
+          {!showValidation && !allSectionsAcknowledged && (
             <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/30">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-amber-800">Incomplete Sections</p>
+                  <p className="text-sm font-medium text-amber-800">Sections to Complete</p>
                   <p className="text-xs text-amber-700/70 mt-1">
-                    Please acknowledge the following sections before signing:
+                    Acknowledge the following sections before signing:
                   </p>
                   <ul className="mt-2 space-y-1">
                     {unacknowledgedSections.map((name) => (
@@ -113,7 +147,7 @@ export function SignatureSection({
             </div>
           )}
 
-          {allSectionsAcknowledged && (
+          {allSectionsAcknowledged && !showValidation && (
             <div className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-200/30">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
@@ -152,8 +186,12 @@ export function SignatureSection({
                 value={application.signature_name || ''}
                 onChange={(e) => onUpdate('signature_name', e.target.value)}
                 placeholder="Your legal name"
-                className="h-11 rounded-xl font-medium"
+                className={cn(
+                  "h-11 rounded-xl font-medium",
+                  getFieldErrorClass(!!fieldErrors.signature_name, showValidation)
+                )}
               />
+              <FormFieldError error={fieldErrors.signature_name} show={showValidation} />
             </div>
 
             <div className="space-y-2">
@@ -174,18 +212,24 @@ export function SignatureSection({
           {/* Drawn signature */}
           <div className="space-y-2">
             <Label>Draw Your Signature <span className="text-destructive">*</span></Label>
-            <SignaturePad
-              value={(application.uploaded_documents as Record<string, string>)?.signature_image}
-              onChange={handleSignatureChange}
-              disabled={disabled}
-            />
+            <div className={cn(
+              "rounded-xl transition-all duration-200",
+              showValidation && fieldErrors.final_signature && "ring-2 ring-destructive/30"
+            )}>
+              <SignaturePad
+                value={uploadedDocs.final_signature}
+                onChange={handleSignatureChange}
+                disabled={disabled}
+              />
+            </div>
+            <FormFieldError error={fieldErrors.final_signature} show={showValidation} />
           </div>
 
-          {/* Submit button */}
+          {/* Submit button - ALWAYS visible and clickable */}
           <div className="pt-4">
             <Button
               onClick={handleSubmit}
-              disabled={!isReadyToSign || isSubmitting}
+              disabled={isSubmitting}
               className="w-full h-14 text-base font-medium rounded-2xl"
               size="lg"
             >
@@ -199,12 +243,10 @@ export function SignatureSection({
               )}
             </Button>
             
-            {!isReadyToSign && (
+            {/* Helper text - shows what's incomplete */}
+            {!showValidation && getIncompleteMessage() && (
               <p className="text-xs text-center text-muted-foreground/60 mt-3">
-                {!hasDrawnSignature 
-                  ? 'Please draw your signature above to submit'
-                  : 'Complete all sections and enter your signature to submit'
-                }
+                {getIncompleteMessage()}
               </p>
             )}
           </div>
