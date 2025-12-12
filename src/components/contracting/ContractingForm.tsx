@@ -240,19 +240,6 @@ export function ContractingForm() {
     );
   }
 
-  // Show rejected state - allow re-editing
-  if (application.status === 'rejected') {
-    // Check if signature fields need to be reset for re-signing
-    const needsResign = !application.signature_date || 
-      new Date(application.signature_date).getTime() < (application.submitted_at ? new Date(application.submitted_at).getTime() : 0);
-    
-    if (needsResign && (application.signature_name || application.signature_date)) {
-      // Reset signature fields so they must re-sign
-      updateField('signature_name', null);
-      updateField('signature_date', null);
-    }
-  }
-
   const initialsEntered = !!application.signature_initials;
 
   return (
