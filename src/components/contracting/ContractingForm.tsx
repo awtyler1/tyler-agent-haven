@@ -345,6 +345,7 @@ export function ContractingForm() {
               disabled={!initialsEntered}
               fieldErrors={validationState.fieldErrors}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
+              onClearError={clearFieldError}
             />
             
             {/* Marketing Consent - goes right after personal info */}
@@ -379,6 +380,7 @@ export function ContractingForm() {
               disabled={!initialsEntered}
               fieldErrors={validationState.fieldErrors}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
+              onClearError={clearFieldError}
             />
             <SectionAcknowledgment
               sectionId="address"
@@ -405,6 +407,7 @@ export function ContractingForm() {
               disabled={!initialsEntered}
               fieldErrors={validationState.fieldErrors}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
+              onClearError={clearFieldError}
             />
             <SectionAcknowledgment
               sectionId="licensing"
@@ -466,6 +469,7 @@ export function ContractingForm() {
               disabled={!initialsEntered}
               fieldErrors={validationState.fieldErrors}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
+              onClearError={clearFieldError}
             />
             <SectionAcknowledgment
               sectionId="banking"
@@ -492,6 +496,7 @@ export function ContractingForm() {
               disabled={!initialsEntered}
               fieldErrors={validationState.fieldErrors}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
+              onClearError={clearFieldError}
             />
             <SectionAcknowledgment
               sectionId="training"
@@ -518,6 +523,8 @@ export function ContractingForm() {
               disabled={!initialsEntered}
               fieldErrors={validationState.fieldErrors}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
+              onClearError={clearFieldError}
+            />
             />
             <SectionAcknowledgment
               sectionId="carriers"

@@ -20,9 +20,10 @@ interface CarrierSelectionSectionProps {
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
+  onClearError?: (field: string) => void;
 }
 
-export function CarrierSelectionSection({ application, carriers, onUpdate, onUpload, disabled, fieldErrors = {}, showValidation = false }: CarrierSelectionSectionProps) {
+export function CarrierSelectionSection({ application, carriers, onUpdate, onUpload, disabled, fieldErrors = {}, showValidation = false, onClearError }: CarrierSelectionSectionProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [expandedCarriers, setExpandedCarriers] = useState<Set<string>>(new Set());
@@ -64,6 +65,8 @@ export function CarrierSelectionSection({ application, carriers, onUpdate, onUpl
         non_resident_states: [],
       };
       onUpdate('selected_carriers', [...selectedCarriers, newSelection]);
+      // Clear the error when a carrier is selected
+      if (onClearError) onClearError('selected_carriers');
     }
   };
 
@@ -313,6 +316,7 @@ export function CarrierSelectionSection({ application, carriers, onUpdate, onUpl
                 existingFile={uploadedDocs['corporate_resolution']}
                 onUpload={onUpload}
                 onRemove={() => {}}
+                onClearError={onClearError}
                 required
                 description="Required for Athene when applying as a corporation"
                 hasError={showValidation && !!fieldErrors.corporate_resolution}

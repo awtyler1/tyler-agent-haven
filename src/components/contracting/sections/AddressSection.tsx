@@ -14,6 +14,7 @@ interface AddressSectionProps {
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
+  onClearError?: (field: string) => void;
 }
 
 function AddressFields({ 
@@ -23,6 +24,8 @@ function AddressFields({
   required = false,
   hasError = false,
   showValidation = false,
+  onClearError,
+  errorField,
 }: { 
   label: string;
   address: Address; 
@@ -30,9 +33,19 @@ function AddressFields({
   required?: boolean;
   hasError?: boolean;
   showValidation?: boolean;
+  onClearError?: (field: string) => void;
+  errorField?: string;
 }) {
   const updateField = (field: keyof Address, value: string) => {
-    onChange({ ...address, [field]: value });
+    const newAddress = { ...address, [field]: value };
+    onChange(newAddress);
+    // Check if address is now complete and clear error
+    if (onClearError && errorField && value) {
+      const isComplete = newAddress.street?.trim() && newAddress.city?.trim() && newAddress.state && newAddress.zip?.trim();
+      if (isComplete) {
+        onClearError(errorField);
+      }
+    }
   };
 
   return (
@@ -86,7 +99,7 @@ function AddressFields({
   );
 }
 
-export function AddressSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false }: AddressSectionProps) {
+export function AddressSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: AddressSectionProps) {
   const homeAddress = application.home_address || EMPTY_ADDRESS;
   const mailingAddress = application.mailing_address || EMPTY_ADDRESS;
   const upsAddress = application.ups_address || EMPTY_ADDRESS;
@@ -127,6 +140,8 @@ export function AddressSection({ application, onUpdate, disabled, fieldErrors = 
             required
             hasError={!!fieldErrors.home_address}
             showValidation={showValidation}
+            onClearError={onClearError}
+            errorField="home_address"
           />
 
           {/* Mailing Address */}
