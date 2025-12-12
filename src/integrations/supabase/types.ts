@@ -74,6 +74,10 @@ export type Database = {
           drivers_license_number: string | null
           drivers_license_state: string | null
           email_address: string | null
+          eo_expiration_date: string | null
+          eo_not_yet_covered: boolean | null
+          eo_policy_number: string | null
+          eo_provider: string | null
           fax: string | null
           finra_broker_dealer_name: string | null
           finra_crd_number: string | null
@@ -99,6 +103,7 @@ export type Database = {
           requesting_commission_advancing: boolean | null
           resident_license_number: string | null
           resident_state: string | null
+          section_acknowledgments: Json | null
           selected_carriers: Json | null
           signature_date: string | null
           signature_initials: string | null
@@ -133,6 +138,10 @@ export type Database = {
           drivers_license_number?: string | null
           drivers_license_state?: string | null
           email_address?: string | null
+          eo_expiration_date?: string | null
+          eo_not_yet_covered?: boolean | null
+          eo_policy_number?: string | null
+          eo_provider?: string | null
           fax?: string | null
           finra_broker_dealer_name?: string | null
           finra_crd_number?: string | null
@@ -158,6 +167,7 @@ export type Database = {
           requesting_commission_advancing?: boolean | null
           resident_license_number?: string | null
           resident_state?: string | null
+          section_acknowledgments?: Json | null
           selected_carriers?: Json | null
           signature_date?: string | null
           signature_initials?: string | null
@@ -192,6 +202,10 @@ export type Database = {
           drivers_license_number?: string | null
           drivers_license_state?: string | null
           email_address?: string | null
+          eo_expiration_date?: string | null
+          eo_not_yet_covered?: boolean | null
+          eo_policy_number?: string | null
+          eo_provider?: string | null
           fax?: string | null
           finra_broker_dealer_name?: string | null
           finra_crd_number?: string | null
@@ -217,6 +231,7 @@ export type Database = {
           requesting_commission_advancing?: boolean | null
           resident_license_number?: string | null
           resident_state?: string | null
+          section_acknowledgments?: Json | null
           selected_carriers?: Json | null
           signature_date?: string | null
           signature_initials?: string | null
