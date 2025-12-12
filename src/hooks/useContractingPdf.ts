@@ -31,6 +31,12 @@ export function useContractingPdf() {
       errors.push('Full legal name is required');
     }
     
+    // Check for background signature
+    const uploadedDocs = (application.uploaded_documents || {}) as Record<string, string>;
+    if (!uploadedDocs.background_signature) {
+      errors.push('Background questions signature is required');
+    }
+    
     // Check legal questions with "Yes" answers have explanations
     const legalQuestions = application.legal_questions || {};
     Object.entries(legalQuestions).forEach(([id, q]) => {
