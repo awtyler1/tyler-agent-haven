@@ -44,6 +44,7 @@ import UserDetailPage from "./pages/admin/UserDetailPage";
 import PlatformMapPage from "./pages/admin/PlatformMapPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
 import PdfFieldExtractorPage from "./pages/admin/PdfFieldExtractorPage";
+import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
 
 const queryClient = new QueryClient();
 
@@ -158,8 +159,14 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            
-            {/* Main app routes - protected to redirect agents in contracting mode */}
+            <Route 
+              path="/admin/contracting" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ContractingQueuePage />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
