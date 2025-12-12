@@ -10,6 +10,7 @@ import { FileDropZone } from '../FileDropZone';
 import { Building, Lock, Search, Check, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { FormFieldError } from '../FormFieldError';
 
 interface CarrierSelectionSectionProps {
   application: ContractingApplication;
@@ -17,9 +18,11 @@ interface CarrierSelectionSectionProps {
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   onUpload: (file: File, documentType: string) => Promise<string | null>;
   disabled?: boolean;
+  fieldErrors?: Record<string, string>;
+  showValidation?: boolean;
 }
 
-export function CarrierSelectionSection({ application, carriers, onUpdate, onUpload, disabled }: CarrierSelectionSectionProps) {
+export function CarrierSelectionSection({ application, carriers, onUpdate, onUpload, disabled, fieldErrors = {}, showValidation = false }: CarrierSelectionSectionProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [expandedCarriers, setExpandedCarriers] = useState<Set<string>>(new Set());
@@ -181,7 +184,10 @@ export function CarrierSelectionSection({ application, carriers, onUpdate, onUpl
           </div>
 
           {/* Carrier list */}
-          <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+          <div className={cn(
+            "space-y-2 max-h-[400px] overflow-y-auto pr-2",
+            showValidation && fieldErrors.selected_carriers && selectedCarriers.length === 0 && "ring-2 ring-destructive/30 rounded-xl p-2"
+          )}>
             {filteredCarriers.map((carrier) => {
               const selected = isSelected(carrier.id);
               const selectedCarrier = getSelectedCarrier(carrier.id);
@@ -296,6 +302,7 @@ export function CarrierSelectionSection({ application, carriers, onUpdate, onUpl
               );
             })}
           </div>
+          <FormFieldError error={fieldErrors.selected_carriers} show={showValidation} />
 
           {/* Corporate Resolution */}
           {needsCorporateResolution && (
@@ -308,7 +315,9 @@ export function CarrierSelectionSection({ application, carriers, onUpdate, onUpl
                 onRemove={() => {}}
                 required
                 description="Required for Athene when applying as a corporation"
+                hasError={showValidation && !!fieldErrors.corporate_resolution}
               />
+              <FormFieldError error={fieldErrors.corporate_resolution} show={showValidation} />
             </div>
           )}
         </div>

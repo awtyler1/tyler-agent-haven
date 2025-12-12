@@ -6,14 +6,17 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication } from '@/types/contracting';
 import { User, Mail, Phone, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 
 interface PersonalInfoSectionProps {
   application: ContractingApplication;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   disabled?: boolean;
+  fieldErrors?: Record<string, string>;
+  showValidation?: boolean;
 }
 
-export function PersonalInfoSection({ application, onUpdate, disabled }: PersonalInfoSectionProps) {
+export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false }: PersonalInfoSectionProps) {
   const contactMethods = application.preferred_contact_methods || [];
 
   const toggleContactMethod = (method: string) => {
@@ -62,8 +65,9 @@ export function PersonalInfoSection({ application, onUpdate, disabled }: Persona
               value={application.full_legal_name || ''}
               onChange={(e) => onUpdate('full_legal_name', e.target.value)}
               placeholder="As it appears on your government ID"
-              className="h-11 rounded-xl"
+              className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.full_legal_name, showValidation))}
             />
+            <FormFieldError error={fieldErrors.full_legal_name} show={showValidation} />
           </div>
 
           {/* Gender */}
@@ -78,7 +82,9 @@ export function PersonalInfoSection({ application, onUpdate, disabled }: Persona
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors",
                 application.gender === 'male' 
                   ? "border-primary bg-primary/5" 
-                  : "border-border/20 hover:bg-muted/20"
+                  : fieldErrors.gender && showValidation
+                    ? "border-destructive/60 bg-destructive/[0.02]"
+                    : "border-border/20 hover:bg-muted/20"
               )}>
                 <RadioGroupItem value="male" id="gender-male" />
                 <span className="text-sm">Male</span>
@@ -87,12 +93,15 @@ export function PersonalInfoSection({ application, onUpdate, disabled }: Persona
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors",
                 application.gender === 'female' 
                   ? "border-primary bg-primary/5" 
-                  : "border-border/20 hover:bg-muted/20"
+                  : fieldErrors.gender && showValidation
+                    ? "border-destructive/60 bg-destructive/[0.02]"
+                    : "border-border/20 hover:bg-muted/20"
               )}>
                 <RadioGroupItem value="female" id="gender-female" />
                 <span className="text-sm">Female</span>
               </label>
             </RadioGroup>
+            <FormFieldError error={fieldErrors.gender} show={showValidation} />
           </div>
 
           {/* Agency Name */}
@@ -138,8 +147,9 @@ export function PersonalInfoSection({ application, onUpdate, disabled }: Persona
               value={application.phone_mobile || ''}
               onChange={(e) => onUpdate('phone_mobile', e.target.value)}
               placeholder="(555) 123-4567"
-              className="h-11 rounded-xl"
+              className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.phone_mobile, showValidation))}
             />
+            <FormFieldError error={fieldErrors.phone_mobile} show={showValidation} />
           </div>
 
           {/* Business Phone */}

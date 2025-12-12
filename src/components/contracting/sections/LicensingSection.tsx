@@ -6,6 +6,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
 import { FileDropZone } from '../FileDropZone';
 import { IdCard, Lock, Upload } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 
 interface LicensingSectionProps {
   application: ContractingApplication;
@@ -13,9 +15,11 @@ interface LicensingSectionProps {
   onUpload: (file: File, documentType: string) => Promise<string | null>;
   onRemove: (documentType: string) => Promise<void>;
   disabled?: boolean;
+  fieldErrors?: Record<string, string>;
+  showValidation?: boolean;
 }
 
-export function LicensingSection({ application, onUpdate, onUpload, onRemove, disabled }: LicensingSectionProps) {
+export function LicensingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false }: LicensingSectionProps) {
   const uploadedDocs = application.uploaded_documents || {};
 
   return (
@@ -55,8 +59,9 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                 type="date"
                 value={application.birth_date || ''}
                 onChange={(e) => onUpdate('birth_date', e.target.value)}
-                className="h-11 rounded-xl"
+                className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.birth_date, showValidation))}
               />
+              <FormFieldError error={fieldErrors.birth_date} show={showValidation} />
             </div>
 
             <div className="space-y-2">
@@ -82,10 +87,11 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                 value={application.tax_id || ''}
                 onChange={(e) => onUpdate('tax_id', e.target.value)}
                 placeholder="XXX-XX-XXXX"
-                className="h-11 rounded-xl"
+                className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.tax_id, showValidation))}
                 maxLength={11}
               />
-              <p className="text-[10px] text-muted-foreground/50">Used only for contracting. Securely encrypted.</p>
+              <FormFieldError error={fieldErrors.tax_id} show={showValidation} />
+              {!fieldErrors.tax_id && <p className="text-[10px] text-muted-foreground/50">Used only for contracting. Securely encrypted.</p>}
             </div>
           </div>
 
@@ -100,8 +106,9 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                   value={application.npn_number || ''}
                   onChange={(e) => onUpdate('npn_number', e.target.value)}
                   placeholder="National Producer Number"
-                  className="h-11 rounded-xl"
+                  className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.npn_number, showValidation))}
                 />
+                <FormFieldError error={fieldErrors.npn_number} show={showValidation} />
               </div>
 
               <div className="space-y-2">
@@ -110,14 +117,15 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                   id="insurance_license_number"
                   value={application.insurance_license_number || ''}
                   onChange={(e) => onUpdate('insurance_license_number', e.target.value)}
-                  className="h-11 rounded-xl"
+                  className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.insurance_license_number, showValidation))}
                 />
+                <FormFieldError error={fieldErrors.insurance_license_number} show={showValidation} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="resident_state">Resident State <span className="text-destructive">*</span></Label>
                 <Select value={application.resident_state || ''} onValueChange={(v) => onUpdate('resident_state', v)}>
-                  <SelectTrigger className="h-11 rounded-xl">
+                  <SelectTrigger className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.resident_state, showValidation))}>
                     <SelectValue placeholder="Select state..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -128,6 +136,7 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                     ))}
                   </SelectContent>
                 </Select>
+                <FormFieldError error={fieldErrors.resident_state} show={showValidation} />
               </div>
 
               <div className="space-y-2">
@@ -137,8 +146,9 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                   type="date"
                   value={application.license_expiration_date || ''}
                   onChange={(e) => onUpdate('license_expiration_date', e.target.value)}
-                  className="h-11 rounded-xl"
+                  className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.license_expiration_date, showValidation))}
                 />
+                <FormFieldError error={fieldErrors.license_expiration_date} show={showValidation} />
               </div>
             </div>
           </div>
@@ -148,19 +158,20 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
             <h4 className="text-sm font-medium mb-4">Driver's License</h4>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="drivers_license_number">Driver's License #</Label>
+                <Label htmlFor="drivers_license_number">Driver's License # <span className="text-destructive">*</span></Label>
                 <Input
                   id="drivers_license_number"
                   value={application.drivers_license_number || ''}
                   onChange={(e) => onUpdate('drivers_license_number', e.target.value)}
-                  className="h-11 rounded-xl"
+                  className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.drivers_license_number, showValidation))}
                 />
+                <FormFieldError error={fieldErrors.drivers_license_number} show={showValidation} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="drivers_license_state">Driver's License State</Label>
+                <Label htmlFor="drivers_license_state">Driver's License State <span className="text-destructive">*</span></Label>
                 <Select value={application.drivers_license_state || ''} onValueChange={(v) => onUpdate('drivers_license_state', v)}>
-                  <SelectTrigger className="h-11 rounded-xl">
+                  <SelectTrigger className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.drivers_license_state, showValidation))}>
                     <SelectValue placeholder="Select state..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -171,6 +182,7 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                     ))}
                   </SelectContent>
                 </Select>
+                <FormFieldError error={fieldErrors.drivers_license_state} show={showValidation} />
               </div>
             </div>
           </div>
@@ -195,22 +207,30 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
             <p className="text-xs text-muted-foreground/60 mb-4">Upload clear photos or scans of your documents</p>
             
             <div className="grid gap-4 md:grid-cols-2">
-              <FileDropZone
-                label="Insurance License"
-                documentType="insurance_license"
-                existingFile={uploadedDocs['insurance_license']}
-                onUpload={onUpload}
-                onRemove={() => onRemove('insurance_license')}
-                required
-              />
-              <FileDropZone
-                label="Government-Issued ID"
-                documentType="government_id"
-                existingFile={uploadedDocs['government_id']}
-                onUpload={onUpload}
-                onRemove={() => onRemove('government_id')}
-                required
-              />
+              <div>
+                <FileDropZone
+                  label="Insurance License"
+                  documentType="insurance_license"
+                  existingFile={uploadedDocs['insurance_license']}
+                  onUpload={onUpload}
+                  onRemove={() => onRemove('insurance_license')}
+                  required
+                  hasError={showValidation && !!fieldErrors.insurance_license}
+                />
+                <FormFieldError error={fieldErrors.insurance_license} show={showValidation} />
+              </div>
+              <div>
+                <FileDropZone
+                  label="Government-Issued ID"
+                  documentType="government_id"
+                  existingFile={uploadedDocs['government_id']}
+                  onUpload={onUpload}
+                  onRemove={() => onRemove('government_id')}
+                  required
+                  hasError={showValidation && !!fieldErrors.government_id}
+                />
+                <FormFieldError error={fieldErrors.government_id} show={showValidation} />
+              </div>
             </div>
           </div>
         </div>
