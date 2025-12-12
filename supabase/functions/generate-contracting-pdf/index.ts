@@ -340,6 +340,14 @@ serve(async (req) => {
     setTextField('NPN', application.npn_number);
     setTextField('MMDDYYYY', formatDateMMDDYYYY(application.birth_date));
     
+    // Gender checkboxes
+    const gender = application.gender?.toLowerCase();
+    setCheckbox('Male', gender === 'male');
+    setCheckbox('Female', gender === 'female');
+    // Alternative field names
+    setCheckbox('M', gender === 'male');
+    setCheckbox('F', gender === 'female');
+    
     // Home Address
     if (application.home_address) {
       setTextField('Agent Home Address', application.home_address.street);
@@ -386,11 +394,23 @@ serve(async (req) => {
       setTextField('County_4', prevAddr.county);
     }
     
-    // Preferred contact
+    // Preferred contact methods - try multiple possible field names
     const preferredMethods = application.preferred_contact_methods || [];
+    // Standard names
     setCheckbox('Email', preferredMethods.includes('email'));
     setCheckbox('Phone', preferredMethods.includes('phone'));
     setCheckbox('Text', preferredMethods.includes('text'));
+    // Alternative checkbox names
+    setCheckbox('email', preferredMethods.includes('email'));
+    setCheckbox('phone', preferredMethods.includes('phone'));
+    setCheckbox('text', preferredMethods.includes('text'));
+    setCheckbox('EMAIL', preferredMethods.includes('email'));
+    setCheckbox('PHONE', preferredMethods.includes('phone'));
+    setCheckbox('TEXT', preferredMethods.includes('text'));
+    // Common variations
+    setCheckbox('Check Box1', preferredMethods.includes('email'));
+    setCheckbox('Check Box2', preferredMethods.includes('phone'));
+    setCheckbox('Check Box3', preferredMethods.includes('text'));
     
     // Initials on page 1
     setTextField('INITIALS', application.signature_initials);
@@ -399,17 +419,45 @@ serve(async (req) => {
     // ==================== PAGES 2-3: Legal Questions ====================
     const legalQuestions = application.legal_questions || {};
     
+    // For each legal question, we need to check both Yes and No boxes
     Object.entries(LEGAL_QUESTION_FIELD_MAP).forEach(([questionId, fieldName]) => {
       const question = legalQuestions[questionId];
       if (question && question.answer !== null) {
-        // These are typically checkboxes for Yes/No
+        // Try to find Yes/No checkboxes with various naming patterns
+        const yesFieldNames = [
+          `${fieldName}_Yes`, `${fieldName} Yes`, `Yes_${questionId}`, 
+          `Q${questionId}_Yes`, `Yes${questionId}`, fieldName
+        ];
+        const noFieldNames = [
+          `${fieldName}_No`, `${fieldName} No`, `No_${questionId}`, 
+          `Q${questionId}_No`, `No${questionId}`
+        ];
+        
+        // Check the appropriate Yes/No checkbox
+        if (question.answer === true) {
+          yesFieldNames.forEach(name => {
+            try {
+              const field = form.getCheckBox(name);
+              field.check();
+            } catch { /* Field doesn't exist */ }
+          });
+        } else if (question.answer === false) {
+          noFieldNames.forEach(name => {
+            try {
+              const field = form.getCheckBox(name);
+              field.check();
+            } catch { /* Field doesn't exist */ }
+          });
+        }
+        
+        // Also try the original field name as checkbox
         try {
           const field = form.getCheckBox(fieldName);
           if (question.answer) {
             field.check();
           }
         } catch {
-          // Try as text field
+          // Try as text field fallback
           setTextField(fieldName, question.answer ? 'Yes' : 'No');
         }
       }
@@ -420,6 +468,10 @@ serve(async (req) => {
     setTextField('DATE_2', formatDate(application.signature_date));
     
     // Signature and date on page 3 (after legal questions)
+    setTextField('Signature', application.signature_name);
+    setTextField('Signature_2', application.signature_name);
+    setTextField('Agent Signature', application.signature_name);
+    setTextField('Applicant Signature', application.signature_name);
     setTextField('Date', formatDate(application.signature_date));
     setTextField('INITIALS_3', application.signature_initials);
     setTextField('DATE_3', formatDate(application.signature_date));
