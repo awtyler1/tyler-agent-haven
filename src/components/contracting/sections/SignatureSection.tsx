@@ -36,6 +36,17 @@ export function SignatureSection({
     application.signature_name && 
     application.signature_initials;
 
+  const handleSubmit = () => {
+    // Set the signature date before submitting
+    if (!application.signature_date) {
+      onUpdate('signature_date', new Date().toISOString());
+    }
+    // Small delay to ensure the date is saved before submission
+    setTimeout(() => {
+      onSubmit();
+    }, 100);
+  };
+
   return (
     <Card 
       className="rounded-[28px] border-0 overflow-hidden"
@@ -148,7 +159,7 @@ export function SignatureSection({
           {/* Submit button */}
           <div className="pt-4">
             <Button
-              onClick={onSubmit}
+              onClick={handleSubmit}
               disabled={!isReadyToSign || isSubmitting}
               className="w-full h-14 text-base font-medium rounded-2xl"
               size="lg"
