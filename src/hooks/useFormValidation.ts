@@ -100,9 +100,13 @@ export function useFormValidation() {
     let firstErrorSection: string | null = null;
     let firstErrorField: string | null = null;
 
+    // Track first error by section order
+    const sectionOrder = ['initials', 'personal', 'address', 'licensing', 'legal', 'banking', 'training', 'carriers', 'signature'];
+    
     const addError = (field: string, message: string, sectionId: string) => {
       fieldErrors[field] = message;
-      if (!firstErrorField) {
+      // Only set first error if this section comes before the current first error section
+      if (!firstErrorSection || sectionOrder.indexOf(sectionId) < sectionOrder.indexOf(firstErrorSection)) {
         firstErrorField = field;
         firstErrorSection = sectionId;
       }
@@ -156,6 +160,7 @@ export function useFormValidation() {
     // Check section acknowledgment
     const personalAck = !sectionStatuses['personal']?.acknowledged;
     if (personalAck) {
+      addError('personal_ack', MESSAGES.sectionNeedsAcknowledgment, 'personal');
       personalErrors.push({ field: 'personal_ack', message: MESSAGES.sectionNeedsAcknowledgment, sectionId: 'personal' });
     }
     sectionErrors['personal'] = {
@@ -174,6 +179,7 @@ export function useFormValidation() {
     }
     const addressAck = !sectionStatuses['address']?.acknowledged;
     if (addressAck) {
+      addError('address_ack', MESSAGES.sectionNeedsAcknowledgment, 'address');
       addressErrors.push({ field: 'address_ack', message: MESSAGES.sectionNeedsAcknowledgment, sectionId: 'address' });
     }
     sectionErrors['address'] = {
@@ -231,6 +237,7 @@ export function useFormValidation() {
     }
     const licensingAck = !sectionStatuses['licensing']?.acknowledged;
     if (licensingAck) {
+      addError('licensing_ack', MESSAGES.sectionNeedsAcknowledgment, 'licensing');
       licensingErrors.push({ field: 'licensing_ack', message: MESSAGES.sectionNeedsAcknowledgment, sectionId: 'licensing' });
     }
     sectionErrors['licensing'] = {
@@ -260,6 +267,7 @@ export function useFormValidation() {
     }
     const legalAck = !sectionStatuses['legal']?.acknowledged;
     if (legalAck) {
+      addError('legal_ack', MESSAGES.sectionNeedsAcknowledgment, 'legal');
       legalErrors.push({ field: 'legal_ack', message: MESSAGES.sectionNeedsAcknowledgment, sectionId: 'legal' });
     }
     sectionErrors['legal'] = {
@@ -289,6 +297,7 @@ export function useFormValidation() {
     }
     const bankingAck = !sectionStatuses['banking']?.acknowledged;
     if (bankingAck) {
+      addError('banking_ack', MESSAGES.sectionNeedsAcknowledgment, 'banking');
       bankingErrors.push({ field: 'banking_ack', message: MESSAGES.sectionNeedsAcknowledgment, sectionId: 'banking' });
     }
     sectionErrors['banking'] = {
@@ -317,6 +326,7 @@ export function useFormValidation() {
     }
     const trainingAck = !sectionStatuses['training']?.acknowledged;
     if (trainingAck) {
+      addError('training_ack', MESSAGES.sectionNeedsAcknowledgment, 'training');
       trainingErrors.push({ field: 'training_ack', message: MESSAGES.sectionNeedsAcknowledgment, sectionId: 'training' });
     }
     sectionErrors['training'] = {
@@ -347,6 +357,7 @@ export function useFormValidation() {
     }
     const carriersAck = !sectionStatuses['carriers']?.acknowledged;
     if (carriersAck) {
+      addError('carriers_ack', MESSAGES.sectionNeedsAcknowledgment, 'carriers');
       carrierErrors.push({ field: 'carriers_ack', message: MESSAGES.sectionNeedsAcknowledgment, sectionId: 'carriers' });
     }
     sectionErrors['carriers'] = {
