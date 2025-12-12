@@ -24,6 +24,7 @@ import { CarrierSelectionSection } from './sections/CarrierSelectionSection';
 import { SignatureSection } from './sections/SignatureSection';
 import { SectionNav } from './SectionNav';
 import { SectionAcknowledgment } from './SectionAcknowledgment';
+import { ValidationBanner } from './ValidationBanner';
 
 export interface SectionStatus {
   id: string;
@@ -298,6 +299,13 @@ export function ContractingForm() {
         onSectionClick={scrollToSection}
       />
 
+      {/* Validation Banner - shows only after submit attempt with errors */}
+      <ValidationBanner 
+        show={validationState.hasValidated && !validationState.isFormValid}
+        sectionErrors={validationState.sectionErrors}
+        onSectionClick={scrollToSection}
+      />
+
       {/* Main Form Content */}
       <main className="flex-1 container max-w-4xl mx-auto px-4 py-8">
         <div className="space-y-8">
@@ -335,6 +343,8 @@ export function ContractingForm() {
               application={application}
               onUpdate={updateField}
               disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
             />
             
             {/* Marketing Consent - goes right after personal info */}
@@ -367,6 +377,8 @@ export function ContractingForm() {
               application={application}
               onUpdate={updateField}
               disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
             />
             <SectionAcknowledgment
               sectionId="address"
@@ -391,6 +403,8 @@ export function ContractingForm() {
               onUpload={uploadDocument}
               onRemove={deleteDocument}
               disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
             />
             <SectionAcknowledgment
               sectionId="licensing"
@@ -447,6 +461,8 @@ export function ContractingForm() {
               onUpload={uploadDocument}
               onRemove={deleteDocument}
               disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
             />
             <SectionAcknowledgment
               sectionId="banking"
@@ -471,6 +487,8 @@ export function ContractingForm() {
               onUpload={uploadDocument}
               onRemove={deleteDocument}
               disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
             />
             <SectionAcknowledgment
               sectionId="training"
@@ -495,6 +513,8 @@ export function ContractingForm() {
               onUpdate={updateField}
               onUpload={uploadDocument}
               disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
             />
             <SectionAcknowledgment
               sectionId="carriers"
