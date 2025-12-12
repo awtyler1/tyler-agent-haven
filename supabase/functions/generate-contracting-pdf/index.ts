@@ -180,52 +180,55 @@ const CARRIER_FIELD_MAP: Record<string, { checkbox: string; nonResStates: string
 };
 
 // Legal question ID to PDF text field mapping
-// The PDF uses TEXT fields (not checkboxes) for Yes/No - we fill them with 'X'
-// Based on the Pinnacle PDF field structure, Yes fields come before No fields
+// The PDF uses TEXT fields named "undefined", "undefined_2", etc. for Yes/No boxes
+// Based on field list: Field 41=undefined, 46=undefined_2, 47=undefined_3, etc.
+// The pattern is: odd-indexed questions have consecutive undefined_N fields for Yes then No
+// We map question IDs to the actual "undefined_N" field names in the PDF
 const LEGAL_QUESTION_FIELD_MAP: Record<string, { yesField: string; noField: string; explanationField?: string }> = {
-  // Page 3 - Questions 1-8A (field numbers approximate based on PDF structure)
-  '1': { yesField: 'Yes', noField: 'No' },  // Main question 1
-  '1A': { yesField: 'Yes_2', noField: 'No_2' },
-  '1B': { yesField: 'Yes_3', noField: 'No_3' },
-  '1C': { yesField: 'Yes_4', noField: 'No_4' },
-  '1D': { yesField: 'Yes_5', noField: 'No_5' },
-  '1E': { yesField: 'Yes_6', noField: 'No_6' },
-  '1F': { yesField: 'Yes_7', noField: 'No_7' },
-  '1G': { yesField: 'Yes_8', noField: 'No_8' },
-  '1H': { yesField: 'Yes_9', noField: 'No_9' },
-  '2': { yesField: 'Yes_10', noField: 'No_10' },
-  '2A': { yesField: 'Yes_11', noField: 'No_11' },
-  '2B': { yesField: 'Yes_12', noField: 'No_12' },
-  '2C': { yesField: 'Yes_13', noField: 'No_13' },
-  '2D': { yesField: 'Yes_14', noField: 'No_14' },
-  '3': { yesField: 'Yes_15', noField: 'No_15' },
-  '4': { yesField: 'Yes_16', noField: 'No_16' },
-  '5': { yesField: 'Yes_17', noField: 'No_17' },
-  '5A': { yesField: 'Yes_18', noField: 'No_18' },
-  '5B': { yesField: 'Yes_19', noField: 'No_19' },
-  '5C': { yesField: 'Yes_20', noField: 'No_20' },
-  '6': { yesField: 'Yes_21', noField: 'No_21' },
-  '7': { yesField: 'Yes_22', noField: 'No_22' },
-  '8': { yesField: 'Yes_23', noField: 'No_23' },
-  '8A': { yesField: 'Yes_24', noField: 'No_24' },
+  // Page 3 - Questions mapped to actual PDF field names (undefined, undefined_2, etc.)
+  // Each question has YES and NO as consecutive fields
+  '1': { yesField: 'undefined', noField: 'undefined_2' },  // Main question 1 - felony/misdemeanor
+  '1A': { yesField: 'undefined_3', noField: 'undefined_4' },
+  '1B': { yesField: 'undefined_5', noField: 'undefined_6' },
+  '1C': { yesField: 'undefined_7', noField: 'undefined_8' },
+  '1D': { yesField: 'undefined_9', noField: 'undefined_10' },
+  '1E': { yesField: 'undefined_11', noField: 'undefined_12' },
+  '1F': { yesField: 'undefined_13', noField: 'undefined_14' },
+  '1G': { yesField: 'undefined_15', noField: 'undefined_16' },
+  '1H': { yesField: 'undefined_17', noField: 'undefined_18' },
+  '2': { yesField: 'undefined_19', noField: 'undefined_20' },
+  '2A': { yesField: 'undefined_21', noField: 'undefined_22' },
+  '2B': { yesField: 'undefined_23', noField: 'undefined_24' },
+  '2C': { yesField: 'undefined_25', noField: 'undefined_26' },
+  '2D': { yesField: 'undefined_27', noField: 'undefined_28' },
+  '3': { yesField: 'undefined_29', noField: 'undefined_30' },
+  '4': { yesField: 'undefined_31', noField: 'undefined_32' },
+  '5': { yesField: 'undefined_33', noField: 'undefined_34' },
+  '5A': { yesField: 'undefined_35', noField: 'undefined_36' },
+  '5B': { yesField: 'undefined_37', noField: 'undefined_38' },
+  '5C': { yesField: 'undefined_39', noField: 'undefined_40' },
+  '6': { yesField: 'undefined_41', noField: 'undefined_42' },
+  '7': { yesField: 'undefined_43', noField: 'undefined_44' },
+  '8': { yesField: 'undefined_45', noField: 'undefined_46' },
+  '8A': { yesField: 'undefined_47', noField: 'undefined_48' },
   // Page 4 - Questions 8B-19
-  '8B': { yesField: 'Yes_25', noField: 'No_25' },
-  '9': { yesField: 'Yes_26', noField: 'No_26' },
-  '10': { yesField: 'Yes_27', noField: 'No_27' },
-  '11': { yesField: 'Yes_28', noField: 'No_28' },
-  '12': { yesField: 'Yes_29', noField: 'No_29' },
-  '13': { yesField: 'Yes_30', noField: 'No_30' },
-  '14': { yesField: 'Yes_31', noField: 'No_31' },
-  '14A': { yesField: 'Yes_32', noField: 'No_32' },
-  '14C': { yesField: 'Yes_33', noField: 'No_33' },
-  '15': { yesField: 'Yes_34', noField: 'No_34' },
-  '15A': { yesField: 'Yes_35', noField: 'No_35' },
-  '15B': { yesField: 'Yes_36', noField: 'No_36' },
-  '15C': { yesField: 'Yes_37', noField: 'No_37' },
-  '16': { yesField: 'Yes_38', noField: 'No_38' },
-  '17': { yesField: 'Yes_39', noField: 'No_39' },
-  '18': { yesField: 'Yes_40', noField: 'No_40' },
-  '19': { yesField: 'Yes_41', noField: 'No_41' },
+  '8B': { yesField: 'undefined_49', noField: 'undefined_50' },
+  '9': { yesField: 'undefined_51', noField: 'undefined_52' },
+  '10': { yesField: 'undefined_53', noField: 'undefined_54' },
+  '11': { yesField: 'undefined_55', noField: 'undefined_56' },
+  '12': { yesField: 'undefined_57', noField: 'undefined_58' },
+  '13': { yesField: 'undefined_59', noField: 'undefined_60' },
+  '14': { yesField: 'undefined_61', noField: 'undefined_62' },
+  '14A': { yesField: 'undefined_63', noField: 'undefined_64' },
+  '14C': { yesField: 'undefined_65', noField: 'undefined_66' },
+  '15': { yesField: 'undefined_67', noField: 'undefined_68' },
+  '15A': { yesField: 'undefined_69', noField: 'undefined_70' },
+  '15B': { yesField: 'undefined_71', noField: 'undefined_72' },
+  '15C': { yesField: 'undefined_73', noField: 'undefined_74' },
+  '16': { yesField: 'undefined_75', noField: 'undefined_76' },
+  '17': { yesField: 'undefined_77', noField: 'undefined_78' },
+  '18': { yesField: 'undefined_79', noField: 'undefined_80' },
+  '19': { yesField: 'undefined_81', noField: 'undefined_82' },
 };
 
 serve(async (req) => {
