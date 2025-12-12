@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useContractingApplication } from '@/hooks/useContractingApplication';
 import { useProfile } from '@/hooks/useProfile';
+import { useFormValidation } from '@/hooks/useFormValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown } from 'lucide-react';
@@ -58,9 +59,10 @@ export function ContractingForm() {
     submitApplication,
   } = useContractingApplication();
 
+  const { validationState, validateForm, clearValidation, clearFieldError } = useFormValidation();
+
   const [showSaved, setShowSaved] = useState(false);
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, SectionStatus>>({});
-  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -161,25 +163,25 @@ export function ContractingForm() {
   }, [application?.signature_initials, application?.section_acknowledgments, updateField, scrollToSection]);
 
   const handleSubmit = async () => {
-    // Validate all sections are acknowledged
-    const unacknowledgedSections = SECTIONS.filter(
-      s => s.requiresAcknowledgment && !sectionStatuses[s.id]?.acknowledged
-    );
-
-    if (unacknowledgedSections.length > 0) {
-      toast.error(`Please acknowledge all sections before submitting`);
-      scrollToSection(unacknowledgedSections[0].id);
+    // Run validation
+    const result = validateForm(application!, sectionStatuses, carriers);
+    
+    if (!result.isFormValid) {
+      // Scroll to first error section with smooth animation
+      if (result.firstErrorSection) {
+        scrollToSection(result.firstErrorSection);
+      }
       return;
     }
 
-    // Validate required fields
-    // TODO: Add comprehensive validation
-
+    // Clear validation state and proceed with submission
+    clearValidation();
     setIsSubmitting(true);
+    
     try {
       const success = await submitApplication();
       if (success) {
-        // PDF generation will be handled by edge function
+        // PDF generation handled by edge function
       }
     } finally {
       setIsSubmitting(false);
@@ -351,6 +353,7 @@ export function ContractingForm() {
               status={sectionStatuses['personal']}
               onAcknowledge={() => acknowledgeSection('personal')}
               disabled={!initialsEntered}
+              hasValidationError={validationState.hasValidated && validationState.sectionErrors['personal']?.needsAcknowledgment}
             />
           </div>
 
@@ -372,6 +375,7 @@ export function ContractingForm() {
               status={sectionStatuses['address']}
               onAcknowledge={() => acknowledgeSection('address')}
               disabled={!initialsEntered}
+              hasValidationError={validationState.hasValidated && validationState.sectionErrors['address']?.needsAcknowledgment}
             />
           </div>
 
@@ -395,6 +399,7 @@ export function ContractingForm() {
               status={sectionStatuses['licensing']}
               onAcknowledge={() => acknowledgeSection('licensing')}
               disabled={!initialsEntered}
+              hasValidationError={validationState.hasValidated && validationState.sectionErrors['licensing']?.needsAcknowledgment}
             />
           </div>
 
@@ -426,6 +431,7 @@ export function ContractingForm() {
               status={sectionStatuses['legal']}
               onAcknowledge={() => acknowledgeSection('legal')}
               disabled={!initialsEntered}
+              hasValidationError={validationState.hasValidated && validationState.sectionErrors['legal']?.needsAcknowledgment}
             />
           </div>
 
@@ -449,6 +455,7 @@ export function ContractingForm() {
               status={sectionStatuses['banking']}
               onAcknowledge={() => acknowledgeSection('banking')}
               disabled={!initialsEntered}
+              hasValidationError={validationState.hasValidated && validationState.sectionErrors['banking']?.needsAcknowledgment}
             />
           </div>
 
@@ -472,6 +479,7 @@ export function ContractingForm() {
               status={sectionStatuses['training']}
               onAcknowledge={() => acknowledgeSection('training')}
               disabled={!initialsEntered}
+              hasValidationError={validationState.hasValidated && validationState.sectionErrors['training']?.needsAcknowledgment}
             />
           </div>
 
@@ -495,6 +503,7 @@ export function ContractingForm() {
               status={sectionStatuses['carriers']}
               onAcknowledge={() => acknowledgeSection('carriers')}
               disabled={!initialsEntered}
+              hasValidationError={validationState.hasValidated && validationState.sectionErrors['carriers']?.needsAcknowledgment}
             />
           </div>
 
@@ -511,6 +520,10 @@ export function ContractingForm() {
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
               disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              sectionErrors={validationState.sectionErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
+              onScrollToSection={scrollToSection}
             />
           </div>
         </div>
