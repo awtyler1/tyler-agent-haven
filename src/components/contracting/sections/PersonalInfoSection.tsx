@@ -2,8 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication } from '@/types/contracting';
 import { User, Mail, Phone, Lock } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface PersonalInfoSectionProps {
   application: ContractingApplication;
@@ -62,6 +64,35 @@ export function PersonalInfoSection({ application, onUpdate, disabled }: Persona
               placeholder="As it appears on your government ID"
               className="h-11 rounded-xl"
             />
+          </div>
+
+          {/* Gender */}
+          <div className="md:col-span-2 space-y-2">
+            <Label>Gender <span className="text-destructive">*</span></Label>
+            <RadioGroup
+              value={application.gender || ''}
+              onValueChange={(value) => onUpdate('gender', value)}
+              className="flex gap-6"
+            >
+              <label className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors",
+                application.gender === 'male' 
+                  ? "border-primary bg-primary/5" 
+                  : "border-border/20 hover:bg-muted/20"
+              )}>
+                <RadioGroupItem value="male" id="gender-male" />
+                <span className="text-sm">Male</span>
+              </label>
+              <label className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors",
+                application.gender === 'female' 
+                  ? "border-primary bg-primary/5" 
+                  : "border-border/20 hover:bg-muted/20"
+              )}>
+                <RadioGroupItem value="female" id="gender-female" />
+                <span className="text-sm">Female</span>
+              </label>
+            </RadioGroup>
           </div>
 
           {/* Agency Name */}

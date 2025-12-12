@@ -12,9 +12,11 @@ import tylerLogo from '@/assets/tyler-logo.png';
 // Section components
 import { InitialsEntrySection } from './sections/InitialsEntrySection';
 import { PersonalInfoSection } from './sections/PersonalInfoSection';
+import { MarketingConsentSection } from './sections/MarketingConsentSection';
 import { AddressSection } from './sections/AddressSection';
 import { LicensingSection } from './sections/LicensingSection';
 import { LegalQuestionsSection } from './sections/LegalQuestionsSection';
+import { BackgroundSignatureSection } from './sections/BackgroundSignatureSection';
 import { BankingSection } from './sections/BankingSection';
 import { TrainingSection } from './sections/TrainingSection';
 import { CarrierSelectionSection } from './sections/CarrierSelectionSection';
@@ -332,6 +334,16 @@ export function ContractingForm() {
               onUpdate={updateField}
               disabled={!initialsEntered}
             />
+            
+            {/* Marketing Consent - goes right after personal info */}
+            <div className="mt-4">
+              <MarketingConsentSection
+                application={application}
+                onUpdate={updateField}
+                disabled={!initialsEntered}
+              />
+            </div>
+            
             <SectionAcknowledgment
               sectionId="personal"
               sectionName="Personal Information"
@@ -399,6 +411,14 @@ export function ContractingForm() {
               onRemove={deleteDocument}
               disabled={!initialsEntered}
             />
+            
+            {/* Background Questions Signature - required after legal questions */}
+            <BackgroundSignatureSection
+              application={application}
+              onUpdate={updateField}
+              disabled={!initialsEntered}
+            />
+            
             <SectionAcknowledgment
               sectionId="legal"
               sectionName="Background Questions"
