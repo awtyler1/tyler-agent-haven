@@ -4,6 +4,7 @@ import { ContractingApplication, Carrier, getEmptyApplication } from '@/types/co
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { Json } from '@/integrations/supabase/types';
+import { useContractingPdf } from './useContractingPdf';
 
 // Debounce delay for auto-save (ms)
 const SAVE_DEBOUNCE_MS = 800;
@@ -23,6 +24,7 @@ const toDbFormat = (data: Partial<ContractingApplication>): Record<string, unkno
 
 export function useContractingApplication() {
   const { user } = useAuth();
+  const { generatePdf, generating: generatingPdf } = useContractingPdf();
   const [application, setApplication] = useState<ContractingApplication | null>(null);
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -197,6 +199,18 @@ export function useContractingApplication() {
 
     setSaving(true);
     try {
+      // First, generate the PDF and save to storage
+      console.log('Generating contracting PDF...');
+      const pdfResult = await generatePdf(application, true); // saveToStorage = true
+      
+      if (!pdfResult.success) {
+        console.error('PDF generation failed:', pdfResult.error);
+        toast.error('Failed to generate contracting packet: ' + (pdfResult.error || 'Unknown error'));
+        return false;
+      }
+
+      console.log('PDF generated successfully:', pdfResult.filename);
+
       // Update profile status to CONTRACT_SUBMITTED
       const { error: profileError } = await supabase
         .from('profiles')
@@ -227,7 +241,7 @@ export function useContractingApplication() {
     } finally {
       setSaving(false);
     }
-  }, [application?.id, user?.id]);
+  }, [application, user?.id, generatePdf]);
 
   // Upload document
   const uploadDocument = useCallback(async (file: File, documentType: string) => {
@@ -297,7 +311,7 @@ export function useContractingApplication() {
     application,
     carriers,
     loading,
-    saving,
+    saving: saving || generatingPdf,
     lastSaved,
     updateField,
     updateFields,
