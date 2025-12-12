@@ -84,9 +84,28 @@ export function useFormValidation() {
   const clearFieldError = useCallback((fieldName: string) => {
     setValidationState(prev => {
       const { [fieldName]: _, ...restErrors } = prev.fieldErrors;
+      
+      // Also update section errors - recalculate section validity based on remaining errors
+      const updatedSectionErrors = { ...prev.sectionErrors };
+      Object.keys(updatedSectionErrors).forEach(sectionId => {
+        const section = updatedSectionErrors[sectionId];
+        // Remove the cleared field from section errors
+        const remainingErrors = section.errors.filter(e => e.field !== fieldName);
+        updatedSectionErrors[sectionId] = {
+          ...section,
+          errors: remainingErrors,
+          isValid: remainingErrors.length === 0,
+        };
+      });
+      
+      // Recalculate overall form validity
+      const isFormValid = Object.keys(restErrors).length === 0;
+      
       return {
         ...prev,
         fieldErrors: restErrors,
+        sectionErrors: updatedSectionErrors,
+        isFormValid,
       };
     });
   }, []);

@@ -12,9 +12,10 @@ interface BackgroundSignatureSectionProps {
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
+  onClearError?: (field: string) => void;
 }
 
-export function BackgroundSignatureSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false }: BackgroundSignatureSectionProps) {
+export function BackgroundSignatureSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: BackgroundSignatureSectionProps) {
   const signatureRef = useRef<SignatureCanvas>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -44,6 +45,9 @@ export function BackgroundSignatureSection({ application, onUpdate, disabled, fi
         background_signature: signatureImage,
         background_signature_date: now
       });
+      
+      // Clear validation error instantly
+      onClearError?.('background_signature');
       
       setIsConfirmed(true);
     }
