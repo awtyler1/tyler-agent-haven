@@ -80,6 +80,8 @@ export function useContractingPdf() {
       }
 
       // Call the edge function
+      const uploadedDocs = application.uploaded_documents as Record<string, string> | undefined;
+      
       const { data, error: fnError } = await supabase.functions.invoke('generate-contracting-pdf', {
         body: {
           application: {
@@ -126,6 +128,13 @@ export function useContractingPdf() {
             is_finra_registered: application.is_finra_registered,
             finra_broker_dealer_name: application.finra_broker_dealer_name,
             finra_crd_number: application.finra_crd_number,
+            agreements: application.agreements,
+            // Pass the image data for embedding in PDF
+            uploaded_documents: {
+              initials_image: uploadedDocs?.initials_image || '',
+              background_signature: uploadedDocs?.background_signature || '',
+              final_signature: uploadedDocs?.final_signature || '',
+            },
           },
           saveToStorage,
           userId: application.user_id,
