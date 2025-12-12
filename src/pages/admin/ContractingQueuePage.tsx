@@ -176,13 +176,25 @@ export default function ContractingQueuePage() {
   const handleReject = async (submission: ContractingSubmission) => {
     setProcessingId(submission.id);
     try {
-      // Update contracting application status to rejected
+      // Update contracting application status to rejected and reset signature fields
       const { error: appError } = await supabase
         .from('contracting_applications')
-        .update({ status: 'rejected' })
+        .update({ 
+          status: 'rejected',
+          signature_name: null,
+          signature_date: null,
+        })
         .eq('id', submission.id);
 
       if (appError) throw appError;
+
+      // Update profile back to CONTRACTING_REQUIRED so they can resubmit
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ onboarding_status: 'CONTRACTING_REQUIRED' })
+        .eq('user_id', submission.user_id);
+
+      if (profileError) throw profileError;
 
       toast.success(`${submission.full_legal_name || 'Agent'}'s application has been rejected`);
       fetchSubmissions();
