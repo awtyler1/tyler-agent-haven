@@ -4,14 +4,17 @@ import { Button } from '@/components/ui/button';
 import { ContractingApplication } from '@/types/contracting';
 import { PenLine, Check, Lock, Trash2 } from 'lucide-react';
 import SignatureCanvas from 'react-signature-canvas';
+import { FormFieldError } from '../FormFieldError';
 
 interface BackgroundSignatureSectionProps {
   application: ContractingApplication;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   disabled?: boolean;
+  fieldErrors?: Record<string, string>;
+  showValidation?: boolean;
 }
 
-export function BackgroundSignatureSection({ application, onUpdate, disabled }: BackgroundSignatureSectionProps) {
+export function BackgroundSignatureSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false }: BackgroundSignatureSectionProps) {
   const signatureRef = useRef<SignatureCanvas>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -102,9 +105,13 @@ export function BackgroundSignatureSection({ application, onUpdate, disabled }: 
     );
   }
 
+  const hasError = showValidation && fieldErrors['background_signature'];
+
   return (
     <Card 
-      className="rounded-[28px] border-0 overflow-hidden mt-4"
+      className={`rounded-[28px] border-0 overflow-hidden mt-4 transition-all duration-300 ${
+        hasError ? 'ring-1 ring-rose-300/70' : ''
+      }`}
       style={{ 
         background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
         boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.06)'
@@ -112,8 +119,10 @@ export function BackgroundSignatureSection({ application, onUpdate, disabled }: 
     >
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <PenLine className="h-5 w-5 text-primary" />
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+            hasError ? 'bg-rose-50' : 'bg-primary/10'
+          }`}>
+            <PenLine className={`h-5 w-5 ${hasError ? 'text-rose-500' : 'text-primary'}`} />
           </div>
           <div>
             <CardTitle className="text-lg font-medium">Background Questions Signature</CardTitle>
@@ -138,9 +147,13 @@ export function BackgroundSignatureSection({ application, onUpdate, disabled }: 
             </p>
           </div>
 
-          <div className="border-2 border-dashed border-border/30 rounded-xl p-4 bg-white">
+          <div className={`border-2 border-dashed rounded-xl p-4 bg-white transition-all duration-300 ${
+            hasError ? 'border-rose-300/70' : 'border-border/30'
+          }`}>
             <p className="text-xs text-muted-foreground/50 mb-2 text-center">Draw your signature below</p>
-            <div className="border border-border/20 rounded-lg bg-white">
+            <div className={`border rounded-lg bg-white transition-all duration-300 ${
+              hasError ? 'border-rose-300/70' : 'border-border/20'
+            }`}>
               <SignatureCanvas
                 ref={signatureRef}
                 penColor="black"
@@ -150,6 +163,11 @@ export function BackgroundSignatureSection({ application, onUpdate, disabled }: 
                 }}
               />
             </div>
+            {hasError && (
+              <div className="mt-3">
+                <FormFieldError error={fieldErrors['background_signature']} />
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3 mt-4">

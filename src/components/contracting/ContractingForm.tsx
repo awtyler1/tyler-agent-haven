@@ -436,6 +436,8 @@ export function ContractingForm() {
               application={application}
               onUpdate={updateField}
               disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
             />
             
             <SectionAcknowledgment
