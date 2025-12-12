@@ -176,6 +176,10 @@ export default function ContractingQueuePage() {
   const handleReject = async (submission: ContractingSubmission) => {
     setProcessingId(submission.id);
     try {
+      // Get current uploaded documents and remove initials_image
+      const currentDocs = (submission.uploaded_documents || {}) as Record<string, string>;
+      const { initials_image, ...remainingDocs } = currentDocs;
+
       // Update contracting application status to rejected and reset all signature/initials fields
       const { error: appError } = await supabase
         .from('contracting_applications')
@@ -185,6 +189,7 @@ export default function ContractingQueuePage() {
           signature_date: null,
           signature_initials: null,
           section_acknowledgments: {},
+          uploaded_documents: remainingDocs,
         })
         .eq('id', submission.id);
 
