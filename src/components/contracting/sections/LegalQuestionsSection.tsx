@@ -31,7 +31,7 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
   const hasAnyYesAnswers = Object.values(legalQuestions).some(q => q.answer === true);
 
   // Get only parent questions and standalone questions (not sub-questions)
-  const mainQuestions = LEGAL_QUESTIONS.filter(q => !q.isSubQuestion);
+  const mainQuestions = LEGAL_QUESTIONS.filter(q => !('isSubQuestion' in q && q.isSubQuestion));
 
   return (
     <Card 
@@ -63,8 +63,8 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
         <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-3">
           {mainQuestions.map((question) => {
             const q = getQuestion(question.id);
-            const hasSubQuestions = LEGAL_QUESTIONS.some(sq => sq.isSubQuestion && sq.id.startsWith(question.id) && sq.id !== question.id);
-            const subQuestions = hasSubQuestions ? LEGAL_QUESTIONS.filter(sq => sq.isSubQuestion && sq.id.startsWith(question.id) && sq.id !== question.id) : [];
+            const hasSubQuestions = LEGAL_QUESTIONS.some(sq => 'isSubQuestion' in sq && sq.isSubQuestion && sq.id.startsWith(question.id) && sq.id !== question.id);
+            const subQuestions = hasSubQuestions ? LEGAL_QUESTIONS.filter(sq => 'isSubQuestion' in sq && sq.isSubQuestion && sq.id.startsWith(question.id) && sq.id !== question.id) : [];
 
             return (
               <div 
@@ -190,7 +190,7 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                 documentType="background_explanation"
                 existingFile={uploadedDocs['background_explanation']}
                 onUpload={onUpload}
-                onRemove={onRemove}
+                onRemove={() => onRemove('background_explanation')}
                 description="Upload any supporting documents for your explanations"
               />
             </div>

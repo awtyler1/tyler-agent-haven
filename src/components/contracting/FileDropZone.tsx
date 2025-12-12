@@ -1,10 +1,12 @@
 import { useRef, useState, DragEvent } from 'react';
 import { Upload, CheckCircle2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 interface FileDropZoneProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect?: (file: File) => void;
+  onUpload?: (file: File, documentType: string) => Promise<string | null>;
   onRemove?: () => void;
   accept?: string;
   isUploaded?: boolean;
@@ -13,21 +15,38 @@ interface FileDropZoneProps {
   className?: string;
   compact?: boolean;
   hasError?: boolean;
+  // Extended props for section components
+  label?: string;
+  documentType?: string;
+  existingFile?: string;
+  required?: boolean;
+  description?: string;
 }
 
 export function FileDropZone({
   onFileSelect,
+  onUpload,
   onRemove,
   accept = '.pdf,.jpg,.jpeg,.png',
-  isUploaded = false,
+  isUploaded: isUploadedProp,
   uploadedLabel = 'Uploaded',
-  defaultLabel = 'Upload',
+  defaultLabel,
   className,
   compact = false,
   hasError = false,
+  label,
+  documentType,
+  existingFile,
+  required = false,
+  description,
 }: FileDropZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Determine if file is uploaded
+  const isUploaded = isUploadedProp ?? !!existingFile;
+  const displayLabel = defaultLabel || label || 'Upload';
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -41,7 +60,7 @@ export function FileDropZone({
     setIsDragging(false);
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
@@ -53,14 +72,27 @@ export function FileDropZone({
       const acceptedTypes = accept.split(',').map(t => t.trim().toLowerCase());
       const fileExt = `.${file.name.split('.').pop()?.toLowerCase()}`;
       if (acceptedTypes.some(type => type === fileExt || type === file.type)) {
-        onFileSelect(file);
+        await handleFileUpload(file);
       }
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
-      onFileSelect(e.target.files[0]);
+      await handleFileUpload(e.target.files[0]);
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (onUpload && documentType) {
+      setIsUploading(true);
+      try {
+        await onUpload(file, documentType);
+      } finally {
+        setIsUploading(false);
+      }
+    } else if (onFileSelect) {
+      onFileSelect(file);
     }
   };
 
@@ -68,6 +100,89 @@ export function FileDropZone({
     e.stopPropagation();
     onRemove?.();
   };
+
+  // If we have a label prop, render with label wrapper
+  if (label) {
+    return (
+      <div className={cn("space-y-2", className)}>
+        <div className="flex items-center justify-between">
+          <Label className="text-sm">
+            {label}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </Label>
+          {isUploaded && (
+            <span className="text-xs text-primary flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              Uploaded
+            </span>
+          )}
+        </div>
+        {description && (
+          <p className="text-xs text-muted-foreground/60">{description}</p>
+        )}
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={cn(
+            "relative transition-all duration-200",
+            isDragging && "scale-[1.01]"
+          )}
+        >
+          <input
+            type="file"
+            ref={inputRef}
+            onChange={handleFileChange}
+            accept={accept}
+            className="hidden"
+          />
+          <div className="relative">
+            <Button
+              type="button"
+              variant={isUploaded ? "secondary" : "outline"}
+              className={cn(
+                "w-full justify-start h-11 transition-all duration-200 rounded-xl",
+                isDragging && "border-primary bg-primary/5 border-dashed border-2",
+                isUploaded && "text-primary border-primary/30 pr-10",
+                hasError && !isUploaded && "border-destructive focus:border-destructive"
+              )}
+              onClick={() => inputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <>
+                  <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  Uploading...
+                </>
+              ) : isUploaded ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-2 text-primary" />
+                  {existingFile ? existingFile.split('/').pop() : uploadedLabel}
+                </>
+              ) : isDragging ? (
+                <span className="text-primary font-medium">Drop file here</span>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Click to upload or drag & drop
+                </>
+              )}
+            </Button>
+            {isUploaded && onRemove && (
+              <button
+                type="button"
+                onClick={handleRemove}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                title="Remove file"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (compact) {
     return (
@@ -90,6 +205,7 @@ export function FileDropZone({
         />
         <div className="relative">
           <Button
+            type="button"
             variant="outline"
             size="sm"
             className={cn(
@@ -109,12 +225,13 @@ export function FileDropZone({
             ) : (
               <>
                 <Upload className="h-3 w-3 mr-1.5" />
-                {defaultLabel}
+                {displayLabel}
               </>
             )}
           </Button>
           {isUploaded && onRemove && (
             <button
+              type="button"
               onClick={handleRemove}
               className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
               title="Remove file"
@@ -147,6 +264,7 @@ export function FileDropZone({
       />
       <div className="relative">
         <Button
+          type="button"
           variant={isUploaded ? "secondary" : "outline"}
           className={cn(
             "w-full justify-start h-9 transition-all duration-200",
@@ -166,12 +284,13 @@ export function FileDropZone({
           ) : (
             <>
               <Upload className="h-4 w-4 mr-2" />
-              {defaultLabel}
+              {displayLabel}
             </>
           )}
         </Button>
         {isUploaded && onRemove && (
           <button
+            type="button"
             onClick={handleRemove}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
             title="Remove file"

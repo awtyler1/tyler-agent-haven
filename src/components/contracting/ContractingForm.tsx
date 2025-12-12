@@ -136,13 +136,13 @@ export function ContractingForm() {
     }
 
     const now = new Date().toISOString();
-    const currentAcks = (application?.section_acknowledgments as Record<string, unknown>) || {};
-    const updatedAcks = {
+    const currentAcks = (application?.section_acknowledgments || {}) as Record<string, { acknowledged: boolean; acknowledgedAt: string | null; initials?: string }>;
+    const updatedAcks: Record<string, { acknowledged: boolean; acknowledgedAt: string | null; initials?: string }> = {
       ...currentAcks,
       [sectionId]: {
         acknowledged: true,
         acknowledgedAt: now,
-        initials: application.signature_initials,
+        initials: application.signature_initials || undefined,
       },
     };
 

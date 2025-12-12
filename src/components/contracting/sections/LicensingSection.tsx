@@ -200,7 +200,7 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                 documentType="insurance_license"
                 existingFile={uploadedDocs['insurance_license']}
                 onUpload={onUpload}
-                onRemove={onRemove}
+                onRemove={() => onRemove('insurance_license')}
                 required
               />
               <FileDropZone
@@ -208,7 +208,7 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                 documentType="government_id"
                 existingFile={uploadedDocs['government_id']}
                 onUpload={onUpload}
-                onRemove={onRemove}
+                onRemove={() => onRemove('government_id')}
                 required
               />
             </div>
