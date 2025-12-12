@@ -16,9 +16,10 @@ interface BankingSectionProps {
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
+  onClearError?: (field: string) => void;
 }
 
-export function BankingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false }: BankingSectionProps) {
+export function BankingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false, onClearError }: BankingSectionProps) {
   const uploadedDocs = application.uploaded_documents || {};
 
   return (
@@ -56,7 +57,10 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
               <Input
                 id="bank_routing_number"
                 value={application.bank_routing_number || ''}
-                onChange={(e) => onUpdate('bank_routing_number', e.target.value)}
+                onChange={(e) => {
+                  onUpdate('bank_routing_number', e.target.value);
+                  if (e.target.value && onClearError) onClearError('bank_routing_number');
+                }}
                 placeholder="9 digits"
                 className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.bank_routing_number, showValidation))}
                 maxLength={9}
@@ -69,7 +73,10 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
               <Input
                 id="bank_account_number"
                 value={application.bank_account_number || ''}
-                onChange={(e) => onUpdate('bank_account_number', e.target.value)}
+                onChange={(e) => {
+                  onUpdate('bank_account_number', e.target.value);
+                  if (e.target.value && onClearError) onClearError('bank_account_number');
+                }}
                 className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.bank_account_number, showValidation))}
               />
               <FormFieldError error={fieldErrors.bank_account_number} show={showValidation} />
@@ -95,6 +102,7 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
               existingFile={uploadedDocs['voided_check']}
               onUpload={onUpload}
               onRemove={() => onRemove('voided_check')}
+              onClearError={onClearError}
               required
               description="Required for direct deposit setup"
               hasError={showValidation && !!fieldErrors.voided_check}

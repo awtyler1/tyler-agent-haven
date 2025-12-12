@@ -14,9 +14,10 @@ interface PersonalInfoSectionProps {
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
+  onClearError?: (field: string) => void;
 }
 
-export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false }: PersonalInfoSectionProps) {
+export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: PersonalInfoSectionProps) {
   const contactMethods = application.preferred_contact_methods || [];
 
   const toggleContactMethod = (method: string) => {
@@ -63,7 +64,10 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             <Input
               id="full_legal_name"
               value={application.full_legal_name || ''}
-              onChange={(e) => onUpdate('full_legal_name', e.target.value)}
+              onChange={(e) => {
+                onUpdate('full_legal_name', e.target.value);
+                if (e.target.value && onClearError) onClearError('full_legal_name');
+              }}
               placeholder="As it appears on your government ID"
               className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.full_legal_name, showValidation))}
             />
@@ -75,7 +79,10 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             <Label>Gender <span className="text-destructive">*</span></Label>
             <RadioGroup
               value={application.gender || ''}
-              onValueChange={(value) => onUpdate('gender', value)}
+              onValueChange={(value) => {
+                onUpdate('gender', value);
+                if (value && onClearError) onClearError('gender');
+              }}
               className="flex gap-6"
             >
               <label className={cn(
@@ -145,7 +152,10 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
               id="phone_mobile"
               type="tel"
               value={application.phone_mobile || ''}
-              onChange={(e) => onUpdate('phone_mobile', e.target.value)}
+              onChange={(e) => {
+                onUpdate('phone_mobile', e.target.value);
+                if (e.target.value && onClearError) onClearError('phone_mobile');
+              }}
               placeholder="(555) 123-4567"
               className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.phone_mobile, showValidation))}
             />

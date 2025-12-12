@@ -8,6 +8,7 @@ interface FileDropZoneProps {
   onFileSelect?: (file: File) => void;
   onUpload?: (file: File, documentType: string) => Promise<string | null>;
   onRemove?: () => void;
+  onClearError?: (field: string) => void;
   accept?: string;
   isUploaded?: boolean;
   uploadedLabel?: string;
@@ -27,6 +28,7 @@ export function FileDropZone({
   onFileSelect,
   onUpload,
   onRemove,
+  onClearError,
   accept = '.pdf,.jpg,.jpeg,.png',
   isUploaded: isUploadedProp,
   uploadedLabel = 'Uploaded',
@@ -87,7 +89,11 @@ export function FileDropZone({
     if (onUpload && documentType) {
       setIsUploading(true);
       try {
-        await onUpload(file, documentType);
+        const result = await onUpload(file, documentType);
+        // Clear the error instantly when upload succeeds
+        if (result && onClearError && documentType) {
+          onClearError(documentType);
+        }
       } finally {
         setIsUploading(false);
       }

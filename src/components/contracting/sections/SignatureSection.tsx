@@ -29,6 +29,7 @@ interface SignatureSectionProps {
   sectionErrors?: Record<string, SectionError>;
   showValidation?: boolean;
   onScrollToSection?: (sectionId: string) => void;
+  onClearError?: (field: string) => void;
 }
 
 export function SignatureSection({ 
@@ -42,6 +43,7 @@ export function SignatureSection({
   sectionErrors = {},
   showValidation = false,
   onScrollToSection,
+  onClearError,
 }: SignatureSectionProps) {
   const allSectionsAcknowledged = Object.entries(sectionStatuses)
     .filter(([id]) => !['initials', 'signature'].includes(id))
@@ -59,6 +61,8 @@ export function SignatureSection({
     const docs = (application.uploaded_documents || {}) as Record<string, string>;
     if (signatureData) {
       onUpdate('uploaded_documents', { ...docs, final_signature: signatureData });
+      // Clear the error instantly when signature is drawn
+      if (onClearError) onClearError('final_signature');
     } else {
       const { final_signature, ...rest } = docs;
       onUpdate('uploaded_documents', rest);
@@ -192,7 +196,10 @@ export function SignatureSection({
               <Input
                 id="signature_name"
                 value={application.signature_name || ''}
-                onChange={(e) => onUpdate('signature_name', e.target.value)}
+                onChange={(e) => {
+                  onUpdate('signature_name', e.target.value);
+                  if (e.target.value && onClearError) onClearError('signature_name');
+                }}
                 placeholder="Your legal name"
                 className={cn(
                   "h-11 rounded-xl font-medium transition-all duration-300",

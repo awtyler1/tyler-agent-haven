@@ -17,9 +17,10 @@ interface TrainingSectionProps {
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
+  onClearError?: (field: string) => void;
 }
 
-export function TrainingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false }: TrainingSectionProps) {
+export function TrainingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false, onClearError }: TrainingSectionProps) {
   const uploadedDocs = application.uploaded_documents || {};
 
   return (
@@ -101,6 +102,7 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
                     existingFile={uploadedDocs['eo_certificate']}
                     onUpload={onUpload}
                     onRemove={() => onRemove('eo_certificate')}
+                    onClearError={onClearError}
                     description="Your E&O certificate must list your full name as the insured"
                     hasError={showValidation && !!fieldErrors.eo_certificate}
                   />
@@ -171,7 +173,10 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
                   <Input
                     id="finra_broker_dealer_name"
                     value={application.finra_broker_dealer_name || ''}
-                    onChange={(e) => onUpdate('finra_broker_dealer_name', e.target.value)}
+                    onChange={(e) => {
+                      onUpdate('finra_broker_dealer_name', e.target.value);
+                      if (e.target.value && onClearError) onClearError('finra_broker_dealer_name');
+                    }}
                     className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.finra_broker_dealer_name, showValidation))}
                   />
                   <FormFieldError error={fieldErrors.finra_broker_dealer_name} show={showValidation} />
@@ -181,7 +186,10 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
                   <Input
                     id="finra_crd_number"
                     value={application.finra_crd_number || ''}
-                    onChange={(e) => onUpdate('finra_crd_number', e.target.value)}
+                    onChange={(e) => {
+                      onUpdate('finra_crd_number', e.target.value);
+                      if (e.target.value && onClearError) onClearError('finra_crd_number');
+                    }}
                     className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.finra_crd_number, showValidation))}
                   />
                   <FormFieldError error={fieldErrors.finra_crd_number} show={showValidation} />
