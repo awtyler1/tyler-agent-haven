@@ -179,49 +179,28 @@ const CARRIER_FIELD_MAP: Record<string, { checkbox: string; nonResStates: string
   'William Penn': { checkbox: 'fill_153', nonResStates: 'NONRES STATESWilliam Penn' },
 };
 
-// Legal question ID to PDF field mapping
-const LEGAL_QUESTION_FIELD_MAP: Record<string, string> = {
-  '1': 'Felony Misdemeanor federal andor state insurance andor securities or investments',
-  '1A': 'undefined',
-  '1B': 'Have you ever been convicted of or plead guilty or no contest to any Misdemeanor',
-  '1C': 'Have you ever been convicted of or plead guilty or no contest to any violation or federal',
-  '1D': 'Have you ever been convicted of or plead guilty or no contest to any violation of state',
-  '1E': 'Has any foreign government court regulatory agency andor exchange ever entered an',
-  '1F': 'undefined_2',
-  '1G': 'undefined_3',
-  '1H': 'undefined_4',
-  '2': 'Have you ever been or are you currently being investigated have any pending',
-  '2A': 'undefined_5',
-  '2B': 'undefined_6',
-  '2C': 'civil judgments andor other legal proceedings civil or criminal You may omit family',
-  '2D': 'Have you ever been named as a defendant or codefendant in any lawsuit or have you',
-  '3': 'undefined_7',
-  '4': 'undefined_8',
-  '5': 'contract or appointment or permitted you to resign for any reason other than lack of',
-  '5A': 'andor investmentrelated statues regulations rules andor industry standards of',
-  '5B': 'Were you terminated andor resigned because you were accused of fraud andor the',
-  '5C': 'with insurance andor investmentrelated statues regulations rules andor industry',
-  '6': 'Have you ever had an appointment with any insurance companies terminated for cause',
-  '7': 'Does any insurer insured andor other person claim any commission chargeback andor',
-  '8': 'omissions insurer arising out of your sales andor practices or have you been refused',
-  '8A': 'Has a bonding andor surety company ever denied paid on andor revoked a bond for',
-  '8B': 'Has any Errors  Omissions EO carrier ever denied paid claims on andor canceled',
-  '9': 'Have you ever had an insurance andor securities license denied suspended canceled',
-  '10': 'investment andor insurancerelated business having its authorization to do business',
-  '11': 'Has any state andor federal regulatory agency revoked andor suspended your license',
-  '12': 'Has any state andor federal regulatory agency found you to have made any false',
-  '13': 'undefined_9',
-  '14': 'sanctioned censured penalized andor otherwise disciplined you for a violation of their',
-  '14A': 'Has any regulatory body ever sanctioned censured penalized andor otherwise',
-  '14C': 'undefined_10',
-  '15': 'Have you personally andor any insurance andor securities brokerage firms with whom',
-  '15A': 'undefined_11',
-  '15B': 'filed a bankruptcy petition andor been declared bankrupt either during your association',
-  '15C': 'undefined_12',
-  '16': 'undefined_13',
-  '17': 'Are you connected in any way with a bank savings and loan association andor other',
-  '18': 'undefined_14',
-  '19': 'Do you have any unresolved matters pending with the Internal Revenue Services andor',
+// Legal question ID to Yes/No checkbox field mapping
+// Format: { yesField: 'field_name_for_yes', noField: 'field_name_for_no' }
+const LEGAL_QUESTION_CHECKBOX_MAP: Record<string, { yesField: string; noField: string }> = {
+  '1': { yesField: 'Yes1', noField: 'No1' },
+  '2': { yesField: 'Yes2', noField: 'No2' },
+  '3': { yesField: 'Yes3', noField: 'No3' },
+  '4': { yesField: 'Yes4', noField: 'No4' },
+  '5': { yesField: 'Yes5', noField: 'No5' },
+  '6': { yesField: 'Yes6', noField: 'No6' },
+  '7': { yesField: 'Yes7', noField: 'No7' },
+  '8': { yesField: 'Yes8', noField: 'No8' },
+  '9': { yesField: 'Yes9', noField: 'No9' },
+  '10': { yesField: 'Yes10', noField: 'No10' },
+  '11': { yesField: 'Yes11', noField: 'No11' },
+  '12': { yesField: 'Yes12', noField: 'No12' },
+  '13': { yesField: 'Yes13', noField: 'No13' },
+  '14': { yesField: 'Yes14', noField: 'No14' },
+  '15': { yesField: 'Yes15', noField: 'No15' },
+  '16': { yesField: 'Yes16', noField: 'No16' },
+  '17': { yesField: 'Yes17', noField: 'No17' },
+  '18': { yesField: 'Yes18', noField: 'No18' },
+  '19': { yesField: 'Yes19', noField: 'No19' },
 };
 
 serve(async (req) => {
@@ -543,46 +522,75 @@ serve(async (req) => {
     // ==================== PAGES 2-3: Legal Questions ====================
     const legalQuestions = application.legal_questions || {};
     
-    // For each legal question, we need to check both Yes and No boxes
-    Object.entries(LEGAL_QUESTION_FIELD_MAP).forEach(([questionId, fieldName]) => {
-      const question = legalQuestions[questionId];
-      if (question && question.answer !== null) {
-        // Try to find Yes/No checkboxes with various naming patterns
-        const yesFieldNames = [
-          `${fieldName}_Yes`, `${fieldName} Yes`, `Yes_${questionId}`, 
-          `Q${questionId}_Yes`, `Yes${questionId}`, fieldName
-        ];
-        const noFieldNames = [
-          `${fieldName}_No`, `${fieldName} No`, `No_${questionId}`, 
-          `Q${questionId}_No`, `No${questionId}`
+    console.log('Processing legal questions:', Object.keys(legalQuestions).length);
+    
+    // Process each legal question and try to check Yes/No boxes
+    Object.entries(legalQuestions).forEach(([questionId, questionData]) => {
+      const question = questionData as LegalQuestion;
+      if (question && question.answer !== null && question.answer !== undefined) {
+        const mapping = LEGAL_QUESTION_CHECKBOX_MAP[questionId];
+        const isYes = question.answer === true;
+        
+        console.log(`Legal Q${questionId}: answer=${isYes ? 'Yes' : 'No'}`);
+        
+        // Try multiple checkbox naming patterns
+        const checkboxPatterns = isYes ? [
+          mapping?.yesField,
+          `Yes${questionId}`,
+          `Yes_${questionId}`,
+          `Q${questionId}_Yes`,
+          `Question${questionId}_Yes`,
+          `fill_yes_${questionId}`,
+        ] : [
+          mapping?.noField,
+          `No${questionId}`,
+          `No_${questionId}`,
+          `Q${questionId}_No`,
+          `Question${questionId}_No`,
+          `fill_no_${questionId}`,
         ];
         
-        // Check the appropriate Yes/No checkbox
-        if (question.answer === true) {
-          yesFieldNames.forEach(name => {
+        let checked = false;
+        for (const fieldName of checkboxPatterns) {
+          if (!fieldName) continue;
+          try {
+            const field = form.getCheckBox(fieldName);
+            field.check();
+            console.log(`Checked legal question checkbox: ${fieldName}`);
+            checked = true;
+            break;
+          } catch {
+            // Try as text field with X
             try {
-              const field = form.getCheckBox(name);
-              field.check();
+              const field = form.getTextField(fieldName);
+              field.setText('X');
+              console.log(`Set legal question text field: ${fieldName}`);
+              checked = true;
+              break;
             } catch { /* Field doesn't exist */ }
-          });
-        } else if (question.answer === false) {
-          noFieldNames.forEach(name => {
-            try {
-              const field = form.getCheckBox(name);
-              field.check();
-            } catch { /* Field doesn't exist */ }
-          });
+          }
         }
         
-        // Also try the original field name as checkbox
-        try {
-          const field = form.getCheckBox(fieldName);
-          if (question.answer) {
-            field.check();
+        if (!checked) {
+          console.log(`Could not find checkbox for legal question ${questionId}`);
+        }
+        
+        // If there's an explanation for a "Yes" answer, try to set it
+        if (isYes && question.explanation) {
+          const explanationFields = [
+            `Explanation${questionId}`,
+            `Explanation_${questionId}`,
+            `Q${questionId}_Explanation`,
+            `Details${questionId}`,
+          ];
+          for (const fieldName of explanationFields) {
+            try {
+              const field = form.getTextField(fieldName);
+              field.setText(question.explanation);
+              console.log(`Set explanation for Q${questionId}`);
+              break;
+            } catch { /* Field doesn't exist */ }
           }
-        } catch {
-          // Try as text field fallback
-          setTextField(fieldName, question.answer ? 'Yes' : 'No');
         }
       }
     });
