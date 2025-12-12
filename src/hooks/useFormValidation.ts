@@ -311,7 +311,8 @@ export function useFormValidation() {
 
     // ========== TRAINING SECTION ==========
     const trainingErrors: FieldError[] = [];
-    if (!uploadedDocs.eo_certificate) {
+    // Only require E&O certificate if user hasn't checked "I don't have E&O coverage yet"
+    if (!application.eo_not_yet_covered && !uploadedDocs.eo_certificate) {
       addError('eo_certificate', MESSAGES.documentRequired, 'training');
       trainingErrors.push({ field: 'eo_certificate', message: MESSAGES.documentRequired, sectionId: 'training' });
     }
