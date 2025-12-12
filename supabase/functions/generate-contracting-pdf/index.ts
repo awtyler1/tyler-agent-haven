@@ -549,8 +549,15 @@ serve(async (req) => {
       }
     }
 
-    // Return the PDF as base64
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(filledPdfBytes)));
+    // Return the PDF as base64 (chunked to avoid stack overflow)
+    const uint8Array = new Uint8Array(filledPdfBytes);
+    let binaryString = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.subarray(i, i + chunkSize);
+      binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+    }
+    const base64 = btoa(binaryString);
 
     return new Response(
       JSON.stringify({
@@ -610,7 +617,14 @@ async function createPdfFromScratch(application: ContractingData, saveToStorage:
   });
 
   const pdfBytes = await pdfDoc.save();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(pdfBytes)));
+  const uint8Array = new Uint8Array(pdfBytes);
+  let binaryString = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < uint8Array.length; i += chunkSize) {
+    const chunk = uint8Array.subarray(i, i + chunkSize);
+    binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+  const base64 = btoa(binaryString);
 
   const nameParts = application.full_legal_name.split(' ');
   const lastName = nameParts[nameParts.length - 1];
