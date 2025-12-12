@@ -93,6 +93,9 @@ export interface ContractingApplication {
   signature_initials: string | null;
   signature_date: string | null;
   
+  // Section acknowledgments for single-page form
+  section_acknowledgments: Record<string, { acknowledged: boolean; acknowledgedAt: string | null; initials?: string }>;
+  
   // Documents
   uploaded_documents: Record<string, string>;
   
