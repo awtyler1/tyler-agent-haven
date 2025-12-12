@@ -71,6 +71,8 @@ interface ContractingData {
   is_finra_registered?: boolean;
   finra_broker_dealer_name?: string;
   finra_crd_number?: string;
+  agreements?: Record<string, boolean>;
+  uploaded_documents?: Record<string, string>;
 }
 
 function formatDate(dateStr: string | undefined): string {
@@ -315,17 +317,30 @@ serve(async (req) => {
       }
     };
 
-    // Helper to safely set checkbox
+    // Helper to safely set checkbox - try multiple variations
     const setCheckbox = (fieldName: string, checked: boolean) => {
-      try {
-        const field = form.getCheckBox(fieldName);
-        if (checked) {
+      if (!checked) return;
+      
+      const variations = [fieldName, fieldName.toLowerCase(), fieldName.toUpperCase()];
+      
+      for (const name of variations) {
+        try {
+          const field = form.getCheckBox(name);
           field.check();
-        } else {
-          field.uncheck();
+          console.log(`Checked checkbox: ${name}`);
+          return;
+        } catch {
+          // Try next variation
         }
-      } catch (e) {
-        console.log(`Checkbox not found or error: ${fieldName}`);
+      }
+      
+      // Fallback: try to set as text field with 'X'
+      try {
+        const field = form.getTextField(fieldName);
+        field.setText('X');
+        console.log(`Set text field with X: ${fieldName}`);
+      } catch {
+        console.log(`Checkbox/field not found: ${fieldName}`);
       }
     };
 
@@ -340,13 +355,21 @@ serve(async (req) => {
     setTextField('NPN', application.npn_number);
     setTextField('MMDDYYYY', formatDateMMDDYYYY(application.birth_date));
     
-    // Gender checkboxes
+    // Gender checkboxes - try multiple field name variations
     const gender = application.gender?.toLowerCase();
-    setCheckbox('Male', gender === 'male');
-    setCheckbox('Female', gender === 'female');
-    // Alternative field names
-    setCheckbox('M', gender === 'male');
-    setCheckbox('F', gender === 'female');
+    if (gender === 'male') {
+      setCheckbox('Male', true);
+      setCheckbox('M', true);
+      setCheckbox('Check Box Male', true);
+      setCheckbox('Gender Male', true);
+      setCheckbox('male', true);
+    } else if (gender === 'female') {
+      setCheckbox('Female', true);
+      setCheckbox('F', true);
+      setCheckbox('Check Box Female', true);
+      setCheckbox('Gender Female', true);
+      setCheckbox('female', true);
+    }
     
     // Home Address
     if (application.home_address) {
@@ -411,6 +434,16 @@ serve(async (req) => {
     setCheckbox('Check Box1', preferredMethods.includes('email'));
     setCheckbox('Check Box2', preferredMethods.includes('phone'));
     setCheckbox('Check Box3', preferredMethods.includes('text'));
+    
+    // Marketing consent checkbox
+    const marketingConsent = application.agreements?.marketing_consent || false;
+    if (marketingConsent) {
+      setCheckbox('Marketing', true);
+      setCheckbox('marketing', true);
+      setCheckbox('Marketing Consent', true);
+      setCheckbox('Additionally by checking here', true);
+      setCheckbox('Check Box Marketing', true);
+    }
     
     // Initials on page 1
     setTextField('INITIALS', application.signature_initials);
