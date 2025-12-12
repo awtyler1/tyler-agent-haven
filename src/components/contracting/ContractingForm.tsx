@@ -240,7 +240,7 @@ export function ContractingForm() {
     );
   }
 
-  const initialsEntered = !!application.signature_initials;
+  const initialsEntered = !!application.signature_initials && !!(application.uploaded_documents as Record<string, string>)?.initials_image;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
@@ -306,7 +306,17 @@ export function ContractingForm() {
             <InitialsEntrySection
               fullName={profile?.full_name || application.full_legal_name}
               initials={application.signature_initials}
+              initialsImage={(application.uploaded_documents as Record<string, string>)?.initials_image}
               onInitialsChange={(initials) => updateField('signature_initials', initials)}
+              onInitialsImageChange={(image) => {
+                const docs = (application.uploaded_documents || {}) as Record<string, string>;
+                if (image) {
+                  updateField('uploaded_documents', { ...docs, initials_image: image });
+                } else {
+                  const { initials_image, ...rest } = docs;
+                  updateField('uploaded_documents', rest);
+                }
+              }}
               isLocked={initialsEntered && Object.values(sectionStatuses).some(s => s.acknowledged)}
             />
           </div>
