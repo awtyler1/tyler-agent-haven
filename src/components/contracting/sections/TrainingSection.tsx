@@ -95,7 +95,7 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
                   documentType="eo_certificate"
                   existingFile={uploadedDocs['eo_certificate']}
                   onUpload={onUpload}
-                  onRemove={onRemove}
+                  onRemove={() => onRemove('eo_certificate')}
                   description="Your E&O certificate must list your full name as the insured"
                 />
               </>
@@ -139,7 +139,7 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
                 documentType="aml_certificate"
                 existingFile={uploadedDocs['aml_certificate']}
                 onUpload={onUpload}
-                onRemove={onRemove}
+                onRemove={() => onRemove('aml_certificate')}
               />
             )}
           </div>
@@ -200,7 +200,7 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
                   documentType="ltc_certificate"
                   existingFile={uploadedDocs['ltc_certificate']}
                   onUpload={onUpload}
-                  onRemove={onRemove}
+                  onRemove={() => onRemove('ltc_certificate')}
                 />
               </div>
             )}

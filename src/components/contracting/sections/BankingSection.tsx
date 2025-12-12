@@ -88,7 +88,7 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
               documentType="voided_check"
               existingFile={uploadedDocs['voided_check']}
               onUpload={onUpload}
-              onRemove={onRemove}
+              onRemove={() => onRemove('voided_check')}
               required
               description="Required for direct deposit setup"
             />
