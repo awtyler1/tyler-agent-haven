@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ContractingApplication } from '@/types/contracting';
 import { FileDropZone } from '../FileDropZone';
 import { GraduationCap, Lock } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 
 interface TrainingSectionProps {
   application: ContractingApplication;
@@ -13,9 +15,11 @@ interface TrainingSectionProps {
   onUpload: (file: File, documentType: string) => Promise<string | null>;
   onRemove: (documentType: string) => Promise<void>;
   disabled?: boolean;
+  fieldErrors?: Record<string, string>;
+  showValidation?: boolean;
 }
 
-export function TrainingSection({ application, onUpdate, onUpload, onRemove, disabled }: TrainingSectionProps) {
+export function TrainingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false }: TrainingSectionProps) {
   const uploadedDocs = application.uploaded_documents || {};
 
   return (
@@ -90,14 +94,18 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
                     />
                   </div>
                 </div>
-                <FileDropZone
-                  label="E&O Certificate"
-                  documentType="eo_certificate"
-                  existingFile={uploadedDocs['eo_certificate']}
-                  onUpload={onUpload}
-                  onRemove={() => onRemove('eo_certificate')}
-                  description="Your E&O certificate must list your full name as the insured"
-                />
+                <div>
+                  <FileDropZone
+                    label="E&O Certificate"
+                    documentType="eo_certificate"
+                    existingFile={uploadedDocs['eo_certificate']}
+                    onUpload={onUpload}
+                    onRemove={() => onRemove('eo_certificate')}
+                    description="Your E&O certificate must list your full name as the insured"
+                    hasError={showValidation && !!fieldErrors.eo_certificate}
+                  />
+                  <FormFieldError error={fieldErrors.eo_certificate} show={showValidation} />
+                </div>
               </>
             )}
           </div>
@@ -159,22 +167,24 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
             {application.is_finra_registered && (
               <div className="grid gap-4 md:grid-cols-2 pl-6">
                 <div className="space-y-2">
-                  <Label htmlFor="finra_broker_dealer_name">Broker/Dealer Name</Label>
+                  <Label htmlFor="finra_broker_dealer_name">Broker/Dealer Name <span className="text-destructive">*</span></Label>
                   <Input
                     id="finra_broker_dealer_name"
                     value={application.finra_broker_dealer_name || ''}
                     onChange={(e) => onUpdate('finra_broker_dealer_name', e.target.value)}
-                    className="h-11 rounded-xl"
+                    className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.finra_broker_dealer_name, showValidation))}
                   />
+                  <FormFieldError error={fieldErrors.finra_broker_dealer_name} show={showValidation} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="finra_crd_number">CRD #</Label>
+                  <Label htmlFor="finra_crd_number">CRD # <span className="text-destructive">*</span></Label>
                   <Input
                     id="finra_crd_number"
                     value={application.finra_crd_number || ''}
                     onChange={(e) => onUpdate('finra_crd_number', e.target.value)}
-                    className="h-11 rounded-xl"
+                    className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.finra_crd_number, showValidation))}
                   />
+                  <FormFieldError error={fieldErrors.finra_crd_number} show={showValidation} />
                 </div>
               </div>
             )}

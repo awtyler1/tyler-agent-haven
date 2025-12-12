@@ -5,11 +5,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
 import { MapPin, Lock } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 
 interface AddressSectionProps {
   application: ContractingApplication;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   disabled?: boolean;
+  fieldErrors?: Record<string, string>;
+  showValidation?: boolean;
 }
 
 function AddressFields({ 
@@ -17,11 +21,15 @@ function AddressFields({
   address, 
   onChange,
   required = false,
+  hasError = false,
+  showValidation = false,
 }: { 
   label: string;
   address: Address; 
   onChange: (address: Address) => void;
   required?: boolean;
+  hasError?: boolean;
+  showValidation?: boolean;
 }) {
   const updateField = (field: keyof Address, value: string) => {
     onChange({ ...address, [field]: value });
@@ -36,18 +44,18 @@ function AddressFields({
             value={address.street || ''}
             onChange={(e) => updateField('street', e.target.value)}
             placeholder="Street Address"
-            className="h-11 rounded-xl"
+            className={cn("h-11 rounded-xl", hasError && showValidation && !address.street?.trim() && getFieldErrorClass(true, true))}
           />
         </div>
         <Input
           value={address.city || ''}
           onChange={(e) => updateField('city', e.target.value)}
           placeholder="City"
-          className="h-11 rounded-xl"
+          className={cn("h-11 rounded-xl", hasError && showValidation && !address.city?.trim() && getFieldErrorClass(true, true))}
         />
         <div className="grid grid-cols-2 gap-3">
           <Select value={address.state || ''} onValueChange={(v) => updateField('state', v)}>
-            <SelectTrigger className="h-11 rounded-xl">
+            <SelectTrigger className={cn("h-11 rounded-xl", hasError && showValidation && !address.state && getFieldErrorClass(true, true))}>
               <SelectValue placeholder="State" />
             </SelectTrigger>
             <SelectContent>
@@ -62,7 +70,7 @@ function AddressFields({
             value={address.zip || ''}
             onChange={(e) => updateField('zip', e.target.value)}
             placeholder="ZIP"
-            className="h-11 rounded-xl"
+            className={cn("h-11 rounded-xl", hasError && showValidation && !address.zip?.trim() && getFieldErrorClass(true, true))}
             maxLength={10}
           />
         </div>
@@ -73,11 +81,12 @@ function AddressFields({
           className="h-11 rounded-xl"
         />
       </div>
+      <FormFieldError error={hasError && showValidation ? "Please complete all address fields" : undefined} show={hasError && showValidation} />
     </div>
   );
 }
 
-export function AddressSection({ application, onUpdate, disabled }: AddressSectionProps) {
+export function AddressSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false }: AddressSectionProps) {
   const homeAddress = application.home_address || EMPTY_ADDRESS;
   const mailingAddress = application.mailing_address || EMPTY_ADDRESS;
   const upsAddress = application.ups_address || EMPTY_ADDRESS;
@@ -116,6 +125,8 @@ export function AddressSection({ application, onUpdate, disabled }: AddressSecti
             address={homeAddress}
             onChange={(addr) => onUpdate('home_address', addr)}
             required
+            hasError={!!fieldErrors.home_address}
+            showValidation={showValidation}
           />
 
           {/* Mailing Address */}

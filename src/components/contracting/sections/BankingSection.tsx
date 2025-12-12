@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
 import { FileDropZone } from '../FileDropZone';
 import { Building2, Lock } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 
 interface BankingSectionProps {
   application: ContractingApplication;
@@ -12,9 +14,11 @@ interface BankingSectionProps {
   onUpload: (file: File, documentType: string) => Promise<string | null>;
   onRemove: (documentType: string) => Promise<void>;
   disabled?: boolean;
+  fieldErrors?: Record<string, string>;
+  showValidation?: boolean;
 }
 
-export function BankingSection({ application, onUpdate, onUpload, onRemove, disabled }: BankingSectionProps) {
+export function BankingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false }: BankingSectionProps) {
   const uploadedDocs = application.uploaded_documents || {};
 
   return (
@@ -54,9 +58,10 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
                 value={application.bank_routing_number || ''}
                 onChange={(e) => onUpdate('bank_routing_number', e.target.value)}
                 placeholder="9 digits"
-                className="h-11 rounded-xl"
+                className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.bank_routing_number, showValidation))}
                 maxLength={9}
               />
+              <FormFieldError error={fieldErrors.bank_routing_number} show={showValidation} />
             </div>
 
             <div className="space-y-2">
@@ -65,8 +70,9 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
                 id="bank_account_number"
                 value={application.bank_account_number || ''}
                 onChange={(e) => onUpdate('bank_account_number', e.target.value)}
-                className="h-11 rounded-xl"
+                className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.bank_account_number, showValidation))}
               />
+              <FormFieldError error={fieldErrors.bank_account_number} show={showValidation} />
             </div>
 
             <div className="md:col-span-2 space-y-2">
@@ -91,7 +97,9 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
               onRemove={() => onRemove('voided_check')}
               required
               description="Required for direct deposit setup"
+              hasError={showValidation && !!fieldErrors.voided_check}
             />
+            <FormFieldError error={fieldErrors.voided_check} show={showValidation} />
           </div>
 
           {/* Commission Advancing */}
