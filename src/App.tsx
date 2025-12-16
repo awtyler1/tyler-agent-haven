@@ -44,6 +44,7 @@ import UserDetailPage from "./pages/admin/UserDetailPage";
 import PlatformMapPage from "./pages/admin/PlatformMapPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
 import PdfFieldExtractorPage from "./pages/admin/PdfFieldExtractorPage";
+import PdfFieldMapperPage from "./pages/admin/PdfFieldMapperPage";
 import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
 
 const queryClient = new QueryClient();
@@ -164,6 +165,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <ContractingQueuePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/pdf-mapper" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <PdfFieldMapperPage />
                 </ProtectedRoute>
               } 
             />

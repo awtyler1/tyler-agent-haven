@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Users, UserPlus, FileText, Settings, UserCog, ArrowRight } from 'lucide-react';
+import { Users, UserPlus, FileText, Settings, UserCog, ArrowRight, FileType } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -82,6 +82,12 @@ export default function AdminDashboard() {
       description: 'Review pending contracting submissions',
       icon: FileText,
       href: '/admin/contracting',
+    },
+    {
+      title: 'PDF Field Mapper',
+      description: 'Map PDF form fields to application data',
+      icon: FileType,
+      href: '/admin/pdf-mapper',
     },
   ];
 
