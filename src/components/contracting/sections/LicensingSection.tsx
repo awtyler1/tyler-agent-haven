@@ -52,7 +52,7 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
 
         <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-6">
           {/* Identity Information */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="birth_date">Date of Birth <span className="text-destructive">*</span></Label>
               <Input
@@ -66,20 +66,6 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                 className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.birth_date, showValidation))}
               />
               <FormFieldError error={fieldErrors.birth_date} show={showValidation} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="gender">Gender</Label>
-              <Select value={application.gender || ''} onValueChange={(v) => onUpdate('gender', v)}>
-                <SelectTrigger className="h-11 rounded-xl">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">
