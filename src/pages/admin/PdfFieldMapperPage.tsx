@@ -322,6 +322,9 @@ export default function PdfFieldMapperPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all"); // all, mapped, unmapped
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   // Check admin access
   useEffect(() => {
@@ -736,8 +739,24 @@ export default function PdfFieldMapperPage() {
   const filteredFields = fields.filter(field => {
     const matchesSearch = field.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "all" || field.type === filterType;
-    return matchesSearch && matchesType;
+    const isMapped = mappings[field.name] && mappings[field.name] !== "unmapped";
+    const matchesStatus = filterStatus === "all" || 
+      (filterStatus === "mapped" && isMapped) || 
+      (filterStatus === "unmapped" && !isMapped);
+    return matchesSearch && matchesType && matchesStatus;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredFields.length / itemsPerPage);
+  const paginatedFields = filteredFields.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterType, filterStatus]);
 
   const fieldTypes = [...new Set(fields.map(f => f.type))];
 
@@ -1075,13 +1094,23 @@ export default function PdfFieldMapperPage() {
                     : `Showing ${filteredFields.length} of ${fields.length} fields`}
                 </CardDescription>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <Input
                   placeholder="Search fields..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className="w-64"
                 />
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="unmapped">Unmapped Only</SelectItem>
+                    <SelectItem value="mapped">Mapped Only</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Select value={filterType} onValueChange={setFilterType}>
                   <SelectTrigger className="w-40">
                     <SelectValue placeholder="Filter by type" />
@@ -1106,60 +1135,84 @@ export default function PdfFieldMapperPage() {
                 <p className="text-sm mt-1">Upload your PDF template to extract form fields</p>
               </div>
             ) : (
-              <div className="border rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="text-left p-3 font-medium">Field Name</th>
-                      <th className="text-left p-3 font-medium w-32">Type</th>
-                      <th className="text-left p-3 font-medium w-64">Map To</th>
-                      <th className="text-left p-3 font-medium w-24">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {filteredFields.slice(0, 100).map((field, idx) => (
-                      <tr key={idx} className="hover:bg-muted/30">
-                        <td className="p-3">
-                          <code className="text-sm bg-muted px-2 py-0.5 rounded">
-                            {field.name}
-                          </code>
-                        </td>
-                        <td className="p-3">
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {field.type.replace("PDF", "")}
-                          </Badge>
-                        </td>
-                        <td className="p-3">
-                          <Select
-                            value={mappings[field.name] || "unmapped"}
-                            onValueChange={val => handleMappingChange(field.name, val)}
-                          >
-                            <SelectTrigger className="h-8">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {FIELD_CATEGORIES.map(cat => (
-                                <SelectItem key={cat.value} value={cat.value}>
-                                  {cat.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </td>
-                        <td className="p-3">
-                          {mappings[field.name] && mappings[field.name] !== "unmapped" ? (
-                            <CheckCircle2 className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <AlertCircle className="h-5 w-5 text-muted-foreground/40" />
-                          )}
-                        </td>
+              <div className="space-y-4">
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 font-medium">Field Name</th>
+                        <th className="text-left p-3 font-medium w-32">Type</th>
+                        <th className="text-left p-3 font-medium w-64">Map To</th>
+                        <th className="text-left p-3 font-medium w-24">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {filteredFields.length > 100 && (
-                  <div className="p-3 text-center text-sm text-muted-foreground bg-muted/30">
-                    Showing first 100 fields. Use search to find specific fields.
+                    </thead>
+                    <tbody className="divide-y">
+                      {paginatedFields.map((field, idx) => (
+                        <tr key={idx} className="hover:bg-muted/30">
+                          <td className="p-3">
+                            <code className="text-sm bg-muted px-2 py-0.5 rounded">
+                              {field.name}
+                            </code>
+                          </td>
+                          <td className="p-3">
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {field.type.replace("PDF", "")}
+                            </Badge>
+                          </td>
+                          <td className="p-3">
+                            <Select
+                              value={mappings[field.name] || "unmapped"}
+                              onValueChange={val => handleMappingChange(field.name, val)}
+                            >
+                              <SelectTrigger className="h-8">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {FIELD_CATEGORIES.map(cat => (
+                                  <SelectItem key={cat.value} value={cat.value}>
+                                    {cat.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </td>
+                          <td className="p-3">
+                            {mappings[field.name] && mappings[field.name] !== "unmapped" ? (
+                              <CheckCircle2 className="h-5 w-5 text-green-500" />
+                            ) : (
+                              <AlertCircle className="h-5 w-5 text-muted-foreground/50" />
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Page {currentPage} of {totalPages} ({filteredFields.length} fields)
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
