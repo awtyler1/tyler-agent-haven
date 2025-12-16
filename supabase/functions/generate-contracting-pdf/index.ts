@@ -470,30 +470,38 @@ serve(async (req) => {
     const gender = application.gender?.toLowerCase();
     console.log('Gender value from application:', application.gender, '-> normalized:', gender);
     
-    // Try as RadioGroup (common for Male/Female)
-    const radioGroupNames = ['Gender', 'gender', 'Sex', 'sex', 'Group1', 'Group2'];
-    for (const groupName of radioGroupNames) {
+    // Try to auto-detect the Gender radio group by looking for options that include both "Male" and "Female"
+    let genderSet = false;
+    for (const field of form.getFields()) {
       try {
-        const radioGroup = form.getRadioGroup(groupName);
-        const options = radioGroup.getOptions();
-        console.log(`Found RadioGroup "${groupName}" with options:`, options);
-        
-        // Find matching option
-        const maleOption = options.find((opt: string) => opt.toLowerCase().includes('male') && !opt.toLowerCase().includes('female'));
-        const femaleOption = options.find((opt: string) => opt.toLowerCase().includes('female'));
-        
-        if (gender === 'male' && maleOption) {
-          radioGroup.select(maleOption);
-          console.log(`Selected "${maleOption}" in RadioGroup "${groupName}"`);
-          break;
-        } else if (gender === 'female' && femaleOption) {
-          radioGroup.select(femaleOption);
-          console.log(`Selected "${femaleOption}" in RadioGroup "${groupName}"`);
-          break;
+        const rg = form.getRadioGroup(field.getName());
+        const options = rg.getOptions();
+        const lowerOptions = options.map((o: string) => o.toLowerCase());
+        const hasMale = lowerOptions.includes('male');
+        const hasFemale = lowerOptions.includes('female');
+
+        if (!hasMale || !hasFemale) continue;
+
+        console.log(`Detected gender RadioGroup: ${field.getName()} options=${options.join(',')}`);
+
+        if (gender === 'male') {
+          rg.select(options[lowerOptions.indexOf('male')]);
+          console.log(`Selected Male on gender RadioGroup: ${field.getName()}`);
+          genderSet = true;
+        } else if (gender === 'female') {
+          rg.select(options[lowerOptions.indexOf('female')]);
+          console.log(`Selected Female on gender RadioGroup: ${field.getName()}`);
+          genderSet = true;
         }
+
+        if (genderSet) break;
       } catch {
-        // Not a radio group or doesn't exist
+        // Not a radio group
       }
+    }
+
+    if (!genderSet) {
+      console.log('Gender radio group not detected; falling back to checkbox attempts');
     }
     
     // Also try as individual checkboxes
