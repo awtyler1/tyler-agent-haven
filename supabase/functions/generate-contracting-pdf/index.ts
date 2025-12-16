@@ -587,8 +587,7 @@ serve(async (req) => {
       setCheckbox('Check Box Marketing', true);
     }
     
-    // Initials on page 1
-    setTextField('INITIALS', application.signature_initials);
+    // Date on page 1 (initials will be drawn as image)
     setTextField('DATE', formatDate(application.signature_date));
 
     // ==================== PAGES 2-3: Legal Questions ====================
@@ -647,8 +646,7 @@ serve(async (req) => {
 
     console.log('=== LEGAL QUESTIONS PROCESSING END ===');
 
-    // Initials on page 2
-    setTextField('INITIALS_2', application.signature_initials);
+    // Date on page 2 (initials will be drawn as image)
     setTextField('DATE_2', formatDate(application.signature_date));
     
     // Signature and date on page 3 (after legal questions)
@@ -657,7 +655,6 @@ serve(async (req) => {
     setTextField('Agent Signature', application.signature_name);
     setTextField('Applicant Signature', application.signature_name);
     setTextField('Date', formatDate(application.signature_date));
-    setTextField('INITIALS_3', application.signature_initials);
     setTextField('DATE_3', formatDate(application.signature_date));
 
     // ==================== PAGE 4: Banking Information ====================
@@ -690,18 +687,14 @@ serve(async (req) => {
       setTextField('CRD', application.finra_crd_number);
     }
     
-    setTextField('INITIALS_4', application.signature_initials);
     setTextField('DATE_5', formatDate(application.signature_date));
 
     // ==================== PAGE 5-6: Additional pages ====================
-    setTextField('INITIALS_5', application.signature_initials);
     setTextField('DATE_6', formatDate(application.signature_date));
-    setTextField('INITIALS_6', application.signature_initials);
     setTextField('DATE_7', formatDate(application.signature_date));
 
     // ==================== PAGE 9: Signature Page ====================
     setTextField('Additionally please sign in the center of the box below', application.signature_name);
-    setTextField('INITIALS_7', application.signature_initials);
     setTextField('DATE_8', formatDate(application.signature_date));
 
     // ==================== PAGE 10: Carrier Selection ====================
@@ -777,26 +770,23 @@ serve(async (req) => {
       }
     });
     
-    setTextField('INITIALS_8', application.signature_initials);
     setTextField('DATE_9', formatDate(application.signature_date));
 
     // ==================== DRAW INITIALS AND SIGNATURES AS IMAGES ====================
-    // Draw initials on each page footer (positions may need adjustment based on template)
-    // Page indices are 0-based
+    // Draw initials on each page footer at bottom RIGHT
+    // Page indices are 0-based, x=520 for right side of letter-size page (612pt width)
     if (initialsImage) {
-      // Draw initials at bottom of each page - adjust coordinates based on actual PDF layout
-      // These are approximate positions - typical footer initials location
       const initialsPositions = [
-        { page: 0, x: 50, y: 30 },   // Page 1
-        { page: 1, x: 50, y: 30 },   // Page 2
-        { page: 2, x: 50, y: 30 },   // Page 3
-        { page: 3, x: 50, y: 30 },   // Page 4
-        { page: 4, x: 50, y: 30 },   // Page 5
-        { page: 5, x: 50, y: 30 },   // Page 6
-        { page: 6, x: 50, y: 30 },   // Page 7
-        { page: 7, x: 50, y: 30 },   // Page 8
-        { page: 8, x: 50, y: 30 },   // Page 9
-        { page: 9, x: 50, y: 30 },   // Page 10
+        { page: 0, x: 520, y: 30 },   // Page 1
+        { page: 1, x: 520, y: 30 },   // Page 2
+        { page: 2, x: 520, y: 30 },   // Page 3
+        { page: 3, x: 520, y: 30 },   // Page 4
+        { page: 4, x: 520, y: 30 },   // Page 5
+        { page: 5, x: 520, y: 30 },   // Page 6
+        { page: 6, x: 520, y: 30 },   // Page 7
+        { page: 7, x: 520, y: 30 },   // Page 8
+        { page: 8, x: 520, y: 30 },   // Page 9
+        { page: 9, x: 520, y: 30 },   // Page 10
       ];
       
       for (const pos of initialsPositions) {
