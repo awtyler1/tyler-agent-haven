@@ -561,33 +561,26 @@ serve(async (req) => {
       setTextField('County_4', prevAddr.county);
     }
     
-    // Preferred contact methods
+    // Preferred contact methods - fields are likely text fields, not checkboxes
     const preferredMethods = application.preferred_contact_methods || [];
     console.log('Preferred contact methods from app:', JSON.stringify(preferredMethods));
     
-    // Log fields that might be contact method checkboxes (search for Email/Phone/Text in field names)
-    const contactFieldCandidates = form.getFields()
-      .map((f: any) => f.getName())
-      .filter((name: string) => {
-        const lower = name.toLowerCase();
-        return lower.includes('email') || lower.includes('phone') || lower.includes('text') || 
-               lower.includes('contact') || lower.includes('preferred') ||
-               (lower.includes('check') && lower.includes('box'));
-      });
-    console.log('Contact method field candidates:', contactFieldCandidates.join(', '));
-    
-    // Try specific field name patterns based on PDF label structure
+    // Based on PDF structure: field 34 is marketing consent, contact methods likely follow
+    // Try as text fields with 'X' marker
     if (preferredMethods.includes('email')) {
-      setCheckbox('Email_2', true); // _2 suffix for second occurrence
-      setCheckbox('Preferred Email', true);
+      setTextField('Email_2', 'X');
+      setTextField('fill_35', 'X');
+      setTextField('Check Box35', 'X');
     }
     if (preferredMethods.includes('phone')) {
-      setCheckbox('Phone_2', true);
-      setCheckbox('Preferred Phone', true);
+      setTextField('Phone_2', 'X');
+      setTextField('fill_36', 'X');
+      setTextField('Check Box36', 'X');
     }
     if (preferredMethods.includes('text')) {
-      setCheckbox('Text_2', true);
-      setCheckbox('Preferred Text', true);
+      setTextField('Text_2', 'X');
+      setTextField('fill_37', 'X');
+      setTextField('Check Box37', 'X');
     }
     
     // Marketing consent - this is a text field, not a checkbox
