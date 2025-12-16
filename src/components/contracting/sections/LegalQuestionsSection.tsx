@@ -170,19 +170,6 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
             </p>
           </div>
 
-          {/* Upload for explanations */}
-          {hasAnyYesAnswers && (
-            <div className="mt-4">
-              <FileDropZone
-                label="Supporting Documentation"
-                documentType="background_explanation"
-                existingFile={uploadedDocs['background_explanation']}
-                onUpload={onUpload}
-                onRemove={() => onRemove('background_explanation')}
-                description="Upload any supporting documents for your explanations"
-              />
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>
