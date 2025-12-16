@@ -649,16 +649,25 @@ serve(async (req) => {
     // Date on page 2 (initials will be drawn as image)
     setTextField('DATE_2', formatDate(application.signature_date));
     
-    // Date on page 3 (background signature section)
+    // Date on page 3/4 (background signature section after legal questions)
     setTextField('DATE_3', formatDate(application.signature_date));
+    setTextField('DATE_4', formatDate(application.signature_date));
+    setTextField('Date_2', formatDate(application.signature_date));
+    setTextField('Date_3', formatDate(application.signature_date));
+    setTextField('Date_4', formatDate(application.signature_date));
     
-    // Signature and date on page 3 (after legal questions)
+    // Log all fields containing "date" to help find the right one
+    const dateFields = form.getFields().filter((f: any) => f.getName().toLowerCase().includes('date'));
+    console.log('=== DATE FIELDS FOUND ===');
+    dateFields.forEach((f: any) => console.log(`Date field: ${f.getName()} (type: ${f.constructor?.name})`));
+    console.log('=== END DATE FIELDS ===');
+    
+    // Signature and date on page 3/4 (after legal questions)
     setTextField('Signature', application.signature_name);
     setTextField('Signature_2', application.signature_name);
     setTextField('Agent Signature', application.signature_name);
     setTextField('Applicant Signature', application.signature_name);
     setTextField('Date', formatDate(application.signature_date));
-    setTextField('DATE_3', formatDate(application.signature_date));
 
     // ==================== PAGE 4: Banking Information ====================
     setTextField('Bank Routing', application.bank_routing_number);
