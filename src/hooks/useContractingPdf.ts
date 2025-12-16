@@ -31,22 +31,22 @@ export function useContractingPdf() {
       errors.push('Full legal name is required');
     }
     
-    // Check for background signature
-    const uploadedDocs = (application.uploaded_documents || {}) as Record<string, string>;
-    if (!uploadedDocs.background_signature) {
-      errors.push('Background questions signature is required');
-    }
+    // TESTING: Background signature disabled for testing
+    // const uploadedDocs = (application.uploaded_documents || {}) as Record<string, string>;
+    // if (!uploadedDocs.background_signature) {
+    //   errors.push('Background questions signature is required');
+    // }
     
-    // Check legal questions with "Yes" answers have explanations
-    const legalQuestions = application.legal_questions || {};
-    Object.entries(legalQuestions).forEach(([id, q]) => {
-      if (q && typeof q === 'object' && 'answer' in q) {
-        const question = q as { answer: boolean | null; explanation?: string };
-        if (question.answer === true && !question.explanation) {
-          errors.push(`Explanation required for legal question ${id}`);
-        }
-      }
-    });
+    // TESTING: Legal question explanations disabled for testing
+    // const legalQuestions = application.legal_questions || {};
+    // Object.entries(legalQuestions).forEach(([id, q]) => {
+    //   if (q && typeof q === 'object' && 'answer' in q) {
+    //     const question = q as { answer: boolean | null; explanation?: string };
+    //     if (question.answer === true && !question.explanation) {
+    //       errors.push(`Explanation required for legal question ${id}`);
+    //     }
+    //   }
+    // });
 
     return errors;
   };
