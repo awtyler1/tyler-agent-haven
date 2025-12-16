@@ -58,6 +58,9 @@ interface ContractingData {
   bank_branch_name?: string;
   beneficiary_name?: string;
   beneficiary_relationship?: string;
+  beneficiary_birth_date?: string;
+  beneficiary_drivers_license_number?: string;
+  beneficiary_drivers_license_state?: string;
   requesting_commission_advancing: boolean;
   aml_training_provider?: string;
   aml_completion_date?: string;
@@ -758,15 +761,38 @@ serve(async (req) => {
     setTextField('Account', application.bank_account_number);
     setTextField('Branch Name or Location', application.bank_branch_name);
     setCheckbox('Requesting Commission Advancing', application.requesting_commission_advancing);
+    
+    // Beneficiary Information
     setTextField('List a Beneficiary', application.beneficiary_name);
     setTextField('Relationship', application.beneficiary_relationship);
+    setTextField('Beneficiary Birth Date', formatDate(application.beneficiary_birth_date));
+    setTextField('Beneficiary DOB', formatDate(application.beneficiary_birth_date));
+    setTextField('Beneficiary Drivers License', application.beneficiary_drivers_license_number);
+    setTextField('Beneficiary DL', application.beneficiary_drivers_license_number);
+    setTextField('Beneficiary Drivers License State', application.beneficiary_drivers_license_state);
+    setTextField('Beneficiary DL State', application.beneficiary_drivers_license_state);
+    
+    // Agent Driver's License
     setTextField('Drivers License', application.drivers_license_number);
     setTextField('Resident Drivers License State', application.drivers_license_state);
+    
+    // License expiration - try multiple field names from mapping
+    setTextField('MMDDYYYY', formatDateMMDDYYYY(application.license_expiration_date));
+    setTextField('Expiration Date', formatDate(application.license_expiration_date));
+    setTextField('License Expiration', formatDate(application.license_expiration_date));
+    
+    // Resident State
+    setTextField('State_5', application.resident_state);
+    setTextField('Resident State', application.resident_state);
+    
+    // Insurance License Number - try alternate field names
+    setTextField('Nevada Accident and Health Insurance License', application.insurance_license_number);
     
     // AML
     setCheckbox('Have you taken an AML course within the past two 2 years', !!application.aml_training_provider);
     setTextField('Course Name', application.aml_training_provider);
     setTextField('Course Date', formatDate(application.aml_completion_date));
+    setTextField('Date Completed', formatDate(application.aml_completion_date));
     
     // AML Provider checkboxes
     if (application.aml_training_provider) {
