@@ -28,18 +28,13 @@ interface FieldMapping {
 }
 
 interface SavedMappings {
-  contactMethods: {
-    email: string[];
-    phone: string[];
-    text: string[];
-  };
+  contactMethods: { email: string[]; phone: string[]; text: string[] };
   marketingConsent: string[];
   taxId: string[];
+  agencyName: string[];
   agencyTaxId: string[];
-  gender: {
-    male: string[];
-    female: string[];
-  };
+  gender: { male: string[]; female: string[] };
+  personalNamePrincipal: string[];
   // Personal Info
   fullName: string[];
   birthDate: string[];
@@ -55,25 +50,52 @@ interface SavedMappings {
   residentState: string[];
   driversLicense: string[];
   driversLicenseState: string[];
+  // E&O
+  eoProvider: string[];
+  eoPolicyNumber: string[];
+  eoExpiration: string[];
+  eoNotCovered: string[];
   // Banking
   bankRouting: string[];
   bankAccount: string[];
   bankName: string[];
   beneficiaryName: string[];
   beneficiaryRelationship: string[];
+  beneficiaryBirthDate: string[];
+  beneficiaryDriversLicense: string[];
+  beneficiaryDriversLicenseState: string[];
+  commissionAdvancing: string[];
   // Signatures
   initials: string[];
+  initialsDate: string[];
   signature: string[];
   signatureDate: string[];
+  backgroundSignature: string[];
+  backgroundSignatureDate: string[];
   // Training
   amlProvider: string[];
   amlDate: string[];
-  // Phone fields
+  ltcCertification: string[];
+  ceRequired: string[];
+  // Corporation / FINRA
+  isCorporation: string[];
+  finraRegistered: string[];
+  finraBrokerDealer: string[];
+  finraCrd: string[];
+  // Contact fields
   phoneMobile: string[];
   phoneBusiness: string[];
   phoneHome: string[];
   fax: string[];
   emailAddress: string[];
+  // Legal Questions
+  legalQuestions: Record<string, { yes: string[]; no: string[]; explanation: string[] }>;
+  // Carriers
+  carriers: Record<string, string[]>;
+  // Non-Resident States
+  nonResidentStates: Record<string, string[]>;
+  // Other
+  ignored: string[];
   custom: Record<string, string[]>;
 }
 
@@ -81,8 +103,9 @@ const FIELD_CATEGORIES = [
   // Personal Info
   { value: "full_name", label: "Full Legal Name", section: "Personal Info" },
   { value: "birth_date", label: "Birth Date", section: "Personal Info" },
-  { value: "gender_male", label: "Gender: Male", section: "Personal Info" },
-  { value: "gender_female", label: "Gender: Female", section: "Personal Info" },
+  { value: "gender_male", label: "Gender: Male (checkbox)", section: "Personal Info" },
+  { value: "gender_female", label: "Gender: Female (checkbox)", section: "Personal Info" },
+  { value: "personal_name_principal", label: "Personal Name or Principal", section: "Personal Info" },
   
   // Contact Methods (checkboxes)
   { value: "contact_email", label: "Preferred: Email (checkbox)", section: "Contact Methods" },
@@ -126,6 +149,7 @@ const FIELD_CATEGORIES = [
   
   // Identification & Licensing
   { value: "tax_id", label: "Tax ID (SSN)", section: "Identification" },
+  { value: "agency_name", label: "Agency / Business Name", section: "Identification" },
   { value: "agency_tax_id", label: "Agency Tax ID", section: "Identification" },
   { value: "npn", label: "NPN Number", section: "Licensing" },
   { value: "insurance_license", label: "Insurance License #", section: "Licensing" },
@@ -134,27 +158,171 @@ const FIELD_CATEGORIES = [
   { value: "drivers_license", label: "Driver's License #", section: "Licensing" },
   { value: "drivers_license_state", label: "Driver's License State", section: "Licensing" },
   
+  // E&O Insurance
+  { value: "eo_provider", label: "E&O Provider", section: "E&O Insurance" },
+  { value: "eo_policy_number", label: "E&O Policy Number", section: "E&O Insurance" },
+  { value: "eo_expiration", label: "E&O Expiration Date", section: "E&O Insurance" },
+  { value: "eo_not_covered", label: "E&O Not Yet Covered (checkbox)", section: "E&O Insurance" },
+  
   // Banking
   { value: "bank_routing", label: "Routing Number", section: "Banking" },
   { value: "bank_account", label: "Account Number", section: "Banking" },
   { value: "bank_name", label: "Bank Name", section: "Banking" },
   { value: "beneficiary_name", label: "Beneficiary Name", section: "Banking" },
   { value: "beneficiary_relationship", label: "Beneficiary Relationship", section: "Banking" },
+  { value: "beneficiary_birth_date", label: "Beneficiary Birth Date", section: "Banking" },
+  { value: "beneficiary_drivers_license", label: "Beneficiary Driver's License", section: "Banking" },
+  { value: "beneficiary_drivers_license_state", label: "Beneficiary DL State", section: "Banking" },
+  { value: "commission_advancing", label: "Commission Advancing (checkbox)", section: "Banking" },
   
-  // Signatures
+  // Signatures & Initials
   { value: "initials", label: "Initials Field", section: "Signatures" },
+  { value: "initials_date", label: "Initials Date", section: "Signatures" },
   { value: "signature", label: "Signature Field", section: "Signatures" },
   { value: "signature_date", label: "Signature Date", section: "Signatures" },
+  { value: "background_signature", label: "Background Signature (Page 3)", section: "Signatures" },
+  { value: "background_signature_date", label: "Background Signature Date", section: "Signatures" },
   
   // Training
   { value: "aml_provider", label: "AML Provider", section: "Training" },
   { value: "aml_date", label: "AML Completion Date", section: "Training" },
+  { value: "ltc_certification", label: "LTC Certification (checkbox)", section: "Training" },
+  { value: "ce_required", label: "CE Required (checkbox)", section: "Training" },
+  
+  // Corporation / FINRA
+  { value: "is_corporation", label: "Is Corporation (checkbox)", section: "Corporation" },
+  { value: "finra_registered", label: "FINRA Registered (checkbox)", section: "FINRA" },
+  { value: "finra_broker_dealer", label: "FINRA Broker/Dealer Name", section: "FINRA" },
+  { value: "finra_crd", label: "FINRA CRD Number", section: "FINRA" },
   
   // Consent
   { value: "marketing_consent", label: "Marketing Consent", section: "Consent" },
   
+  // Legal Questions (Yes/No)
+  { value: "legal_q1_yes", label: "Q1 (Felony/Misdemeanor): Yes", section: "Legal Questions" },
+  { value: "legal_q1_no", label: "Q1 (Felony/Misdemeanor): No", section: "Legal Questions" },
+  { value: "legal_q1_explanation", label: "Q1 Explanation", section: "Legal Questions" },
+  { value: "legal_q2_yes", label: "Q2 (Investigation): Yes", section: "Legal Questions" },
+  { value: "legal_q2_no", label: "Q2 (Investigation): No", section: "Legal Questions" },
+  { value: "legal_q2_explanation", label: "Q2 Explanation", section: "Legal Questions" },
+  { value: "legal_q3_yes", label: "Q3 (Fraud): Yes", section: "Legal Questions" },
+  { value: "legal_q3_no", label: "Q3 (Fraud): No", section: "Legal Questions" },
+  { value: "legal_q3_explanation", label: "Q3 Explanation", section: "Legal Questions" },
+  { value: "legal_q4_yes", label: "Q4 (Foreign Government): Yes", section: "Legal Questions" },
+  { value: "legal_q4_no", label: "Q4 (Foreign Government): No", section: "Legal Questions" },
+  { value: "legal_q4_explanation", label: "Q4 Explanation", section: "Legal Questions" },
+  { value: "legal_q5_yes", label: "Q5 (Termination): Yes", section: "Legal Questions" },
+  { value: "legal_q5_no", label: "Q5 (Termination): No", section: "Legal Questions" },
+  { value: "legal_q5_explanation", label: "Q5 Explanation", section: "Legal Questions" },
+  { value: "legal_q6_yes", label: "Q6 (Chargeback): Yes", section: "Legal Questions" },
+  { value: "legal_q6_no", label: "Q6 (Chargeback): No", section: "Legal Questions" },
+  { value: "legal_q6_explanation", label: "Q6 Explanation", section: "Legal Questions" },
+  { value: "legal_q7_yes", label: "Q7 (Surety/Bond): Yes", section: "Legal Questions" },
+  { value: "legal_q7_no", label: "Q7 (Surety/Bond): No", section: "Legal Questions" },
+  { value: "legal_q7_explanation", label: "Q7 Explanation", section: "Legal Questions" },
+  { value: "legal_q8_yes", label: "Q8 (E&O Claims): Yes", section: "Legal Questions" },
+  { value: "legal_q8_no", label: "Q8 (E&O Claims): No", section: "Legal Questions" },
+  { value: "legal_q8_explanation", label: "Q8 Explanation", section: "Legal Questions" },
+  { value: "legal_q9_yes", label: "Q9 (License Denial): Yes", section: "Legal Questions" },
+  { value: "legal_q9_no", label: "Q9 (License Denial): No", section: "Legal Questions" },
+  { value: "legal_q9_explanation", label: "Q9 Explanation", section: "Legal Questions" },
+  { value: "legal_q10_yes", label: "Q10 (Regulatory Finding): Yes", section: "Legal Questions" },
+  { value: "legal_q10_no", label: "Q10 (Regulatory Finding): No", section: "Legal Questions" },
+  { value: "legal_q10_explanation", label: "Q10 Explanation", section: "Legal Questions" },
+  { value: "legal_q11_yes", label: "Q11 (Regulatory Action): Yes", section: "Legal Questions" },
+  { value: "legal_q11_no", label: "Q11 (Regulatory Action): No", section: "Legal Questions" },
+  { value: "legal_q11_explanation", label: "Q11 Explanation", section: "Legal Questions" },
+  { value: "legal_q12_yes", label: "Q12 (Cease & Desist): Yes", section: "Legal Questions" },
+  { value: "legal_q12_no", label: "Q12 (Cease & Desist): No", section: "Legal Questions" },
+  { value: "legal_q12_explanation", label: "Q12 Explanation", section: "Legal Questions" },
+  { value: "legal_q13_yes", label: "Q13 (License Lapse): Yes", section: "Legal Questions" },
+  { value: "legal_q13_no", label: "Q13 (License Lapse): No", section: "Legal Questions" },
+  { value: "legal_q13_explanation", label: "Q13 Explanation", section: "Legal Questions" },
+  { value: "legal_q14_yes", label: "Q14 (Complaints): Yes", section: "Legal Questions" },
+  { value: "legal_q14_no", label: "Q14 (Complaints): No", section: "Legal Questions" },
+  { value: "legal_q14_explanation", label: "Q14 Explanation", section: "Legal Questions" },
+  { value: "legal_q15_yes", label: "Q15 (Bankruptcy): Yes", section: "Legal Questions" },
+  { value: "legal_q15_no", label: "Q15 (Bankruptcy): No", section: "Legal Questions" },
+  { value: "legal_q15_explanation", label: "Q15 Explanation", section: "Legal Questions" },
+  { value: "legal_q16_yes", label: "Q16 (Judgments/Liens): Yes", section: "Legal Questions" },
+  { value: "legal_q16_no", label: "Q16 (Judgments/Liens): No", section: "Legal Questions" },
+  { value: "legal_q16_explanation", label: "Q16 Explanation", section: "Legal Questions" },
+  { value: "legal_q17_yes", label: "Q17 (Financial Institution): Yes", section: "Legal Questions" },
+  { value: "legal_q17_no", label: "Q17 (Financial Institution): No", section: "Legal Questions" },
+  { value: "legal_q17_explanation", label: "Q17 Explanation", section: "Legal Questions" },
+  { value: "legal_q18_yes", label: "Q18 (Aliases): Yes", section: "Legal Questions" },
+  { value: "legal_q18_no", label: "Q18 (Aliases): No", section: "Legal Questions" },
+  { value: "legal_q18_explanation", label: "Q18 Explanation", section: "Legal Questions" },
+  { value: "legal_q19_yes", label: "Q19 (IRS Matters): Yes", section: "Legal Questions" },
+  { value: "legal_q19_no", label: "Q19 (IRS Matters): No", section: "Legal Questions" },
+  { value: "legal_q19_explanation", label: "Q19 Explanation", section: "Legal Questions" },
+  
+  // Carriers
+  { value: "carrier_aetna", label: "Aetna (checkbox)", section: "Carriers" },
+  { value: "carrier_anthem", label: "Anthem (checkbox)", section: "Carriers" },
+  { value: "carrier_cigna", label: "Cigna (checkbox)", section: "Carriers" },
+  { value: "carrier_devoted", label: "Devoted (checkbox)", section: "Carriers" },
+  { value: "carrier_humana", label: "Humana (checkbox)", section: "Carriers" },
+  { value: "carrier_mutual_omaha", label: "Mutual of Omaha (checkbox)", section: "Carriers" },
+  { value: "carrier_uhc", label: "UnitedHealthcare (checkbox)", section: "Carriers" },
+  { value: "carrier_wellcare", label: "Wellcare (checkbox)", section: "Carriers" },
+  
+  // Non-Resident States
+  { value: "nonres_al", label: "Non-Res: Alabama", section: "Non-Resident States" },
+  { value: "nonres_ak", label: "Non-Res: Alaska", section: "Non-Resident States" },
+  { value: "nonres_az", label: "Non-Res: Arizona", section: "Non-Resident States" },
+  { value: "nonres_ar", label: "Non-Res: Arkansas", section: "Non-Resident States" },
+  { value: "nonres_ca", label: "Non-Res: California", section: "Non-Resident States" },
+  { value: "nonres_co", label: "Non-Res: Colorado", section: "Non-Resident States" },
+  { value: "nonres_ct", label: "Non-Res: Connecticut", section: "Non-Resident States" },
+  { value: "nonres_de", label: "Non-Res: Delaware", section: "Non-Resident States" },
+  { value: "nonres_fl", label: "Non-Res: Florida", section: "Non-Resident States" },
+  { value: "nonres_ga", label: "Non-Res: Georgia", section: "Non-Resident States" },
+  { value: "nonres_hi", label: "Non-Res: Hawaii", section: "Non-Resident States" },
+  { value: "nonres_id", label: "Non-Res: Idaho", section: "Non-Resident States" },
+  { value: "nonres_il", label: "Non-Res: Illinois", section: "Non-Resident States" },
+  { value: "nonres_in", label: "Non-Res: Indiana", section: "Non-Resident States" },
+  { value: "nonres_ia", label: "Non-Res: Iowa", section: "Non-Resident States" },
+  { value: "nonres_ks", label: "Non-Res: Kansas", section: "Non-Resident States" },
+  { value: "nonres_ky", label: "Non-Res: Kentucky", section: "Non-Resident States" },
+  { value: "nonres_la", label: "Non-Res: Louisiana", section: "Non-Resident States" },
+  { value: "nonres_me", label: "Non-Res: Maine", section: "Non-Resident States" },
+  { value: "nonres_md", label: "Non-Res: Maryland", section: "Non-Resident States" },
+  { value: "nonres_ma", label: "Non-Res: Massachusetts", section: "Non-Resident States" },
+  { value: "nonres_mi", label: "Non-Res: Michigan", section: "Non-Resident States" },
+  { value: "nonres_mn", label: "Non-Res: Minnesota", section: "Non-Resident States" },
+  { value: "nonres_ms", label: "Non-Res: Mississippi", section: "Non-Resident States" },
+  { value: "nonres_mo", label: "Non-Res: Missouri", section: "Non-Resident States" },
+  { value: "nonres_mt", label: "Non-Res: Montana", section: "Non-Resident States" },
+  { value: "nonres_ne", label: "Non-Res: Nebraska", section: "Non-Resident States" },
+  { value: "nonres_nv", label: "Non-Res: Nevada", section: "Non-Resident States" },
+  { value: "nonres_nh", label: "Non-Res: New Hampshire", section: "Non-Resident States" },
+  { value: "nonres_nj", label: "Non-Res: New Jersey", section: "Non-Resident States" },
+  { value: "nonres_nm", label: "Non-Res: New Mexico", section: "Non-Resident States" },
+  { value: "nonres_ny", label: "Non-Res: New York", section: "Non-Resident States" },
+  { value: "nonres_nc", label: "Non-Res: North Carolina", section: "Non-Resident States" },
+  { value: "nonres_nd", label: "Non-Res: North Dakota", section: "Non-Resident States" },
+  { value: "nonres_oh", label: "Non-Res: Ohio", section: "Non-Resident States" },
+  { value: "nonres_ok", label: "Non-Res: Oklahoma", section: "Non-Resident States" },
+  { value: "nonres_or", label: "Non-Res: Oregon", section: "Non-Resident States" },
+  { value: "nonres_pa", label: "Non-Res: Pennsylvania", section: "Non-Resident States" },
+  { value: "nonres_ri", label: "Non-Res: Rhode Island", section: "Non-Resident States" },
+  { value: "nonres_sc", label: "Non-Res: South Carolina", section: "Non-Resident States" },
+  { value: "nonres_sd", label: "Non-Res: South Dakota", section: "Non-Resident States" },
+  { value: "nonres_tn", label: "Non-Res: Tennessee", section: "Non-Resident States" },
+  { value: "nonres_tx", label: "Non-Res: Texas", section: "Non-Resident States" },
+  { value: "nonres_ut", label: "Non-Res: Utah", section: "Non-Resident States" },
+  { value: "nonres_vt", label: "Non-Res: Vermont", section: "Non-Resident States" },
+  { value: "nonres_va", label: "Non-Res: Virginia", section: "Non-Resident States" },
+  { value: "nonres_wa", label: "Non-Res: Washington", section: "Non-Resident States" },
+  { value: "nonres_wv", label: "Non-Res: West Virginia", section: "Non-Resident States" },
+  { value: "nonres_wi", label: "Non-Res: Wisconsin", section: "Non-Resident States" },
+  { value: "nonres_wy", label: "Non-Res: Wyoming", section: "Non-Resident States" },
+  { value: "nonres_dc", label: "Non-Res: Washington DC", section: "Non-Resident States" },
+  
   // Other
   { value: "unmapped", label: "Not Mapped", section: "Other" },
+  { value: "ignore", label: "Ignore This Field", section: "Other" },
 ];
 
 export default function PdfFieldMapperPage() {
@@ -205,9 +373,11 @@ export default function PdfFieldMapperPage() {
         saved.contactMethods?.text?.forEach(f => newMappings[f] = "contact_text");
         saved.marketingConsent?.forEach(f => newMappings[f] = "marketing_consent");
         saved.taxId?.forEach(f => newMappings[f] = "tax_id");
+        saved.agencyName?.forEach(f => newMappings[f] = "agency_name");
         saved.agencyTaxId?.forEach(f => newMappings[f] = "agency_tax_id");
         saved.gender?.male?.forEach(f => newMappings[f] = "gender_male");
         saved.gender?.female?.forEach(f => newMappings[f] = "gender_female");
+        saved.personalNamePrincipal?.forEach(f => newMappings[f] = "personal_name_principal");
         // Personal info
         saved.fullName?.forEach(f => newMappings[f] = "full_name");
         saved.birthDate?.forEach(f => newMappings[f] = "birth_date");
@@ -239,25 +409,66 @@ export default function PdfFieldMapperPage() {
         saved.residentState?.forEach(f => newMappings[f] = "resident_state");
         saved.driversLicense?.forEach(f => newMappings[f] = "drivers_license");
         saved.driversLicenseState?.forEach(f => newMappings[f] = "drivers_license_state");
+        // E&O
+        saved.eoProvider?.forEach(f => newMappings[f] = "eo_provider");
+        saved.eoPolicyNumber?.forEach(f => newMappings[f] = "eo_policy_number");
+        saved.eoExpiration?.forEach(f => newMappings[f] = "eo_expiration");
+        saved.eoNotCovered?.forEach(f => newMappings[f] = "eo_not_covered");
         // Banking
         saved.bankRouting?.forEach(f => newMappings[f] = "bank_routing");
         saved.bankAccount?.forEach(f => newMappings[f] = "bank_account");
         saved.bankName?.forEach(f => newMappings[f] = "bank_name");
         saved.beneficiaryName?.forEach(f => newMappings[f] = "beneficiary_name");
         saved.beneficiaryRelationship?.forEach(f => newMappings[f] = "beneficiary_relationship");
+        saved.beneficiaryBirthDate?.forEach(f => newMappings[f] = "beneficiary_birth_date");
+        saved.beneficiaryDriversLicense?.forEach(f => newMappings[f] = "beneficiary_drivers_license");
+        saved.beneficiaryDriversLicenseState?.forEach(f => newMappings[f] = "beneficiary_drivers_license_state");
+        saved.commissionAdvancing?.forEach(f => newMappings[f] = "commission_advancing");
         // Signatures
         saved.initials?.forEach(f => newMappings[f] = "initials");
+        saved.initialsDate?.forEach(f => newMappings[f] = "initials_date");
         saved.signature?.forEach(f => newMappings[f] = "signature");
         saved.signatureDate?.forEach(f => newMappings[f] = "signature_date");
+        saved.backgroundSignature?.forEach(f => newMappings[f] = "background_signature");
+        saved.backgroundSignatureDate?.forEach(f => newMappings[f] = "background_signature_date");
         // Training
         saved.amlProvider?.forEach(f => newMappings[f] = "aml_provider");
         saved.amlDate?.forEach(f => newMappings[f] = "aml_date");
+        saved.ltcCertification?.forEach(f => newMappings[f] = "ltc_certification");
+        saved.ceRequired?.forEach(f => newMappings[f] = "ce_required");
+        // Corporation / FINRA
+        saved.isCorporation?.forEach(f => newMappings[f] = "is_corporation");
+        saved.finraRegistered?.forEach(f => newMappings[f] = "finra_registered");
+        saved.finraBrokerDealer?.forEach(f => newMappings[f] = "finra_broker_dealer");
+        saved.finraCrd?.forEach(f => newMappings[f] = "finra_crd");
         // Contact fields
         saved.phoneMobile?.forEach(f => newMappings[f] = "phone_mobile");
         saved.phoneBusiness?.forEach(f => newMappings[f] = "phone_business");
         saved.phoneHome?.forEach(f => newMappings[f] = "phone_home");
         saved.fax?.forEach(f => newMappings[f] = "fax");
         saved.emailAddress?.forEach(f => newMappings[f] = "email_address");
+        // Legal Questions
+        if (saved.legalQuestions) {
+          Object.entries(saved.legalQuestions).forEach(([qNum, values]) => {
+            values.yes?.forEach(f => newMappings[f] = `legal_q${qNum}_yes`);
+            values.no?.forEach(f => newMappings[f] = `legal_q${qNum}_no`);
+            values.explanation?.forEach(f => newMappings[f] = `legal_q${qNum}_explanation`);
+          });
+        }
+        // Carriers
+        if (saved.carriers) {
+          Object.entries(saved.carriers).forEach(([carrier, fields]) => {
+            fields?.forEach(f => newMappings[f] = `carrier_${carrier}`);
+          });
+        }
+        // Non-Resident States
+        if (saved.nonResidentStates) {
+          Object.entries(saved.nonResidentStates).forEach(([state, fields]) => {
+            fields?.forEach(f => newMappings[f] = `nonres_${state}`);
+          });
+        }
+        // Ignored
+        saved.ignored?.forEach(f => newMappings[f] = "ignore");
         setMappings(newMappings);
       }
 
@@ -334,8 +545,10 @@ export default function PdfFieldMapperPage() {
         contactMethods: { email: [], phone: [], text: [] },
         marketingConsent: [],
         taxId: [],
+        agencyName: [],
         agencyTaxId: [],
         gender: { male: [], female: [] },
+        personalNamePrincipal: [],
         fullName: [],
         birthDate: [],
         homeAddress: { street: [], city: [], state: [], zip: [], county: [] },
@@ -348,34 +561,90 @@ export default function PdfFieldMapperPage() {
         residentState: [],
         driversLicense: [],
         driversLicenseState: [],
+        eoProvider: [],
+        eoPolicyNumber: [],
+        eoExpiration: [],
+        eoNotCovered: [],
         bankRouting: [],
         bankAccount: [],
         bankName: [],
         beneficiaryName: [],
         beneficiaryRelationship: [],
+        beneficiaryBirthDate: [],
+        beneficiaryDriversLicense: [],
+        beneficiaryDriversLicenseState: [],
+        commissionAdvancing: [],
         initials: [],
+        initialsDate: [],
         signature: [],
         signatureDate: [],
+        backgroundSignature: [],
+        backgroundSignatureDate: [],
         amlProvider: [],
         amlDate: [],
+        ltcCertification: [],
+        ceRequired: [],
+        isCorporation: [],
+        finraRegistered: [],
+        finraBrokerDealer: [],
+        finraCrd: [],
         phoneMobile: [],
         phoneBusiness: [],
         phoneHome: [],
         fax: [],
         emailAddress: [],
+        legalQuestions: {},
+        carriers: {},
+        nonResidentStates: {},
+        ignored: [],
         custom: {},
       };
 
       Object.entries(mappings).forEach(([fieldName, category]) => {
+        // Handle legal questions dynamically
+        const legalMatch = category.match(/^legal_q(\d+)_(yes|no|explanation)$/);
+        if (legalMatch) {
+          const [, qNum, type] = legalMatch;
+          if (!structured.legalQuestions[qNum]) {
+            structured.legalQuestions[qNum] = { yes: [], no: [], explanation: [] };
+          }
+          structured.legalQuestions[qNum][type as 'yes' | 'no' | 'explanation'].push(fieldName);
+          return;
+        }
+        
+        // Handle carriers dynamically
+        const carrierMatch = category.match(/^carrier_(.+)$/);
+        if (carrierMatch) {
+          const [, carrier] = carrierMatch;
+          if (!structured.carriers[carrier]) {
+            structured.carriers[carrier] = [];
+          }
+          structured.carriers[carrier].push(fieldName);
+          return;
+        }
+        
+        // Handle non-resident states dynamically
+        const stateMatch = category.match(/^nonres_(.+)$/);
+        if (stateMatch) {
+          const [, state] = stateMatch;
+          if (!structured.nonResidentStates[state]) {
+            structured.nonResidentStates[state] = [];
+          }
+          structured.nonResidentStates[state].push(fieldName);
+          return;
+        }
+        
         switch (category) {
           case "contact_email": structured.contactMethods.email.push(fieldName); break;
           case "contact_phone": structured.contactMethods.phone.push(fieldName); break;
           case "contact_text": structured.contactMethods.text.push(fieldName); break;
           case "marketing_consent": structured.marketingConsent.push(fieldName); break;
           case "tax_id": structured.taxId.push(fieldName); break;
+          case "agency_name": structured.agencyName.push(fieldName); break;
           case "agency_tax_id": structured.agencyTaxId.push(fieldName); break;
           case "gender_male": structured.gender.male.push(fieldName); break;
           case "gender_female": structured.gender.female.push(fieldName); break;
+          case "personal_name_principal": structured.personalNamePrincipal.push(fieldName); break;
           case "full_name": structured.fullName.push(fieldName); break;
           case "birth_date": structured.birthDate.push(fieldName); break;
           case "home_street": structured.homeAddress.street.push(fieldName); break;
@@ -404,21 +673,39 @@ export default function PdfFieldMapperPage() {
           case "resident_state": structured.residentState.push(fieldName); break;
           case "drivers_license": structured.driversLicense.push(fieldName); break;
           case "drivers_license_state": structured.driversLicenseState.push(fieldName); break;
+          case "eo_provider": structured.eoProvider.push(fieldName); break;
+          case "eo_policy_number": structured.eoPolicyNumber.push(fieldName); break;
+          case "eo_expiration": structured.eoExpiration.push(fieldName); break;
+          case "eo_not_covered": structured.eoNotCovered.push(fieldName); break;
           case "bank_routing": structured.bankRouting.push(fieldName); break;
           case "bank_account": structured.bankAccount.push(fieldName); break;
           case "bank_name": structured.bankName.push(fieldName); break;
           case "beneficiary_name": structured.beneficiaryName.push(fieldName); break;
           case "beneficiary_relationship": structured.beneficiaryRelationship.push(fieldName); break;
+          case "beneficiary_birth_date": structured.beneficiaryBirthDate.push(fieldName); break;
+          case "beneficiary_drivers_license": structured.beneficiaryDriversLicense.push(fieldName); break;
+          case "beneficiary_drivers_license_state": structured.beneficiaryDriversLicenseState.push(fieldName); break;
+          case "commission_advancing": structured.commissionAdvancing.push(fieldName); break;
           case "initials": structured.initials.push(fieldName); break;
+          case "initials_date": structured.initialsDate.push(fieldName); break;
           case "signature": structured.signature.push(fieldName); break;
           case "signature_date": structured.signatureDate.push(fieldName); break;
+          case "background_signature": structured.backgroundSignature.push(fieldName); break;
+          case "background_signature_date": structured.backgroundSignatureDate.push(fieldName); break;
           case "aml_provider": structured.amlProvider.push(fieldName); break;
           case "aml_date": structured.amlDate.push(fieldName); break;
+          case "ltc_certification": structured.ltcCertification.push(fieldName); break;
+          case "ce_required": structured.ceRequired.push(fieldName); break;
+          case "is_corporation": structured.isCorporation.push(fieldName); break;
+          case "finra_registered": structured.finraRegistered.push(fieldName); break;
+          case "finra_broker_dealer": structured.finraBrokerDealer.push(fieldName); break;
+          case "finra_crd": structured.finraCrd.push(fieldName); break;
           case "phone_mobile": structured.phoneMobile.push(fieldName); break;
           case "phone_business": structured.phoneBusiness.push(fieldName); break;
           case "phone_home": structured.phoneHome.push(fieldName); break;
           case "fax": structured.fax.push(fieldName); break;
           case "email_address": structured.emailAddress.push(fieldName); break;
+          case "ignore": structured.ignored.push(fieldName); break;
         }
       });
 
