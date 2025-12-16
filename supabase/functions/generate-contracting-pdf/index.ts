@@ -565,45 +565,18 @@ serve(async (req) => {
     const preferredMethods = application.preferred_contact_methods || [];
     console.log('Preferred contact methods:', JSON.stringify(preferredMethods));
     
-    // Log all checkbox fields to help debug
-    const checkboxFields = form.getFields().filter((f: any) => {
-      try {
-        form.getCheckBox(f.getName());
-        return true;
-      } catch { return false; }
-    }).map((f: any) => f.getName());
-    console.log('All checkbox field names (first 30):', checkboxFields.slice(0, 30).join(', '));
-    
-    // Standard names
+    // Standard checkbox names
     setCheckbox('Email', preferredMethods.includes('email'));
     setCheckbox('Phone', preferredMethods.includes('phone'));
     setCheckbox('Text', preferredMethods.includes('text'));
-    // Alternative checkbox names
-    setCheckbox('email', preferredMethods.includes('email'));
-    setCheckbox('phone', preferredMethods.includes('phone'));
-    setCheckbox('text', preferredMethods.includes('text'));
-    setCheckbox('EMAIL', preferredMethods.includes('email'));
-    setCheckbox('PHONE', preferredMethods.includes('phone'));
-    setCheckbox('TEXT', preferredMethods.includes('text'));
-    // Common variations with Check Box prefix
+    // Check Box numbered variations (common in PDF forms)
     setCheckbox('Check Box1', preferredMethods.includes('email'));
     setCheckbox('Check Box2', preferredMethods.includes('phone'));
     setCheckbox('Check Box3', preferredMethods.includes('text'));
-    // Try with spaces
-    setCheckbox('Check Box 1', preferredMethods.includes('email'));
-    setCheckbox('Check Box 2', preferredMethods.includes('phone'));
-    setCheckbox('Check Box 3', preferredMethods.includes('text'));
-    // Try contact-specific names
-    setCheckbox('Contact Email', preferredMethods.includes('email'));
-    setCheckbox('Contact Phone', preferredMethods.includes('phone'));
-    setCheckbox('Contact Text', preferredMethods.includes('text'));
-    setCheckbox('Preferred Email', preferredMethods.includes('email'));
-    setCheckbox('Preferred Phone', preferredMethods.includes('phone'));
-    setCheckbox('Preferred Text', preferredMethods.includes('text'));
-    // Try as text fields with X
-    if (preferredMethods.includes('email')) setTextField('Email Check', 'X');
-    if (preferredMethods.includes('phone')) setTextField('Phone Check', 'X');
-    if (preferredMethods.includes('text')) setTextField('Text Check', 'X');
+    // Try as text fields with X (some PDFs use text fields for checkmarks)
+    if (preferredMethods.includes('email')) setTextField('Email', 'X');
+    if (preferredMethods.includes('phone')) setTextField('Phone', 'X');
+    if (preferredMethods.includes('text')) setTextField('Text', 'X');
     
     // Marketing consent - this is a text field, not a checkbox
     const marketingConsent = application.agreements?.marketing_consent || false;
