@@ -319,11 +319,12 @@ serve(async (req) => {
     
     // Fallback: try to fetch from URLs
     if (!pdfBytes) {
-      const pdfTemplateUrl = templateUrl || 'https://wpczgwxsriezaubncuom.lovableproject.com/templates/TIG_Contracting_Packet_Template.pdf';
+      const pdfTemplateUrl = templateUrl || 'https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/TIG_Contracting_Packet_Template.pdf';
       console.log('Fetching PDF template from:', pdfTemplateUrl);
       
       const urls = [
         pdfTemplateUrl,
+        'https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/TIG_Contracting_Packet_Template.pdf',
         'https://tyler-insurance-hub.lovable.app/templates/TIG_Contracting_Packet_Template.pdf',
       ];
       
