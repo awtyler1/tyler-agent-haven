@@ -777,7 +777,7 @@ serve(async (req) => {
     // Page indices are 0-based, y=55 to position above the label line
     if (initialsImage) {
       const initialsPositions = [
-        { page: 0, x: 50, y: 68 },   // Page 1
+        // Skip page 1 (index 0) - no initials needed
         { page: 1, x: 50, y: 68 },   // Page 2
         { page: 2, x: 50, y: 68 },   // Page 3
         { page: 3, x: 50, y: 68 },   // Page 4
@@ -787,6 +787,7 @@ serve(async (req) => {
         { page: 7, x: 50, y: 68 },   // Page 8
         { page: 8, x: 50, y: 68 },   // Page 9
         { page: 9, x: 50, y: 68 },   // Page 10
+        { page: 10, x: 50, y: 68 },  // Page 11 (last page)
       ];
       
       for (const pos of initialsPositions) {
