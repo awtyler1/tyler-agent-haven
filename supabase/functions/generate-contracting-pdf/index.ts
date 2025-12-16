@@ -824,18 +824,71 @@ serve(async (req) => {
     // Insurance License Number - try alternate field names
     setTextField('Nevada Accident and Health Insurance License', application.insurance_license_number);
     
-    // AML - use mapped field names for yes/no checkboxes
+    // AML - handle as radio group, checkbox, or text field
     const hasAmlTraining = !!(application.aml_training_provider || application.aml_completion_date);
+    const amlFieldName = fieldMappings?.amlYes?.length 
+      ? fieldMappings.amlYes[0] 
+      : 'Have you taken an AML course within the past two 2 years';
     
-    // Use mapped field names if available, otherwise fallback to defaults
-    if (fieldMappings?.amlYes?.length) {
-      fieldMappings.amlYes.forEach(fieldName => setCheckbox(fieldName, hasAmlTraining));
-    } else {
-      setCheckbox('Have you taken an AML course within the past two 2 years', hasAmlTraining);
+    console.log(`AML training: ${hasAmlTraining}, field name: ${amlFieldName}`);
+    
+    // Try as radio group first (Yes/No options)
+    let amlSet = false;
+    try {
+      const amlRadio = form.getRadioGroup(amlFieldName);
+      const options = amlRadio.getOptions();
+      console.log(`Found AML radio group: ${amlFieldName}, options: ${options.join(', ')}`);
+      
+      const lowerOptions = options.map((o: string) => o.toLowerCase());
+      const yesIndex = lowerOptions.findIndex(o => o === 'yes' || o.includes('yes'));
+      const noIndex = lowerOptions.findIndex(o => o === 'no' || o.includes('no'));
+      
+      if (yesIndex !== -1 || noIndex !== -1) {
+        if (hasAmlTraining && yesIndex !== -1) {
+          amlRadio.select(options[yesIndex]);
+          console.log(`Selected Yes on AML radio group`);
+          amlSet = true;
+        } else if (!hasAmlTraining && noIndex !== -1) {
+          amlRadio.select(options[noIndex]);
+          console.log(`Selected No on AML radio group`);
+          amlSet = true;
+        }
+      }
+    } catch {
+      console.log(`AML field ${amlFieldName} is not a radio group`);
     }
     
-    if (fieldMappings?.amlNo?.length) {
-      fieldMappings.amlNo.forEach(fieldName => setCheckbox(fieldName, !hasAmlTraining));
+    // Try as dropdown/select
+    if (!amlSet) {
+      try {
+        const dropdown = form.getDropdown(amlFieldName);
+        const options = dropdown.getOptions();
+        console.log(`Found AML dropdown: ${amlFieldName}, options: ${options.join(', ')}`);
+        
+        const lowerOptions = options.map((o: string) => o.toLowerCase());
+        const targetOption = hasAmlTraining ? 'yes' : 'no';
+        const optionIndex = lowerOptions.findIndex(o => o === targetOption || o.includes(targetOption));
+        
+        if (optionIndex !== -1) {
+          dropdown.select(options[optionIndex]);
+          console.log(`Selected ${options[optionIndex]} on AML dropdown`);
+          amlSet = true;
+        }
+      } catch {
+        console.log(`AML field ${amlFieldName} is not a dropdown`);
+      }
+    }
+    
+    // Try as checkbox
+    if (!amlSet) {
+      if (fieldMappings?.amlYes?.length) {
+        fieldMappings.amlYes.forEach(fieldName => setCheckbox(fieldName, hasAmlTraining));
+      }
+      if (fieldMappings?.amlNo?.length) {
+        fieldMappings.amlNo.forEach(fieldName => setCheckbox(fieldName, !hasAmlTraining));
+      }
+      // Fallback to default field name
+      setCheckbox(amlFieldName, hasAmlTraining);
     }
     
     setTextField('Course Name', application.aml_training_provider);
