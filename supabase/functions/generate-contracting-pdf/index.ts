@@ -34,6 +34,7 @@ interface ContractingData {
   npn_number?: string;
   insurance_license_number?: string;
   tax_id?: string;
+  agency_tax_id?: string;
   email_address: string;
   phone_mobile?: string;
   phone_business?: string;
@@ -459,8 +460,8 @@ serve(async (req) => {
     setTextField('Agent Name', application.full_legal_name);
     setTextField('SSN', application.tax_id);
     setTextField('Agency Name', application.agency_name);
-    setTextField('Tax ID', application.is_corporation ? application.tax_id : '');
-    setTextField('TaxId', application.is_corporation ? application.tax_id : ''); // Alternative field name without space
+    setTextField('Tax ID', application.agency_tax_id || '');
+    setTextField('TaxId', application.agency_tax_id || ''); // Alternative field name without space
     setTextField('Personal Name or Principal', application.full_legal_name);
     setTextField('Insurance License', application.insurance_license_number);
     setTextField('Birth Date', formatDate(application.birth_date));
