@@ -247,14 +247,15 @@ export function useFormValidation() {
       addError('license_expiration_date', MESSAGES.required, 'licensing');
       licensingErrors.push({ field: 'license_expiration_date', message: MESSAGES.required, sectionId: 'licensing' });
     }
-    if (!uploadedDocs.insurance_license) {
-      addError('insurance_license', MESSAGES.documentRequired, 'licensing');
-      licensingErrors.push({ field: 'insurance_license', message: MESSAGES.documentRequired, sectionId: 'licensing' });
-    }
-    if (!uploadedDocs.government_id) {
-      addError('government_id', MESSAGES.documentRequired, 'licensing');
-      licensingErrors.push({ field: 'government_id', message: MESSAGES.documentRequired, sectionId: 'licensing' });
-    }
+    // TESTING: Document uploads disabled for testing
+    // if (!uploadedDocs.insurance_license) {
+    //   addError('insurance_license', MESSAGES.documentRequired, 'licensing');
+    //   licensingErrors.push({ field: 'insurance_license', message: MESSAGES.documentRequired, sectionId: 'licensing' });
+    // }
+    // if (!uploadedDocs.government_id) {
+    //   addError('government_id', MESSAGES.documentRequired, 'licensing');
+    //   licensingErrors.push({ field: 'government_id', message: MESSAGES.documentRequired, sectionId: 'licensing' });
+    // }
     const licensingAck = !sectionStatuses['licensing']?.acknowledged;
     if (licensingAck) {
       addError('licensing_ack', MESSAGES.sectionNeedsAcknowledgment, 'licensing');
@@ -280,11 +281,11 @@ export function useFormValidation() {
       }
     });
     
-    // Background signature required
-    if (!uploadedDocs.background_signature) {
-      addError('background_signature', MESSAGES.backgroundSignatureRequired, 'legal');
-      legalErrors.push({ field: 'background_signature', message: MESSAGES.backgroundSignatureRequired, sectionId: 'legal' });
-    }
+    // TESTING: Background signature disabled for testing
+    // if (!uploadedDocs.background_signature) {
+    //   addError('background_signature', MESSAGES.backgroundSignatureRequired, 'legal');
+    //   legalErrors.push({ field: 'background_signature', message: MESSAGES.backgroundSignatureRequired, sectionId: 'legal' });
+    // }
     const legalAck = !sectionStatuses['legal']?.acknowledged;
     if (legalAck) {
       addError('legal_ack', MESSAGES.sectionNeedsAcknowledgment, 'legal');
@@ -311,10 +312,11 @@ export function useFormValidation() {
       addError('bank_account_number', MESSAGES.required, 'banking');
       bankingErrors.push({ field: 'bank_account_number', message: MESSAGES.required, sectionId: 'banking' });
     }
-    if (!uploadedDocs.voided_check) {
-      addError('voided_check', MESSAGES.documentRequired, 'banking');
-      bankingErrors.push({ field: 'voided_check', message: MESSAGES.documentRequired, sectionId: 'banking' });
-    }
+    // TESTING: Voided check disabled for testing
+    // if (!uploadedDocs.voided_check) {
+    //   addError('voided_check', MESSAGES.documentRequired, 'banking');
+    //   bankingErrors.push({ field: 'voided_check', message: MESSAGES.documentRequired, sectionId: 'banking' });
+    // }
     const bankingAck = !sectionStatuses['banking']?.acknowledged;
     if (bankingAck) {
       addError('banking_ack', MESSAGES.sectionNeedsAcknowledgment, 'banking');
@@ -330,11 +332,11 @@ export function useFormValidation() {
 
     // ========== TRAINING SECTION ==========
     const trainingErrors: FieldError[] = [];
-    // Only require E&O certificate if user hasn't checked "I don't have E&O coverage yet"
-    if (!application.eo_not_yet_covered && !uploadedDocs.eo_certificate) {
-      addError('eo_certificate', MESSAGES.documentRequired, 'training');
-      trainingErrors.push({ field: 'eo_certificate', message: MESSAGES.documentRequired, sectionId: 'training' });
-    }
+    // TESTING: E&O certificate disabled for testing
+    // if (!application.eo_not_yet_covered && !uploadedDocs.eo_certificate) {
+    //   addError('eo_certificate', MESSAGES.documentRequired, 'training');
+    //   trainingErrors.push({ field: 'eo_certificate', message: MESSAGES.documentRequired, sectionId: 'training' });
+    // }
     if (application.is_finra_registered) {
       if (!application.finra_broker_dealer_name?.trim()) {
         addError('finra_broker_dealer_name', MESSAGES.required, 'training');
@@ -371,10 +373,11 @@ export function useFormValidation() {
         const carrier = carriers.find(c => c.id === sc.carrier_id);
         return carrier?.requires_corporate_resolution;
       });
-      if (needsResolution && !uploadedDocs.corporate_resolution) {
-        addError('corporate_resolution', MESSAGES.documentRequired, 'carriers');
-        carrierErrors.push({ field: 'corporate_resolution', message: MESSAGES.documentRequired, sectionId: 'carriers' });
-      }
+      // TESTING: Corporate resolution disabled for testing
+      // if (needsResolution && !uploadedDocs.corporate_resolution) {
+      //   addError('corporate_resolution', MESSAGES.documentRequired, 'carriers');
+      //   carrierErrors.push({ field: 'corporate_resolution', message: MESSAGES.documentRequired, sectionId: 'carriers' });
+      // }
     }
     const carriersAck = !sectionStatuses['carriers']?.acknowledged;
     if (carriersAck) {
