@@ -75,6 +75,8 @@ interface SavedMappings {
   // Training
   amlProvider: string[];
   amlDate: string[];
+  amlYes: string[];
+  amlNo: string[];
   ltcCertification: string[];
   ceRequired: string[];
   // Corporation / FINRA
@@ -186,6 +188,8 @@ const FIELD_CATEGORIES = [
   // Training
   { value: "aml_provider", label: "AML Provider", section: "Training" },
   { value: "aml_date", label: "AML Completion Date", section: "Training" },
+  { value: "aml_yes", label: "AML Course: Yes (checkbox)", section: "Training" },
+  { value: "aml_no", label: "AML Course: No (checkbox)", section: "Training" },
   { value: "ltc_certification", label: "LTC Certification (checkbox)", section: "Training" },
   { value: "ce_required", label: "CE Required (checkbox)", section: "Training" },
   
@@ -423,6 +427,8 @@ export default function PdfFieldMapperPage() {
         // Training
         saved.amlProvider?.forEach(f => newMappings[f] = "aml_provider");
         saved.amlDate?.forEach(f => newMappings[f] = "aml_date");
+        saved.amlYes?.forEach(f => newMappings[f] = "aml_yes");
+        saved.amlNo?.forEach(f => newMappings[f] = "aml_no");
         saved.ltcCertification?.forEach(f => newMappings[f] = "ltc_certification");
         saved.ceRequired?.forEach(f => newMappings[f] = "ce_required");
         // Corporation / FINRA
@@ -570,6 +576,8 @@ export default function PdfFieldMapperPage() {
         backgroundSignatureDate: [],
         amlProvider: [],
         amlDate: [],
+        amlYes: [],
+        amlNo: [],
         ltcCertification: [],
         ceRequired: [],
         isCorporation: [],
@@ -682,6 +690,8 @@ export default function PdfFieldMapperPage() {
           case "background_signature_date": structured.backgroundSignatureDate.push(fieldName); break;
           case "aml_provider": structured.amlProvider.push(fieldName); break;
           case "aml_date": structured.amlDate.push(fieldName); break;
+          case "aml_yes": structured.amlYes.push(fieldName); break;
+          case "aml_no": structured.amlNo.push(fieldName); break;
           case "ltc_certification": structured.ltcCertification.push(fieldName); break;
           case "ce_required": structured.ceRequired.push(fieldName); break;
           case "is_corporation": structured.isCorporation.push(fieldName); break;
