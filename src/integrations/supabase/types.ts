@@ -68,6 +68,7 @@ export type Database = {
           beneficiary_drivers_license_state: string | null
           beneficiary_name: string | null
           beneficiary_relationship: string | null
+          birth_city: string | null
           birth_date: string | null
           completed_steps: number[]
           created_at: string
@@ -133,6 +134,7 @@ export type Database = {
           beneficiary_drivers_license_state?: string | null
           beneficiary_name?: string | null
           beneficiary_relationship?: string | null
+          birth_city?: string | null
           birth_date?: string | null
           completed_steps?: number[]
           created_at?: string
@@ -198,6 +200,7 @@ export type Database = {
           beneficiary_drivers_license_state?: string | null
           beneficiary_name?: string | null
           beneficiary_relationship?: string | null
+          birth_city?: string | null
           birth_date?: string | null
           completed_steps?: number[]
           created_at?: string

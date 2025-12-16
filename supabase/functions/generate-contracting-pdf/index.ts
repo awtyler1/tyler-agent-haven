@@ -31,6 +31,7 @@ interface ContractingData {
   agency_name?: string;
   gender?: string;
   birth_date?: string;
+  birth_city?: string;
   npn_number?: string;
   insurance_license_number?: string;
   tax_id?: string;
@@ -513,6 +514,15 @@ serve(async (req) => {
     setTextField('Birth Date', formatDate(application.birth_date));
     setTextField('NPN', application.npn_number);
     setTextField('MMDDYYYY', formatDateMMDDYYYY(application.birth_date));
+    
+    // Birth City - use mapped field names if available
+    if (application.birth_city) {
+      if (fieldMappings?.birthCity?.length) {
+        fieldMappings.birthCity.forEach(fieldName => setTextField(fieldName, application.birth_city));
+      } else {
+        setTextField('City_5', application.birth_city); // Default field name
+      }
+    }
     
     // Gender - try as RadioGroup first, then checkboxes
     const gender = application.gender?.toLowerCase();
