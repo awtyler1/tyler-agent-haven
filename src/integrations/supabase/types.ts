@@ -56,6 +56,7 @@ export type Database = {
       contracting_applications: {
         Row: {
           agency_name: string | null
+          agency_tax_id: string | null
           agreements: Json | null
           aml_completion_date: string | null
           aml_training_provider: string | null
@@ -120,6 +121,7 @@ export type Database = {
         }
         Insert: {
           agency_name?: string | null
+          agency_tax_id?: string | null
           agreements?: Json | null
           aml_completion_date?: string | null
           aml_training_provider?: string | null
@@ -184,6 +186,7 @@ export type Database = {
         }
         Update: {
           agency_name?: string | null
+          agency_tax_id?: string | null
           agreements?: Json | null
           aml_completion_date?: string | null
           aml_training_provider?: string | null
