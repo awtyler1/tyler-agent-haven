@@ -21,6 +21,35 @@ export function SystemStatusCard() {
         return;
       }
 
+      // Delete all uploaded documents from storage for this user
+      const { data: files } = await supabase.storage
+        .from('contracting-documents')
+        .list(user.id);
+      
+      if (files && files.length > 0) {
+        const filePaths = files.map(f => `${user.id}/${f.name}`);
+        await supabase.storage
+          .from('contracting-documents')
+          .remove(filePaths);
+        
+        // Also check for subdirectories (like contracting_packet/)
+        for (const file of files) {
+          if (!file.name.includes('.')) {
+            // Likely a folder, list and delete contents
+            const { data: subFiles } = await supabase.storage
+              .from('contracting-documents')
+              .list(`${user.id}/${file.name}`);
+            
+            if (subFiles && subFiles.length > 0) {
+              const subPaths = subFiles.map(sf => `${user.id}/${file.name}/${sf.name}`);
+              await supabase.storage
+                .from('contracting-documents')
+                .remove(subPaths);
+            }
+          }
+        }
+      }
+
       // Delete existing contracting application for current user
       await supabase
         .from('contracting_applications')
@@ -33,7 +62,7 @@ export function SystemStatusCard() {
         .update({ onboarding_status: 'CONTRACTING_REQUIRED' })
         .eq('user_id', user.id);
 
-      toast.success('Contracting reset - redirecting...');
+      toast.success('Contracting completely reset - redirecting...');
       navigate('/contracting');
     } catch (error) {
       console.error('Error resetting contracting:', error);
