@@ -10,62 +10,152 @@ export function SystemStatusCard() {
   const { status, userStats } = useSystemStatus();
   const [resetting, setResetting] = useState(false);
 
+
   const handleTestContracting = async () => {
     setResetting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         toast.error('Not authenticated');
         return;
       }
 
-      // Delete all uploaded documents from storage for this user
-      const { data: files } = await supabase.storage
-        .from('contracting-documents')
-        .list(user.id);
-      
-      if (files && files.length > 0) {
-        const filePaths = files.map(f => `${user.id}/${f.name}`);
-        await supabase.storage
+      // Best-effort: delete uploaded docs from storage (may be blocked by storage policies)
+      try {
+        const { data: files, error: listError } = await supabase.storage
           .from('contracting-documents')
-          .remove(filePaths);
-        
-        // Also check for subdirectories (like contracting_packet/)
-        for (const file of files) {
-          if (!file.name.includes('.')) {
-            // Likely a folder, list and delete contents
-            const { data: subFiles } = await supabase.storage
-              .from('contracting-documents')
-              .list(`${user.id}/${file.name}`);
-            
-            if (subFiles && subFiles.length > 0) {
-              const subPaths = subFiles.map(sf => `${user.id}/${file.name}/${sf.name}`);
-              await supabase.storage
+          .list(user.id);
+
+        if (!listError && files && files.length > 0) {
+          const filePaths = files.map((f) => `${user.id}/${f.name}`);
+          await supabase.storage.from('contracting-documents').remove(filePaths);
+
+          // Also check for subdirectories (like contracting_packet/)
+          for (const file of files) {
+            if (!file.name.includes('.')) {
+              const { data: subFiles } = await supabase.storage
                 .from('contracting-documents')
-                .remove(subPaths);
+                .list(`${user.id}/${file.name}`);
+
+              if (subFiles && subFiles.length > 0) {
+                const subPaths = subFiles.map((sf) => `${user.id}/${file.name}/${sf.name}`);
+                await supabase.storage.from('contracting-documents').remove(subPaths);
+              }
             }
           }
         }
+      } catch (e) {
+        console.warn('Storage cleanup skipped/failed:', e);
       }
 
-      // Delete existing contracting application for current user
-      await supabase
+      // IMPORTANT: RLS currently blocks DELETE for contracting_applications.
+      // So we "reset" by updating the row back to empty defaults (works for admins/super admins).
+      const { data: existingApp, error: fetchAppError } = await supabase
         .from('contracting_applications')
-        .delete()
-        .eq('user_id', user.id);
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (fetchAppError) throw fetchAppError;
+
+      const resetPayload = {
+        status: 'in_progress',
+        submitted_at: null,
+        current_step: 1,
+        completed_steps: [],
+
+        // form fields
+        full_legal_name: null,
+        agency_name: null,
+        gender: null,
+        birth_date: null,
+        npn_number: null,
+        insurance_license_number: null,
+        tax_id: null,
+        email_address: user.email || null,
+        phone_mobile: null,
+        phone_business: null,
+        phone_home: null,
+        fax: null,
+        preferred_contact_methods: [],
+
+        home_address: {},
+        mailing_address_same_as_home: true,
+        mailing_address: {},
+        ups_address_same_as_home: true,
+        ups_address: {},
+        previous_addresses: [],
+
+        resident_license_number: null,
+        resident_state: null,
+        license_expiration_date: null,
+        non_resident_states: [],
+        drivers_license_number: null,
+        drivers_license_state: null,
+
+        legal_questions: {},
+
+        bank_routing_number: null,
+        bank_account_number: null,
+        bank_branch_name: null,
+        beneficiary_name: null,
+        beneficiary_relationship: null,
+        beneficiary_birth_date: null,
+        beneficiary_drivers_license_number: null,
+        beneficiary_drivers_license_state: null,
+        requesting_commission_advancing: false,
+
+        aml_training_provider: null,
+        aml_completion_date: null,
+        has_ltc_certification: false,
+        state_requires_ce: false,
+        eo_not_yet_covered: false,
+        eo_provider: null,
+        eo_policy_number: null,
+        eo_expiration_date: null,
+        is_finra_registered: false,
+        finra_broker_dealer_name: null,
+        finra_crd_number: null,
+
+        selected_carriers: [],
+        is_corporation: false,
+        agreements: {},
+
+        signature_name: null,
+        signature_initials: null,
+        signature_date: null,
+
+        section_acknowledgments: {},
+        uploaded_documents: {},
+      };
+
+      if (existingApp?.id) {
+        const { error: resetError } = await supabase
+          .from('contracting_applications')
+          .update(resetPayload)
+          .eq('id', existingApp.id);
+        if (resetError) throw resetError;
+      } else {
+        const { error: createError } = await supabase
+          .from('contracting_applications')
+          .insert({ user_id: user.id, ...resetPayload } as never);
+        if (createError) throw createError;
+      }
 
       // Reset profile onboarding status
-      await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({ onboarding_status: 'CONTRACTING_REQUIRED' })
         .eq('user_id', user.id);
+      if (profileError) throw profileError;
 
-      toast.success('Contracting completely reset - redirecting...');
-      // Use hard navigation to ensure React state is cleared
+      toast.success('Contracting hub cleared - redirecting...');
       window.location.href = '/contracting-hub';
     } catch (error) {
       console.error('Error resetting contracting:', error);
-      toast.error('Failed to reset contracting');
+      toast.error('Failed to reset contracting hub');
     } finally {
       setResetting(false);
     }
