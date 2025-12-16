@@ -70,7 +70,7 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
 
             <div className="space-y-2">
               <Label htmlFor="tax_id">
-                SSN / Tax ID <span className="text-destructive">*</span>
+                SSN <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="tax_id"
@@ -85,6 +85,34 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
               />
               <FormFieldError error={fieldErrors.tax_id} show={showValidation} />
               {!fieldErrors.tax_id && <p className="text-[10px] text-muted-foreground/50">Used only for contracting. Securely encrypted.</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="agency_name">Agency / Business Name</Label>
+              <Input
+                id="agency_name"
+                value={application.agency_name || ''}
+                onChange={(e) => {
+                  onUpdate('agency_name', e.target.value);
+                }}
+                placeholder="If applicable"
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="agency_tax_id">Agency Tax ID</Label>
+              <Input
+                id="agency_tax_id"
+                value={(application as any).agency_tax_id || ''}
+                onChange={(e) => {
+                  onUpdate('agency_tax_id' as any, e.target.value);
+                }}
+                placeholder="XX-XXXXXXX"
+                className="h-11 rounded-xl"
+                maxLength={10}
+              />
+              <p className="text-[10px] text-muted-foreground/50">If different from SSN</p>
             </div>
           </div>
 
