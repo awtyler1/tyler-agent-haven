@@ -30,6 +30,7 @@ export interface ContractingApplication {
   // Step 1: Personal & Contact
   full_legal_name: string | null;
   agency_name: string | null;
+  agency_tax_id: string | null;
   gender: string | null;
   birth_date: string | null;
   npn_number: string | null;
@@ -272,6 +273,7 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   status: 'in_progress',
   full_legal_name: null,
   agency_name: null,
+  agency_tax_id: null,
   gender: null,
   birth_date: null,
   npn_number: null,

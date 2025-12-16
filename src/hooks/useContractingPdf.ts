@@ -98,6 +98,7 @@ export function useContractingPdf() {
             npn_number: application.npn_number,
             insurance_license_number: application.insurance_license_number,
             tax_id: application.tax_id,
+            agency_tax_id: application.agency_tax_id,
             email_address: application.email_address,
             phone_mobile: application.phone_mobile,
             phone_business: application.phone_business,
