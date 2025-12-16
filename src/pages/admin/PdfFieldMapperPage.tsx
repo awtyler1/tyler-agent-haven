@@ -127,27 +127,43 @@ export default function PdfFieldMapperPage() {
     }
   };
 
-  const extractFieldsFromTemplate = async () => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a PDF file");
+      return;
+    }
+    
     setIsExtracting(true);
     try {
-      // Try to fetch from the public template URL
-      const templateUrl = `${window.location.origin}/templates/TIG_Contracting_Packet_Template.pdf`;
+      // Convert file to base64
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
       
       const { data, error } = await supabase.functions.invoke("extract-pdf-fields", {
-        body: { pdfUrl: templateUrl },
+        body: { pdfBase64: base64 },
       });
 
       if (error) throw error;
 
       if (data?.fields) {
         setFields(data.fields);
-        toast.success(`Extracted ${data.fields.length} fields from PDF template`);
+        toast.success(`Extracted ${data.fields.length} fields from ${file.name}`);
       }
     } catch (err: any) {
       console.error("Extraction error:", err);
       toast.error("Failed to extract PDF fields: " + (err.message || "Unknown error"));
     } finally {
       setIsExtracting(false);
+      // Reset file input
+      event.target.value = "";
     }
   };
 
@@ -277,9 +293,17 @@ export default function PdfFieldMapperPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="pdf-upload"
+              disabled={isExtracting}
+            />
             <Button
               variant="outline"
-              onClick={extractFieldsFromTemplate}
+              onClick={() => document.getElementById("pdf-upload")?.click()}
               disabled={isExtracting}
             >
               {isExtracting ? (
@@ -287,7 +311,7 @@ export default function PdfFieldMapperPage() {
               ) : (
                 <Upload className="h-4 w-4 mr-2" />
               )}
-              Extract Fields
+              Upload PDF Template
             </Button>
             <Button onClick={saveMappings} disabled={isSaving || Object.keys(mappings).length === 0}>
               {isSaving ? (
@@ -405,7 +429,7 @@ export default function PdfFieldMapperPage() {
               <div className="text-center py-12 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No fields extracted yet</p>
-                <p className="text-sm mt-1">Upload a PDF template or click Extract Fields</p>
+                <p className="text-sm mt-1">Upload your PDF template to extract form fields</p>
               </div>
             ) : (
               <div className="border rounded-lg overflow-hidden">

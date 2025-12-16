@@ -226,6 +226,23 @@ const LEGAL_QUESTION_ORDER: string[] = [
   '18',
   '19',
 ];
+// Field mappings interface (loaded from database)
+interface FieldMappings {
+  contactMethods: {
+    email: string[];
+    phone: string[];
+    text: string[];
+  };
+  marketingConsent: string[];
+  taxId: string[];
+  agencyTaxId: string[];
+  gender: {
+    male: string[];
+    female: string[];
+  };
+  custom: Record<string, string[]>;
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -242,6 +259,28 @@ serve(async (req) => {
     };
 
     console.log('Generating PDF for:', application.full_legal_name, 'saveToStorage:', saveToStorage);
+
+    // Initialize Supabase client early to load mappings
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Load field mappings from database
+    let fieldMappings: FieldMappings | null = null;
+    try {
+      const { data: mappingsData } = await supabase
+        .from('system_config')
+        .select('config_value')
+        .eq('config_key', 'pdf_field_mappings')
+        .single();
+      
+      if (mappingsData?.config_value) {
+        fieldMappings = mappingsData.config_value as unknown as FieldMappings;
+        console.log('Loaded field mappings from database');
+      }
+    } catch (e) {
+      console.log('No custom field mappings found, using defaults');
+    }
 
     // Validate required fields
     const validationErrors: string[] = [];
@@ -561,70 +600,75 @@ serve(async (req) => {
       setTextField('County_4', prevAddr.county);
     }
     
-    // Preferred contact methods
+    // Preferred contact methods - use database mappings if available
     const preferredMethods = (application.preferred_contact_methods || []).map((m: string) => m.toLowerCase());
     console.info('CONTACT_METHODS_SELECTED::' + JSON.stringify(preferredMethods));
 
-    // Identify the *actual* PDF fields for the "Preferred Method of Contact" area.
-    // Safe: we only inspect field names + constructor types (no expensive getCheckBox calls).
-    const contactCandidates = form.getFields()
-      .map((f: any) => ({ name: f.getName(), type: f?.constructor?.name }))
-      .filter(({ name }: { name: string }) => {
-        const n = name.toLowerCase();
-        return (
-          n.includes('preferred') ||
-          n.includes('contact') ||
-          // match the three labels
-          n.includes(' email') || n === 'email' || n.includes('email') ||
-          n.includes(' phone') || n === 'phone' || n.includes('phone') ||
-          n.includes(' text') || n === 'text' || n.includes('text')
-        );
-      });
-
-    // This log is what we'll use to finalize the mapping.
-    console.info('CONTACT_METHOD_FIELDS::' + JSON.stringify(contactCandidates));
-
-    // Attempt to set any candidate checkbox fields by name.
-    // We only write when the method is selected; nothing will be checked when the array is empty.
-    const setIfSelected = (method: 'email' | 'phone' | 'text') => {
-      if (!preferredMethods.includes(method)) return;
-
-      for (const c of contactCandidates) {
-        const lower = c.name.toLowerCase();
-        const matches =
-          (method === 'email' && lower.includes('email')) ||
-          (method === 'phone' && lower.includes('phone')) ||
-          (method === 'text' && lower.includes('text'));
-
-        if (!matches) continue;
-        // Only try checkboxes; avoid accidentally writing to the Email Address text field.
-        if (c.type !== 'PDFCheckBox') continue;
-
-        setCheckbox(c.name, true);
+    // Use database mappings if available, otherwise fall back to auto-detection
+    if (fieldMappings?.contactMethods) {
+      console.log('Using database field mappings for contact methods');
+      if (preferredMethods.includes('email')) {
+        for (const fieldName of fieldMappings.contactMethods.email) {
+          setCheckbox(fieldName, true);
+        }
       }
-    };
+      if (preferredMethods.includes('phone')) {
+        for (const fieldName of fieldMappings.contactMethods.phone) {
+          setCheckbox(fieldName, true);
+        }
+      }
+      if (preferredMethods.includes('text')) {
+        for (const fieldName of fieldMappings.contactMethods.text) {
+          setCheckbox(fieldName, true);
+        }
+      }
+    } else {
+      // Fallback: auto-detect contact method fields
+      console.log('No database mappings found, using auto-detection');
+      const contactCandidates = form.getFields()
+        .map((f: any) => ({ name: f.getName(), type: f?.constructor?.name }))
+        .filter(({ name }: { name: string }) => {
+          const n = name.toLowerCase();
+          return (
+            n.includes('preferred') || n.includes('contact') ||
+            n.includes('email') || n.includes('phone') || n.includes('text')
+          );
+        });
 
-    setIfSelected('email');
-    setIfSelected('phone');
-    setIfSelected('text');
+      console.info('CONTACT_METHOD_FIELDS::' + JSON.stringify(contactCandidates));
 
-    // Hard fallback patterns (only for checkboxes) in case the template uses generic names.
-    const checkboxFallbacks = {
-      email: ['Check Box1', 'Check Box 1', 'fill_1', 'fill_35'],
-      phone: ['Check Box2', 'Check Box 2', 'fill_2', 'fill_36'],
-      text: ['Check Box3', 'Check Box 3', 'fill_3', 'fill_37'],
-    } as const;
+      const setIfSelected = (method: 'email' | 'phone' | 'text') => {
+        if (!preferredMethods.includes(method)) return;
+        for (const c of contactCandidates) {
+          const lower = c.name.toLowerCase();
+          const matches =
+            (method === 'email' && lower.includes('email')) ||
+            (method === 'phone' && lower.includes('phone')) ||
+            (method === 'text' && lower.includes('text'));
+          if (!matches || c.type !== 'PDFCheckBox') continue;
+          setCheckbox(c.name, true);
+        }
+      };
 
-    for (const name of checkboxFallbacks.email) if (preferredMethods.includes('email')) setCheckbox(name, true);
-    for (const name of checkboxFallbacks.phone) if (preferredMethods.includes('phone')) setCheckbox(name, true);
-    for (const name of checkboxFallbacks.text) if (preferredMethods.includes('text')) setCheckbox(name, true);
+      setIfSelected('email');
+      setIfSelected('phone');
+      setIfSelected('text');
+    }
     
-    // Marketing consent - this is a text field, not a checkbox
+    // Marketing consent - use database mappings if available
     const marketingConsent = application.agreements?.marketing_consent || false;
     console.log('Marketing consent value:', marketingConsent);
     if (marketingConsent) {
-      // The field is a text box, so fill with X to indicate checked
-      setTextField('Additionally by checking here I agree to let Tyler Insurance Group send me information about', 'X');
+      if (fieldMappings?.marketingConsent && fieldMappings.marketingConsent.length > 0) {
+        for (const fieldName of fieldMappings.marketingConsent) {
+          // Try as checkbox first, then as text field
+          setCheckbox(fieldName, true);
+          setTextField(fieldName, 'X');
+        }
+      } else {
+        // Fallback to known field name
+        setTextField('Additionally by checking here I agree to let Tyler Insurance Group send me information about', 'X');
+      }
     }
     
     // Date on page 1 (initials will be drawn as image)
