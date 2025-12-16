@@ -164,6 +164,11 @@ export function ContractingForm() {
   }, [application?.signature_initials, application?.section_acknowledgments, updateField, scrollToSection]);
 
   const handleSubmit = async () => {
+    // Ensure signature date is set before validation
+    if (!application?.signature_date) {
+      await updateField('signature_date', new Date().toISOString());
+    }
+    
     // Run validation
     const result = validateForm(application!, sectionStatuses, carriers);
     

@@ -70,14 +70,8 @@ export function SignatureSection({
   };
 
   const handleSubmit = () => {
-    // Set the signature date before submitting
-    if (!application.signature_date) {
-      onUpdate('signature_date', new Date().toISOString());
-    }
-    // Small delay to ensure the date is saved before submission
-    setTimeout(() => {
-      onSubmit();
-    }, 100);
+    // Parent component handles signature_date
+    onSubmit();
   };
 
   // Determine what's incomplete for helper text
