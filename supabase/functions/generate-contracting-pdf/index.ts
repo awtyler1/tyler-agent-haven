@@ -474,13 +474,25 @@ serve(async (req) => {
       setCheckbox('Check Box Male', true);
       setCheckbox('Gender Male', true);
       setCheckbox('male', true);
+      setCheckbox('Check Box4', true);
+      setCheckbox('Check Box 4', true);
+      setCheckbox('Gender_Male', true);
+      setCheckbox('MALE', true);
+      // Log which field names we're trying
+      console.log('Setting gender to Male, trying field variations');
     } else if (gender === 'female') {
       setCheckbox('Female', true);
       setCheckbox('F', true);
       setCheckbox('Check Box Female', true);
       setCheckbox('Gender Female', true);
       setCheckbox('female', true);
+      setCheckbox('Check Box5', true);
+      setCheckbox('Check Box 5', true);
+      setCheckbox('Gender_Female', true);
+      setCheckbox('FEMALE', true);
+      console.log('Setting gender to Female, trying field variations');
     }
+    console.log('Gender value from application:', application.gender);
     
     // Home Address
     if (application.home_address) {
