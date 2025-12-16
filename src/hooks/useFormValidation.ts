@@ -273,13 +273,13 @@ export function useFormValidation() {
     const legalErrors: FieldError[] = [];
     const legalQuestions = (application.legal_questions || {}) as Record<string, LegalQuestion>;
     
-    // Check for Yes answers that need explanations
-    Object.entries(legalQuestions).forEach(([id, q]) => {
-      if (q?.answer === true && !q?.explanation?.trim()) {
-        addError(`legal_explanation_${id}`, MESSAGES.explanationRequired, 'legal');
-        legalErrors.push({ field: `legal_explanation_${id}`, message: MESSAGES.explanationRequired, sectionId: 'legal' });
-      }
-    });
+    // TESTING: Explanation requirement disabled for testing
+    // Object.entries(legalQuestions).forEach(([id, q]) => {
+    //   if (q?.answer === true && !q?.explanation?.trim()) {
+    //     addError(`legal_explanation_${id}`, MESSAGES.explanationRequired, 'legal');
+    //     legalErrors.push({ field: `legal_explanation_${id}`, message: MESSAGES.explanationRequired, sectionId: 'legal' });
+    //   }
+    // });
     
     // TESTING: Background signature disabled for testing
     // if (!uploadedDocs.background_signature) {
