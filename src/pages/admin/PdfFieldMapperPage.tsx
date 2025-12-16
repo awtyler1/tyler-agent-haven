@@ -869,10 +869,27 @@ export default function PdfFieldMapperPage() {
         uploaded_documents: {},
       };
 
+      // Load template from the app's public folder and send as base64 (avoids server-side fetch issues)
+      let templateBase64: string | undefined;
+      try {
+        const templateResponse = await fetch('/templates/TIG_Contracting_Packet_Template.pdf');
+        if (templateResponse.ok) {
+          const templateBlob = await templateResponse.blob();
+          templateBase64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+            reader.readAsDataURL(templateBlob);
+          });
+        }
+      } catch (e) {
+        console.log('Could not load PDF template for test generation, will use fallback:', e);
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-contracting-pdf', {
         body: { 
           application: testApplication,
-          saveToStorage: false
+          saveToStorage: false,
+          templateBase64,
         }
       });
 
