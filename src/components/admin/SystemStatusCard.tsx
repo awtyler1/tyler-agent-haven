@@ -1,9 +1,47 @@
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, FlaskConical } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export function SystemStatusCard() {
   const { status, userStats } = useSystemStatus();
+  const navigate = useNavigate();
+  const [resetting, setResetting] = useState(false);
+
+  const handleTestContracting = async () => {
+    setResetting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Not authenticated');
+        return;
+      }
+
+      // Delete existing contracting application for current user
+      await supabase
+        .from('contracting_applications')
+        .delete()
+        .eq('user_id', user.id);
+
+      // Reset profile onboarding status
+      await supabase
+        .from('profiles')
+        .update({ onboarding_status: 'CONTRACTING_REQUIRED' })
+        .eq('user_id', user.id);
+
+      toast.success('Contracting reset - redirecting...');
+      navigate('/contracting');
+    } catch (error) {
+      console.error('Error resetting contracting:', error);
+      toast.error('Failed to reset contracting');
+    } finally {
+      setResetting(false);
+    }
+  };
 
   if (status.loading) {
     return (
@@ -65,6 +103,25 @@ export function SystemStatusCard() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Dev Tools */}
+        <div className="border-t pt-4">
+          <h4 className="text-sm font-medium text-muted-foreground mb-3">Dev Tools</h4>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full"
+            onClick={handleTestContracting}
+            disabled={resetting}
+          >
+            {resetting ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <FlaskConical className="h-4 w-4 mr-2" />
+            )}
+            Test Contracting Flow
+          </Button>
         </div>
       </CardContent>
     </Card>
