@@ -243,6 +243,7 @@ interface FieldMappings {
     male: string[];
     female: string[];
   };
+  birthCity: string[];
   amlYes: string[];
   amlNo: string[];
   custom: Record<string, string[]>;
