@@ -577,14 +577,31 @@ serve(async (req) => {
     setCheckbox('Check Box2', preferredMethods.includes('phone'));
     setCheckbox('Check Box3', preferredMethods.includes('text'));
     
-    // Marketing consent checkbox
+    // Marketing consent checkbox - log all checkbox fields to find the right one
+    const allCheckboxFields = form.getFields().filter((f: any) => {
+      try {
+        form.getCheckBox(f.getName());
+        return true;
+      } catch { return false; }
+    });
+    console.log('=== ALL CHECKBOX FIELDS ===');
+    allCheckboxFields.forEach((f: any) => console.log(`Checkbox: ${f.getName()}`));
+    console.log('=== END CHECKBOX FIELDS ===');
+    
     const marketingConsent = application.agreements?.marketing_consent || false;
+    console.log('Marketing consent value:', marketingConsent);
     if (marketingConsent) {
+      // Try multiple variations of the field name
       setCheckbox('Marketing', true);
       setCheckbox('marketing', true);
       setCheckbox('Marketing Consent', true);
       setCheckbox('Additionally by checking here', true);
       setCheckbox('Check Box Marketing', true);
+      setCheckbox('Check Box4', true);
+      setCheckbox('Check Box 4', true);
+      setCheckbox('CheckBox4', true);
+      setCheckbox('Additionally', true);
+      setCheckbox('marketing_consent', true);
     }
     
     // Date on page 1 (initials will be drawn as image)
