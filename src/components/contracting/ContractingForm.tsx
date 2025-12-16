@@ -4,11 +4,12 @@ import { useProfile } from '@/hooks/useProfile';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown } from 'lucide-react';
+import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, FlaskConical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Clock } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
+import { LEGAL_QUESTIONS, type Address } from '@/types/contracting';
 
 // Section components
 import { InitialsEntrySection } from './sections/InitialsEntrySection';
@@ -46,6 +47,34 @@ const SECTIONS = [
   { id: 'signature', name: 'Electronic Signature', requiresAcknowledgment: false },
 ];
 
+// Generate a simple initials image as base64
+const generateTestInitialsImage = (initials: string): string => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 200;
+  canvas.height = 80;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.fillStyle = '#000';
+    ctx.font = 'italic 40px serif';
+    ctx.fillText(initials, 50, 55);
+  }
+  return canvas.toDataURL('image/png');
+};
+
+// Generate a simple signature image as base64
+const generateTestSignatureImage = (name: string): string => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 400;
+  canvas.height = 100;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.fillStyle = '#000';
+    ctx.font = 'italic 32px cursive';
+    ctx.fillText(name, 20, 60);
+  }
+  return canvas.toDataURL('image/png');
+};
+
 export function ContractingForm() {
   const { profile } = useProfile();
   const {
@@ -65,6 +94,7 @@ export function ContractingForm() {
   const [showSaved, setShowSaved] = useState(false);
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, SectionStatus>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFillingTestData, setIsFillingTestData] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Initialize section statuses from application
@@ -162,6 +192,133 @@ export function ContractingForm() {
       },
     }));
   }, [application?.signature_initials, application?.section_acknowledgments, updateField, scrollToSection]);
+
+  // Fill form with test data for quick testing
+  const fillTestData = useCallback(async () => {
+    if (!application || !carriers.length) return;
+    
+    setIsFillingTestData(true);
+    try {
+      const testAddress: Address = {
+        street: '123 Test Street',
+        city: 'Louisville',
+        state: 'KY',
+        zip: '40202',
+        county: 'Jefferson',
+      };
+
+      // Generate all legal questions with "No" answers
+      const legalQuestionsData: Record<string, { answer: boolean; explanation?: string }> = {};
+      LEGAL_QUESTIONS.forEach(q => {
+        legalQuestionsData[q.id] = { answer: false };
+      });
+
+      // Pick first 2 carriers for testing
+      const selectedCarriers = carriers.slice(0, 2).map(c => ({
+        carrier_id: c.id,
+        carrier_name: c.name,
+        non_resident_states: [],
+      }));
+
+      // Generate section acknowledgments
+      const now = new Date().toISOString();
+      const sectionAcks: Record<string, { acknowledged: boolean; acknowledgedAt: string | null; initials?: string }> = {};
+      SECTIONS.filter(s => s.requiresAcknowledgment).forEach(section => {
+        sectionAcks[section.id] = {
+          acknowledged: true,
+          acknowledgedAt: now,
+          initials: 'JT',
+        };
+      });
+
+      // Generate test images
+      const initialsImage = generateTestInitialsImage('JT');
+      const signatureImage = generateTestSignatureImage('John Tyler');
+      const bgSignatureImage = generateTestSignatureImage('John Tyler');
+
+      // Update all fields at once
+      const updates = {
+        full_legal_name: 'John Tyler',
+        agency_name: 'Test Agency LLC',
+        gender: 'Male',
+        birth_date: '1985-06-15',
+        npn_number: '12345678',
+        insurance_license_number: 'KY123456',
+        tax_id: '123-45-6789',
+        email_address: 'john.tyler@test.com',
+        phone_mobile: '(502) 555-1234',
+        phone_business: '(502) 555-5678',
+        phone_home: '',
+        fax: '',
+        preferred_contact_methods: ['email', 'mobile'],
+        home_address: testAddress,
+        mailing_address_same_as_home: true,
+        mailing_address: testAddress,
+        ups_address_same_as_home: true,
+        ups_address: testAddress,
+        resident_license_number: 'KY123456',
+        resident_state: 'KY',
+        license_expiration_date: '2026-12-31',
+        drivers_license_number: 'T123456789',
+        drivers_license_state: 'KY',
+        legal_questions: legalQuestionsData,
+        bank_routing_number: '123456789',
+        bank_account_number: '987654321',
+        bank_branch_name: 'First National Bank',
+        beneficiary_name: 'Jane Tyler',
+        beneficiary_relationship: 'Spouse',
+        beneficiary_birth_date: '1987-03-20',
+        beneficiary_drivers_license_number: 'T987654321',
+        beneficiary_drivers_license_state: 'KY',
+        requesting_commission_advancing: false,
+        aml_training_provider: 'AHIP',
+        aml_completion_date: '2024-10-15',
+        has_ltc_certification: false,
+        state_requires_ce: false,
+        eo_not_yet_covered: false,
+        eo_provider: 'NAPA',
+        eo_policy_number: 'EO-2024-12345',
+        eo_expiration_date: '2025-12-31',
+        is_finra_registered: false,
+        selected_carriers: selectedCarriers,
+        is_corporation: false,
+        signature_initials: 'JT',
+        signature_name: 'John Tyler',
+        signature_date: now,
+        section_acknowledgments: sectionAcks,
+        uploaded_documents: {
+          initials_image: initialsImage,
+          signature_image: signatureImage,
+          background_signature_image: bgSignatureImage,
+        },
+      };
+
+      // Apply each update
+      for (const [key, value] of Object.entries(updates)) {
+        updateField(key as keyof typeof updates, value as any);
+      }
+
+      // Update local section statuses
+      setSectionStatuses(prev => {
+        const updated = { ...prev };
+        SECTIONS.filter(s => s.requiresAcknowledgment).forEach(section => {
+          updated[section.id] = {
+            ...updated[section.id],
+            acknowledged: true,
+            acknowledgedAt: now,
+          };
+        });
+        return updated;
+      });
+
+      toast.success('Test data filled! Ready to submit.');
+    } catch (error) {
+      console.error('Error filling test data:', error);
+      toast.error('Failed to fill test data');
+    } finally {
+      setIsFillingTestData(false);
+    }
+  }, [application, carriers, updateField]);
 
   const handleSubmit = async () => {
     // Ensure signature date is set before validation
@@ -282,6 +439,22 @@ export function ContractingForm() {
                 </>
               ) : null}
             </div>
+            
+            {/* Dev: Fill Test Data button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fillTestData}
+              disabled={isFillingTestData}
+              className="gap-1.5 text-xs border-dashed border-amber-500/50 text-amber-700 hover:bg-amber-50"
+            >
+              {isFillingTestData ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <FlaskConical className="h-3 w-3" />
+              )}
+              Fill Test Data
+            </Button>
             
             <Button 
               variant="ghost" 
