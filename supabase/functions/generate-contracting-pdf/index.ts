@@ -179,55 +179,53 @@ const CARRIER_FIELD_MAP: Record<string, { checkbox: string; nonResStates: string
   'William Penn': { checkbox: 'fill_153', nonResStates: 'NONRES STATESWilliam Penn' },
 };
 
-// Legal question ID to PDF text field mapping
-// The PDF uses TEXT fields named "undefined", "undefined_2", etc. for Yes/No boxes
-// Based on field list: Field 41=undefined, 46=undefined_2, 47=undefined_3, etc.
+// Legal question ID to PDF BUTTON field mapping
+// The PDF uses button/checkbox fields named "Yes", "No", "Yes_2", "No_2", etc.
 // Question IDs in the database are LOWERCASE (1a, 1b, etc.)
 const LEGAL_QUESTION_FIELD_MAP: Record<string, { yesField: string; noField: string; explanationField?: string }> = {
-  // Page 3 - Questions mapped to actual PDF field names (undefined, undefined_2, etc.)
-  // Each question has YES and NO as consecutive fields
-  '1': { yesField: 'undefined', noField: 'undefined_2' },  // Main question 1 - felony/misdemeanor
-  '1a': { yesField: 'undefined_3', noField: 'undefined_4' },
-  '1b': { yesField: 'undefined_5', noField: 'undefined_6' },
-  '1c': { yesField: 'undefined_7', noField: 'undefined_8' },
-  '1d': { yesField: 'undefined_9', noField: 'undefined_10' },
-  '1e': { yesField: 'undefined_11', noField: 'undefined_12' },
-  '1f': { yesField: 'undefined_13', noField: 'undefined_14' },
-  '1g': { yesField: 'undefined_15', noField: 'undefined_16' },
-  '1h': { yesField: 'undefined_17', noField: 'undefined_18' },
-  '2': { yesField: 'undefined_19', noField: 'undefined_20' },
-  '2a': { yesField: 'undefined_21', noField: 'undefined_22' },
-  '2b': { yesField: 'undefined_23', noField: 'undefined_24' },
-  '2c': { yesField: 'undefined_25', noField: 'undefined_26' },
-  '2d': { yesField: 'undefined_27', noField: 'undefined_28' },
-  '3': { yesField: 'undefined_29', noField: 'undefined_30' },
-  '4': { yesField: 'undefined_31', noField: 'undefined_32' },
-  '5': { yesField: 'undefined_33', noField: 'undefined_34' },
-  '5a': { yesField: 'undefined_35', noField: 'undefined_36' },
-  '5b': { yesField: 'undefined_37', noField: 'undefined_38' },
-  '5c': { yesField: 'undefined_39', noField: 'undefined_40' },
-  '6': { yesField: 'undefined_41', noField: 'undefined_42' },
-  '7': { yesField: 'undefined_43', noField: 'undefined_44' },
-  '8': { yesField: 'undefined_45', noField: 'undefined_46' },
-  '8a': { yesField: 'undefined_47', noField: 'undefined_48' },
-  // Page 4 - Questions 8B-19
-  '8b': { yesField: 'undefined_49', noField: 'undefined_50' },
-  '9': { yesField: 'undefined_51', noField: 'undefined_52' },
-  '10': { yesField: 'undefined_53', noField: 'undefined_54' },
-  '11': { yesField: 'undefined_55', noField: 'undefined_56' },
-  '12': { yesField: 'undefined_57', noField: 'undefined_58' },
-  '13': { yesField: 'undefined_59', noField: 'undefined_60' },
-  '14': { yesField: 'undefined_61', noField: 'undefined_62' },
-  '14a': { yesField: 'undefined_63', noField: 'undefined_64' },
-  '14c': { yesField: 'undefined_65', noField: 'undefined_66' },
-  '15': { yesField: 'undefined_67', noField: 'undefined_68' },
-  '15a': { yesField: 'undefined_69', noField: 'undefined_70' },
-  '15b': { yesField: 'undefined_71', noField: 'undefined_72' },
-  '15c': { yesField: 'undefined_73', noField: 'undefined_74' },
-  '16': { yesField: 'undefined_75', noField: 'undefined_76' },
-  '17': { yesField: 'undefined_77', noField: 'undefined_78' },
-  '18': { yesField: 'undefined_79', noField: 'undefined_80' },
-  '19': { yesField: 'undefined_81', noField: 'undefined_82' },
+  // Questions mapped in order as they appear in PDF
+  '1': { yesField: 'Yes', noField: 'No' },  // Main question 1 - felony/misdemeanor
+  '1a': { yesField: 'Yes_2', noField: 'No_2' },
+  '1b': { yesField: 'Yes_3', noField: 'No_3' },
+  '1c': { yesField: 'Yes_4', noField: 'No_4' },
+  '1d': { yesField: 'Yes_5', noField: 'No_5' },
+  '1e': { yesField: 'Yes_6', noField: 'No_6' },
+  '1f': { yesField: 'Yes_7', noField: 'No_7' },
+  '1g': { yesField: 'Yes_8', noField: 'No_8' },
+  '1h': { yesField: 'Yes_9', noField: 'No_9' },
+  '2': { yesField: 'Yes_10', noField: 'No_10' },
+  '2a': { yesField: 'Yes_11', noField: 'No_11' },
+  '2b': { yesField: 'Yes_12', noField: 'No_12' },
+  '2c': { yesField: 'Yes_13', noField: 'No_13' },
+  '2d': { yesField: 'Yes_14', noField: 'No_14' },
+  '3': { yesField: 'Yes_15', noField: 'No_15' },
+  '4': { yesField: 'Yes_16', noField: 'No_16' },
+  '5': { yesField: 'Yes_17', noField: 'No_17' },
+  '5a': { yesField: 'Yes_18', noField: 'No_18' },
+  '5b': { yesField: 'Yes_19', noField: 'No_19' },
+  '5c': { yesField: 'Yes_20', noField: 'No_20' },
+  '6': { yesField: 'Yes_21', noField: 'No_21' },
+  '7': { yesField: 'Yes_22', noField: 'No_22' },
+  '8': { yesField: 'Yes_23', noField: 'No_23' },
+  '8a': { yesField: 'Yes_24', noField: 'No_24' },
+  '8b': { yesField: 'Yes_25', noField: 'No_25' },
+  '9': { yesField: 'Yes_26', noField: 'No_26' },
+  '10': { yesField: 'Yes_27', noField: 'No_27' },
+  '11': { yesField: 'Yes_28', noField: 'No_28' },
+  '12': { yesField: 'Yes_29', noField: 'No_29' },
+  '13': { yesField: 'Yes_30', noField: 'No_30' },
+  '14': { yesField: 'Yes_31', noField: 'No_31' },
+  '14a': { yesField: 'Yes_32', noField: 'No_32' },
+  '14b': { yesField: 'Yes_33', noField: 'No_33' },
+  '14c': { yesField: 'Yes_34', noField: 'No_34' },
+  '15': { yesField: 'Yes_35', noField: 'No_35' },
+  '15a': { yesField: 'Yes_36', noField: 'No_36' },
+  '15b': { yesField: 'Yes_37', noField: 'No_37' },
+  '15c': { yesField: 'Yes_38', noField: 'No_38' },
+  '16': { yesField: 'Yes_39', noField: 'No_39' },
+  '17': { yesField: 'Yes_40', noField: 'No_40' },
+  '18': { yesField: 'Yes_41', noField: 'No_41' },
+  '19': { yesField: 'Yes_42', noField: 'No_42' },
 };
 
 serve(async (req) => {
@@ -572,8 +570,7 @@ serve(async (req) => {
     console.log('Number of legal questions:', Object.keys(legalQuestions).length);
     console.log('Question IDs:', Object.keys(legalQuestions).join(', '));
     
-    // Process each legal question - these are TEXT FIELDS not checkboxes
-    // We fill them with 'X' to mark Yes or No
+    // Process each legal question - these are CHECKBOX/BUTTON fields
     Object.entries(legalQuestions).forEach(([questionId, questionData]) => {
       const question = questionData as LegalQuestion;
       console.log(`Processing Q${questionId}: answer=${question?.answer}, type=${typeof question?.answer}`);
@@ -586,15 +583,29 @@ serve(async (req) => {
         
         if (mapping) {
           const targetField = isYes ? mapping.yesField : mapping.noField;
-          console.log(`Trying to set field: ${targetField}`);
+          console.log(`Trying to check checkbox field: ${targetField}`);
           
-          // Try to set as text field with 'X'
+          // Try to set as checkbox/button field
           try {
-            const field = form.getTextField(targetField);
-            field.setText('X');
-            console.log(`SUCCESS: Set legal question ${questionId} ${isYes ? 'Yes' : 'No'} field: ${targetField}`);
+            const checkbox = form.getCheckBox(targetField);
+            checkbox.check();
+            console.log(`SUCCESS: Checked checkbox ${targetField} for question ${questionId}`);
           } catch (e) {
-            console.log(`FAILED: Field not found: ${targetField} for question ${questionId}`, e);
+            // If checkbox doesn't work, try as radio button
+            try {
+              const radioGroup = form.getRadioGroup(targetField);
+              radioGroup.select(targetField);
+              console.log(`SUCCESS: Selected radio ${targetField} for question ${questionId}`);
+            } catch (e2) {
+              // Last resort: try as text field
+              try {
+                const textField = form.getTextField(targetField);
+                textField.setText('X');
+                console.log(`SUCCESS: Set text field ${targetField} for question ${questionId}`);
+              } catch (e3) {
+                console.log(`FAILED: Could not find field ${targetField} for question ${questionId}`);
+              }
+            }
           }
         } else {
           console.log(`No mapping found for legal question ${questionId}`);
