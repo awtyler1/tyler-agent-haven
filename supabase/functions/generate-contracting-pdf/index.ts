@@ -243,6 +243,8 @@ interface FieldMappings {
     male: string[];
     female: string[];
   };
+  amlYes: string[];
+  amlNo: string[];
   custom: Record<string, string[]>;
 }
 
@@ -822,8 +824,20 @@ serve(async (req) => {
     // Insurance License Number - try alternate field names
     setTextField('Nevada Accident and Health Insurance License', application.insurance_license_number);
     
-    // AML
-    setCheckbox('Have you taken an AML course within the past two 2 years', !!application.aml_training_provider);
+    // AML - use mapped field names for yes/no checkboxes
+    const hasAmlTraining = !!(application.aml_training_provider || application.aml_completion_date);
+    
+    // Use mapped field names if available, otherwise fallback to defaults
+    if (fieldMappings?.amlYes?.length) {
+      fieldMappings.amlYes.forEach(fieldName => setCheckbox(fieldName, hasAmlTraining));
+    } else {
+      setCheckbox('Have you taken an AML course within the past two 2 years', hasAmlTraining);
+    }
+    
+    if (fieldMappings?.amlNo?.length) {
+      fieldMappings.amlNo.forEach(fieldName => setCheckbox(fieldName, !hasAmlTraining));
+    }
+    
     setTextField('Course Name', application.aml_training_provider);
     setTextField('Course Date', formatDate(application.aml_completion_date));
     setTextField('Date Completed', formatDate(application.aml_completion_date));
