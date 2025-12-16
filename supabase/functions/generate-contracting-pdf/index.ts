@@ -561,11 +561,34 @@ serve(async (req) => {
       setTextField('County_4', prevAddr.county);
     }
     
-    // Preferred contact methods - DISABLED until correct PDF field names are identified
+    // Preferred contact methods
     const preferredMethods = application.preferred_contact_methods || [];
-    console.log('Preferred contact methods:', JSON.stringify(preferredMethods));
-    // TODO: Map to correct PDF field names once identified
-    // The PDF field names for email/phone/text checkboxes need to be extracted from the template
+    console.log('Preferred contact methods from app:', JSON.stringify(preferredMethods));
+    
+    // Log fields that might be contact method checkboxes (search for Email/Phone/Text in field names)
+    const contactFieldCandidates = form.getFields()
+      .map((f: any) => f.getName())
+      .filter((name: string) => {
+        const lower = name.toLowerCase();
+        return lower.includes('email') || lower.includes('phone') || lower.includes('text') || 
+               lower.includes('contact') || lower.includes('preferred') ||
+               (lower.includes('check') && lower.includes('box'));
+      });
+    console.log('Contact method field candidates:', contactFieldCandidates.join(', '));
+    
+    // Try specific field name patterns based on PDF label structure
+    if (preferredMethods.includes('email')) {
+      setCheckbox('Email_2', true); // _2 suffix for second occurrence
+      setCheckbox('Preferred Email', true);
+    }
+    if (preferredMethods.includes('phone')) {
+      setCheckbox('Phone_2', true);
+      setCheckbox('Preferred Phone', true);
+    }
+    if (preferredMethods.includes('text')) {
+      setCheckbox('Text_2', true);
+      setCheckbox('Preferred Text', true);
+    }
     
     // Marketing consent - this is a text field, not a checkbox
     const marketingConsent = application.agreements?.marketing_consent || false;
