@@ -649,6 +649,9 @@ serve(async (req) => {
     // Date on page 2 (initials will be drawn as image)
     setTextField('DATE_2', formatDate(application.signature_date));
     
+    // Date on page 3 (background signature section)
+    setTextField('DATE_3', formatDate(application.signature_date));
+    
     // Signature and date on page 3 (after legal questions)
     setTextField('Signature', application.signature_name);
     setTextField('Signature_2', application.signature_name);
@@ -795,10 +798,10 @@ serve(async (req) => {
       }
     }
     
-    // Draw background signature on page 3 (after legal questions) - 0-indexed so page 2
+    // Draw background signature on page 3 (changing index to 2 since index 2 appeared on page 2)
     if (backgroundSignatureImage) {
-      // Position in signature area at bottom of page 3
-      drawSignatureOnPage(backgroundSignatureImage, 2, 150, 100, 250, 60);
+      // Position in signature area - signature box on page 3
+      drawSignatureOnPage(backgroundSignatureImage, 3, 150, 100, 250, 60);
     }
     
     // Draw final signature on signature page (page 9 typically) - 0-indexed so page 8
