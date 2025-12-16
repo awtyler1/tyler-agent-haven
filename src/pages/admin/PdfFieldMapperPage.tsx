@@ -769,7 +769,7 @@ export default function PdfFieldMapperPage() {
         full_legal_name: "John Alexander Smith",
         agency_name: "Smith Insurance Agency LLC",
         agency_tax_id: "12-3456789",
-        gender: "male",
+        gender: Math.random() > 0.5 ? "male" : "female",
         birth_date: "1985-06-15",
         npn_number: "12345678",
         insurance_license_number: "INS-9876543",
