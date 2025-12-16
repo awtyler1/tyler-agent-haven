@@ -773,20 +773,20 @@ serve(async (req) => {
     setTextField('DATE_9', formatDate(application.signature_date));
 
     // ==================== DRAW INITIALS AND SIGNATURES AS IMAGES ====================
-    // Draw initials on each page footer at bottom RIGHT
-    // Page indices are 0-based, x=520 for right side of letter-size page (612pt width)
+    // Draw initials on each page footer at bottom LEFT in the initials box
+    // Page indices are 0-based, x=50 for left side positioning
     if (initialsImage) {
       const initialsPositions = [
-        { page: 0, x: 520, y: 30 },   // Page 1
-        { page: 1, x: 520, y: 30 },   // Page 2
-        { page: 2, x: 520, y: 30 },   // Page 3
-        { page: 3, x: 520, y: 30 },   // Page 4
-        { page: 4, x: 520, y: 30 },   // Page 5
-        { page: 5, x: 520, y: 30 },   // Page 6
-        { page: 6, x: 520, y: 30 },   // Page 7
-        { page: 7, x: 520, y: 30 },   // Page 8
-        { page: 8, x: 520, y: 30 },   // Page 9
-        { page: 9, x: 520, y: 30 },   // Page 10
+        { page: 0, x: 50, y: 35 },   // Page 1
+        { page: 1, x: 50, y: 35 },   // Page 2
+        { page: 2, x: 50, y: 35 },   // Page 3
+        { page: 3, x: 50, y: 35 },   // Page 4
+        { page: 4, x: 50, y: 35 },   // Page 5
+        { page: 5, x: 50, y: 35 },   // Page 6
+        { page: 6, x: 50, y: 35 },   // Page 7
+        { page: 7, x: 50, y: 35 },   // Page 8
+        { page: 8, x: 50, y: 35 },   // Page 9
+        { page: 9, x: 50, y: 35 },   // Page 10
       ];
       
       for (const pos of initialsPositions) {
