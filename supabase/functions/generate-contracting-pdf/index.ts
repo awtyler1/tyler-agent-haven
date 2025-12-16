@@ -561,22 +561,11 @@ serve(async (req) => {
       setTextField('County_4', prevAddr.county);
     }
     
-    // Preferred contact methods - try multiple possible field names
+    // Preferred contact methods - DISABLED until correct PDF field names are identified
     const preferredMethods = application.preferred_contact_methods || [];
     console.log('Preferred contact methods:', JSON.stringify(preferredMethods));
-    
-    // Standard checkbox names
-    setCheckbox('Email', preferredMethods.includes('email'));
-    setCheckbox('Phone', preferredMethods.includes('phone'));
-    setCheckbox('Text', preferredMethods.includes('text'));
-    // Check Box numbered variations (common in PDF forms)
-    setCheckbox('Check Box1', preferredMethods.includes('email'));
-    setCheckbox('Check Box2', preferredMethods.includes('phone'));
-    setCheckbox('Check Box3', preferredMethods.includes('text'));
-    // Try as text fields with X (some PDFs use text fields for checkmarks)
-    if (preferredMethods.includes('email')) setTextField('Email', 'X');
-    if (preferredMethods.includes('phone')) setTextField('Phone', 'X');
-    if (preferredMethods.includes('text')) setTextField('Text', 'X');
+    // TODO: Map to correct PDF field names once identified
+    // The PDF field names for email/phone/text checkboxes need to be extracted from the template
     
     // Marketing consent - this is a text field, not a checkbox
     const marketingConsent = application.agreements?.marketing_consent || false;
