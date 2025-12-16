@@ -62,7 +62,7 @@ export function SystemStatusCard() {
 
       toast.success('Contracting completely reset - redirecting...');
       // Use hard navigation to ensure React state is cleared
-      window.location.href = '/contracting';
+      window.location.href = '/contracting-hub';
     } catch (error) {
       console.error('Error resetting contracting:', error);
       toast.error('Failed to reset contracting');
