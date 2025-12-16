@@ -460,6 +460,7 @@ serve(async (req) => {
     setTextField('SSN', application.tax_id);
     setTextField('Agency Name', application.agency_name);
     setTextField('Tax ID', application.is_corporation ? application.tax_id : '');
+    setTextField('TaxId', application.is_corporation ? application.tax_id : ''); // Alternative field name without space
     setTextField('Personal Name or Principal', application.full_legal_name);
     setTextField('Insurance License', application.insurance_license_number);
     setTextField('Birth Date', formatDate(application.birth_date));
