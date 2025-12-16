@@ -563,23 +563,33 @@ serve(async (req) => {
     // ==================== PAGES 2-3: Legal Questions ====================
     const legalQuestions = application.legal_questions || {};
 
-    // Build a lookup of radio groups by option value (e.g., Yes_2/No_2)
-    const radioGroups = form
-      .getFields()
-      .filter((f: any) => f?.constructor?.name === 'PDFRadioGroup')
-      .map((f: any) => {
-        try {
-          const rg = form.getRadioGroup(f.getName());
-          return { name: rg.getName(), options: rg.getOptions() };
-        } catch {
-          return null;
-        }
-      })
-      .filter(Boolean) as Array<{ name: string; options: string[] }>;
-
     console.log('=== LEGAL QUESTIONS PROCESSING START ===');
     console.log('Number of legal questions in application:', Object.keys(legalQuestions).length);
+    
+    // Log all field types to debug
+    const allFieldTypes = form.getFields().map((f: any) => `${f.getName()}:${f.constructor?.name}`).slice(0, 50);
+    console.log('First 50 field types:', allFieldTypes.join(', '));
+
+    // Build a lookup of radio groups - try multiple detection methods
+    const radioGroups: Array<{ name: string; options: string[] }> = [];
+    
+    for (const field of form.getFields()) {
+      try {
+        // Try to get it as a radio group
+        const rg = form.getRadioGroup(field.getName());
+        const opts = rg.getOptions();
+        if (opts && opts.length > 0) {
+          radioGroups.push({ name: field.getName(), options: opts });
+        }
+      } catch {
+        // Not a radio group, skip
+      }
+    }
+
     console.log('Radio groups found:', radioGroups.length);
+    if (radioGroups.length > 0) {
+      console.log('Radio group names:', radioGroups.map(rg => `${rg.name}:[${rg.options.join(',')}]`).join(' | '));
+    }
 
     // Fill answers by matching radio groups using their option names (Yes/No, Yes_2/No_2, ...)
     LEGAL_QUESTION_ORDER.forEach((questionId, idx) => {
@@ -600,7 +610,7 @@ serve(async (req) => {
         rg.select(question.answer === true ? yesOpt : noOpt);
         console.log(`SUCCESS: Selected ${question.answer === true ? yesOpt : noOpt} on group ${match.name}`);
       } catch (e) {
-        console.log(`FAILED: Could not select for Q${questionId} on group ${match.name}`);
+        console.log(`FAILED: Could not select for Q${questionId} on group ${match.name}`, e);
       }
     });
 
