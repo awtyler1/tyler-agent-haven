@@ -684,53 +684,86 @@ serve(async (req) => {
     console.log('=== LEGAL QUESTIONS PROCESSING START ===');
     console.log('Number of legal questions in application:', Object.keys(legalQuestions).length);
     
-    // Log all field types to debug
-    const allFieldTypes = form.getFields().map((f: any) => `${f.getName()}:${f.constructor?.name}`).slice(0, 50);
-    console.log('First 50 field types:', allFieldTypes.join(', '));
-
-    // Build a lookup of radio groups - try multiple detection methods
-    const radioGroups: Array<{ name: string; options: string[] }> = [];
+    // Get legal question field mappings from database
+    const legalFieldMappings = (fieldMappings as any)?.legalQuestions || {};
+    console.log('Legal field mappings loaded:', Object.keys(legalFieldMappings).length, 'questions mapped');
     
+    // Fill legal questions using database field mappings
+    LEGAL_QUESTION_ORDER.forEach((questionId) => {
+      const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
+      if (!question || question.answer === null || question.answer === undefined) return;
+
+      // Get the PDF field names for this question from database mappings
+      const pdfFieldNames = legalFieldMappings[questionId] || [];
+      const answerText = question.answer === true ? 'Yes' : 'No';
+      
+      console.log(`Q${questionId}: answer=${question.answer}, pdfFields=${JSON.stringify(pdfFieldNames)}`);
+      
+      for (const fieldName of pdfFieldNames) {
+        // Try as text field first
+        try {
+          const field = form.getTextField(fieldName);
+          field.setText(answerText);
+          console.log(`SUCCESS: Set text field "${fieldName}" to "${answerText}"`);
+        } catch {
+          // Try as checkbox
+          try {
+            const cb = form.getCheckBox(fieldName);
+            if (question.answer === true) {
+              cb.check();
+              console.log(`SUCCESS: Checked checkbox "${fieldName}"`);
+            } else {
+              cb.uncheck();
+              console.log(`SUCCESS: Unchecked checkbox "${fieldName}"`);
+            }
+          } catch {
+            console.log(`FAILED: Could not find field "${fieldName}" for Q${questionId}`);
+          }
+        }
+      }
+      
+      // If answer is Yes, also log the explanation (for reference)
+      if (question.answer === true && question.explanation) {
+        console.log(`Q${questionId} explanation: ${question.explanation.substring(0, 50)}...`);
+      }
+    });
+
+    // Fallback: Also try the original radio group approach in case this PDF has them
+    const radioGroups: Array<{ name: string; options: string[] }> = [];
     for (const field of form.getFields()) {
       try {
-        // Try to get it as a radio group
         const rg = form.getRadioGroup(field.getName());
         const opts = rg.getOptions();
         if (opts && opts.length > 0) {
           radioGroups.push({ name: field.getName(), options: opts });
         }
       } catch {
-        // Not a radio group, skip
+        // Not a radio group
       }
     }
 
-    console.log('Radio groups found:', radioGroups.length);
     if (radioGroups.length > 0) {
-      console.log('Radio group names:', radioGroups.map(rg => `${rg.name}:[${rg.options.join(',')}]`).join(' | '));
+      console.log('Radio groups found:', radioGroups.length);
+      LEGAL_QUESTION_ORDER.forEach((questionId, idx) => {
+        const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
+        if (!question || question.answer === null || question.answer === undefined) return;
+
+        const ordinal = idx + 1;
+        const yesOpt = ordinal === 1 ? 'Yes' : `Yes_${ordinal}`;
+        const noOpt = ordinal === 1 ? 'No' : `No_${ordinal}`;
+
+        const match = radioGroups.find((rg) => rg.options.includes(yesOpt) || rg.options.includes(noOpt));
+        if (!match) return;
+
+        try {
+          const rg = form.getRadioGroup(match.name);
+          rg.select(question.answer === true ? yesOpt : noOpt);
+          console.log(`SUCCESS: Selected ${question.answer === true ? yesOpt : noOpt} on radio group ${match.name}`);
+        } catch (e) {
+          console.log(`FAILED: Could not select for Q${questionId} on radio group ${match.name}`);
+        }
+      });
     }
-
-    // Fill answers by matching radio groups using their option names (Yes/No, Yes_2/No_2, ...)
-    LEGAL_QUESTION_ORDER.forEach((questionId, idx) => {
-      const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
-      if (!question || question.answer === null || question.answer === undefined) return;
-
-      const ordinal = idx + 1;
-      const yesOpt = ordinal === 1 ? 'Yes' : `Yes_${ordinal}`;
-      const noOpt = ordinal === 1 ? 'No' : `No_${ordinal}`;
-
-      const match = radioGroups.find((rg) => rg.options.includes(yesOpt) || rg.options.includes(noOpt));
-      console.log(`Q${questionId} -> yesOpt=${yesOpt}, noOpt=${noOpt}, matchedGroup=${match?.name ?? 'NONE'}`);
-
-      if (!match) return;
-
-      try {
-        const rg = form.getRadioGroup(match.name);
-        rg.select(question.answer === true ? yesOpt : noOpt);
-        console.log(`SUCCESS: Selected ${question.answer === true ? yesOpt : noOpt} on group ${match.name}`);
-      } catch (e) {
-        console.log(`FAILED: Could not select for Q${questionId} on group ${match.name}`, e);
-      }
-    });
 
     console.log('=== LEGAL QUESTIONS PROCESSING END ===');
 
