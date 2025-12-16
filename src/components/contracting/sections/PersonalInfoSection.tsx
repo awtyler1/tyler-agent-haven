@@ -111,19 +111,6 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             <FormFieldError error={fieldErrors.gender} show={showValidation} />
           </div>
 
-          {/* Agency Name */}
-          <div className="md:col-span-2 space-y-2">
-            <Label htmlFor="agency_name">
-              Agency / Business Name <span className="text-muted-foreground/50 text-xs">(if applicable)</span>
-            </Label>
-            <Input
-              id="agency_name"
-              value={application.agency_name || ''}
-              onChange={(e) => onUpdate('agency_name', e.target.value)}
-              placeholder="Leave blank if contracting as individual"
-              className="h-11 rounded-xl"
-            />
-          </div>
 
           {/* Email */}
           <div className="space-y-2">
