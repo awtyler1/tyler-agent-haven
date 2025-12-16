@@ -561,30 +561,63 @@ serve(async (req) => {
       setTextField('County_4', prevAddr.county);
     }
     
-    // Preferred contact methods - try to find and set checkbox fields
-    const preferredMethods = application.preferred_contact_methods || [];
-    console.log('Preferred contact methods from app:', JSON.stringify(preferredMethods));
-    
-    // Try common checkbox naming patterns for contact methods
-    const emailFieldNames = ['Email', 'email', 'EMAIL', 'Email_2', 'Check Box6', 'Check Box7', 'Check Box 6', 'Check Box 7', 'fill_6', 'fill_7'];
-    const phoneFieldNames = ['Phone', 'phone', 'PHONE', 'Phone_2', 'Check Box7', 'Check Box8', 'Check Box 7', 'Check Box 8', 'fill_7', 'fill_8'];
-    const textFieldNames = ['Text', 'text', 'TEXT', 'Text_2', 'Check Box8', 'Check Box9', 'Check Box 8', 'Check Box 9', 'fill_8', 'fill_9'];
-    
-    if (preferredMethods.includes('email')) {
-      for (const fieldName of emailFieldNames) {
-        setCheckbox(fieldName, true);
+    // Preferred contact methods
+    const preferredMethods = (application.preferred_contact_methods || []).map((m: string) => m.toLowerCase());
+    console.info('CONTACT_METHODS_SELECTED::' + JSON.stringify(preferredMethods));
+
+    // Identify the *actual* PDF fields for the "Preferred Method of Contact" area.
+    // Safe: we only inspect field names + constructor types (no expensive getCheckBox calls).
+    const contactCandidates = form.getFields()
+      .map((f: any) => ({ name: f.getName(), type: f?.constructor?.name }))
+      .filter(({ name }: { name: string }) => {
+        const n = name.toLowerCase();
+        return (
+          n.includes('preferred') ||
+          n.includes('contact') ||
+          // match the three labels
+          n.includes(' email') || n === 'email' || n.includes('email') ||
+          n.includes(' phone') || n === 'phone' || n.includes('phone') ||
+          n.includes(' text') || n === 'text' || n.includes('text')
+        );
+      });
+
+    // This log is what we'll use to finalize the mapping.
+    console.info('CONTACT_METHOD_FIELDS::' + JSON.stringify(contactCandidates));
+
+    // Attempt to set any candidate checkbox fields by name.
+    // We only write when the method is selected; nothing will be checked when the array is empty.
+    const setIfSelected = (method: 'email' | 'phone' | 'text') => {
+      if (!preferredMethods.includes(method)) return;
+
+      for (const c of contactCandidates) {
+        const lower = c.name.toLowerCase();
+        const matches =
+          (method === 'email' && lower.includes('email')) ||
+          (method === 'phone' && lower.includes('phone')) ||
+          (method === 'text' && lower.includes('text'));
+
+        if (!matches) continue;
+        // Only try checkboxes; avoid accidentally writing to the Email Address text field.
+        if (c.type !== 'PDFCheckBox') continue;
+
+        setCheckbox(c.name, true);
       }
-    }
-    if (preferredMethods.includes('phone')) {
-      for (const fieldName of phoneFieldNames) {
-        setCheckbox(fieldName, true);
-      }
-    }
-    if (preferredMethods.includes('text')) {
-      for (const fieldName of textFieldNames) {
-        setCheckbox(fieldName, true);
-      }
-    }
+    };
+
+    setIfSelected('email');
+    setIfSelected('phone');
+    setIfSelected('text');
+
+    // Hard fallback patterns (only for checkboxes) in case the template uses generic names.
+    const checkboxFallbacks = {
+      email: ['Check Box1', 'Check Box 1', 'fill_1', 'fill_35'],
+      phone: ['Check Box2', 'Check Box 2', 'fill_2', 'fill_36'],
+      text: ['Check Box3', 'Check Box 3', 'fill_3', 'fill_37'],
+    } as const;
+
+    for (const name of checkboxFallbacks.email) if (preferredMethods.includes('email')) setCheckbox(name, true);
+    for (const name of checkboxFallbacks.phone) if (preferredMethods.includes('phone')) setCheckbox(name, true);
+    for (const name of checkboxFallbacks.text) if (preferredMethods.includes('text')) setCheckbox(name, true);
     
     // Marketing consent - this is a text field, not a checkbox
     const marketingConsent = application.agreements?.marketing_consent || false;
