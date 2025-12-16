@@ -466,33 +466,44 @@ serve(async (req) => {
     setTextField('NPN', application.npn_number);
     setTextField('MMDDYYYY', formatDateMMDDYYYY(application.birth_date));
     
-    // Gender checkboxes - try multiple field name variations
+    // Gender - try as RadioGroup first, then checkboxes
     const gender = application.gender?.toLowerCase();
+    console.log('Gender value from application:', application.gender, '-> normalized:', gender);
+    
+    // Try as RadioGroup (common for Male/Female)
+    const radioGroupNames = ['Gender', 'gender', 'Sex', 'sex', 'Group1', 'Group2'];
+    for (const groupName of radioGroupNames) {
+      try {
+        const radioGroup = form.getRadioGroup(groupName);
+        const options = radioGroup.getOptions();
+        console.log(`Found RadioGroup "${groupName}" with options:`, options);
+        
+        // Find matching option
+        const maleOption = options.find((opt: string) => opt.toLowerCase().includes('male') && !opt.toLowerCase().includes('female'));
+        const femaleOption = options.find((opt: string) => opt.toLowerCase().includes('female'));
+        
+        if (gender === 'male' && maleOption) {
+          radioGroup.select(maleOption);
+          console.log(`Selected "${maleOption}" in RadioGroup "${groupName}"`);
+          break;
+        } else if (gender === 'female' && femaleOption) {
+          radioGroup.select(femaleOption);
+          console.log(`Selected "${femaleOption}" in RadioGroup "${groupName}"`);
+          break;
+        }
+      } catch {
+        // Not a radio group or doesn't exist
+      }
+    }
+    
+    // Also try as individual checkboxes
     if (gender === 'male') {
       setCheckbox('Male', true);
-      setCheckbox('M', true);
-      setCheckbox('Check Box Male', true);
-      setCheckbox('Gender Male', true);
-      setCheckbox('male', true);
       setCheckbox('Check Box4', true);
-      setCheckbox('Check Box 4', true);
-      setCheckbox('Gender_Male', true);
-      setCheckbox('MALE', true);
-      // Log which field names we're trying
-      console.log('Setting gender to Male, trying field variations');
     } else if (gender === 'female') {
       setCheckbox('Female', true);
-      setCheckbox('F', true);
-      setCheckbox('Check Box Female', true);
-      setCheckbox('Gender Female', true);
-      setCheckbox('female', true);
       setCheckbox('Check Box5', true);
-      setCheckbox('Check Box 5', true);
-      setCheckbox('Gender_Female', true);
-      setCheckbox('FEMALE', true);
-      console.log('Setting gender to Female, trying field variations');
     }
-    console.log('Gender value from application:', application.gender);
     
     // Home Address
     if (application.home_address) {
