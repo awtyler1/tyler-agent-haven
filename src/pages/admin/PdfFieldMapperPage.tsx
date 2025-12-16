@@ -88,8 +88,8 @@ interface SavedMappings {
   phoneHome: string[];
   fax: string[];
   emailAddress: string[];
-  // Legal Questions
-  legalQuestions: Record<string, { yes: string[]; no: string[]; explanation: string[] }>;
+  // Legal Questions - simplified: each question maps to a single text field filled with "Yes" or "No"
+  legalQuestions: Record<string, string[]>;
   // Carriers
   carriers: Record<string, string[]>;
   // Non-Resident States
@@ -198,64 +198,49 @@ const FIELD_CATEGORIES = [
   // Consent
   { value: "marketing_consent", label: "Marketing Consent", section: "Consent" },
   
-  // Legal Questions (Yes/No)
-  { value: "legal_q1_yes", label: "Q1 (Felony/Misdemeanor): Yes", section: "Legal Questions" },
-  { value: "legal_q1_no", label: "Q1 (Felony/Misdemeanor): No", section: "Legal Questions" },
-  { value: "legal_q1_explanation", label: "Q1 Explanation", section: "Legal Questions" },
-  { value: "legal_q2_yes", label: "Q2 (Investigation): Yes", section: "Legal Questions" },
-  { value: "legal_q2_no", label: "Q2 (Investigation): No", section: "Legal Questions" },
-  { value: "legal_q2_explanation", label: "Q2 Explanation", section: "Legal Questions" },
-  { value: "legal_q3_yes", label: "Q3 (Fraud): Yes", section: "Legal Questions" },
-  { value: "legal_q3_no", label: "Q3 (Fraud): No", section: "Legal Questions" },
-  { value: "legal_q3_explanation", label: "Q3 Explanation", section: "Legal Questions" },
-  { value: "legal_q4_yes", label: "Q4 (Foreign Government): Yes", section: "Legal Questions" },
-  { value: "legal_q4_no", label: "Q4 (Foreign Government): No", section: "Legal Questions" },
-  { value: "legal_q4_explanation", label: "Q4 Explanation", section: "Legal Questions" },
-  { value: "legal_q5_yes", label: "Q5 (Termination): Yes", section: "Legal Questions" },
-  { value: "legal_q5_no", label: "Q5 (Termination): No", section: "Legal Questions" },
-  { value: "legal_q5_explanation", label: "Q5 Explanation", section: "Legal Questions" },
-  { value: "legal_q6_yes", label: "Q6 (Chargeback): Yes", section: "Legal Questions" },
-  { value: "legal_q6_no", label: "Q6 (Chargeback): No", section: "Legal Questions" },
-  { value: "legal_q6_explanation", label: "Q6 Explanation", section: "Legal Questions" },
-  { value: "legal_q7_yes", label: "Q7 (Surety/Bond): Yes", section: "Legal Questions" },
-  { value: "legal_q7_no", label: "Q7 (Surety/Bond): No", section: "Legal Questions" },
-  { value: "legal_q7_explanation", label: "Q7 Explanation", section: "Legal Questions" },
-  { value: "legal_q8_yes", label: "Q8 (E&O Claims): Yes", section: "Legal Questions" },
-  { value: "legal_q8_no", label: "Q8 (E&O Claims): No", section: "Legal Questions" },
-  { value: "legal_q8_explanation", label: "Q8 Explanation", section: "Legal Questions" },
-  { value: "legal_q9_yes", label: "Q9 (License Denial): Yes", section: "Legal Questions" },
-  { value: "legal_q9_no", label: "Q9 (License Denial): No", section: "Legal Questions" },
-  { value: "legal_q9_explanation", label: "Q9 Explanation", section: "Legal Questions" },
-  { value: "legal_q10_yes", label: "Q10 (Regulatory Finding): Yes", section: "Legal Questions" },
-  { value: "legal_q10_no", label: "Q10 (Regulatory Finding): No", section: "Legal Questions" },
-  { value: "legal_q10_explanation", label: "Q10 Explanation", section: "Legal Questions" },
-  { value: "legal_q11_yes", label: "Q11 (Regulatory Action): Yes", section: "Legal Questions" },
-  { value: "legal_q11_no", label: "Q11 (Regulatory Action): No", section: "Legal Questions" },
-  { value: "legal_q11_explanation", label: "Q11 Explanation", section: "Legal Questions" },
-  { value: "legal_q12_yes", label: "Q12 (Cease & Desist): Yes", section: "Legal Questions" },
-  { value: "legal_q12_no", label: "Q12 (Cease & Desist): No", section: "Legal Questions" },
-  { value: "legal_q12_explanation", label: "Q12 Explanation", section: "Legal Questions" },
-  { value: "legal_q13_yes", label: "Q13 (License Lapse): Yes", section: "Legal Questions" },
-  { value: "legal_q13_no", label: "Q13 (License Lapse): No", section: "Legal Questions" },
-  { value: "legal_q13_explanation", label: "Q13 Explanation", section: "Legal Questions" },
-  { value: "legal_q14_yes", label: "Q14 (Complaints): Yes", section: "Legal Questions" },
-  { value: "legal_q14_no", label: "Q14 (Complaints): No", section: "Legal Questions" },
-  { value: "legal_q14_explanation", label: "Q14 Explanation", section: "Legal Questions" },
-  { value: "legal_q15_yes", label: "Q15 (Bankruptcy): Yes", section: "Legal Questions" },
-  { value: "legal_q15_no", label: "Q15 (Bankruptcy): No", section: "Legal Questions" },
-  { value: "legal_q15_explanation", label: "Q15 Explanation", section: "Legal Questions" },
-  { value: "legal_q16_yes", label: "Q16 (Judgments/Liens): Yes", section: "Legal Questions" },
-  { value: "legal_q16_no", label: "Q16 (Judgments/Liens): No", section: "Legal Questions" },
-  { value: "legal_q16_explanation", label: "Q16 Explanation", section: "Legal Questions" },
-  { value: "legal_q17_yes", label: "Q17 (Financial Institution): Yes", section: "Legal Questions" },
-  { value: "legal_q17_no", label: "Q17 (Financial Institution): No", section: "Legal Questions" },
-  { value: "legal_q17_explanation", label: "Q17 Explanation", section: "Legal Questions" },
-  { value: "legal_q18_yes", label: "Q18 (Aliases): Yes", section: "Legal Questions" },
-  { value: "legal_q18_no", label: "Q18 (Aliases): No", section: "Legal Questions" },
-  { value: "legal_q18_explanation", label: "Q18 Explanation", section: "Legal Questions" },
-  { value: "legal_q19_yes", label: "Q19 (IRS Matters): Yes", section: "Legal Questions" },
-  { value: "legal_q19_no", label: "Q19 (IRS Matters): No", section: "Legal Questions" },
-  { value: "legal_q19_explanation", label: "Q19 Explanation", section: "Legal Questions" },
+  // Legal Questions (text fields filled with "Yes" or "No")
+  { value: "legal_q1", label: "Q1: Felony/Misdemeanor/Securities", section: "Legal Questions" },
+  { value: "legal_q1a", label: "Q1a: Felony conviction", section: "Legal Questions" },
+  { value: "legal_q1b", label: "Q1b: Misdemeanor conviction", section: "Legal Questions" },
+  { value: "legal_q1c", label: "Q1c: Federal securities violation", section: "Legal Questions" },
+  { value: "legal_q1d", label: "Q1d: State insurance violation", section: "Legal Questions" },
+  { value: "legal_q1e", label: "Q1e: Foreign government order", section: "Legal Questions" },
+  { value: "legal_q1f", label: "Q1f: Charged with felony", section: "Legal Questions" },
+  { value: "legal_q1g", label: "Q1g: Charged with misdemeanor", section: "Legal Questions" },
+  { value: "legal_q1h", label: "Q1h: Probation", section: "Legal Questions" },
+  { value: "legal_q2", label: "Q2: Investigation/Pending charges", section: "Legal Questions" },
+  { value: "legal_q2a", label: "Q2a: Criminal charges pending", section: "Legal Questions" },
+  { value: "legal_q2b", label: "Q2b: Civil proceedings pending", section: "Legal Questions" },
+  { value: "legal_q2c", label: "Q2c: Civil judgments", section: "Legal Questions" },
+  { value: "legal_q2d", label: "Q2d: Named in lawsuit", section: "Legal Questions" },
+  { value: "legal_q3", label: "Q3: Fraud allegations", section: "Legal Questions" },
+  { value: "legal_q4", label: "Q4: Contract termination", section: "Legal Questions" },
+  { value: "legal_q5", label: "Q5: Appointment termination", section: "Legal Questions" },
+  { value: "legal_q5a", label: "Q5a: Accused of violation", section: "Legal Questions" },
+  { value: "legal_q5b", label: "Q5b: Resigned due to fraud", section: "Legal Questions" },
+  { value: "legal_q5c", label: "Q5c: Terminated for compliance", section: "Legal Questions" },
+  { value: "legal_q6", label: "Q6: Insurance appointment terminated", section: "Legal Questions" },
+  { value: "legal_q7", label: "Q7: Commission chargeback claims", section: "Legal Questions" },
+  { value: "legal_q8", label: "Q8: Surety/E&O claims", section: "Legal Questions" },
+  { value: "legal_q8a", label: "Q8a: Bond denied/revoked", section: "Legal Questions" },
+  { value: "legal_q8b", label: "Q8b: E&O claims/cancellation", section: "Legal Questions" },
+  { value: "legal_q9", label: "Q9: License denied/suspended", section: "Legal Questions" },
+  { value: "legal_q10", label: "Q10: Business authorization revoked", section: "Legal Questions" },
+  { value: "legal_q11", label: "Q11: License revoked/suspended", section: "Legal Questions" },
+  { value: "legal_q12", label: "Q12: False statement finding", section: "Legal Questions" },
+  { value: "legal_q13", label: "Q13: License lapse", section: "Legal Questions" },
+  { value: "legal_q14", label: "Q14: Disciplinary action", section: "Legal Questions" },
+  { value: "legal_q14a", label: "Q14a: Regulatory sanction", section: "Legal Questions" },
+  { value: "legal_q14b", label: "Q14b: Professional discipline", section: "Legal Questions" },
+  { value: "legal_q14c", label: "Q14c: Industry standards violation", section: "Legal Questions" },
+  { value: "legal_q15", label: "Q15: Bankruptcy", section: "Legal Questions" },
+  { value: "legal_q15a", label: "Q15a: Personal bankruptcy", section: "Legal Questions" },
+  { value: "legal_q15b", label: "Q15b: Business bankruptcy", section: "Legal Questions" },
+  { value: "legal_q15c", label: "Q15c: Firm bankruptcy", section: "Legal Questions" },
+  { value: "legal_q16", label: "Q16: Judgments/Liens", section: "Legal Questions" },
+  { value: "legal_q17", label: "Q17: Financial institution connection", section: "Legal Questions" },
+  { value: "legal_q18", label: "Q18: Aliases", section: "Legal Questions" },
+  { value: "legal_q19", label: "Q19: IRS matters", section: "Legal Questions" },
   
   // Carriers
   { value: "carrier_aetna", label: "Aetna (checkbox)", section: "Carriers" },
@@ -448,12 +433,11 @@ export default function PdfFieldMapperPage() {
         saved.phoneHome?.forEach(f => newMappings[f] = "phone_home");
         saved.fax?.forEach(f => newMappings[f] = "fax");
         saved.emailAddress?.forEach(f => newMappings[f] = "email_address");
-        // Legal Questions
+        // Legal Questions - simplified format (single text field per question)
         if (saved.legalQuestions) {
-          Object.entries(saved.legalQuestions).forEach(([qNum, values]) => {
-            values.yes?.forEach(f => newMappings[f] = `legal_q${qNum}_yes`);
-            values.no?.forEach(f => newMappings[f] = `legal_q${qNum}_no`);
-            values.explanation?.forEach(f => newMappings[f] = `legal_q${qNum}_explanation`);
+          Object.entries(saved.legalQuestions).forEach(([qNum, fieldNames]) => {
+            // fieldNames is an array of PDF field names for this question
+            (fieldNames as string[])?.forEach(f => newMappings[f] = `legal_q${qNum}`);
           });
         }
         // Carriers
@@ -602,14 +586,14 @@ export default function PdfFieldMapperPage() {
       };
 
       Object.entries(mappings).forEach(([fieldName, category]) => {
-        // Handle legal questions dynamically
-        const legalMatch = category.match(/^legal_q(\d+)_(yes|no|explanation)$/);
+        // Handle legal questions dynamically - simplified format
+        const legalMatch = category.match(/^legal_q(.+)$/);
         if (legalMatch) {
-          const [, qNum, type] = legalMatch;
+          const [, qNum] = legalMatch;
           if (!structured.legalQuestions[qNum]) {
-            structured.legalQuestions[qNum] = { yes: [], no: [], explanation: [] };
+            structured.legalQuestions[qNum] = [];
           }
-          structured.legalQuestions[qNum][type as 'yes' | 'no' | 'explanation'].push(fieldName);
+          structured.legalQuestions[qNum].push(fieldName);
           return;
         }
         
