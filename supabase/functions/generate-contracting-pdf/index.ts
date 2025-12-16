@@ -561,26 +561,29 @@ serve(async (req) => {
       setTextField('County_4', prevAddr.county);
     }
     
-    // Preferred contact methods - fields are likely text fields, not checkboxes
+    // Preferred contact methods - try to find and set checkbox fields
     const preferredMethods = application.preferred_contact_methods || [];
     console.log('Preferred contact methods from app:', JSON.stringify(preferredMethods));
     
-    // Based on PDF structure: field 34 is marketing consent, contact methods likely follow
-    // Try as text fields with 'X' marker
+    // Try common checkbox naming patterns for contact methods
+    const emailFieldNames = ['Email', 'email', 'EMAIL', 'Email_2', 'Check Box6', 'Check Box7', 'Check Box 6', 'Check Box 7', 'fill_6', 'fill_7'];
+    const phoneFieldNames = ['Phone', 'phone', 'PHONE', 'Phone_2', 'Check Box7', 'Check Box8', 'Check Box 7', 'Check Box 8', 'fill_7', 'fill_8'];
+    const textFieldNames = ['Text', 'text', 'TEXT', 'Text_2', 'Check Box8', 'Check Box9', 'Check Box 8', 'Check Box 9', 'fill_8', 'fill_9'];
+    
     if (preferredMethods.includes('email')) {
-      setTextField('Email_2', 'X');
-      setTextField('fill_35', 'X');
-      setTextField('Check Box35', 'X');
+      for (const fieldName of emailFieldNames) {
+        setCheckbox(fieldName, true);
+      }
     }
     if (preferredMethods.includes('phone')) {
-      setTextField('Phone_2', 'X');
-      setTextField('fill_36', 'X');
-      setTextField('Check Box36', 'X');
+      for (const fieldName of phoneFieldNames) {
+        setCheckbox(fieldName, true);
+      }
     }
     if (preferredMethods.includes('text')) {
-      setTextField('Text_2', 'X');
-      setTextField('fill_37', 'X');
-      setTextField('Check Box37', 'X');
+      for (const fieldName of textFieldNames) {
+        setCheckbox(fieldName, true);
+      }
     }
     
     // Marketing consent - this is a text field, not a checkbox
