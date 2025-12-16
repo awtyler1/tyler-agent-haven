@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Save, RefreshCw, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Upload, Save, RefreshCw, FileText, CheckCircle2, AlertCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -333,6 +333,7 @@ export default function PdfFieldMapperPage() {
   const [savedMappings, setSavedMappings] = useState<SavedMappings | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingTest, setIsGeneratingTest] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
@@ -760,6 +761,149 @@ export default function PdfFieldMapperPage() {
     return Object.values(mappings).filter(m => m === category).length;
   };
 
+  const generateTestPdf = async () => {
+    setIsGeneratingTest(true);
+    try {
+      // Create sample test data that fills all fields
+      const testApplication = {
+        full_legal_name: "John Alexander Smith",
+        agency_name: "Smith Insurance Agency LLC",
+        agency_tax_id: "12-3456789",
+        gender: "male",
+        birth_date: "1985-06-15",
+        npn_number: "12345678",
+        insurance_license_number: "INS-9876543",
+        tax_id: "123-45-6789",
+        email_address: "john.smith@testinsurance.com",
+        phone_mobile: "(555) 123-4567",
+        phone_business: "(555) 987-6543",
+        phone_home: "(555) 111-2222",
+        fax: "(555) 333-4444",
+        preferred_contact_methods: ["Email", "Phone", "Text"],
+        home_address: {
+          street: "123 Main Street",
+          city: "Louisville",
+          state: "KY",
+          zip: "40202",
+          county: "Jefferson"
+        },
+        mailing_address_same_as_home: false,
+        mailing_address: {
+          street: "PO Box 456",
+          city: "Louisville",
+          state: "KY",
+          zip: "40203",
+          county: "Jefferson"
+        },
+        ups_address_same_as_home: false,
+        ups_address: {
+          street: "789 Business Park Dr",
+          city: "Louisville",
+          state: "KY",
+          zip: "40204",
+          county: "Jefferson"
+        },
+        previous_addresses: [{
+          street: "456 Old Street",
+          city: "Lexington",
+          state: "KY",
+          zip: "40511",
+          county: "Fayette"
+        }],
+        resident_state: "KY",
+        license_expiration_date: "2026-12-31",
+        drivers_license_number: "DL-123456789",
+        drivers_license_state: "KY",
+        legal_questions: {
+          "1": { answer: false },
+          "2": { answer: false },
+          "3": { answer: false },
+          "4": { answer: false },
+          "5": { answer: false },
+          "6": { answer: false },
+          "7": { answer: false },
+          "8": { answer: false },
+          "9": { answer: false },
+          "10": { answer: false },
+          "11": { answer: false },
+          "12": { answer: false },
+          "13": { answer: false },
+          "14": { answer: false },
+          "15": { answer: false },
+          "16": { answer: false },
+          "17": { answer: false },
+          "18": { answer: false },
+          "19": { answer: false },
+        },
+        bank_routing_number: "123456789",
+        bank_account_number: "9876543210",
+        bank_branch_name: "Chase Bank - Main Street",
+        beneficiary_name: "Jane Smith",
+        beneficiary_relationship: "Spouse",
+        beneficiary_birth_date: "1987-03-20",
+        beneficiary_drivers_license_number: "DL-987654321",
+        beneficiary_drivers_license_state: "KY",
+        requesting_commission_advancing: true,
+        aml_training_provider: "LIMRA",
+        aml_completion_date: "2024-09-15",
+        has_ltc_certification: true,
+        state_requires_ce: false,
+        is_finra_registered: true,
+        finra_broker_dealer_name: "Smith Financial Services",
+        finra_crd_number: "1234567",
+        selected_carriers: [
+          { carrier_id: "1", carrier_name: "Humana", non_resident_states: ["TN", "OH"] },
+          { carrier_id: "2", carrier_name: "Aetna Medicare Advantage", non_resident_states: ["IN"] },
+          { carrier_id: "3", carrier_name: "UnitedHealthcare", non_resident_states: [] },
+          { carrier_id: "4", carrier_name: "WellCare", non_resident_states: ["TN"] },
+          { carrier_id: "5", carrier_name: "Devoted Health", non_resident_states: [] },
+        ],
+        is_corporation: false,
+        agreements: {
+          marketing_consent: true,
+          terms_accepted: true,
+        },
+        signature_name: "John Alexander Smith",
+        signature_initials: "JAS",
+        signature_date: new Date().toISOString(),
+        uploaded_documents: {},
+      };
+
+      const { data, error } = await supabase.functions.invoke('generate-contracting-pdf', {
+        body: { 
+          application: testApplication,
+          saveToStorage: false
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.pdf) {
+        // Download the PDF
+        const binaryString = atob(data.pdf);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Test_PDF_${new Date().toISOString().split('T')[0]}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Test PDF generated and downloaded!");
+      } else {
+        throw new Error("No PDF data returned");
+      }
+    } catch (err: any) {
+      console.error("Test PDF error:", err);
+      toast.error("Failed to generate test PDF: " + (err.message || "Unknown error"));
+    } finally {
+      setIsGeneratingTest(false);
+    }
+  };
+
   if (roleLoading || isLoading) {
     return (
       <div className="min-h-screen bg-background p-6">
@@ -813,6 +957,18 @@ export default function PdfFieldMapperPage() {
                 <Save className="h-4 w-4 mr-2" />
               )}
               Save Mappings
+            </Button>
+            <Button 
+              variant="secondary" 
+              onClick={generateTestPdf} 
+              disabled={isGeneratingTest}
+            >
+              {isGeneratingTest ? (
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
+              Generate Test PDF
             </Button>
           </div>
         </div>
