@@ -111,6 +111,17 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             <FormFieldError error={fieldErrors.gender} show={showValidation} />
           </div>
 
+          {/* Birth City */}
+          <div className="md:col-span-2 space-y-2">
+            <Label htmlFor="birth_city">City of Birth</Label>
+            <Input
+              id="birth_city"
+              value={application.birth_city || ''}
+              onChange={(e) => onUpdate('birth_city', e.target.value)}
+              placeholder="Where were you born?"
+              className="h-11 rounded-xl"
+            />
+          </div>
 
           {/* Email */}
           <div className="space-y-2">
