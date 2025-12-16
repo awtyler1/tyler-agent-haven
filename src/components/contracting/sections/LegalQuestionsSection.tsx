@@ -158,18 +158,6 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                   </div>
                 )}
 
-                {/* Explanation field when Yes */}
-                {q.answer === true && (
-                  <div className="mt-4">
-                    <Label className="text-xs mb-2 block">Please provide an explanation</Label>
-                    <Textarea
-                      value={q.explanation || ''}
-                      onChange={(e) => updateQuestion(question.id, { explanation: e.target.value })}
-                      placeholder="Provide dates, details, and context..."
-                      className="min-h-[80px] rounded-xl text-sm"
-                    />
-                  </div>
-                )}
               </div>
             );
           })}
