@@ -3,13 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export function SystemStatusCard() {
   const { status, userStats } = useSystemStatus();
-  const navigate = useNavigate();
   const [resetting, setResetting] = useState(false);
 
   const handleTestContracting = async () => {
@@ -63,7 +61,8 @@ export function SystemStatusCard() {
         .eq('user_id', user.id);
 
       toast.success('Contracting completely reset - redirecting...');
-      navigate('/contracting');
+      // Use hard navigation to ensure React state is cleared
+      window.location.href = '/contracting';
     } catch (error) {
       console.error('Error resetting contracting:', error);
       toast.error('Failed to reset contracting');
