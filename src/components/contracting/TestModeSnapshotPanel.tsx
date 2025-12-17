@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Hash, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, Hash, FileText, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import { ContractingApplication } from '@/types/contracting';
 
 interface SubmissionSnapshot {
@@ -15,6 +18,8 @@ interface TestModeSnapshotPanelProps {
 }
 
 export function TestModeSnapshotPanel({ snapshot }: TestModeSnapshotPanelProps) {
+  const [copied, setCopied] = useState(false);
+
   // Format value for display
   const formatValue = (value: unknown): string => {
     if (value === null || value === undefined) return '(empty)';
@@ -39,6 +44,30 @@ export function TestModeSnapshotPanel({ snapshot }: TestModeSnapshotPanelProps) 
 
   const formattedTimestamp = new Date(snapshot.timestamp).toLocaleString();
 
+  const generateSnapshotText = () => {
+    const lines = [
+      '=== SUBMISSION SNAPSHOT ===',
+      `Timestamp: ${formattedTimestamp}`,
+      `Submission ID: ${snapshot.submissionId}`,
+      `Total Fields: ${fieldEntries.length}`,
+      '',
+      '--- FIELD VALUES ---',
+      ...fieldEntries.map(([field, value]) => `${field}: ${formatValue(value)}`)
+    ];
+    return lines.join('\n');
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(generateSnapshotText());
+      setCopied(true);
+      toast.success('Snapshot copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Failed to copy to clipboard');
+    }
+  };
+
   return (
     <Card className="border-amber-300 bg-amber-50/50">
       <div className="p-4 border-b border-amber-200 bg-amber-100/50">
@@ -50,6 +79,15 @@ export function TestModeSnapshotPanel({ snapshot }: TestModeSnapshotPanelProps) 
               Test Mode
             </Badge>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopy}
+            className="border-amber-400 text-amber-700 hover:bg-amber-100"
+          >
+            {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+            {copied ? 'Copied' : 'Copy'}
+          </Button>
         </div>
         <div className="flex items-center gap-4 mt-2 text-sm text-amber-700">
           <div className="flex items-center gap-1.5">
