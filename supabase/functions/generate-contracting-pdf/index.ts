@@ -1041,6 +1041,8 @@ serve(async (req) => {
     // ==================== PAGE 9: Signature Page ====================
     // Don't set text in signature field - drawn signature image will be placed there instead
     // setTextField('Additionally please sign in the center of the box below', application.signature_name);
+    // Type your full legal name field
+    setTextField('Signature2', application.full_legal_name);
     setTextField('DATE_8', formatDate(application.signature_date));
 
     // ==================== PAGE 10: Carrier Selection ====================
