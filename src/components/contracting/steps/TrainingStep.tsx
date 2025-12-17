@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication } from '@/types/contracting';
 import { GraduationCap, Shield, ArrowRight, BookOpen, Heart, ExternalLink, Briefcase } from 'lucide-react';
@@ -90,40 +90,49 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
                 <span className="font-medium text-sm">AML Training</span>
               </div>
               <p className="text-[10px] text-muted-foreground leading-tight">
-                Required before appointments. Upload now or later.
+                Have you taken an AML course within the past two (2) years? (Anti-Money Laundering)
               </p>
-              <Label className="text-[10px] text-muted-foreground">AML Provider</Label>
-              <Select
-                value={application.aml_training_provider || ''}
-                onValueChange={value => onUpdate('aml_training_provider', value)}
+              <RadioGroup
+                value={application.has_aml_course === true ? 'yes' : application.has_aml_course === false ? 'no' : ''}
+                onValueChange={value => {
+                  onUpdate('has_aml_course', value === 'yes');
+                  if (value === 'no') {
+                    onUpdate('aml_course_name', null);
+                    onUpdate('aml_course_date', null);
+                  }
+                }}
+                className="flex gap-4"
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Select provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="limra">LIMRA</SelectItem>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              {application.aml_training_provider && application.aml_training_provider !== 'none' && (
-                <Input
-                  type="date"
-                  value={application.aml_completion_date || ''}
-                  onChange={e => onUpdate('aml_completion_date', e.target.value)}
-                  className="h-8 text-xs"
-                  placeholder="Completion date"
-                />
-              )}
-              {application.aml_training_provider === 'other' && (
-                <FileDropZone
-                  onFileSelect={(file) => handleFileUpload(file, 'aml_certificate')}
-                  onRemove={() => onRemove('aml_certificate')}
-                  isUploaded={!!application.uploaded_documents?.aml_certificate}
-                  uploadedLabel="✓ Uploaded"
-                  defaultLabel="Upload"
-                  compact
-                />
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="yes" id="aml_yes" className="h-4 w-4" />
+                  <Label htmlFor="aml_yes" className="text-xs cursor-pointer">Yes</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="no" id="aml_no" className="h-4 w-4" />
+                  <Label htmlFor="aml_no" className="text-xs cursor-pointer">No</Label>
+                </div>
+              </RadioGroup>
+              {application.has_aml_course && (
+                <div className="space-y-2 animate-fade-in">
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-muted-foreground">Course Name</Label>
+                    <Input
+                      value={application.aml_course_name || ''}
+                      onChange={e => onUpdate('aml_course_name', e.target.value)}
+                      className="h-8 text-xs"
+                      placeholder="Enter course name"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-muted-foreground">Course Date</Label>
+                    <Input
+                      type="date"
+                      value={application.aml_course_date || ''}
+                      onChange={e => onUpdate('aml_course_date', e.target.value)}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
               )}
             </div>
 
