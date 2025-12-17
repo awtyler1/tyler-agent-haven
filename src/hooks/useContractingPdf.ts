@@ -90,12 +90,12 @@ export function useContractingPdf() {
       const cacheBuster = `?v=${Date.now()}`;
       let templateBase64: string | undefined;
       try {
-        const templateUrl = `/templates/${templateFileName}${cacheBuster}`;
-        console.log('[pdf] Loading template from frontend:', templateUrl);
-        const templateResponse = await fetch(templateUrl);
+        const pdfPath = `/templates/${templateFileName}${cacheBuster}`;
+        console.log('[pdf-template] Loading PDF from path:', pdfPath);
+        const templateResponse = await fetch(pdfPath);
         if (templateResponse.ok) {
           const templateBlob = await templateResponse.blob();
-          console.log('[pdf] Template blob size:', templateBlob.size);
+          console.log('[pdf-template] PDF loaded, byte length:', templateBlob.size);
           templateBase64 = await new Promise<string>((resolve) => {
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -104,12 +104,12 @@ export function useContractingPdf() {
             };
             reader.readAsDataURL(templateBlob);
           });
-          console.log('[pdf] Template loaded successfully, base64 size:', templateBase64.length);
+          console.log('[pdf-template] Base64 prepared, length:', templateBase64.length);
         } else {
-          console.log('[pdf] Template not found, status:', templateResponse.status, 'at /templates/', templateFileName);
+          console.log('[pdf-template] Fetch failed, status:', templateResponse.status, 'path:', pdfPath);
         }
       } catch (e) {
-        console.log('[pdf] Could not load template, will use fallback:', e);
+        console.log('[pdf-template] Could not load template, will use fallback:', e);
       }
 
       // Call the edge function

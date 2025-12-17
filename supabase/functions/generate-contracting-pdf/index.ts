@@ -368,17 +368,20 @@ serve(async (req) => {
     
     // First, try to use the base64 template if provided
     if (templateBase64) {
-      console.log('Using base64 template provided by client');
+      console.log('[pdf-template] Source: client base64');
       try {
+        // IMPORTANT: when provided by client, we do NOT have a file path—only bytes.
+        console.log('[pdf-template] Loading PDF from: client-provided base64');
+
         const binaryString = atob(templateBase64);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
         }
         pdfBytes = bytes.buffer;
-        console.log('Template decoded from base64, size:', pdfBytes.byteLength);
+        console.log('[pdf-template] PDF loaded, byte length:', bytes.byteLength);
       } catch (e) {
-        console.log('Failed to decode base64 template:', e);
+        console.log('[pdf-template] Failed to decode base64 template:', e);
       }
     }
     
@@ -387,6 +390,9 @@ serve(async (req) => {
       // CRITICAL: Use the SIGNATURES_FIXED template which has proper /Sig type signature fields
       const templateFileName = 'TIG_Contracting_Packet_SIGNATURES_FIXED.pdf';
       const pdfTemplateUrl = templateUrl || `https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/${templateFileName}`;
+
+      console.log('[pdf-template] Source: URL fetch fallback');
+      console.log('[pdf-template] Loading PDF from URL:', pdfTemplateUrl);
       console.log('[pdf] Loading template:', templateFileName);
       console.log('[pdf] Template URL:', pdfTemplateUrl);
       addDebugLog('info', 'template', `Loading PDF template: ${templateFileName}`, { url: pdfTemplateUrl });
@@ -399,12 +405,16 @@ serve(async (req) => {
       
       for (const url of urls) {
         try {
+          console.log('[pdf-template] Attempting fetch:', url);
           const response = await fetch(url);
           if (response.ok) {
             pdfBytes = await response.arrayBuffer();
+            console.log('[pdf-template] PDF loaded, byte length:', pdfBytes.byteLength);
             console.log('[pdf] Successfully fetched template from:', url);
             addDebugLog('info', 'template', 'Template loaded successfully', { url, size: pdfBytes.byteLength });
             break;
+          } else {
+            console.log('[pdf-template] Fetch failed, status:', response.status, 'url:', url);
           }
         } catch (e) {
           console.log('[pdf] Failed to fetch from:', url, e);
