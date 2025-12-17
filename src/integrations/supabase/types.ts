@@ -59,6 +59,8 @@ export type Database = {
           agency_tax_id: string | null
           agreements: Json | null
           aml_completion_date: string | null
+          aml_course_date: string | null
+          aml_course_name: string | null
           aml_training_provider: string | null
           bank_account_number: string | null
           bank_branch_name: string | null
@@ -86,6 +88,7 @@ export type Database = {
           finra_crd_number: string | null
           full_legal_name: string | null
           gender: string | null
+          has_aml_course: boolean | null
           has_ltc_certification: boolean | null
           home_address: Json | null
           id: string
@@ -126,6 +129,8 @@ export type Database = {
           agency_tax_id?: string | null
           agreements?: Json | null
           aml_completion_date?: string | null
+          aml_course_date?: string | null
+          aml_course_name?: string | null
           aml_training_provider?: string | null
           bank_account_number?: string | null
           bank_branch_name?: string | null
@@ -153,6 +158,7 @@ export type Database = {
           finra_crd_number?: string | null
           full_legal_name?: string | null
           gender?: string | null
+          has_aml_course?: boolean | null
           has_ltc_certification?: boolean | null
           home_address?: Json | null
           id?: string
@@ -193,6 +199,8 @@ export type Database = {
           agency_tax_id?: string | null
           agreements?: Json | null
           aml_completion_date?: string | null
+          aml_course_date?: string | null
+          aml_course_name?: string | null
           aml_training_provider?: string | null
           bank_account_number?: string | null
           bank_branch_name?: string | null
@@ -220,6 +228,7 @@ export type Database = {
           finra_crd_number?: string | null
           full_legal_name?: string | null
           gender?: string | null
+          has_aml_course?: boolean | null
           has_ltc_certification?: boolean | null
           home_address?: Json | null
           id?: string
