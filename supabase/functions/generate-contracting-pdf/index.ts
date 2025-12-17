@@ -428,6 +428,40 @@ serve(async (req) => {
     console.log('PDF template loaded, filling form fields...');
     console.log('Total pages:', pages.length);
     
+    // CRITICAL: Verify signature fields are /Sig type, not /Tx (text)
+    try {
+      const bgSigFieldName = 'all carrierspecific questions_es_:signature';
+      const finalSigFieldName = 'Additionally please sign in the center of the box below_es_:signature';
+      
+      const bgSigField = form.getField(bgSigFieldName);
+      const finalSigField = form.getField(finalSigFieldName);
+      
+      const bgSigType = bgSigField?.constructor?.name || 'NOT_FOUND';
+      const finalSigType = finalSigField?.constructor?.name || 'NOT_FOUND';
+      
+      console.log('[pdf] === SIGNATURE FIELD TYPE VERIFICATION ===');
+      console.log('[pdf] Background signature field type:', bgSigType);
+      console.log('[pdf] Final signature field type:', finalSigType);
+      
+      addDebugLog('info', 'signature-type-check', 'Signature field types', {
+        backgroundSignature: { fieldName: bgSigFieldName, type: bgSigType },
+        finalSignature: { fieldName: finalSigFieldName, type: finalSigType }
+      });
+      
+      if (bgSigType === 'PDFTextField') {
+        console.log('[pdf] WARNING: Background signature is TEXT field - wrong template loaded!');
+        addDebugLog('error', 'signature-type-check', 'WRONG TEMPLATE: Background signature is PDFTextField, should be PDFSignature');
+      }
+      if (finalSigType === 'PDFTextField') {
+        console.log('[pdf] WARNING: Final signature is TEXT field - wrong template loaded!');
+        addDebugLog('error', 'signature-type-check', 'WRONG TEMPLATE: Final signature is PDFTextField, should be PDFSignature');
+      }
+      console.log('[pdf] === END SIGNATURE FIELD TYPE VERIFICATION ===');
+    } catch (typeCheckErr) {
+      console.log('[pdf] Error checking signature field types:', typeCheckErr);
+      addDebugLog('error', 'signature-type-check', 'Failed to check signature types', { error: String(typeCheckErr) });
+    }
+    
     // Mapping report to track all field mappings
     interface MappingEntry {
       pdfFieldKey: string;
