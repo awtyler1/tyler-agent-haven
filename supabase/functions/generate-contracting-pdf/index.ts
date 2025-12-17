@@ -1747,19 +1747,112 @@ serve(async (req) => {
     
     setTextField('DATE_9', formatDate(application.signature_date));
 
-    // Precompute widget placement(s) BEFORE flatten, since flatten can remove form field widgets
-    // Background signature field (page 4) - now a true signature field with _es_:signature suffix
-    const backgroundSignaturePlacement = getFieldWidgetPlacement('all carrierspecific questions_es_:signature');
-    console.log('Background signature widget placement:', backgroundSignaturePlacement);
-    
-    // Final signature field (page 10) - now a true signature field with _es_:signature suffix
-    const finalSignaturePlacement = getFieldWidgetPlacement(
-      'Additionally please sign in the center of the box below_es_:signature'
-    );
-    console.log('Final signature widget placement:', finalSignaturePlacement);
+    // ==================== SET SIGNATURE IMAGES IN FIELDS (BEFORE FLATTEN) ====================
+    // Helper to decode base64 data URL to Uint8Array
+    const decodeBase64Image = (dataUrl: string): Uint8Array => {
+      const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return bytes;
+    };
+
+    // Get raw data URLs before they were embedded
+    const uploadedDocsRaw = application.uploaded_documents || {};
+    const bgSigDataUrl = uploadedDocsRaw.background_signature_image || uploadedDocsRaw.background_signature;
+    const finalSigDataUrl = uploadedDocsRaw.signature_image || uploadedDocsRaw.final_signature || uploadedDocsRaw.final_signature_image;
+
+    // Background signature field (page 4)
+    try {
+      if (bgSigDataUrl) {
+        addDebugLog('info', 'signature', 'Setting background signature in field', {
+          fieldName: 'all carrierspecific questions_es_:signature',
+          dataLength: bgSigDataUrl.length
+        });
+        
+        const bgSigField = form.getField('all carrierspecific questions_es_:signature');
+        const bgSigBytes = decodeBase64Image(bgSigDataUrl);
+        const embeddedBgSig = await pdfDoc.embedPng(bgSigBytes);
+        (bgSigField as any).setImage(embeddedBgSig);
+        
+        addDebugLog('info', 'signature', 'Background signature placed in field successfully');
+        
+        mappingReport.push({
+          pdfFieldKey: 'all carrierspecific questions_es_:signature',
+          valueApplied: '[IMAGE - background_signature]',
+          sourceFormField: 'uploaded_documents.background_signature',
+          isBlank: false,
+          status: 'success',
+        });
+      } else {
+        addDebugLog('warn', 'signature', 'Background signature image is missing');
+        mappingReport.push({
+          pdfFieldKey: 'all carrierspecific questions_es_:signature',
+          valueApplied: '',
+          sourceFormField: 'uploaded_documents.background_signature',
+          isBlank: true,
+          status: 'skipped',
+        });
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      addDebugLog('error', 'signature', 'Error placing background signature', { error: errMsg });
+      mappingReport.push({
+        pdfFieldKey: 'all carrierspecific questions_es_:signature',
+        valueApplied: 'ERROR',
+        sourceFormField: 'uploaded_documents.background_signature',
+        isBlank: false,
+        status: 'failed',
+      });
+    }
+
+    // Final signature field (page 10)
+    try {
+      if (finalSigDataUrl) {
+        addDebugLog('info', 'signature', 'Setting final signature in field', {
+          fieldName: 'Additionally please sign in the center of the box below_es_:signature',
+          dataLength: finalSigDataUrl.length
+        });
+        
+        const finalSigField = form.getField('Additionally please sign in the center of the box below_es_:signature');
+        const finalSigBytes = decodeBase64Image(finalSigDataUrl);
+        const embeddedFinalSig = await pdfDoc.embedPng(finalSigBytes);
+        (finalSigField as any).setImage(embeddedFinalSig);
+        
+        addDebugLog('info', 'signature', 'Final signature placed in field successfully');
+        
+        mappingReport.push({
+          pdfFieldKey: 'Additionally please sign in the center of the box below_es_:signature',
+          valueApplied: '[IMAGE - final_signature]',
+          sourceFormField: 'uploaded_documents.final_signature',
+          isBlank: false,
+          status: 'success',
+        });
+      } else {
+        addDebugLog('warn', 'signature', 'Final signature image is missing');
+        mappingReport.push({
+          pdfFieldKey: 'Additionally please sign in the center of the box below_es_:signature',
+          valueApplied: '',
+          sourceFormField: 'uploaded_documents.final_signature',
+          isBlank: true,
+          status: 'skipped',
+        });
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      addDebugLog('error', 'signature', 'Error placing final signature', { error: errMsg });
+      mappingReport.push({
+        pdfFieldKey: 'Additionally please sign in the center of the box below_es_:signature',
+        valueApplied: 'ERROR',
+        sourceFormField: 'uploaded_documents.final_signature',
+        isBlank: false,
+        status: 'failed',
+      });
+    }
 
     // Flatten the form to prevent further editing
-    // IMPORTANT: We draw text/images AFTER flatten so the field appearances can't cover them.
     form.flatten();
     
     // ==================== SIGNATURE2 OVERLAY TEXT (drawn after flatten) ====================
@@ -1848,98 +1941,8 @@ serve(async (req) => {
       }
     }
 
-    // Draw background signature using widget placement from "all carrierspecific questions" field
-    try {
-      if (!backgroundSignatureImage) {
-        console.warn('Background signature image is missing');
-        mappingReport.push({
-          pdfFieldKey: 'all carrierspecific questions_es_:signature',
-          valueApplied: '',
-          sourceFormField: 'uploaded_documents.background_signature_image',
-          isBlank: true,
-          status: 'skipped',
-        });
-      } else {
-        if (backgroundSignaturePlacement) {
-          console.log('Drawing background signature using widget placement:', backgroundSignaturePlacement);
-          drawSignatureOnPage(
-            backgroundSignatureImage,
-            backgroundSignaturePlacement.pageIndex,
-            backgroundSignaturePlacement.x + 8,
-            backgroundSignaturePlacement.y + 6,
-            Math.max(10, backgroundSignaturePlacement.width - 16),
-            Math.max(10, backgroundSignaturePlacement.height - 12)
-          );
-        } else {
-          // Fallback: Draw at fixed position on page 3 (index 2)
-          console.log('Using fixed coordinates for background signature on page 3');
-          drawSignatureOnPage(backgroundSignatureImage, 2, 80, 100, 250, 60);
-        }
-        
-        mappingReport.push({
-          pdfFieldKey: 'all carrierspecific questions_es_:signature',
-          valueApplied: '[IMAGE - background_signature_image]',
-          sourceFormField: 'uploaded_documents.background_signature_image',
-          isBlank: false,
-          status: 'success',
-        });
-      }
-    } catch (err) {
-      console.error('Failed to place background signature:', err);
-      mappingReport.push({
-        pdfFieldKey: 'all carrierspecific questions_es_:signature',
-        valueApplied: '',
-        sourceFormField: 'uploaded_documents.background_signature_image',
-        isBlank: true,
-        status: 'failed',
-      });
-    }
-
-    // ==================== HANDWRITTEN SIGNATURE IMAGE (for "Additionally please sign..." box) ====================
-    // This draws the HANDWRITTEN signature image (uploaded_documents.signature_image) to the 
-    // "Additionally please sign in the center of the box below" field ONLY.
-    // 
-    // IMPORTANT: This is SEPARATE from the typed signature fields:
-    //   - Signature2 → typed name (text overlay) - handled above
-    //   - Signature2_es_:signer:signature → typed name (text field) - handled above
-    //
-    // HARD CONSTRAINT: NEVER put typed name text in this handwritten box
-    // Vertical offset to fine-tune signature position (positive = up in PDF coordinates)
-    const HANDWRITTEN_SIGNATURE_VERTICAL_OFFSET = 8; // Shift signature up by 8 PDF points
-    
-    if (finalSignatureImage) {
-      console.log('=== DRAWING HANDWRITTEN SIGNATURE IMAGE ===');
-      console.log('  Source: uploaded_documents.signature_image');
-      console.log('  Target: "Additionally please sign in the center of the box below" field');
-      console.log('  Vertical offset: +' + HANDWRITTEN_SIGNATURE_VERTICAL_OFFSET + ' points (upward)');
-      
-      // Draw using finalSignaturePlacement if available (for "Additionally please sign..." field)
-      if (finalSignaturePlacement) {
-        const adjustedY = finalSignaturePlacement.y + 6 + HANDWRITTEN_SIGNATURE_VERTICAL_OFFSET;
-        console.log('Drawing handwritten signature using widget placement:', finalSignaturePlacement);
-        console.log('  Adjusted Y position:', adjustedY, '(original:', finalSignaturePlacement.y + 6, ')');
-        drawSignatureOnPage(
-          finalSignatureImage,
-          finalSignaturePlacement.pageIndex,
-          finalSignaturePlacement.x + 8,
-          adjustedY,
-          Math.max(10, finalSignaturePlacement.width - 16),
-          Math.max(10, finalSignaturePlacement.height - 12)
-        );
-      } else {
-        // Fallback: Draw signature at fixed position on page 10 (index 9) - the handwritten signature box
-        const fallbackY = 160 + HANDWRITTEN_SIGNATURE_VERTICAL_OFFSET;
-        console.log('Using fixed coordinates for handwritten signature on page 10');
-        console.log('  Adjusted Y position:', fallbackY, '(original: 160)');
-        drawSignatureOnPage(finalSignatureImage, 9, 180, fallbackY, 250, 60);
-      }
-      
-      console.log('=== END HANDWRITTEN SIGNATURE IMAGE ===');
-    } else {
-      console.log('No handwritten signature image found (uploaded_documents.signature_image is empty)');
-    }
-
-    
+    // NOTE: Background and final signatures are now set via setImage BEFORE flatten
+    // (see code above "SET SIGNATURE IMAGES IN FIELDS" section)
     // Save the PDF
     const filledPdfBytes = await pdfDoc.save();
 
