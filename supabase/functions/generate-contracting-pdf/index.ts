@@ -691,6 +691,43 @@ serve(async (req) => {
     setTextField('NPN', application.npn_number);
     setTextField('Birth Date', formatDate(application.birth_date));
     
+    // === BIRTH SECTION TRIGGER FIELD SEARCH ===
+    // Look for any trigger fields that might control the birth section visibility
+    console.log('=== SEARCHING FOR BIRTH TRIGGER FIELDS ===');
+    const birthTriggerCandidates: string[] = [];
+    for (const field of form.getFields()) {
+      const fieldName = field.getName();
+      const lowerName = fieldName.toLowerCase();
+      // Look for fields near birth section or numbered Yes/No fields
+      if (lowerName.includes('birth') || lowerName.includes('place') || 
+          lowerName.includes('born') || fieldName.includes('Yes_4') ||
+          fieldName.includes('Yes_5') || fieldName.includes('Yes_6') ||
+          fieldName.match(/^Yes_\d+$/) || fieldName.match(/^No_\d+$/)) {
+        birthTriggerCandidates.push(fieldName);
+        console.log(`Birth trigger candidate: "${fieldName}" (type: ${field.constructor.name})`);
+      }
+    }
+    console.log('Birth trigger candidates found:', birthTriggerCandidates);
+    
+    // Try to activate birth section by setting common trigger patterns
+    const birthTriggers = ['Yes_4', 'Yes_5', 'Yes_6', 'Birth_Yes', 'PlaceOfBirth', 'Place of Birth'];
+    for (const trigger of birthTriggers) {
+      try {
+        // Try as checkbox first
+        const cb = form.getCheckBox(trigger);
+        cb.check();
+        console.log(`Activated birth trigger checkbox: ${trigger}`);
+      } catch {
+        // Try as radio value
+        try {
+          setRadioValue(trigger, trigger, 'birth_trigger');
+        } catch {
+          // Not found, continue
+        }
+      }
+    }
+    console.log('=== END BIRTH TRIGGER SEARCH ===');
+    
     // Birth City - try multiple field name variations for resilience
     if (application.birth_city) {
       console.log('Setting birth city:', application.birth_city);
