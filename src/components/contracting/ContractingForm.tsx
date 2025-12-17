@@ -29,6 +29,7 @@ import { SectionNav } from './SectionNav';
 import { SectionAcknowledgment } from './SectionAcknowledgment';
 import { ValidationBanner } from './ValidationBanner';
 import { TestModeSnapshotPanel } from './TestModeSnapshotPanel';
+import { TestProfileHarness } from './TestProfileHarness';
 
 interface SubmissionSnapshot {
   timestamp: string;
@@ -408,6 +409,46 @@ export function ContractingForm() {
     }
   }, [application, carriers, updateField]);
 
+  // Fill form with a test profile
+  const fillTestProfile = useCallback(async (profileData: Partial<ContractingApplication>) => {
+    if (!application) return;
+    
+    setIsFillingTestData(true);
+    try {
+      const now = new Date().toISOString();
+      
+      // Apply each field from the profile
+      for (const [key, value] of Object.entries(profileData)) {
+        updateField(key as keyof ContractingApplication, value as any);
+      }
+
+      // Update local section statuses based on acknowledgments
+      if (profileData.section_acknowledgments) {
+        const acks = profileData.section_acknowledgments as Record<string, { acknowledged: boolean; acknowledgedAt: string | null }>;
+        setSectionStatuses(prev => {
+          const updated = { ...prev };
+          Object.entries(acks).forEach(([sectionId, ack]) => {
+            if (updated[sectionId]) {
+              updated[sectionId] = {
+                ...updated[sectionId],
+                acknowledged: ack.acknowledged,
+                acknowledgedAt: ack.acknowledgedAt,
+              };
+            }
+          });
+          return updated;
+        });
+      }
+
+      toast.success('Test profile data filled');
+    } catch (error) {
+      console.error('Error filling test profile:', error);
+      toast.error('Failed to fill test profile');
+    } finally {
+      setIsFillingTestData(false);
+    }
+  }, [application, updateField]);
+
   const handleSubmit = async () => {
     // Ensure signature date is set before validation
     if (!application?.signature_date) {
@@ -540,6 +581,13 @@ export function ContractingForm() {
                 </>
               ) : null}
             </div>
+            
+            {/* Test Profile Harness */}
+            <TestProfileHarness
+              carriers={carriers}
+              onFillProfile={fillTestProfile}
+              loading={isFillingTestData}
+            />
             
             {/* Dev: Fill Test Data button */}
             <Button
