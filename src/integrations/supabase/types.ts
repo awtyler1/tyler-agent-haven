@@ -70,6 +70,7 @@ export type Database = {
           beneficiary_relationship: string | null
           birth_city: string | null
           birth_date: string | null
+          birth_state: string | null
           completed_steps: number[]
           created_at: string
           current_step: number
@@ -136,6 +137,7 @@ export type Database = {
           beneficiary_relationship?: string | null
           birth_city?: string | null
           birth_date?: string | null
+          birth_state?: string | null
           completed_steps?: number[]
           created_at?: string
           current_step?: number
@@ -202,6 +204,7 @@ export type Database = {
           beneficiary_relationship?: string | null
           birth_city?: string | null
           birth_date?: string | null
+          birth_state?: string | null
           completed_steps?: number[]
           created_at?: string
           current_step?: number
