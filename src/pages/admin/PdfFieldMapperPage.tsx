@@ -362,6 +362,7 @@ const EXCLUDED_PDF_FIELDS = [
 // Default field mappings for known PDF fields
 const DEFAULT_FIELD_MAPPINGS: Record<string, string> = {
   "all carrierspecific questions": "background_signature",
+  "Signature2_es_:signer:signature": "signature",
 };
 
 export default function PdfFieldMapperPage() {
