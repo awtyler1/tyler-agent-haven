@@ -716,11 +716,11 @@ serve(async (req) => {
       // Fallback: treat it as a text field.
       try {
         const tf = form.getTextField(fieldName);
-        tf.setText(checked ? onValue : '');
-        console.log(`Set text field ${fieldName} => ${checked ? onValue : '(empty)'}`);
+        tf.setText(checked ? 'X' : '');  // Use standard checkbox marker instead of onValue
+        console.log(`Set text field ${fieldName} => ${checked ? 'X' : '(empty)'}`);
         entry.status = 'success';
-      } catch {
-        console.log(`Commission checkbox field not found: ${fieldName}`);
+      } catch (err) {
+        console.warn(`Could not set checkbox field ${fieldName}: ${err}`);
         entry.status = 'failed';
       }
 
@@ -1272,9 +1272,9 @@ serve(async (req) => {
     console.log(`Raw value: ${rawCommissionValue} (type: ${typeof rawCommissionValue})`);
     console.log(`Normalized to: ${commissionAdvancing}`);
 
-    // Always write both checkbox fields.
-    setDeterministicCheckbox('Yes_42', 'Yes_42', commissionAdvancing === true, 'requesting_commission_advancing');
-    setDeterministicCheckbox('No_42', 'No_42', commissionAdvancing !== true, 'requesting_commission_advancing');
+    // Always write both checkbox fields - onValue should be 'Yes' (the checkbox ON state)
+    setDeterministicCheckbox('Yes_42', 'Yes', commissionAdvancing === true, 'requesting_commission_advancing');
+    setDeterministicCheckbox('No_42', 'Yes', commissionAdvancing !== true, 'requesting_commission_advancing');
     
     // Beneficiary Information
     setTextField('List a Beneficiary', application.beneficiary_name);
@@ -1299,11 +1299,11 @@ serve(async (req) => {
     console.log(`=== AML PROCESSING ===`);
     console.log(`has_aml_course: ${hasAmlCourse}, course_name: ${amlCourseName}, course_date: ${amlCourseDate}`);
     
-    // Single radio group - use literal value Yes_43 or No_43
+    // Single radio group - use 'Yes' as the ON value for checkbox fields
     if (hasAmlCourse) {
-      setRadioValue('Yes_43', 'Yes_43', 'has_aml_course');
+      setRadioValue('Yes_43', 'Yes', 'has_aml_course');
     } else {
-      setRadioValue('No_43', 'No_43', 'has_aml_course');
+      setRadioValue('No_43', 'Yes', 'has_aml_course');
     }
     
     // Set Course Name and Course Date
@@ -1322,16 +1322,16 @@ serve(async (req) => {
       setCheckbox('Other', provider !== 'LIMRA' && provider !== 'NONE');
     }
     
-    // FINRA - single radio group, use literal No_47 value for No
+    // FINRA - single radio group, use 'Yes' as the ON value
     const isFinraRegistered = application.is_finra_registered || false;
     console.log('FINRA registered:', isFinraRegistered);
     
     if (!isFinraRegistered) {
-      // Set No_47 literal value
-      setRadioValue('No_47', 'No_47', 'is_finra_registered');
+      // Set No_47 with 'Yes' as ON value
+      setRadioValue('No_47', 'Yes', 'is_finra_registered');
     } else {
       // If Yes, set Yes_47 and fill broker details
-      setRadioValue('Yes_47', 'Yes_47', 'is_finra_registered');
+      setRadioValue('Yes_47', 'Yes', 'is_finra_registered');
       setTextField('BrokerDealer Name', application.finra_broker_dealer_name);
       setTextField('CRD', application.finra_crd_number);
     }
@@ -1775,22 +1775,50 @@ serve(async (req) => {
     }
 
     // Draw background signature using widget placement from "all carrierspecific questions" field
-    if (backgroundSignatureImage) {
-      if (backgroundSignaturePlacement) {
-        console.log('Drawing background signature using widget placement:', backgroundSignaturePlacement);
-        drawSignatureOnPage(
-          backgroundSignatureImage,
-          backgroundSignaturePlacement.pageIndex,
-          backgroundSignaturePlacement.x + 8,
-          backgroundSignaturePlacement.y + 6,
-          Math.max(10, backgroundSignaturePlacement.width - 16),
-          Math.max(10, backgroundSignaturePlacement.height - 12)
-        );
+    try {
+      if (!backgroundSignatureImage) {
+        console.warn('Background signature image is missing');
+        mappingReport.push({
+          pdfFieldKey: 'all carrierspecific questions_es_:signature',
+          valueApplied: '',
+          sourceFormField: 'uploaded_documents.background_signature_image',
+          isBlank: true,
+          status: 'skipped',
+        });
       } else {
-        // Fallback: Draw at fixed position on page 3 (index 2)
-        console.log('Using fixed coordinates for background signature on page 3');
-        drawSignatureOnPage(backgroundSignatureImage, 2, 80, 100, 250, 60);
+        if (backgroundSignaturePlacement) {
+          console.log('Drawing background signature using widget placement:', backgroundSignaturePlacement);
+          drawSignatureOnPage(
+            backgroundSignatureImage,
+            backgroundSignaturePlacement.pageIndex,
+            backgroundSignaturePlacement.x + 8,
+            backgroundSignaturePlacement.y + 6,
+            Math.max(10, backgroundSignaturePlacement.width - 16),
+            Math.max(10, backgroundSignaturePlacement.height - 12)
+          );
+        } else {
+          // Fallback: Draw at fixed position on page 3 (index 2)
+          console.log('Using fixed coordinates for background signature on page 3');
+          drawSignatureOnPage(backgroundSignatureImage, 2, 80, 100, 250, 60);
+        }
+        
+        mappingReport.push({
+          pdfFieldKey: 'all carrierspecific questions_es_:signature',
+          valueApplied: '[IMAGE - background_signature_image]',
+          sourceFormField: 'uploaded_documents.background_signature_image',
+          isBlank: false,
+          status: 'success',
+        });
       }
+    } catch (err) {
+      console.error('Failed to place background signature:', err);
+      mappingReport.push({
+        pdfFieldKey: 'all carrierspecific questions_es_:signature',
+        valueApplied: '',
+        sourceFormField: 'uploaded_documents.background_signature_image',
+        isBlank: true,
+        status: 'failed',
+      });
     }
 
     // ==================== HANDWRITTEN SIGNATURE IMAGE (for "Additionally please sign..." box) ====================
