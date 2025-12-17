@@ -384,13 +384,17 @@ serve(async (req) => {
     
     // Fallback: try to fetch from URLs
     if (!pdfBytes) {
-      const pdfTemplateUrl = templateUrl || 'https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/TIG_Contracting_Packet_Template.pdf';
-      console.log('Fetching PDF template from:', pdfTemplateUrl);
+      // CRITICAL: Use the SIGNATURES_FIXED template which has proper /Sig type signature fields
+      const templateFileName = 'TIG_Contracting_Packet_SIGNATURES_FIXED.pdf';
+      const pdfTemplateUrl = templateUrl || `https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/${templateFileName}`;
+      console.log('[pdf] Loading template:', templateFileName);
+      console.log('[pdf] Template URL:', pdfTemplateUrl);
+      addDebugLog('info', 'template', `Loading PDF template: ${templateFileName}`, { url: pdfTemplateUrl });
       
       const urls = [
         pdfTemplateUrl,
-        'https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/TIG_Contracting_Packet_Template.pdf',
-        'https://tyler-insurance-hub.lovable.app/templates/TIG_Contracting_Packet_Template.pdf',
+        `https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/${templateFileName}`,
+        `https://tyler-insurance-hub.lovable.app/templates/${templateFileName}`,
       ];
       
       for (const url of urls) {
@@ -398,18 +402,21 @@ serve(async (req) => {
           const response = await fetch(url);
           if (response.ok) {
             pdfBytes = await response.arrayBuffer();
-            console.log('Successfully fetched template from:', url);
+            console.log('[pdf] Successfully fetched template from:', url);
+            addDebugLog('info', 'template', 'Template loaded successfully', { url, size: pdfBytes.byteLength });
             break;
           }
         } catch (e) {
-          console.log('Failed to fetch from:', url, e);
+          console.log('[pdf] Failed to fetch from:', url, e);
+          addDebugLog('warn', 'template', `Failed to fetch from: ${url}`, { error: String(e) });
         }
       }
     }
     
     // If we couldn't get the template, create a simple PDF instead
     if (!pdfBytes) {
-      console.log('Could not get template, creating PDF from scratch');
+      console.log('[pdf] Could not get template, creating PDF from scratch');
+      addDebugLog('error', 'template', 'Could not load any template, falling back to scratch PDF');
       return await createPdfFromScratch(application, saveToStorage, userId);
     }
 
