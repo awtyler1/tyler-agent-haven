@@ -641,7 +641,6 @@ serve(async (req) => {
     setTextField('SSN', application.tax_id);
     setTextField('Agency Name', application.agency_name);
     setTextField('Tax ID', application.agency_tax_id || '');
-    setTextField('TaxId', application.agency_tax_id || ''); // Alternative field name without space
     // Personal Name or Principal - use dedicated field if provided, otherwise fall back to full_legal_name
     const personalNamePrincipal = uploadedDocs.personal_name_principal || application.full_legal_name;
     setTextField('Personal Name or Principal', personalNamePrincipal);
@@ -1033,9 +1032,6 @@ serve(async (req) => {
     // Date on page 3/4 (background signature section after legal questions)
     setTextField('DATE_3', formatDate(application.signature_date));
     setTextField('DATE_4', formatDate(application.signature_date));
-    setTextField('Date_2', formatDate(application.signature_date));
-    setTextField('Date_3', formatDate(application.signature_date));
-    setTextField('Date_4', formatDate(application.signature_date));
     setTextField('undefined_15', formatDate(application.signature_date));
     
     // Log all fields containing "date" to help find the right one
@@ -1044,18 +1040,37 @@ serve(async (req) => {
     dateFields.forEach((f: any) => console.log(`Date field: ${f.getName()} (type: ${f.constructor?.name})`));
     console.log('=== END DATE FIELDS ===');
     
-    // Signature and date on page 3/4 (after legal questions)
-    setTextField('Signature', application.signature_name);
-    setTextField('Signature_2', application.signature_name);
-    setTextField('Agent Signature', application.signature_name);
-    setTextField('Applicant Signature', application.signature_name);
+    // Signature fields - use actual PDF signature field names
+    // Draw signature images to these fields after flatten (handled below)
     setTextField('Date', formatDate(application.signature_date));
 
     // ==================== PAGE 4: Banking Information ====================
     setTextField('Bank Routing', application.bank_routing_number);
     setTextField('Account', application.bank_account_number);
     setTextField('Branch Name or Location', application.bank_branch_name);
-    setCheckbox('Requesting Commission Advancing', application.requesting_commission_advancing);
+    
+    // Requesting Commission Advancing - PDF uses Yes_42 as the ON value
+    if (application.requesting_commission_advancing) {
+      // Try as radio button option first
+      try {
+        const rgFields = form.getFields();
+        for (const f of rgFields) {
+          try {
+            const rg = form.getRadioGroup(f.getName());
+            const opts = rg.getOptions();
+            if (opts.includes('Yes_42')) {
+              rg.select('Yes_42');
+              console.log('Selected Yes_42 on radio group:', f.getName());
+              break;
+            }
+          } catch { /* not a radio group */ }
+        }
+      } catch (e) {
+        console.log('Could not find radio group for commission advancing');
+      }
+      // Also try checkbox approach
+      setCheckbox('Yes_42', true, 'requesting_commission_advancing');
+    }
     
     // Beneficiary Information
     setTextField('List a Beneficiary', application.beneficiary_name);
@@ -1108,17 +1123,49 @@ serve(async (req) => {
       setCheckbox('Other', provider !== 'LIMRA' && provider !== 'NONE');
     }
     
-    // FINRA - set both Yes and No checkboxes
+    // FINRA - single radio group with No_47 as the No option value
     const isFinraRegistered = application.is_finra_registered || false;
     console.log('FINRA registered:', isFinraRegistered);
-    setCheckbox('Are you a registered representative with FINRA', isFinraRegistered);
-    setCheckbox('Are you a registered representative with FINRA Yes', isFinraRegistered);
-    setCheckbox('Are you a registered representative with FINRA No', !isFinraRegistered);
-    setCheckbox('FINRA Yes', isFinraRegistered);
-    setCheckbox('FINRA No', !isFinraRegistered);
-    setCheckbox('FINRA_Yes', isFinraRegistered);
-    setCheckbox('FINRA_No', !isFinraRegistered);
-    if (isFinraRegistered) {
+    
+    if (!isFinraRegistered) {
+      // Set No_47 for the FINRA radio group
+      try {
+        const rgFields = form.getFields();
+        for (const f of rgFields) {
+          try {
+            const rg = form.getRadioGroup(f.getName());
+            const opts = rg.getOptions();
+            if (opts.includes('No_47')) {
+              rg.select('No_47');
+              console.log('Selected No_47 on FINRA radio group:', f.getName());
+              break;
+            }
+          } catch { /* not a radio group */ }
+        }
+      } catch (e) {
+        console.log('Could not find FINRA radio group');
+      }
+      // Also try checkbox
+      setCheckbox('No_47', true, 'is_finra_registered');
+    } else {
+      // If Yes, try to find Yes option
+      try {
+        const rgFields = form.getFields();
+        for (const f of rgFields) {
+          try {
+            const rg = form.getRadioGroup(f.getName());
+            const opts = rg.getOptions();
+            if (opts.includes('Yes_47')) {
+              rg.select('Yes_47');
+              console.log('Selected Yes_47 on FINRA radio group:', f.getName());
+              break;
+            }
+          } catch { /* not a radio group */ }
+        }
+      } catch (e) {
+        console.log('Could not find FINRA Yes radio group');
+      }
+      setCheckbox('Yes_47', true, 'is_finra_registered');
       setTextField('BrokerDealer Name', application.finra_broker_dealer_name);
       setTextField('CRD', application.finra_crd_number);
     }
@@ -1130,25 +1177,29 @@ serve(async (req) => {
     setTextField('DATE_7', formatDate(application.signature_date));
 
     // ==================== PAGE 9: Signature Page ====================
-    // Type your full legal name field - try multiple field name variations
-    console.log('Setting final signature name to:', application.signature_name);
+    // Final signature fields - use actual PDF signature field names
+    // Signature images will be drawn to these locations after form flatten
+    console.log('Setting final signature fields...');
     const finalSignatureFieldNames = [
+      'Signature1_es_:signer:signature',
       'Signature2_es_:signer:signature',
-      'Signature2',
-      'Signature 2',
+    ];
+    
+    // For text-based fallback, try these fields with the signature name
+    const textFallbackFields = [
       'TypedSignature',
       'Typed Signature',
       'Full Legal Name',
-      'FullLegalName',
       'Type Your Full Legal Name',
       'Applicant Name',
       'Agent Name Printed'
     ];
-    for (const fieldName of finalSignatureFieldNames) {
+    
+    for (const fieldName of textFallbackFields) {
       try {
         const field = form.getTextField(fieldName);
         field.setText(application.signature_name);
-        console.log(`Successfully set final signature on field: ${fieldName}`);
+        console.log(`Successfully set text signature on field: ${fieldName}`);
       } catch {
         // Field not found, continue
       }
