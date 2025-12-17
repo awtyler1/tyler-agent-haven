@@ -259,19 +259,6 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                 />
                 <FormFieldError error={fieldErrors.insurance_license} show={showValidation} />
               </div>
-              <div>
-                <FileDropZone
-                  label="Government-Issued ID"
-                  documentType="government_id"
-                  existingFile={uploadedDocs['government_id']}
-                  onUpload={onUpload}
-                  onRemove={() => onRemove('government_id')}
-                  onClearError={onClearError}
-                  required
-                  hasError={showValidation && !!fieldErrors.government_id}
-                />
-                <FormFieldError error={fieldErrors.government_id} show={showValidation} />
-              </div>
             </div>
           </div>
         </div>
