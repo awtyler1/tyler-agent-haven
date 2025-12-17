@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication } from '@/types/contracting';
 import { Landmark, Shield, ArrowRight, CalendarIcon } from 'lucide-react';
@@ -250,21 +250,27 @@ export function BankingStep({ application, initials, onUpdate, onUpload, onRemov
 
           {/* Commission advancing option */}
           <div className="pt-2 border-t border-border/30">
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="requesting_commission_advancing"
-                checked={application.requesting_commission_advancing}
-                onCheckedChange={checked => onUpdate('requesting_commission_advancing', !!checked)}
-                className="mt-0.5"
-              />
-              <div className="space-y-1">
-                <Label htmlFor="requesting_commission_advancing" className="text-sm font-normal cursor-pointer">
-                  I'd like to request commission advancing
-                </Label>
-                <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
-                  Optional. Receive a portion of your commission upfront when policies are issued, rather than waiting for the standard payment cycle.
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium">Requesting Commission Advancing? <span className="text-destructive">*</span></Label>
+                <p className="text-[10px] text-muted-foreground/70 leading-relaxed mt-0.5">
+                  Receive a portion of your commission upfront when policies are issued, rather than waiting for the standard payment cycle.
                 </p>
               </div>
+              <RadioGroup
+                value={application.requesting_commission_advancing === true ? 'yes' : 'no'}
+                onValueChange={(value) => onUpdate('requesting_commission_advancing', value === 'yes')}
+                className="flex gap-6"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="yes" id="step_commission_yes" />
+                  <Label htmlFor="step_commission_yes" className="text-sm font-normal cursor-pointer">Yes</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="no" id="step_commission_no" />
+                  <Label htmlFor="step_commission_no" className="text-sm font-normal cursor-pointer">No</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
 
