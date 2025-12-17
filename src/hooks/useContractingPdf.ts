@@ -96,7 +96,27 @@ export function useContractingPdf() {
 
       // Call the edge function
       const uploadedDocs = application.uploaded_documents as Record<string, string> | undefined;
-      
+
+      // Debug (birth fields only)
+      const birthCity = typeof application.birth_city === 'string' ? application.birth_city.trim() : '';
+      const birthState = typeof application.birth_state === 'string' ? application.birth_state.trim() : '';
+      const birthKeys = Object.keys(application).filter((k) => k.toLowerCase().includes('birth'));
+      console.log('PDF payload birth keys:', birthKeys);
+      console.log('PDF payload birth_city (raw->trimmed):', application.birth_city, '->', birthCity);
+      console.log('PDF payload birth_state (raw->trimmed):', application.birth_state, '->', birthState);
+
+      // Hard guard: birth fields must be present when generating the PDF
+      if (!birthCity || !birthState) {
+        const msg = !birthCity && !birthState
+          ? 'Birth City and Birth State are required to generate the contracting packet PDF.'
+          : !birthCity
+            ? 'Birth City is required to generate the contracting packet PDF.'
+            : 'Birth State is required to generate the contracting packet PDF.';
+        setError(msg);
+        toast.error(msg);
+        return { success: false, error: msg };
+      }
+
       const { data, error: fnError } = await supabase.functions.invoke('generate-contracting-pdf', {
         body: {
           application: {
@@ -104,6 +124,8 @@ export function useContractingPdf() {
             agency_name: application.agency_name,
             gender: application.gender,
             birth_date: application.birth_date,
+            birth_city: birthCity,
+            birth_state: birthState,
             npn_number: application.npn_number,
             insurance_license_number: application.insurance_license_number,
             tax_id: application.tax_id,
