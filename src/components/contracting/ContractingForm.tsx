@@ -30,6 +30,7 @@ import { SectionAcknowledgment } from './SectionAcknowledgment';
 import { ValidationBanner } from './ValidationBanner';
 import { TestModeSnapshotPanel } from './TestModeSnapshotPanel';
 import { TestProfileHarness } from './TestProfileHarness';
+import { TestModeValidationReport } from './TestModeValidationReport';
 
 interface SubmissionSnapshot {
   timestamp: string;
@@ -458,6 +459,33 @@ export function ContractingForm() {
     // Run validation
     const result = validateForm(application!, sectionStatuses, carriers);
     
+    // In Test Mode: bypass validation blocking, proceed anyway
+    if (testMode) {
+      // Don't clear validation - keep it visible for the report
+      setIsSubmitting(true);
+      
+      try {
+        // TEST MODE: Capture snapshot regardless of validation status
+        const snapshot: SubmissionSnapshot = {
+          timestamp: new Date().toISOString(),
+          submissionId: `TEST-${Date.now().toString(36).toUpperCase()}`,
+          data: { ...application },
+        };
+        setLastSubmissionSnapshot(snapshot);
+        
+        if (!result.isFormValid) {
+          toast.info('Test submission captured with validation failures. See Validation Report below.');
+        } else {
+          toast.success('Test submission captured! All validations passed.');
+        }
+        console.log('📋 Test Mode Submission:', { snapshot, validationResult: result });
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+    
+    // PRODUCTION MODE: Block submission if invalid (existing behavior)
     if (!result.isFormValid) {
       // Scroll to first error section with smooth animation
       if (result.firstErrorSection) {
@@ -471,22 +499,10 @@ export function ContractingForm() {
     setIsSubmitting(true);
     
     try {
-      if (testMode) {
-        // TEST MODE: Capture snapshot but don't actually submit
-        const snapshot: SubmissionSnapshot = {
-          timestamp: new Date().toISOString(),
-          submissionId: `TEST-${Date.now().toString(36).toUpperCase()}`,
-          data: { ...application },
-        };
-        setLastSubmissionSnapshot(snapshot);
-        toast.success('Test submission captured! Check the snapshot panel below.');
-        console.log('📋 Test Mode Submission Snapshot:', snapshot);
-      } else {
-        // PRODUCTION: Normal submission
-        const success = await submitApplication();
-        if (success) {
-          // PDF generation handled by edge function
-        }
+      // PRODUCTION: Normal submission
+      const success = await submitApplication();
+      if (success) {
+        // PDF generation handled by edge function
       }
     } finally {
       setIsSubmitting(false);
@@ -639,17 +655,29 @@ export function ContractingForm() {
         onSectionClick={scrollToSection}
       />
 
-      {/* Validation Banner - shows only after submit attempt with errors */}
-      <ValidationBanner 
-        show={validationState.hasValidated && !validationState.isFormValid}
-        sectionErrors={validationState.sectionErrors}
-        onSectionClick={scrollToSection}
-      />
+      {/* Validation Banner - shows only after submit attempt with errors (hidden in test mode) */}
+      {!testMode && (
+        <ValidationBanner 
+          show={validationState.hasValidated && !validationState.isFormValid}
+          sectionErrors={validationState.sectionErrors}
+          onSectionClick={scrollToSection}
+        />
+      )}
 
-      {/* Test Mode Snapshot Panel */}
-      {testMode && lastSubmissionSnapshot && (
-        <div className="container max-w-4xl mx-auto px-4 py-4">
-          <TestModeSnapshotPanel snapshot={lastSubmissionSnapshot} />
+      {/* Test Mode Panels */}
+      {testMode && validationState.hasValidated && (
+        <div className="container max-w-4xl mx-auto px-4 py-4 space-y-4">
+          {/* Validation Report - always show in test mode after validation */}
+          <TestModeValidationReport 
+            sectionErrors={validationState.sectionErrors}
+            application={application}
+            isFormValid={validationState.isFormValid}
+          />
+          
+          {/* Snapshot Panel - show after test submission */}
+          {lastSubmissionSnapshot && (
+            <TestModeSnapshotPanel snapshot={lastSubmissionSnapshot} />
+          )}
         </div>
       )}
 
