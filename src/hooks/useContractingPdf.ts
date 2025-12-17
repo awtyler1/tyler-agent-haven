@@ -11,6 +11,14 @@ export interface MappingEntry {
   status: 'success' | 'failed' | 'skipped';
 }
 
+export interface DebugLogEntry {
+  timestamp: string;
+  level: 'info' | 'warn' | 'error' | 'debug';
+  category: string;
+  message: string;
+  data?: unknown;
+}
+
 interface PdfGenerationResult {
   success: boolean;
   filename?: string;
@@ -18,6 +26,7 @@ interface PdfGenerationResult {
   size?: number;
   error?: string;
   mappingReport?: MappingEntry[];
+  debugLogs?: DebugLogEntry[];
 }
 
 export function useContractingPdf() {
@@ -203,6 +212,7 @@ export function useContractingPdf() {
         pdf: data.pdf,
         size: data.size,
         mappingReport: data.mappingReport,
+        debugLogs: data.debugLogs,
       };
 
     } catch (err) {

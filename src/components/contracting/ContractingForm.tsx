@@ -34,6 +34,7 @@ import { TestModeValidationReport } from './TestModeValidationReport';
 import { TestModeMappingReport } from './TestModeMappingReport';
 import { TestModeSchemaPanel } from './TestModeSchemaPanel';
 import { TestModePdfPreviewPanel } from './TestModePdfPreviewPanel';
+import { TestModePdfDebugPanel, DebugLogEntry } from './TestModePdfDebugPanel';
 import { useContractingPdf, MappingEntry } from '@/hooks/useContractingPdf';
 
 interface SubmissionSnapshot {
@@ -119,6 +120,7 @@ export function ContractingForm() {
     size: null,
     error: null,
   });
+  const [lastDebugLogs, setLastDebugLogs] = useState<DebugLogEntry[]>([]);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   
   const { generatePdf, downloadPdf } = useContractingPdf();
@@ -526,6 +528,12 @@ export function ContractingForm() {
           console.log('📋 Mapping Report:', pdfResult.mappingReport);
         }
         
+        // Capture debug logs from PDF generation
+        if (pdfResult.debugLogs) {
+          setLastDebugLogs(pdfResult.debugLogs);
+          console.log('🔧 Debug Logs:', pdfResult.debugLogs);
+        }
+        
         if (!result.isFormValid) {
           toast.info('Test submission captured with validation failures. See reports below.');
         } else {
@@ -750,6 +758,9 @@ export function ContractingForm() {
           {lastMappingReport && lastMappingReport.length > 0 && (
             <TestModeMappingReport mappingReport={lastMappingReport} />
           )}
+          
+          {/* PDF Debug Log - show after PDF generation */}
+          <TestModePdfDebugPanel logs={lastDebugLogs} />
         </div>
       )}
 
