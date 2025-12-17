@@ -544,6 +544,7 @@ serve(async (req) => {
     const personalNamePrincipal = uploadedDocs.personal_name_principal || application.full_legal_name;
     setTextField('Personal Name or Principal', personalNamePrincipal);
     setTextField('Insurance License', application.insurance_license_number);
+    setTextField('NPN', application.npn_number);
     setTextField('Birth Date', formatDate(application.birth_date));
     
     // Birth City - use mapped field names if available
