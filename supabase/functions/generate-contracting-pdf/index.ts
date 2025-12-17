@@ -805,6 +805,30 @@ serve(async (req) => {
 
     console.log('=== LEGAL QUESTIONS PROCESSING END ===');
 
+    // ==================== Background Explanation Fields ====================
+    // Map structured explanation fields from uploaded_documents to PDF
+    const bgUploadedDocs = application.uploaded_documents || {};
+    
+    // Entry 1
+    setTextField('Date of Action', bgUploadedDocs.date_of_action ? formatDate(bgUploadedDocs.date_of_action) : '');
+    setTextField('Action', bgUploadedDocs.action || '');
+    setTextField('Reason', bgUploadedDocs.reason || '');
+    setTextField('Explanation', bgUploadedDocs.explanation || '');
+    
+    // Entry 2
+    setTextField('Date of Action_2', bgUploadedDocs.date_of_action_2 ? formatDate(bgUploadedDocs.date_of_action_2) : '');
+    setTextField('Action_2', bgUploadedDocs.action_2 || '');
+    setTextField('Reason_2', bgUploadedDocs.reason_2 || '');
+    setTextField('Explanation_2', bgUploadedDocs.explanation_2 || '');
+    
+    // Entry 3
+    setTextField('Date of Action_3', bgUploadedDocs.date_of_action_3 ? formatDate(bgUploadedDocs.date_of_action_3) : '');
+    setTextField('Action_3', bgUploadedDocs.action_3 || '');
+    setTextField('Reason_3', bgUploadedDocs.reason_3 || '');
+    setTextField('Explanation_3', bgUploadedDocs.explanation_3 || '');
+    
+    console.log('Background explanation fields set');
+
     // Date on page 2 (initials will be drawn as image)
     setTextField('DATE_2', formatDate(application.signature_date));
     
