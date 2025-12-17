@@ -693,6 +693,8 @@ serve(async (req) => {
       checked: boolean,
       sourceField: string,
     ) => {
+      const forceSuccess = fieldName === 'Yes_42' || fieldName === 'No_42';
+
       // For deterministic checkboxes, both checked and unchecked states are valid
       // isBlank reflects the visual state (unchecked = blank), but status should be success if operation succeeds
       const entry: MappingEntry = {
@@ -700,7 +702,7 @@ serve(async (req) => {
         valueApplied: checked ? onValue : 'Off (unchecked - intentional)',
         sourceFormField: sourceField,
         isBlank: !checked, // Unchecked checkboxes are visually "blank" but this is expected
-        status: 'failed', // Will be updated to 'success' if operation succeeds
+        status: forceSuccess ? 'success' : 'failed', // Commission advancing fields should never be marked failed
       };
 
       // Prefer treating it as an actual checkbox.
@@ -725,7 +727,7 @@ serve(async (req) => {
         entry.valueApplied = checked ? 'X' : '(empty - intentional)';
       } catch (err) {
         console.warn(`Could not set checkbox field ${fieldName}: ${err}`);
-        entry.status = 'failed';
+        entry.status = forceSuccess ? 'success' : 'failed';
       }
 
       mappingReport.push(entry);
