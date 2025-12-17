@@ -406,7 +406,10 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
           </div>
 
           {/* Validation Banner */}
-          <ValidationBanner show={showErrors && !validation.isValid} />
+          <ValidationBanner 
+            show={showErrors && !validation.isValid} 
+            message={`Please complete the following: ${validation.errors.join(', ')}`}
+          />
 
           {/* Initials Acknowledgment */}
           <InitialsAcknowledgmentBar initials={initials} />
