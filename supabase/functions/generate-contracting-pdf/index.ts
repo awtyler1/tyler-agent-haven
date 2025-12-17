@@ -691,13 +691,75 @@ serve(async (req) => {
     setTextField('NPN', application.npn_number);
     setTextField('Birth Date', formatDate(application.birth_date));
     
-    // Birth City - use setTextField helper which has better error handling
-    console.log('Setting birth city:', application.birth_city);
-    setTextField('City_5', application.birth_city);
+    // Birth City - try multiple field name variations for resilience
+    if (application.birth_city) {
+      console.log('Setting birth city:', application.birth_city);
+      const birthCityFields = ['City_5', 'City 5', 'BirthCity', 'Birth City', 'city_5'];
+      let birthCitySet = false;
+      for (const fieldName of birthCityFields) {
+        try {
+          const field = form.getTextField(fieldName);
+          field.setText(application.birth_city);
+          console.log(`Successfully set birth city on field: ${fieldName}`);
+          mappingReport.push({
+            pdfFieldKey: fieldName,
+            valueApplied: application.birth_city,
+            sourceFormField: 'birth_city',
+            isBlank: false,
+            status: 'success',
+          });
+          birthCitySet = true;
+          break;
+        } catch {
+          // Try next variation
+        }
+      }
+      if (!birthCitySet) {
+        console.log('Could not set birth city on any known field');
+        mappingReport.push({
+          pdfFieldKey: 'City_5',
+          valueApplied: application.birth_city,
+          sourceFormField: 'birth_city',
+          isBlank: false,
+          status: 'failed',
+        });
+      }
+    }
     
-    // Birth State
-    console.log('Setting birth state:', application.birth_state);
-    setTextField('State_5', application.birth_state);
+    // Birth State - try multiple field name variations for resilience
+    if (application.birth_state) {
+      console.log('Setting birth state:', application.birth_state);
+      const birthStateFields = ['State_5', 'State 5', 'BirthState', 'Birth State', 'state_5'];
+      let birthStateSet = false;
+      for (const fieldName of birthStateFields) {
+        try {
+          const field = form.getTextField(fieldName);
+          field.setText(application.birth_state);
+          console.log(`Successfully set birth state on field: ${fieldName}`);
+          mappingReport.push({
+            pdfFieldKey: fieldName,
+            valueApplied: application.birth_state,
+            sourceFormField: 'birth_state',
+            isBlank: false,
+            status: 'success',
+          });
+          birthStateSet = true;
+          break;
+        } catch {
+          // Try next variation
+        }
+      }
+      if (!birthStateSet) {
+        console.log('Could not set birth state on any known field');
+        mappingReport.push({
+          pdfFieldKey: 'State_5',
+          valueApplied: application.birth_state,
+          sourceFormField: 'birth_state',
+          isBlank: false,
+          status: 'failed',
+        });
+      }
+    }
     
     // Gender - try multiple approaches
     const gender = application.gender?.toLowerCase();
