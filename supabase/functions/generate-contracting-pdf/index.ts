@@ -264,6 +264,20 @@ interface FieldMappings {
   birthState: string[];
   amlYes: string[];
   amlNo: string[];
+  backgroundExplanations?: {
+    dateOfAction: string[];
+    action: string[];
+    reason: string[];
+    explanation: string[];
+    dateOfAction2: string[];
+    action2: string[];
+    reason2: string[];
+    explanation2: string[];
+    dateOfAction3: string[];
+    action3: string[];
+    reason3: string[];
+    explanation3: string[];
+  };
   custom: Record<string, string[]>;
 }
 
@@ -808,26 +822,36 @@ serve(async (req) => {
     // ==================== Background Explanation Fields ====================
     // Map structured explanation fields from uploaded_documents to PDF
     const bgUploadedDocs = application.uploaded_documents || {};
+    const bgMappings = fieldMappings?.backgroundExplanations;
+    
+    // Helper to set field using mapping or fallback
+    const setBgField = (mappedFields: string[] | undefined, fallback: string, value: string) => {
+      if (mappedFields && mappedFields.length > 0) {
+        mappedFields.forEach(field => setTextField(field, value));
+      } else {
+        setTextField(fallback, value);
+      }
+    };
     
     // Entry 1
-    setTextField('Date of Action', bgUploadedDocs.date_of_action ? formatDate(bgUploadedDocs.date_of_action) : '');
-    setTextField('Action', bgUploadedDocs.action || '');
-    setTextField('Reason', bgUploadedDocs.reason || '');
-    setTextField('Explanation', bgUploadedDocs.explanation || '');
+    setBgField(bgMappings?.dateOfAction, 'Date of Action', bgUploadedDocs.date_of_action ? formatDate(bgUploadedDocs.date_of_action) : '');
+    setBgField(bgMappings?.action, 'Action', bgUploadedDocs.action || '');
+    setBgField(bgMappings?.reason, 'Reason', bgUploadedDocs.reason || '');
+    setBgField(bgMappings?.explanation, 'Explanation', bgUploadedDocs.explanation || '');
     
     // Entry 2
-    setTextField('Date of Action_2', bgUploadedDocs.date_of_action_2 ? formatDate(bgUploadedDocs.date_of_action_2) : '');
-    setTextField('Action_2', bgUploadedDocs.action_2 || '');
-    setTextField('Reason_2', bgUploadedDocs.reason_2 || '');
-    setTextField('Explanation_2', bgUploadedDocs.explanation_2 || '');
+    setBgField(bgMappings?.dateOfAction2, 'Date of Action_2', bgUploadedDocs.date_of_action_2 ? formatDate(bgUploadedDocs.date_of_action_2) : '');
+    setBgField(bgMappings?.action2, 'Action_2', bgUploadedDocs.action_2 || '');
+    setBgField(bgMappings?.reason2, 'Reason_2', bgUploadedDocs.reason_2 || '');
+    setBgField(bgMappings?.explanation2, 'Explanation_2', bgUploadedDocs.explanation_2 || '');
     
     // Entry 3
-    setTextField('Date of Action_3', bgUploadedDocs.date_of_action_3 ? formatDate(bgUploadedDocs.date_of_action_3) : '');
-    setTextField('Action_3', bgUploadedDocs.action_3 || '');
-    setTextField('Reason_3', bgUploadedDocs.reason_3 || '');
-    setTextField('Explanation_3', bgUploadedDocs.explanation_3 || '');
+    setBgField(bgMappings?.dateOfAction3, 'Date of Action_3', bgUploadedDocs.date_of_action_3 ? formatDate(bgUploadedDocs.date_of_action_3) : '');
+    setBgField(bgMappings?.action3, 'Action_3', bgUploadedDocs.action_3 || '');
+    setBgField(bgMappings?.reason3, 'Reason_3', bgUploadedDocs.reason_3 || '');
+    setBgField(bgMappings?.explanation3, 'Explanation_3', bgUploadedDocs.explanation_3 || '');
     
-    console.log('Background explanation fields set');
+    console.log('Background explanation fields set, using mappings:', !!bgMappings);
 
     // Date on page 2 (initials will be drawn as image)
     setTextField('DATE_2', formatDate(application.signature_date));
