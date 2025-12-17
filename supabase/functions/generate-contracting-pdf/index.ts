@@ -1272,6 +1272,26 @@ serve(async (req) => {
     console.log(`Raw value: ${rawCommissionValue} (type: ${typeof rawCommissionValue})`);
     console.log(`Normalized to: ${commissionAdvancing}`);
 
+    // Debug: Inspect field structure
+    console.log('=== COMMISSION ADVANCING DEBUG ===');
+    try {
+      const yes42 = form.getField('Yes_42');
+      console.log('Yes_42 type:', yes42.constructor.name);
+      
+      const no42 = form.getField('No_42');
+      console.log('No_42 type:', no42.constructor.name);
+      
+      try {
+        const radioGroup = form.getRadioGroup('42');
+        console.log('Found radio group "42", options:', radioGroup.getOptions());
+      } catch (rgErr: unknown) {
+        console.log('No radio group "42" found:', rgErr instanceof Error ? rgErr.message : String(rgErr));
+      }
+    } catch (err: unknown) {
+      console.log('Field inspection error:', err instanceof Error ? err.message : String(err));
+    }
+    console.log('=== END DEBUG ===');
+
     // Always write both checkbox fields - onValue should be 'Yes' (the checkbox ON state)
     setDeterministicCheckbox('Yes_42', 'Yes', commissionAdvancing === true, 'requesting_commission_advancing');
     setDeterministicCheckbox('No_42', 'Yes', commissionAdvancing !== true, 'requesting_commission_advancing');
