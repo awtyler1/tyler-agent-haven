@@ -303,7 +303,30 @@ serve(async (req) => {
       templateBase64?: string;
     };
 
-    console.log('Generating PDF for:', application.full_legal_name, 'saveToStorage:', saveToStorage);
+    // Debug log collector - will be returned in response for Test Mode
+    interface DebugLogEntry {
+      timestamp: string;
+      level: 'info' | 'warn' | 'error' | 'debug';
+      category: string;
+      message: string;
+      data?: unknown;
+    }
+    const debugLogs: DebugLogEntry[] = [];
+    
+    const addDebugLog = (level: DebugLogEntry['level'], category: string, message: string, data?: unknown) => {
+      const entry: DebugLogEntry = {
+        timestamp: new Date().toISOString().split('T')[1].split('.')[0],
+        level,
+        category,
+        message,
+        data
+      };
+      debugLogs.push(entry);
+      // Also log to console for server-side visibility
+      console.log(`[${entry.level.toUpperCase()}] [${category}] ${message}`, data ? JSON.stringify(data) : '');
+    };
+
+    addDebugLog('info', 'init', `Generating PDF for: ${application.full_legal_name}`, { saveToStorage });
 
     // Initialize Supabase client early to load mappings
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -1274,36 +1297,58 @@ serve(async (req) => {
       return false;
     })();
 
-    console.log(`=== COMMISSION ADVANCING (DETERMINISTIC) ===`);
-    console.log(`Raw value: ${rawCommissionValue} (type: ${typeof rawCommissionValue})`);
-    console.log(`Normalized to: ${commissionAdvancing}`);
+    // Commission Advancing Debug - collected in debugLogs for Test Mode
+    addDebugLog('info', 'commission', 'Processing commission advancing field', {
+      rawValue: rawCommissionValue,
+      rawType: typeof rawCommissionValue,
+      normalizedValue: commissionAdvancing
+    });
 
-    // Debug: Inspect field structure
-    console.log('=== COMMISSION ADVANCING DEBUG ===');
+    // Inspect field structure before setting
+    let yes42Type = 'unknown';
+    let no42Type = 'unknown';
+    let yes42IsCheckedBefore: boolean | null = null;
+    let no42IsCheckedBefore: boolean | null = null;
+    
     try {
       const yes42 = form.getField('Yes_42');
-      console.log('Yes_42 type:', yes42.constructor.name);
+      yes42Type = yes42.constructor.name;
+      if ('isChecked' in yes42) {
+        yes42IsCheckedBefore = (yes42 as any).isChecked();
+      }
       
       const no42 = form.getField('No_42');
-      console.log('No_42 type:', no42.constructor.name);
+      no42Type = no42.constructor.name;
+      if ('isChecked' in no42) {
+        no42IsCheckedBefore = (no42 as any).isChecked();
+      }
       
+      addDebugLog('debug', 'commission', 'Field types detected', {
+        Yes_42: { type: yes42Type, isCheckedBefore: yes42IsCheckedBefore },
+        No_42: { type: no42Type, isCheckedBefore: no42IsCheckedBefore }
+      });
+      
+      // Check for radio group
       try {
         const radioGroup = form.getRadioGroup('42');
-        console.log('Found radio group "42", options:', radioGroup.getOptions());
-      } catch (rgErr: unknown) {
-        console.log('No radio group "42" found:', rgErr instanceof Error ? rgErr.message : String(rgErr));
+        addDebugLog('debug', 'commission', 'Found radio group "42"', { options: radioGroup.getOptions() });
+      } catch {
+        addDebugLog('debug', 'commission', 'No radio group "42" found - fields are checkboxes');
       }
     } catch (err: unknown) {
-      console.log('Field inspection error:', err instanceof Error ? err.message : String(err));
+      addDebugLog('error', 'commission', 'Field inspection failed', { 
+        error: err instanceof Error ? err.message : String(err) 
+      });
     }
-    console.log('=== END DEBUG ===');
 
-    // Always write both checkbox fields - onValue should be 'Yes' (the checkbox ON state)
-    console.log('=== COMMISSION ADVANCING SETTING DEBUG ===');
-    console.log('Input value:', commissionAdvancing);
-    console.log('Setting Yes_42 to:', commissionAdvancing === true);
-    console.log('Setting No_42 to:', commissionAdvancing !== true);
+    // Log what we're about to set
+    addDebugLog('info', 'commission', 'Setting checkbox values', {
+      Yes_42_willBeChecked: commissionAdvancing === true,
+      No_42_willBeChecked: commissionAdvancing !== true,
+      onValue: 'Yes'
+    });
     
+    // Set the checkboxes
     setDeterministicCheckbox('Yes_42', 'Yes', commissionAdvancing === true, 'requesting_commission_advancing');
     setDeterministicCheckbox('No_42', 'Yes', commissionAdvancing !== true, 'requesting_commission_advancing');
     
@@ -1311,28 +1356,28 @@ serve(async (req) => {
     try {
       const yes42Field = form.getField('Yes_42');
       const no42Field = form.getField('No_42');
-      console.log('Yes_42 field after setting:', yes42Field?.constructor?.name);
-      console.log('No_42 field after setting:', no42Field?.constructor?.name);
       
-      // Try to get checked state
+      let yes42IsCheckedAfter: boolean | null = null;
+      let no42IsCheckedAfter: boolean | null = null;
+      
       if (yes42Field && 'isChecked' in yes42Field) {
-        console.log('Yes_42 isChecked():', (yes42Field as any).isChecked());
+        yes42IsCheckedAfter = (yes42Field as any).isChecked();
       }
       if (no42Field && 'isChecked' in no42Field) {
-        console.log('No_42 isChecked():', (no42Field as any).isChecked());
+        no42IsCheckedAfter = (no42Field as any).isChecked();
       }
       
-      // Try to read acroField directly
-      if (yes42Field) {
-        console.log('Yes_42 acroField:', (yes42Field as any).acroField?.toString?.());
-      }
-      if (no42Field) {
-        console.log('No_42 acroField:', (no42Field as any).acroField?.toString?.());
-      }
+      addDebugLog('info', 'commission', 'Field values after setting', {
+        Yes_42: { type: yes42Field?.constructor?.name, isCheckedAfter: yes42IsCheckedAfter },
+        No_42: { type: no42Field?.constructor?.name, isCheckedAfter: no42IsCheckedAfter },
+        success: (commissionAdvancing === true && yes42IsCheckedAfter === true) || 
+                 (commissionAdvancing !== true && no42IsCheckedAfter === true)
+      });
     } catch (readErr: unknown) {
-      console.log('Could not read field states:', readErr instanceof Error ? readErr.message : String(readErr));
+      addDebugLog('error', 'commission', 'Could not read field states after setting', {
+        error: readErr instanceof Error ? readErr.message : String(readErr)
+      });
     }
-    console.log('=== END COMMISSION ADVANCING SETTING DEBUG ===');
     
     // Beneficiary Information
     setTextField('List a Beneficiary', application.beneficiary_name);
@@ -2032,7 +2077,11 @@ serve(async (req) => {
     const successCount = mappingReport.filter(m => m.status === 'success').length;
     const failedCount = mappingReport.filter(m => m.status === 'failed').length;
     const skippedCount = mappingReport.filter(m => m.status === 'skipped').length;
-    console.log(`Mapping Report: ${successCount} success, ${failedCount} failed, ${skippedCount} skipped (total: ${mappingReport.length})`);
+    
+    addDebugLog('info', 'summary', `PDF generated: ${filename}`, {
+      size: filledPdfBytes.byteLength,
+      mappingStats: { success: successCount, failed: failedCount, skipped: skippedCount, total: mappingReport.length }
+    });
 
     return new Response(
       JSON.stringify({
@@ -2043,6 +2092,7 @@ serve(async (req) => {
         storagePath,
         filledTemplate: true,
         mappingReport,
+        debugLogs, // Include debug logs for Test Mode
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
