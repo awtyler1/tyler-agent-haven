@@ -546,13 +546,11 @@ serve(async (req) => {
     setTextField('NPN', application.npn_number);
     setTextField('Birth Date', formatDate(application.birth_date));
     
-    // Birth City - use mapped field names if available
-    if (application.birth_city) {
-      if (fieldMappings?.birthCity?.length) {
-        fieldMappings.birthCity.forEach(fieldName => setTextField(fieldName, application.birth_city));
-      } else {
-        setTextField('City_5', application.birth_city); // Default field name
-      }
+    // Birth City - always try to set
+    console.log('Birth City value:', application.birth_city);
+    setTextField('City_5', application.birth_city || '');
+    if (fieldMappings?.birthCity?.length) {
+      fieldMappings.birthCity.forEach(fieldName => setTextField(fieldName, application.birth_city || ''));
     }
     
     // Birth State - use mapped field names if available
