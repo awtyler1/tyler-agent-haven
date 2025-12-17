@@ -167,6 +167,8 @@ export function useContractingPdf() {
             finra_broker_dealer_name: application.finra_broker_dealer_name,
             finra_crd_number: application.finra_crd_number,
             agreements: application.agreements,
+            // Pass disciplinary entries (separate from uploaded_documents)
+            disciplinary_entries: application.disciplinary_entries || {},
             // Pass the image data for embedding in PDF
             uploaded_documents: {
               initials_image: uploadedDocs?.initials_image || '',

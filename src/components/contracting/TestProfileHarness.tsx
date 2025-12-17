@@ -157,7 +157,7 @@ const generateTestProfiles = (carriers: Carrier[]): TestProfile[] => {
         eo_not_yet_covered: idx === 4, // Profile E has no E&O yet
         eo_provider: idx !== 4 ? `EOPROVIDER_${letter}` : undefined,
         eo_policy_number: idx !== 4 ? `EOPOL_${letter}_${10000 + idx}` : undefined,
-        eo_expiration_date: idx !== 4 ? `2025-1${idx}-30` : undefined,
+        eo_expiration_date: idx !== 4 ? `2025-1${Math.min(idx, 2)}-${20 + idx}` : undefined, // Valid dates only
 
         // FINRA Registration
         is_finra_registered: idx % 2 === 1,
@@ -182,30 +182,39 @@ const generateTestProfiles = (carriers: Carrier[]): TestProfile[] => {
           privacy_accepted: true,
         },
 
-        // Uploaded Documents (signatures and background explanations)
+        // Disciplinary/Action History entries (new dedicated namespace)
+        disciplinary_entries: {
+          ...(yesAnswerCounts[idx] >= 1 ? {
+            entry1: {
+              date_of_action: `202${idx}-0${idx + 1}-1${Math.min(idx, 5)}`,
+              action: `ACTION_ENTRY1_${letter}`,
+              reason: `REASON_ENTRY1_${letter}`,
+              explanation: `EXPLANATION_ENTRY1_${letter}: Detailed explanation for first disciplinary action.`,
+            },
+          } : {}),
+          ...(yesAnswerCounts[idx] >= 2 ? {
+            entry2: {
+              date_of_action: `202${idx}-0${Math.min(idx + 2, 9)}-1${Math.min(idx + 5, 8)}`,
+              action: `ACTION_ENTRY2_${letter}`,
+              reason: `REASON_ENTRY2_${letter}`,
+              explanation: `EXPLANATION_ENTRY2_${letter}: Detailed explanation for second disciplinary action.`,
+            },
+          } : {}),
+          ...(yesAnswerCounts[idx] >= 3 ? {
+            entry3: {
+              date_of_action: `202${idx}-0${Math.min(idx + 3, 9)}-0${idx + 1}`,
+              action: `ACTION_ENTRY3_${letter}`,
+              reason: `REASON_ENTRY3_${letter}`,
+              explanation: `EXPLANATION_ENTRY3_${letter}: Detailed explanation for third disciplinary action.`,
+            },
+          } : {}),
+        },
+
+        // Uploaded Documents (signatures only, no background explanation fields)
         uploaded_documents: {
           initials_image: generateInitialsImage(initials),
           signature_image: generateSignatureImage(fullName),
           background_signature_image: generateSignatureImage(fullName),
-          // Background explanation fields - only populated for profiles with YES answers
-          ...(yesAnswerCounts[idx] >= 1 ? {
-            date_of_action: `202${idx}-0${idx + 1}-1${idx}`,
-            action: `ACTION_ENTRY1_${letter}`,
-            reason: `REASON_ENTRY1_${letter}`,
-            explanation: `EXPLANATION_ENTRY1_${letter}: Detailed explanation for first disciplinary action.`,
-          } : {}),
-          ...(yesAnswerCounts[idx] >= 2 ? {
-            date_of_action_2: `202${idx}-0${idx + 2}-2${idx}`,
-            action_2: `ACTION_ENTRY2_${letter}`,
-            reason_2: `REASON_ENTRY2_${letter}`,
-            explanation_2: `EXPLANATION_ENTRY2_${letter}: Detailed explanation for second disciplinary action.`,
-          } : {}),
-          ...(yesAnswerCounts[idx] >= 3 ? {
-            date_of_action_3: `202${idx}-0${idx + 3}-0${idx + 1}`,
-            action_3: `ACTION_ENTRY3_${letter}`,
-            reason_3: `REASON_ENTRY3_${letter}`,
-            explanation_3: `EXPLANATION_ENTRY3_${letter}: Detailed explanation for third disciplinary action.`,
-          } : {}),
         },
       },
     });

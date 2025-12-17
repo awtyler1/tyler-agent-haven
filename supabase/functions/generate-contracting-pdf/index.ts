@@ -82,6 +82,11 @@ interface ContractingData {
   finra_crd_number?: string;
   agreements?: Record<string, boolean>;
   uploaded_documents?: Record<string, string>;
+  disciplinary_entries?: {
+    entry1?: { date_of_action?: string; action?: string; reason?: string; explanation?: string };
+    entry2?: { date_of_action?: string; action?: string; reason?: string; explanation?: string };
+    entry3?: { date_of_action?: string; action?: string; reason?: string; explanation?: string };
+  };
   initials_image?: string; // base64 PNG of drawn initials
   signature_image?: string; // base64 PNG of drawn signature (background/legal)
   final_signature_image?: string; // base64 PNG of final signature
@@ -1116,71 +1121,65 @@ serve(async (req) => {
 
     console.log('=== LEGAL QUESTIONS PROCESSING END ===');
 
-    // ==================== Background Explanation Fields ====================
-    // Map structured explanation fields from uploaded_documents to PDF
-    const bgUploadedDocs = application.uploaded_documents || {};
+    // ==================== Disciplinary/Action History Fields ====================
+    // Read from the new disciplinary_entries namespace (not uploaded_documents)
+    const discEntries = application.disciplinary_entries || {};
     const bgMappings = fieldMappings?.backgroundExplanations;
     
-    // Debug: Log what we have in uploaded_documents for background explanations
-    console.log('=== BACKGROUND EXPLANATION FIELDS DEBUG ===');
-    console.log('  uploaded_documents keys:', Object.keys(bgUploadedDocs));
-    console.log('  Entry 1 - date_of_action:', bgUploadedDocs.date_of_action || '(empty)');
-    console.log('  Entry 1 - action:', bgUploadedDocs.action || '(empty)');
-    console.log('  Entry 1 - reason:', bgUploadedDocs.reason || '(empty)');
-    console.log('  Entry 1 - explanation:', bgUploadedDocs.explanation || '(empty)');
-    console.log('  Entry 2 - date_of_action_2:', bgUploadedDocs.date_of_action_2 || '(empty)');
-    console.log('  Entry 2 - action_2:', bgUploadedDocs.action_2 || '(empty)');
-    console.log('  Entry 2 - reason_2:', bgUploadedDocs.reason_2 || '(empty)');
-    console.log('  Entry 2 - explanation_2:', bgUploadedDocs.explanation_2 || '(empty)');
-    console.log('  Entry 3 - date_of_action_3:', bgUploadedDocs.date_of_action_3 || '(empty)');
-    console.log('  Entry 3 - action_3:', bgUploadedDocs.action_3 || '(empty)');
-    console.log('  Entry 3 - reason_3:', bgUploadedDocs.reason_3 || '(empty)');
-    console.log('  Entry 3 - explanation_3:', bgUploadedDocs.explanation_3 || '(empty)');
-    console.log('=== END BACKGROUND EXPLANATION DEBUG ===');
+    // Debug: Log what we have in disciplinary_entries
+    console.log('=== DISCIPLINARY ENTRIES DEBUG ===');
+    console.log('  disciplinary_entries:', JSON.stringify(discEntries));
+    console.log('  Entry 1:', discEntries.entry1 || '(empty)');
+    console.log('  Entry 2:', discEntries.entry2 || '(empty)');
+    console.log('  Entry 3:', discEntries.entry3 || '(empty)');
+    console.log('=== END DISCIPLINARY ENTRIES DEBUG ===');
     
     // Helper to set field using mapping or fallback, with proper source tracking
     const setBgField = (mappedFields: string[] | undefined, fallback: string, value: string, sourceKey: string) => {
       if (mappedFields && mappedFields.length > 0) {
-        mappedFields.forEach(field => setTextField(field, value, `uploaded_documents.${sourceKey}`));
+        mappedFields.forEach(field => setTextField(field, value, `disciplinary_entries.${sourceKey}`));
       } else {
-        setTextField(fallback, value, `uploaded_documents.${sourceKey}`);
+        setTextField(fallback, value, `disciplinary_entries.${sourceKey}`);
       }
     };
     
-    // Entry 1 - only set if at least one field has data
-    const entry1Date = bgUploadedDocs.date_of_action ? formatDate(bgUploadedDocs.date_of_action) : '';
-    const entry1Action = bgUploadedDocs.action || '';
-    const entry1Reason = bgUploadedDocs.reason || '';
-    const entry1Explanation = bgUploadedDocs.explanation || '';
+    // Entry 1
+    const entry1 = discEntries.entry1 || {};
+    const entry1Date = entry1.date_of_action ? formatDate(entry1.date_of_action) : '';
+    const entry1Action = entry1.action || '';
+    const entry1Reason = entry1.reason || '';
+    const entry1Explanation = entry1.explanation || '';
     
-    setBgField(bgMappings?.dateOfAction, 'Date of Action', entry1Date, 'date_of_action');
-    setBgField(bgMappings?.action, 'Action', entry1Action, 'action');
-    setBgField(bgMappings?.reason, 'Reason', entry1Reason, 'reason');
-    setBgField(bgMappings?.explanation, 'Explanation', entry1Explanation, 'explanation');
+    setBgField(bgMappings?.dateOfAction, 'Date of Action', entry1Date, 'entry1.date_of_action');
+    setBgField(bgMappings?.action, 'Action', entry1Action, 'entry1.action');
+    setBgField(bgMappings?.reason, 'Reason', entry1Reason, 'entry1.reason');
+    setBgField(bgMappings?.explanation, 'Explanation', entry1Explanation, 'entry1.explanation');
     
-    // Entry 2 - only set if at least one field has data
-    const entry2Date = bgUploadedDocs.date_of_action_2 ? formatDate(bgUploadedDocs.date_of_action_2) : '';
-    const entry2Action = bgUploadedDocs.action_2 || '';
-    const entry2Reason = bgUploadedDocs.reason_2 || '';
-    const entry2Explanation = bgUploadedDocs.explanation_2 || '';
+    // Entry 2
+    const entry2 = discEntries.entry2 || {};
+    const entry2Date = entry2.date_of_action ? formatDate(entry2.date_of_action) : '';
+    const entry2Action = entry2.action || '';
+    const entry2Reason = entry2.reason || '';
+    const entry2Explanation = entry2.explanation || '';
     
-    setBgField(bgMappings?.dateOfAction2, 'Date of Action_2', entry2Date, 'date_of_action_2');
-    setBgField(bgMappings?.action2, 'Action_2', entry2Action, 'action_2');
-    setBgField(bgMappings?.reason2, 'Reason_2', entry2Reason, 'reason_2');
-    setBgField(bgMappings?.explanation2, 'Explanation_2', entry2Explanation, 'explanation_2');
+    setBgField(bgMappings?.dateOfAction2, 'Date of Action_2', entry2Date, 'entry2.date_of_action');
+    setBgField(bgMappings?.action2, 'Action_2', entry2Action, 'entry2.action');
+    setBgField(bgMappings?.reason2, 'Reason_2', entry2Reason, 'entry2.reason');
+    setBgField(bgMappings?.explanation2, 'Explanation_2', entry2Explanation, 'entry2.explanation');
     
-    // Entry 3 - only set if at least one field has data
-    const entry3Date = bgUploadedDocs.date_of_action_3 ? formatDate(bgUploadedDocs.date_of_action_3) : '';
-    const entry3Action = bgUploadedDocs.action_3 || '';
-    const entry3Reason = bgUploadedDocs.reason_3 || '';
-    const entry3Explanation = bgUploadedDocs.explanation_3 || '';
+    // Entry 3
+    const entry3 = discEntries.entry3 || {};
+    const entry3Date = entry3.date_of_action ? formatDate(entry3.date_of_action) : '';
+    const entry3Action = entry3.action || '';
+    const entry3Reason = entry3.reason || '';
+    const entry3Explanation = entry3.explanation || '';
     
-    setBgField(bgMappings?.dateOfAction3, 'Date of Action_3', entry3Date, 'date_of_action_3');
-    setBgField(bgMappings?.action3, 'Action_3', entry3Action, 'action_3');
-    setBgField(bgMappings?.reason3, 'Reason_3', entry3Reason, 'reason_3');
-    setBgField(bgMappings?.explanation3, 'Explanation_3', entry3Explanation, 'explanation_3');
+    setBgField(bgMappings?.dateOfAction3, 'Date of Action_3', entry3Date, 'entry3.date_of_action');
+    setBgField(bgMappings?.action3, 'Action_3', entry3Action, 'entry3.action');
+    setBgField(bgMappings?.reason3, 'Reason_3', entry3Reason, 'entry3.reason');
+    setBgField(bgMappings?.explanation3, 'Explanation_3', entry3Explanation, 'entry3.explanation');
     
-    console.log('Background explanation fields set, using mappings:', !!bgMappings);
+    console.log('Disciplinary entry fields set, using mappings:', !!bgMappings);
 
     // Date on page 2 (initials will be drawn as image)
     setTextField('DATE_2', formatDate(application.signature_date));
