@@ -182,11 +182,30 @@ const generateTestProfiles = (carriers: Carrier[]): TestProfile[] => {
           privacy_accepted: true,
         },
 
-        // Uploaded Documents (signatures)
+        // Uploaded Documents (signatures and background explanations)
         uploaded_documents: {
           initials_image: generateInitialsImage(initials),
           signature_image: generateSignatureImage(fullName),
           background_signature_image: generateSignatureImage(fullName),
+          // Background explanation fields - only populated for profiles with YES answers
+          ...(yesAnswerCounts[idx] >= 1 ? {
+            date_of_action: `202${idx}-0${idx + 1}-1${idx}`,
+            action: `ACTION_ENTRY1_${letter}`,
+            reason: `REASON_ENTRY1_${letter}`,
+            explanation: `EXPLANATION_ENTRY1_${letter}: Detailed explanation for first disciplinary action.`,
+          } : {}),
+          ...(yesAnswerCounts[idx] >= 2 ? {
+            date_of_action_2: `202${idx}-0${idx + 2}-2${idx}`,
+            action_2: `ACTION_ENTRY2_${letter}`,
+            reason_2: `REASON_ENTRY2_${letter}`,
+            explanation_2: `EXPLANATION_ENTRY2_${letter}: Detailed explanation for second disciplinary action.`,
+          } : {}),
+          ...(yesAnswerCounts[idx] >= 3 ? {
+            date_of_action_3: `202${idx}-0${idx + 3}-0${idx + 1}`,
+            action_3: `ACTION_ENTRY3_${letter}`,
+            reason_3: `REASON_ENTRY3_${letter}`,
+            explanation_3: `EXPLANATION_ENTRY3_${letter}: Detailed explanation for third disciplinary action.`,
+          } : {}),
         },
       },
     });
