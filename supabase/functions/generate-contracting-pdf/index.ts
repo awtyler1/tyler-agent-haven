@@ -684,6 +684,49 @@ serve(async (req) => {
       mappingReport.push(entry);
     };
 
+    // Commission Advancing (Yes_42 / No_42) requires deterministic "ON"/"OFF" writes.
+    // This helper NEVER marks "skipped"; it always attempts an explicit set.
+    const setDeterministicCheckbox = (
+      fieldName: string,
+      onValue: string,
+      checked: boolean,
+      sourceField: string,
+    ) => {
+      const entry: MappingEntry = {
+        pdfFieldKey: fieldName,
+        valueApplied: checked ? onValue : 'Off',
+        sourceFormField: sourceField,
+        isBlank: false,
+        status: 'failed',
+      };
+
+      // Prefer treating it as an actual checkbox.
+      try {
+        const cb = form.getCheckBox(fieldName);
+        if (checked) cb.check();
+        else cb.uncheck();
+        console.log(`Set checkbox ${fieldName} => ${checked ? onValue : 'Off'}`);
+        entry.status = 'success';
+        mappingReport.push(entry);
+        return;
+      } catch {
+        // fall through
+      }
+
+      // Fallback: treat it as a text field.
+      try {
+        const tf = form.getTextField(fieldName);
+        tf.setText(checked ? onValue : '');
+        console.log(`Set text field ${fieldName} => ${checked ? onValue : '(empty)'}`);
+        entry.status = 'success';
+      } catch {
+        console.log(`Commission checkbox field not found: ${fieldName}`);
+        entry.status = 'failed';
+      }
+
+      mappingReport.push(entry);
+    };
+
     // ==================== PAGE 1: Contract Application ====================
     setTextField('Agent Name', application.full_legal_name);
     setTextField('SSN', application.tax_id);
@@ -1204,70 +1247,34 @@ serve(async (req) => {
     setTextField('Account', application.bank_account_number);
     setTextField('Branch Name or Location', application.bank_branch_name);
     
-    // Requesting Commission Advancing - ALWAYS write BOTH checkboxes deterministically
-    // Normalize value: coerce strings, default null/undefined to false
+    // Requesting Commission Advancing (Yes_42 / No_42)
+    // Reliability rule: ALWAYS write BOTH fields (one ON, one OFF) and NEVER mark skipped.
     const rawCommissionValue: unknown = application.requesting_commission_advancing;
-    let commissionAdvancing = false;
-    if (typeof rawCommissionValue === 'boolean') {
-      commissionAdvancing = rawCommissionValue;
-    } else if (typeof rawCommissionValue === 'string') {
-      const lower = (rawCommissionValue as string).toLowerCase().trim();
-      commissionAdvancing = lower === 'true' || lower === 'yes' || lower === '1';
-    } else if (typeof rawCommissionValue === 'number') {
-      commissionAdvancing = (rawCommissionValue as number) === 1;
-    }
-    // null/undefined/empty all default to false (already initialized)
-    
+    const commissionAdvancing = (() => {
+      if (rawCommissionValue === true) return true;
+      if (rawCommissionValue === false) return false;
+
+      if (typeof rawCommissionValue === 'number') return rawCommissionValue === 1;
+
+      if (typeof rawCommissionValue === 'string') {
+        const v = rawCommissionValue.trim().toLowerCase();
+        if (!v) return false;
+        if (['true', 'yes', 'y', '1', 'on'].includes(v)) return true;
+        if (['false', 'no', 'n', '0', 'off'].includes(v)) return false;
+        return false;
+      }
+
+      // null / undefined / anything else => false
+      return false;
+    })();
+
     console.log(`=== COMMISSION ADVANCING (DETERMINISTIC) ===`);
     console.log(`Raw value: ${rawCommissionValue} (type: ${typeof rawCommissionValue})`);
     console.log(`Normalized to: ${commissionAdvancing}`);
-    
-    // ALWAYS write BOTH checkboxes - never skip either field
-    if (commissionAdvancing) {
-      console.log(`Setting Yes_42="Yes_42" (checked), No_42="" (unchecked)`);
-      // Check Yes, uncheck No
-      setRadioValue('Yes_42', 'Yes_42', 'requesting_commission_advancing');
-      // Clear No checkbox by setting empty/Off value
-      try {
-        const noField = form.getTextField('No_42');
-        noField.setText('');
-        mappingReport.push({ pdfFieldKey: 'No_42', valueApplied: '', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'success' });
-        console.log(`Cleared No_42 checkbox`);
-      } catch {
-        // If it's a checkbox type, try setting it to Off
-        try {
-          const noCheckbox = form.getCheckBox('No_42');
-          noCheckbox.uncheck();
-          mappingReport.push({ pdfFieldKey: 'No_42', valueApplied: 'Off', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'success' });
-          console.log(`Unchecked No_42 checkbox`);
-        } catch {
-          mappingReport.push({ pdfFieldKey: 'No_42', valueApplied: '', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'skipped' });
-          console.log(`Could not clear No_42 - field type unknown`);
-        }
-      }
-    } else {
-      console.log(`Setting No_42="No_42" (checked), Yes_42="" (unchecked)`);
-      // Check No, uncheck Yes
-      setRadioValue('No_42', 'No_42', 'requesting_commission_advancing');
-      // Clear Yes checkbox by setting empty/Off value
-      try {
-        const yesField = form.getTextField('Yes_42');
-        yesField.setText('');
-        mappingReport.push({ pdfFieldKey: 'Yes_42', valueApplied: '', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'success' });
-        console.log(`Cleared Yes_42 checkbox`);
-      } catch {
-        // If it's a checkbox type, try setting it to Off
-        try {
-          const yesCheckbox = form.getCheckBox('Yes_42');
-          yesCheckbox.uncheck();
-          mappingReport.push({ pdfFieldKey: 'Yes_42', valueApplied: 'Off', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'success' });
-          console.log(`Unchecked Yes_42 checkbox`);
-        } catch {
-          mappingReport.push({ pdfFieldKey: 'Yes_42', valueApplied: '', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'skipped' });
-          console.log(`Could not clear Yes_42 - field type unknown`);
-        }
-      }
-    }
+
+    // Always write both checkbox fields.
+    setDeterministicCheckbox('Yes_42', 'Yes_42', commissionAdvancing === true, 'requesting_commission_advancing');
+    setDeterministicCheckbox('No_42', 'No_42', commissionAdvancing !== true, 'requesting_commission_advancing');
     
     // Beneficiary Information
     setTextField('List a Beneficiary', application.beneficiary_name);
