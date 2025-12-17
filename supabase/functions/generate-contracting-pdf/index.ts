@@ -441,7 +441,9 @@ serve(async (req) => {
     const uploadedDocs = application.uploaded_documents || {};
     console.log('Uploaded documents keys:', Object.keys(uploadedDocs));
     console.log('Has initials_image:', !!uploadedDocs.initials_image);
+    console.log('Has background_signature_image:', !!uploadedDocs.background_signature_image);
     console.log('Has background_signature:', !!uploadedDocs.background_signature);
+    console.log('Has signature_image:', !!uploadedDocs.signature_image);
     console.log('Has final_signature:', !!uploadedDocs.final_signature);
     
     if (uploadedDocs.initials_image) {
@@ -450,15 +452,19 @@ serve(async (req) => {
       console.log('Initials image embedded:', !!initialsImage);
     }
     
-    if (uploadedDocs.background_signature) {
-      console.log('Embedding background signature image (after legal questions), data length:', uploadedDocs.background_signature.length);
-      backgroundSignatureImage = await embedImageFromDataUrl(uploadedDocs.background_signature);
+    // Background signature - check both key name variations
+    const bgSigData = uploadedDocs.background_signature_image || uploadedDocs.background_signature;
+    if (bgSigData) {
+      console.log('Embedding background signature image (after legal questions), data length:', bgSigData.length);
+      backgroundSignatureImage = await embedImageFromDataUrl(bgSigData);
       console.log('Background signature image embedded:', !!backgroundSignatureImage);
     }
     
-    if (uploadedDocs.final_signature) {
-      console.log('Embedding final signature image, data length:', uploadedDocs.final_signature.length);
-      finalSignatureImage = await embedImageFromDataUrl(uploadedDocs.final_signature);
+    // Final signature - check multiple key name variations
+    const finalSigData = uploadedDocs.signature_image || uploadedDocs.final_signature || uploadedDocs.final_signature_image;
+    if (finalSigData) {
+      console.log('Embedding final signature image, data length:', finalSigData.length);
+      finalSignatureImage = await embedImageFromDataUrl(finalSigData);
       console.log('Final signature image embedded:', !!finalSignatureImage);
     }
 
