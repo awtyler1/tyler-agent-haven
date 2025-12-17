@@ -929,10 +929,6 @@ serve(async (req) => {
     setTextField('Drivers License', application.drivers_license_number);
     setTextField('Resident Drivers License State', application.drivers_license_state);
     
-    // License expiration - try multiple field names from mapping
-    setTextField('MMDDYYYY', formatDateMMDDYYYY(application.license_expiration_date));
-    setTextField('Expiration Date', formatDate(application.license_expiration_date));
-    setTextField('License Expiration', formatDate(application.license_expiration_date));
     
     // Resident State
     setTextField('State_5', application.resident_state);
