@@ -223,6 +223,20 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
               </div>
             )}
           </div>
+
+          {/* Continuing Education */}
+          <div className="pt-4 border-t border-border/10">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <Checkbox
+                checked={application.state_requires_ce || false}
+                onCheckedChange={(checked) => onUpdate('state_requires_ce', !!checked)}
+              />
+              <div>
+                <span className="text-sm font-medium">My state requires Continuing Education (CE)</span>
+                <p className="text-xs text-muted-foreground/60">Check if your resident state has CE requirements for insurance agents</p>
+              </div>
+            </label>
+          </div>
         </div>
       </CardContent>
     </Card>

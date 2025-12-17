@@ -540,10 +540,11 @@ serve(async (req) => {
     setTextField('Agency Name', application.agency_name);
     setTextField('Tax ID', application.agency_tax_id || '');
     setTextField('TaxId', application.agency_tax_id || ''); // Alternative field name without space
-    setTextField('Personal Name or Principal', application.full_legal_name);
+    // Personal Name or Principal - use dedicated field if provided, otherwise fall back to full_legal_name
+    const personalNamePrincipal = uploadedDocs.personal_name_principal || application.full_legal_name;
+    setTextField('Personal Name or Principal', personalNamePrincipal);
     setTextField('Insurance License', application.insurance_license_number);
     setTextField('Birth Date', formatDate(application.birth_date));
-    setTextField('NPN', application.npn_number);
     
     // Birth City - use mapped field names if available
     if (application.birth_city) {

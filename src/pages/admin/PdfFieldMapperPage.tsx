@@ -903,6 +903,8 @@ export default function PdfFieldMapperPage() {
         agency_tax_id: "12-3456789",
         gender: Math.random() > 0.5 ? "male" : "female",
         birth_date: "1985-06-15",
+        birth_city: "Louisville",
+        birth_state: "Kentucky",
         npn_number: "12345678",
         insurance_license_number: "INS-9876543",
         tax_id: "123-45-6789",
@@ -1003,7 +1005,7 @@ export default function PdfFieldMapperPage() {
         aml_training_provider: "LIMRA",
         aml_completion_date: "2024-09-15",
         has_ltc_certification: true,
-        state_requires_ce: false,
+        state_requires_ce: true,
         is_finra_registered: true,
         finra_broker_dealer_name: "Smith Financial Services",
         finra_crd_number: "1234567",
@@ -1023,6 +1025,8 @@ export default function PdfFieldMapperPage() {
         signature_initials: "JAS",
         signature_date: new Date().toISOString(),
         uploaded_documents: {
+          // Personal Name or Principal (for businesses)
+          personal_name_principal: "John A. Smith (Principal)",
           // Background explanation test data (for "Yes" answers to legal questions)
           date_of_action: "2020-03-15",
           action: "License suspension",

@@ -57,7 +57,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
 
         <div className="grid gap-4 md:grid-cols-2" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
           {/* Full Legal Name */}
-          <div className="md:col-span-2 space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="full_legal_name">
               Full Legal Name <span className="text-destructive">*</span>
             </Label>
@@ -72,6 +72,22 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
               className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.full_legal_name, showValidation))}
             />
             <FormFieldError error={fieldErrors.full_legal_name} show={showValidation} />
+          </div>
+
+          {/* Personal Name or Principal (for businesses) */}
+          <div className="space-y-2">
+            <Label htmlFor="personal_name_principal">Personal Name or Principal</Label>
+            <Input
+              id="personal_name_principal"
+              value={(application.uploaded_documents as any)?.personal_name_principal || ''}
+              onChange={(e) => {
+                const docs = application.uploaded_documents || {};
+                onUpdate('uploaded_documents', { ...docs, personal_name_principal: e.target.value });
+              }}
+              placeholder="If different from legal name"
+              className="h-11 rounded-xl"
+            />
+            <p className="text-[10px] text-muted-foreground/50">For business entities: the principal/owner name</p>
           </div>
 
           {/* Gender */}
