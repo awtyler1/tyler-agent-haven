@@ -1250,18 +1250,33 @@ serve(async (req) => {
     // Signature images will be drawn to these locations after form flatten
     console.log('Setting final signature fields...');
     
-    // ==================== SIGNATURE2 MAPPING (TYPED NAME - NO IMAGES) ====================
-    // BOTH fields display the TYPED FULL NAME from signature_name.
-    // NO image/base64 logic is used for these fields.
-    //   1. Signature2_es_:signer:signature - try as TEXT field
-    //   2. Signature2 - try as TEXT field, fallback to drawn text overlay if /Sig type
+    // ==================== SIGNATURE MAPPING RULES ====================
+    // RULE 1: Typed signature fields (TEXT only) → signature_name
+    //         - Signature2 (typed name as text overlay)
+    //         - Signature2_es_:signer:signature (typed name as text field)
+    // RULE 2: Handwritten signature box (IMAGE only) → uploaded_documents.signature_image
+    //         - "Additionally please sign in the center of the box below" field
+    // 
+    // HARD CONSTRAINTS:
+    //   - NEVER write signature_name into the handwritten signature box
+    //   - NEVER write uploaded_documents.signature_image into Signature2 or Signature2_es_:signer:signature
+    // =================================================================
     
     const SIGNATURE_FIELD_1 = 'Signature2_es_:signer:signature';
     const SIGNATURE_FIELD_2 = 'Signature2';
-    const signatureNameText = application.signature_name || '';
+    const HANDWRITTEN_SIGNATURE_FIELD = 'Additionally please sign in the center of the box below';
     
-    console.log('=== SIGNATURE2 TYPED NAME MAPPING ===');
-    console.log('signature_name value:', signatureNameText);
+    const signatureNameText = application.signature_name || '';
+    const handwrittenSignatureImage = application.uploaded_documents?.signature_image || application.uploaded_documents?.final_signature;
+    
+    console.log('=== SIGNATURE MAPPING OVERVIEW ===');
+    console.log('  signature_name (typed): "' + signatureNameText + '"');
+    console.log('  handwritten image exists:', !!handwrittenSignatureImage);
+    console.log('  Targets:');
+    console.log('    1. Signature2_es_:signer:signature → signature_name (TEXT)');
+    console.log('    2. Signature2 → signature_name (TEXT overlay)');
+    console.log('    3. "Additionally please sign..." → signature_image (IMAGE)');
+    console.log('=================================\n');
     
     // Helper to get detailed field info for debugging
     const getFieldDebugInfo = (fieldName: string): {
@@ -1346,11 +1361,11 @@ serve(async (req) => {
       return result;
     };
     
-    // Get debug info for both fields
+    // Get debug info for typed signature fields
     const field1Debug = getFieldDebugInfo(SIGNATURE_FIELD_1);
     const field2Debug = getFieldDebugInfo(SIGNATURE_FIELD_2);
     
-    console.log(`\n--- FIELD 1: ${SIGNATURE_FIELD_1} ---`);
+    console.log(`\n--- TYPED FIELD 1: ${SIGNATURE_FIELD_1} ---`);
     console.log(`  exists: ${field1Debug.exists}`);
     console.log(`  fieldType (class): ${field1Debug.fieldType}`);
     console.log(`  pdfFieldType (/FT): ${field1Debug.pdfFieldType}`);
@@ -1361,7 +1376,7 @@ serve(async (req) => {
       console.log(`    widget[${i}]: page=${w.pageIndex + 1}, x=${w.x.toFixed(1)}, y=${w.y.toFixed(1)}, w=${w.width.toFixed(1)}, h=${w.height.toFixed(1)}`);
     });
     
-    console.log(`\n--- FIELD 2: ${SIGNATURE_FIELD_2} ---`);
+    console.log(`\n--- TYPED FIELD 2: ${SIGNATURE_FIELD_2} ---`);
     console.log(`  exists: ${field2Debug.exists}`);
     console.log(`  fieldType (class): ${field2Debug.fieldType}`);
     console.log(`  pdfFieldType (/FT): ${field2Debug.pdfFieldType}`);
@@ -1372,7 +1387,8 @@ serve(async (req) => {
       console.log(`    widget[${i}]: page=${w.pageIndex + 1}, x=${w.x.toFixed(1)}, y=${w.y.toFixed(1)}, w=${w.width.toFixed(1)}, h=${w.height.toFixed(1)}`);
     });
     
-    // -------------------- FIELD 1: Signature2_es_:signer:signature (try text) --------------------
+    // -------------------- TYPED FIELD 1: Signature2_es_:signer:signature --------------------
+    // Set as text field with signature_name
     let field1Success = false;
     if (signatureNameText && field1Debug.exists) {
       try {
@@ -1381,77 +1397,85 @@ serve(async (req) => {
         try { textField.disableReadOnly(); } catch { /* ignore */ }
         textField.setText(signatureNameText);
         field1Success = true;
-        console.log(`SUCCESS: Set ${SIGNATURE_FIELD_1} = "${signatureNameText}"`);
+        console.log(`SUCCESS [TYPED FIELD 1]: Set ${SIGNATURE_FIELD_1} = "${signatureNameText}"`);
       } catch (e) {
-        console.log(`FAILED: Could not set ${SIGNATURE_FIELD_1} as text:`, e);
+        console.log(`FAILED [TYPED FIELD 1]: Could not set ${SIGNATURE_FIELD_1} as text:`, e);
       }
     }
     
     mappingReport.push({
       pdfFieldKey: SIGNATURE_FIELD_1,
       valueApplied: field1Success ? signatureNameText : '',
-      sourceFormField: 'signature_name',
+      sourceFormField: 'signature_name (TYPED)',
       isBlank: !signatureNameText,
       status: !signatureNameText ? 'skipped' : (field1Success ? 'success' : 'failed'),
     });
     
-    // -------------------- FIELD 2: Signature2 (ALWAYS overlay - it's a /Sig field) --------------------
-    // This field is a PDF signature field (/Sig type), so we CANNOT set text value on it.
-    // We MUST draw overlay text directly on the PDF page.
+    // -------------------- TYPED FIELD 2: Signature2 (overlay text) --------------------
+    // This is a /Sig field that cannot accept text directly - draw typed name as overlay
+    // IMPORTANT: Only use the ACTUAL widget rect from this field, NOT a hardcoded fallback
+    // The hardcoded fallback was incorrectly overlapping with the handwritten signature box
     let field2NeedsOverlay = false;
     let field2OverlayRect: { pageIndex: number; x: number; y: number; width: number; height: number } | null = null;
     
-    // Check if field is a signature field (/Sig) or not a text field
-    const isSignatureType = field2Debug.pdfFieldType.toLowerCase().includes('sig');
-    console.log(`\n=== SIGNATURE2 OVERLAY DECISION ===`);
+    console.log(`\n=== TYPED FIELD 2 OVERLAY DECISION ===`);
+    console.log(`  Target: Draw typed name "${signatureNameText}" to Signature2 field`);
     console.log(`  pdfFieldType: "${field2Debug.pdfFieldType}"`);
-    console.log(`  isSignatureType (/Sig detected): ${isSignatureType}`);
-    console.log(`  signatureNameText: "${signatureNameText}"`);
     console.log(`  field exists: ${field2Debug.exists}`);
     console.log(`  widgets count: ${field2Debug.widgets.length}`);
     
-    if (signatureNameText) {
-      // ALWAYS use overlay for Signature2 - do NOT attempt setText
-      // Even if /Sig is not detected, pdf-lib may fail to set text on this field
+    if (signatureNameText && field2Debug.exists && field2Debug.widgets.length > 0) {
+      // ONLY use the actual widget rect from the field - NO fallback
       field2NeedsOverlay = true;
-      
-      if (field2Debug.exists && field2Debug.widgets.length > 0) {
-        field2OverlayRect = field2Debug.widgets[0];
-        console.log(`  Using widget rect from field: page=${field2OverlayRect.pageIndex + 1}, x=${field2OverlayRect.x.toFixed(1)}, y=${field2OverlayRect.y.toFixed(1)}, w=${field2OverlayRect.width.toFixed(1)}, h=${field2OverlayRect.height.toFixed(1)}`);
-      } else {
-        // Fallback: hardcoded position for Signature2 on page 10 (index 9)
-        // This matches the typical location of "Additionally please sign in the center of the box below"
-        field2OverlayRect = { pageIndex: 9, x: 180, y: 150, width: 250, height: 50 };
-        console.log(`  Using FALLBACK hardcoded rect: page=${field2OverlayRect.pageIndex + 1}, x=${field2OverlayRect.x}, y=${field2OverlayRect.y}, w=${field2OverlayRect.width}, h=${field2OverlayRect.height}`);
-      }
+      field2OverlayRect = field2Debug.widgets[0];
+      console.log(`  Using widget rect from field: page=${field2OverlayRect.pageIndex + 1}, x=${field2OverlayRect.x.toFixed(1)}, y=${field2OverlayRect.y.toFixed(1)}, w=${field2OverlayRect.width.toFixed(1)}, h=${field2OverlayRect.height.toFixed(1)}`);
+    } else if (signatureNameText) {
+      // No widget found - DO NOT use a hardcoded fallback (would overlap with handwritten box)
+      console.log(`  WARNING: Signature2 field has no widget rect - SKIPPING overlay to avoid overlap with handwritten box`);
+      console.log(`  The typed name will only appear in Signature2_es_:signer:signature field`);
     }
     console.log(`  field2NeedsOverlay: ${field2NeedsOverlay}`);
-    console.log(`  field2OverlayRect: ${field2OverlayRect ? 'SET' : 'NULL'}`);
-    console.log(`=== END SIGNATURE2 OVERLAY DECISION ===\n`);
+    console.log(`=== END TYPED FIELD 2 OVERLAY DECISION ===\n`);
     
-    // Report for field 2 - always mark as success when overlay will be drawn
+    // Report for typed field 2
     if (field2NeedsOverlay && field2OverlayRect) {
       mappingReport.push({
         pdfFieldKey: SIGNATURE_FIELD_2,
         valueApplied: signatureNameText,
-        sourceFormField: 'signature_name (overlay - sig field)',
+        sourceFormField: 'signature_name (TYPED overlay)',
         isBlank: false,
         status: 'success',
       });
-      console.log(`${SIGNATURE_FIELD_2} marked for overlay text draw`);
+      console.log(`${SIGNATURE_FIELD_2} marked for typed text overlay`);
     } else {
       mappingReport.push({
         pdfFieldKey: SIGNATURE_FIELD_2,
-        valueApplied: '',
-        sourceFormField: 'signature_name',
+        valueApplied: field2Debug.exists && field2Debug.widgets.length === 0 ? '(no widget rect - skipped to avoid overlap)' : '',
+        sourceFormField: 'signature_name (TYPED)',
         isBlank: !signatureNameText,
-        status: !signatureNameText ? 'skipped' : 'failed',
+        status: 'skipped',
       });
     }
     
-    console.log('=== END SIGNATURE2 TYPED NAME MAPPING ===\n');
+    // -------------------- HANDWRITTEN SIGNATURE BOX: "Additionally please sign..." --------------------
+    // This field receives the DRAWN signature IMAGE, not typed text
+    console.log(`\n=== HANDWRITTEN SIGNATURE IMAGE MAPPING ===`);
+    console.log(`  Target: "${HANDWRITTEN_SIGNATURE_FIELD}"`);
+    console.log(`  Source: uploaded_documents.signature_image`);
+    console.log(`  Image data exists: ${!!handwrittenSignatureImage}`);
     
-    // Store overlay info for drawing after flatten
+    mappingReport.push({
+      pdfFieldKey: HANDWRITTEN_SIGNATURE_FIELD,
+      valueApplied: handwrittenSignatureImage ? '[IMAGE - signature_image]' : '',
+      sourceFormField: 'uploaded_documents.signature_image (IMAGE)',
+      isBlank: !handwrittenSignatureImage,
+      status: handwrittenSignatureImage ? 'success' : 'skipped',
+    });
+    console.log(`=== END HANDWRITTEN SIGNATURE IMAGE MAPPING ===\n`);
+    
+    console.log('=== END SIGNATURE MAPPING ===\n');
+    
+    // Store overlay info for typed text drawing after flatten
     const signature2OverlayInfo = field2NeedsOverlay && field2OverlayRect ? {
       text: signatureNameText,
       rect: field2OverlayRect,
@@ -1653,15 +1677,23 @@ serve(async (req) => {
       drawSignatureOnPage(backgroundSignatureImage, 3, 80, 100, 250, 60);
     }
 
-    // ==================== SIGNATURE IMAGE DRAWING (NON-Signature2 FIELDS ONLY) ====================
-    // NOTE: Signature2 and Signature2_es_:signer:signature are TEXT fields (typed name).
-    // This section only draws images for OTHER signature fields (background signature, etc.)
+    // ==================== HANDWRITTEN SIGNATURE IMAGE (for "Additionally please sign..." box) ====================
+    // This draws the HANDWRITTEN signature image (uploaded_documents.signature_image) to the 
+    // "Additionally please sign in the center of the box below" field ONLY.
+    // 
+    // IMPORTANT: This is SEPARATE from the typed signature fields:
+    //   - Signature2 → typed name (text overlay) - handled above
+    //   - Signature2_es_:signer:signature → typed name (text field) - handled above
+    //
+    // HARD CONSTRAINT: NEVER put typed name text in this handwritten box
     if (finalSignatureImage) {
-      console.log('=== DRAWING NON-SIGNATURE2 IMAGES ===');
+      console.log('=== DRAWING HANDWRITTEN SIGNATURE IMAGE ===');
+      console.log('  Source: uploaded_documents.signature_image');
+      console.log('  Target: "Additionally please sign in the center of the box below" field');
       
       // Draw using finalSignaturePlacement if available (for "Additionally please sign..." field)
       if (finalSignaturePlacement) {
-        console.log('Drawing final signature using widget placement:', finalSignaturePlacement);
+        console.log('Drawing handwritten signature using widget placement:', finalSignaturePlacement);
         drawSignatureOnPage(
           finalSignatureImage,
           finalSignaturePlacement.pageIndex,
@@ -1671,14 +1703,14 @@ serve(async (req) => {
           Math.max(10, finalSignaturePlacement.height - 12)
         );
       } else {
-        // Fallback: Draw signature at fixed position on page 10 (index 9) - the signature page
-        console.log('Using fixed coordinates for final signature on page 10');
+        // Fallback: Draw signature at fixed position on page 10 (index 9) - the handwritten signature box
+        console.log('Using fixed coordinates for handwritten signature on page 10');
         drawSignatureOnPage(finalSignatureImage, 9, 180, 160, 250, 60);
       }
       
-      console.log('=== END NON-SIGNATURE2 IMAGES ===');
+      console.log('=== END HANDWRITTEN SIGNATURE IMAGE ===');
     } else {
-      console.log('No final signature image found');
+      console.log('No handwritten signature image found (uploaded_documents.signature_image is empty)');
     }
 
     
