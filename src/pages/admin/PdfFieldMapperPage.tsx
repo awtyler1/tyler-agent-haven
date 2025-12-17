@@ -94,6 +94,21 @@ interface SavedMappings {
   emailAddress: string[];
   // Legal Questions - simplified: each question maps to a single text field filled with "Yes" or "No"
   legalQuestions: Record<string, string[]>;
+  // Background Explanations (for "Yes" answers)
+  backgroundExplanations: {
+    dateOfAction: string[];
+    action: string[];
+    reason: string[];
+    explanation: string[];
+    dateOfAction2: string[];
+    action2: string[];
+    reason2: string[];
+    explanation2: string[];
+    dateOfAction3: string[];
+    action3: string[];
+    reason3: string[];
+    explanation3: string[];
+  };
   // Carriers
   carriers: Record<string, string[]>;
   // Non-Resident States
@@ -249,6 +264,20 @@ const FIELD_CATEGORIES = [
   { value: "legal_q17", label: "Q17: Financial institution connection", section: "Legal Questions" },
   { value: "legal_q18", label: "Q18: Aliases", section: "Legal Questions" },
   { value: "legal_q19", label: "Q19: IRS matters", section: "Legal Questions" },
+  
+  // Background Explanations (for "Yes" answers to legal questions)
+  { value: "bg_date_of_action", label: "Entry 1: Date of Action", section: "Background Explanations" },
+  { value: "bg_action", label: "Entry 1: Action", section: "Background Explanations" },
+  { value: "bg_reason", label: "Entry 1: Reason", section: "Background Explanations" },
+  { value: "bg_explanation", label: "Entry 1: Explanation", section: "Background Explanations" },
+  { value: "bg_date_of_action_2", label: "Entry 2: Date of Action", section: "Background Explanations" },
+  { value: "bg_action_2", label: "Entry 2: Action", section: "Background Explanations" },
+  { value: "bg_reason_2", label: "Entry 2: Reason", section: "Background Explanations" },
+  { value: "bg_explanation_2", label: "Entry 2: Explanation", section: "Background Explanations" },
+  { value: "bg_date_of_action_3", label: "Entry 3: Date of Action", section: "Background Explanations" },
+  { value: "bg_action_3", label: "Entry 3: Action", section: "Background Explanations" },
+  { value: "bg_reason_3", label: "Entry 3: Reason", section: "Background Explanations" },
+  { value: "bg_explanation_3", label: "Entry 3: Explanation", section: "Background Explanations" },
   
   // Carriers
   { value: "carrier_aetna", label: "Aetna (checkbox)", section: "Carriers" },
@@ -467,6 +496,21 @@ export default function PdfFieldMapperPage() {
             fields?.forEach(f => newMappings[f] = `nonres_${state}`);
           });
         }
+        // Background Explanations
+        if (saved.backgroundExplanations) {
+          saved.backgroundExplanations.dateOfAction?.forEach(f => newMappings[f] = "bg_date_of_action");
+          saved.backgroundExplanations.action?.forEach(f => newMappings[f] = "bg_action");
+          saved.backgroundExplanations.reason?.forEach(f => newMappings[f] = "bg_reason");
+          saved.backgroundExplanations.explanation?.forEach(f => newMappings[f] = "bg_explanation");
+          saved.backgroundExplanations.dateOfAction2?.forEach(f => newMappings[f] = "bg_date_of_action_2");
+          saved.backgroundExplanations.action2?.forEach(f => newMappings[f] = "bg_action_2");
+          saved.backgroundExplanations.reason2?.forEach(f => newMappings[f] = "bg_reason_2");
+          saved.backgroundExplanations.explanation2?.forEach(f => newMappings[f] = "bg_explanation_2");
+          saved.backgroundExplanations.dateOfAction3?.forEach(f => newMappings[f] = "bg_date_of_action_3");
+          saved.backgroundExplanations.action3?.forEach(f => newMappings[f] = "bg_action_3");
+          saved.backgroundExplanations.reason3?.forEach(f => newMappings[f] = "bg_reason_3");
+          saved.backgroundExplanations.explanation3?.forEach(f => newMappings[f] = "bg_explanation_3");
+        }
         // Ignored
         saved.ignored?.forEach(f => newMappings[f] = "ignore");
         setMappings(newMappings);
@@ -598,6 +642,20 @@ export default function PdfFieldMapperPage() {
         fax: [],
         emailAddress: [],
         legalQuestions: {},
+        backgroundExplanations: {
+          dateOfAction: [],
+          action: [],
+          reason: [],
+          explanation: [],
+          dateOfAction2: [],
+          action2: [],
+          reason2: [],
+          explanation2: [],
+          dateOfAction3: [],
+          action3: [],
+          reason3: [],
+          explanation3: [],
+        },
         carriers: {},
         nonResidentStates: {},
         ignored: [],
@@ -713,6 +771,18 @@ export default function PdfFieldMapperPage() {
           case "phone_home": structured.phoneHome.push(fieldName); break;
           case "fax": structured.fax.push(fieldName); break;
           case "email_address": structured.emailAddress.push(fieldName); break;
+          case "bg_date_of_action": structured.backgroundExplanations.dateOfAction.push(fieldName); break;
+          case "bg_action": structured.backgroundExplanations.action.push(fieldName); break;
+          case "bg_reason": structured.backgroundExplanations.reason.push(fieldName); break;
+          case "bg_explanation": structured.backgroundExplanations.explanation.push(fieldName); break;
+          case "bg_date_of_action_2": structured.backgroundExplanations.dateOfAction2.push(fieldName); break;
+          case "bg_action_2": structured.backgroundExplanations.action2.push(fieldName); break;
+          case "bg_reason_2": structured.backgroundExplanations.reason2.push(fieldName); break;
+          case "bg_explanation_2": structured.backgroundExplanations.explanation2.push(fieldName); break;
+          case "bg_date_of_action_3": structured.backgroundExplanations.dateOfAction3.push(fieldName); break;
+          case "bg_action_3": structured.backgroundExplanations.action3.push(fieldName); break;
+          case "bg_reason_3": structured.backgroundExplanations.reason3.push(fieldName); break;
+          case "bg_explanation_3": structured.backgroundExplanations.explanation3.push(fieldName); break;
           case "ignore": structured.ignored.push(fieldName); break;
         }
       });
