@@ -84,9 +84,12 @@ export function useContractingPdf() {
       }
 
       // Fetch the PDF template and convert to base64
+      // CRITICAL: Use the SIGNATURES_FIXED template with proper /Sig type signature fields
+      const templateFileName = 'TIG_Contracting_Packet_SIGNATURES_FIXED.pdf';
       let templateBase64: string | undefined;
       try {
-        const templateResponse = await fetch('/templates/TIG_Contracting_Packet_Template.pdf');
+        console.log('[pdf] Loading template from frontend:', templateFileName);
+        const templateResponse = await fetch(`/templates/${templateFileName}`);
         if (templateResponse.ok) {
           const templateBlob = await templateResponse.blob();
           templateBase64 = await new Promise<string>((resolve) => {
@@ -97,10 +100,12 @@ export function useContractingPdf() {
             };
             reader.readAsDataURL(templateBlob);
           });
-          console.log('Template loaded, size:', templateBase64.length);
+          console.log('[pdf] Template loaded successfully, size:', templateBase64.length);
+        } else {
+          console.log('[pdf] Template not found at /templates/', templateFileName);
         }
       } catch (e) {
-        console.log('Could not load template, will use fallback:', e);
+        console.log('[pdf] Could not load template, will use fallback:', e);
       }
 
       // Call the edge function
