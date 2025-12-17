@@ -940,9 +940,6 @@ serve(async (req) => {
     setTextField('State_5', application.resident_state);
     setTextField('Resident State', application.resident_state);
     
-    // Insurance License Number - try alternate field names
-    setTextField('Nevada Accident and Health Insurance License', application.insurance_license_number);
-    
     // AML - handle as radio group, checkbox, or text field
     const hasAmlTraining = !!(application.aml_training_provider || application.aml_completion_date);
     const amlFieldName = fieldMappings?.amlYes?.length 
