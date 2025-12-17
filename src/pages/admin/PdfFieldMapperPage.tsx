@@ -1021,7 +1021,21 @@ export default function PdfFieldMapperPage() {
         signature_name: "John Alexander Smith",
         signature_initials: "JAS",
         signature_date: new Date().toISOString(),
-        uploaded_documents: {},
+        uploaded_documents: {
+          // Background explanation test data (for "Yes" answers to legal questions)
+          date_of_action: "2020-03-15",
+          action: "License suspension",
+          reason: "Administrative error",
+          explanation: "License was suspended due to a clerical error in renewal paperwork. Issue was resolved within 30 days.",
+          date_of_action_2: "2019-08-22",
+          action_2: "Fine issued",
+          reason_2: "Late filing",
+          explanation_2: "Received $500 fine for late CE filing. Paid immediately and completed additional training.",
+          date_of_action_3: "2018-01-10",
+          action_3: "Warning letter",
+          reason_3: "Documentation issue",
+          explanation_3: "Received warning letter regarding incomplete client documentation. Implemented new tracking system.",
+        },
       };
 
       // Load template from the app's public folder and send as base64 (avoids server-side fetch issues)
