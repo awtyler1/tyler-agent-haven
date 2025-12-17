@@ -1766,6 +1766,40 @@ serve(async (req) => {
 
     // Background signature field (page 4)
     try {
+      // === BACKGROUND SIGNATURE DEBUG ===
+      console.log('=== BACKGROUND SIGNATURE DEBUG ===');
+      try {
+        const bgSigFieldDebug = form.getField('all carrierspecific questions_es_:signature');
+        console.log('Field found:', bgSigFieldDebug.getName());
+        console.log('Field type:', bgSigFieldDebug.constructor.name);
+        
+        // Get the widget to see page and position
+        const widgetsDebug = (bgSigFieldDebug as any).acroField?.getWidgets?.() || [];
+        console.log('Number of widgets:', widgetsDebug.length);
+        widgetsDebug.forEach((widget: any, index: number) => {
+          try {
+            const rect = widget.getRectangle?.();
+            console.log(`Widget ${index}: rect=[${rect?.x?.toFixed?.(1) || 'N/A'}, ${rect?.y?.toFixed?.(1) || 'N/A'}, ${rect?.width?.toFixed?.(1) || 'N/A'}, ${rect?.height?.toFixed?.(1) || 'N/A'}]`);
+            
+            // Find which page this widget is on
+            const pageRef = widget.P?.();
+            pages.forEach((page: any, pageIndex: number) => {
+              const pageNode = (page as any).node;
+              if (pageNode?.ref === pageRef || pageRef === pageNode) {
+                console.log(`Widget ${index} is on page ${pageIndex + 1}`);
+              }
+            });
+          } catch (widgetErr) {
+            console.log(`Widget ${index} error:`, widgetErr);
+          }
+        });
+      } catch (debugErr: unknown) {
+        const errMsg = debugErr instanceof Error ? debugErr.message : String(debugErr);
+        console.log('Debug error:', errMsg);
+      }
+      console.log('=== END BACKGROUND SIGNATURE DEBUG ===');
+      // === END DEBUG ===
+
       if (bgSigDataUrl) {
         addDebugLog('info', 'signature', 'Setting background signature in field', {
           fieldName: 'all carrierspecific questions_es_:signature',
@@ -1810,6 +1844,40 @@ serve(async (req) => {
 
     // Final signature field (page 10)
     try {
+      // === FINAL SIGNATURE DEBUG ===
+      console.log('=== FINAL SIGNATURE DEBUG ===');
+      try {
+        const finalSigFieldDebug = form.getField('Additionally please sign in the center of the box below_es_:signature');
+        console.log('Field found:', finalSigFieldDebug.getName());
+        console.log('Field type:', finalSigFieldDebug.constructor.name);
+        
+        // Get the widget to see page and position
+        const widgetsDebug = (finalSigFieldDebug as any).acroField?.getWidgets?.() || [];
+        console.log('Number of widgets:', widgetsDebug.length);
+        widgetsDebug.forEach((widget: any, index: number) => {
+          try {
+            const rect = widget.getRectangle?.();
+            console.log(`Widget ${index}: rect=[${rect?.x?.toFixed?.(1) || 'N/A'}, ${rect?.y?.toFixed?.(1) || 'N/A'}, ${rect?.width?.toFixed?.(1) || 'N/A'}, ${rect?.height?.toFixed?.(1) || 'N/A'}]`);
+            
+            // Find which page this widget is on
+            const pageRef = widget.P?.();
+            pages.forEach((page: any, pageIndex: number) => {
+              const pageNode = (page as any).node;
+              if (pageNode?.ref === pageRef || pageRef === pageNode) {
+                console.log(`Widget ${index} is on page ${pageIndex + 1}`);
+              }
+            });
+          } catch (widgetErr) {
+            console.log(`Widget ${index} error:`, widgetErr);
+          }
+        });
+      } catch (debugErr: unknown) {
+        const errMsg = debugErr instanceof Error ? debugErr.message : String(debugErr);
+        console.log('Debug error:', errMsg);
+      }
+      console.log('=== END FINAL SIGNATURE DEBUG ===');
+      // === END DEBUG ===
+
       if (finalSigDataUrl) {
         addDebugLog('info', 'signature', 'Setting final signature in field', {
           fieldName: 'Additionally please sign in the center of the box below_es_:signature',
