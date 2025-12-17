@@ -461,6 +461,30 @@ export function ContractingForm() {
       await updateField('signature_date', new Date().toISOString());
     }
     
+    // ===== DEBUG: Log all form fields as flat JSON at submission time =====
+    const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
+      const result: Record<string, any> = {};
+      for (const [key, value] of Object.entries(obj || {})) {
+        const newKey = prefix ? `${prefix}.${key}` : key;
+        if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+          Object.assign(result, flattenObject(value, newKey));
+        } else if (Array.isArray(value)) {
+          result[newKey] = JSON.stringify(value);
+        } else if (typeof value === 'string' && value.startsWith('data:image')) {
+          result[newKey] = `[BASE64_IMAGE:${value.length} chars]`;
+        } else {
+          result[newKey] = value;
+        }
+      }
+      return result;
+    };
+    
+    const flatFormData = flattenObject(application);
+    console.log('🔍 ===== SUBMISSION DEBUG: ALL FORM FIELDS (FLAT JSON) =====');
+    console.log(JSON.stringify(flatFormData, null, 2));
+    console.log('🔍 ===== END SUBMISSION DEBUG =====');
+    // ===== END DEBUG =====
+    
     // Run validation
     const result = validateForm(application!, sectionStatuses, carriers);
     
