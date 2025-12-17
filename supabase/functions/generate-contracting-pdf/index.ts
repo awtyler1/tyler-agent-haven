@@ -1167,9 +1167,18 @@ serve(async (req) => {
     
     setTextField('DATE_9', formatDate(application.signature_date));
 
+    // Precompute widget placement(s) BEFORE flatten, since flatten can remove form field widgets
+    const finalSignaturePlacement = getFieldWidgetPlacement(
+      'Additionally please sign in the center of the box below'
+    );
+    console.log('Final signature widget placement:', finalSignaturePlacement);
+
+    // Flatten the form to prevent further editing
+    // IMPORTANT: We draw images AFTER flatten so the field appearances can't cover the images.
+    form.flatten();
+
     // ==================== DRAW INITIALS AND SIGNATURES AS IMAGES ====================
     // Draw initials on each page footer at bottom LEFT above the "initials" line
-    // Page indices are 0-based, y=55 to position above the label line
     if (initialsImage) {
       const initialsPositions = [
         // Skip page 1 (index 0) - no initials needed
@@ -1184,42 +1193,36 @@ serve(async (req) => {
         { page: 9, x: 50, y: 68 },   // Page 10
         { page: 10, x: 50, y: 68 },  // Page 11 (last page)
       ];
-      
+
       for (const pos of initialsPositions) {
         drawInitialsOnPage(pos.page, pos.x, pos.y);
       }
     }
-    
-    // Draw background signature on page 3 (changing index to 2 since index 2 appeared on page 2)
+
+    // Draw background signature on page 3 (template-specific positioning)
     if (backgroundSignatureImage) {
-      // Position in signature area - signature box on page 3
       drawSignatureOnPage(backgroundSignatureImage, 3, 80, 100, 250, 60);
     }
-    
-    // Draw final signature on the signature field widget (preferred) to avoid page/index drift
-    // This should appear in the "Additionally please sign in the center of the box below" area
+
+    // Draw final signature using widget placement (preferred) to avoid page/index drift
     if (finalSignatureImage) {
-      const sigPlacement = getFieldWidgetPlacement('Additionally please sign in the center of the box below');
-      if (sigPlacement) {
-        console.log('Drawing final signature using widget placement:', sigPlacement);
-        // Slight padding to keep signature inside the box
+      if (finalSignaturePlacement) {
+        console.log('Drawing final signature using widget placement:', finalSignaturePlacement);
         drawSignatureOnPage(
           finalSignatureImage,
-          sigPlacement.pageIndex,
-          sigPlacement.x + 8,
-          sigPlacement.y + 6,
-          Math.max(10, sigPlacement.width - 16),
-          Math.max(10, sigPlacement.height - 12)
+          finalSignaturePlacement.pageIndex,
+          finalSignaturePlacement.x + 8,
+          finalSignaturePlacement.y + 6,
+          Math.max(10, finalSignaturePlacement.width - 16),
+          Math.max(10, finalSignaturePlacement.height - 12)
         );
       } else {
-        console.log('No widget placement found for signature field; skipping final signature draw to avoid wrong-page placement');
+        console.log('No widget placement found for final signature field; skipping draw');
       }
     } else {
       console.log('No final signature image found');
     }
 
-    // Flatten the form to prevent further editing
-    form.flatten();
     
     // Save the PDF
     const filledPdfBytes = await pdfDoc.save();
