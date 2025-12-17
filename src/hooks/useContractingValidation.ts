@@ -98,13 +98,11 @@ export const validateLicensing = (app: ContractingApplication): ValidationResult
     fieldErrors.birth_date = VALIDATION_MESSAGES.required;
   }
   
+  // SSN validation only (no EIN requirement for corporations)
   if (!app.tax_id?.trim()) {
-    errors.push(app.is_corporation ? 'EIN is required' : 'SSN is required');
+    errors.push('SSN is required');
     fieldErrors.tax_id = VALIDATION_MESSAGES.required;
-  } else if (app.is_corporation && !isValidEIN(app.tax_id)) {
-    errors.push('Invalid EIN format');
-    fieldErrors.tax_id = VALIDATION_MESSAGES.invalidEIN;
-  } else if (!app.is_corporation && !isValidSSN(app.tax_id)) {
+  } else if (!isValidSSN(app.tax_id)) {
     errors.push('Invalid SSN format');
     fieldErrors.tax_id = VALIDATION_MESSAGES.invalidSSN;
   }
@@ -138,24 +136,12 @@ export const validateLicensing = (app: ContractingApplication): ValidationResult
     fieldErrors.resident_state = VALIDATION_MESSAGES.selectRequired;
   }
   
-  if (!app.license_expiration_date) {
-    errors.push('License expiration date is required');
-    fieldErrors.license_expiration_date = VALIDATION_MESSAGES.required;
-  }
+  // License expiration date - removed as required
+  // Government ID upload - removed as required
   
   if (!app.uploaded_documents?.insurance_license) {
     errors.push('Insurance license document is required');
     fieldErrors.insurance_license = VALIDATION_MESSAGES.documentRequired;
-  }
-  
-  if (!app.uploaded_documents?.government_id) {
-    errors.push('Government ID is required');
-    fieldErrors.government_id = VALIDATION_MESSAGES.documentRequired;
-  }
-  
-  if (app.is_corporation && !app.agency_name?.trim()) {
-    errors.push('Business name is required for corporations');
-    fieldErrors.agency_name = VALIDATION_MESSAGES.required;
   }
   
   return { isValid: errors.length === 0, errors, fieldErrors };
