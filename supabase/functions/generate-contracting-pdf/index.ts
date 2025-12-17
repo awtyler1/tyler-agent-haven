@@ -1301,10 +1301,10 @@ serve(async (req) => {
           Math.max(10, finalSignaturePlacement.height - 12)
         );
       } else {
-        // Fallback: Draw signature at fixed position on page 9 (index 8) - per template signature page
+        // Fallback: Draw signature at fixed position on page 10 (index 9) - the signature page
         // NOTE: pdf-lib uses a bottom-left origin; decreasing Y moves the image DOWN.
-        console.log('Using fixed coordinates for final signature on page 9');
-        drawSignatureOnPage(finalSignatureImage, 8, 180, 130, 250, 60);
+        console.log('Using fixed coordinates for final signature on page 10');
+        drawSignatureOnPage(finalSignatureImage, 9, 180, 130, 250, 60);
       }
     } else {
       console.log('No final signature image found');
