@@ -92,15 +92,20 @@ serve(async (req) => {
       const fieldName = field.getName();
       const fieldTypeName = field.constructor.name;
       
-      // Map constructor name to friendly type
+      // Map constructor name to friendly type using pdf-lib's field type methods
       let fieldType = 'unknown';
-      if (fieldTypeName.includes('Text')) fieldType = 'text';
-      else if (fieldTypeName.includes('Check')) fieldType = 'checkbox';
-      else if (fieldTypeName.includes('Radio')) fieldType = 'radio';
-      else if (fieldTypeName.includes('Signature')) fieldType = 'signature';
-      else if (fieldTypeName.includes('Button')) fieldType = 'button';
-      else if (fieldTypeName.includes('Dropdown') || fieldTypeName.includes('Select')) fieldType = 'dropdown';
-      else fieldType = fieldTypeName;
+      try {
+        // Use duck typing to detect field type
+        if (typeof (field as any).getText === 'function') fieldType = 'text';
+        else if (typeof (field as any).isChecked === 'function') fieldType = 'checkbox';
+        else if (typeof (field as any).getSelected === 'function') fieldType = 'radio';
+        else if (fieldTypeName.includes('Sig') || fieldTypeName.includes('ignature')) fieldType = 'signature';
+        else if (typeof (field as any).getOptions === 'function') fieldType = 'dropdown';
+        else if (fieldTypeName.includes('Button') || fieldTypeName.includes('Btn')) fieldType = 'button';
+        else fieldType = fieldTypeName;
+      } catch {
+        fieldType = fieldTypeName;
+      }
       
       // Get widget placement
       let pageIndex = -1;
