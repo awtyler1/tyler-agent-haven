@@ -612,52 +612,99 @@ serve(async (req) => {
     console.log('Setting birth state:', application.birth_state);
     setTextField('State_5', application.birth_state);
     
-    // Gender - try as RadioGroup first, then checkboxes
+    // Gender - try multiple approaches
     const gender = application.gender?.toLowerCase();
+    console.log('=== GENDER PROCESSING ===');
     console.log('Gender value from application:', application.gender, '-> normalized:', gender);
     
-    // Try to auto-detect the Gender radio group by looking for options that include both "Male" and "Female"
-    let genderSet = false;
+    // First, log all fields that might be gender-related
+    console.log('Looking for gender-related fields...');
     for (const field of form.getFields()) {
+      const fieldName = field.getName();
+      const lowerName = fieldName.toLowerCase();
+      if (lowerName.includes('male') || lowerName.includes('female') || lowerName.includes('gender') || lowerName.includes('sex')) {
+        console.log(`Potential gender field: "${fieldName}" (type: ${field.constructor.name})`);
+      }
+    }
+    
+    let genderSet = false;
+    
+    // Try as RadioGroup first
+    for (const field of form.getFields()) {
+      if (genderSet) break;
       try {
         const rg = form.getRadioGroup(field.getName());
         const options = rg.getOptions();
         const lowerOptions = options.map((o: string) => o.toLowerCase());
-        const hasMale = lowerOptions.includes('male');
-        const hasFemale = lowerOptions.includes('female');
+        const hasMale = lowerOptions.some(o => o.includes('male'));
+        const hasFemale = lowerOptions.some(o => o.includes('female'));
 
         if (!hasMale || !hasFemale) continue;
 
-        console.log(`Detected gender RadioGroup: ${field.getName()} options=${options.join(',')}`);
+        console.log(`Detected gender RadioGroup: "${field.getName()}" options=[${options.join(', ')}]`);
 
         if (gender === 'male') {
-          rg.select(options[lowerOptions.indexOf('male')]);
-          console.log(`Selected Male on gender RadioGroup: ${field.getName()}`);
-          genderSet = true;
+          const maleOption = options.find((o: string) => o.toLowerCase().includes('male'));
+          if (maleOption) {
+            rg.select(maleOption);
+            console.log(`Selected "${maleOption}" on gender RadioGroup`);
+            genderSet = true;
+          }
         } else if (gender === 'female') {
-          rg.select(options[lowerOptions.indexOf('female')]);
-          console.log(`Selected Female on gender RadioGroup: ${field.getName()}`);
-          genderSet = true;
+          const femaleOption = options.find((o: string) => o.toLowerCase().includes('female'));
+          if (femaleOption) {
+            rg.select(femaleOption);
+            console.log(`Selected "${femaleOption}" on gender RadioGroup`);
+            genderSet = true;
+          }
         }
-
-        if (genderSet) break;
       } catch {
-        // Not a radio group
+        // Not a radio group, continue
       }
     }
 
+    // Try as individual checkboxes if radio group didn't work
     if (!genderSet) {
-      console.log('Gender radio group not detected; falling back to checkbox attempts');
+      console.log('Gender radio group not found, trying checkboxes...');
+      
+      // Try exact field names from mappings
+      const checkboxNames = gender === 'male' 
+        ? ['Male', 'male', 'MALE', 'Check Box4', 'CheckBox4', 'Gender_Male', 'male_checkbox']
+        : ['Female', 'female', 'FEMALE', 'Check Box5', 'CheckBox5', 'Gender_Female', 'female_checkbox'];
+      
+      for (const name of checkboxNames) {
+        try {
+          const checkbox = form.getCheckBox(name);
+          checkbox.check();
+          console.log(`SUCCESS: Checked gender checkbox "${name}"`);
+          genderSet = true;
+          break;
+        } catch {
+          // Try next
+        }
+      }
+      
+      // Try setting as text field with 'X' as last resort
+      if (!genderSet) {
+        const textNames = gender === 'male' ? ['Male', 'male'] : ['Female', 'female'];
+        for (const name of textNames) {
+          try {
+            const textField = form.getTextField(name);
+            textField.setText('X');
+            console.log(`SUCCESS: Set gender text field "${name}" to X`);
+            genderSet = true;
+            break;
+          } catch {
+            // Try next
+          }
+        }
+      }
     }
     
-    // Also try as individual checkboxes
-    if (gender === 'male') {
-      setCheckbox('Male', true);
-      setCheckbox('Check Box4', true);
-    } else if (gender === 'female') {
-      setCheckbox('Female', true);
-      setCheckbox('Check Box5', true);
+    if (!genderSet) {
+      console.log('WARNING: Could not set gender field');
     }
+    console.log('=== END GENDER PROCESSING ===');
     
     // Home Address
     if (application.home_address) {
