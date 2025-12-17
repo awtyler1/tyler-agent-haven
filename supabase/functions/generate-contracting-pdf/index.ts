@@ -598,21 +598,79 @@ serve(async (req) => {
     setTextField('NPN', application.npn_number);
     setTextField('Birth Date', formatDate(application.birth_date));
     
-    // Birth City - always try to set
-    console.log('Birth City value:', application.birth_city);
-    setTextField('City_5', application.birth_city || '');
-    if (fieldMappings?.birthCity?.length) {
-      fieldMappings.birthCity.forEach(fieldName => setTextField(fieldName, application.birth_city || ''));
-    }
-    
-    // Birth State - use mapped field names if available
-    if (application.birth_state) {
-      if (fieldMappings?.birthState?.length) {
-        fieldMappings.birthState.forEach(fieldName => setTextField(fieldName, application.birth_state));
-      } else {
-        setTextField('State_5', application.birth_state); // Default field name
+    // Birth City - try multiple field name variations
+    console.log('=== BIRTH CITY DEBUG ===');
+    console.log('Birth City value from application:', application.birth_city);
+    if (application.birth_city) {
+      const birthCityFieldNames = ['City_5', 'City 5', 'City_05', 'City5', 'BirthCity', 'Birth City', 'CityOfBirth', 'City of Birth'];
+      let birthCitySet = false;
+      for (const fieldName of birthCityFieldNames) {
+        try {
+          const field = form.getTextField(fieldName);
+          field.setText(application.birth_city);
+          console.log(`Successfully set birth city on field: ${fieldName}`);
+          birthCitySet = true;
+          break;
+        } catch {
+          // Field not found, try next
+        }
       }
+      if (!birthCitySet) {
+        console.log('Could not find birth city field. Tried:', birthCityFieldNames.join(', '));
+      }
+      // Also try mapped field names
+      if (fieldMappings?.birthCity?.length) {
+        fieldMappings.birthCity.forEach(fieldName => {
+          try {
+            const field = form.getTextField(fieldName);
+            field.setText(application.birth_city);
+            console.log(`Set birth city via mapping on field: ${fieldName}`);
+          } catch {
+            console.log(`Mapped birth city field not found: ${fieldName}`);
+          }
+        });
+      }
+    } else {
+      console.log('Birth City is empty/null - not setting');
     }
+    console.log('=== END BIRTH CITY DEBUG ===');
+    
+    // Birth State - try multiple field name variations
+    console.log('=== BIRTH STATE DEBUG ===');
+    console.log('Birth State value from application:', application.birth_state);
+    if (application.birth_state) {
+      const birthStateFieldNames = ['State_5', 'State 5', 'State_05', 'State5', 'BirthState', 'Birth State', 'StateOfBirth', 'State of Birth'];
+      let birthStateSet = false;
+      for (const fieldName of birthStateFieldNames) {
+        try {
+          const field = form.getTextField(fieldName);
+          field.setText(application.birth_state);
+          console.log(`Successfully set birth state on field: ${fieldName}`);
+          birthStateSet = true;
+          break;
+        } catch {
+          // Field not found, try next
+        }
+      }
+      if (!birthStateSet) {
+        console.log('Could not find birth state field. Tried:', birthStateFieldNames.join(', '));
+      }
+      // Also try mapped field names
+      if (fieldMappings?.birthState?.length) {
+        fieldMappings.birthState.forEach(fieldName => {
+          try {
+            const field = form.getTextField(fieldName);
+            field.setText(application.birth_state);
+            console.log(`Set birth state via mapping on field: ${fieldName}`);
+          } catch {
+            console.log(`Mapped birth state field not found: ${fieldName}`);
+          }
+        });
+      }
+    } else {
+      console.log('Birth State is empty/null - not setting');
+    }
+    console.log('=== END BIRTH STATE DEBUG ===');
     
     // Gender - try as RadioGroup first, then checkboxes
     const gender = application.gender?.toLowerCase();
