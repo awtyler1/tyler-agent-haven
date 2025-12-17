@@ -87,8 +87,16 @@ interface ContractingData {
 function formatDate(dateStr: string | undefined): string {
   if (!dateStr) return '';
   try {
+    // Parse date without timezone conversion to preserve the original date
+    // Handle ISO format (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss) 
+    const datePart = dateStr.split('T')[0];
+    const [year, month, day] = datePart.split('-');
+    if (year && month && day) {
+      return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+    }
+    // Fallback for other formats
     const date = new Date(dateStr);
-    return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+    return `${(date.getUTCMonth() + 1).toString().padStart(2, '0')}/${date.getUTCDate().toString().padStart(2, '0')}/${date.getUTCFullYear()}`;
   } catch {
     return dateStr;
   }
@@ -97,8 +105,15 @@ function formatDate(dateStr: string | undefined): string {
 function formatDateMMDDYYYY(dateStr: string | undefined): string {
   if (!dateStr) return '';
   try {
+    // Parse date without timezone conversion
+    const datePart = dateStr.split('T')[0];
+    const [year, month, day] = datePart.split('-');
+    if (year && month && day) {
+      return `${month.padStart(2, '0')}${day.padStart(2, '0')}${year}`;
+    }
+    // Fallback
     const date = new Date(dateStr);
-    return `${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}${date.getFullYear()}`;
+    return `${(date.getUTCMonth() + 1).toString().padStart(2, '0')}${date.getUTCDate().toString().padStart(2, '0')}${date.getUTCFullYear()}`;
   } catch {
     return dateStr;
   }
@@ -1057,11 +1072,13 @@ serve(async (req) => {
     // Save the PDF
     const filledPdfBytes = await pdfDoc.save();
 
-    // Generate filename
+    // Generate filename using the signature date from the application
     const nameParts = application.full_legal_name.split(' ');
     const lastName = nameParts[nameParts.length - 1];
     const firstName = nameParts[0];
-    const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    // Use signature_date from application to avoid timezone issues
+    const sigDatePart = application.signature_date?.split('T')[0] || new Date().toISOString().split('T')[0];
+    const dateStr = sigDatePart.replace(/-/g, '');
     const filename = `TIG_Contracting_${lastName}_${firstName}_${dateStr}.pdf`;
 
     console.log('PDF generated successfully:', filename, 'Size:', filledPdfBytes.byteLength);
