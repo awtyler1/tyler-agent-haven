@@ -46,6 +46,7 @@ import NewAgentPage from "./pages/admin/NewAgentPage";
 import PdfFieldExtractorPage from "./pages/admin/PdfFieldExtractorPage";
 import PdfFieldMapperPage from "./pages/admin/PdfFieldMapperPage";
 import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
+import PdfFieldAuditPage from "./pages/admin/PdfFieldAuditPage";
 
 const queryClient = new QueryClient();
 
@@ -173,6 +174,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <PdfFieldMapperPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/pdf-audit" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <PdfFieldAuditPage />
                 </ProtectedRoute>
               } 
             />
