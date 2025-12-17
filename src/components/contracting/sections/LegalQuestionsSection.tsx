@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
@@ -169,27 +170,138 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
               <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/30">
                 <div className="flex gap-3">
                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                  <div className="space-y-3">
+                  <div className="space-y-4 w-full">
                     <p className="text-sm text-amber-900/80 leading-relaxed">
                       If you answered "YES" to any of the questions above, please provide an explanation that includes dates, actions, and descriptions. You can attach additional paper if necessary.
                     </p>
                     
-                    {/* Explanation Text Area */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-medium text-amber-900/70">
-                        Written Explanation
-                      </Label>
-                      <Textarea
-                        value={uploadedDocs.background_explanation_text || ''}
-                        onChange={(e) => {
-                          onUpdate('uploaded_documents', {
-                            ...uploadedDocs,
-                            background_explanation_text: e.target.value
-                          });
-                        }}
-                        placeholder="Please provide detailed explanations for each 'Yes' answer, including dates, circumstances, and outcomes..."
-                        className="min-h-[120px] text-sm rounded-xl border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50 placeholder:text-muted-foreground/40"
-                      />
+                    {/* Structured Explanation Fields - Entry 1 */}
+                    <div className="space-y-3 p-3 rounded-lg bg-white/60 border border-amber-100">
+                      <p className="text-xs font-semibold text-amber-900/80">Entry 1</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
+                          <Input
+                            type="date"
+                            value={uploadedDocs.date_of_action || ''}
+                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, date_of_action: e.target.value })}
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Action</Label>
+                          <Input
+                            value={uploadedDocs.action || ''}
+                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, action: e.target.value })}
+                            placeholder="What action was taken"
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
+                        <Input
+                          value={uploadedDocs.reason || ''}
+                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, reason: e.target.value })}
+                          placeholder="Reason for the action"
+                          className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
+                        <Textarea
+                          value={uploadedDocs.explanation || ''}
+                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, explanation: e.target.value })}
+                          placeholder="Detailed explanation of circumstances and outcomes"
+                          className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Structured Explanation Fields - Entry 2 */}
+                    <div className="space-y-3 p-3 rounded-lg bg-white/60 border border-amber-100">
+                      <p className="text-xs font-semibold text-amber-900/80">Entry 2 (if applicable)</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
+                          <Input
+                            type="date"
+                            value={uploadedDocs.date_of_action_2 || ''}
+                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, date_of_action_2: e.target.value })}
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Action</Label>
+                          <Input
+                            value={uploadedDocs.action_2 || ''}
+                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, action_2: e.target.value })}
+                            placeholder="What action was taken"
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
+                        <Input
+                          value={uploadedDocs.reason_2 || ''}
+                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, reason_2: e.target.value })}
+                          placeholder="Reason for the action"
+                          className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
+                        <Textarea
+                          value={uploadedDocs.explanation_2 || ''}
+                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, explanation_2: e.target.value })}
+                          placeholder="Detailed explanation of circumstances and outcomes"
+                          className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Structured Explanation Fields - Entry 3 */}
+                    <div className="space-y-3 p-3 rounded-lg bg-white/60 border border-amber-100">
+                      <p className="text-xs font-semibold text-amber-900/80">Entry 3 (if applicable)</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
+                          <Input
+                            type="date"
+                            value={uploadedDocs.date_of_action_3 || ''}
+                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, date_of_action_3: e.target.value })}
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Action</Label>
+                          <Input
+                            value={uploadedDocs.action_3 || ''}
+                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, action_3: e.target.value })}
+                            placeholder="What action was taken"
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
+                        <Input
+                          value={uploadedDocs.reason_3 || ''}
+                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, reason_3: e.target.value })}
+                          placeholder="Reason for the action"
+                          className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
+                        <Textarea
+                          value={uploadedDocs.explanation_3 || ''}
+                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, explanation_3: e.target.value })}
+                          placeholder="Detailed explanation of circumstances and outcomes"
+                          className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
                     </div>
 
                     {/* File Upload */}
