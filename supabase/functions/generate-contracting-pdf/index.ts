@@ -1395,53 +1395,57 @@ serve(async (req) => {
       status: !signatureNameText ? 'skipped' : (field1Success ? 'success' : 'failed'),
     });
     
-    // -------------------- FIELD 2: Signature2 (try text, fallback to overlay) --------------------
-    let field2Success = false;
+    // -------------------- FIELD 2: Signature2 (ALWAYS overlay - it's a /Sig field) --------------------
+    // This field is a PDF signature field (/Sig type), so we CANNOT set text value on it.
+    // We MUST draw overlay text directly on the PDF page.
     let field2NeedsOverlay = false;
     let field2OverlayRect: { pageIndex: number; x: number; y: number; width: number; height: number } | null = null;
     
     // Check if field is a signature field (/Sig) or not a text field
     const isSignatureType = field2Debug.pdfFieldType.toLowerCase().includes('sig');
+    console.log(`\n=== SIGNATURE2 OVERLAY DECISION ===`);
+    console.log(`  pdfFieldType: "${field2Debug.pdfFieldType}"`);
+    console.log(`  isSignatureType (/Sig detected): ${isSignatureType}`);
+    console.log(`  signatureNameText: "${signatureNameText}"`);
+    console.log(`  field exists: ${field2Debug.exists}`);
+    console.log(`  widgets count: ${field2Debug.widgets.length}`);
     
-    if (signatureNameText && field2Debug.exists) {
-      if (isSignatureType) {
-        console.log(`${SIGNATURE_FIELD_2} is /Sig type - will use overlay text instead of setting value`);
-        field2NeedsOverlay = true;
-        field2OverlayRect = field2Debug.widgets[0] || null;
+    if (signatureNameText) {
+      // ALWAYS use overlay for Signature2 - do NOT attempt setText
+      // Even if /Sig is not detected, pdf-lib may fail to set text on this field
+      field2NeedsOverlay = true;
+      
+      if (field2Debug.exists && field2Debug.widgets.length > 0) {
+        field2OverlayRect = field2Debug.widgets[0];
+        console.log(`  Using widget rect from field: page=${field2OverlayRect.pageIndex + 1}, x=${field2OverlayRect.x.toFixed(1)}, y=${field2OverlayRect.y.toFixed(1)}, w=${field2OverlayRect.width.toFixed(1)}, h=${field2OverlayRect.height.toFixed(1)}`);
       } else {
-        // Try to set as text field
-        try {
-          const textField = form.getTextField(SIGNATURE_FIELD_2);
-          try { textField.disableReadOnly(); } catch { /* ignore */ }
-          textField.setText(signatureNameText);
-          field2Success = true;
-          console.log(`SUCCESS: Set ${SIGNATURE_FIELD_2} = "${signatureNameText}"`);
-        } catch (e) {
-          console.log(`FAILED: Could not set ${SIGNATURE_FIELD_2} as text:`, e);
-          // Fallback to overlay
-          field2NeedsOverlay = true;
-          field2OverlayRect = field2Debug.widgets[0] || null;
-        }
+        // Fallback: hardcoded position for Signature2 on page 10 (index 9)
+        // This matches the typical location of "Additionally please sign in the center of the box below"
+        field2OverlayRect = { pageIndex: 9, x: 180, y: 150, width: 250, height: 50 };
+        console.log(`  Using FALLBACK hardcoded rect: page=${field2OverlayRect.pageIndex + 1}, x=${field2OverlayRect.x}, y=${field2OverlayRect.y}, w=${field2OverlayRect.width}, h=${field2OverlayRect.height}`);
       }
     }
+    console.log(`  field2NeedsOverlay: ${field2NeedsOverlay}`);
+    console.log(`  field2OverlayRect: ${field2OverlayRect ? 'SET' : 'NULL'}`);
+    console.log(`=== END SIGNATURE2 OVERLAY DECISION ===\n`);
     
-    // Report for field 2
+    // Report for field 2 - always mark as success when overlay will be drawn
     if (field2NeedsOverlay && field2OverlayRect) {
       mappingReport.push({
         pdfFieldKey: SIGNATURE_FIELD_2,
-        valueApplied: `[overlay_text:${signatureNameText}]`,
-        sourceFormField: 'signature_name',
+        valueApplied: signatureNameText,
+        sourceFormField: 'signature_name (overlay - sig field)',
         isBlank: false,
-        status: 'success', // Will draw after flatten
+        status: 'success',
       });
-      console.log(`${SIGNATURE_FIELD_2} marked for overlay text at rect:`, field2OverlayRect);
+      console.log(`${SIGNATURE_FIELD_2} marked for overlay text draw`);
     } else {
       mappingReport.push({
         pdfFieldKey: SIGNATURE_FIELD_2,
-        valueApplied: field2Success ? signatureNameText : '',
+        valueApplied: '',
         sourceFormField: 'signature_name',
         isBlank: !signatureNameText,
-        status: !signatureNameText ? 'skipped' : (field2Success ? 'success' : 'failed'),
+        status: !signatureNameText ? 'skipped' : 'failed',
       });
     }
     
@@ -1564,6 +1568,10 @@ serve(async (req) => {
       console.log('=== DRAWING SIGNATURE2 OVERLAY TEXT ===');
       const { text, rect } = signature2OverlayInfo;
       
+      console.log(`  Text to draw: "${text}"`);
+      console.log(`  Page index: ${rect.pageIndex} (page ${rect.pageIndex + 1})`);
+      console.log(`  Rectangle: x=${rect.x.toFixed(1)}, y=${rect.y.toFixed(1)}, width=${rect.width.toFixed(1)}, height=${rect.height.toFixed(1)}`);
+      
       try {
         // Embed Helvetica font for text drawing
         const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -1573,19 +1581,28 @@ serve(async (req) => {
           // Calculate font size to fit in the box (max 14pt, min 8pt)
           const maxFontSize = 14;
           const minFontSize = 8;
+          const padding = 6; // Padding inside the box
+          const availableWidth = rect.width - (padding * 2);
+          
           let fontSize = maxFontSize;
           let textWidth = helveticaFont.widthOfTextAtSize(text, fontSize);
           
           // Reduce font size if text is too wide
-          while (textWidth > rect.width - 10 && fontSize > minFontSize) {
+          while (textWidth > availableWidth && fontSize > minFontSize) {
             fontSize -= 0.5;
             textWidth = helveticaFont.widthOfTextAtSize(text, fontSize);
           }
           
+          console.log(`  Font size calculated: ${fontSize}pt`);
+          console.log(`  Text width at this size: ${textWidth.toFixed(1)}px`);
+          console.log(`  Available width (with padding): ${availableWidth.toFixed(1)}px`);
+          
           // Center text horizontally and vertically in the box
           const textHeight = helveticaFont.heightAtSize(fontSize);
-          const xPos = rect.x + (rect.width - textWidth) / 2;
+          const xPos = rect.x + padding + (availableWidth - textWidth) / 2;
           const yPos = rect.y + (rect.height - textHeight) / 2 + textHeight * 0.25; // Slight adjustment for baseline
+          
+          console.log(`  Draw position: x=${xPos.toFixed(1)}, y=${yPos.toFixed(1)}`);
           
           // Draw the text
           targetPage.drawText(text, {
@@ -1596,17 +1613,17 @@ serve(async (req) => {
             color: rgb(0, 0, 0),
           });
           
-          console.log(`Drew overlay text "${text}" on page ${rect.pageIndex + 1}`);
-          console.log(`  position: x=${xPos.toFixed(1)}, y=${yPos.toFixed(1)}, fontSize=${fontSize}`);
-          console.log(`  box: x=${rect.x.toFixed(1)}, y=${rect.y.toFixed(1)}, w=${rect.width.toFixed(1)}, h=${rect.height.toFixed(1)}`);
+          console.log(`  SUCCESS: Drew overlay text "${text}" on page ${rect.pageIndex + 1}`);
         } else {
-          console.log(`ERROR: Page ${rect.pageIndex} not found for overlay text`);
+          console.log(`  ERROR: Page ${rect.pageIndex} not found for overlay text`);
         }
       } catch (e) {
-        console.log('ERROR drawing overlay text:', e);
+        console.log('  ERROR drawing overlay text:', e);
       }
       
       console.log('=== END SIGNATURE2 OVERLAY TEXT ===');
+    } else {
+      console.log('SKIPPED: No signature2OverlayInfo or rect available');
     }
 
     // ==================== DRAW INITIALS AND SIGNATURES AS IMAGES ====================
