@@ -1297,85 +1297,56 @@ serve(async (req) => {
       return false;
     })();
 
-    // Commission Advancing Debug - collected in debugLogs for Test Mode
+    // Commission Advancing - use radio group with full name
     addDebugLog('info', 'commission', 'Processing commission advancing field', {
       rawValue: rawCommissionValue,
       rawType: typeof rawCommissionValue,
       normalizedValue: commissionAdvancing
     });
 
-    // Inspect field structure before setting
-    let yes42Type = 'unknown';
-    let no42Type = 'unknown';
-    let yes42IsCheckedBefore: boolean | null = null;
-    let no42IsCheckedBefore: boolean | null = null;
-    
     try {
-      const yes42 = form.getField('Yes_42');
-      yes42Type = yes42.constructor.name;
-      if ('isChecked' in yes42) {
-        yes42IsCheckedBefore = (yes42 as any).isChecked();
-      }
+      const commissionGroup = form.getRadioGroup('Requesting Commission Advancing');
+      const options = commissionGroup.getOptions();
       
-      const no42 = form.getField('No_42');
-      no42Type = no42.constructor.name;
-      if ('isChecked' in no42) {
-        no42IsCheckedBefore = (no42 as any).isChecked();
-      }
-      
-      addDebugLog('debug', 'commission', 'Field types detected', {
-        Yes_42: { type: yes42Type, isCheckedBefore: yes42IsCheckedBefore },
-        No_42: { type: no42Type, isCheckedBefore: no42IsCheckedBefore }
+      addDebugLog('debug', 'commission', 'Found radio group', { 
+        groupName: 'Requesting Commission Advancing',
+        options 
       });
       
-      // Check for radio group
-      try {
-        const radioGroup = form.getRadioGroup('42');
-        addDebugLog('debug', 'commission', 'Found radio group "42"', { options: radioGroup.getOptions() });
-      } catch {
-        addDebugLog('debug', 'commission', 'No radio group "42" found - fields are checkboxes');
+      if (commissionAdvancing === true) {
+        commissionGroup.select('Yes_42');
+        addDebugLog('info', 'commission', 'Selected Yes_42');
+      } else {
+        commissionGroup.select('No_42');
+        addDebugLog('info', 'commission', 'Selected No_42');
       }
+      
+      mappingReport.push({
+        pdfFieldKey: 'Yes_42',
+        valueApplied: commissionAdvancing ? 'Yes' : 'Off',
+        sourceFormField: 'requesting_commission_advancing',
+        isBlank: false,
+        status: 'success'
+      });
+      
+      mappingReport.push({
+        pdfFieldKey: 'No_42',
+        valueApplied: commissionAdvancing ? 'Off' : 'Yes',
+        sourceFormField: 'requesting_commission_advancing',
+        isBlank: false,
+        status: 'success'
+      });
+      
     } catch (err: unknown) {
-      addDebugLog('error', 'commission', 'Field inspection failed', { 
-        error: err instanceof Error ? err.message : String(err) 
-      });
-    }
-
-    // Log what we're about to set
-    addDebugLog('info', 'commission', 'Setting checkbox values', {
-      Yes_42_willBeChecked: commissionAdvancing === true,
-      No_42_willBeChecked: commissionAdvancing !== true,
-      onValue: 'Yes'
-    });
-    
-    // Set the checkboxes
-    setDeterministicCheckbox('Yes_42', 'Yes', commissionAdvancing === true, 'requesting_commission_advancing');
-    setDeterministicCheckbox('No_42', 'Yes', commissionAdvancing !== true, 'requesting_commission_advancing');
-    
-    // Read back field values after setting
-    try {
-      const yes42Field = form.getField('Yes_42');
-      const no42Field = form.getField('No_42');
+      const errMsg = err instanceof Error ? err.message : String(err);
+      addDebugLog('error', 'commission', 'Error setting radio group', { error: errMsg });
       
-      let yes42IsCheckedAfter: boolean | null = null;
-      let no42IsCheckedAfter: boolean | null = null;
-      
-      if (yes42Field && 'isChecked' in yes42Field) {
-        yes42IsCheckedAfter = (yes42Field as any).isChecked();
-      }
-      if (no42Field && 'isChecked' in no42Field) {
-        no42IsCheckedAfter = (no42Field as any).isChecked();
-      }
-      
-      addDebugLog('info', 'commission', 'Field values after setting', {
-        Yes_42: { type: yes42Field?.constructor?.name, isCheckedAfter: yes42IsCheckedAfter },
-        No_42: { type: no42Field?.constructor?.name, isCheckedAfter: no42IsCheckedAfter },
-        success: (commissionAdvancing === true && yes42IsCheckedAfter === true) || 
-                 (commissionAdvancing !== true && no42IsCheckedAfter === true)
-      });
-    } catch (readErr: unknown) {
-      addDebugLog('error', 'commission', 'Could not read field states after setting', {
-        error: readErr instanceof Error ? readErr.message : String(readErr)
+      mappingReport.push({
+        pdfFieldKey: 'Yes_42/No_42',
+        valueApplied: 'ERROR',
+        sourceFormField: 'requesting_commission_advancing',
+        isBlank: false,
+        status: 'failed'
       });
     }
     
