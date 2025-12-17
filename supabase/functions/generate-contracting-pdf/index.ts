@@ -508,8 +508,53 @@ serve(async (req) => {
       try {
         const field = form.getTextField(fieldName);
         field.setText(value);
-      } catch (e) {
+      } catch {
         console.log(`Field not found or error: ${fieldName}`);
+      }
+    };
+
+    // Find the first widget placement for a given form field name (page + rectangle)
+    const getFieldWidgetPlacement = (fieldName: string): {
+      pageIndex: number;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null => {
+      try {
+        const field = (form.getField(fieldName) as any);
+        const widgets = field?.acroField?.getWidgets?.() ?? [];
+        const widget = widgets?.[0];
+        if (!widget) return null;
+
+        const rect = widget.getRectangle?.();
+        const raw = rect?.asArray?.() ?? null;
+        if (!raw || raw.length < 4) return null;
+
+        const toNum = (n: any) => Number(n?.asNumber?.() ?? n?.numberValue?.() ?? n?.value?.() ?? n);
+        const x1 = toNum(raw[0]);
+        const y1 = toNum(raw[1]);
+        const x2 = toNum(raw[2]);
+        const y2 = toNum(raw[3]);
+
+        // Try to locate which page contains this widget annotation
+        const pageIndex = pages.findIndex((p: any) => {
+          const annots = p.node?.Annots?.() ?? p.node?.lookup?.('Annots');
+          const arr = typeof annots?.asArray === 'function' ? annots.asArray() : null;
+          return Array.isArray(arr) && arr.includes(widget.ref);
+        });
+
+        const resolvedPageIndex = pageIndex >= 0 ? pageIndex : 0;
+        return {
+          pageIndex: resolvedPageIndex,
+          x: Math.min(x1, x2),
+          y: Math.min(y1, y2),
+          width: Math.abs(x2 - x1),
+          height: Math.abs(y2 - y1),
+        };
+      } catch (e) {
+        console.log(`Failed to get widget placement for field: ${fieldName}`, e);
+        return null;
       }
     };
 
@@ -1151,12 +1196,24 @@ serve(async (req) => {
       drawSignatureOnPage(backgroundSignatureImage, 3, 80, 100, 250, 60);
     }
     
-    // Draw final signature on signature page (page 9 typically) - 0-indexed so page 8
+    // Draw final signature on the signature field widget (preferred) to avoid page/index drift
     // This should appear in the "Additionally please sign in the center of the box below" area
     if (finalSignatureImage) {
-      console.log('Drawing final signature on page 9 (index 8)');
-      // Position centered in the signature box - adjust x, y, width, height as needed
-      drawSignatureOnPage(finalSignatureImage, 8, 180, 380, 250, 70);
+      const sigPlacement = getFieldWidgetPlacement('Additionally please sign in the center of the box below');
+      if (sigPlacement) {
+        console.log('Drawing final signature using widget placement:', sigPlacement);
+        // Slight padding to keep signature inside the box
+        drawSignatureOnPage(
+          finalSignatureImage,
+          sigPlacement.pageIndex,
+          sigPlacement.x + 8,
+          sigPlacement.y + 6,
+          Math.max(10, sigPlacement.width - 16),
+          Math.max(10, sigPlacement.height - 12)
+        );
+      } else {
+        console.log('No widget placement found for signature field; skipping final signature draw to avoid wrong-page placement');
+      }
     } else {
       console.log('No final signature image found');
     }
