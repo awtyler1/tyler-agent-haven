@@ -1387,7 +1387,7 @@ serve(async (req) => {
     
     const SIGNATURE_FIELD_1 = 'Signature2_es_:signer:signature';
     const SIGNATURE_FIELD_2 = 'Signature2';
-    const HANDWRITTEN_SIGNATURE_FIELD = 'Additionally please sign in the center of the box below';
+    const HANDWRITTEN_SIGNATURE_FIELD = 'Additionally please sign in the center of the box below_es_:signature';
     
     const signatureNameText = application.signature_name || '';
     const handwrittenSignatureImage = application.uploaded_documents?.signature_image || application.uploaded_documents?.final_signature;
