@@ -1204,14 +1204,19 @@ serve(async (req) => {
     setTextField('Account', application.bank_account_number);
     setTextField('Branch Name or Location', application.bank_branch_name);
     
-    // Requesting Commission Advancing - single radio, use literal Yes_42 value
-    // Only check Yes_42 when explicitly true - undefined/null/false all mean "No"
+    // Requesting Commission Advancing - single radio group with Yes_42/No_42 values
+    // ALWAYS write to one of the two fields - never skip
     const commissionAdvancing = application.requesting_commission_advancing === true;
+    console.log(`=== COMMISSION ADVANCING ===`);
     console.log(`Commission Advancing: ${commissionAdvancing} (raw value: ${application.requesting_commission_advancing})`);
     if (commissionAdvancing) {
+      console.log(`Setting Yes_42 to checked (user opted in)`);
       setRadioValue('Yes_42', 'Yes_42', 'requesting_commission_advancing');
+    } else {
+      // Explicitly check the No field when false/undefined/null
+      console.log(`Setting No_42 to checked (user did not opt in or left blank)`);
+      setRadioValue('No_42', 'No_42', 'requesting_commission_advancing');
     }
-    // If No (false/undefined/null), leave field unchecked - this represents "No"
     
     // Beneficiary Information
     setTextField('List a Beneficiary', application.beneficiary_name);
