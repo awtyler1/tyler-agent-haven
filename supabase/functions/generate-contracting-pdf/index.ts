@@ -896,6 +896,7 @@ serve(async (req) => {
     setTextField('Date_2', formatDate(application.signature_date));
     setTextField('Date_3', formatDate(application.signature_date));
     setTextField('Date_4', formatDate(application.signature_date));
+    setTextField('undefined_15', formatDate(application.signature_date));
     
     // Log all fields containing "date" to help find the right one
     const dateFields = form.getFields().filter((f: any) => f.getName().toLowerCase().includes('date'));
