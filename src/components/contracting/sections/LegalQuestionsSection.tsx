@@ -162,12 +162,66 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
             );
           })}
 
+          {/* Disclaimer and Supporting Documents Section */}
+          {hasAnyYesAnswers && (
+            <div className="mt-6 space-y-4">
+              {/* Disclaimer */}
+              <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/30">
+                <div className="flex gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="space-y-3">
+                    <p className="text-sm text-amber-900/80 leading-relaxed">
+                      If you answered "YES" to any of the questions above, please provide an explanation that includes dates, actions, and descriptions. You can attach additional paper if necessary.
+                    </p>
+                    
+                    {/* Explanation Text Area */}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-amber-900/70">
+                        Written Explanation
+                      </Label>
+                      <Textarea
+                        value={uploadedDocs.background_explanation_text || ''}
+                        onChange={(e) => {
+                          onUpdate('uploaded_documents', {
+                            ...uploadedDocs,
+                            background_explanation_text: e.target.value
+                          });
+                        }}
+                        placeholder="Please provide detailed explanations for each 'Yes' answer, including dates, circumstances, and outcomes..."
+                        className="min-h-[120px] text-sm rounded-xl border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50 placeholder:text-muted-foreground/40"
+                      />
+                    </div>
+
+                    {/* File Upload */}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-amber-900/70">
+                        Supporting Documents (Optional)
+                      </Label>
+                      <FileDropZone
+                        label="Upload supporting documentation"
+                        description="PDF, DOC, or image files with additional explanation or evidence"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        existingFile={uploadedDocs.background_explanation}
+                        onUpload={(file) => onUpload(file, 'background_explanation')}
+                        onRemove={() => onRemove('background_explanation')}
+                        compact
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Attestation */}
           <div className="mt-6 p-4 rounded-xl bg-muted/20 border border-border/10">
-            <p className="text-xs text-muted-foreground/70 leading-relaxed">
-              By signing this form, I attest that the information I have provided is true to the best of my knowledge. 
-              I acknowledge that if any of the information changes, I will notify Tyler Insurance Group within five (5) days of such a change.
-            </p>
+            <div className="flex gap-3">
+              <CheckCircle className="h-4 w-4 text-muted-foreground/50 shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground/70 leading-relaxed">
+                By signing this form, I attest that the information I have provided is true to the best of my knowledge. 
+                I acknowledge that if any of the information changes, I will notify Tyler Insurance Group within five (5) days of such a change.
+              </p>
+            </div>
           </div>
 
         </div>
