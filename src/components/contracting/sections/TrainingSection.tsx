@@ -55,37 +55,6 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
           <div>
             <h4 className="text-sm font-medium mb-4">E&O Insurance</h4>
             
-            <div className="grid gap-4 md:grid-cols-3 mb-4">
-              <div className="space-y-2">
-                <Label htmlFor="eo_provider">E&O Provider</Label>
-                <Input
-                  id="eo_provider"
-                  value={application.eo_provider || ''}
-                  onChange={(e) => onUpdate('eo_provider', e.target.value)}
-                  className="h-11 rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="eo_policy_number">Policy Number</Label>
-                <Input
-                  id="eo_policy_number"
-                  value={application.eo_policy_number || ''}
-                  onChange={(e) => onUpdate('eo_policy_number', e.target.value)}
-                  className="h-11 rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="eo_expiration_date">Expiration Date</Label>
-                <Input
-                  id="eo_expiration_date"
-                  type="date"
-                  value={application.eo_expiration_date || ''}
-                  onChange={(e) => onUpdate('eo_expiration_date', e.target.value)}
-                  className="h-11 rounded-xl"
-                />
-              </div>
-            </div>
-            
             <div className="mb-4">
               <FileDropZone
                 label="E&O Certificate"
