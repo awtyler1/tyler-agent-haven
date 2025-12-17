@@ -713,75 +713,72 @@ serve(async (req) => {
       }
     }
     
-    // Birth City - try multiple field name variations for resilience
-    if (application.birth_city) {
-      console.log('Setting birth city:', application.birth_city);
-      const birthCityFields = ['City_5', 'City 5', 'BirthCity', 'Birth City', 'city_5'];
-      let birthCitySet = false;
-      for (const fieldName of birthCityFields) {
-        try {
-          const field = form.getTextField(fieldName);
-          field.setText(application.birth_city);
-          console.log(`Successfully set birth city on field: ${fieldName}`);
-          mappingReport.push({
-            pdfFieldKey: fieldName,
-            valueApplied: application.birth_city,
-            sourceFormField: 'birth_city',
-            isBlank: false,
-            status: 'success',
-          });
-          birthCitySet = true;
-          break;
-        } catch {
-          // Try next variation
-        }
+    // === BIRTH CITY & STATE MAPPING (with debug logging) ===
+    // Always attempt to map these fields, with detailed logging
+    const rawBirthCity = application.birth_city;
+    const rawBirthState = application.birth_state;
+    const birthCityValue = typeof rawBirthCity === 'string' ? rawBirthCity.trim() : '';
+    const birthStateValue = typeof rawBirthState === 'string' ? rawBirthState.trim() : '';
+    
+    console.log('=== BIRTH LOCATION DEBUG ===');
+    console.log('Raw birth_city:', rawBirthCity, '| Type:', typeof rawBirthCity);
+    console.log('Raw birth_state:', rawBirthState, '| Type:', typeof rawBirthState);
+    console.log('Trimmed birth_city:', birthCityValue, '| isBlank:', birthCityValue === '');
+    console.log('Trimmed birth_state:', birthStateValue, '| isBlank:', birthStateValue === '');
+    
+    // Birth City - Set City_5 directly (confirmed field name)
+    const birthCityIsBlank = birthCityValue === '';
+    let birthCityStatus: 'success' | 'failed' | 'skipped' = 'skipped';
+    
+    if (!birthCityIsBlank) {
+      try {
+        const cityField = form.getTextField('City_5');
+        cityField.setText(birthCityValue);
+        birthCityStatus = 'success';
+        console.log('SUCCESS: Set City_5 =', birthCityValue);
+      } catch (e) {
+        birthCityStatus = 'failed';
+        console.log('FAILED: Could not set City_5. Error:', e);
       }
-      if (!birthCitySet) {
-        console.log('Could not set birth city on any known field');
-        mappingReport.push({
-          pdfFieldKey: 'City_5',
-          valueApplied: application.birth_city,
-          sourceFormField: 'birth_city',
-          isBlank: false,
-          status: 'failed',
-        });
-      }
+    } else {
+      console.log('SKIPPED: City_5 - birth_city is blank');
     }
     
-    // Birth State - try multiple field name variations for resilience
-    if (application.birth_state) {
-      console.log('Setting birth state:', application.birth_state);
-      const birthStateFields = ['State_5', 'State 5', 'BirthState', 'Birth State', 'state_5'];
-      let birthStateSet = false;
-      for (const fieldName of birthStateFields) {
-        try {
-          const field = form.getTextField(fieldName);
-          field.setText(application.birth_state);
-          console.log(`Successfully set birth state on field: ${fieldName}`);
-          mappingReport.push({
-            pdfFieldKey: fieldName,
-            valueApplied: application.birth_state,
-            sourceFormField: 'birth_state',
-            isBlank: false,
-            status: 'success',
-          });
-          birthStateSet = true;
-          break;
-        } catch {
-          // Try next variation
-        }
+    mappingReport.push({
+      pdfFieldKey: 'City_5',
+      valueApplied: birthCityValue,
+      sourceFormField: 'birth_city',
+      isBlank: birthCityIsBlank,
+      status: birthCityStatus,
+    });
+    
+    // Birth State - Set State_5 directly (confirmed field name)
+    const birthStateIsBlank = birthStateValue === '';
+    let birthStateStatus: 'success' | 'failed' | 'skipped' = 'skipped';
+    
+    if (!birthStateIsBlank) {
+      try {
+        const stateField = form.getTextField('State_5');
+        stateField.setText(birthStateValue);
+        birthStateStatus = 'success';
+        console.log('SUCCESS: Set State_5 =', birthStateValue);
+      } catch (e) {
+        birthStateStatus = 'failed';
+        console.log('FAILED: Could not set State_5. Error:', e);
       }
-      if (!birthStateSet) {
-        console.log('Could not set birth state on any known field');
-        mappingReport.push({
-          pdfFieldKey: 'State_5',
-          valueApplied: application.birth_state,
-          sourceFormField: 'birth_state',
-          isBlank: false,
-          status: 'failed',
-        });
-      }
+    } else {
+      console.log('SKIPPED: State_5 - birth_state is blank');
     }
+    
+    mappingReport.push({
+      pdfFieldKey: 'State_5',
+      valueApplied: birthStateValue,
+      sourceFormField: 'birth_state',
+      isBlank: birthStateIsBlank,
+      status: birthStateStatus,
+    });
+    
+    console.log('=== END BIRTH LOCATION DEBUG ===');
     
     // Gender - try multiple approaches
     const gender = application.gender?.toLowerCase();
