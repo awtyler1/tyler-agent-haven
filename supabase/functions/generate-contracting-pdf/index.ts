@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { PDFDocument, rgb } from "https://esm.sh/pdf-lib@1.17.1";
+import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
@@ -1250,131 +1250,208 @@ serve(async (req) => {
     // Signature images will be drawn to these locations after form flatten
     console.log('Setting final signature fields...');
     
-    // ==================== SIGNATURE2 MAPPING (BOTH FIELDS = TYPED TEXT) ====================
-    // BOTH fields receive the TYPED FULL NAME from signature_name.
+    // ==================== SIGNATURE2 MAPPING (TYPED NAME - NO IMAGES) ====================
+    // BOTH fields display the TYPED FULL NAME from signature_name.
     // NO image/base64 logic is used for these fields.
-    //   1. Signature2_es_:signer:signature - TEXT field with typed name
-    //   2. Signature2 - TEXT field with typed name
+    //   1. Signature2_es_:signer:signature - try as TEXT field
+    //   2. Signature2 - try as TEXT field, fallback to drawn text overlay if /Sig type
     
     const SIGNATURE_FIELD_1 = 'Signature2_es_:signer:signature';
     const SIGNATURE_FIELD_2 = 'Signature2';
     const signatureNameText = application.signature_name || '';
     
-    console.log('=== SIGNATURE2 TEXT MAPPING (BOTH FIELDS) ===');
-    console.log('signature_name (typed text):', signatureNameText);
-    console.log('Target fields:', SIGNATURE_FIELD_1, 'and', SIGNATURE_FIELD_2);
+    console.log('=== SIGNATURE2 TYPED NAME MAPPING ===');
+    console.log('signature_name value:', signatureNameText);
     
-    // Helper function to write text to a signature field with read-only removal
-    const writeSignatureTextField = (fieldName: string): { exists: boolean; type: string; success: boolean } => {
-      let exists = false;
-      let fieldType = 'not_found';
-      let success = false;
+    // Helper to get detailed field info for debugging
+    const getFieldDebugInfo = (fieldName: string): {
+      exists: boolean;
+      fieldType: string;
+      pdfFieldType: string; // /FT value
+      flags: number | null; // /Ff value
+      isReadOnly: boolean;
+      widgets: { pageIndex: number; x: number; y: number; width: number; height: number }[];
+    } => {
+      const result = {
+        exists: false,
+        fieldType: 'not_found',
+        pdfFieldType: 'unknown',
+        flags: null as number | null,
+        isReadOnly: false,
+        widgets: [] as { pageIndex: number; x: number; y: number; width: number; height: number }[],
+      };
       
       try {
-        const field = form.getField(fieldName);
-        exists = true;
-        fieldType = field?.constructor?.name || 'unknown';
+        const field = form.getField(fieldName) as any;
+        result.exists = true;
+        result.fieldType = field?.constructor?.name || 'unknown';
         
-        // Try to get as text field and write
+        // Try to get /FT (field type) from acroField
+        const acroField = field?.acroField;
+        if (acroField) {
+          try {
+            const ftObj = acroField.dict?.get?.('FT') ?? acroField.FT?.();
+            result.pdfFieldType = ftObj?.toString?.() || ftObj?.name?.() || 'unknown';
+          } catch { /* ignore */ }
+          
+          try {
+            const ffObj = acroField.dict?.get?.('Ff') ?? acroField.Ff?.();
+            result.flags = typeof ffObj === 'number' ? ffObj : (ffObj?.asNumber?.() ?? null);
+          } catch { /* ignore */ }
+        }
+        
+        // Check read-only via pdf-lib API
         try {
           const textField = form.getTextField(fieldName);
-          
-          // Remove read-only flag if present
-          try {
-            textField.enableReadOnly();
-            textField.disableReadOnly();
-          } catch {
-            // Read-only methods may not exist, continue
-          }
-          
-          // Set the text value
-          textField.setText(signatureNameText);
-          
-          success = true;
-          console.log(`SUCCESS: Set "${fieldName}" = "${signatureNameText}"`);
-        } catch (textErr) {
-          console.log(`WARN: "${fieldName}" exists but could not write as text field:`, textErr);
-          success = false;
+          result.isReadOnly = textField.isReadOnly?.() ?? false;
+        } catch {
+          // Not a text field or method doesn't exist
         }
+        
+        // Get widget rectangles
+        try {
+          const widgets = acroField?.getWidgets?.() ?? [];
+          for (const widget of widgets) {
+            const rect = widget.getRectangle?.();
+            const raw = rect?.asArray?.() ?? null;
+            if (raw && raw.length >= 4) {
+              const toNum = (n: any) => Number(n?.asNumber?.() ?? n?.numberValue?.() ?? n?.value?.() ?? n);
+              const x1 = toNum(raw[0]);
+              const y1 = toNum(raw[1]);
+              const x2 = toNum(raw[2]);
+              const y2 = toNum(raw[3]);
+              
+              // Find page index
+              const pageIndex = pages.findIndex((p: any) => {
+                const annots = p.node?.Annots?.() ?? p.node?.lookup?.('Annots');
+                const arr = typeof annots?.asArray === 'function' ? annots.asArray() : null;
+                return Array.isArray(arr) && arr.includes(widget.ref);
+              });
+              
+              result.widgets.push({
+                pageIndex: pageIndex >= 0 ? pageIndex : 0,
+                x: Math.min(x1, x2),
+                y: Math.min(y1, y2),
+                width: Math.abs(x2 - x1),
+                height: Math.abs(y2 - y1),
+              });
+            }
+          }
+        } catch { /* ignore */ }
+        
       } catch {
-        exists = false;
-        fieldType = 'not_found';
-        success = false;
-        console.log(`WARN: Field "${fieldName}" not found in PDF`);
+        // Field not found
       }
       
-      return { exists, type: fieldType, success };
+      return result;
     };
     
-    // -------------------- FIELD 1: Signature2_es_:signer:signature --------------------
-    const field1Result = writeSignatureTextField(SIGNATURE_FIELD_1);
-    console.log(`Field "${SIGNATURE_FIELD_1}":`);
-    console.log(`  exists: ${field1Result.exists}`);
-    console.log(`  type: ${field1Result.type}`);
-    console.log(`  write_success: ${field1Result.success}`);
+    // Get debug info for both fields
+    const field1Debug = getFieldDebugInfo(SIGNATURE_FIELD_1);
+    const field2Debug = getFieldDebugInfo(SIGNATURE_FIELD_2);
     
-    // Add mapping report for FIELD 1
-    if (signatureNameText && field1Result.success) {
+    console.log(`\n--- FIELD 1: ${SIGNATURE_FIELD_1} ---`);
+    console.log(`  exists: ${field1Debug.exists}`);
+    console.log(`  fieldType (class): ${field1Debug.fieldType}`);
+    console.log(`  pdfFieldType (/FT): ${field1Debug.pdfFieldType}`);
+    console.log(`  flags (/Ff): ${field1Debug.flags}`);
+    console.log(`  isReadOnly: ${field1Debug.isReadOnly}`);
+    console.log(`  widgets: ${field1Debug.widgets.length}`);
+    field1Debug.widgets.forEach((w, i) => {
+      console.log(`    widget[${i}]: page=${w.pageIndex + 1}, x=${w.x.toFixed(1)}, y=${w.y.toFixed(1)}, w=${w.width.toFixed(1)}, h=${w.height.toFixed(1)}`);
+    });
+    
+    console.log(`\n--- FIELD 2: ${SIGNATURE_FIELD_2} ---`);
+    console.log(`  exists: ${field2Debug.exists}`);
+    console.log(`  fieldType (class): ${field2Debug.fieldType}`);
+    console.log(`  pdfFieldType (/FT): ${field2Debug.pdfFieldType}`);
+    console.log(`  flags (/Ff): ${field2Debug.flags}`);
+    console.log(`  isReadOnly: ${field2Debug.isReadOnly}`);
+    console.log(`  widgets: ${field2Debug.widgets.length}`);
+    field2Debug.widgets.forEach((w, i) => {
+      console.log(`    widget[${i}]: page=${w.pageIndex + 1}, x=${w.x.toFixed(1)}, y=${w.y.toFixed(1)}, w=${w.width.toFixed(1)}, h=${w.height.toFixed(1)}`);
+    });
+    
+    // -------------------- FIELD 1: Signature2_es_:signer:signature (try text) --------------------
+    let field1Success = false;
+    if (signatureNameText && field1Debug.exists) {
+      try {
+        const textField = form.getTextField(SIGNATURE_FIELD_1);
+        // Remove read-only if present
+        try { textField.disableReadOnly(); } catch { /* ignore */ }
+        textField.setText(signatureNameText);
+        field1Success = true;
+        console.log(`SUCCESS: Set ${SIGNATURE_FIELD_1} = "${signatureNameText}"`);
+      } catch (e) {
+        console.log(`FAILED: Could not set ${SIGNATURE_FIELD_1} as text:`, e);
+      }
+    }
+    
+    mappingReport.push({
+      pdfFieldKey: SIGNATURE_FIELD_1,
+      valueApplied: field1Success ? signatureNameText : '',
+      sourceFormField: 'signature_name',
+      isBlank: !signatureNameText,
+      status: !signatureNameText ? 'skipped' : (field1Success ? 'success' : 'failed'),
+    });
+    
+    // -------------------- FIELD 2: Signature2 (try text, fallback to overlay) --------------------
+    let field2Success = false;
+    let field2NeedsOverlay = false;
+    let field2OverlayRect: { pageIndex: number; x: number; y: number; width: number; height: number } | null = null;
+    
+    // Check if field is a signature field (/Sig) or not a text field
+    const isSignatureType = field2Debug.pdfFieldType.toLowerCase().includes('sig');
+    
+    if (signatureNameText && field2Debug.exists) {
+      if (isSignatureType) {
+        console.log(`${SIGNATURE_FIELD_2} is /Sig type - will use overlay text instead of setting value`);
+        field2NeedsOverlay = true;
+        field2OverlayRect = field2Debug.widgets[0] || null;
+      } else {
+        // Try to set as text field
+        try {
+          const textField = form.getTextField(SIGNATURE_FIELD_2);
+          try { textField.disableReadOnly(); } catch { /* ignore */ }
+          textField.setText(signatureNameText);
+          field2Success = true;
+          console.log(`SUCCESS: Set ${SIGNATURE_FIELD_2} = "${signatureNameText}"`);
+        } catch (e) {
+          console.log(`FAILED: Could not set ${SIGNATURE_FIELD_2} as text:`, e);
+          // Fallback to overlay
+          field2NeedsOverlay = true;
+          field2OverlayRect = field2Debug.widgets[0] || null;
+        }
+      }
+    }
+    
+    // Report for field 2
+    if (field2NeedsOverlay && field2OverlayRect) {
       mappingReport.push({
-        pdfFieldKey: SIGNATURE_FIELD_1,
-        valueApplied: signatureNameText,
+        pdfFieldKey: SIGNATURE_FIELD_2,
+        valueApplied: `[overlay_text:${signatureNameText}]`,
         sourceFormField: 'signature_name',
         isBlank: false,
-        status: 'success',
+        status: 'success', // Will draw after flatten
       });
-    } else if (!signatureNameText) {
-      mappingReport.push({
-        pdfFieldKey: SIGNATURE_FIELD_1,
-        valueApplied: '',
-        sourceFormField: 'signature_name',
-        isBlank: true,
-        status: 'skipped',
-      });
+      console.log(`${SIGNATURE_FIELD_2} marked for overlay text at rect:`, field2OverlayRect);
     } else {
       mappingReport.push({
-        pdfFieldKey: SIGNATURE_FIELD_1,
-        valueApplied: signatureNameText,
+        pdfFieldKey: SIGNATURE_FIELD_2,
+        valueApplied: field2Success ? signatureNameText : '',
         sourceFormField: 'signature_name',
-        isBlank: false,
-        status: 'failed',
+        isBlank: !signatureNameText,
+        status: !signatureNameText ? 'skipped' : (field2Success ? 'success' : 'failed'),
       });
     }
     
-    // -------------------- FIELD 2: Signature2 --------------------
-    const field2Result = writeSignatureTextField(SIGNATURE_FIELD_2);
-    console.log(`Field "${SIGNATURE_FIELD_2}":`);
-    console.log(`  exists: ${field2Result.exists}`);
-    console.log(`  type: ${field2Result.type}`);
-    console.log(`  write_success: ${field2Result.success}`);
+    console.log('=== END SIGNATURE2 TYPED NAME MAPPING ===\n');
     
-    // Add mapping report for FIELD 2
-    if (signatureNameText && field2Result.success) {
-      mappingReport.push({
-        pdfFieldKey: SIGNATURE_FIELD_2,
-        valueApplied: signatureNameText,
-        sourceFormField: 'signature_name',
-        isBlank: false,
-        status: 'success',
-      });
-    } else if (!signatureNameText) {
-      mappingReport.push({
-        pdfFieldKey: SIGNATURE_FIELD_2,
-        valueApplied: '',
-        sourceFormField: 'signature_name',
-        isBlank: true,
-        status: 'skipped',
-      });
-    } else {
-      mappingReport.push({
-        pdfFieldKey: SIGNATURE_FIELD_2,
-        valueApplied: signatureNameText,
-        sourceFormField: 'signature_name',
-        isBlank: false,
-        status: 'failed',
-      });
-    }
-    
-    console.log('=== END SIGNATURE2 TEXT MAPPING ===');
+    // Store overlay info for drawing after flatten
+    const signature2OverlayInfo = field2NeedsOverlay && field2OverlayRect ? {
+      text: signatureNameText,
+      rect: field2OverlayRect,
+    } : null;
     
     // Additional text-based signature fields (for other locations in PDF)
     const additionalTextSignatureFields = [
@@ -1478,8 +1555,59 @@ serve(async (req) => {
     console.log('Final signature widget placement:', finalSignaturePlacement);
 
     // Flatten the form to prevent further editing
-    // IMPORTANT: We draw images AFTER flatten so the field appearances can't cover the images.
+    // IMPORTANT: We draw text/images AFTER flatten so the field appearances can't cover them.
     form.flatten();
+    
+    // ==================== SIGNATURE2 OVERLAY TEXT (drawn after flatten) ====================
+    // If Signature2 was a /Sig field and couldn't be set as text, draw the typed name here
+    if (signature2OverlayInfo && signature2OverlayInfo.rect) {
+      console.log('=== DRAWING SIGNATURE2 OVERLAY TEXT ===');
+      const { text, rect } = signature2OverlayInfo;
+      
+      try {
+        // Embed Helvetica font for text drawing
+        const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        
+        const targetPage = pages[rect.pageIndex];
+        if (targetPage) {
+          // Calculate font size to fit in the box (max 14pt, min 8pt)
+          const maxFontSize = 14;
+          const minFontSize = 8;
+          let fontSize = maxFontSize;
+          let textWidth = helveticaFont.widthOfTextAtSize(text, fontSize);
+          
+          // Reduce font size if text is too wide
+          while (textWidth > rect.width - 10 && fontSize > minFontSize) {
+            fontSize -= 0.5;
+            textWidth = helveticaFont.widthOfTextAtSize(text, fontSize);
+          }
+          
+          // Center text horizontally and vertically in the box
+          const textHeight = helveticaFont.heightAtSize(fontSize);
+          const xPos = rect.x + (rect.width - textWidth) / 2;
+          const yPos = rect.y + (rect.height - textHeight) / 2 + textHeight * 0.25; // Slight adjustment for baseline
+          
+          // Draw the text
+          targetPage.drawText(text, {
+            x: xPos,
+            y: yPos,
+            size: fontSize,
+            font: helveticaFont,
+            color: rgb(0, 0, 0),
+          });
+          
+          console.log(`Drew overlay text "${text}" on page ${rect.pageIndex + 1}`);
+          console.log(`  position: x=${xPos.toFixed(1)}, y=${yPos.toFixed(1)}, fontSize=${fontSize}`);
+          console.log(`  box: x=${rect.x.toFixed(1)}, y=${rect.y.toFixed(1)}, w=${rect.width.toFixed(1)}, h=${rect.height.toFixed(1)}`);
+        } else {
+          console.log(`ERROR: Page ${rect.pageIndex} not found for overlay text`);
+        }
+      } catch (e) {
+        console.log('ERROR drawing overlay text:', e);
+      }
+      
+      console.log('=== END SIGNATURE2 OVERLAY TEXT ===');
+    }
 
     // ==================== DRAW INITIALS AND SIGNATURES AS IMAGES ====================
     // Draw initials on each page footer at bottom LEFT above the "initials" line
