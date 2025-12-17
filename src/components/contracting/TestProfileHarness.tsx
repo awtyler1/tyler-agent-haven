@@ -142,7 +142,8 @@ const generateTestProfiles = (carriers: Carrier[]): TestProfile[] => {
         bank_branch_name: `BANK_${letter}_BRANCH_${states[idx]}`,
         beneficiary_name: `BENEFICIARY_${letter}`,
         beneficiary_relationship: ['Spouse', 'Child', 'Parent', 'Sibling', 'Other'][idx],
-        requesting_commission_advancing: idx % 2 === 0,
+        // Profiles A, C, E = true (Yes), B, D = false (No) - always explicit boolean
+        requesting_commission_advancing: idx % 2 === 0 ? true : false,
 
         // Training & Certifications
         has_aml_course: idx !== 2, // Profile C has no AML
