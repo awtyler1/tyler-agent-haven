@@ -1039,7 +1039,8 @@ serve(async (req) => {
     setTextField('DATE_7', formatDate(application.signature_date));
 
     // ==================== PAGE 9: Signature Page ====================
-    setTextField('Additionally please sign in the center of the box below', application.signature_name);
+    // Don't set text in signature field - drawn signature image will be placed there instead
+    // setTextField('Additionally please sign in the center of the box below', application.signature_name);
     setTextField('DATE_8', formatDate(application.signature_date));
 
     // ==================== PAGE 10: Carrier Selection ====================
@@ -1147,9 +1148,13 @@ serve(async (req) => {
     }
     
     // Draw final signature on signature page (page 9 typically) - 0-indexed so page 8
+    // This should appear in the "Additionally please sign in the center of the box below" area
     if (finalSignatureImage) {
-      // Position in main signature box
-      drawSignatureOnPage(finalSignatureImage, 8, 180, 350, 250, 80);
+      console.log('Drawing final signature on page 9 (index 8)');
+      // Position centered in the signature box - adjust x, y, width, height as needed
+      drawSignatureOnPage(finalSignatureImage, 8, 180, 380, 250, 70);
+    } else {
+      console.log('No final signature image found');
     }
 
     // Flatten the form to prevent further editing
