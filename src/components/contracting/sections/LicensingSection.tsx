@@ -168,21 +168,6 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                 </Select>
                 <FormFieldError error={fieldErrors.resident_state} show={showValidation} />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="license_expiration_date">License Expiration Date <span className="text-destructive">*</span></Label>
-                <Input
-                  id="license_expiration_date"
-                  type="date"
-                  value={application.license_expiration_date || ''}
-                  onChange={(e) => {
-                    onUpdate('license_expiration_date', e.target.value);
-                    if (e.target.value && onClearError) onClearError('license_expiration_date');
-                  }}
-                  className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.license_expiration_date, showValidation))}
-                />
-                <FormFieldError error={fieldErrors.license_expiration_date} show={showValidation} />
-              </div>
             </div>
           </div>
 
