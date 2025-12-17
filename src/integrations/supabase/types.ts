@@ -76,6 +76,7 @@ export type Database = {
           completed_steps: number[]
           created_at: string
           current_step: number
+          disciplinary_entries: Json
           drivers_license_number: string | null
           drivers_license_state: string | null
           email_address: string | null
@@ -146,6 +147,7 @@ export type Database = {
           completed_steps?: number[]
           created_at?: string
           current_step?: number
+          disciplinary_entries?: Json
           drivers_license_number?: string | null
           drivers_license_state?: string | null
           email_address?: string | null
@@ -216,6 +218,7 @@ export type Database = {
           completed_steps?: number[]
           created_at?: string
           current_step?: number
+          disciplinary_entries?: Json
           drivers_license_number?: string | null
           drivers_license_state?: string | null
           email_address?: string | null

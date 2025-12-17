@@ -102,6 +102,28 @@ export interface ContractingApplication {
   // Section acknowledgments for single-page form
   section_acknowledgments: Record<string, { acknowledged: boolean; acknowledgedAt: string | null; initials?: string }>;
   
+  // Disciplinary/Action History entries (separate from uploaded_documents)
+  disciplinary_entries: {
+    entry1?: {
+      date_of_action?: string;
+      action?: string;
+      reason?: string;
+      explanation?: string;
+    };
+    entry2?: {
+      date_of_action?: string;
+      action?: string;
+      reason?: string;
+      explanation?: string;
+    };
+    entry3?: {
+      date_of_action?: string;
+      action?: string;
+      reason?: string;
+      explanation?: string;
+    };
+  };
+  
   // Documents
   uploaded_documents: Record<string, string>;
   
@@ -333,5 +355,6 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   signature_initials: null,
   signature_date: null,
   section_acknowledgments: {},
+  disciplinary_entries: {},
   uploaded_documents: {},
 });
