@@ -359,6 +359,11 @@ const EXCLUDED_PDF_FIELDS = [
   "correct to the best of my knowledge",
 ];
 
+// Default field mappings for known PDF fields
+const DEFAULT_FIELD_MAPPINGS: Record<string, string> = {
+  "all carrierspecific questions": "background_signature",
+};
+
 export default function PdfFieldMapperPage() {
   const navigate = useNavigate();
   const { primaryRole, loading: roleLoading, isSuperAdmin, isAdmin } = useRole();
@@ -574,6 +579,21 @@ export default function PdfFieldMapperPage() {
 
       if (data?.fields) {
         setFields(data.fields);
+        
+        // Apply default mappings for known fields
+        const defaultMappingsToApply: Record<string, string> = {};
+        data.fields.forEach((field: PdfField) => {
+          const fieldLower = field.name.toLowerCase();
+          Object.entries(DEFAULT_FIELD_MAPPINGS).forEach(([key, value]) => {
+            if (fieldLower.includes(key.toLowerCase())) {
+              defaultMappingsToApply[field.name] = value;
+            }
+          });
+        });
+        if (Object.keys(defaultMappingsToApply).length > 0) {
+          setMappings(prev => ({ ...prev, ...defaultMappingsToApply }));
+        }
+        
         toast.success(`Extracted ${data.fields.length} fields from ${file.name}`);
       }
     } catch (err: any) {
