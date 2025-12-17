@@ -1145,9 +1145,29 @@ serve(async (req) => {
     setTextField('DATE_7', formatDate(application.signature_date));
 
     // ==================== PAGE 9: Signature Page ====================
-    // Type your full legal name field - use signature_name from the signature section
-    console.log('Setting Signature2 to:', application.signature_name);
-    setTextField('Signature2', application.signature_name);
+    // Type your full legal name field - try multiple field name variations
+    console.log('Setting final signature name to:', application.signature_name);
+    const finalSignatureFieldNames = [
+      'Signature2_es_:signer:signature',
+      'Signature2',
+      'Signature 2',
+      'TypedSignature',
+      'Typed Signature',
+      'Full Legal Name',
+      'FullLegalName',
+      'Type Your Full Legal Name',
+      'Applicant Name',
+      'Agent Name Printed'
+    ];
+    for (const fieldName of finalSignatureFieldNames) {
+      try {
+        const field = form.getTextField(fieldName);
+        field.setText(application.signature_name);
+        console.log(`Successfully set final signature on field: ${fieldName}`);
+      } catch {
+        // Field not found, continue
+      }
+    }
     setTextField('DATE_8', formatDate(application.signature_date));
 
     // ==================== PAGE 10: Carrier Selection ====================
