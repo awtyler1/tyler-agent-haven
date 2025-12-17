@@ -15,9 +15,10 @@ interface PersonalInfoSectionProps {
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
+  testMode?: boolean;
 }
 
-export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: PersonalInfoSectionProps) {
+export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError, testMode = false }: PersonalInfoSectionProps) {
   const contactMethods = application.preferred_contact_methods || [];
 
   const toggleContactMethod = (method: string) => {
@@ -26,6 +27,18 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
     } else {
       onUpdate('preferred_contact_methods', [...contactMethods, method]);
     }
+  };
+
+  // Normalize gender to "Male" or "Female"
+  const normalizedGender = application.gender === 'Male' || application.gender === 'male' ? 'Male' 
+    : application.gender === 'Female' || application.gender === 'female' ? 'Female' 
+    : '';
+
+  const handleGenderChange = (value: string) => {
+    // Always store normalized value
+    const normalized = value === 'Male' ? 'Male' : value === 'Female' ? 'Female' : value;
+    onUpdate('gender', normalized);
+    if (normalized && onClearError) onClearError('gender');
   };
 
   return (
@@ -94,37 +107,39 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
           <div className="md:col-span-2 space-y-2">
             <Label>Gender <span className="text-destructive">*</span></Label>
             <RadioGroup
-              value={application.gender || ''}
-              onValueChange={(value) => {
-                onUpdate('gender', value);
-                if (value && onClearError) onClearError('gender');
-              }}
+              value={normalizedGender}
+              onValueChange={handleGenderChange}
               className="flex gap-6"
             >
               <label className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors",
-                application.gender === 'male' 
+                normalizedGender === 'Male' 
                   ? "border-primary bg-primary/5" 
                   : fieldErrors.gender && showValidation
                     ? "border-destructive/60 bg-destructive/[0.02]"
                     : "border-border/20 hover:bg-muted/20"
               )}>
-                <RadioGroupItem value="male" id="gender-male" />
+                <RadioGroupItem value="Male" id="gender-male" />
                 <span className="text-sm">Male</span>
               </label>
               <label className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors",
-                application.gender === 'female' 
+                normalizedGender === 'Female' 
                   ? "border-primary bg-primary/5" 
                   : fieldErrors.gender && showValidation
                     ? "border-destructive/60 bg-destructive/[0.02]"
                     : "border-border/20 hover:bg-muted/20"
               )}>
-                <RadioGroupItem value="female" id="gender-female" />
+                <RadioGroupItem value="Female" id="gender-female" />
                 <span className="text-sm">Female</span>
               </label>
             </RadioGroup>
             <FormFieldError error={fieldErrors.gender} show={showValidation} />
+            {testMode && (
+              <p className="text-xs font-mono text-amber-700 bg-amber-50 px-2 py-1 rounded">
+                gender = {application.gender === null ? 'null' : application.gender === undefined ? 'undefined' : `"${application.gender}"`}
+              </p>
+            )}
           </div>
 
           {/* Birth City */}

@@ -738,6 +738,7 @@ export function ContractingForm() {
               fieldErrors={validationState.fieldErrors}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
               onClearError={clearFieldError}
+              testMode={testMode}
             />
             
             {/* Marketing Consent - goes right after personal info */}
