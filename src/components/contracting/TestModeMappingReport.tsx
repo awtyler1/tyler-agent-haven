@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -146,13 +145,13 @@ export function TestModeMappingReport({ mappingReport }: TestModeMappingReportPr
         </div>
       </div>
       
-      <ScrollArea className="h-[350px]">
-        <Table>
+      <div className="h-[350px] overflow-auto">
+        <Table className="min-w-[800px]">
           <TableHeader>
             <TableRow className="bg-indigo-50/50">
-              <TableHead className="text-xs font-medium text-indigo-800 w-[200px]">PDF Field Key</TableHead>
-              <TableHead className="text-xs font-medium text-indigo-800">Value Applied</TableHead>
-              <TableHead className="text-xs font-medium text-indigo-800 w-[150px]">Source Field</TableHead>
+              <TableHead className="text-xs font-medium text-indigo-800 min-w-[200px]">PDF Field Key</TableHead>
+              <TableHead className="text-xs font-medium text-indigo-800 min-w-[200px]">Value Applied</TableHead>
+              <TableHead className="text-xs font-medium text-indigo-800 min-w-[150px]">Source Field</TableHead>
               <TableHead className="text-xs font-medium text-indigo-800 w-[60px] text-center">Blank</TableHead>
               <TableHead className="text-xs font-medium text-indigo-800 w-[80px] text-center">Status</TableHead>
             </TableRow>
@@ -160,13 +159,13 @@ export function TestModeMappingReport({ mappingReport }: TestModeMappingReportPr
           <TableBody>
             {filteredReport.map((entry, idx) => (
               <TableRow key={idx} className={entry.status === 'failed' ? 'bg-red-50/50' : entry.isBlank ? 'bg-amber-50/30' : ''}>
-                <TableCell className="font-mono text-xs text-foreground/80 truncate" title={entry.pdfFieldKey}>
+                <TableCell className="font-mono text-xs text-foreground/80" title={entry.pdfFieldKey}>
                   {entry.pdfFieldKey}
                 </TableCell>
-                <TableCell className="font-mono text-xs text-foreground/70 max-w-[200px] truncate" title={entry.valueApplied}>
+                <TableCell className="font-mono text-xs text-foreground/70 max-w-[300px] break-all" title={entry.valueApplied}>
                   {entry.valueApplied || <span className="text-gray-400 italic">(empty)</span>}
                 </TableCell>
-                <TableCell className="font-mono text-xs text-foreground/60 truncate" title={entry.sourceFormField}>
+                <TableCell className="font-mono text-xs text-foreground/60" title={entry.sourceFormField}>
                   {entry.sourceFormField}
                 </TableCell>
                 <TableCell className="text-center">
@@ -192,7 +191,7 @@ export function TestModeMappingReport({ mappingReport }: TestModeMappingReportPr
             )}
           </TableBody>
         </Table>
-      </ScrollArea>
+      </div>
       
       <div className="p-3 border-t border-indigo-200 bg-indigo-100/30 text-xs text-indigo-700 text-center">
         Showing {filteredReport.length} of {mappingReport.length} field mappings • Only visible in Test Mode
