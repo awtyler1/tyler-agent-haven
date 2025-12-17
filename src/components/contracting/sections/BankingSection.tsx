@@ -2,8 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ContractingApplication, US_STATES } from '@/types/contracting';
+import { ContractingApplication } from '@/types/contracting';
 import { FileDropZone } from '../FileDropZone';
 import { Building2, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -148,46 +147,6 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
                   placeholder="e.g. Spouse, Child"
                   className="h-11 rounded-xl"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="beneficiary_birth_date">Beneficiary Date of Birth</Label>
-                <Input
-                  id="beneficiary_birth_date"
-                  type="date"
-                  value={application.beneficiary_birth_date || ''}
-                  onChange={(e) => onUpdate('beneficiary_birth_date', e.target.value)}
-                  className="h-11 rounded-xl"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="beneficiary_drivers_license_number">Beneficiary Driver's License #</Label>
-                <Input
-                  id="beneficiary_drivers_license_number"
-                  value={application.beneficiary_drivers_license_number || ''}
-                  onChange={(e) => onUpdate('beneficiary_drivers_license_number', e.target.value)}
-                  className="h-11 rounded-xl"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="beneficiary_drivers_license_state">Beneficiary DL State</Label>
-                <Select 
-                  value={application.beneficiary_drivers_license_state || ''} 
-                  onValueChange={(v) => onUpdate('beneficiary_drivers_license_state', v)}
-                >
-                  <SelectTrigger className="h-11 rounded-xl">
-                    <SelectValue placeholder="Select state..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {US_STATES.map((state) => (
-                      <SelectItem key={state.code} value={state.code}>
-                        {state.code}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </div>
