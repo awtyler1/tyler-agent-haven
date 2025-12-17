@@ -32,6 +32,7 @@ import { TestModeSnapshotPanel } from './TestModeSnapshotPanel';
 import { TestProfileHarness } from './TestProfileHarness';
 import { TestModeValidationReport } from './TestModeValidationReport';
 import { TestModeMappingReport } from './TestModeMappingReport';
+import { TestModeSchemaPanel } from './TestModeSchemaPanel';
 import { useContractingPdf, MappingEntry } from '@/hooks/useContractingPdf';
 
 interface SubmissionSnapshot {
@@ -701,14 +702,19 @@ export function ContractingForm() {
       )}
 
       {/* Test Mode Panels */}
-      {testMode && validationState.hasValidated && (
+      {testMode && (
         <div className="container max-w-4xl mx-auto px-4 py-4 space-y-4">
-          {/* Validation Report - always show in test mode after validation */}
-          <TestModeValidationReport 
-            sectionErrors={validationState.sectionErrors}
-            application={application}
-            isFormValid={validationState.isFormValid}
-          />
+          {/* Schema Panel - always show in test mode */}
+          <TestModeSchemaPanel application={application} />
+          
+          {/* Validation Report - show after validation attempt */}
+          {validationState.hasValidated && (
+            <TestModeValidationReport 
+              sectionErrors={validationState.sectionErrors}
+              application={application}
+              isFormValid={validationState.isFormValid}
+            />
+          )}
           
           {/* Snapshot Panel - show after test submission */}
           {lastSubmissionSnapshot && (
