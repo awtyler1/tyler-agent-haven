@@ -193,32 +193,15 @@ export function ContractingForm() {
     }));
   }, [application?.signature_initials, application?.section_acknowledgments, updateField, scrollToSection]);
 
-  // Fill form with test data for quick testing
+  // Fill form with test data for quick testing - uses FIXED values for reliable PDF mapping testing
   const fillTestData = useCallback(async () => {
     if (!application || !carriers.length) return;
     
     setIsFillingTestData(true);
     try {
-      // Helper for random boolean
-      const randomBool = () => Math.random() > 0.5;
+      const now = new Date().toISOString();
       
-      // Random selections for checkboxes/radios
-      const randomGender = randomBool() ? 'Male' : 'Female';
-      const randomMailingSame = randomBool();
-      const randomUpsSame = randomBool();
-      const randomCommissionAdvancing = randomBool();
-      const randomLtcCert = randomBool();
-      const randomCeRequired = randomBool();
-      const randomEoNotCovered = randomBool();
-      const randomFinra = randomBool();
-      const randomCorporation = randomBool();
-      const randomMarketingConsent = randomBool();
-      
-      // Random contact method selection (at least 1)
-      const allContactMethods = ['email', 'mobile', 'business', 'home', 'fax'];
-      const randomContactMethods = allContactMethods.filter(() => randomBool());
-      if (randomContactMethods.length === 0) randomContactMethods.push('email'); // Ensure at least one
-      
+      // FIXED values for reliable testing (not random)
       const testAddress: Address = {
         street: '123 Test Street',
         city: 'Louisville',
@@ -227,35 +210,41 @@ export function ContractingForm() {
         county: 'Jefferson',
       };
       
-      const altAddress: Address = {
-        street: '456 Different Ave',
+      const mailingAddress: Address = {
+        street: '456 Mailing Ave',
         city: 'Lexington',
         state: 'KY',
         zip: '40507',
         county: 'Fayette',
       };
+      
+      const upsAddress: Address = {
+        street: '789 UPS Blvd',
+        city: 'Bowling Green',
+        state: 'KY',
+        zip: '42101',
+        county: 'Warren',
+      };
 
-      // Generate all legal questions with random "Yes"/"No" answers
+      // Generate all legal questions - set first few to YES with explanations for testing
       const legalQuestionsData: Record<string, { answer: boolean; explanation?: string }> = {};
-      LEGAL_QUESTIONS.forEach(q => {
-        const answer = randomBool();
+      LEGAL_QUESTIONS.forEach((q, index) => {
+        // Set first 3 questions to YES with explanations, rest to NO
+        const answer = index < 3;
         legalQuestionsData[q.id] = { 
           answer,
-          explanation: answer ? `Test explanation for question ${q.id}` : undefined
+          explanation: answer ? `Test explanation for question ${q.id}: This is a detailed explanation of the circumstances.` : undefined
         };
       });
 
-      // Pick random 1-4 carriers for testing
-      const numCarriers = Math.floor(Math.random() * 4) + 1;
-      const shuffledCarriers = [...carriers].sort(() => Math.random() - 0.5);
-      const selectedCarriers = shuffledCarriers.slice(0, numCarriers).map(c => ({
+      // Select first 3 carriers with non-resident states for testing
+      const selectedCarriers = carriers.slice(0, 3).map(c => ({
         carrier_id: c.id,
         carrier_name: c.name,
-        non_resident_states: randomBool() ? ['TN', 'IN'] : [],
+        non_resident_states: ['TN', 'IN', 'OH'], // Fixed non-resident states
       }));
 
       // Generate section acknowledgments
-      const now = new Date().toISOString();
       const sectionAcks: Record<string, { acknowledged: boolean; acknowledgedAt: string | null; initials?: string }> = {};
       SECTIONS.filter(s => s.requiresAcknowledgment).forEach(section => {
         sectionAcks[section.id] = {
@@ -270,42 +259,42 @@ export function ContractingForm() {
       const signatureImage = generateTestSignatureImage('John Tyler');
       const bgSignatureImage = generateTestSignatureImage('John Tyler');
 
-      // Update all fields at once - comprehensive test data for all mapped PDF fields
+      // Update all fields at once - COMPREHENSIVE test data for ALL mapped PDF fields
       const updates = {
         // Personal Information
         full_legal_name: 'John Tyler',
-        gender: randomGender,
+        gender: 'Male', // FIXED for testing
         birth_date: '1985-06-15',
         birth_city: 'Louisville',
         birth_state: 'KY',
         
-        // Contact Information
+        // Contact Information - ALL methods selected
         email_address: 'john.tyler@test.com',
         phone_mobile: '(502) 555-1234',
         phone_business: '(502) 555-5678',
         phone_home: '(502) 555-9999',
         fax: '(502) 555-0000',
-        preferred_contact_methods: randomContactMethods,
+        preferred_contact_methods: ['email', 'mobile', 'business', 'home', 'fax'], // ALL selected
         
-        // Addresses (use different address if "same as home" is false)
+        // Addresses - use DIFFERENT addresses to test all fields
         home_address: testAddress,
-        mailing_address_same_as_home: randomMailingSame,
-        mailing_address: randomMailingSame ? testAddress : altAddress,
-        ups_address_same_as_home: randomUpsSame,
-        ups_address: randomUpsSame ? testAddress : altAddress,
+        mailing_address_same_as_home: false, // FALSE to test separate mailing
+        mailing_address: mailingAddress,
+        ups_address_same_as_home: false, // FALSE to test separate UPS
+        ups_address: upsAddress,
         
         // Licensing & Identification
         npn_number: '12345678',
         insurance_license_number: 'KY123456',
         tax_id: '123-45-6789',
-        agency_name: randomCorporation ? 'Test Agency LLC' : '',
-        agency_tax_id: randomCorporation ? '98-7654321' : '',
+        agency_name: 'Test Agency LLC', // Always fill for testing
+        agency_tax_id: '98-7654321',
         resident_license_number: 'KY123456',
         resident_state: 'KY',
         drivers_license_number: 'T123456789',
         drivers_license_state: 'KY',
         
-        // Legal Questions (randomly answered)
+        // Legal Questions - first few answered YES with explanations
         legal_questions: legalQuestionsData,
         
         // Banking & Direct Deposit
@@ -314,31 +303,29 @@ export function ContractingForm() {
         bank_branch_name: 'First National Bank - Louisville Branch',
         beneficiary_name: 'Jane Tyler',
         beneficiary_relationship: 'Spouse',
-        beneficiary_birth_date: '1987-03-20',
-        beneficiary_drivers_license_number: 'T987654321',
-        beneficiary_drivers_license_state: 'KY',
-        requesting_commission_advancing: randomCommissionAdvancing,
+        requesting_commission_advancing: true, // FIXED YES
         
         // Training & Certifications
         aml_training_provider: 'AHIP',
         aml_completion_date: '2024-10-15',
-        has_ltc_certification: randomLtcCert,
-        state_requires_ce: randomCeRequired,
+        has_ltc_certification: true, // FIXED YES
+        state_requires_ce: true, // FIXED YES
         
-        // E&O Insurance (only fill if not "not yet covered")
-        eo_not_yet_covered: randomEoNotCovered,
-        eo_provider: randomEoNotCovered ? '' : 'NAPA',
-        eo_policy_number: randomEoNotCovered ? '' : 'EO-2024-12345',
-        eo_expiration_date: randomEoNotCovered ? '' : '2025-12-31',
+        // E&O Insurance - FILLED (not "not yet covered")
+        eo_not_yet_covered: false,
+        eo_provider: 'NAPA',
+        eo_policy_number: 'EO-2024-12345',
+        eo_expiration_date: '2025-12-31',
         
-        // FINRA Registration
-        is_finra_registered: randomFinra,
-        finra_broker_dealer_name: randomFinra ? 'Test Broker Dealer Inc' : '',
-        finra_crd_number: randomFinra ? 'CRD123456' : '',
+        // FINRA Registration - FILLED
+        is_finra_registered: true, // FIXED YES
+        finra_broker_dealer_name: 'Test Broker Dealer Inc',
+        finra_crd_number: 'CRD123456',
         
         // Carrier Selection
         selected_carriers: selectedCarriers,
-        is_corporation: randomCorporation,
+        is_corporation: true, // FIXED YES
+        non_resident_states: ['TN', 'IN', 'OH'], // Global non-resident states
         
         // Signatures & Acknowledgments
         signature_initials: 'JT',
@@ -348,7 +335,7 @@ export function ContractingForm() {
         
         // Agreements (Marketing Consent)
         agreements: {
-          marketing_consent: randomMarketingConsent,
+          marketing_consent: true, // FIXED YES
           terms_accepted: true,
           privacy_accepted: true,
         },
@@ -379,24 +366,26 @@ export function ContractingForm() {
         return updated;
       });
 
-      // Log random selections for easy verification
-      console.log('🎲 Random Test Data Selections:', {
-        gender: randomGender,
-        mailingSameAsHome: randomMailingSame,
-        upsSameAsHome: randomUpsSame,
-        commissionAdvancing: randomCommissionAdvancing,
-        ltcCertification: randomLtcCert,
-        ceRequired: randomCeRequired,
-        eoNotYetCovered: randomEoNotCovered,
-        finraRegistered: randomFinra,
-        isCorporation: randomCorporation,
-        marketingConsent: randomMarketingConsent,
-        contactMethods: randomContactMethods,
+      // Log test data for verification
+      console.log('✅ Test Data Filled (FIXED values for reliable testing):', {
+        gender: 'Male',
+        birthCity: 'Louisville',
+        birthState: 'KY',
+        mailingSameAsHome: false,
+        upsSameAsHome: false,
+        commissionAdvancing: true,
+        ltcCertification: true,
+        ceRequired: true,
+        eoNotYetCovered: false,
+        finraRegistered: true,
+        isCorporation: true,
+        marketingConsent: true,
+        contactMethods: ['email', 'mobile', 'business', 'home', 'fax'],
         carriersSelected: selectedCarriers.length,
         legalYesAnswers: Object.values(legalQuestionsData).filter(q => q.answer).length,
       });
 
-      toast.success(`Test data filled! Gender: ${randomGender}, Corp: ${randomCorporation ? 'Yes' : 'No'}, FINRA: ${randomFinra ? 'Yes' : 'No'}`);
+      toast.success('Test data filled with FIXED values for reliable PDF mapping testing');
     } catch (error) {
       console.error('Error filling test data:', error);
       toast.error('Failed to fill test data');
