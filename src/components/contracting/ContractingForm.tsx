@@ -236,56 +236,88 @@ export function ContractingForm() {
       const signatureImage = generateTestSignatureImage('John Tyler');
       const bgSignatureImage = generateTestSignatureImage('John Tyler');
 
-      // Update all fields at once
+      // Update all fields at once - comprehensive test data for all mapped PDF fields
       const updates = {
+        // Personal Information
         full_legal_name: 'John Tyler',
-        agency_name: 'Test Agency LLC',
         gender: 'Male',
         birth_date: '1985-06-15',
-        npn_number: '12345678',
-        insurance_license_number: 'KY123456',
-        tax_id: '123-45-6789',
+        birth_city: 'Louisville',
+        birth_state: 'KY',
+        
+        // Contact Information
         email_address: 'john.tyler@test.com',
         phone_mobile: '(502) 555-1234',
         phone_business: '(502) 555-5678',
-        phone_home: '',
-        fax: '',
-        preferred_contact_methods: ['email', 'mobile'],
+        phone_home: '(502) 555-9999',
+        fax: '(502) 555-0000',
+        preferred_contact_methods: ['email', 'mobile', 'business'],
+        
+        // Addresses
         home_address: testAddress,
         mailing_address_same_as_home: true,
         mailing_address: testAddress,
         ups_address_same_as_home: true,
         ups_address: testAddress,
+        
+        // Licensing & Identification
+        npn_number: '12345678',
+        insurance_license_number: 'KY123456',
+        tax_id: '123-45-6789',
+        agency_name: 'Test Agency LLC',
+        agency_tax_id: '98-7654321',
         resident_license_number: 'KY123456',
         resident_state: 'KY',
-        license_expiration_date: '2026-12-31',
         drivers_license_number: 'T123456789',
         drivers_license_state: 'KY',
+        
+        // Legal Questions
         legal_questions: legalQuestionsData,
+        
+        // Banking & Direct Deposit
         bank_routing_number: '123456789',
         bank_account_number: '987654321',
-        bank_branch_name: 'First National Bank',
+        bank_branch_name: 'First National Bank - Louisville Branch',
         beneficiary_name: 'Jane Tyler',
         beneficiary_relationship: 'Spouse',
         beneficiary_birth_date: '1987-03-20',
         beneficiary_drivers_license_number: 'T987654321',
         beneficiary_drivers_license_state: 'KY',
         requesting_commission_advancing: false,
+        
+        // Training & Certifications
         aml_training_provider: 'AHIP',
         aml_completion_date: '2024-10-15',
         has_ltc_certification: false,
         state_requires_ce: false,
+        
+        // E&O Insurance
         eo_not_yet_covered: false,
         eo_provider: 'NAPA',
         eo_policy_number: 'EO-2024-12345',
         eo_expiration_date: '2025-12-31',
+        
+        // FINRA Registration
         is_finra_registered: false,
+        
+        // Carrier Selection
         selected_carriers: selectedCarriers,
         is_corporation: false,
+        
+        // Signatures & Acknowledgments
         signature_initials: 'JT',
         signature_name: 'John Tyler',
         signature_date: now,
         section_acknowledgments: sectionAcks,
+        
+        // Agreements (Marketing Consent)
+        agreements: {
+          marketing_consent: true,
+          terms_accepted: true,
+          privacy_accepted: true,
+        },
+        
+        // Uploaded Documents (test signatures)
         uploaded_documents: {
           initials_image: initialsImage,
           signature_image: signatureImage,
