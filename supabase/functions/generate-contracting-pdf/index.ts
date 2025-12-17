@@ -235,7 +235,6 @@ const LEGAL_QUESTION_ORDER: string[] = [
   '13',
   '14',
   '14a',
-  '14b',
   '14c',
   '15',
   '15a',
