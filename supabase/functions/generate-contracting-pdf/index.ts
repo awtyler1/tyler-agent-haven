@@ -1674,6 +1674,11 @@ serve(async (req) => {
     setTextField('DATE_9', formatDate(application.signature_date));
 
     // Precompute widget placement(s) BEFORE flatten, since flatten can remove form field widgets
+    // Background signature field (page 3) - "all carrierspecific questions" is now a signature widget
+    const backgroundSignaturePlacement = getFieldWidgetPlacement('all carrierspecific questions');
+    console.log('Background signature widget placement:', backgroundSignaturePlacement);
+    
+    // Final signature field (page 10) - "Additionally please sign..." is now a signature widget
     const finalSignaturePlacement = getFieldWidgetPlacement(
       'Additionally please sign in the center of the box below'
     );
@@ -1769,9 +1774,23 @@ serve(async (req) => {
       }
     }
 
-    // Draw background signature on page 3 (template-specific positioning)
+    // Draw background signature using widget placement from "all carrierspecific questions" field
     if (backgroundSignatureImage) {
-      drawSignatureOnPage(backgroundSignatureImage, 3, 80, 100, 250, 60);
+      if (backgroundSignaturePlacement) {
+        console.log('Drawing background signature using widget placement:', backgroundSignaturePlacement);
+        drawSignatureOnPage(
+          backgroundSignatureImage,
+          backgroundSignaturePlacement.pageIndex,
+          backgroundSignaturePlacement.x + 8,
+          backgroundSignaturePlacement.y + 6,
+          Math.max(10, backgroundSignaturePlacement.width - 16),
+          Math.max(10, backgroundSignaturePlacement.height - 12)
+        );
+      } else {
+        // Fallback: Draw at fixed position on page 3 (index 2)
+        console.log('Using fixed coordinates for background signature on page 3');
+        drawSignatureOnPage(backgroundSignatureImage, 2, 80, 100, 250, 60);
+      }
     }
 
     // ==================== HANDWRITTEN SIGNATURE IMAGE (for "Additionally please sign..." box) ====================
