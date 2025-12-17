@@ -1017,9 +1017,17 @@ serve(async (req) => {
       setCheckbox('Other', provider !== 'LIMRA' && provider !== 'NONE');
     }
     
-    // FINRA
-    setCheckbox('Are you a registered representative with FINRA', application.is_finra_registered || false);
-    if (application.is_finra_registered) {
+    // FINRA - set both Yes and No checkboxes
+    const isFinraRegistered = application.is_finra_registered || false;
+    console.log('FINRA registered:', isFinraRegistered);
+    setCheckbox('Are you a registered representative with FINRA', isFinraRegistered);
+    setCheckbox('Are you a registered representative with FINRA Yes', isFinraRegistered);
+    setCheckbox('Are you a registered representative with FINRA No', !isFinraRegistered);
+    setCheckbox('FINRA Yes', isFinraRegistered);
+    setCheckbox('FINRA No', !isFinraRegistered);
+    setCheckbox('FINRA_Yes', isFinraRegistered);
+    setCheckbox('FINRA_No', !isFinraRegistered);
+    if (isFinraRegistered) {
       setTextField('BrokerDealer Name', application.finra_broker_dealer_name);
       setTextField('CRD', application.finra_crd_number);
     }
