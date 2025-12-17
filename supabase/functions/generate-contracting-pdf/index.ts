@@ -1674,13 +1674,13 @@ serve(async (req) => {
     setTextField('DATE_9', formatDate(application.signature_date));
 
     // Precompute widget placement(s) BEFORE flatten, since flatten can remove form field widgets
-    // Background signature field (page 3) - "all carrierspecific questions" is now a signature widget
-    const backgroundSignaturePlacement = getFieldWidgetPlacement('all carrierspecific questions');
+    // Background signature field (page 4) - now a true signature field with _es_:signature suffix
+    const backgroundSignaturePlacement = getFieldWidgetPlacement('all carrierspecific questions_es_:signature');
     console.log('Background signature widget placement:', backgroundSignaturePlacement);
     
-    // Final signature field (page 10) - "Additionally please sign..." is now a signature widget
+    // Final signature field (page 10) - now a true signature field with _es_:signature suffix
     const finalSignaturePlacement = getFieldWidgetPlacement(
-      'Additionally please sign in the center of the box below'
+      'Additionally please sign in the center of the box below_es_:signature'
     );
     console.log('Final signature widget placement:', finalSignaturePlacement);
 
