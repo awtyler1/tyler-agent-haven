@@ -515,7 +515,6 @@ serve(async (req) => {
     setTextField('Insurance License', application.insurance_license_number);
     setTextField('Birth Date', formatDate(application.birth_date));
     setTextField('NPN', application.npn_number);
-    setTextField('MMDDYYYY', formatDateMMDDYYYY(application.birth_date));
     
     // Birth City - use mapped field names if available
     if (application.birth_city) {
