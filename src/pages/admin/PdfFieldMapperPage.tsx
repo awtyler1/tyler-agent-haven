@@ -347,6 +347,18 @@ const FIELD_CATEGORIES = [
   { value: "ignore", label: "Ignore This Field", section: "Other" },
 ];
 
+// Fields to exclude from the mapper (Page 5 - "Additional Information" page not needed)
+const EXCLUDED_PDF_FIELDS = [
+  "Have you ever been cited fined suspended revoked andor",
+  "refused a license by any state If yes provide the date and state",
+  "State_6",
+  "Have you previously been appointed with SelectHealth",
+  "Please list two 2 professional references that can attest to your honesty professionalism",
+  "Have you ever been excluded from participating in a government",
+  "By signing this form I acknowledge that all of the information is true and",
+  "correct to the best of my knowledge",
+];
+
 export default function PdfFieldMapperPage() {
   const navigate = useNavigate();
   const { primaryRole, loading: roleLoading, isSuperAdmin, isAdmin } = useRole();
@@ -827,6 +839,12 @@ export default function PdfFieldMapperPage() {
   };
 
   const filteredFields = fields.filter(field => {
+    // Exclude fields from "Additional Information" page 5
+    const isExcluded = EXCLUDED_PDF_FIELDS.some(excluded => 
+      field.name.toLowerCase().includes(excluded.toLowerCase())
+    );
+    if (isExcluded) return false;
+    
     const matchesSearch = field.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "all" || field.type === filterType;
     const isMapped = mappings[field.name] && mappings[field.name] !== "unmapped";
