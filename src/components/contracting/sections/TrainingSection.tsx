@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication } from '@/types/contracting';
 import { FileDropZone } from '../FileDropZone';
 import { GraduationCap, Lock, ExternalLink } from 'lucide-react';
@@ -88,43 +88,55 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
 
           {/* AML Training */}
           <div className="pt-4 border-t border-border/10">
-            <h4 className="text-sm font-medium mb-4">Anti-Money Laundering (AML) Training</h4>
-            <div className="grid gap-4 md:grid-cols-2 mb-4">
-              <div className="space-y-2">
-                <Label htmlFor="aml_training_provider">AML Provider</Label>
-                <Select 
-                  value={application.aml_training_provider || ''} 
-                  onValueChange={(v) => onUpdate('aml_training_provider', v)}
-                >
-                  <SelectTrigger className="h-11 rounded-xl">
-                    <SelectValue placeholder="Select provider..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="LIMRA">LIMRA</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                    <SelectItem value="None">None yet</SelectItem>
-                  </SelectContent>
-                </Select>
+            <h4 className="text-sm font-medium mb-2">Anti-Money Laundering (AML) Training</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Have you taken an AML course within the past two (2) years? (Anti-Money Laundering)
+            </p>
+            
+            <RadioGroup
+              value={application.has_aml_course === true ? 'yes' : application.has_aml_course === false ? 'no' : ''}
+              onValueChange={value => {
+                onUpdate('has_aml_course', value === 'yes');
+                if (value === 'no') {
+                  onUpdate('aml_course_name', null);
+                  onUpdate('aml_course_date', null);
+                }
+              }}
+              className="flex gap-6 mb-4"
+            >
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="yes" id="aml_yes_section" className="h-4 w-4" />
+                <Label htmlFor="aml_yes_section" className="text-sm cursor-pointer">Yes</Label>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="aml_completion_date">Date Completed</Label>
-                <Input
-                  id="aml_completion_date"
-                  type="date"
-                  value={application.aml_completion_date || ''}
-                  onChange={(e) => onUpdate('aml_completion_date', e.target.value)}
-                  className="h-11 rounded-xl"
-                />
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="no" id="aml_no_section" className="h-4 w-4" />
+                <Label htmlFor="aml_no_section" className="text-sm cursor-pointer">No</Label>
               </div>
-            </div>
-            {application.aml_training_provider && application.aml_training_provider !== 'LIMRA' && application.aml_training_provider !== 'None' && (
-              <FileDropZone
-                label="AML Certificate"
-                documentType="aml_certificate"
-                existingFile={uploadedDocs['aml_certificate']}
-                onUpload={onUpload}
-                onRemove={() => onRemove('aml_certificate')}
-              />
+            </RadioGroup>
+
+            {application.has_aml_course && (
+              <div className="grid gap-4 md:grid-cols-2 animate-fade-in">
+                <div className="space-y-2">
+                  <Label htmlFor="aml_course_name">Course Name</Label>
+                  <Input
+                    id="aml_course_name"
+                    value={application.aml_course_name || ''}
+                    onChange={(e) => onUpdate('aml_course_name', e.target.value)}
+                    placeholder="Enter course name"
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="aml_course_date">Course Date</Label>
+                  <Input
+                    id="aml_course_date"
+                    type="date"
+                    value={application.aml_course_date || ''}
+                    onChange={(e) => onUpdate('aml_course_date', e.target.value)}
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+              </div>
             )}
           </div>
 
