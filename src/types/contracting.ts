@@ -74,6 +74,9 @@ export interface ContractingApplication {
   requesting_commission_advancing: boolean;
   
   // Step 6: Training & E&O
+  has_aml_course: boolean | null;
+  aml_course_name: string | null;
+  aml_course_date: string | null;
   aml_training_provider: string | null;
   aml_completion_date: string | null;
   has_ltc_certification: boolean;
@@ -309,6 +312,9 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   beneficiary_relationship: null,
   beneficiary_birth_date: null,
   requesting_commission_advancing: false,
+  has_aml_course: null,
+  aml_course_name: null,
+  aml_course_date: null,
   aml_training_provider: null,
   aml_completion_date: null,
   has_ltc_certification: false,

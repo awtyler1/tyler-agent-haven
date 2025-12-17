@@ -306,8 +306,11 @@ export function ContractingForm() {
         requesting_commission_advancing: true, // FIXED YES
         
         // Training & Certifications
-        aml_training_provider: 'AHIP',
-        aml_completion_date: '2024-10-15',
+        has_aml_course: true, // FIXED YES
+        aml_course_name: 'AHIP AML Certification Course',
+        aml_course_date: '2024-10-15',
+        aml_training_provider: 'AHIP', // Legacy field
+        aml_completion_date: '2024-10-15', // Legacy field
         has_ltc_certification: true, // FIXED YES
         state_requires_ce: true, // FIXED YES
         

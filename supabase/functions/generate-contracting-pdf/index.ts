@@ -64,6 +64,9 @@ interface ContractingData {
   beneficiary_drivers_license_number?: string;
   beneficiary_drivers_license_state?: string;
   requesting_commission_advancing: boolean;
+  has_aml_course?: boolean;
+  aml_course_name?: string;
+  aml_course_date?: string;
   aml_training_provider?: string;
   aml_completion_date?: string;
   has_ltc_certification: boolean;
@@ -1031,78 +1034,31 @@ serve(async (req) => {
     setTextField('State_5', application.resident_state);
     setTextField('Resident State', application.resident_state);
     
-    // AML - handle as radio group, checkbox, or text field
-    const hasAmlTraining = !!(application.aml_training_provider || application.aml_completion_date);
-    const amlFieldName = fieldMappings?.amlYes?.length 
-      ? fieldMappings.amlYes[0] 
-      : 'Have you taken an AML course within the past two 2 years';
+    // AML - use explicit has_aml_course field, fallback to legacy fields
+    const hasAmlCourse = application.has_aml_course ?? !!(application.aml_training_provider || application.aml_completion_date);
+    const amlCourseName = application.aml_course_name || application.aml_training_provider;
+    const amlCourseDate = application.aml_course_date || application.aml_completion_date;
     
-    console.log(`AML training: ${hasAmlTraining}, field name: ${amlFieldName}`);
+    console.log(`=== AML PROCESSING ===`);
+    console.log(`has_aml_course: ${hasAmlCourse}, course_name: ${amlCourseName}, course_date: ${amlCourseDate}`);
     
-    // Try as radio group first (Yes/No options)
-    let amlSet = false;
-    try {
-      const amlRadio = form.getRadioGroup(amlFieldName);
-      const options = amlRadio.getOptions();
-      console.log(`Found AML radio group: ${amlFieldName}, options: ${options.join(', ')}`);
-      
-      const lowerOptions = options.map((o: string) => o.toLowerCase());
-      const yesIndex = lowerOptions.findIndex(o => o === 'yes' || o.includes('yes'));
-      const noIndex = lowerOptions.findIndex(o => o === 'no' || o.includes('no'));
-      
-      if (yesIndex !== -1 || noIndex !== -1) {
-        if (hasAmlTraining && yesIndex !== -1) {
-          amlRadio.select(options[yesIndex]);
-          console.log(`Selected Yes on AML radio group`);
-          amlSet = true;
-        } else if (!hasAmlTraining && noIndex !== -1) {
-          amlRadio.select(options[noIndex]);
-          console.log(`Selected No on AML radio group`);
-          amlSet = true;
-        }
-      }
-    } catch {
-      console.log(`AML field ${amlFieldName} is not a radio group`);
-    }
+    // Use specific PDF field names Yes_43 and No_43
+    setCheckbox('Yes_43', hasAmlCourse);
+    setCheckbox('No_43', !hasAmlCourse);
     
-    // Try as dropdown/select
-    if (!amlSet) {
-      try {
-        const dropdown = form.getDropdown(amlFieldName);
-        const options = dropdown.getOptions();
-        console.log(`Found AML dropdown: ${amlFieldName}, options: ${options.join(', ')}`);
-        
-        const lowerOptions = options.map((o: string) => o.toLowerCase());
-        const targetOption = hasAmlTraining ? 'yes' : 'no';
-        const optionIndex = lowerOptions.findIndex(o => o === targetOption || o.includes(targetOption));
-        
-        if (optionIndex !== -1) {
-          dropdown.select(options[optionIndex]);
-          console.log(`Selected ${options[optionIndex]} on AML dropdown`);
-          amlSet = true;
-        }
-      } catch {
-        console.log(`AML field ${amlFieldName} is not a dropdown`);
-      }
-    }
+    // Also try common variations
+    setCheckbox('Yes 43', hasAmlCourse);
+    setCheckbox('No 43', !hasAmlCourse);
     
-    // Try as checkbox
-    if (!amlSet) {
-      if (fieldMappings?.amlYes?.length) {
-        fieldMappings.amlYes.forEach(fieldName => setCheckbox(fieldName, hasAmlTraining));
-      }
-      if (fieldMappings?.amlNo?.length) {
-        fieldMappings.amlNo.forEach(fieldName => setCheckbox(fieldName, !hasAmlTraining));
-      }
-      // Fallback to default field name
-      setCheckbox(amlFieldName, hasAmlTraining);
-    }
+    // Set Course Name and Course Date
+    setTextField('Course Name', amlCourseName);
+    setTextField('Course Date', formatDate(amlCourseDate));
+    setTextField('Date Completed', formatDate(amlCourseDate));
     
-    setTextField('Course Name', application.aml_training_provider);
-    setTextField('Course Date', formatDate(application.aml_completion_date));
-    setTextField('Date Completed', formatDate(application.aml_completion_date));
+    console.log(`Set AML checkboxes: Yes_43=${hasAmlCourse}, No_43=${!hasAmlCourse}`);
+    console.log(`Set Course Name: ${amlCourseName}, Course Date: ${formatDate(amlCourseDate)}`);
     
-    // AML Provider checkboxes
+    // Legacy AML Provider checkboxes (keep for backwards compatibility)
     if (application.aml_training_provider) {
       const provider = application.aml_training_provider.toUpperCase();
       setCheckbox('LIMRA', provider === 'LIMRA');
