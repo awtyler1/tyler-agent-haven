@@ -1250,103 +1250,81 @@ serve(async (req) => {
     // Signature images will be drawn to these locations after form flatten
     console.log('Setting final signature fields...');
     
-    // ==================== SIGNATURE2 ALIAS EMBEDDING ====================
-    // Attempt to embed signature image into Signature2 fields (both alias names)
-    const signature2Aliases = ['Signature2_es_:signer:signature', 'Signature2'];
+    // ==================== SIGNATURE2 MAPPING (SINGLE TARGET) ====================
+    // IMPORTANT: Only map signature_image to Signature2_es_:signer:signature
+    // The base field "Signature2" is explicitly skipped to avoid duplicate writes
+    const PRIMARY_SIGNATURE_FIELD = 'Signature2_es_:signer:signature';
+    const SKIPPED_SIGNATURE_FIELD = 'Signature2';
     const signatureImageData = uploadedDocs.signature_image || uploadedDocs.final_signature || uploadedDocs.final_signature_image;
     
-    console.log('=== SIGNATURE2 EMBED DEBUG ===');
+    console.log('=== SIGNATURE2 MAPPING ===');
     console.log('signature_image data present:', !!signatureImageData);
     console.log('signature_image data length:', signatureImageData?.length || 0);
+    console.log('Target field:', PRIMARY_SIGNATURE_FIELD);
+    console.log('Skipped field:', SKIPPED_SIGNATURE_FIELD);
     
-    // Track signature embedding results for mapping report
-    interface SignatureFieldReport {
-      fieldName: string;
-      exists: boolean;
-      fieldType: string;
-      rectangleBounds: string;
-      imageEmbedded: boolean;
-      appearanceUpdated: boolean;
-      notes: string;
-    }
-    const signatureReports: SignatureFieldReport[] = [];
-    
-    // Helper to get field info safely
-    const getFieldInfo = (fieldName: string): { exists: boolean; fieldType: string; field: any } => {
-      try {
-        const field = form.getField(fieldName);
-        const typeName = field?.constructor?.name || 'unknown';
-        return { exists: true, fieldType: typeName, field };
-      } catch {
-        return { exists: false, fieldType: 'not_found', field: null };
-      }
-    };
-    
-    // Helper to get widget rectangle as string
-    const getWidgetRectString = (fieldName: string): string => {
-      const placement = getFieldWidgetPlacement(fieldName);
-      if (placement) {
-        return `page:${placement.pageIndex + 1}, x:${placement.x.toFixed(0)}, y:${placement.y.toFixed(0)}, w:${placement.width.toFixed(0)}, h:${placement.height.toFixed(0)}`;
-      }
-      return 'no_widget_found';
-    };
-    
-    // Process each signature2 alias
-    for (const sigFieldName of signature2Aliases) {
-      const report: SignatureFieldReport = {
-        fieldName: sigFieldName,
-        exists: false,
-        fieldType: 'unknown',
-        rectangleBounds: 'N/A',
-        imageEmbedded: false,
-        appearanceUpdated: false,
-        notes: '',
-      };
-      
-      const fieldInfo = getFieldInfo(sigFieldName);
-      report.exists = fieldInfo.exists;
-      report.fieldType = fieldInfo.fieldType;
-      
-      console.log(`Signature2 alias "${sigFieldName}": exists=${report.exists}, type=${report.fieldType}`);
-      
-      if (!fieldInfo.exists) {
-        report.notes = 'Field does not exist in PDF';
-        signatureReports.push(report);
-        continue;
-      }
-      
-      // Get rectangle bounds
-      report.rectangleBounds = getWidgetRectString(sigFieldName);
-      console.log(`  Rectangle: ${report.rectangleBounds}`);
-      
-      // Check if we have signature image data
-      if (!signatureImageData) {
-        report.notes = 'No signature image data available';
-        signatureReports.push(report);
-        continue;
-      }
-      
-      // Do NOT set text on signature fields - we'll draw the image after flatten
-      // Just mark that we'll embed the image
-      report.imageEmbedded = true;
-      report.notes = 'Signature image will be drawn after form flatten';
-      signatureReports.push(report);
+    // Check if primary signature field exists
+    let primaryFieldExists = false;
+    let primaryFieldType = 'unknown';
+    try {
+      const field = form.getField(PRIMARY_SIGNATURE_FIELD);
+      primaryFieldExists = true;
+      primaryFieldType = field?.constructor?.name || 'unknown';
+    } catch {
+      primaryFieldExists = false;
+      primaryFieldType = 'not_found';
     }
     
-    // Log signature reports
-    console.log('=== SIGNATURE2 FIELD REPORTS ===');
-    for (const rep of signatureReports) {
-      console.log(JSON.stringify(rep));
-      // Add to mapping report
+    // Get widget placement for drawing
+    const sig2Placement = getFieldWidgetPlacement(PRIMARY_SIGNATURE_FIELD);
+    const sig2RectString = sig2Placement 
+      ? `page:${sig2Placement.pageIndex + 1}, x:${sig2Placement.x.toFixed(0)}, y:${sig2Placement.y.toFixed(0)}, w:${sig2Placement.width.toFixed(0)}, h:${sig2Placement.height.toFixed(0)}`
+      : 'no_widget_found';
+    
+    console.log(`Primary field "${PRIMARY_SIGNATURE_FIELD}": exists=${primaryFieldExists}, type=${primaryFieldType}`);
+    console.log(`  Rectangle: ${sig2RectString}`);
+    
+    // Add mapping report entry for PRIMARY field
+    if (signatureImageData && primaryFieldExists) {
       mappingReport.push({
-        pdfFieldKey: rep.fieldName,
-        valueApplied: rep.imageEmbedded ? '[signature_image]' : '',
+        pdfFieldKey: PRIMARY_SIGNATURE_FIELD,
+        valueApplied: '[signature_image]',
         sourceFormField: 'signature_image',
-        isBlank: !rep.imageEmbedded,
-        status: rep.imageEmbedded ? 'success' : (rep.exists ? 'skipped' : 'failed'),
+        isBlank: false,
+        status: 'success',
       });
+      console.log(`Signature2_es_:signer:signature = success (image will be drawn after flatten)`);
+    } else if (!signatureImageData) {
+      mappingReport.push({
+        pdfFieldKey: PRIMARY_SIGNATURE_FIELD,
+        valueApplied: '',
+        sourceFormField: 'signature_image',
+        isBlank: true,
+        status: 'skipped',
+      });
+      console.log(`Signature2_es_:signer:signature = skipped (no signature image data)`);
+    } else {
+      mappingReport.push({
+        pdfFieldKey: PRIMARY_SIGNATURE_FIELD,
+        valueApplied: '',
+        sourceFormField: 'signature_image',
+        isBlank: true,
+        status: 'failed',
+      });
+      console.log(`Signature2_es_:signer:signature = failed (field not found)`);
     }
-    console.log('=== END SIGNATURE2 DEBUG ===');
+    
+    // Add mapping report entry for SKIPPED base field (explicitly skipped, not failed)
+    mappingReport.push({
+      pdfFieldKey: SKIPPED_SIGNATURE_FIELD,
+      valueApplied: '',
+      sourceFormField: 'signature_image',
+      isBlank: true,
+      status: 'skipped',
+    });
+    console.log(`Signature2 = skipped (base field intentionally not mapped to avoid duplicates)`);
+    
+    console.log('=== END SIGNATURE2 MAPPING ===');
     
     // For text-based fallback, try these fields with the signature name
     const textFallbackFields = [
@@ -1482,31 +1460,27 @@ serve(async (req) => {
     }
 
     // ==================== SIGNATURE2 IMAGE DRAWING ====================
-    // Draw final signature to Signature2 field positions (both aliases)
+    // Draw final signature ONLY to Signature2_es_:signer:signature field position
     let signature2DrawSuccess = false;
     if (finalSignatureImage) {
       console.log('=== DRAWING SIGNATURE2 IMAGE ===');
       
-      // Try to get placement from either alias
-      for (const sigAlias of signature2Aliases) {
-        const placement = getFieldWidgetPlacement(sigAlias);
-        if (placement) {
-          console.log(`Found widget placement for ${sigAlias}:`, placement);
-          drawSignatureOnPage(
-            finalSignatureImage,
-            placement.pageIndex,
-            placement.x + 4,
-            placement.y + 4,
-            Math.max(10, placement.width - 8),
-            Math.max(10, placement.height - 8)
-          );
-          signature2DrawSuccess = true;
-          console.log(`Drew signature to ${sigAlias} widget location`);
-          break; // Only draw once
-        }
+      // Use the pre-computed placement for PRIMARY_SIGNATURE_FIELD
+      if (sig2Placement) {
+        console.log(`Drawing signature to ${PRIMARY_SIGNATURE_FIELD}:`, sig2Placement);
+        drawSignatureOnPage(
+          finalSignatureImage,
+          sig2Placement.pageIndex,
+          sig2Placement.x + 4,
+          sig2Placement.y + 4,
+          Math.max(10, sig2Placement.width - 8),
+          Math.max(10, sig2Placement.height - 8)
+        );
+        signature2DrawSuccess = true;
+        console.log(`Drew signature to ${PRIMARY_SIGNATURE_FIELD} widget location`);
       }
       
-      // Also draw using finalSignaturePlacement if available
+      // Also draw using finalSignaturePlacement if available (different field)
       if (finalSignaturePlacement) {
         console.log('Drawing final signature using widget placement:', finalSignaturePlacement);
         drawSignatureOnPage(
