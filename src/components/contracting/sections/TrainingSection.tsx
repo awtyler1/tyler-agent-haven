@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication } from '@/types/contracting';
 import { FileDropZone } from '../FileDropZone';
-import { GraduationCap, Lock } from 'lucide-react';
+import { GraduationCap, Lock, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 
@@ -55,61 +55,66 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
           <div>
             <h4 className="text-sm font-medium mb-4">E&O Insurance</h4>
             
-            <label className="flex items-center gap-3 cursor-pointer mb-4">
-              <Checkbox
-                checked={application.eo_not_yet_covered || false}
-                onCheckedChange={(checked) => onUpdate('eo_not_yet_covered', !!checked)}
+            <div className="grid gap-4 md:grid-cols-3 mb-4">
+              <div className="space-y-2">
+                <Label htmlFor="eo_provider">E&O Provider</Label>
+                <Input
+                  id="eo_provider"
+                  value={application.eo_provider || ''}
+                  onChange={(e) => onUpdate('eo_provider', e.target.value)}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="eo_policy_number">Policy Number</Label>
+                <Input
+                  id="eo_policy_number"
+                  value={application.eo_policy_number || ''}
+                  onChange={(e) => onUpdate('eo_policy_number', e.target.value)}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="eo_expiration_date">Expiration Date</Label>
+                <Input
+                  id="eo_expiration_date"
+                  type="date"
+                  value={application.eo_expiration_date || ''}
+                  onChange={(e) => onUpdate('eo_expiration_date', e.target.value)}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <FileDropZone
+                label="E&O Certificate"
+                documentType="eo_certificate"
+                existingFile={uploadedDocs['eo_certificate']}
+                onUpload={onUpload}
+                onRemove={() => onRemove('eo_certificate')}
+                onClearError={onClearError}
+                description="Your E&O certificate must list your full name as the insured"
+                hasError={showValidation && !!fieldErrors.eo_certificate}
               />
-              <span className="text-sm text-muted-foreground">I don't have E&O coverage yet</span>
-            </label>
+              <FormFieldError error={fieldErrors.eo_certificate} show={showValidation} />
+            </div>
 
-            {!application.eo_not_yet_covered && (
-              <>
-                <div className="grid gap-4 md:grid-cols-3 mb-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="eo_provider">E&O Provider</Label>
-                    <Input
-                      id="eo_provider"
-                      value={application.eo_provider || ''}
-                      onChange={(e) => onUpdate('eo_provider', e.target.value)}
-                      className="h-11 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="eo_policy_number">Policy Number</Label>
-                    <Input
-                      id="eo_policy_number"
-                      value={application.eo_policy_number || ''}
-                      onChange={(e) => onUpdate('eo_policy_number', e.target.value)}
-                      className="h-11 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="eo_expiration_date">Expiration Date</Label>
-                    <Input
-                      id="eo_expiration_date"
-                      type="date"
-                      value={application.eo_expiration_date || ''}
-                      onChange={(e) => onUpdate('eo_expiration_date', e.target.value)}
-                      className="h-11 rounded-xl"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <FileDropZone
-                    label="E&O Certificate"
-                    documentType="eo_certificate"
-                    existingFile={uploadedDocs['eo_certificate']}
-                    onUpload={onUpload}
-                    onRemove={() => onRemove('eo_certificate')}
-                    onClearError={onClearError}
-                    description="Your E&O certificate must list your full name as the insured"
-                    hasError={showValidation && !!fieldErrors.eo_certificate}
-                  />
-                  <FormFieldError error={fieldErrors.eo_certificate} show={showValidation} />
-                </div>
-              </>
-            )}
+            {/* Get E&O Coverage Link */}
+            <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
+              <p className="text-sm text-muted-foreground mb-2">
+                Need E&O coverage? Get affordable Errors & Omissions insurance through NAPA Benefits.
+              </p>
+              <a
+                href="https://www.napa-benefits.org/insurance/errors-and-omissions-eando-insurance"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                Get E&O Coverage
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
           </div>
 
           {/* AML Training */}
