@@ -243,10 +243,7 @@ export function useFormValidation() {
       addError('resident_state', MESSAGES.selectRequired, 'licensing');
       licensingErrors.push({ field: 'resident_state', message: MESSAGES.selectRequired, sectionId: 'licensing' });
     }
-    if (!application.license_expiration_date) {
-      addError('license_expiration_date', MESSAGES.required, 'licensing');
-      licensingErrors.push({ field: 'license_expiration_date', message: MESSAGES.required, sectionId: 'licensing' });
-    }
+    // License expiration date - not required
     // TESTING: Document uploads disabled for testing
     // if (!uploadedDocs.insurance_license) {
     //   addError('insurance_license', MESSAGES.documentRequired, 'licensing');
