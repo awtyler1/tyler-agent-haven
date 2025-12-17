@@ -1304,7 +1304,7 @@ serve(async (req) => {
         // Fallback: Draw signature at fixed position on page 10 (index 9) - the signature page
         // The signature box is typically in the center-bottom area of the page
         console.log('Using fixed coordinates for final signature on page 10');
-        drawSignatureOnPage(finalSignatureImage, 9, 180, 280, 250, 60);
+        drawSignatureOnPage(finalSignatureImage, 9, 180, 180, 250, 60);
       }
     } else {
       console.log('No final signature image found');
