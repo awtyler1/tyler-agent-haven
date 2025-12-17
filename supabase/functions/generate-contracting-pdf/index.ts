@@ -1288,7 +1288,7 @@ serve(async (req) => {
       drawSignatureOnPage(backgroundSignatureImage, 3, 80, 100, 250, 60);
     }
 
-    // Draw final signature using widget placement (preferred) to avoid page/index drift
+    // Draw final signature using widget placement (preferred) or fixed coordinates as fallback
     if (finalSignatureImage) {
       if (finalSignaturePlacement) {
         console.log('Drawing final signature using widget placement:', finalSignaturePlacement);
@@ -1301,7 +1301,10 @@ serve(async (req) => {
           Math.max(10, finalSignaturePlacement.height - 12)
         );
       } else {
-        console.log('No widget placement found for final signature field; skipping draw');
+        // Fallback: Draw signature at fixed position on page 10 (index 9) - the signature page
+        // The signature box is typically in the center-bottom area of the page
+        console.log('Using fixed coordinates for final signature on page 10');
+        drawSignatureOnPage(finalSignatureImage, 9, 180, 280, 250, 60);
       }
     } else {
       console.log('No final signature image found');
