@@ -32,6 +32,7 @@ interface ContractingData {
   gender?: string;
   birth_date?: string;
   birth_city?: string;
+  birth_state?: string;
   npn_number?: string;
   insurance_license_number?: string;
   tax_id?: string;
@@ -245,6 +246,7 @@ interface FieldMappings {
     female: string[];
   };
   birthCity: string[];
+  birthState: string[];
   amlYes: string[];
   amlNo: string[];
   custom: Record<string, string[]>;
@@ -521,6 +523,15 @@ serve(async (req) => {
         fieldMappings.birthCity.forEach(fieldName => setTextField(fieldName, application.birth_city));
       } else {
         setTextField('City_5', application.birth_city); // Default field name
+      }
+    }
+    
+    // Birth State - use mapped field names if available
+    if (application.birth_state) {
+      if (fieldMappings?.birthState?.length) {
+        fieldMappings.birthState.forEach(fieldName => setTextField(fieldName, application.birth_state));
+      } else {
+        setTextField('State_5', application.birth_state); // Default field name
       }
     }
     

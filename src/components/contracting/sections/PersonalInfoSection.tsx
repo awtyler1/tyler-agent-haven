@@ -112,13 +112,25 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
           </div>
 
           {/* Birth City */}
-          <div className="md:col-span-2 space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="birth_city">City of Birth</Label>
             <Input
               id="birth_city"
               value={application.birth_city || ''}
               onChange={(e) => onUpdate('birth_city', e.target.value)}
-              placeholder="Where were you born?"
+              placeholder="City where you were born"
+              className="h-11 rounded-xl"
+            />
+          </div>
+
+          {/* Birth State */}
+          <div className="space-y-2">
+            <Label htmlFor="birth_state">State of Birth</Label>
+            <Input
+              id="birth_state"
+              value={application.birth_state || ''}
+              onChange={(e) => onUpdate('birth_state', e.target.value)}
+              placeholder="State where you were born"
               className="h-11 rounded-xl"
             />
           </div>

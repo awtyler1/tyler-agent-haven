@@ -34,6 +34,7 @@ export interface ContractingApplication {
   gender: string | null;
   birth_date: string | null;
   birth_city: string | null;
+  birth_state: string | null;
   npn_number: string | null;
   insurance_license_number: string | null;
   tax_id: string | null;
@@ -278,6 +279,7 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   gender: null,
   birth_date: null,
   birth_city: null,
+  birth_state: null,
   npn_number: null,
   insurance_license_number: null,
   tax_id: null,

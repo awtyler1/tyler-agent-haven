@@ -39,6 +39,7 @@ interface SavedMappings {
   fullName: string[];
   birthDate: string[];
   birthCity: string[];
+  birthState: string[];
   // Addresses
   homeAddress: { street: string[]; city: string[]; state: string[]; zip: string[]; county: string[] };
   mailingAddress: { street: string[]; city: string[]; state: string[]; zip: string[]; county: string[] };
@@ -107,6 +108,7 @@ const FIELD_CATEGORIES = [
   { value: "full_name", label: "Full Legal Name", section: "Personal Info" },
   { value: "birth_date", label: "Birth Date", section: "Personal Info" },
   { value: "birth_city", label: "Birth City (Where were you born)", section: "Personal Info" },
+  { value: "birth_state", label: "Birth State (Where were you born)", section: "Personal Info" },
   { value: "gender_male", label: "Gender: Male (checkbox)", section: "Personal Info" },
   { value: "gender_female", label: "Gender: Female (checkbox)", section: "Personal Info" },
   { value: "personal_name_principal", label: "Personal Name or Principal", section: "Personal Info" },
@@ -377,6 +379,7 @@ export default function PdfFieldMapperPage() {
         saved.fullName?.forEach(f => newMappings[f] = "full_name");
         saved.birthDate?.forEach(f => newMappings[f] = "birth_date");
         saved.birthCity?.forEach(f => newMappings[f] = "birth_city");
+        saved.birthState?.forEach(f => newMappings[f] = "birth_state");
         // Addresses
         saved.homeAddress?.street?.forEach(f => newMappings[f] = "home_street");
         saved.homeAddress?.city?.forEach(f => newMappings[f] = "home_city");
@@ -549,6 +552,7 @@ export default function PdfFieldMapperPage() {
         fullName: [],
         birthDate: [],
         birthCity: [],
+        birthState: [],
         homeAddress: { street: [], city: [], state: [], zip: [], county: [] },
         mailingAddress: { street: [], city: [], state: [], zip: [], county: [] },
         upsAddress: { street: [], city: [], state: [], zip: [], county: [] },
@@ -648,6 +652,7 @@ export default function PdfFieldMapperPage() {
           case "full_name": structured.fullName.push(fieldName); break;
           case "birth_date": structured.birthDate.push(fieldName); break;
           case "birth_city": structured.birthCity.push(fieldName); break;
+          case "birth_state": structured.birthState.push(fieldName); break;
           case "home_street": structured.homeAddress.street.push(fieldName); break;
           case "home_city": structured.homeAddress.city.push(fieldName); break;
           case "home_state": structured.homeAddress.state.push(fieldName); break;
