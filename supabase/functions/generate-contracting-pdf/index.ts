@@ -636,6 +636,49 @@ serve(async (req) => {
       mappingReport.push(entry);
     };
 
+    // Helper to set radio field with literal ON value (not "checked")
+    const setRadioValue = (fieldName: string, onValue: string, sourceField?: string) => {
+      const entry: MappingEntry = {
+        pdfFieldKey: fieldName,
+        valueApplied: onValue,
+        sourceFormField: sourceField || fieldName,
+        isBlank: false,
+        status: 'skipped',
+      };
+      
+      // First try as radio group
+      try {
+        const rgFields = form.getFields();
+        for (const f of rgFields) {
+          try {
+            const rg = form.getRadioGroup(f.getName());
+            const opts = rg.getOptions();
+            if (opts.includes(onValue)) {
+              rg.select(onValue);
+              console.log(`Selected radio value ${onValue} on group: ${f.getName()}`);
+              entry.status = 'success';
+              mappingReport.push(entry);
+              return;
+            }
+          } catch { /* not a radio group */ }
+        }
+      } catch (e) {
+        console.log(`Could not find radio group with option ${onValue}`);
+      }
+      
+      // Fallback: try to set as text field with the literal value
+      try {
+        const field = form.getTextField(fieldName);
+        field.setText(onValue);
+        console.log(`Set text field ${fieldName} to literal value: ${onValue}`);
+        entry.status = 'success';
+      } catch {
+        console.log(`Radio/field not found: ${fieldName} for value ${onValue}`);
+        entry.status = 'failed';
+      }
+      mappingReport.push(entry);
+    };
+
     // ==================== PAGE 1: Contract Application ====================
     setTextField('Agent Name', application.full_legal_name);
     setTextField('SSN', application.tax_id);
@@ -1049,28 +1092,11 @@ serve(async (req) => {
     setTextField('Account', application.bank_account_number);
     setTextField('Branch Name or Location', application.bank_branch_name);
     
-    // Requesting Commission Advancing - PDF uses Yes_42 as the ON value
+    // Requesting Commission Advancing - single radio, use literal Yes_42 value
     if (application.requesting_commission_advancing) {
-      // Try as radio button option first
-      try {
-        const rgFields = form.getFields();
-        for (const f of rgFields) {
-          try {
-            const rg = form.getRadioGroup(f.getName());
-            const opts = rg.getOptions();
-            if (opts.includes('Yes_42')) {
-              rg.select('Yes_42');
-              console.log('Selected Yes_42 on radio group:', f.getName());
-              break;
-            }
-          } catch { /* not a radio group */ }
-        }
-      } catch (e) {
-        console.log('Could not find radio group for commission advancing');
-      }
-      // Also try checkbox approach
-      setCheckbox('Yes_42', true, 'requesting_commission_advancing');
+      setRadioValue('Yes_42', 'Yes_42', 'requesting_commission_advancing');
     }
+    // If No, leave field empty (don't write anything)
     
     // Beneficiary Information
     setTextField('List a Beneficiary', application.beneficiary_name);
@@ -1087,11 +1113,7 @@ serve(async (req) => {
     setTextField('Resident Drivers License State', application.drivers_license_state);
     
     
-    // Resident State
-    setTextField('State_5', application.resident_state);
-    setTextField('Resident State', application.resident_state);
-    
-    // AML - use explicit has_aml_course field, fallback to legacy fields
+    // AML / Resident State Yes/No - single radio group with Yes_43/No_43 values
     const hasAmlCourse = application.has_aml_course ?? !!(application.aml_training_provider || application.aml_completion_date);
     const amlCourseName = application.aml_course_name || application.aml_training_provider;
     const amlCourseDate = application.aml_course_date || application.aml_completion_date;
@@ -1099,20 +1121,19 @@ serve(async (req) => {
     console.log(`=== AML PROCESSING ===`);
     console.log(`has_aml_course: ${hasAmlCourse}, course_name: ${amlCourseName}, course_date: ${amlCourseDate}`);
     
-    // Use specific PDF field names Yes_43 and No_43
-    setCheckbox('Yes_43', hasAmlCourse);
-    setCheckbox('No_43', !hasAmlCourse);
-    
-    // Also try common variations
-    setCheckbox('Yes 43', hasAmlCourse);
-    setCheckbox('No 43', !hasAmlCourse);
+    // Single radio group - use literal value Yes_43 or No_43
+    if (hasAmlCourse) {
+      setRadioValue('Yes_43', 'Yes_43', 'has_aml_course');
+    } else {
+      setRadioValue('No_43', 'No_43', 'has_aml_course');
+    }
     
     // Set Course Name and Course Date
     setTextField('Course Name', amlCourseName);
     setTextField('Course Date', formatDate(amlCourseDate));
     setTextField('Date Completed', formatDate(amlCourseDate));
     
-    console.log(`Set AML checkboxes: Yes_43=${hasAmlCourse}, No_43=${!hasAmlCourse}`);
+    console.log(`Set AML radio: ${hasAmlCourse ? 'Yes_43' : 'No_43'}`);
     console.log(`Set Course Name: ${amlCourseName}, Course Date: ${formatDate(amlCourseDate)}`);
     
     // Legacy AML Provider checkboxes (keep for backwards compatibility)
@@ -1123,49 +1144,16 @@ serve(async (req) => {
       setCheckbox('Other', provider !== 'LIMRA' && provider !== 'NONE');
     }
     
-    // FINRA - single radio group with No_47 as the No option value
+    // FINRA - single radio group, use literal No_47 value for No
     const isFinraRegistered = application.is_finra_registered || false;
     console.log('FINRA registered:', isFinraRegistered);
     
     if (!isFinraRegistered) {
-      // Set No_47 for the FINRA radio group
-      try {
-        const rgFields = form.getFields();
-        for (const f of rgFields) {
-          try {
-            const rg = form.getRadioGroup(f.getName());
-            const opts = rg.getOptions();
-            if (opts.includes('No_47')) {
-              rg.select('No_47');
-              console.log('Selected No_47 on FINRA radio group:', f.getName());
-              break;
-            }
-          } catch { /* not a radio group */ }
-        }
-      } catch (e) {
-        console.log('Could not find FINRA radio group');
-      }
-      // Also try checkbox
-      setCheckbox('No_47', true, 'is_finra_registered');
+      // Set No_47 literal value
+      setRadioValue('No_47', 'No_47', 'is_finra_registered');
     } else {
-      // If Yes, try to find Yes option
-      try {
-        const rgFields = form.getFields();
-        for (const f of rgFields) {
-          try {
-            const rg = form.getRadioGroup(f.getName());
-            const opts = rg.getOptions();
-            if (opts.includes('Yes_47')) {
-              rg.select('Yes_47');
-              console.log('Selected Yes_47 on FINRA radio group:', f.getName());
-              break;
-            }
-          } catch { /* not a radio group */ }
-        }
-      } catch (e) {
-        console.log('Could not find FINRA Yes radio group');
-      }
-      setCheckbox('Yes_47', true, 'is_finra_registered');
+      // If Yes, set Yes_47 and fill broker details
+      setRadioValue('Yes_47', 'Yes_47', 'is_finra_registered');
       setTextField('BrokerDealer Name', application.finra_broker_dealer_name);
       setTextField('CRD', application.finra_crd_number);
     }
