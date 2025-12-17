@@ -1299,8 +1299,40 @@ serve(async (req) => {
     console.log('=== END DEBUG ===');
 
     // Always write both checkbox fields - onValue should be 'Yes' (the checkbox ON state)
+    console.log('=== COMMISSION ADVANCING SETTING DEBUG ===');
+    console.log('Input value:', commissionAdvancing);
+    console.log('Setting Yes_42 to:', commissionAdvancing === true);
+    console.log('Setting No_42 to:', commissionAdvancing !== true);
+    
     setDeterministicCheckbox('Yes_42', 'Yes', commissionAdvancing === true, 'requesting_commission_advancing');
     setDeterministicCheckbox('No_42', 'Yes', commissionAdvancing !== true, 'requesting_commission_advancing');
+    
+    // Read back field values after setting
+    try {
+      const yes42Field = form.getField('Yes_42');
+      const no42Field = form.getField('No_42');
+      console.log('Yes_42 field after setting:', yes42Field?.constructor?.name);
+      console.log('No_42 field after setting:', no42Field?.constructor?.name);
+      
+      // Try to get checked state
+      if (yes42Field && 'isChecked' in yes42Field) {
+        console.log('Yes_42 isChecked():', (yes42Field as any).isChecked());
+      }
+      if (no42Field && 'isChecked' in no42Field) {
+        console.log('No_42 isChecked():', (no42Field as any).isChecked());
+      }
+      
+      // Try to read acroField directly
+      if (yes42Field) {
+        console.log('Yes_42 acroField:', (yes42Field as any).acroField?.toString?.());
+      }
+      if (no42Field) {
+        console.log('No_42 acroField:', (no42Field as any).acroField?.toString?.());
+      }
+    } catch (readErr: unknown) {
+      console.log('Could not read field states:', readErr instanceof Error ? readErr.message : String(readErr));
+    }
+    console.log('=== END COMMISSION ADVANCING SETTING DEBUG ===');
     
     // Beneficiary Information
     setTextField('List a Beneficiary', application.beneficiary_name);
