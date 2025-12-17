@@ -199,9 +199,16 @@ export function useContractingApplication() {
 
     setSaving(true);
     try {
+      // Normalize application data before submission
+      const normalizedApplication = {
+        ...application,
+        // Default requesting_commission_advancing to false if undefined/null
+        requesting_commission_advancing: application.requesting_commission_advancing === true,
+      };
+
       // First, generate the PDF and save to storage
       console.log('Generating contracting PDF...');
-      const pdfResult = await generatePdf(application, true); // saveToStorage = true
+      const pdfResult = await generatePdf(normalizedApplication, true); // saveToStorage = true
       
       if (!pdfResult.success) {
         console.error('PDF generation failed:', pdfResult.error);

@@ -153,7 +153,8 @@ export function useContractingPdf() {
             bank_branch_name: application.bank_branch_name,
             beneficiary_name: application.beneficiary_name,
             beneficiary_relationship: application.beneficiary_relationship,
-            requesting_commission_advancing: application.requesting_commission_advancing,
+            // Normalize to false if undefined/null - only true when explicitly opted in
+            requesting_commission_advancing: application.requesting_commission_advancing === true,
             aml_training_provider: application.aml_training_provider,
             aml_completion_date: application.aml_completion_date,
             has_ltc_certification: application.has_ltc_certification,
