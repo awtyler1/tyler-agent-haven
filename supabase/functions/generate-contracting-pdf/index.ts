@@ -439,20 +439,27 @@ serve(async (req) => {
     let finalSignatureImage = null;
 
     const uploadedDocs = application.uploaded_documents || {};
+    console.log('Uploaded documents keys:', Object.keys(uploadedDocs));
+    console.log('Has initials_image:', !!uploadedDocs.initials_image);
+    console.log('Has background_signature:', !!uploadedDocs.background_signature);
+    console.log('Has final_signature:', !!uploadedDocs.final_signature);
     
     if (uploadedDocs.initials_image) {
-      console.log('Embedding drawn initials image');
+      console.log('Embedding drawn initials image, data length:', uploadedDocs.initials_image.length);
       initialsImage = await embedImageFromDataUrl(uploadedDocs.initials_image);
+      console.log('Initials image embedded:', !!initialsImage);
     }
     
     if (uploadedDocs.background_signature) {
-      console.log('Embedding background signature image (after legal questions)');
+      console.log('Embedding background signature image (after legal questions), data length:', uploadedDocs.background_signature.length);
       backgroundSignatureImage = await embedImageFromDataUrl(uploadedDocs.background_signature);
+      console.log('Background signature image embedded:', !!backgroundSignatureImage);
     }
     
     if (uploadedDocs.final_signature) {
-      console.log('Embedding final signature image');
+      console.log('Embedding final signature image, data length:', uploadedDocs.final_signature.length);
       finalSignatureImage = await embedImageFromDataUrl(uploadedDocs.final_signature);
+      console.log('Final signature image embedded:', !!finalSignatureImage);
     }
 
     // Helper to draw initials on a page at specific position
@@ -1035,10 +1042,9 @@ serve(async (req) => {
     setTextField('DATE_7', formatDate(application.signature_date));
 
     // ==================== PAGE 9: Signature Page ====================
-    // Don't set text in signature field - drawn signature image will be placed there instead
-    // setTextField('Additionally please sign in the center of the box below', application.signature_name);
-    // Type your full legal name field
-    setTextField('Signature2', application.full_legal_name);
+    // Type your full legal name field - use signature_name from the signature section
+    console.log('Setting Signature2 to:', application.signature_name);
+    setTextField('Signature2', application.signature_name);
     setTextField('DATE_8', formatDate(application.signature_date));
 
     // ==================== PAGE 10: Carrier Selection ====================
