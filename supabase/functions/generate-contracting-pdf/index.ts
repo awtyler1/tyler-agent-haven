@@ -1204,18 +1204,69 @@ serve(async (req) => {
     setTextField('Account', application.bank_account_number);
     setTextField('Branch Name or Location', application.bank_branch_name);
     
-    // Requesting Commission Advancing - single radio group with Yes_42/No_42 values
-    // ALWAYS write to one of the two fields - never skip
-    const commissionAdvancing = application.requesting_commission_advancing === true;
-    console.log(`=== COMMISSION ADVANCING ===`);
-    console.log(`Commission Advancing: ${commissionAdvancing} (raw value: ${application.requesting_commission_advancing})`);
+    // Requesting Commission Advancing - ALWAYS write BOTH checkboxes deterministically
+    // Normalize value: coerce strings, default null/undefined to false
+    const rawCommissionValue: unknown = application.requesting_commission_advancing;
+    let commissionAdvancing = false;
+    if (typeof rawCommissionValue === 'boolean') {
+      commissionAdvancing = rawCommissionValue;
+    } else if (typeof rawCommissionValue === 'string') {
+      const lower = (rawCommissionValue as string).toLowerCase().trim();
+      commissionAdvancing = lower === 'true' || lower === 'yes' || lower === '1';
+    } else if (typeof rawCommissionValue === 'number') {
+      commissionAdvancing = (rawCommissionValue as number) === 1;
+    }
+    // null/undefined/empty all default to false (already initialized)
+    
+    console.log(`=== COMMISSION ADVANCING (DETERMINISTIC) ===`);
+    console.log(`Raw value: ${rawCommissionValue} (type: ${typeof rawCommissionValue})`);
+    console.log(`Normalized to: ${commissionAdvancing}`);
+    
+    // ALWAYS write BOTH checkboxes - never skip either field
     if (commissionAdvancing) {
-      console.log(`Setting Yes_42 to checked (user opted in)`);
+      console.log(`Setting Yes_42="Yes_42" (checked), No_42="" (unchecked)`);
+      // Check Yes, uncheck No
       setRadioValue('Yes_42', 'Yes_42', 'requesting_commission_advancing');
+      // Clear No checkbox by setting empty/Off value
+      try {
+        const noField = form.getTextField('No_42');
+        noField.setText('');
+        mappingReport.push({ pdfFieldKey: 'No_42', valueApplied: '', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'success' });
+        console.log(`Cleared No_42 checkbox`);
+      } catch {
+        // If it's a checkbox type, try setting it to Off
+        try {
+          const noCheckbox = form.getCheckBox('No_42');
+          noCheckbox.uncheck();
+          mappingReport.push({ pdfFieldKey: 'No_42', valueApplied: 'Off', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'success' });
+          console.log(`Unchecked No_42 checkbox`);
+        } catch {
+          mappingReport.push({ pdfFieldKey: 'No_42', valueApplied: '', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'skipped' });
+          console.log(`Could not clear No_42 - field type unknown`);
+        }
+      }
     } else {
-      // Explicitly check the No field when false/undefined/null
-      console.log(`Setting No_42 to checked (user did not opt in or left blank)`);
+      console.log(`Setting No_42="No_42" (checked), Yes_42="" (unchecked)`);
+      // Check No, uncheck Yes
       setRadioValue('No_42', 'No_42', 'requesting_commission_advancing');
+      // Clear Yes checkbox by setting empty/Off value
+      try {
+        const yesField = form.getTextField('Yes_42');
+        yesField.setText('');
+        mappingReport.push({ pdfFieldKey: 'Yes_42', valueApplied: '', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'success' });
+        console.log(`Cleared Yes_42 checkbox`);
+      } catch {
+        // If it's a checkbox type, try setting it to Off
+        try {
+          const yesCheckbox = form.getCheckBox('Yes_42');
+          yesCheckbox.uncheck();
+          mappingReport.push({ pdfFieldKey: 'Yes_42', valueApplied: 'Off', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'success' });
+          console.log(`Unchecked Yes_42 checkbox`);
+        } catch {
+          mappingReport.push({ pdfFieldKey: 'Yes_42', valueApplied: '', sourceFormField: 'requesting_commission_advancing', isBlank: false, status: 'skipped' });
+          console.log(`Could not clear Yes_42 - field type unknown`);
+        }
+      }
     }
     
     // Beneficiary Information
