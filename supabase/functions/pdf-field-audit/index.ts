@@ -94,9 +94,14 @@ serve(async (req) => {
       
       // Map constructor name to friendly type using pdf-lib's field type methods
       let fieldType = 'unknown';
+      const nameLower = fieldName.toLowerCase();
       try {
+        // Check field name first for signature fields (often renamed text fields)
+        if (nameLower.includes('signature') || nameLower.includes('_es_:signer')) {
+          fieldType = 'signature';
+        }
         // Use duck typing to detect field type
-        if (typeof (field as any).getText === 'function') fieldType = 'text';
+        else if (typeof (field as any).getText === 'function') fieldType = 'text';
         else if (typeof (field as any).isChecked === 'function') fieldType = 'checkbox';
         else if (typeof (field as any).getSelected === 'function') fieldType = 'radio';
         else if (fieldTypeName.includes('Sig') || fieldTypeName.includes('ignature')) fieldType = 'signature';
