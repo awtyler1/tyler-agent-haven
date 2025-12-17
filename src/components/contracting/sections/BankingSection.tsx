@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication } from '@/types/contracting';
 import { FileDropZone } from '../FileDropZone';
 import { Building2, Lock } from 'lucide-react';
@@ -112,16 +112,26 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
 
           {/* Commission Advancing */}
           <div className="pt-4 border-t border-border/10">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <Checkbox
-                checked={application.requesting_commission_advancing || false}
-                onCheckedChange={(checked) => onUpdate('requesting_commission_advancing', !!checked)}
-              />
+            <div className="space-y-3">
               <div>
-                <span className="text-sm font-medium">Request Commission Advancing</span>
-                <p className="text-xs text-muted-foreground/60">Receive commissions faster with advancing (terms apply)</p>
+                <Label className="text-sm font-medium">Requesting Commission Advancing? <span className="text-destructive">*</span></Label>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">Receive commissions faster with advancing (terms apply)</p>
               </div>
-            </label>
+              <RadioGroup
+                value={application.requesting_commission_advancing === true ? 'yes' : 'no'}
+                onValueChange={(value) => onUpdate('requesting_commission_advancing', value === 'yes')}
+                className="flex gap-6"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="yes" id="commission_yes" />
+                  <Label htmlFor="commission_yes" className="text-sm font-normal cursor-pointer">Yes</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="no" id="commission_no" />
+                  <Label htmlFor="commission_no" className="text-sm font-normal cursor-pointer">No</Label>
+                </div>
+              </RadioGroup>
+            </div>
           </div>
 
           {/* Beneficiary */}
