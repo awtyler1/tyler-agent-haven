@@ -1686,26 +1686,34 @@ serve(async (req) => {
     //   - Signature2_es_:signer:signature → typed name (text field) - handled above
     //
     // HARD CONSTRAINT: NEVER put typed name text in this handwritten box
+    // Vertical offset to fine-tune signature position (positive = up in PDF coordinates)
+    const HANDWRITTEN_SIGNATURE_VERTICAL_OFFSET = 8; // Shift signature up by 8 PDF points
+    
     if (finalSignatureImage) {
       console.log('=== DRAWING HANDWRITTEN SIGNATURE IMAGE ===');
       console.log('  Source: uploaded_documents.signature_image');
       console.log('  Target: "Additionally please sign in the center of the box below" field');
+      console.log('  Vertical offset: +' + HANDWRITTEN_SIGNATURE_VERTICAL_OFFSET + ' points (upward)');
       
       // Draw using finalSignaturePlacement if available (for "Additionally please sign..." field)
       if (finalSignaturePlacement) {
+        const adjustedY = finalSignaturePlacement.y + 6 + HANDWRITTEN_SIGNATURE_VERTICAL_OFFSET;
         console.log('Drawing handwritten signature using widget placement:', finalSignaturePlacement);
+        console.log('  Adjusted Y position:', adjustedY, '(original:', finalSignaturePlacement.y + 6, ')');
         drawSignatureOnPage(
           finalSignatureImage,
           finalSignaturePlacement.pageIndex,
           finalSignaturePlacement.x + 8,
-          finalSignaturePlacement.y + 6,
+          adjustedY,
           Math.max(10, finalSignaturePlacement.width - 16),
           Math.max(10, finalSignaturePlacement.height - 12)
         );
       } else {
         // Fallback: Draw signature at fixed position on page 10 (index 9) - the handwritten signature box
+        const fallbackY = 160 + HANDWRITTEN_SIGNATURE_VERTICAL_OFFSET;
         console.log('Using fixed coordinates for handwritten signature on page 10');
-        drawSignatureOnPage(finalSignatureImage, 9, 180, 160, 250, 60);
+        console.log('  Adjusted Y position:', fallbackY, '(original: 160)');
+        drawSignatureOnPage(finalSignatureImage, 9, 180, fallbackY, 250, 60);
       }
       
       console.log('=== END HANDWRITTEN SIGNATURE IMAGE ===');
