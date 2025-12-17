@@ -4,12 +4,14 @@ import { useProfile } from '@/hooks/useProfile';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, FlaskConical } from 'lucide-react';
+import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, FlaskConical, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Clock } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
-import { LEGAL_QUESTIONS, type Address } from '@/types/contracting';
+import { LEGAL_QUESTIONS, type Address, ContractingApplication } from '@/types/contracting';
 
 // Section components
 import { InitialsEntrySection } from './sections/InitialsEntrySection';
@@ -26,6 +28,13 @@ import { SignatureSection } from './sections/SignatureSection';
 import { SectionNav } from './SectionNav';
 import { SectionAcknowledgment } from './SectionAcknowledgment';
 import { ValidationBanner } from './ValidationBanner';
+import { TestModeSnapshotPanel } from './TestModeSnapshotPanel';
+
+interface SubmissionSnapshot {
+  timestamp: string;
+  submissionId: string;
+  data: Partial<ContractingApplication>;
+}
 
 export interface SectionStatus {
   id: string;
@@ -95,6 +104,8 @@ export function ContractingForm() {
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, SectionStatus>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFillingTestData, setIsFillingTestData] = useState(false);
+  const [testMode, setTestMode] = useState(false);
+  const [lastSubmissionSnapshot, setLastSubmissionSnapshot] = useState<SubmissionSnapshot | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Initialize section statuses from application
@@ -419,9 +430,22 @@ export function ContractingForm() {
     setIsSubmitting(true);
     
     try {
-      const success = await submitApplication();
-      if (success) {
-        // PDF generation handled by edge function
+      if (testMode) {
+        // TEST MODE: Capture snapshot but don't actually submit
+        const snapshot: SubmissionSnapshot = {
+          timestamp: new Date().toISOString(),
+          submissionId: `TEST-${Date.now().toString(36).toUpperCase()}`,
+          data: { ...application },
+        };
+        setLastSubmissionSnapshot(snapshot);
+        toast.success('Test submission captured! Check the snapshot panel below.');
+        console.log('📋 Test Mode Submission Snapshot:', snapshot);
+      } else {
+        // PRODUCTION: Normal submission
+        const success = await submitApplication();
+        if (success) {
+          // PDF generation handled by edge function
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -533,6 +557,19 @@ export function ContractingForm() {
               Fill Test Data
             </Button>
             
+            {/* Test Mode Toggle */}
+            <div className="flex items-center gap-2 px-2 py-1 rounded-lg border border-dashed border-amber-500/50 bg-amber-50/50">
+              <Switch
+                id="test-mode"
+                checked={testMode}
+                onCheckedChange={setTestMode}
+                className="data-[state=checked]:bg-amber-600"
+              />
+              <Label htmlFor="test-mode" className="text-xs text-amber-700 cursor-pointer">
+                Test Mode
+              </Label>
+            </div>
+            
             <Button 
               variant="ghost" 
               size="sm" 
@@ -560,6 +597,13 @@ export function ContractingForm() {
         sectionErrors={validationState.sectionErrors}
         onSectionClick={scrollToSection}
       />
+
+      {/* Test Mode Snapshot Panel */}
+      {testMode && lastSubmissionSnapshot && (
+        <div className="container max-w-4xl mx-auto px-4 py-4">
+          <TestModeSnapshotPanel snapshot={lastSubmissionSnapshot} />
+        </div>
+      )}
 
       {/* Main Form Content */}
       <main className="flex-1 container max-w-4xl mx-auto px-4 py-8">
