@@ -742,16 +742,48 @@ serve(async (req) => {
     const legalFieldMappings = (fieldMappings as any)?.legalQuestions || {};
     console.log('Legal field mappings loaded:', Object.keys(legalFieldMappings).length, 'questions mapped');
     
+    // Helper to determine the parent question ID for a sub-question
+    // Sub-questions have format like "1a", "1b", "2a", etc. Parent is just the number.
+    const getParentQuestionId = (questionId: string): string | null => {
+      const match = questionId.match(/^(\d+)[a-z]$/);
+      return match ? match[1] : null;
+    };
+    
+    // Helper to determine the effective answer for a question
+    // If parent answered "No", all sub-questions should also be "No"
+    const getEffectiveAnswer = (questionId: string): boolean | null => {
+      const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
+      const parentId = getParentQuestionId(questionId);
+      
+      // If this is a sub-question, check parent's answer first
+      if (parentId) {
+        const parentQuestion = (legalQuestions as Record<string, LegalQuestion>)[parentId];
+        // If parent answered "No", sub-question is automatically "No"
+        if (parentQuestion && parentQuestion.answer === false) {
+          return false;
+        }
+      }
+      
+      // Return the question's own answer (or null if not answered)
+      return question?.answer ?? null;
+    };
+    
     // Fill legal questions using database field mappings
     LEGAL_QUESTION_ORDER.forEach((questionId) => {
-      const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
-      if (!question || question.answer === null || question.answer === undefined) return;
+      const effectiveAnswer = getEffectiveAnswer(questionId);
+      
+      // Skip if no effective answer (question not answered and no parent forcing "No")
+      if (effectiveAnswer === null) return;
 
       // Get the PDF field names for this question from database mappings
       const pdfFieldNames = legalFieldMappings[questionId] || [];
-      const answerText = question.answer === true ? 'Yes' : 'No';
+      const answerText = effectiveAnswer === true ? 'Yes' : 'No';
       
-      console.log(`Q${questionId}: answer=${question.answer}, pdfFields=${JSON.stringify(pdfFieldNames)}`);
+      const parentId = getParentQuestionId(questionId);
+      const isInheritedNo = parentId && effectiveAnswer === false && 
+        (legalQuestions as Record<string, LegalQuestion>)[parentId]?.answer === false;
+      
+      console.log(`Q${questionId}: effectiveAnswer=${effectiveAnswer}${isInheritedNo ? ' (inherited from parent)' : ''}, pdfFields=${JSON.stringify(pdfFieldNames)}`);
       
       for (const fieldName of pdfFieldNames) {
         // Try as text field first
@@ -763,7 +795,7 @@ serve(async (req) => {
           // Try as checkbox
           try {
             const cb = form.getCheckBox(fieldName);
-            if (question.answer === true) {
+            if (effectiveAnswer === true) {
               cb.check();
               console.log(`SUCCESS: Checked checkbox "${fieldName}"`);
             } else {
@@ -777,7 +809,8 @@ serve(async (req) => {
       }
       
       // If answer is Yes, also log the explanation (for reference)
-      if (question.answer === true && question.explanation) {
+      const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
+      if (effectiveAnswer === true && question?.explanation) {
         console.log(`Q${questionId} explanation: ${question.explanation.substring(0, 50)}...`);
       }
     });
@@ -799,8 +832,8 @@ serve(async (req) => {
     if (radioGroups.length > 0) {
       console.log('Radio groups found:', radioGroups.length);
       LEGAL_QUESTION_ORDER.forEach((questionId, idx) => {
-        const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
-        if (!question || question.answer === null || question.answer === undefined) return;
+        const effectiveAnswer = getEffectiveAnswer(questionId);
+        if (effectiveAnswer === null) return;
 
         const ordinal = idx + 1;
         const yesOpt = ordinal === 1 ? 'Yes' : `Yes_${ordinal}`;
@@ -811,8 +844,8 @@ serve(async (req) => {
 
         try {
           const rg = form.getRadioGroup(match.name);
-          rg.select(question.answer === true ? yesOpt : noOpt);
-          console.log(`SUCCESS: Selected ${question.answer === true ? yesOpt : noOpt} on radio group ${match.name}`);
+          rg.select(effectiveAnswer === true ? yesOpt : noOpt);
+          console.log(`SUCCESS: Selected ${effectiveAnswer === true ? yesOpt : noOpt} on radio group ${match.name}`);
         } catch (e) {
           console.log(`FAILED: Could not select for Q${questionId} on radio group ${match.name}`);
         }
