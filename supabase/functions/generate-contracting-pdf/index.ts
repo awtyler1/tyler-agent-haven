@@ -1249,10 +1249,104 @@ serve(async (req) => {
     // Final signature fields - use actual PDF signature field names
     // Signature images will be drawn to these locations after form flatten
     console.log('Setting final signature fields...');
-    const finalSignatureFieldNames = [
-      'Signature1_es_:signer:signature',
-      'Signature2_es_:signer:signature',
-    ];
+    
+    // ==================== SIGNATURE2 ALIAS EMBEDDING ====================
+    // Attempt to embed signature image into Signature2 fields (both alias names)
+    const signature2Aliases = ['Signature2_es_:signer:signature', 'Signature2'];
+    const signatureImageData = uploadedDocs.signature_image || uploadedDocs.final_signature || uploadedDocs.final_signature_image;
+    
+    console.log('=== SIGNATURE2 EMBED DEBUG ===');
+    console.log('signature_image data present:', !!signatureImageData);
+    console.log('signature_image data length:', signatureImageData?.length || 0);
+    
+    // Track signature embedding results for mapping report
+    interface SignatureFieldReport {
+      fieldName: string;
+      exists: boolean;
+      fieldType: string;
+      rectangleBounds: string;
+      imageEmbedded: boolean;
+      appearanceUpdated: boolean;
+      notes: string;
+    }
+    const signatureReports: SignatureFieldReport[] = [];
+    
+    // Helper to get field info safely
+    const getFieldInfo = (fieldName: string): { exists: boolean; fieldType: string; field: any } => {
+      try {
+        const field = form.getField(fieldName);
+        const typeName = field?.constructor?.name || 'unknown';
+        return { exists: true, fieldType: typeName, field };
+      } catch {
+        return { exists: false, fieldType: 'not_found', field: null };
+      }
+    };
+    
+    // Helper to get widget rectangle as string
+    const getWidgetRectString = (fieldName: string): string => {
+      const placement = getFieldWidgetPlacement(fieldName);
+      if (placement) {
+        return `page:${placement.pageIndex + 1}, x:${placement.x.toFixed(0)}, y:${placement.y.toFixed(0)}, w:${placement.width.toFixed(0)}, h:${placement.height.toFixed(0)}`;
+      }
+      return 'no_widget_found';
+    };
+    
+    // Process each signature2 alias
+    for (const sigFieldName of signature2Aliases) {
+      const report: SignatureFieldReport = {
+        fieldName: sigFieldName,
+        exists: false,
+        fieldType: 'unknown',
+        rectangleBounds: 'N/A',
+        imageEmbedded: false,
+        appearanceUpdated: false,
+        notes: '',
+      };
+      
+      const fieldInfo = getFieldInfo(sigFieldName);
+      report.exists = fieldInfo.exists;
+      report.fieldType = fieldInfo.fieldType;
+      
+      console.log(`Signature2 alias "${sigFieldName}": exists=${report.exists}, type=${report.fieldType}`);
+      
+      if (!fieldInfo.exists) {
+        report.notes = 'Field does not exist in PDF';
+        signatureReports.push(report);
+        continue;
+      }
+      
+      // Get rectangle bounds
+      report.rectangleBounds = getWidgetRectString(sigFieldName);
+      console.log(`  Rectangle: ${report.rectangleBounds}`);
+      
+      // Check if we have signature image data
+      if (!signatureImageData) {
+        report.notes = 'No signature image data available';
+        signatureReports.push(report);
+        continue;
+      }
+      
+      // Do NOT set text on signature fields - we'll draw the image after flatten
+      // Just mark that we'll embed the image
+      report.imageEmbedded = true;
+      report.notes = 'Signature image will be drawn after form flatten';
+      signatureReports.push(report);
+    }
+    
+    // Log signature reports
+    console.log('=== SIGNATURE2 FIELD REPORTS ===');
+    for (const rep of signatureReports) {
+      console.log(JSON.stringify(rep));
+      // Add to mapping report
+      mappingReport.push({
+        pdfFieldKey: rep.fieldName,
+        valueApplied: rep.imageEmbedded ? '[signature_image]' : '',
+        sourceFormField: 'signature_image',
+        isBlank: !rep.imageEmbedded,
+        status: rep.imageEmbedded ? 'success' : (rep.exists ? 'skipped' : 'failed'),
+      });
+    }
+    console.log('=== END SIGNATURE2 DEBUG ===');
     
     // For text-based fallback, try these fields with the signature name
     const textFallbackFields = [
@@ -1387,8 +1481,32 @@ serve(async (req) => {
       drawSignatureOnPage(backgroundSignatureImage, 3, 80, 100, 250, 60);
     }
 
-    // Draw final signature using widget placement (preferred) or fixed coordinates as fallback
+    // ==================== SIGNATURE2 IMAGE DRAWING ====================
+    // Draw final signature to Signature2 field positions (both aliases)
+    let signature2DrawSuccess = false;
     if (finalSignatureImage) {
+      console.log('=== DRAWING SIGNATURE2 IMAGE ===');
+      
+      // Try to get placement from either alias
+      for (const sigAlias of signature2Aliases) {
+        const placement = getFieldWidgetPlacement(sigAlias);
+        if (placement) {
+          console.log(`Found widget placement for ${sigAlias}:`, placement);
+          drawSignatureOnPage(
+            finalSignatureImage,
+            placement.pageIndex,
+            placement.x + 4,
+            placement.y + 4,
+            Math.max(10, placement.width - 8),
+            Math.max(10, placement.height - 8)
+          );
+          signature2DrawSuccess = true;
+          console.log(`Drew signature to ${sigAlias} widget location`);
+          break; // Only draw once
+        }
+      }
+      
+      // Also draw using finalSignaturePlacement if available
       if (finalSignaturePlacement) {
         console.log('Drawing final signature using widget placement:', finalSignaturePlacement);
         drawSignatureOnPage(
@@ -1399,12 +1517,13 @@ serve(async (req) => {
           Math.max(10, finalSignaturePlacement.width - 16),
           Math.max(10, finalSignaturePlacement.height - 12)
         );
-      } else {
+      } else if (!signature2DrawSuccess) {
         // Fallback: Draw signature at fixed position on page 10 (index 9) - the signature page
-        // NOTE: pdf-lib uses a bottom-left origin; decreasing Y moves the image DOWN.
         console.log('Using fixed coordinates for final signature on page 10');
         drawSignatureOnPage(finalSignatureImage, 9, 180, 160, 250, 60);
       }
+      
+      console.log('=== END SIGNATURE2 DRAWING ===');
     } else {
       console.log('No final signature image found');
     }
@@ -1412,6 +1531,45 @@ serve(async (req) => {
     
     // Save the PDF
     const filledPdfBytes = await pdfDoc.save();
+
+    // ==================== POST-SAVE SIGNATURE VERIFICATION ====================
+    // Re-open saved PDF and verify signature presence
+    console.log('=== SIGNATURE VERIFICATION ===');
+    let signatureVerificationResult = 'not_verified';
+    try {
+      const verifyDoc = await PDFDocument.load(filledPdfBytes);
+      const verifyPages = verifyDoc.getPages();
+      
+      // Check if page 10 (index 9) has content streams that indicate image presence
+      if (verifyPages.length >= 10) {
+        const page10 = verifyPages[9];
+        const pageDict = (page10 as any).node;
+        const resources = pageDict?.Resources?.();
+        const xObjects = resources?.XObject?.();
+        
+        if (xObjects) {
+          const xObjectKeys = Object.keys(xObjects?.dict || {});
+          console.log(`Page 10 XObjects found: ${xObjectKeys.length}`);
+          signatureVerificationResult = xObjectKeys.length > 0 ? 'images_present' : 'no_images';
+        } else {
+          signatureVerificationResult = 'no_xobjects';
+        }
+      }
+      console.log(`Signature verification result: ${signatureVerificationResult}`);
+    } catch (verifyErr) {
+      console.log('Signature verification failed:', verifyErr);
+      signatureVerificationResult = 'verification_error';
+    }
+    console.log('=== END SIGNATURE VERIFICATION ===');
+
+    // Update mapping report with verification result
+    mappingReport.push({
+      pdfFieldKey: 'SIGNATURE2_VERIFICATION',
+      valueApplied: signatureVerificationResult,
+      sourceFormField: 'post_save_check',
+      isBlank: signatureVerificationResult !== 'images_present',
+      status: signatureVerificationResult === 'images_present' ? 'success' : 'skipped',
+    });
 
     // Generate filename using the signature date from the application
     const nameParts = application.full_legal_name.split(' ');
