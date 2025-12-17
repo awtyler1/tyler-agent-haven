@@ -33,6 +33,7 @@ import { TestProfileHarness } from './TestProfileHarness';
 import { TestModeValidationReport } from './TestModeValidationReport';
 import { TestModeMappingReport } from './TestModeMappingReport';
 import { TestModeSchemaPanel } from './TestModeSchemaPanel';
+import { TestModePdfPreviewPanel } from './TestModePdfPreviewPanel';
 import { useContractingPdf, MappingEntry } from '@/hooks/useContractingPdf';
 
 interface SubmissionSnapshot {
@@ -112,9 +113,15 @@ export function ContractingForm() {
   const [testMode, setTestMode] = useState(false);
   const [lastSubmissionSnapshot, setLastSubmissionSnapshot] = useState<SubmissionSnapshot | null>(null);
   const [lastMappingReport, setLastMappingReport] = useState<MappingEntry[] | null>(null);
+  const [lastPdfData, setLastPdfData] = useState<{ base64: string | null; filename: string | null; size: number | null; error: string | null }>({
+    base64: null,
+    filename: null,
+    size: null,
+    error: null,
+  });
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   
-  const { generatePdf } = useContractingPdf();
+  const { generatePdf, downloadPdf } = useContractingPdf();
 
   // Initialize section statuses from application
   useEffect(() => {
@@ -505,6 +512,15 @@ export function ContractingForm() {
         
         // Generate PDF to get mapping report (don't save to storage in test mode)
         const pdfResult = await generatePdf(application, false);
+        
+        // Store PDF data for preview
+        setLastPdfData({
+          base64: pdfResult.pdf || null,
+          filename: pdfResult.filename || null,
+          size: pdfResult.size || null,
+          error: pdfResult.error || null,
+        });
+        
         if (pdfResult.mappingReport) {
           setLastMappingReport(pdfResult.mappingReport);
           console.log('📋 Mapping Report:', pdfResult.mappingReport);
@@ -706,6 +722,15 @@ export function ContractingForm() {
         <div className="container max-w-4xl mx-auto px-4 py-4 space-y-4">
           {/* Schema Panel - always show in test mode */}
           <TestModeSchemaPanel application={application} />
+          
+          {/* PDF Preview Panel - show after PDF generation */}
+          <TestModePdfPreviewPanel
+            pdfBase64={lastPdfData.base64}
+            filename={lastPdfData.filename}
+            size={lastPdfData.size}
+            error={lastPdfData.error}
+            onDownload={downloadPdf}
+          />
           
           {/* Validation Report - show after validation attempt */}
           {validationState.hasValidated && (
