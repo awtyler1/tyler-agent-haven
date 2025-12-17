@@ -686,18 +686,21 @@ serve(async (req) => {
 
     // Commission Advancing (Yes_42 / No_42) requires deterministic "ON"/"OFF" writes.
     // This helper NEVER marks "skipped"; it always attempts an explicit set.
+    // "Off" or empty values are intentional and should be marked as success.
     const setDeterministicCheckbox = (
       fieldName: string,
       onValue: string,
       checked: boolean,
       sourceField: string,
     ) => {
+      // For deterministic checkboxes, both checked and unchecked states are valid
+      // isBlank reflects the visual state (unchecked = blank), but status should be success if operation succeeds
       const entry: MappingEntry = {
         pdfFieldKey: fieldName,
-        valueApplied: checked ? onValue : 'Off',
+        valueApplied: checked ? onValue : 'Off (unchecked - intentional)',
         sourceFormField: sourceField,
-        isBlank: false,
-        status: 'failed',
+        isBlank: !checked, // Unchecked checkboxes are visually "blank" but this is expected
+        status: 'failed', // Will be updated to 'success' if operation succeeds
       };
 
       // Prefer treating it as an actual checkbox.
@@ -705,20 +708,21 @@ serve(async (req) => {
         const cb = form.getCheckBox(fieldName);
         if (checked) cb.check();
         else cb.uncheck();
-        console.log(`Set checkbox ${fieldName} => ${checked ? onValue : 'Off'}`);
+        console.log(`Set checkbox ${fieldName} => ${checked ? onValue : 'Off'} (success)`);
         entry.status = 'success';
         mappingReport.push(entry);
         return;
       } catch {
-        // fall through
+        // fall through to text field fallback
       }
 
       // Fallback: treat it as a text field.
       try {
         const tf = form.getTextField(fieldName);
         tf.setText(checked ? 'X' : '');  // Use standard checkbox marker instead of onValue
-        console.log(`Set text field ${fieldName} => ${checked ? 'X' : '(empty)'}`);
+        console.log(`Set text field ${fieldName} => ${checked ? 'X' : '(empty)'} (success)`);
         entry.status = 'success';
+        entry.valueApplied = checked ? 'X' : '(empty - intentional)';
       } catch (err) {
         console.warn(`Could not set checkbox field ${fieldName}: ${err}`);
         entry.status = 'failed';
