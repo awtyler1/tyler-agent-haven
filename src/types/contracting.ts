@@ -333,7 +333,7 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   beneficiary_name: null,
   beneficiary_relationship: null,
   beneficiary_birth_date: null,
-  requesting_commission_advancing: false,
+  requesting_commission_advancing: false, // Default to false (No) - never undefined
   has_aml_course: null,
   aml_course_name: null,
   aml_course_date: null,
