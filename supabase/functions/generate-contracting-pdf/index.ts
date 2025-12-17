@@ -1250,97 +1250,156 @@ serve(async (req) => {
     // Signature images will be drawn to these locations after form flatten
     console.log('Setting final signature fields...');
     
-    // ==================== SIGNATURE2 MAPPING (SINGLE TARGET) ====================
-    // IMPORTANT: Only map signature_image to Signature2_es_:signer:signature
-    // The base field "Signature2" is explicitly skipped to avoid duplicate writes
-    const PRIMARY_SIGNATURE_FIELD = 'Signature2_es_:signer:signature';
-    const SKIPPED_SIGNATURE_FIELD = 'Signature2';
-    const signatureImageData = uploadedDocs.signature_image || uploadedDocs.final_signature || uploadedDocs.final_signature_image;
+    // ==================== SIGNATURE2 MAPPING (DETERMINISTIC DUAL-TARGET) ====================
+    // TWO DISTINCT SIGNATURE FIELDS:
+    //   1. Signature2_es_:signer:signature - receives signature IMAGE (base64 PNG)
+    //   2. Signature2 - receives TYPED NAME text (signature_name field value)
     
-    console.log('=== SIGNATURE2 MAPPING ===');
+    const IMAGE_SIGNATURE_FIELD = 'Signature2_es_:signer:signature';
+    const TEXT_SIGNATURE_FIELD = 'Signature2';
+    const signatureImageData = uploadedDocs.signature_image || uploadedDocs.background_signature_image || uploadedDocs.final_signature || uploadedDocs.final_signature_image;
+    const signatureNameText = application.signature_name || '';
+    
+    console.log('=== SIGNATURE2 DETERMINISTIC MAPPING ===');
+    console.log('signature_name (typed text):', signatureNameText);
     console.log('signature_image data present:', !!signatureImageData);
     console.log('signature_image data length:', signatureImageData?.length || 0);
-    console.log('Target field:', PRIMARY_SIGNATURE_FIELD);
-    console.log('Skipped field:', SKIPPED_SIGNATURE_FIELD);
+    console.log('Image target field:', IMAGE_SIGNATURE_FIELD);
+    console.log('Text target field:', TEXT_SIGNATURE_FIELD);
     
-    // Check if primary signature field exists
-    let primaryFieldExists = false;
-    let primaryFieldType = 'unknown';
+    // -------------------- FIELD 1: IMAGE SIGNATURE (Signature2_es_:signer:signature) --------------------
+    let imageFieldExists = false;
+    let imageFieldType = 'unknown';
     try {
-      const field = form.getField(PRIMARY_SIGNATURE_FIELD);
-      primaryFieldExists = true;
-      primaryFieldType = field?.constructor?.name || 'unknown';
+      const field = form.getField(IMAGE_SIGNATURE_FIELD);
+      imageFieldExists = true;
+      imageFieldType = field?.constructor?.name || 'unknown';
     } catch {
-      primaryFieldExists = false;
-      primaryFieldType = 'not_found';
+      imageFieldExists = false;
+      imageFieldType = 'not_found';
     }
     
-    // Get widget placement for drawing
-    const sig2Placement = getFieldWidgetPlacement(PRIMARY_SIGNATURE_FIELD);
+    // Get widget placement for drawing the image
+    const sig2Placement = getFieldWidgetPlacement(IMAGE_SIGNATURE_FIELD);
     const sig2RectString = sig2Placement 
       ? `page:${sig2Placement.pageIndex + 1}, x:${sig2Placement.x.toFixed(0)}, y:${sig2Placement.y.toFixed(0)}, w:${sig2Placement.width.toFixed(0)}, h:${sig2Placement.height.toFixed(0)}`
       : 'no_widget_found';
     
-    console.log(`Primary field "${PRIMARY_SIGNATURE_FIELD}": exists=${primaryFieldExists}, type=${primaryFieldType}`);
-    console.log(`  Rectangle: ${sig2RectString}`);
+    console.log(`IMAGE field "${IMAGE_SIGNATURE_FIELD}":`);
+    console.log(`  exists: ${imageFieldExists}`);
+    console.log(`  type: ${imageFieldType}`);
+    console.log(`  rectangle: ${sig2RectString}`);
+    console.log(`  image_embedded: ${!!signatureImageData && imageFieldExists}`);
     
-    // Add mapping report entry for PRIMARY field
-    if (signatureImageData && primaryFieldExists) {
+    // Add mapping report for IMAGE signature field
+    if (signatureImageData && imageFieldExists) {
       mappingReport.push({
-        pdfFieldKey: PRIMARY_SIGNATURE_FIELD,
+        pdfFieldKey: IMAGE_SIGNATURE_FIELD,
         valueApplied: '[signature_image]',
-        sourceFormField: 'signature_image',
+        sourceFormField: 'uploaded_documents.signature_image',
         isBlank: false,
         status: 'success',
       });
-      console.log(`Signature2_es_:signer:signature = success (image will be drawn after flatten)`);
+      console.log(`${IMAGE_SIGNATURE_FIELD} = success (image will be drawn after flatten)`);
     } else if (!signatureImageData) {
       mappingReport.push({
-        pdfFieldKey: PRIMARY_SIGNATURE_FIELD,
+        pdfFieldKey: IMAGE_SIGNATURE_FIELD,
         valueApplied: '',
-        sourceFormField: 'signature_image',
+        sourceFormField: 'uploaded_documents.signature_image',
         isBlank: true,
         status: 'skipped',
       });
-      console.log(`Signature2_es_:signer:signature = skipped (no signature image data)`);
+      console.log(`${IMAGE_SIGNATURE_FIELD} = skipped (no signature image data)`);
     } else {
       mappingReport.push({
-        pdfFieldKey: PRIMARY_SIGNATURE_FIELD,
+        pdfFieldKey: IMAGE_SIGNATURE_FIELD,
         valueApplied: '',
-        sourceFormField: 'signature_image',
+        sourceFormField: 'uploaded_documents.signature_image',
         isBlank: true,
         status: 'failed',
       });
-      console.log(`Signature2_es_:signer:signature = failed (field not found)`);
+      console.log(`${IMAGE_SIGNATURE_FIELD} = failed (field not found)`);
     }
     
-    // Add mapping report entry for SKIPPED base field (explicitly skipped, not failed)
-    mappingReport.push({
-      pdfFieldKey: SKIPPED_SIGNATURE_FIELD,
-      valueApplied: '',
-      sourceFormField: 'signature_image',
-      isBlank: true,
-      status: 'skipped',
-    });
-    console.log(`Signature2 = skipped (base field intentionally not mapped to avoid duplicates)`);
+    // -------------------- FIELD 2: TEXT SIGNATURE (Signature2) --------------------
+    let textFieldExists = false;
+    let textFieldType = 'unknown';
+    let textFieldWriteSuccess = false;
     
-    console.log('=== END SIGNATURE2 MAPPING ===');
+    try {
+      const field = form.getField(TEXT_SIGNATURE_FIELD);
+      textFieldExists = true;
+      textFieldType = field?.constructor?.name || 'unknown';
+    } catch {
+      textFieldExists = false;
+      textFieldType = 'not_found';
+    }
     
-    // For text-based fallback, try these fields with the signature name
-    const textFallbackFields = [
+    console.log(`TEXT field "${TEXT_SIGNATURE_FIELD}":`);
+    console.log(`  exists: ${textFieldExists}`);
+    console.log(`  type: ${textFieldType}`);
+    console.log(`  source_value: "${signatureNameText}"`);
+    
+    // Write typed name to Signature2 text field
+    if (signatureNameText && textFieldExists) {
+      try {
+        const textField = form.getTextField(TEXT_SIGNATURE_FIELD);
+        textField.setText(signatureNameText);
+        textFieldWriteSuccess = true;
+        console.log(`SUCCESS: Set ${TEXT_SIGNATURE_FIELD} = "${signatureNameText}"`);
+      } catch (e) {
+        // Field might not be a text field, log and continue
+        console.log(`WARN: Could not set ${TEXT_SIGNATURE_FIELD} as text field:`, e);
+        textFieldWriteSuccess = false;
+      }
+    }
+    
+    // Add mapping report for TEXT signature field
+    if (signatureNameText && textFieldWriteSuccess) {
+      mappingReport.push({
+        pdfFieldKey: TEXT_SIGNATURE_FIELD,
+        valueApplied: signatureNameText,
+        sourceFormField: 'signature_name',
+        isBlank: false,
+        status: 'success',
+      });
+      console.log(`${TEXT_SIGNATURE_FIELD} = success (typed name written)`);
+    } else if (!signatureNameText) {
+      mappingReport.push({
+        pdfFieldKey: TEXT_SIGNATURE_FIELD,
+        valueApplied: '',
+        sourceFormField: 'signature_name',
+        isBlank: true,
+        status: 'skipped',
+      });
+      console.log(`${TEXT_SIGNATURE_FIELD} = skipped (no signature_name provided)`);
+    } else {
+      mappingReport.push({
+        pdfFieldKey: TEXT_SIGNATURE_FIELD,
+        valueApplied: signatureNameText,
+        sourceFormField: 'signature_name',
+        isBlank: false,
+        status: 'failed',
+      });
+      console.log(`${TEXT_SIGNATURE_FIELD} = failed (could not write to field)`);
+    }
+    
+    console.log('=== END SIGNATURE2 DETERMINISTIC MAPPING ===');
+    
+    // Additional text-based signature fields (for other locations in PDF)
+    const additionalTextSignatureFields = [
       'TypedSignature',
       'Typed Signature',
-      'Full Legal Name',
       'Type Your Full Legal Name',
       'Applicant Name',
       'Agent Name Printed'
     ];
     
-    for (const fieldName of textFallbackFields) {
+    for (const fieldName of additionalTextSignatureFields) {
       try {
         const field = form.getTextField(fieldName);
-        field.setText(application.signature_name);
-        console.log(`Successfully set text signature on field: ${fieldName}`);
+        field.setText(signatureNameText);
+        console.log(`Also set additional signature text on field: ${fieldName}`);
       } catch {
         // Field not found, continue
       }
@@ -1461,13 +1520,14 @@ serve(async (req) => {
 
     // ==================== SIGNATURE2 IMAGE DRAWING ====================
     // Draw final signature ONLY to Signature2_es_:signer:signature field position
+    const IMAGE_SIGNATURE_FIELD_NAME = 'Signature2_es_:signer:signature';
     let signature2DrawSuccess = false;
     if (finalSignatureImage) {
       console.log('=== DRAWING SIGNATURE2 IMAGE ===');
       
-      // Use the pre-computed placement for PRIMARY_SIGNATURE_FIELD
+      // Use the pre-computed placement for IMAGE_SIGNATURE_FIELD
       if (sig2Placement) {
-        console.log(`Drawing signature to ${PRIMARY_SIGNATURE_FIELD}:`, sig2Placement);
+        console.log(`Drawing signature to ${IMAGE_SIGNATURE_FIELD_NAME}:`, sig2Placement);
         drawSignatureOnPage(
           finalSignatureImage,
           sig2Placement.pageIndex,
@@ -1477,7 +1537,7 @@ serve(async (req) => {
           Math.max(10, sig2Placement.height - 8)
         );
         signature2DrawSuccess = true;
-        console.log(`Drew signature to ${PRIMARY_SIGNATURE_FIELD} widget location`);
+        console.log(`Drew signature to ${IMAGE_SIGNATURE_FIELD_NAME} widget location`);
       }
       
       // Also draw using finalSignaturePlacement if available (different field)
