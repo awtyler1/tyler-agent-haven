@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, CheckCircle2, XCircle, Copy, Check } from 'lucide-react';
 import { SectionValidation } from '@/hooks/useFormValidation';
 import { ContractingApplication } from '@/types/contracting';
+import { toast } from 'sonner';
 
 interface ValidationReportProps {
   sectionErrors: Record<string, SectionValidation>;
@@ -12,6 +15,8 @@ interface ValidationReportProps {
 }
 
 export function TestModeValidationReport({ sectionErrors, application, isFormValid }: ValidationReportProps) {
+  const [copied, setCopied] = useState(false);
+
   // Get field value from application
   const getFieldValue = (fieldName: string): string => {
     // Handle nested fields
@@ -58,6 +63,46 @@ export function TestModeValidationReport({ sectionErrors, application, isFormVal
   const sectionsWithErrors = Object.values(sectionErrors).filter(s => !s.isValid);
   const sectionsValid = Object.values(sectionErrors).filter(s => s.isValid);
 
+  // Generate text report for clipboard
+  const generateReportText = (): string => {
+    const lines: string[] = [];
+    lines.push('=== VALIDATION REPORT ===');
+    lines.push(`Status: ${isFormValid ? 'ALL VALID' : `${totalErrors} FAILED`}`);
+    lines.push(`Generated: ${new Date().toISOString()}`);
+    lines.push('');
+    
+    if (sectionsWithErrors.length > 0) {
+      lines.push('--- FAILED VALIDATIONS ---');
+      sectionsWithErrors.forEach(section => {
+        lines.push(`\n[${section.sectionName}] (${section.errors.length} issue${section.errors.length > 1 ? 's' : ''})`);
+        section.errors.forEach(error => {
+          lines.push(`  • Field: ${error.field}`);
+          lines.push(`    Rule: ${error.message}`);
+          lines.push(`    Value: ${getFieldValue(error.field)}`);
+        });
+      });
+      lines.push('');
+    }
+    
+    if (sectionsValid.length > 0) {
+      lines.push('--- PASSED SECTIONS ---');
+      lines.push(sectionsValid.map(s => s.sectionName).join(', '));
+    }
+    
+    return lines.join('\n');
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(generateReportText());
+      setCopied(true);
+      toast.success('Validation report copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error('Failed to copy to clipboard');
+    }
+  };
+
   return (
     <Card className="border-orange-300 bg-orange-50/50">
       <div className="p-4 border-b border-orange-200 bg-orange-100/50">
@@ -70,6 +115,24 @@ export function TestModeValidationReport({ sectionErrors, application, isFormVal
             </Badge>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopy}
+              className="h-7 px-2 text-xs border-orange-300 text-orange-700 hover:bg-orange-100"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-3 w-3 mr-1" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3 mr-1" />
+                  Copy
+                </>
+              )}
+            </Button>
             {isFormValid ? (
               <Badge className="bg-green-100 text-green-700 border-green-300">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
