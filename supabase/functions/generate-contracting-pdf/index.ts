@@ -393,6 +393,16 @@ serve(async (req) => {
     console.log('PDF template loaded, filling form fields...');
     console.log('Total pages:', pages.length);
     
+    // Mapping report to track all field mappings
+    interface MappingEntry {
+      pdfFieldKey: string;
+      valueApplied: string;
+      sourceFormField: string;
+      isBlank: boolean;
+      status: 'success' | 'failed' | 'skipped';
+    }
+    const mappingReport: MappingEntry[] = [];
+    
     // Log all form fields for debugging
     const allFields = form.getFields();
     console.log('Total form fields found:', allFields.length);
@@ -511,15 +521,30 @@ serve(async (req) => {
       }
     };
 
-    // Helper to safely set text field
-    const setTextField = (fieldName: string, value: string | undefined | null) => {
-      if (!value) return;
+    // Helper to safely set text field with mapping tracking
+    const setTextField = (fieldName: string, value: string | undefined | null, sourceField?: string) => {
+      const entry: MappingEntry = {
+        pdfFieldKey: fieldName,
+        valueApplied: value || '',
+        sourceFormField: sourceField || fieldName,
+        isBlank: !value,
+        status: 'skipped',
+      };
+      
+      if (!value) {
+        entry.status = 'skipped';
+        mappingReport.push(entry);
+        return;
+      }
       try {
         const field = form.getTextField(fieldName);
         field.setText(value);
+        entry.status = 'success';
       } catch {
         console.log(`Field not found or error: ${fieldName}`);
+        entry.status = 'failed';
       }
+      mappingReport.push(entry);
     };
 
     // Find the first widget placement for a given form field name (page + rectangle)
@@ -567,9 +592,21 @@ serve(async (req) => {
       }
     };
 
-    // Helper to safely set checkbox - try multiple variations
-    const setCheckbox = (fieldName: string, checked: boolean) => {
-      if (!checked) return;
+    // Helper to safely set checkbox with mapping tracking
+    const setCheckbox = (fieldName: string, checked: boolean, sourceField?: string) => {
+      const entry: MappingEntry = {
+        pdfFieldKey: fieldName,
+        valueApplied: checked ? 'checked' : '',
+        sourceFormField: sourceField || fieldName,
+        isBlank: !checked,
+        status: 'skipped',
+      };
+      
+      if (!checked) {
+        entry.status = 'skipped';
+        mappingReport.push(entry);
+        return;
+      }
       
       const variations = [fieldName, fieldName.toLowerCase(), fieldName.toUpperCase()];
       
@@ -578,6 +615,8 @@ serve(async (req) => {
           const field = form.getCheckBox(name);
           field.check();
           console.log(`Checked checkbox: ${name}`);
+          entry.status = 'success';
+          mappingReport.push(entry);
           return;
         } catch {
           // Try next variation
@@ -589,9 +628,12 @@ serve(async (req) => {
         const field = form.getTextField(fieldName);
         field.setText('X');
         console.log(`Set text field with X: ${fieldName}`);
+        entry.status = 'success';
       } catch {
         console.log(`Checkbox/field not found: ${fieldName}`);
+        entry.status = 'failed';
       }
+      mappingReport.push(entry);
     };
 
     // ==================== PAGE 1: Contract Application ====================
@@ -1313,6 +1355,12 @@ serve(async (req) => {
     }
     const base64 = btoa(binaryString);
 
+    // Log mapping report summary
+    const successCount = mappingReport.filter(m => m.status === 'success').length;
+    const failedCount = mappingReport.filter(m => m.status === 'failed').length;
+    const skippedCount = mappingReport.filter(m => m.status === 'skipped').length;
+    console.log(`Mapping Report: ${successCount} success, ${failedCount} failed, ${skippedCount} skipped (total: ${mappingReport.length})`);
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -1321,6 +1369,7 @@ serve(async (req) => {
         size: filledPdfBytes.byteLength,
         storagePath,
         filledTemplate: true,
+        mappingReport,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

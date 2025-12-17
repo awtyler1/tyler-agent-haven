@@ -3,12 +3,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { ContractingApplication } from '@/types/contracting';
 import { toast } from 'sonner';
 
+export interface MappingEntry {
+  pdfFieldKey: string;
+  valueApplied: string;
+  sourceFormField: string;
+  isBlank: boolean;
+  status: 'success' | 'failed' | 'skipped';
+}
+
 interface PdfGenerationResult {
   success: boolean;
   filename?: string;
   pdf?: string; // base64
   size?: number;
   error?: string;
+  mappingReport?: MappingEntry[];
 }
 
 export function useContractingPdf() {
@@ -168,6 +177,7 @@ export function useContractingPdf() {
         filename: data.filename,
         pdf: data.pdf,
         size: data.size,
+        mappingReport: data.mappingReport,
       };
 
     } catch (err) {

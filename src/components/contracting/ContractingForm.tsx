@@ -31,6 +31,8 @@ import { ValidationBanner } from './ValidationBanner';
 import { TestModeSnapshotPanel } from './TestModeSnapshotPanel';
 import { TestProfileHarness } from './TestProfileHarness';
 import { TestModeValidationReport } from './TestModeValidationReport';
+import { TestModeMappingReport } from './TestModeMappingReport';
+import { useContractingPdf, MappingEntry } from '@/hooks/useContractingPdf';
 
 interface SubmissionSnapshot {
   timestamp: string;
@@ -108,7 +110,10 @@ export function ContractingForm() {
   const [isFillingTestData, setIsFillingTestData] = useState(false);
   const [testMode, setTestMode] = useState(false);
   const [lastSubmissionSnapshot, setLastSubmissionSnapshot] = useState<SubmissionSnapshot | null>(null);
+  const [lastMappingReport, setLastMappingReport] = useState<MappingEntry[] | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  
+  const { generatePdf } = useContractingPdf();
 
   // Initialize section statuses from application
   useEffect(() => {
@@ -473,12 +478,19 @@ export function ContractingForm() {
         };
         setLastSubmissionSnapshot(snapshot);
         
-        if (!result.isFormValid) {
-          toast.info('Test submission captured with validation failures. See Validation Report below.');
-        } else {
-          toast.success('Test submission captured! All validations passed.');
+        // Generate PDF to get mapping report (don't save to storage in test mode)
+        const pdfResult = await generatePdf(application, false);
+        if (pdfResult.mappingReport) {
+          setLastMappingReport(pdfResult.mappingReport);
+          console.log('📋 Mapping Report:', pdfResult.mappingReport);
         }
-        console.log('📋 Test Mode Submission:', { snapshot, validationResult: result });
+        
+        if (!result.isFormValid) {
+          toast.info('Test submission captured with validation failures. See reports below.');
+        } else {
+          toast.success('Test submission captured! Check the reports below.');
+        }
+        console.log('📋 Test Mode Submission:', { snapshot, validationResult: result, mappingReport: pdfResult.mappingReport });
       } finally {
         setIsSubmitting(false);
       }
@@ -677,6 +689,11 @@ export function ContractingForm() {
           {/* Snapshot Panel - show after test submission */}
           {lastSubmissionSnapshot && (
             <TestModeSnapshotPanel snapshot={lastSubmissionSnapshot} />
+          )}
+          
+          {/* Mapping Report - show after PDF generation */}
+          {lastMappingReport && lastMappingReport.length > 0 && (
+            <TestModeMappingReport mappingReport={lastMappingReport} />
           )}
         </div>
       )}
