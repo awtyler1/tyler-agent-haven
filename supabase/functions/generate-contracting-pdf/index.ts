@@ -369,6 +369,7 @@ serve(async (req) => {
     // First, try to use the base64 template if provided
     if (templateBase64) {
       console.log('[pdf-template] Source: client base64');
+      addDebugLog('info', 'template', 'Template source: client-provided base64', { source: 'frontend' });
       try {
         // IMPORTANT: when provided by client, we do NOT have a file path—only bytes.
         console.log('[pdf-template] Loading PDF from: client-provided base64');
@@ -380,8 +381,10 @@ serve(async (req) => {
         }
         pdfBytes = bytes.buffer;
         console.log('[pdf-template] PDF loaded, byte length:', bytes.byteLength);
+        addDebugLog('info', 'template', 'Template decoded from base64', { byteLength: bytes.byteLength });
       } catch (e) {
         console.log('[pdf-template] Failed to decode base64 template:', e);
+        addDebugLog('error', 'template', 'Failed to decode base64 template', { error: String(e) });
       }
     }
     
