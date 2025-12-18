@@ -797,7 +797,18 @@ serve(async (req) => {
         value = formatDate(value);
       }
       for (const fieldName of config.fields) {
-        setTextField(fieldName, value, config.source);
+        if (value) {
+          try {
+            const field = form.getTextField(fieldName);
+            field.setText(value);
+            field.updateAppearances(helveticaFont);
+            addReport(fieldName, value, config.source, 'success');
+          } catch (err) {
+            addReport(fieldName, value || '', config.source, 'failed', String(err));
+          }
+        } else {
+          addReport(fieldName, '', config.source, 'skipped');
+        }
       }
     }
 
