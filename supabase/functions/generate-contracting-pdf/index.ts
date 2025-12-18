@@ -441,8 +441,8 @@ const DUPLICATE_GROUPS: Record<string, { source: string; format?: string; fields
       'INITIALS_7', 
       'INITIALS_8',
       'Signature1_es_:signer:signature',
-      'correct to the best of my knowledge',
-      'Signature2_es_:signer'
+      'correct to the best of my knowledge'
+      // Removed: 'Signature2_es_:signer' - handled separately below
     ],
   },
 };
