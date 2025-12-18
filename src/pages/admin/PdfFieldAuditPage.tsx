@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, FileSearch, Loader2, Download } from "lucide-react";
+import { ArrowLeft, FileSearch, Loader2, Download, Copy, Database, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { sampleContractingPayload, sampleContractingPayloadWithDisclosures, minimalSamplePayload } from "@/data/sampleContractingPayload";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface FieldInfo {
   fieldName: string;
@@ -29,6 +32,77 @@ export default function PdfFieldAuditPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activePayload, setActivePayload] = useState<"full" | "disclosures" | "minimal">("full");
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+
+  const payloads = {
+    full: { data: sampleContractingPayload, label: "Full Sample" },
+    disclosures: { data: sampleContractingPayloadWithDisclosures, label: "With Disclosures" },
+    minimal: { data: minimalSamplePayload, label: "Minimal" },
+  };
+
+  const copyPayload = () => {
+    const payload = payloads[activePayload].data;
+    navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+    toast.success("Payload copied to clipboard");
+  };
+
+  const downloadPayload = () => {
+    const payload = payloads[activePayload].data;
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sample-contracting-payload-${activePayload}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Payload downloaded");
+  };
+
+  const testPdfGeneration = async () => {
+    setGeneratingPdf(true);
+    try {
+      // Fetch PDF template
+      const templateResponse = await fetch(`/templates/TIG_Contracting_Packet_SIGNATURES_FIXED.pdf?v=${Date.now()}`);
+      if (!templateResponse.ok) throw new Error("Failed to load PDF template");
+      
+      const arrayBuffer = await templateResponse.arrayBuffer();
+      const templateBase64 = btoa(
+        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
+      );
+
+      const payload = payloads[activePayload].data;
+      
+      const { data, error: fnError } = await supabase.functions.invoke("generate-contracting-pdf", {
+        body: {
+          application: payload,
+          templateBase64,
+          skipSave: true, // Don't save to storage during testing
+        },
+      });
+
+      if (fnError) throw new Error(fnError.message);
+
+      if (data?.pdfBase64) {
+        // Download the generated PDF
+        const pdfBlob = new Blob(
+          [Uint8Array.from(atob(data.pdfBase64), c => c.charCodeAt(0))],
+          { type: "application/pdf" }
+        );
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = data.filename || "test-contracting-packet.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("PDF generated and downloaded!");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate PDF");
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   const runAudit = async () => {
     setLoading(true);
@@ -115,6 +189,50 @@ export default function PdfFieldAuditPage() {
             </Button>
           </div>
         </div>
+
+        {/* Sample Data Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              Sample Form Data Payloads
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Tabs value={activePayload} onValueChange={(v) => setActivePayload(v as typeof activePayload)}>
+              <TabsList>
+                <TabsTrigger value="full">Full Sample</TabsTrigger>
+                <TabsTrigger value="disclosures">With Disclosures</TabsTrigger>
+                <TabsTrigger value="minimal">Minimal</TabsTrigger>
+              </TabsList>
+              <TabsContent value={activePayload} className="mt-4">
+                <div className="flex gap-2 mb-4">
+                  <Button variant="outline" size="sm" onClick={copyPayload}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy JSON
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={downloadPayload}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download JSON
+                  </Button>
+                  <Button size="sm" onClick={testPdfGeneration} disabled={generatingPdf}>
+                    {generatingPdf ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <FileText className="h-4 w-4 mr-2" />
+                    )}
+                    Test PDF Generation
+                  </Button>
+                </div>
+                <div className="bg-muted rounded-lg p-4 max-h-[400px] overflow-auto">
+                  <pre className="text-xs font-mono whitespace-pre-wrap">
+                    {JSON.stringify(payloads[activePayload].data, null, 2)}
+                  </pre>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
         {/* Error */}
         {error && (
