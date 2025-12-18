@@ -541,6 +541,7 @@ serve(async (req) => {
     const pdfDoc = await PDFDocument.load(pdfBytes);
     const form = pdfDoc.getForm();
     const pages = pdfDoc.getPages();
+    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
     // ========================================================================
     // FIELD SETTER FUNCTIONS
@@ -554,6 +555,7 @@ serve(async (req) => {
       try {
         const field = form.getTextField(fieldName);
         field.setText(value);
+        field.updateAppearances(helveticaFont);
         addReport(fieldName, value, source, "success");
       } catch (err) {
         addReport(fieldName, value, source, "failed", String(err));
