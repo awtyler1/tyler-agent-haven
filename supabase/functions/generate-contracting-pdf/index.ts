@@ -514,24 +514,9 @@ serve(async (req) => {
     }
     const mappingReport: MappingEntry[] = [];
     
-    // Log all form fields for debugging
+    // Get all form fields (verbose logging removed to keep logs readable)
     const allFields = form.getFields();
     console.log('Total form fields found:', allFields.length);
-    
-    // Log field names that look like Yes/No or checkbox fields
-    console.log('=== SEARCHING FOR YES/NO FIELDS ===');
-    allFields.forEach((f: any, idx: number) => {
-      const name = f.getName();
-      const type = f.constructor.name;
-      const lowerName = name.toLowerCase();
-      // Log fields that might be Yes/No related
-      if (lowerName.includes('yes') || lowerName.includes('no') || 
-          lowerName.includes('check') || lowerName.includes('box') ||
-          type.includes('Check') || type.includes('Button')) {
-        console.log(`CHECKBOX/YESNO Field ${idx}: ${name} (type: ${type})`);
-      }
-    });
-    console.log('=== END YESNO FIELD SEARCH ===');
 
     // Helper to embed image from base64 data URL
     const embedImageFromDataUrl = async (dataUrl: string) => {
