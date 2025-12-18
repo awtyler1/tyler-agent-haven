@@ -1,41 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
 
-export function useDeveloperAccess() {
-  const [user, setUser] = useState<User | null>(null);
+export function useDeveloperAccess(userId: string | undefined) {
   const [hasDeveloperAccess, setHasDeveloperAccess] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(() => {
-            checkDeveloperAccess(session.user.id);
-          }, 0);
-        } else {
-          setHasDeveloperAccess(false);
-          setLoading(false);
-        }
-      }
-    );
+  const checkDeveloperAccess = useCallback(async () => {
+    if (!userId) {
+      setHasDeveloperAccess(false);
+      setLoading(false);
+      return;
+    }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkDeveloperAccess(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const checkDeveloperAccess = async (userId: string) => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -52,17 +28,15 @@ export function useDeveloperAccess() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
-  const refetch = () => {
-    if (user?.id) {
-      checkDeveloperAccess(user.id);
-    }
-  };
+  useEffect(() => {
+    checkDeveloperAccess();
+  }, [checkDeveloperAccess]);
 
   return {
     hasDeveloperAccess,
     loading,
-    refetch,
+    refetch: checkDeveloperAccess,
   };
 }
