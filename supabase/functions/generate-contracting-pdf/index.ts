@@ -1478,16 +1478,16 @@ serve(async (req) => {
     // ==================== SIGNATURE MAPPING RULES ====================
     // RULE 1: Typed signature fields (TEXT only) → signature_name
     //         - Signature2 (typed name as text overlay)
-    //         - Signature2_es_:signer:signature (typed name as text field)
+    //         - Signature2_es_:signer (typed name as text field)
     // RULE 2: Handwritten signature box (IMAGE only) → uploaded_documents.signature_image
     //         - "Additionally please sign in the center of the box below" field
     // 
     // HARD CONSTRAINTS:
     //   - NEVER write signature_name into the handwritten signature box
-    //   - NEVER write uploaded_documents.signature_image into Signature2 or Signature2_es_:signer:signature
+    //   - NEVER write uploaded_documents.signature_image into Signature2 or Signature2_es_:signer
     // =================================================================
     
-    const SIGNATURE_FIELD_1 = 'Signature2_es_:signer:signature';
+    const SIGNATURE_FIELD_1 = 'Signature2_es_:signer';
     const SIGNATURE_FIELD_2 = 'Signature2';
     const HANDWRITTEN_SIGNATURE_FIELD = 'Additionally please sign in the center of the box below_es_:signature';
     
@@ -1498,7 +1498,7 @@ serve(async (req) => {
     console.log('  signature_name (typed): "' + signatureNameText + '"');
     console.log('  handwritten image exists:', !!handwrittenSignatureImage);
     console.log('  Targets:');
-    console.log('    1. Signature2_es_:signer:signature → signature_name (TEXT)');
+    console.log('    1. Signature2_es_:signer → signature_name (TEXT)');
     console.log('    2. Signature2 → signature_name (TEXT overlay)');
     console.log('    3. "Additionally please sign..." → signature_image (IMAGE)');
     console.log('=================================\n');
@@ -1628,7 +1628,7 @@ serve(async (req) => {
       console.log(`    widget[${i}]: page=${w.pageIndex + 1}, x=${w.x.toFixed(1)}, y=${w.y.toFixed(1)}, w=${w.width.toFixed(1)}, h=${w.height.toFixed(1)}`);
     });
     
-    // -------------------- TYPED FIELD 1: Signature2_es_:signer:signature --------------------
+    // -------------------- TYPED FIELD 1: Signature2_es_:signer --------------------
     // Set as text field with signature_name
     let field1Success = false;
     if (signatureNameText && field1Debug.exists) {
@@ -1673,7 +1673,7 @@ serve(async (req) => {
     } else if (signatureNameText) {
       // No widget found - DO NOT use a hardcoded fallback (would overlap with handwritten box)
       console.log(`  WARNING: Signature2 field has no widget rect - SKIPPING overlay to avoid overlap with handwritten box`);
-      console.log(`  The typed name will only appear in Signature2_es_:signer:signature field`);
+      console.log(`  The typed name will only appear in Signature2_es_:signer field`);
     }
     console.log(`  field2NeedsOverlay: ${field2NeedsOverlay}`);
     console.log(`=== END TYPED FIELD 2 OVERLAY DECISION ===\n`);
