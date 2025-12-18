@@ -1035,9 +1035,10 @@ serve(async (req) => {
     }
     
     // === PREFERRED CONTACT METHODS ===
+    console.log('>>> XXXXX CONTACT METHODS SECTION REACHED XXXXX <<<');
     // Preferred contact methods - FIXED: explicitly uncheck unselected methods
     const preferredMethods = (application.preferred_contact_methods || []).map((m: string) => m.toLowerCase());
-    console.info('CONTACT_METHODS_SELECTED::' + JSON.stringify(preferredMethods));
+    console.log('>>> XXXXX PREFERRED_METHODS: ' + JSON.stringify(preferredMethods) + ' XXXXX <<<');
     
     if (fieldMappings?.contactMethods) {
       console.log('Using database field mappings for contact methods');
