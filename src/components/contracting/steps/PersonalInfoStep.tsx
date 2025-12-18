@@ -225,6 +225,14 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
                 className="h-9 bg-background"
               />
             </div>
+            <div className="grid grid-cols-6 gap-3">
+              <Input
+                value={homeAddress.county || ''}
+                onChange={e => updateAddress('home_address', 'county', e.target.value)}
+                placeholder="County"
+                className="h-9 col-span-2 bg-background"
+              />
+            </div>
             {/* Address same-as checkboxes */}
             <div className="flex gap-6 text-xs pt-1">
               <label className="flex items-center gap-2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
@@ -280,6 +288,14 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
                   className="h-9"
                 />
               </div>
+              <div className="grid grid-cols-6 gap-3">
+                <Input
+                  value={mailingAddress.county || ''}
+                  onChange={e => updateAddress('mailing_address', 'county', e.target.value)}
+                  placeholder="County"
+                  className="h-9 col-span-2"
+                />
+              </div>
             </div>
           )}
 
@@ -315,6 +331,14 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
                   onChange={e => updateAddress('ups_address', 'zip', formatZipCode(e.target.value))}
                   placeholder="ZIP"
                   className="h-9"
+                />
+              </div>
+              <div className="grid grid-cols-6 gap-3">
+                <Input
+                  value={upsAddress.county || ''}
+                  onChange={e => updateAddress('ups_address', 'county', e.target.value)}
+                  placeholder="County"
+                  className="h-9 col-span-2"
                 />
               </div>
             </div>
@@ -383,6 +407,14 @@ export function PersonalInfoStep({ application, initials, onUpdate, onBack, onCo
                         value={addr.zip || ''}
                         onChange={e => updatePreviousAddress(index, 'zip', formatZipCode(e.target.value))}
                         placeholder="ZIP"
+                        className="h-8 text-sm bg-background"
+                      />
+                    </div>
+                    <div className="grid grid-cols-6 gap-2">
+                      <Input
+                        value={addr.county || ''}
+                        onChange={e => updatePreviousAddress(index, 'county', e.target.value)}
+                        placeholder="County"
                         className="h-8 text-sm bg-background"
                       />
                     </div>
