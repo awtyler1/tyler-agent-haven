@@ -1801,7 +1801,9 @@ serve(async (req) => {
     
     setTextField('DATE_9', formatDate(application.signature_date));
 
-    // ==================== SET SIGNATURE IMAGES IN FIELDS (BEFORE FLATTEN) ====================
+    // ==================== DRAW SIGNATURE IMAGES DIRECTLY ON PDF PAGES ====================
+    // This approach draws images at field coordinates, bypassing field type issues
+    
     // Helper to decode base64 data URL to Uint8Array
     const decodeBase64Image = (dataUrl: string): Uint8Array => {
       const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, '');
@@ -1813,70 +1815,53 @@ serve(async (req) => {
       return bytes;
     };
 
-    // Get raw data URLs before they were embedded
+    // Get raw data URLs
     const uploadedDocsRaw = application.uploaded_documents || {};
     const bgSigDataUrl = uploadedDocsRaw.background_signature_image || uploadedDocsRaw.background_signature;
     const finalSigDataUrl = uploadedDocsRaw.signature_image || uploadedDocsRaw.final_signature || uploadedDocsRaw.final_signature_image;
 
-    // Background signature field (page 4)
+    // Background Signature (Page 4 - index 3)
     try {
-      // === BACKGROUND SIGNATURE DEBUG ===
-      addDebugLog('info', 'signature-debug', '=== BACKGROUND SIGNATURE DEBUG ===');
-      try {
-        const bgSigFieldDebug = form.getField('all carrierspecific questions_es_:signature');
-        addDebugLog('info', 'signature-debug', `Field found: ${bgSigFieldDebug.getName()}`);
-        addDebugLog('info', 'signature-debug', `Field type: ${bgSigFieldDebug.constructor.name}`);
-        
-        // Get the widget to see page and position
-        const widgetsDebug = (bgSigFieldDebug as any).acroField?.getWidgets?.() || [];
-        addDebugLog('info', 'signature-debug', `Number of widgets: ${widgetsDebug.length}`);
-        widgetsDebug.forEach((widget: any, index: number) => {
-          try {
-            const rect = widget.getRectangle?.();
-            const rectStr = `[${rect?.x?.toFixed?.(1) || 'N/A'}, ${rect?.y?.toFixed?.(1) || 'N/A'}, ${rect?.width?.toFixed?.(1) || 'N/A'}, ${rect?.height?.toFixed?.(1) || 'N/A'}]`;
-            addDebugLog('info', 'signature-debug', `Widget ${index} rect: ${rectStr}`, { x: rect?.x, y: rect?.y, width: rect?.width, height: rect?.height });
-            
-            // Find which page this widget is on
-            const pageRef = widget.P?.();
-            let foundPage = false;
-            pages.forEach((page: any, pageIndex: number) => {
-              const pageNode = (page as any).node;
-              if (pageNode?.ref === pageRef || pageRef === pageNode) {
-                addDebugLog('info', 'signature-debug', `Widget ${index} is on PAGE ${pageIndex + 1}`, { pageIndex: pageIndex + 1 });
-                foundPage = true;
-              }
-            });
-            if (!foundPage) {
-              addDebugLog('warn', 'signature-debug', `Widget ${index} page not identified via ref match`);
-            }
-          } catch (widgetErr) {
-            addDebugLog('error', 'signature-debug', `Widget ${index} error: ${widgetErr}`);
-          }
-        });
-      } catch (debugErr: unknown) {
-        const errMsg = debugErr instanceof Error ? debugErr.message : String(debugErr);
-        addDebugLog('error', 'signature-debug', `Background sig debug error: ${errMsg}`);
-      }
-      addDebugLog('info', 'signature-debug', '=== END BACKGROUND SIGNATURE DEBUG ===');
-      // === END DEBUG ===
-
       if (bgSigDataUrl) {
-        addDebugLog('info', 'signature', 'Setting background signature in field', {
+        addDebugLog('info', 'signature', 'Drawing background signature on page 4', {
           fieldName: 'all carrierspecific questions_es_:signature',
           dataLength: bgSigDataUrl.length
         });
         
-        const bgSigField = form.getField('all carrierspecific questions_es_:signature');
-        const bgSigBytes = decodeBase64Image(bgSigDataUrl);
-        const embeddedBgSig = await pdfDoc.embedPng(bgSigBytes);
-        (bgSigField as any).setImage(embeddedBgSig);
+        // Get field coordinates
+        const bgField = form.getField('all carrierspecific questions_es_:signature');
+        const bgWidgets = (bgField as any).acroField.getWidgets();
+        const bgRect = bgWidgets[0].getRectangle();
         
-        addDebugLog('info', 'signature', 'Background signature placed in field successfully');
+        addDebugLog('info', 'signature', 'Background signature field coordinates', {
+          x: bgRect.x,
+          y: bgRect.y,
+          width: bgRect.width,
+          height: bgRect.height
+        });
+        
+        // Get page 4 (index 3)
+        const bgPage = pdfDoc.getPage(3);
+        
+        // Embed the image
+        const bgSigBytes = decodeBase64Image(bgSigDataUrl);
+        const bgSigImage = await pdfDoc.embedPng(bgSigBytes);
+        
+        // Draw image on page at field coordinates
+        bgPage.drawImage(bgSigImage, {
+          x: bgRect.x,
+          y: bgRect.y,
+          width: bgRect.width,
+          height: bgRect.height,
+        });
+        
+        console.log('[signature] Drew background signature on page 4');
+        addDebugLog('info', 'signature', 'Background signature drawn successfully on page 4');
         
         mappingReport.push({
           pdfFieldKey: 'all carrierspecific questions_es_:signature',
-          valueApplied: '[IMAGE - background_signature]',
-          sourceFormField: 'uploaded_documents.background_signature',
+          valueApplied: '[IMAGE - drawn on page 4]',
+          sourceFormField: 'uploaded_documents.background_signature_image',
           isBlank: false,
           status: 'success',
         });
@@ -1885,82 +1870,66 @@ serve(async (req) => {
         mappingReport.push({
           pdfFieldKey: 'all carrierspecific questions_es_:signature',
           valueApplied: '',
-          sourceFormField: 'uploaded_documents.background_signature',
+          sourceFormField: 'uploaded_documents.background_signature_image',
           isBlank: true,
           status: 'skipped',
         });
       }
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      addDebugLog('error', 'signature', 'Error placing background signature', { error: errMsg });
+      console.error('[signature] Background signature error:', errMsg);
+      addDebugLog('error', 'signature', 'Error drawing background signature', { error: errMsg });
       mappingReport.push({
         pdfFieldKey: 'all carrierspecific questions_es_:signature',
         valueApplied: 'ERROR',
-        sourceFormField: 'uploaded_documents.background_signature',
+        sourceFormField: 'uploaded_documents.background_signature_image',
         isBlank: false,
         status: 'failed',
       });
     }
 
-    // Final signature field (page 10)
+    // Final Signature (Page 10 - index 9)
     try {
-      // === FINAL SIGNATURE DEBUG ===
-      addDebugLog('info', 'signature-debug', '=== FINAL SIGNATURE DEBUG ===');
-      try {
-        const finalSigFieldDebug = form.getField('Additionally please sign in the center of the box below_es_:signature');
-        addDebugLog('info', 'signature-debug', `Field found: ${finalSigFieldDebug.getName()}`);
-        addDebugLog('info', 'signature-debug', `Field type: ${finalSigFieldDebug.constructor.name}`);
-        
-        // Get the widget to see page and position
-        const widgetsDebug = (finalSigFieldDebug as any).acroField?.getWidgets?.() || [];
-        addDebugLog('info', 'signature-debug', `Number of widgets: ${widgetsDebug.length}`);
-        widgetsDebug.forEach((widget: any, index: number) => {
-          try {
-            const rect = widget.getRectangle?.();
-            const rectStr = `[${rect?.x?.toFixed?.(1) || 'N/A'}, ${rect?.y?.toFixed?.(1) || 'N/A'}, ${rect?.width?.toFixed?.(1) || 'N/A'}, ${rect?.height?.toFixed?.(1) || 'N/A'}]`;
-            addDebugLog('info', 'signature-debug', `Widget ${index} rect: ${rectStr}`, { x: rect?.x, y: rect?.y, width: rect?.width, height: rect?.height });
-            
-            // Find which page this widget is on
-            const pageRef = widget.P?.();
-            let foundPage = false;
-            pages.forEach((page: any, pageIndex: number) => {
-              const pageNode = (page as any).node;
-              if (pageNode?.ref === pageRef || pageRef === pageNode) {
-                addDebugLog('info', 'signature-debug', `Widget ${index} is on PAGE ${pageIndex + 1}`, { pageIndex: pageIndex + 1 });
-                foundPage = true;
-              }
-            });
-            if (!foundPage) {
-              addDebugLog('warn', 'signature-debug', `Widget ${index} page not identified via ref match`);
-            }
-          } catch (widgetErr) {
-            addDebugLog('error', 'signature-debug', `Widget ${index} error: ${widgetErr}`);
-          }
-        });
-      } catch (debugErr: unknown) {
-        const errMsg = debugErr instanceof Error ? debugErr.message : String(debugErr);
-        addDebugLog('error', 'signature-debug', `Final sig debug error: ${errMsg}`);
-      }
-      addDebugLog('info', 'signature-debug', '=== END FINAL SIGNATURE DEBUG ===');
-      // === END DEBUG ===
-
       if (finalSigDataUrl) {
-        addDebugLog('info', 'signature', 'Setting final signature in field', {
+        addDebugLog('info', 'signature', 'Drawing final signature on page 10', {
           fieldName: 'Additionally please sign in the center of the box below_es_:signature',
           dataLength: finalSigDataUrl.length
         });
         
-        const finalSigField = form.getField('Additionally please sign in the center of the box below_es_:signature');
-        const finalSigBytes = decodeBase64Image(finalSigDataUrl);
-        const embeddedFinalSig = await pdfDoc.embedPng(finalSigBytes);
-        (finalSigField as any).setImage(embeddedFinalSig);
+        // Get field coordinates
+        const finalField = form.getField('Additionally please sign in the center of the box below_es_:signature');
+        const finalWidgets = (finalField as any).acroField.getWidgets();
+        const finalRect = finalWidgets[0].getRectangle();
         
-        addDebugLog('info', 'signature', 'Final signature placed in field successfully');
+        addDebugLog('info', 'signature', 'Final signature field coordinates', {
+          x: finalRect.x,
+          y: finalRect.y,
+          width: finalRect.width,
+          height: finalRect.height
+        });
+        
+        // Get page 10 (index 9)
+        const finalPage = pdfDoc.getPage(9);
+        
+        // Embed the image
+        const finalSigBytes = decodeBase64Image(finalSigDataUrl);
+        const finalSigImage = await pdfDoc.embedPng(finalSigBytes);
+        
+        // Draw image on page at field coordinates
+        finalPage.drawImage(finalSigImage, {
+          x: finalRect.x,
+          y: finalRect.y,
+          width: finalRect.width,
+          height: finalRect.height,
+        });
+        
+        console.log('[signature] Drew final signature on page 10');
+        addDebugLog('info', 'signature', 'Final signature drawn successfully on page 10');
         
         mappingReport.push({
           pdfFieldKey: 'Additionally please sign in the center of the box below_es_:signature',
-          valueApplied: '[IMAGE - final_signature]',
-          sourceFormField: 'uploaded_documents.final_signature',
+          valueApplied: '[IMAGE - drawn on page 10]',
+          sourceFormField: 'uploaded_documents.signature_image',
           isBlank: false,
           status: 'success',
         });
@@ -1969,18 +1938,19 @@ serve(async (req) => {
         mappingReport.push({
           pdfFieldKey: 'Additionally please sign in the center of the box below_es_:signature',
           valueApplied: '',
-          sourceFormField: 'uploaded_documents.final_signature',
+          sourceFormField: 'uploaded_documents.signature_image',
           isBlank: true,
           status: 'skipped',
         });
       }
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      addDebugLog('error', 'signature', 'Error placing final signature', { error: errMsg });
+      console.error('[signature] Final signature error:', errMsg);
+      addDebugLog('error', 'signature', 'Error drawing final signature', { error: errMsg });
       mappingReport.push({
         pdfFieldKey: 'Additionally please sign in the center of the box below_es_:signature',
         valueApplied: 'ERROR',
-        sourceFormField: 'uploaded_documents.final_signature',
+        sourceFormField: 'uploaded_documents.signature_image',
         isBlank: false,
         status: 'failed',
       });
