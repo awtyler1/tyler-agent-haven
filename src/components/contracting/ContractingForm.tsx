@@ -498,12 +498,10 @@ export function ContractingForm() {
     console.log('🔍 ===== END SUBMISSION DEBUG =====');
     // ===== END DEBUG =====
     
-    // Run validation
-    const result = validateForm(application!, sectionStatuses, carriers);
-    
-    // In Test Mode: bypass validation blocking, proceed anyway
+    // In Test Mode: skip validation entirely
     if (testMode) {
-      // Don't clear validation - keep it visible for the report
+      // Clear any previous validation state
+      clearValidation();
       setIsSubmitting(true);
       
       try {
@@ -543,19 +541,16 @@ export function ContractingForm() {
           console.log('✍️ Signature Fields Found:', pdfResult.signatureFieldsFound);
         }
         
-        if (!result.isFormValid) {
-          toast.info('Test submission captured with validation failures. See reports below.');
-        } else {
-          toast.success('Test submission captured! Check the reports below.');
-        }
-        console.log('📋 Test Mode Submission:', { snapshot, validationResult: result, mappingReport: pdfResult.mappingReport });
+        toast.success('Test submission captured! Check the reports below.');
+        console.log('📋 Test Mode Submission:', { snapshot, mappingReport: pdfResult.mappingReport });
       } finally {
         setIsSubmitting(false);
       }
       return;
     }
     
-    // PRODUCTION MODE: Block submission if invalid (existing behavior)
+    // PRODUCTION MODE: Run validation and block if invalid
+    const result = validateForm(application!, sectionStatuses, carriers);
     if (!result.isFormValid) {
       // Scroll to first error section with smooth animation
       if (result.firstErrorSection) {
