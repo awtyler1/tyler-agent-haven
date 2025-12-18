@@ -316,6 +316,8 @@ interface FieldMappings {
 }
 
 serve(async (req) => {
+  console.log('=== GENERATE-CONTRACTING-PDF FUNCTION V2 - DEPLOYMENT CHECK ===');
+  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
