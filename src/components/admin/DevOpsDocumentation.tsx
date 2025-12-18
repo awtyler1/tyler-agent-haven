@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, FileCode, Database, GitBranch, Server, FileText, Folder, Download, Loader2, Copy, ExternalLink } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChevronDown, FileCode, Database, GitBranch, Server, FileText, Folder, Download, Loader2, Copy, ExternalLink, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Import raw file contents at build time (src files only - supabase functions need special handling)
@@ -18,12 +20,44 @@ const fileContents: Record<string, string> = import.meta.glob(
   { as: 'raw', eager: true }
 );
 
-// Edge function content - stored inline since it's outside Vite's bundle scope
-const EDGE_FUNCTION_DOWNLOAD_URL = 'https://raw.githubusercontent.com/user/repo/main/supabase/functions/generate-contracting-pdf/index.ts';
+// Edge function raw import for viewing
+const edgeFunctionSource = import.meta.glob(
+  ['/supabase/functions/generate-contracting-pdf/index.ts'],
+  { as: 'raw', eager: true }
+);
 
 export function DevOpsDocumentation() {
   const [isOpen, setIsOpen] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [sourceDialogOpen, setSourceDialogOpen] = useState(false);
+  const [sourceCode, setSourceCode] = useState<string | null>(null);
+  const [loadingSource, setLoadingSource] = useState(false);
+
+  const handleViewSource = async () => {
+    setLoadingSource(true);
+    try {
+      // Try to get from the glob import first
+      const content = edgeFunctionSource['/supabase/functions/generate-contracting-pdf/index.ts'];
+      if (content) {
+        setSourceCode(content);
+        setSourceDialogOpen(true);
+      } else {
+        toast.error('Could not load edge function source');
+      }
+    } catch (error) {
+      console.error('Failed to load source:', error);
+      toast.error('Failed to load edge function source');
+    } finally {
+      setLoadingSource(false);
+    }
+  };
+
+  const handleCopySource = () => {
+    if (sourceCode) {
+      navigator.clipboard.writeText(sourceCode);
+      toast.success('Source code copied to clipboard');
+    }
+  };
 
   const handleDownload = async (path: string, filename: string) => {
     setDownloading(path);
@@ -151,6 +185,8 @@ export function DevOpsDocumentation() {
                   onDownload={handleDownload}
                   downloading={downloading}
                   isServerSide
+                  onViewSource={handleViewSource}
+                  loadingSource={loadingSource}
                 />
                 
                 <FileEntry 
@@ -359,12 +395,35 @@ export function DevOpsDocumentation() {
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
+
+      {/* Source Code Dialog */}
+      <Dialog open={sourceDialogOpen} onOpenChange={setSourceDialogOpen}>
+        <DialogContent className="max-w-5xl h-[80vh]">
+          <DialogHeader>
+            <div className="flex items-center justify-between pr-8">
+              <DialogTitle className="flex items-center gap-2">
+                <FileCode className="w-5 h-5 text-purple-600" />
+                generate-contracting-pdf/index.ts
+              </DialogTitle>
+              <Button variant="outline" size="sm" onClick={handleCopySource}>
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Code
+              </Button>
+            </div>
+          </DialogHeader>
+          <ScrollArea className="h-full mt-4">
+            <pre className="text-xs font-mono bg-slate-950 text-slate-100 p-4 rounded-lg overflow-x-auto">
+              <code>{sourceCode}</code>
+            </pre>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
 
 // Sub-components
-function FileEntry({ title, path, filename, description, badge, badgeColor, onDownload, downloading, isServerSide = false }: { 
+function FileEntry({ title, path, filename, description, badge, badgeColor, onDownload, downloading, isServerSide = false, onViewSource, loadingSource }: { 
   title: string; 
   path: string;
   filename: string;
@@ -374,6 +433,8 @@ function FileEntry({ title, path, filename, description, badge, badgeColor, onDo
   onDownload: (path: string, filename: string) => void;
   downloading: string | null;
   isServerSide?: boolean;
+  onViewSource?: () => void;
+  loadingSource?: boolean;
 }) {
   const colors = {
     purple: 'bg-purple-100 text-purple-700',
@@ -409,6 +470,22 @@ function FileEntry({ title, path, filename, description, badge, badgeColor, onDo
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {isServerSide ? (
             <>
+              {onViewSource && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onViewSource}
+                  disabled={loadingSource}
+                  className="h-7 px-2"
+                  title="View source code"
+                >
+                  {loadingSource ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Eye className="w-3 h-3" />
+                  )}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
