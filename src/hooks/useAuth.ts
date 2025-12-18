@@ -5,7 +5,7 @@ import { useDeveloperAccess } from './useDeveloperAccess';
 export function useAuth() {
   const profile = useProfile();
   const role = useRole();
-  const developer = useDeveloperAccess();
+  const developer = useDeveloperAccess(profile.user?.id);
 
   const loading = profile.loading || role.loading || developer.loading;
 
