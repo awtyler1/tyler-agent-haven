@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      carrier_statuses: {
+        Row: {
+          application_id: string | null
+          carrier_name: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          status: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          carrier_name: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          carrier_name?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_statuses_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "contracting_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carriers: {
         Row: {
           code: string
@@ -74,6 +115,7 @@ export type Database = {
           birth_date: string | null
           birth_state: string | null
           completed_steps: number[]
+          contract_level: string | null
           created_at: string
           current_step: number
           disciplinary_entries: Json
@@ -112,6 +154,8 @@ export type Database = {
           resident_state: string | null
           section_acknowledgments: Json | null
           selected_carriers: Json | null
+          sent_to_upline_at: string | null
+          sent_to_upline_by: string | null
           signature_date: string | null
           signature_initials: string | null
           signature_name: string | null
@@ -120,6 +164,7 @@ export type Database = {
           submitted_at: string | null
           tax_id: string | null
           updated_at: string
+          upline_id: string | null
           uploaded_documents: Json | null
           ups_address: Json | null
           ups_address_same_as_home: boolean | null
@@ -145,6 +190,7 @@ export type Database = {
           birth_date?: string | null
           birth_state?: string | null
           completed_steps?: number[]
+          contract_level?: string | null
           created_at?: string
           current_step?: number
           disciplinary_entries?: Json
@@ -183,6 +229,8 @@ export type Database = {
           resident_state?: string | null
           section_acknowledgments?: Json | null
           selected_carriers?: Json | null
+          sent_to_upline_at?: string | null
+          sent_to_upline_by?: string | null
           signature_date?: string | null
           signature_initials?: string | null
           signature_name?: string | null
@@ -191,6 +239,7 @@ export type Database = {
           submitted_at?: string | null
           tax_id?: string | null
           updated_at?: string
+          upline_id?: string | null
           uploaded_documents?: Json | null
           ups_address?: Json | null
           ups_address_same_as_home?: boolean | null
@@ -216,6 +265,7 @@ export type Database = {
           birth_date?: string | null
           birth_state?: string | null
           completed_steps?: number[]
+          contract_level?: string | null
           created_at?: string
           current_step?: number
           disciplinary_entries?: Json
@@ -254,6 +304,8 @@ export type Database = {
           resident_state?: string | null
           section_acknowledgments?: Json | null
           selected_carriers?: Json | null
+          sent_to_upline_at?: string | null
+          sent_to_upline_by?: string | null
           signature_date?: string | null
           signature_initials?: string | null
           signature_name?: string | null
@@ -262,6 +314,7 @@ export type Database = {
           submitted_at?: string | null
           tax_id?: string | null
           updated_at?: string
+          upline_id?: string | null
           uploaded_documents?: Json | null
           ups_address?: Json | null
           ups_address_same_as_home?: boolean | null
