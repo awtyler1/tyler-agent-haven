@@ -126,7 +126,7 @@ export default function SystemHealthPage() {
         name: 'Storage',
         status: error ? 'error' : 'healthy',
         latency,
-        message: error ? error.message : `${data?.length || 0} buckets (${latency}ms)`,
+        message: error ? error.message : `Connected (${latency}ms)`,
         lastChecked: new Date(),
       });
     } catch (err) {
