@@ -260,8 +260,8 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
               <h3 className="text-sm font-medium">Insurance Licensing</h3>
             </div>
             
-            {/* All licensing fields */}
-            <div className="grid grid-cols-4 gap-3">
+            {/* NPN and Resident State */}
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5" data-field="npn_number">
                 <Label htmlFor="npn_number" className="text-xs">NPN Number *</Label>
                 <Input
@@ -272,17 +272,6 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                   className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.npn_number, showErrors))}
                 />
                 <FormFieldError error={validation.fieldErrors.npn_number} show={showErrors} />
-              </div>
-              <div className="space-y-1.5" data-field="insurance_license_number">
-                <Label htmlFor="insurance_license_number" className="text-xs">Resident License # *</Label>
-                <Input
-                  id="insurance_license_number"
-                  value={application.insurance_license_number || ''}
-                  onChange={e => onUpdate('insurance_license_number', e.target.value)}
-                  placeholder="ABC123456"
-                  className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.insurance_license_number, showErrors))}
-                />
-                <FormFieldError error={validation.fieldErrors.insurance_license_number} show={showErrors} />
               </div>
               <div className="space-y-1.5" data-field="resident_state">
                 <Label htmlFor="resident_state" className="text-xs">Resident State *</Label>
@@ -301,36 +290,30 @@ export function LicensingStep({ application, initials, onUpdate, onUpload, onRem
                 </Select>
                 <FormFieldError error={validation.fieldErrors.resident_state} show={showErrors} />
               </div>
+            </div>
+
+            {/* License Number and Expiration */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5" data-field="insurance_license_number">
+                <Label htmlFor="insurance_license_number" className="text-xs">Resident License # *</Label>
+                <Input
+                  id="insurance_license_number"
+                  value={application.insurance_license_number || ''}
+                  onChange={e => onUpdate('insurance_license_number', e.target.value)}
+                  placeholder="ABC123456"
+                  className={cn("h-9", getFieldErrorClass(!!validation.fieldErrors.insurance_license_number, showErrors))}
+                />
+                <FormFieldError error={validation.fieldErrors.insurance_license_number} show={showErrors} />
+              </div>
               <div className="space-y-1.5" data-field="license_expiration_date">
-                <Label htmlFor="license_expiration_date" className="text-xs">Expiration *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "h-9 w-full justify-start text-left font-normal",
-                        !application.license_expiration_date && "text-muted-foreground",
-                        getFieldErrorClass(!!validation.fieldErrors.license_expiration_date, showErrors)
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {application.license_expiration_date ? format(parse(application.license_expiration_date, 'yyyy-MM-dd', new Date()), 'MMM d, yyyy') : <span>Select</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={application.license_expiration_date ? parse(application.license_expiration_date, 'yyyy-MM-dd', new Date()) : undefined}
-                      onSelect={(date) => onUpdate('license_expiration_date', date ? format(date, 'yyyy-MM-dd') : '')}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                      captionLayout="dropdown-buttons"
-                      fromYear={new Date().getFullYear()}
-                      toYear={new Date().getFullYear() + 10}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormFieldError error={validation.fieldErrors.license_expiration_date} show={showErrors} />
+                <Label htmlFor="license_expiration_date" className="text-xs">License Expiration Date</Label>
+                <Input
+                  id="license_expiration_date"
+                  type="date"
+                  value={application.license_expiration_date || ''}
+                  onChange={e => onUpdate('license_expiration_date', e.target.value)}
+                  className="h-9"
+                />
               </div>
             </div>
 
