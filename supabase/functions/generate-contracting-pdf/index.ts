@@ -358,26 +358,38 @@ serve(async (req) => {
 
     addDebugLog('info', 'init', `Generating PDF for: ${application.full_legal_name}`, { saveToStorage });
 
-    // Initialize Supabase client early to load mappings
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // Initialize Supabase client (only if we need it)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    let supabase: ReturnType<typeof createClient> | null = null;
+    
+    // Only create client if we have valid credentials
+    if (supabaseUrl && supabaseKey && supabaseKey.length > 0) {
+      supabase = createClient(supabaseUrl, supabaseKey);
+    } else {
+      console.log('Supabase credentials not available, skipping database operations');
+    }
 
-    // Load field mappings from database
+    // Load field mappings from database (skip if no client or in test mode)
     let fieldMappings: FieldMappings | null = null;
-    try {
-      const { data: mappingsData } = await supabase
-        .from('system_config')
-        .select('config_value')
-        .eq('config_key', 'pdf_field_mappings')
-        .single();
-      
-      if (mappingsData?.config_value) {
-        fieldMappings = mappingsData.config_value as unknown as FieldMappings;
-        console.log('Loaded field mappings from database');
+    if (supabase && !skipValidation) {
+      try {
+        const result = await supabase
+          .from('system_config')
+          .select('config_value')
+          .eq('config_key', 'pdf_field_mappings')
+          .single();
+        
+        const mappingsData = result.data as { config_value?: unknown } | null;
+        if (mappingsData && mappingsData.config_value) {
+          fieldMappings = mappingsData.config_value as FieldMappings;
+          console.log('Loaded field mappings from database');
+        }
+      } catch (e) {
+        console.log('No custom field mappings found, using defaults');
       }
-    } catch (e) {
-      console.log('No custom field mappings found, using defaults');
+    } else {
+      console.log('Skipping field mappings load (test mode or no Supabase client)');
     }
 
     // Validate required fields (skip in test mode)
@@ -1925,39 +1937,44 @@ serve(async (req) => {
     let storagePath: string | null = null;
     
     if (saveToStorage && userId) {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const supabaseUrl = Deno.env.get('SUPABASE_URL');
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
       
-      storagePath = `${userId}/contracting_packet/${filename}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('contracting-documents')
-        .upload(storagePath, filledPdfBytes, {
-          contentType: 'application/pdf',
-          upsert: true,
-        });
-      
-      if (uploadError) {
-        console.error('Failed to save PDF to storage:', uploadError);
+      if (!supabaseUrl || !supabaseServiceKey || supabaseServiceKey.length === 0) {
+        console.log('Supabase credentials not available, skipping storage save');
       } else {
-        console.log('PDF saved to storage:', storagePath);
+        const storageClient = createClient(supabaseUrl, supabaseServiceKey);
         
-        // Update the contracting application
-        const { data: currentApp } = await supabase
-          .from('contracting_applications')
-          .select('uploaded_documents')
-          .eq('user_id', userId)
-          .single();
+        storagePath = `${userId}/contracting_packet/${filename}`;
         
-        if (currentApp) {
-          const currentDocs = (currentApp.uploaded_documents as Record<string, string>) || {};
-          const updatedDocs = { ...currentDocs, contracting_packet: storagePath };
+        const { error: uploadError } = await storageClient.storage
+          .from('contracting-documents')
+          .upload(storagePath, filledPdfBytes, {
+            contentType: 'application/pdf',
+            upsert: true,
+          });
+        
+        if (uploadError) {
+          console.error('Failed to save PDF to storage:', uploadError);
+        } else {
+          console.log('PDF saved to storage:', storagePath);
           
-          await supabase
+          // Update the contracting application
+          const { data: currentApp } = await storageClient
             .from('contracting_applications')
-            .update({ uploaded_documents: updatedDocs })
-            .eq('user_id', userId);
+            .select('uploaded_documents')
+            .eq('user_id', userId)
+            .single();
+          
+          if (currentApp) {
+            const currentDocs = ((currentApp as { uploaded_documents?: Record<string, string> }).uploaded_documents) || {};
+            const updatedDocs = { ...currentDocs, contracting_packet: storagePath };
+            
+            await storageClient
+              .from('contracting_applications')
+              .update({ uploaded_documents: updatedDocs })
+              .eq('user_id', userId);
+          }
         }
       }
     }
