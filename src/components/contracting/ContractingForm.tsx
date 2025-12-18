@@ -36,6 +36,7 @@ import { TestModeSchemaPanel } from './TestModeSchemaPanel';
 import { TestModePdfPreviewPanel } from './TestModePdfPreviewPanel';
 import { TestModePdfDebugPanel, DebugLogEntry } from './TestModePdfDebugPanel';
 import { TestModeSignatureFieldsPanel } from './TestModeSignatureFieldsPanel';
+import { TestModeEdgeLogsPanel } from './TestModeEdgeLogsPanel';
 import { useContractingPdf, MappingEntry, SignatureFieldInfo } from '@/hooks/useContractingPdf';
 
 interface SubmissionSnapshot {
@@ -774,6 +775,9 @@ export function ContractingForm() {
           
           {/* PDF Debug Log - show after PDF generation */}
           <TestModePdfDebugPanel logs={lastDebugLogs} />
+          
+          {/* Edge Function Logs Panel */}
+          <TestModeEdgeLogsPanel />
         </div>
       )}
 
