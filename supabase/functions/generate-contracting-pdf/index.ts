@@ -938,98 +938,52 @@ serve(async (req) => {
     
     console.log('=== END BIRTH LOCATION DEBUG ===');
     
-    // Gender - try multiple approaches
+    // === GENDER FIELD ===
+    // PDF uses radio group named "MMDDYYYY" with options "Male" and "Female"
     const gender = application.gender?.toLowerCase();
     console.log('=== GENDER PROCESSING ===');
     console.log('Gender value from application:', application.gender, '-> normalized:', gender);
     
-    // First, log all fields that might be gender-related
-    console.log('Looking for gender-related fields...');
-    for (const field of form.getFields()) {
-      const fieldName = field.getName();
-      const lowerName = fieldName.toLowerCase();
-      if (lowerName.includes('male') || lowerName.includes('female') || lowerName.includes('gender') || lowerName.includes('sex')) {
-        console.log(`Potential gender field: "${fieldName}" (type: ${field.constructor.name})`);
-      }
-    }
-    
     let genderSet = false;
     
-    // Try as RadioGroup first
-    for (const field of form.getFields()) {
-      if (genderSet) break;
+    if (gender === 'male' || gender === 'female') {
       try {
-        const rg = form.getRadioGroup(field.getName());
-        const options = rg.getOptions();
-        const lowerOptions = options.map((o: string) => o.toLowerCase());
-        const hasMale = lowerOptions.some(o => o.includes('male'));
-        const hasFemale = lowerOptions.some(o => o.includes('female'));
-
-        if (!hasMale || !hasFemale) continue;
-
-        console.log(`Detected gender RadioGroup: "${field.getName()}" options=[${options.join(', ')}]`);
-
-        if (gender === 'male') {
-          const maleOption = options.find((o: string) => o.toLowerCase().includes('male'));
-          if (maleOption) {
-            rg.select(maleOption);
-            console.log(`Selected "${maleOption}" on gender RadioGroup`);
-            genderSet = true;
-          }
-        } else if (gender === 'female') {
-          const femaleOption = options.find((o: string) => o.toLowerCase().includes('female'));
-          if (femaleOption) {
-            rg.select(femaleOption);
-            console.log(`Selected "${femaleOption}" on gender RadioGroup`);
-            genderSet = true;
-          }
-        }
-      } catch {
-        // Not a radio group, continue
+        const genderGroup = form.getRadioGroup('MMDDYYYY');
+        const optionToSelect = gender === 'male' ? 'Male' : 'Female';
+        genderGroup.select(optionToSelect);
+        genderSet = true;
+        console.log(`SUCCESS: Selected "${optionToSelect}" on MMDDYYYY radio group`);
+        
+        mappingReport.push({
+          pdfFieldKey: 'MMDDYYYY',
+          valueApplied: optionToSelect,
+          sourceFormField: 'gender',
+          isBlank: false,
+          status: 'success',
+        });
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.log('FAILED: Could not set gender radio group:', errMsg);
+        
+        mappingReport.push({
+          pdfFieldKey: 'MMDDYYYY',
+          valueApplied: gender,
+          sourceFormField: 'gender',
+          isBlank: false,
+          status: 'failed',
+        });
       }
-    }
-
-    // Try as individual checkboxes if radio group didn't work
-    if (!genderSet) {
-      console.log('Gender radio group not found, trying checkboxes...');
-      
-      // Try exact field names from mappings
-      const checkboxNames = gender === 'male' 
-        ? ['Male', 'male', 'MALE', 'Check Box4', 'CheckBox4', 'Gender_Male', 'male_checkbox']
-        : ['Female', 'female', 'FEMALE', 'Check Box5', 'CheckBox5', 'Gender_Female', 'female_checkbox'];
-      
-      for (const name of checkboxNames) {
-        try {
-          const checkbox = form.getCheckBox(name);
-          checkbox.check();
-          console.log(`SUCCESS: Checked gender checkbox "${name}"`);
-          genderSet = true;
-          break;
-        } catch {
-          // Try next
-        }
-      }
-      
-      // Try setting as text field with 'X' as last resort
-      if (!genderSet) {
-        const textNames = gender === 'male' ? ['Male', 'male'] : ['Female', 'female'];
-        for (const name of textNames) {
-          try {
-            const textField = form.getTextField(name);
-            textField.setText('X');
-            console.log(`SUCCESS: Set gender text field "${name}" to X`);
-            genderSet = true;
-            break;
-          } catch {
-            // Try next
-          }
-        }
-      }
+    } else {
+      console.log('SKIPPED: No valid gender value provided');
+      mappingReport.push({
+        pdfFieldKey: 'MMDDYYYY',
+        valueApplied: '',
+        sourceFormField: 'gender',
+        isBlank: true,
+        status: 'skipped',
+      });
     }
     
-    if (!genderSet) {
-      console.log('WARNING: Could not set gender field');
-    }
     console.log('=== END GENDER PROCESSING ===');
     
     // Home Address
