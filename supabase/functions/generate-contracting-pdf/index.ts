@@ -1091,6 +1091,25 @@ serve(async (req) => {
     
     console.log('=== END PREFERRED CONTACT METHODS ===');
     
+    // CRITICAL FIX: Explicitly uncheck contact methods that are NOT selected
+    // This ensures checkboxes are unchecked even if the PDF template has them pre-checked
+    console.log('=== EXPLICITLY UNCHECKING NON-SELECTED CONTACT METHODS ===');
+    const allContactMethods = ['email', 'phone', 'text'];
+    for (const method of allContactMethods) {
+      if (!preferredMethods.includes(method)) {
+        console.log(`${method} is NOT selected - will uncheck`);
+        const fieldName = method.charAt(0).toUpperCase() + method.slice(1); // email -> Email
+        try {
+          const checkbox = form.getCheckBox(fieldName);
+          checkbox.uncheck();
+          console.log(`Successfully unchecked ${fieldName}`);
+        } catch (err) {
+          console.log(`Could not uncheck ${fieldName}:`, err);
+        }
+      }
+    }
+    console.log('=== END CONTACT METHODS FIX ===');
+
     // Marketing consent - use database mappings if available
     const marketingConsent = application.agreements?.marketing_consent || false;
     console.log('Marketing consent value:', marketingConsent);
