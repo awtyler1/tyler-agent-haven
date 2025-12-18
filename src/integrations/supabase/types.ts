@@ -314,6 +314,33 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_flags: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          flag_key: string
+          flag_value: boolean | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          flag_key: string
+          flag_value?: boolean | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          flag_key?: string
+          flag_value?: boolean | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       processing_jobs: {
         Row: {
           completed_at: string | null
@@ -360,6 +387,7 @@ export type Database = {
         Row: {
           appointed_at: string | null
           created_at: string
+          developer_access: boolean | null
           email: string | null
           first_login_at: string | null
           full_name: string | null
@@ -375,6 +403,7 @@ export type Database = {
         Insert: {
           appointed_at?: string | null
           created_at?: string
+          developer_access?: boolean | null
           email?: string | null
           first_login_at?: string | null
           full_name?: string | null
@@ -390,6 +419,7 @@ export type Database = {
         Update: {
           appointed_at?: string | null
           created_at?: string
+          developer_access?: boolean | null
           email?: string | null
           first_login_at?: string | null
           full_name?: string | null
