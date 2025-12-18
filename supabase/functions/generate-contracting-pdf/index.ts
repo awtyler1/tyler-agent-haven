@@ -1503,6 +1503,18 @@ serve(async (req) => {
     console.log('    3. "Additionally please sign..." → signature_image (IMAGE)');
     console.log('=================================\n');
     
+    // ==================== DEBUG: SEARCH FOR ALL SIGNATURE-RELATED FIELDS ====================
+    console.log('=== SEARCHING FOR SIGNATURE2 FIELDS ===');
+    const allFieldsForDebug = form.getFields();
+    allFieldsForDebug.forEach(field => {
+      const name = field.getName();
+      if (name.toLowerCase().includes('signature') || name.toLowerCase().includes('signer')) {
+        console.log(`Found field: "${name}" | Type: ${field.constructor.name}`);
+      }
+    });
+    console.log('=== END SIGNATURE2 SEARCH ===');
+    
+    
     // Helper to get detailed field info for debugging
     const getFieldDebugInfo = (fieldName: string): {
       exists: boolean;
