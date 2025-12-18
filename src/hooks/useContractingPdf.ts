@@ -131,8 +131,8 @@ export function useContractingPdf() {
       console.log('PDF payload birth_city (raw->trimmed):', application.birth_city, '->', birthCity);
       console.log('PDF payload birth_state (raw->trimmed):', application.birth_state, '->', birthState);
 
-      // Hard guard: birth fields must be present when generating the PDF
-      if (!birthCity || !birthState) {
+      // Hard guard: birth fields must be present when generating the PDF (skip in test mode)
+      if (!skipValidation && (!birthCity || !birthState)) {
         const msg = !birthCity && !birthState
           ? 'Birth City and Birth State are required to generate the contracting packet PDF.'
           : !birthCity
