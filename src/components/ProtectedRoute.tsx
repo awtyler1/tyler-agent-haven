@@ -1,63 +1,81 @@
+import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
   requireAdmin?: boolean;
   requireSuperAdmin?: boolean;
+  requireDeveloper?: boolean;
   requireAgent?: boolean;
   allowContractingOnly?: boolean;
 }
 
-export function ProtectedRoute({ 
-  children, 
+export function ProtectedRoute({
+  children,
   requireAdmin = false,
   requireSuperAdmin = false,
+  requireDeveloper = false,
   requireAgent = false,
   allowContractingOnly = false,
 }: ProtectedRouteProps) {
-  const { 
-    isAuthenticated, 
-    loading, 
-    isContractingRequired, 
-    canAccessAdmin,
-    isAgent,
-    isSuperAdmin,
-  } = useAuth();
   const location = useLocation();
+  const {
+    isAuthenticated,
+    loading,
+    isAdmin,
+    isSuperAdmin,
+    isAgent,
+    isContractingRequired,
+    hasDeveloperAccess,
+  } = useAuth();
 
+  // Show loading state while checking auth
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
       </div>
     );
   }
 
-  // Not logged in - redirect to auth
+  // Not authenticated - redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Super admin route but user is not super admin
+  // Check developer access
+  if (requireDeveloper && !hasDeveloperAccess()) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Check super admin access
   if (requireSuperAdmin && !isSuperAdmin()) {
     return <Navigate to="/" replace />;
   }
 
-  // Admin route but user is not admin
-  if (requireAdmin && !canAccessAdmin()) {
+  // Check admin access
+  if (requireAdmin && !isAdmin()) {
     return <Navigate to="/" replace />;
   }
 
-  // Agent route but user is not agent
+  // Check agent access
   if (requireAgent && !isAgent()) {
     return <Navigate to="/" replace />;
   }
 
-  // Agent in contracting mode trying to access non-contracting route
+  // Special case: agents who need contracting should be redirected
   if (isAgent() && isContractingRequired && !allowContractingOnly) {
     return <Navigate to="/contracting" replace />;
+  }
+
+  // Special case: agents on allowContractingOnly routes must need contracting
+  if (allowContractingOnly && (!isAgent() || !isContractingRequired)) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
