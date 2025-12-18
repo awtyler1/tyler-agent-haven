@@ -208,51 +208,6 @@ const CARRIER_FIELD_MAP: Record<string, { checkbox: string; nonResStates: string
   'William Penn': { checkbox: 'fill_153', nonResStates: 'NONRES STATESWilliam Penn' },
 };
 
-// Legal question ordering (matches the contracting form question IDs)
-// We use this order to map to PDF radio button option names (Yes/No, Yes_2/No_2, ...)
-const LEGAL_QUESTION_ORDER: string[] = [
-  '1',
-  '1a',
-  '1b',
-  '1c',
-  '1d',
-  '1e',
-  '1f',
-  '1g',
-  '1h',
-  '2',
-  '2a',
-  '2b',
-  '2c',
-  '2d',
-  '3',
-  '4',
-  '5',
-  '5a',
-  '5b',
-  '5c',
-  '6',
-  '7',
-  '8',
-  '8a',
-  '8b',
-  '9',
-  '10',
-  '11',
-  '12',
-  '13',
-  '14',
-  '14a',
-  '14c',
-  '15',
-  '15a',
-  '15b',
-  '15c',
-  '16',
-  '17',
-  '18',
-  '19',
-];
 
 // Legal Question PDF Field Mapping
 // Maps form question IDs to PDF radio group names and their Yes/No options
