@@ -260,6 +260,11 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
               </label>
             ))}
           </div>
+          {testMode && (
+            <p className="mt-2 text-xs font-mono text-amber-700 bg-amber-50 px-2 py-1 rounded">
+              preferred_contact_methods = {JSON.stringify(contactMethods)}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
