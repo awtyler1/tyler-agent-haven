@@ -10,6 +10,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -459,7 +460,13 @@ serve(async (req) => {
   }
 
   try {
-    const { application, templateUrl, templateBase64, skipValidation = false } = await req.json();
+    const { application, templateUrl, templateBase64, skipValidation = false, applicationId, saveToStorage = false } = await req.json();
+
+    // Create Supabase client for storage operations
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
     const mappingReport: MappingEntry[] = [];
 
@@ -998,6 +1005,55 @@ serve(async (req) => {
         "Failed mappings:",
         failures.map((f) => `${f.pdfFieldKey}: ${f.error}`),
       );
+    }
+
+    // Save to storage if requested
+    if (saveToStorage && applicationId) {
+      try {
+        // Convert base64 to Uint8Array
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        // Create storage path
+        const timestamp = Date.now();
+        const storagePath = `${application.user_id}/contracting_packet/${timestamp}_contracting_packet.pdf`;
+
+        // Upload to storage
+        const { error: uploadError } = await supabaseClient.storage
+          .from('contracting-documents')
+          .upload(storagePath, bytes, {
+            contentType: 'application/pdf',
+            upsert: true
+          });
+
+        if (uploadError) {
+          console.error('Error uploading PDF to storage:', uploadError);
+        } else {
+          // Update the application with the document path
+          const currentDocs = application.uploaded_documents || {};
+          const updatedDocs = {
+            ...currentDocs,
+            contracting_packet: storagePath
+          };
+
+          const { error: updateError } = await supabaseClient
+            .from('contracting_applications')
+            .update({ uploaded_documents: updatedDocs })
+            .eq('id', applicationId);
+
+          if (updateError) {
+            console.error('Error updating application with PDF path:', updateError);
+          } else {
+            console.log('PDF saved to storage:', storagePath);
+          }
+        }
+      } catch (storageError) {
+        console.error('Error in storage operation:', storageError);
+        // Don't fail the request if storage fails - PDF was still generated
+      }
     }
 
     return new Response(
