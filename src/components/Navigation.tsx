@@ -5,6 +5,7 @@ import tylerLogo from "@/assets/tyler-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 const navLinks = [
   { name: "Dashboard", href: "/" },
@@ -161,6 +162,9 @@ const Navigation = () => {
               </Link>
             )}
 
+            {/* Dark Mode Toggle */}
+            <DarkModeToggle />
+
             {/* Auth Link */}
             {isAuthenticated ? (
               <button
@@ -289,6 +293,11 @@ const Navigation = () => {
                   Developer
                 </Link>
               )}
+
+              {/* Dark Mode Toggle */}
+              <div className="py-2">
+                <DarkModeToggle />
+              </div>
 
               {/* Auth Link */}
               {isAuthenticated ? (
