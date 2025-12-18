@@ -492,7 +492,7 @@ serve(async (req) => {
     if (!pdfBytes) {
       const urls = [
         templateUrl,
-        "https://hikhnmuckfopyzxkdeus.supabase.co/storage/v1/object/public/templates/TIG_Contracting_Packet_SIGNATURES_FIXED.pdf",
+        "https://hikhnmuckfopyzxkdeus.supabase.co/storage/v1/object/public/templates-public/TIG_Contracting_Packet_SIGNATURES_FIXED.pdf",
       ].filter(Boolean);
 
       for (const url of urls) {
