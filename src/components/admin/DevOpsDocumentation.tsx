@@ -2,10 +2,90 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, FileCode, Database, GitBranch, Server, FileText, Folder } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, FileCode, Database, GitBranch, Server, FileText, Folder, Download, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+// Import raw file contents at build time
+const fileContents: Record<string, string> = import.meta.glob(
+  [
+    '/src/types/contracting.ts',
+    '/src/hooks/useContractingPdf.ts',
+    '/src/hooks/useContractingApplication.ts',
+    '/src/components/contracting/ContractingForm.tsx',
+    '/src/integrations/supabase/types.ts',
+    '/supabase/functions/generate-contracting-pdf/index.ts'
+  ],
+  { as: 'raw', eager: true }
+);
 
 export function DevOpsDocumentation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [downloading, setDownloading] = useState<string | null>(null);
+
+  const handleDownload = async (path: string, filename: string) => {
+    setDownloading(path);
+    try {
+      // Try to get content from imported files
+      const fullPath = '/' + path;
+      let content = fileContents[fullPath];
+      
+      if (!content) {
+        // Try alternative path formats
+        const altPaths = [
+          fullPath,
+          path,
+          `./${path}`,
+          `/${path}`
+        ];
+        
+        for (const p of altPaths) {
+          if (fileContents[p]) {
+            content = fileContents[p];
+            break;
+          }
+        }
+      }
+
+      if (!content) {
+        toast.error(`Could not load file: ${filename}`);
+        return;
+      }
+
+      // Create blob and trigger download
+      const blob = new Blob([content], { type: 'text/typescript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success(`Downloaded ${filename}`);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to download file');
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    const files = [
+      { path: 'supabase/functions/generate-contracting-pdf/index.ts', name: 'generate-contracting-pdf.ts' },
+      { path: 'src/types/contracting.ts', name: 'contracting.ts' },
+      { path: 'src/hooks/useContractingPdf.ts', name: 'useContractingPdf.ts' },
+      { path: 'src/hooks/useContractingApplication.ts', name: 'useContractingApplication.ts' },
+      { path: 'src/components/contracting/ContractingForm.tsx', name: 'ContractingForm.tsx' },
+    ];
+
+    for (const file of files) {
+      await handleDownload(file.path, file.name);
+      await new Promise(resolve => setTimeout(resolve, 300)); // Small delay between downloads
+    }
+  };
 
   return (
     <Card className="bg-white/80 backdrop-blur border-slate-200/60 shadow-sm">
@@ -31,58 +111,87 @@ export function DevOpsDocumentation() {
           <CardContent className="pt-0 space-y-6">
             {/* Code Files Section */}
             <section>
-              <div className="flex items-center gap-2 mb-3">
-                <FileCode className="w-4 h-4 text-blue-600" />
-                <h3 className="font-semibold text-slate-800">1. Code Files</h3>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <FileCode className="w-4 h-4 text-blue-600" />
+                  <h3 className="font-semibold text-slate-800">1. Code Files</h3>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleDownloadAll}
+                  className="text-xs"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Download All
+                </Button>
               </div>
               
               <div className="space-y-3 pl-6">
                 <FileEntry 
                   title="PDF Generation Edge Function"
                   path="supabase/functions/generate-contracting-pdf/index.ts"
+                  filename="generate-contracting-pdf.ts"
                   description="Main PDF generation function (~1700 lines). Handles field mapping, signature embedding, checkbox/radio logic, and PDF flattening."
                   badge="Edge Function"
                   badgeColor="purple"
+                  onDownload={handleDownload}
+                  downloading={downloading}
                 />
                 
                 <FileEntry 
                   title="Form Data Types"
                   path="src/types/contracting.ts"
+                  filename="contracting.ts"
                   description="TypeScript interfaces for ContractingApplication, form sections, and validation schemas."
                   badge="Types"
                   badgeColor="blue"
+                  onDownload={handleDownload}
+                  downloading={downloading}
                 />
                 
                 <FileEntry 
                   title="Contracting Hook"
                   path="src/hooks/useContractingPdf.ts"
+                  filename="useContractingPdf.ts"
                   description="React hook for PDF generation. Validates application, loads PDF template, calls edge function, handles downloads."
                   badge="Hook"
                   badgeColor="green"
+                  onDownload={handleDownload}
+                  downloading={downloading}
                 />
                 
                 <FileEntry 
                   title="Contracting Application Hook"
                   path="src/hooks/useContractingApplication.ts"
+                  filename="useContractingApplication.ts"
                   description="Manages contracting application state, auto-save, and database sync."
                   badge="Hook"
                   badgeColor="green"
+                  onDownload={handleDownload}
+                  downloading={downloading}
                 />
                 
                 <FileEntry 
                   title="Contracting Form Component"
                   path="src/components/contracting/ContractingForm.tsx"
+                  filename="ContractingForm.tsx"
                   description="Main form UI component. Orchestrates all sections, validation, and submission."
                   badge="Component"
                   badgeColor="orange"
+                  onDownload={handleDownload}
+                  downloading={downloading}
                 />
                 
                 <FileEntry 
                   title="Database Types (Auto-generated)"
                   path="src/integrations/supabase/types.ts"
+                  filename="supabase-types.ts"
                   description="Auto-generated Supabase types including contracting_applications table schema."
                   badge="Read-only"
                   badgeColor="gray"
+                  onDownload={handleDownload}
+                  downloading={downloading}
                 />
               </div>
             </section>
@@ -241,12 +350,15 @@ export function DevOpsDocumentation() {
 }
 
 // Sub-components
-function FileEntry({ title, path, description, badge, badgeColor }: { 
+function FileEntry({ title, path, filename, description, badge, badgeColor, onDownload, downloading }: { 
   title: string; 
-  path: string; 
+  path: string;
+  filename: string;
   description: string; 
   badge: string;
   badgeColor: 'purple' | 'blue' | 'green' | 'orange' | 'gray';
+  onDownload: (path: string, filename: string) => void;
+  downloading: string | null;
 }) {
   const colors = {
     purple: 'bg-purple-100 text-purple-700',
@@ -256,11 +368,28 @@ function FileEntry({ title, path, description, badge, badgeColor }: {
     gray: 'bg-slate-100 text-slate-600',
   };
   
+  const isDownloading = downloading === path;
+  
   return (
-    <div className="border-l-2 border-slate-200 pl-3 py-1">
-      <div className="flex items-center gap-2">
-        <span className="font-medium text-slate-700">{title}</span>
-        <Badge variant="secondary" className={`text-xs ${colors[badgeColor]}`}>{badge}</Badge>
+    <div className="border-l-2 border-slate-200 pl-3 py-1 group">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-slate-700">{title}</span>
+          <Badge variant="secondary" className={`text-xs ${colors[badgeColor]}`}>{badge}</Badge>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDownload(path, filename)}
+          disabled={isDownloading}
+          className="opacity-0 group-hover:opacity-100 transition-opacity h-7 px-2"
+        >
+          {isDownloading ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Download className="w-3 h-3" />
+          )}
+        </Button>
       </div>
       <code className="text-xs text-slate-500 block">{path}</code>
       <p className="text-xs text-slate-600 mt-1">{description}</p>
