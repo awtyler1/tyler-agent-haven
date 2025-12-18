@@ -1505,13 +1505,17 @@ serve(async (req) => {
     
     // ==================== DEBUG: SEARCH FOR ALL SIGNATURE-RELATED FIELDS ====================
     console.log('=== SEARCHING FOR SIGNATURE2 FIELDS ===');
+    const signatureFieldsFound: { name: string; type: string }[] = [];
     const allFieldsForDebug = form.getFields();
     allFieldsForDebug.forEach(field => {
       const name = field.getName();
       if (name.toLowerCase().includes('signature') || name.toLowerCase().includes('signer')) {
-        console.log(`Found field: "${name}" | Type: ${field.constructor.name}`);
+        const fieldType = field.constructor.name;
+        console.log(`Found field: "${name}" | Type: ${fieldType}`);
+        signatureFieldsFound.push({ name, type: fieldType });
       }
     });
+    console.log(`Total signature fields found: ${signatureFieldsFound.length}`);
     console.log('=== END SIGNATURE2 SEARCH ===');
     
     
@@ -2183,6 +2187,7 @@ serve(async (req) => {
         filledTemplate: true,
         mappingReport,
         debugLogs, // Include debug logs for Test Mode
+        signatureFieldsFound, // Include signature field search results for Test Mode
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
