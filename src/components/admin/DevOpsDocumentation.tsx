@@ -3,21 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, FileCode, Database, GitBranch, Server, FileText, Folder, Download, Loader2 } from 'lucide-react';
+import { ChevronDown, FileCode, Database, GitBranch, Server, FileText, Folder, Download, Loader2, Copy, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Import raw file contents at build time
+// Import raw file contents at build time (src files only - supabase functions need special handling)
 const fileContents: Record<string, string> = import.meta.glob(
   [
     '/src/types/contracting.ts',
     '/src/hooks/useContractingPdf.ts',
     '/src/hooks/useContractingApplication.ts',
     '/src/components/contracting/ContractingForm.tsx',
-    '/src/integrations/supabase/types.ts',
-    '/supabase/functions/generate-contracting-pdf/index.ts'
+    '/src/integrations/supabase/types.ts'
   ],
   { as: 'raw', eager: true }
 );
+
+// Edge function content - stored inline since it's outside Vite's bundle scope
+const EDGE_FUNCTION_DOWNLOAD_URL = 'https://raw.githubusercontent.com/user/repo/main/supabase/functions/generate-contracting-pdf/index.ts';
 
 export function DevOpsDocumentation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,29 +28,40 @@ export function DevOpsDocumentation() {
   const handleDownload = async (path: string, filename: string) => {
     setDownloading(path);
     try {
-      // Try to get content from imported files
-      const fullPath = '/' + path;
-      let content = fileContents[fullPath];
+      let content: string | null = null;
       
-      if (!content) {
-        // Try alternative path formats
-        const altPaths = [
-          fullPath,
-          path,
-          `./${path}`,
-          `/${path}`
-        ];
+      // Special handling for edge function - fetch from public endpoint
+      if (path.includes('supabase/functions')) {
+        try {
+          // Fetch the edge function source directly
+          const response = await fetch(`/${path}`);
+          if (response.ok) {
+            content = await response.text();
+          }
+        } catch {
+          // Edge function not available via fetch - provide helpful message
+          toast.info('Edge function code is in: supabase/functions/generate-contracting-pdf/index.ts');
+          return;
+        }
+      } else {
+        // Try to get content from imported files
+        const fullPath = '/' + path;
+        content = fileContents[fullPath];
         
-        for (const p of altPaths) {
-          if (fileContents[p]) {
-            content = fileContents[p];
-            break;
+        if (!content) {
+          // Try alternative path formats
+          const altPaths = [fullPath, path, `./${path}`, `/${path}`];
+          for (const p of altPaths) {
+            if (fileContents[p]) {
+              content = fileContents[p];
+              break;
+            }
           }
         }
       }
 
       if (!content) {
-        toast.error(`Could not load file: ${filename}`);
+        toast.error(`Could not load file: ${filename}. Check the file path.`);
         return;
       }
 
@@ -132,11 +145,12 @@ export function DevOpsDocumentation() {
                   title="PDF Generation Edge Function"
                   path="supabase/functions/generate-contracting-pdf/index.ts"
                   filename="generate-contracting-pdf.ts"
-                  description="Main PDF generation function (~1700 lines). Handles field mapping, signature embedding, checkbox/radio logic, and PDF flattening."
+                  description="Main PDF generation function (~2200 lines). Handles field mapping, signature embedding, checkbox/radio logic, and PDF flattening."
                   badge="Edge Function"
                   badgeColor="purple"
                   onDownload={handleDownload}
                   downloading={downloading}
+                  isServerSide
                 />
                 
                 <FileEntry 
@@ -350,7 +364,7 @@ export function DevOpsDocumentation() {
 }
 
 // Sub-components
-function FileEntry({ title, path, filename, description, badge, badgeColor, onDownload, downloading }: { 
+function FileEntry({ title, path, filename, description, badge, badgeColor, onDownload, downloading, isServerSide = false }: { 
   title: string; 
   path: string;
   filename: string;
@@ -359,6 +373,7 @@ function FileEntry({ title, path, filename, description, badge, badgeColor, onDo
   badgeColor: 'purple' | 'blue' | 'green' | 'orange' | 'gray';
   onDownload: (path: string, filename: string) => void;
   downloading: string | null;
+  isServerSide?: boolean;
 }) {
   const colors = {
     purple: 'bg-purple-100 text-purple-700',
@@ -370,26 +385,65 @@ function FileEntry({ title, path, filename, description, badge, badgeColor, onDo
   
   const isDownloading = downloading === path;
   
+  const handleCopyPath = () => {
+    navigator.clipboard.writeText(path);
+    toast.success('Path copied to clipboard');
+  };
+
+  const handleOpenInEditor = () => {
+    // Opens in VS Code if the protocol is registered
+    window.open(`vscode://file/${path}`, '_blank');
+    toast.info('Opening in VS Code...');
+  };
+  
   return (
     <div className="border-l-2 border-slate-200 pl-3 py-1 group">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="font-medium text-slate-700">{title}</span>
           <Badge variant="secondary" className={`text-xs ${colors[badgeColor]}`}>{badge}</Badge>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onDownload(path, filename)}
-          disabled={isDownloading}
-          className="opacity-0 group-hover:opacity-100 transition-opacity h-7 px-2"
-        >
-          {isDownloading ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Download className="w-3 h-3" />
+          {isServerSide && (
+            <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">Server-side</Badge>
           )}
-        </Button>
+        </div>
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {isServerSide ? (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyPath}
+                className="h-7 px-2"
+                title="Copy file path"
+              >
+                <Copy className="w-3 h-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleOpenInEditor}
+                className="h-7 px-2"
+                title="Open in VS Code"
+              >
+                <ExternalLink className="w-3 h-3" />
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDownload(path, filename)}
+              disabled={isDownloading}
+              className="h-7 px-2"
+            >
+              {isDownloading ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Download className="w-3 h-3" />
+              )}
+            </Button>
+          )}
+        </div>
       </div>
       <code className="text-xs text-slate-500 block">{path}</code>
       <p className="text-xs text-slate-600 mt-1">{description}</p>
