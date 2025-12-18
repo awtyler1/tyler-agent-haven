@@ -4,7 +4,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, FlaskConical, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -29,7 +29,7 @@ import { SectionNav } from './SectionNav';
 import { SectionAcknowledgment } from './SectionAcknowledgment';
 import { ValidationBanner } from './ValidationBanner';
 import { TestModeSnapshotPanel } from './TestModeSnapshotPanel';
-import { TestProfileHarness } from './TestProfileHarness';
+
 import { TestModeValidationReport } from './TestModeValidationReport';
 import { TestModeMappingReport } from './TestModeMappingReport';
 import { TestModeSchemaPanel } from './TestModeSchemaPanel';
@@ -112,7 +112,7 @@ export function ContractingForm() {
   const [showSaved, setShowSaved] = useState(false);
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, SectionStatus>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFillingTestData, setIsFillingTestData] = useState(false);
+  
   const [testMode, setTestMode] = useState(false);
   const [lastSubmissionSnapshot, setLastSubmissionSnapshot] = useState<SubmissionSnapshot | null>(null);
   const [lastMappingReport, setLastMappingReport] = useState<MappingEntry[] | null>(null);
@@ -223,250 +223,6 @@ export function ContractingForm() {
       },
     }));
   }, [application?.signature_initials, application?.section_acknowledgments, updateField, scrollToSection]);
-
-  // Fill form with test data for quick testing - uses FIXED values for reliable PDF mapping testing
-  const fillTestData = useCallback(async () => {
-    if (!application || !carriers.length) return;
-    
-    setIsFillingTestData(true);
-    try {
-      const now = new Date().toISOString();
-      
-      // FIXED values for reliable testing (not random)
-      const testAddress: Address = {
-        street: '123 Test Street',
-        city: 'Louisville',
-        state: 'KY',
-        zip: '40202',
-        county: 'Jefferson',
-      };
-      
-      const mailingAddress: Address = {
-        street: '456 Mailing Ave',
-        city: 'Lexington',
-        state: 'KY',
-        zip: '40507',
-        county: 'Fayette',
-      };
-      
-      const upsAddress: Address = {
-        street: '789 UPS Blvd',
-        city: 'Bowling Green',
-        state: 'KY',
-        zip: '42101',
-        county: 'Warren',
-      };
-
-      // Generate all legal questions - set first few to YES with explanations for testing
-      const legalQuestionsData: Record<string, { answer: boolean; explanation?: string }> = {};
-      LEGAL_QUESTIONS.forEach((q, index) => {
-        // Set first 3 questions to YES with explanations, rest to NO
-        const answer = index < 3;
-        legalQuestionsData[q.id] = { 
-          answer,
-          explanation: answer ? `Test explanation for question ${q.id}: This is a detailed explanation of the circumstances.` : undefined
-        };
-      });
-
-      // Select first 3 carriers with non-resident states for testing
-      const selectedCarriers = carriers.slice(0, 3).map(c => ({
-        carrier_id: c.id,
-        carrier_name: c.name,
-        non_resident_states: ['TN', 'IN', 'OH'], // Fixed non-resident states
-      }));
-
-      // Generate section acknowledgments
-      const sectionAcks: Record<string, { acknowledged: boolean; acknowledgedAt: string | null; initials?: string }> = {};
-      SECTIONS.filter(s => s.requiresAcknowledgment).forEach(section => {
-        sectionAcks[section.id] = {
-          acknowledged: true,
-          acknowledgedAt: now,
-          initials: 'JT',
-        };
-      });
-
-      // Generate test images
-      const initialsImage = generateTestInitialsImage('JT');
-      const signatureImage = generateTestSignatureImage('John Tyler');
-      const bgSignatureImage = generateTestSignatureImage('John Tyler');
-
-      // Update all fields at once - COMPREHENSIVE test data for ALL mapped PDF fields
-      const updates = {
-        // Personal Information
-        full_legal_name: 'John Tyler',
-        gender: 'Male', // FIXED for testing
-        birth_date: '1985-06-15',
-        birth_city: 'Louisville',
-        birth_state: 'KY',
-        
-        // Contact Information - ALL methods selected
-        email_address: 'john.tyler@test.com',
-        phone_mobile: '(502) 555-1234',
-        phone_business: '(502) 555-5678',
-        phone_home: '(502) 555-9999',
-        fax: '(502) 555-0000',
-        preferred_contact_methods: ['email', 'phone', 'text'], // Matches PDF checkbox field names
-        
-        // Addresses - use DIFFERENT addresses to test all fields
-        home_address: testAddress,
-        mailing_address_same_as_home: false, // FALSE to test separate mailing
-        mailing_address: mailingAddress,
-        ups_address_same_as_home: false, // FALSE to test separate UPS
-        ups_address: upsAddress,
-        
-        // Licensing & Identification
-        npn_number: '12345678',
-        insurance_license_number: 'KY123456',
-        tax_id: '123-45-6789',
-        agency_name: 'Test Agency LLC', // Always fill for testing
-        agency_tax_id: '98-7654321',
-        resident_license_number: 'KY123456',
-        resident_state: 'KY',
-        drivers_license_number: 'T123456789',
-        drivers_license_state: 'KY',
-        
-        // Legal Questions - first few answered YES with explanations
-        legal_questions: legalQuestionsData,
-        
-        // Banking & Direct Deposit
-        bank_routing_number: '123456789',
-        bank_account_number: '987654321',
-        bank_branch_name: 'First National Bank - Louisville Branch',
-        beneficiary_name: 'Jane Tyler',
-        beneficiary_relationship: 'Spouse',
-        requesting_commission_advancing: true, // FIXED YES
-        
-        // Training & Certifications
-        has_aml_course: true, // FIXED YES
-        aml_course_name: 'AHIP AML Certification Course',
-        aml_course_date: '2024-10-15',
-        aml_training_provider: 'AHIP', // Legacy field
-        aml_completion_date: '2024-10-15', // Legacy field
-        has_ltc_certification: true, // FIXED YES
-        state_requires_ce: true, // FIXED YES
-        
-        // E&O Insurance - FILLED (not "not yet covered")
-        eo_not_yet_covered: false,
-        eo_provider: 'NAPA',
-        eo_policy_number: 'EO-2024-12345',
-        eo_expiration_date: '2025-12-31',
-        
-        // FINRA Registration - FILLED
-        is_finra_registered: true, // FIXED YES
-        finra_broker_dealer_name: 'Test Broker Dealer Inc',
-        finra_crd_number: 'CRD123456',
-        
-        // Carrier Selection
-        selected_carriers: selectedCarriers,
-        is_corporation: true, // FIXED YES
-        non_resident_states: ['TN', 'IN', 'OH'], // Global non-resident states
-        
-        // Signatures & Acknowledgments
-        signature_initials: 'JT',
-        signature_name: 'John Tyler',
-        signature_date: now,
-        section_acknowledgments: sectionAcks,
-        
-        // Agreements (Marketing Consent)
-        agreements: {
-          marketing_consent: true, // FIXED YES
-          terms_accepted: true,
-          privacy_accepted: true,
-        },
-        
-        // Uploaded Documents (test signatures)
-        uploaded_documents: {
-          initials_image: initialsImage,
-          signature_image: signatureImage,
-          background_signature_image: bgSignatureImage,
-        },
-      };
-
-      // Apply each update
-      for (const [key, value] of Object.entries(updates)) {
-        updateField(key as keyof typeof updates, value as any);
-      }
-
-      // Update local section statuses
-      setSectionStatuses(prev => {
-        const updated = { ...prev };
-        SECTIONS.filter(s => s.requiresAcknowledgment).forEach(section => {
-          updated[section.id] = {
-            ...updated[section.id],
-            acknowledged: true,
-            acknowledgedAt: now,
-          };
-        });
-        return updated;
-      });
-
-      // Log test data for verification
-      console.log('✅ Test Data Filled (FIXED values for reliable testing):', {
-        gender: 'Male',
-        birthCity: 'Louisville',
-        birthState: 'KY',
-        mailingSameAsHome: false,
-        upsSameAsHome: false,
-        commissionAdvancing: true,
-        ltcCertification: true,
-        ceRequired: true,
-        eoNotYetCovered: false,
-        finraRegistered: true,
-        isCorporation: true,
-        marketingConsent: true,
-        contactMethods: ['email', 'mobile', 'business', 'home', 'fax'],
-        carriersSelected: selectedCarriers.length,
-        legalYesAnswers: Object.values(legalQuestionsData).filter(q => q.answer).length,
-      });
-
-      toast.success('Test data filled with FIXED values for reliable PDF mapping testing');
-    } catch (error) {
-      console.error('Error filling test data:', error);
-      toast.error('Failed to fill test data');
-    } finally {
-      setIsFillingTestData(false);
-    }
-  }, [application, carriers, updateField]);
-
-  // Fill form with a test profile
-  const fillTestProfile = useCallback(async (profileData: Partial<ContractingApplication>) => {
-    if (!application) return;
-    
-    setIsFillingTestData(true);
-    try {
-      const now = new Date().toISOString();
-      
-      // Apply each field from the profile
-      for (const [key, value] of Object.entries(profileData)) {
-        updateField(key as keyof ContractingApplication, value as any);
-      }
-
-      // Update local section statuses based on acknowledgments
-      if (profileData.section_acknowledgments) {
-        const acks = profileData.section_acknowledgments as Record<string, { acknowledged: boolean; acknowledgedAt: string | null }>;
-        setSectionStatuses(prev => {
-          const updated = { ...prev };
-          Object.entries(acks).forEach(([sectionId, ack]) => {
-            if (updated[sectionId]) {
-              updated[sectionId] = {
-                ...updated[sectionId],
-                acknowledged: ack.acknowledged,
-                acknowledgedAt: ack.acknowledgedAt,
-              };
-            }
-          });
-          return updated;
-        });
-      }
-
-      toast.success('Test profile data filled');
-    } catch (error) {
-      console.error('Error filling test profile:', error);
-      toast.error('Failed to fill test profile');
-    } finally {
-      setIsFillingTestData(false);
-    }
-  }, [application, updateField]);
 
   const handleSubmit = async () => {
     // Ensure signature date is set before validation
@@ -662,29 +418,6 @@ export function ContractingForm() {
                 </>
               ) : null}
             </div>
-            
-            {/* Test Profile Harness */}
-            <TestProfileHarness
-              carriers={carriers}
-              onFillProfile={fillTestProfile}
-              loading={isFillingTestData}
-            />
-            
-            {/* Dev: Fill Test Data button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fillTestData}
-              disabled={isFillingTestData}
-              className="gap-1.5 text-xs border-dashed border-amber-500/50 text-amber-700 hover:bg-amber-50"
-            >
-              {isFillingTestData ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <FlaskConical className="h-3 w-3" />
-              )}
-              Fill Test Data
-            </Button>
             
             {/* Test Mode Toggle */}
             <div className="flex items-center gap-2 px-2 py-1 rounded-lg border border-dashed border-amber-500/50 bg-amber-50/50">
