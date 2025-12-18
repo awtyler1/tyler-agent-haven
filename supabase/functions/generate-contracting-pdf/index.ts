@@ -818,6 +818,29 @@ serve(async (req) => {
     }
 
     // ========================================================================
+    // SPECIAL HANDLING: Fields without default appearance
+    // ========================================================================
+    // Signature2_es_:signer needs special handling (no /DA entry)
+    if (application.signature_initials) {
+      try {
+        const sig2Field = form.getTextField('Signature2_es_:signer');
+        sig2Field.setText(application.signature_initials);
+        sig2Field.defaultUpdateAppearances(helveticaFont);  // Try default update
+        addReport('Signature2_es_:signer', application.signature_initials, 'signature_initials', 'success');
+      } catch (err1) {
+        try {
+          // Fallback: set text without appearance update
+          const sig2Field = form.getTextField('Signature2_es_:signer');
+          sig2Field.setText(application.signature_initials);
+          // Don't call updateAppearances - let PDF viewer render it
+          addReport('Signature2_es_:signer', application.signature_initials, 'signature_initials', 'success');
+        } catch (err2) {
+          addReport('Signature2_es_:signer', application.signature_initials || '', 'signature_initials', 'failed', String(err2));
+        }
+      }
+    }
+
+    // ========================================================================
     // PAGE 10: CARRIER SELECTIONS
     // ========================================================================
 
