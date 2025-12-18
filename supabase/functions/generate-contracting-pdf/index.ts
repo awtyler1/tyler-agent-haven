@@ -333,6 +333,7 @@ const CARRIER_FIELD_MAP: Record<string, { checkbox: string; nonResStates: string
   "devoted health": { checkbox: "fill_103", nonResStates: "NONRES STATESDevoted Health LINK" },
   cigna: { checkbox: "fill_87", nonResStates: "NONRES STATESCigna HealthSpring Bravo Health LINK" },
   "mutual of omaha": { checkbox: "fill_37", nonResStates: "NONRES STATESMutual of Omaha Med Supp PDP" },
+  "mutualofomaha": { checkbox: "fill_37", nonResStates: "NONRES STATESMutual of Omaha Med Supp PDP" },
   "blue cross blue shield": { checkbox: "fill_61", nonResStates: "NONRES STATESBlue Cross Blue Shield MI LINK" },
   bcbs: { checkbox: "fill_61", nonResStates: "NONRES STATESBlue Cross Blue Shield MI LINK" },
   clover: { checkbox: "fill_91", nonResStates: "NONRES STATESClover Health LINK" },
