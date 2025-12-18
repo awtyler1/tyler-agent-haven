@@ -748,7 +748,7 @@ serve(async (req) => {
 
     for (const [_groupName, config] of Object.entries(DUPLICATE_GROUPS)) {
       let value = getNestedValue(application, config.source);
-      if (config.format === "date") {
+      if ('format' in config && config.format === 'date') {
         value = formatDate(value);
       }
       for (const fieldName of config.fields) {
