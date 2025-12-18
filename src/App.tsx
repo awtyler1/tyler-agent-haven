@@ -48,6 +48,11 @@ import PdfFieldMapperPage from "./pages/admin/PdfFieldMapperPage";
 import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
 import PdfFieldAuditPage from "./pages/admin/PdfFieldAuditPage";
 
+// Developer pages
+import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
+import FeatureFlagsPage from "./pages/developer/FeatureFlagsPage";
+import SystemHealthPage from "./pages/developer/SystemHealthPage";
+
 const queryClient = new QueryClient();
 
 // Component to handle recovery token redirects
@@ -185,6 +190,65 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+
+            {/* Developer routes */}
+            <Route 
+              path="/developer" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <DeveloperDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/feature-flags" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <FeatureFlagsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/system-health" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <SystemHealthPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/pdf-extractor" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <PdfFieldExtractorPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/pdf-mapper" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <PdfFieldMapperPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/pdf-audit" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <PdfFieldAuditPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/platform-map" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <PlatformMapPage />
+                </ProtectedRoute>
+              } 
+            />
+
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
