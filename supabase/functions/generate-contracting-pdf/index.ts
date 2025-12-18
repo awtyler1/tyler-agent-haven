@@ -815,6 +815,16 @@ serve(async (req) => {
     }
 
     // ========================================================================
+    // ADDITIONAL SIGNATURE/INITIALS FIELDS
+    // ========================================================================
+
+    // Page 3 signature field (used for initials)
+    setTextField('Signature1_es_:signer:signature', application.signature_initials, 'signature_initials');
+
+    // Page 5 acknowledgment field
+    setTextField('correct to the best of my knowledge', application.signature_initials, 'signature_initials');
+
+    // ========================================================================
     // PAGE 10: CARRIER SELECTIONS
     // ========================================================================
 
