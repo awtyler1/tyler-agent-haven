@@ -1198,299 +1198,97 @@ serve(async (req) => {
     setTextField('DATE', formatDate(application.signature_date));
 
     // ==================== PAGES 2-3: Legal Questions ====================
+    // Using verified field mapping from Adobe Acrobat analysis
+    
     const legalQuestions = application.legal_questions || {};
-
+    
     console.log('=== LEGAL QUESTIONS PROCESSING START ===');
-    console.log('Number of legal questions in application:', Object.keys(legalQuestions).length);
+    console.log('Number of legal questions in form data:', Object.keys(legalQuestions).length);
     
-    // Get legal question field mappings from database
-    const legalFieldMappings = (fieldMappings as any)?.legalQuestions || {};
-    console.log('Legal field mappings loaded:', Object.keys(legalFieldMappings).length, 'questions mapped');
-    
-    // Helper to determine the parent question ID for a sub-question
-    // Sub-questions have format like "1a", "1b", "2a", etc. Parent is just the number.
-    const getParentQuestionId = (questionId: string): string | null => {
-      const match = questionId.match(/^(\d+)[a-z]$/);
+    // Helper: Get parent question ID for sub-questions (e.g., '1a' -> '1')
+    const getParentId = (qId: string): string | null => {
+      const match = qId.match(/^(\d+)[a-z]$/);
       return match ? match[1] : null;
     };
     
-    // Helper to determine the effective answer for a question
-    // If parent answered "No", all sub-questions should also be "No"
+    // Helper: Get effective answer (considers parent's answer for sub-questions)
     const getEffectiveAnswer = (questionId: string): boolean | null => {
-      const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
-      const parentId = getParentQuestionId(questionId);
+      const question = legalQuestions[questionId];
+      const parentId = getParentId(questionId);
       
-      // If this is a sub-question, check parent's answer first
+      // If this is a sub-question and parent answered "No", sub-question is also "No"
       if (parentId) {
-        const parentQuestion = (legalQuestions as Record<string, LegalQuestion>)[parentId];
-        // If parent answered "No", sub-question is automatically "No"
+        const parentQuestion = legalQuestions[parentId];
         if (parentQuestion && parentQuestion.answer === false) {
-          return false;
+          return false; // Inherited "No" from parent
         }
       }
       
-      // Return the question's own answer (or null if not answered)
       return question?.answer ?? null;
     };
     
-    // Fill legal questions using database field mappings
-    LEGAL_QUESTION_ORDER.forEach((questionId) => {
+    // Process each legal question using the verified mapping
+    let legalQuestionsSuccess = 0;
+    let legalQuestionsFailed = 0;
+    let legalQuestionsSkipped = 0;
+    
+    Object.keys(LEGAL_QUESTION_PDF_MAPPING).forEach((questionId) => {
+      const mapping = LEGAL_QUESTION_PDF_MAPPING[questionId];
       const effectiveAnswer = getEffectiveAnswer(questionId);
       
-      // Skip if no effective answer (question not answered and no parent forcing "No")
-      if (effectiveAnswer === null) return;
-
-      // Get the PDF field names for this question from database mappings
-      const pdfFieldNames = legalFieldMappings[questionId] || [];
-      const answerText = effectiveAnswer === true ? 'Yes' : 'No';
-      
-      const parentId = getParentQuestionId(questionId);
-      const isInheritedNo = parentId && effectiveAnswer === false && 
-        (legalQuestions as Record<string, LegalQuestion>)[parentId]?.answer === false;
-      
-      console.log(`Q${questionId}: effectiveAnswer=${effectiveAnswer}${isInheritedNo ? ' (inherited from parent)' : ''}, pdfFields=${JSON.stringify(pdfFieldNames)}`);
-      
-      for (const fieldName of pdfFieldNames) {
-        // Try as text field first
-        try {
-          const field = form.getTextField(fieldName);
-          field.setText(answerText);
-          console.log(`SUCCESS: Set text field "${fieldName}" to "${answerText}"`);
-        } catch {
-          // Try as checkbox
-          try {
-            const cb = form.getCheckBox(fieldName);
-            if (effectiveAnswer === true) {
-              cb.check();
-              console.log(`SUCCESS: Checked checkbox "${fieldName}"`);
-            } else {
-              cb.uncheck();
-              console.log(`SUCCESS: Unchecked checkbox "${fieldName}"`);
-            }
-          } catch {
-            console.log(`FAILED: Could not find field "${fieldName}" for Q${questionId}`);
-          }
-        }
+      // Skip if no answer provided
+      if (effectiveAnswer === null) {
+        legalQuestionsSkipped++;
+        return;
       }
       
-      // If answer is Yes, also log the explanation (for reference)
-      const question = (legalQuestions as Record<string, LegalQuestion>)[questionId];
-      if (effectiveAnswer === true && question?.explanation) {
-        console.log(`Q${questionId} explanation: ${question.explanation.substring(0, 50)}...`);
-      }
-    });
-
-    // Fallback: Also try the original radio group approach in case this PDF has them
-    const radioGroups: Array<{ name: string; options: string[] }> = [];
-    for (const field of form.getFields()) {
+      const optionToSelect = effectiveAnswer ? mapping.yesOption : mapping.noOption;
+      
       try {
-        const rg = form.getRadioGroup(field.getName());
-        const opts = rg.getOptions();
-        if (opts && opts.length > 0) {
-          radioGroups.push({ name: field.getName(), options: opts });
-        }
-      } catch {
-        // Not a radio group
+        // Get the radio group by its exact name from the mapping
+        const radioGroup = form.getRadioGroup(mapping.groupName);
+        
+        // Select the appropriate Yes or No option
+        radioGroup.select(optionToSelect);
+        
+        legalQuestionsSuccess++;
+        console.log(`Q${questionId}: SUCCESS - Selected "${optionToSelect}"`);
+        
+        // Add to mapping report
+        mappingReport.push({
+          pdfFieldKey: mapping.groupName,
+          valueApplied: optionToSelect,
+          sourceFormField: `legal_questions.${questionId}`,
+          isBlank: false,
+          status: 'success',
+        });
+        
+      } catch (err) {
+        legalQuestionsFailed++;
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.log(`Q${questionId}: FAILED - ${errMsg}`);
+        
+        // Add to mapping report
+        mappingReport.push({
+          pdfFieldKey: mapping.groupName,
+          valueApplied: `FAILED: ${optionToSelect}`,
+          sourceFormField: `legal_questions.${questionId}`,
+          isBlank: false,
+          status: 'failed',
+        });
       }
-    }
-
-    if (radioGroups.length > 0) {
-      console.log('Radio groups found:', radioGroups.length);
-      LEGAL_QUESTION_ORDER.forEach((questionId, idx) => {
-        const effectiveAnswer = getEffectiveAnswer(questionId);
-        if (effectiveAnswer === null) return;
-
-        const ordinal = idx + 1;
-        const yesOpt = ordinal === 1 ? 'Yes' : `Yes_${ordinal}`;
-        const noOpt = ordinal === 1 ? 'No' : `No_${ordinal}`;
-
-        const match = radioGroups.find((rg) => rg.options.includes(yesOpt) || rg.options.includes(noOpt));
-        if (!match) return;
-
-        try {
-          const rg = form.getRadioGroup(match.name);
-          rg.select(effectiveAnswer === true ? yesOpt : noOpt);
-          console.log(`SUCCESS: Selected ${effectiveAnswer === true ? yesOpt : noOpt} on radio group ${match.name}`);
-        } catch (e) {
-          console.log(`FAILED: Could not select for Q${questionId} on radio group ${match.name}`);
-        }
-      });
-    }
-
+    });
+    
     console.log('=== LEGAL QUESTIONS PROCESSING END ===');
-
-    // ==================== Disciplinary/Action History Fields ====================
-    // Read from the new disciplinary_entries namespace (not uploaded_documents)
-    const discEntries = application.disciplinary_entries || {};
-    const bgMappings = fieldMappings?.backgroundExplanations;
+    console.log(`Results: ${legalQuestionsSuccess} success, ${legalQuestionsFailed} failed, ${legalQuestionsSkipped} skipped`);
     
-    // Debug: Log what we have in disciplinary_entries
-    console.log('=== DISCIPLINARY ENTRIES DEBUG ===');
-    console.log('  disciplinary_entries:', JSON.stringify(discEntries));
-    console.log('  Entry 1:', discEntries.entry1 || '(empty)');
-    console.log('  Entry 2:', discEntries.entry2 || '(empty)');
-    console.log('  Entry 3:', discEntries.entry3 || '(empty)');
-    console.log('=== END DISCIPLINARY ENTRIES DEBUG ===');
-    
-    // Helper to set field using mapping or fallback, with proper source tracking
-    const setBgField = (mappedFields: string[] | undefined, fallback: string, value: string, sourceKey: string) => {
-      if (mappedFields && mappedFields.length > 0) {
-        mappedFields.forEach(field => setTextField(field, value, `disciplinary_entries.${sourceKey}`));
-      } else {
-        setTextField(fallback, value, `disciplinary_entries.${sourceKey}`);
-      }
-    };
-    
-    // Entry 1
-    const entry1 = discEntries.entry1 || {};
-    const entry1Date = entry1.date_of_action ? formatDate(entry1.date_of_action) : '';
-    const entry1Action = entry1.action || '';
-    const entry1Reason = entry1.reason || '';
-    const entry1Explanation = entry1.explanation || '';
-    
-    setBgField(bgMappings?.dateOfAction, 'Date of Action', entry1Date, 'entry1.date_of_action');
-    setBgField(bgMappings?.action, 'Action', entry1Action, 'entry1.action');
-    setBgField(bgMappings?.reason, 'Reason', entry1Reason, 'entry1.reason');
-    setBgField(bgMappings?.explanation, 'Explanation', entry1Explanation, 'entry1.explanation');
-    
-    // Entry 2
-    const entry2 = discEntries.entry2 || {};
-    const entry2Date = entry2.date_of_action ? formatDate(entry2.date_of_action) : '';
-    const entry2Action = entry2.action || '';
-    const entry2Reason = entry2.reason || '';
-    const entry2Explanation = entry2.explanation || '';
-    
-    setBgField(bgMappings?.dateOfAction2, 'Date of Action_2', entry2Date, 'entry2.date_of_action');
-    setBgField(bgMappings?.action2, 'Action_2', entry2Action, 'entry2.action');
-    setBgField(bgMappings?.reason2, 'Reason_2', entry2Reason, 'entry2.reason');
-    setBgField(bgMappings?.explanation2, 'Explanation_2', entry2Explanation, 'entry2.explanation');
-    
-    // Entry 3
-    const entry3 = discEntries.entry3 || {};
-    const entry3Date = entry3.date_of_action ? formatDate(entry3.date_of_action) : '';
-    const entry3Action = entry3.action || '';
-    const entry3Reason = entry3.reason || '';
-    const entry3Explanation = entry3.explanation || '';
-    
-    setBgField(bgMappings?.dateOfAction3, 'Date of Action_3', entry3Date, 'entry3.date_of_action');
-    setBgField(bgMappings?.action3, 'Action_3', entry3Action, 'entry3.action');
-    setBgField(bgMappings?.reason3, 'Reason_3', entry3Reason, 'entry3.reason');
-    setBgField(bgMappings?.explanation3, 'Explanation_3', entry3Explanation, 'entry3.explanation');
-    
-    console.log('Disciplinary entry fields set, using mappings:', !!bgMappings);
-
-    // Date on page 2 (initials will be drawn as image)
-    setTextField('DATE_2', formatDate(application.signature_date));
-    
-    // Date on page 3/4 (background signature section after legal questions)
-    setTextField('DATE_3', formatDate(application.signature_date));
-    setTextField('DATE_4', formatDate(application.signature_date));
-    setTextField('undefined_15', formatDate(application.signature_date));
-    
-    // Log all fields containing "date" to help find the right one
-    const dateFields = form.getFields().filter((f: any) => f.getName().toLowerCase().includes('date'));
-    console.log('=== DATE FIELDS FOUND ===');
-    dateFields.forEach((f: any) => console.log(`Date field: ${f.getName()} (type: ${f.constructor?.name})`));
-    console.log('=== END DATE FIELDS ===');
-    
-    // Signature fields - use actual PDF signature field names
-    // Draw signature images to these fields after flatten (handled below)
-    setTextField('Date', formatDate(application.signature_date));
-
-    // ==================== PAGE 4: Banking Information ====================
-    setTextField('Bank Routing', application.bank_routing_number);
-    setTextField('Account', application.bank_account_number);
-    setTextField('Branch Name or Location', application.bank_branch_name);
-    
-    // Requesting Commission Advancing (Yes_42 / No_42)
-    // Reliability rule: ALWAYS write BOTH fields (one ON, one OFF) and NEVER mark skipped.
-    const rawCommissionValue: unknown = application.requesting_commission_advancing;
-    const commissionAdvancing = (() => {
-      if (rawCommissionValue === true) return true;
-      if (rawCommissionValue === false) return false;
-
-      if (typeof rawCommissionValue === 'number') return rawCommissionValue === 1;
-
-      if (typeof rawCommissionValue === 'string') {
-        const v = rawCommissionValue.trim().toLowerCase();
-        if (!v) return false;
-        if (['true', 'yes', 'y', '1', 'on'].includes(v)) return true;
-        if (['false', 'no', 'n', '0', 'off'].includes(v)) return false;
-        return false;
-      }
-
-      // null / undefined / anything else => false
-      return false;
-    })();
-
-    // Commission Advancing - use radio group with full name
-    addDebugLog('info', 'commission', 'Processing commission advancing field', {
-      rawValue: rawCommissionValue,
-      rawType: typeof rawCommissionValue,
-      normalizedValue: commissionAdvancing
+    addDebugLog('info', 'legal-questions', 'Legal questions processing complete', {
+      success: legalQuestionsSuccess,
+      failed: legalQuestionsFailed,
+      skipped: legalQuestionsSkipped,
     });
 
-    try {
-      const commissionGroup = form.getRadioGroup('Requesting Commission Advancing');
-      const options = commissionGroup.getOptions();
-      
-      addDebugLog('debug', 'commission', 'Found radio group', { 
-        groupName: 'Requesting Commission Advancing',
-        options 
-      });
-      
-      if (commissionAdvancing === true) {
-        commissionGroup.select('Yes_42');
-        addDebugLog('info', 'commission', 'Selected Yes_42');
-      } else {
-        commissionGroup.select('No_42');
-        addDebugLog('info', 'commission', 'Selected No_42');
-      }
-      
-      mappingReport.push({
-        pdfFieldKey: 'Yes_42',
-        valueApplied: commissionAdvancing ? 'Yes' : 'Off',
-        sourceFormField: 'requesting_commission_advancing',
-        isBlank: false,
-        status: 'success'
-      });
-      
-      mappingReport.push({
-        pdfFieldKey: 'No_42',
-        valueApplied: commissionAdvancing ? 'Off' : 'Yes',
-        sourceFormField: 'requesting_commission_advancing',
-        isBlank: false,
-        status: 'success'
-      });
-      
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : String(err);
-      addDebugLog('error', 'commission', 'Error setting radio group', { error: errMsg });
-      
-      mappingReport.push({
-        pdfFieldKey: 'Yes_42/No_42',
-        valueApplied: 'ERROR',
-        sourceFormField: 'requesting_commission_advancing',
-        isBlank: false,
-        status: 'failed'
-      });
-    }
-    
-    // Beneficiary Information
-    setTextField('List a Beneficiary', application.beneficiary_name);
-    setTextField('Relationship', application.beneficiary_relationship);
-    setTextField('Beneficiary Birth Date', formatDate(application.beneficiary_birth_date));
-    setTextField('Beneficiary DOB', formatDate(application.beneficiary_birth_date));
-    setTextField('Beneficiary Drivers License', application.beneficiary_drivers_license_number);
-    setTextField('Beneficiary DL', application.beneficiary_drivers_license_number);
-    setTextField('Beneficiary Drivers License State', application.beneficiary_drivers_license_state);
-    setTextField('Beneficiary DL State', application.beneficiary_drivers_license_state);
-    
-    // Agent Driver's License
-    setTextField('Drivers License', application.drivers_license_number);
-    setTextField('Resident Drivers License State', application.drivers_license_state);
-    
-    
+
     // AML / Resident State Yes/No - single radio group with Yes_43/No_43 values
     const hasAmlCourse = application.has_aml_course ?? !!(application.aml_training_provider || application.aml_completion_date);
     const amlCourseName = application.aml_course_name || application.aml_training_provider;
