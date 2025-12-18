@@ -492,7 +492,7 @@ serve(async (req) => {
     if (!pdfBytes) {
       const urls = [
         templateUrl,
-        "https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/TIG_Contracting_Packet_SIGNATURES_FIXED.pdf",
+        "https://79248407-e0ea-4c56-91f1-d650b44c1946.lovableproject.com/templates/TIG_Contracting_Packet_SIGNATURES_FIXED.pdf",
       ].filter(Boolean);
 
       for (const url of urls) {
