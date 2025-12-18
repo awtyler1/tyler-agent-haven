@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Shield, LogIn, LogOut } from "lucide-react";
+import { Menu, X, ChevronDown, Shield, LogIn, LogOut, Code } from "lucide-react";
 import tylerLogo from "@/assets/tyler-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +20,7 @@ const navLinks = [
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-  const { canAccessAdmin, isAuthenticated, isAgent, isContractingRequired } = useAuth();
+  const { canAccessAdmin, canAccessDeveloper, isAuthenticated, isAgent, isContractingRequired } = useAuth();
   const navigate = useNavigate();
 
   // Hide navigation for agents who need to complete contracting
@@ -150,6 +150,17 @@ const Navigation = () => {
               </Link>
             )}
 
+            {/* Developer Link - Only for developers */}
+            {canAccessDeveloper() && (
+              <Link
+                to="/developer"
+                className="text-[13px] font-medium text-purple-600 hover:text-purple-700 transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <Code size={14} />
+                Dev
+              </Link>
+            )}
+
             {/* Auth Link */}
             {isAuthenticated ? (
               <button
@@ -264,6 +275,18 @@ const Navigation = () => {
                 >
                   <Shield size={16} />
                   Admin
+                </Link>
+              )}
+
+              {/* Developer Link - Only for developers */}
+              {canAccessDeveloper() && (
+                <Link
+                  to="/developer"
+                  onClick={() => setIsOpen(false)}
+                  className="text-base font-medium text-purple-600 hover:text-purple-700 transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
+                >
+                  <Code size={16} />
+                  Developer
                 </Link>
               )}
 
