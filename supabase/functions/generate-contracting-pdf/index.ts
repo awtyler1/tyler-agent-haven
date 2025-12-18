@@ -1032,8 +1032,8 @@ serve(async (req) => {
     
     // Normalize form values to PDF categories
     const wantsEmail = preferredMethods.includes('email');
-    const wantsPhone = preferredMethods.includes('mobile') || preferredMethods.includes('home') || preferredMethods.includes('business');
-    const wantsText = preferredMethods.includes('mobile'); // Text typically implies mobile
+    const wantsPhone = preferredMethods.includes('mobile') || preferredMethods.includes('home') || preferredMethods.includes('business') || preferredMethods.includes('phone');
+    const wantsText = preferredMethods.includes('text') || preferredMethods.includes('mobile'); // Text can be selected directly or via mobile
     const wantsFax = preferredMethods.includes('fax');
     
     console.log('Normalized: email=' + wantsEmail + ', phone=' + wantsPhone + ', text=' + wantsText + ', fax=' + wantsFax);
