@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.pdf-field-audit]
 verify_jwt = false
+
+[functions.fetch-edge-logs]
+verify_jwt = true
