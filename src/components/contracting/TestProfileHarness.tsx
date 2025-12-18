@@ -73,6 +73,192 @@ const createAcknowledgments = (initials: string): Record<string, { acknowledged:
   };
 };
 
+// Complete Test Profile with ALL fields filled
+const createCompleteTestProfile = (carriers: Carrier[]): TestProfile => {
+  const now = new Date().toISOString();
+  const initials = 'TAC';
+  const fullName = 'TEST AGENT COMPLETE';
+  
+  // Select first 3 carriers for testing
+  const selectedCarriers = carriers.slice(0, 3).map((c, idx) => ({
+    carrier_id: c.id,
+    carrier_name: c.name,
+    non_resident_states: [['TN', 'OH', 'IN'], ['TN', 'OH'], ['IN']][idx] || [],
+  }));
+
+  return {
+    id: 'COMPLETE',
+    label: 'Complete Test',
+    color: 'bg-amber-100 text-amber-800 border-amber-400',
+    data: {
+      // Personal Information
+      full_legal_name: fullName,
+      agency_name: 'COMPLETE TEST AGENCY LLC',
+      gender: 'Male',
+      birth_date: '1985-06-15',
+      birth_city: 'LOUISVILLE',
+      birth_state: 'KY',
+      npn_number: 'NPN_TEST_999999',
+      insurance_license_number: 'LIC_TEST_KY999999',
+      tax_id: '999-99-9999',
+      agency_tax_id: '99-9999999',
+
+      // Contact Information
+      email_address: 'complete.test@testprofile.com',
+      phone_mobile: '(502) 555-0001',
+      phone_business: '(502) 555-0002',
+      phone_home: '(502) 555-0003',
+      fax: '(502) 555-0004',
+      preferred_contact_methods: ['email', 'phone', 'text'],
+
+      // Addresses
+      home_address: {
+        street: '100 TEST HOME STREET',
+        city: 'LOUISVILLE',
+        state: 'KY',
+        zip: '40202',
+        county: 'JEFFERSON',
+      },
+      mailing_address_same_as_home: false,
+      mailing_address: {
+        street: '200 TEST MAILING STREET',
+        city: 'LEXINGTON',
+        state: 'KY',
+        zip: '40507',
+        county: 'FAYETTE',
+      },
+      ups_address_same_as_home: false,
+      ups_address: {
+        street: '300 TEST UPS STREET',
+        city: 'BOWLING GREEN',
+        state: 'KY',
+        zip: '42101',
+        county: 'WARREN',
+      },
+
+      // Driver's License
+      drivers_license_number: 'DL_TEST_999999',
+      drivers_license_state: 'KY',
+
+      // Banking
+      bank_routing_number: '123456789',
+      bank_account_number: 'TEST_ACCT_999999',
+      bank_branch_name: 'TEST BANK LOUISVILLE BRANCH',
+
+      // Beneficiary
+      beneficiary_name: 'TEST BENEFICIARY NAME',
+      beneficiary_relationship: 'Spouse',
+
+      // Commission
+      requesting_commission_advancing: true,
+
+      // AML Training
+      has_aml_course: true,
+      aml_course_name: 'AML COMPLETE COURSE',
+      aml_course_date: '2024-06-01',
+      aml_training_provider: 'LIMRA',
+      aml_completion_date: '2024-06-01',
+
+      // FINRA
+      is_finra_registered: true,
+      finra_broker_dealer_name: 'TEST BROKER DEALER INC',
+      finra_crd_number: 'CRD_TEST_777777',
+
+      // Disciplinary Entries (all 3)
+      disciplinary_entries: {
+        entry1: {
+          date_of_action: '2020-01-15',
+          action: 'TEST ACTION ONE',
+          reason: 'TEST REASON ONE',
+          explanation: 'TEST EXPLANATION FOR ENTRY ONE - This is detailed text.',
+        },
+        entry2: {
+          date_of_action: '2021-06-20',
+          action: 'TEST ACTION TWO',
+          reason: 'TEST REASON TWO',
+          explanation: 'TEST EXPLANATION FOR ENTRY TWO - More detailed text here.',
+        },
+        entry3: {
+          date_of_action: '2022-11-30',
+          action: 'TEST ACTION THREE',
+          reason: 'TEST REASON THREE',
+          explanation: 'TEST EXPLANATION FOR ENTRY THREE - Even more details.',
+        },
+      },
+
+      // Legal Questions (mix of Yes and No)
+      legal_questions: {
+        '1': { answer: true, explanation: 'Test explanation for question 1' },
+        '1a': { answer: true, explanation: 'Test explanation for 1a' },
+        '1b': { answer: false },
+        '1c': { answer: false },
+        '1d': { answer: false },
+        '1e': { answer: false },
+        '1f': { answer: false },
+        '1g': { answer: false },
+        '1h': { answer: false },
+        '2': { answer: true, explanation: 'Test explanation for question 2' },
+        '2a': { answer: false },
+        '2b': { answer: false },
+        '2c': { answer: true, explanation: 'Test explanation for 2c' },
+        '2d': { answer: false },
+        '3': { answer: false },
+        '4': { answer: false },
+        '5': { answer: false },
+        '5a': { answer: false },
+        '5b': { answer: false },
+        '5c': { answer: false },
+        '6': { answer: false },
+        '7': { answer: false },
+        '8': { answer: false },
+        '8a': { answer: false },
+        '8b': { answer: false },
+        '9': { answer: false },
+        '10': { answer: false },
+        '11': { answer: false },
+        '12': { answer: false },
+        '13': { answer: false },
+        '14': { answer: false },
+        '14a': { answer: false },
+        '14c': { answer: false },
+        '15': { answer: false },
+        '15a': { answer: false },
+        '15b': { answer: false },
+        '15c': { answer: false },
+        '16': { answer: false },
+        '17': { answer: true, explanation: 'Connected to First National Bank' },
+        '18': { answer: false },
+        '19': { answer: false },
+      },
+
+      // Agreements
+      agreements: {
+        marketing_consent: true,
+        terms_accepted: true,
+        information_accurate: true,
+      },
+
+      // Carrier Selection
+      selected_carriers: selectedCarriers,
+      is_corporation: true,
+      non_resident_states: ['TN', 'OH', 'IN'],
+
+      // Signatures & Acknowledgments
+      signature_initials: initials,
+      signature_name: fullName,
+      signature_date: '2025-12-18',
+      section_acknowledgments: createAcknowledgments(initials),
+
+      // Uploaded Documents
+      uploaded_documents: {
+        initials_image: generateInitialsImage(initials),
+        signature_image: generateSignatureImage(fullName),
+        background_signature_image: generateSignatureImage(fullName),
+      },
+    },
+  };
+};
+
 // Generate test profiles with distinct values
 const generateTestProfiles = (carriers: Carrier[]): TestProfile[] => {
   const profiles: TestProfile[] = [];
@@ -82,6 +268,9 @@ const generateTestProfiles = (carriers: Carrier[]): TestProfile[] => {
   const states = ['KY', 'TN', 'OH', 'IN', 'IL'];
   const nonResidentStates = [['TN'], ['KY', 'OH'], ['IN', 'IL'], ['KY', 'TN', 'OH'], ['IL']];
   const yesAnswerCounts = [0, 1, 2, 3, 0]; // How many legal questions answered YES
+
+  // Add Complete Test Profile first
+  profiles.push(createCompleteTestProfile(carriers));
 
   letters.forEach((letter, idx) => {
     const initials = `${letter}${letter}`;
