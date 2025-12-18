@@ -759,8 +759,35 @@ serve(async (req) => {
     setTextField("CRD", application.finra_crd_number, "finra_crd_number");
 
     // ========================================================================
-    // DUPLICATE GROUPS (DATE, INITIALS)
+    // DISCIPLINARY ENTRIES
     // ========================================================================
+
+    if (application.disciplinary_entries?.entry1) {
+      const entry = application.disciplinary_entries.entry1;
+      setTextField('Date of Action', formatDate(entry.date_of_action), 'disciplinary_entries.entry1.date_of_action');
+      setTextField('Action', entry.action, 'disciplinary_entries.entry1.action');
+      setTextField('Reason', entry.reason, 'disciplinary_entries.entry1.reason');
+      setTextField('Explanation', entry.explanation, 'disciplinary_entries.entry1.explanation');
+    }
+
+    if (application.disciplinary_entries?.entry2) {
+      const entry = application.disciplinary_entries.entry2;
+      setTextField('Date of Action_2', formatDate(entry.date_of_action), 'disciplinary_entries.entry2.date_of_action');
+      setTextField('Action_2', entry.action, 'disciplinary_entries.entry2.action');
+      setTextField('Reason_2', entry.reason, 'disciplinary_entries.entry2.reason');
+      setTextField('Explanation_2', entry.explanation, 'disciplinary_entries.entry2.explanation');
+    }
+
+    if (application.disciplinary_entries?.entry3) {
+      const entry = application.disciplinary_entries.entry3;
+      setTextField('Date of Action_3', formatDate(entry.date_of_action), 'disciplinary_entries.entry3.date_of_action');
+      setTextField('Action_3', entry.action, 'disciplinary_entries.entry3.action');
+      setTextField('Reason_3', entry.reason, 'disciplinary_entries.entry3.reason');
+      setTextField('Explanation_3', entry.explanation, 'disciplinary_entries.entry3.explanation');
+    }
+
+    // ========================================================================
+    // DUPLICATE GROUPS (DATE, INITIALS)
 
     for (const [_groupName, config] of Object.entries(DUPLICATE_GROUPS)) {
       let value = getNestedValue(application, config.source);
