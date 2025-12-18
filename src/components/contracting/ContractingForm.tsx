@@ -35,7 +35,8 @@ import { TestModeMappingReport } from './TestModeMappingReport';
 import { TestModeSchemaPanel } from './TestModeSchemaPanel';
 import { TestModePdfPreviewPanel } from './TestModePdfPreviewPanel';
 import { TestModePdfDebugPanel, DebugLogEntry } from './TestModePdfDebugPanel';
-import { useContractingPdf, MappingEntry } from '@/hooks/useContractingPdf';
+import { TestModeSignatureFieldsPanel } from './TestModeSignatureFieldsPanel';
+import { useContractingPdf, MappingEntry, SignatureFieldInfo } from '@/hooks/useContractingPdf';
 
 interface SubmissionSnapshot {
   timestamp: string;
@@ -121,6 +122,7 @@ export function ContractingForm() {
     error: null,
   });
   const [lastDebugLogs, setLastDebugLogs] = useState<DebugLogEntry[]>([]);
+  const [lastSignatureFields, setLastSignatureFields] = useState<SignatureFieldInfo[]>([]);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   
   const { generatePdf, downloadPdf } = useContractingPdf();
@@ -534,6 +536,12 @@ export function ContractingForm() {
           console.log('🔧 Debug Logs:', pdfResult.debugLogs);
         }
         
+        // Capture signature fields found
+        if (pdfResult.signatureFieldsFound) {
+          setLastSignatureFields(pdfResult.signatureFieldsFound);
+          console.log('✍️ Signature Fields Found:', pdfResult.signatureFieldsFound);
+        }
+        
         if (!result.isFormValid) {
           toast.info('Test submission captured with validation failures. See reports below.');
         } else {
@@ -757,6 +765,11 @@ export function ContractingForm() {
           {/* Mapping Report - show after PDF generation */}
           {lastMappingReport && lastMappingReport.length > 0 && (
             <TestModeMappingReport mappingReport={lastMappingReport} />
+          )}
+          
+          {/* Signature Fields Found - show after PDF generation */}
+          {lastSignatureFields && lastSignatureFields.length > 0 && (
+            <TestModeSignatureFieldsPanel fields={lastSignatureFields} />
           )}
           
           {/* PDF Debug Log - show after PDF generation */}

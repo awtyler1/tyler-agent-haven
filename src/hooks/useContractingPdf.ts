@@ -19,6 +19,11 @@ export interface DebugLogEntry {
   data?: unknown;
 }
 
+export interface SignatureFieldInfo {
+  name: string;
+  type: string;
+}
+
 interface PdfGenerationResult {
   success: boolean;
   filename?: string;
@@ -27,6 +32,7 @@ interface PdfGenerationResult {
   error?: string;
   mappingReport?: MappingEntry[];
   debugLogs?: DebugLogEntry[];
+  signatureFieldsFound?: SignatureFieldInfo[];
 }
 
 export function useContractingPdf() {
@@ -222,6 +228,7 @@ export function useContractingPdf() {
         size: data.size,
         mappingReport: data.mappingReport,
         debugLogs: data.debugLogs,
+        signatureFieldsFound: data.signatureFieldsFound,
       };
 
     } catch (err) {
