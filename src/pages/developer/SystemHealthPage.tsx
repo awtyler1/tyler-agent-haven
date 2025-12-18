@@ -4,7 +4,6 @@ import {
   ArrowLeft, 
   Activity, 
   Database, 
-  Server, 
   HardDrive,
   RefreshCw,
   CheckCircle2,
@@ -30,7 +29,6 @@ export default function SystemHealthPage() {
     { name: 'Supabase Connection', status: 'checking' },
     { name: 'Database (Profiles)', status: 'checking' },
     { name: 'Database (Feature Flags)', status: 'checking' },
-    { name: 'Edge Functions', status: 'checking' },
     { name: 'Storage', status: 'checking' },
   ]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -118,46 +116,7 @@ export default function SystemHealthPage() {
       });
     }
 
-    // 4. Edge Functions - just check if reachable
-    try {
-      const start = Date.now();
-      // We expect this to fail with a 500 since we're not sending valid data
-      // But if we get any response (even an error), it means the function is reachable
-      const response = await supabase.functions.invoke('generate-contracting-pdf', {
-        body: { test: true },
-      });
-      const latency = Date.now() - start;
-      
-      // Even a 500 error means the function is deployed and reachable
-      newChecks.push({
-        name: 'Edge Functions',
-        status: 'healthy',
-        latency,
-        message: `Reachable (${latency}ms)`,
-        lastChecked: new Date(),
-      });
-    } catch (err: any) {
-      const latency = Date.now() - Date.now();
-      // Check if it's a function error (which means it's reachable) vs network error
-      if (err?.message?.includes('FunctionsFetchError') || err?.message?.includes('NetworkError')) {
-        newChecks.push({
-          name: 'Edge Functions',
-          status: 'error',
-          message: 'Not reachable - check deployment',
-          lastChecked: new Date(),
-        });
-      } else {
-        // Any other error means the function responded (it's reachable)
-        newChecks.push({
-          name: 'Edge Functions',
-          status: 'healthy',
-          message: 'Reachable (function responded)',
-          lastChecked: new Date(),
-        });
-      }
-    }
-
-    // 5. Storage
+    // 4. Storage
     try {
       const start = Date.now();
       const { data, error } = await supabase.storage.listBuckets();
@@ -216,7 +175,6 @@ export default function SystemHealthPage() {
   const getServiceIcon = (name: string) => {
     if (name.includes('Connection')) return Database;
     if (name.includes('Database')) return Database;
-    if (name.includes('Edge')) return Server;
     if (name.includes('Storage')) return HardDrive;
     return Activity;
   };
