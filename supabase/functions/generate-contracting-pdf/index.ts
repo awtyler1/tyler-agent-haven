@@ -324,12 +324,13 @@ serve(async (req) => {
   }
 
   try {
-    const { application, saveToStorage = false, userId, templateUrl, templateBase64 } = await req.json() as { 
+    const { application, saveToStorage = false, userId, templateUrl, templateBase64, skipValidation = false } = await req.json() as { 
       application: ContractingData; 
       saveToStorage?: boolean;
       userId?: string;
       templateUrl?: string;
       templateBase64?: string;
+      skipValidation?: boolean;
     };
 
     // Debug log collector - will be returned in response for Test Mode
@@ -379,18 +380,20 @@ serve(async (req) => {
       console.log('No custom field mappings found, using defaults');
     }
 
-    // Validate required fields
-    const validationErrors: string[] = [];
-    if (!application.signature_initials) validationErrors.push('Initials are required');
-    if (!application.signature_date) validationErrors.push('Signature date is required');
-    if (!application.signature_name) validationErrors.push('Signature name is required');
-    if (!application.full_legal_name) validationErrors.push('Full legal name is required');
+    // Validate required fields (skip in test mode)
+    if (!skipValidation) {
+      const validationErrors: string[] = [];
+      if (!application.signature_initials) validationErrors.push('Initials are required');
+      if (!application.signature_date) validationErrors.push('Signature date is required');
+      if (!application.signature_name) validationErrors.push('Signature name is required');
+      if (!application.full_legal_name) validationErrors.push('Full legal name is required');
 
-    if (validationErrors.length > 0) {
-      return new Response(
-        JSON.stringify({ error: 'Validation failed', details: validationErrors }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      if (validationErrors.length > 0) {
+        return new Response(
+          JSON.stringify({ error: 'Validation failed', details: validationErrors }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     let pdfBytes: ArrayBuffer | null = null;
