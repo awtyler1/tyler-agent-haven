@@ -1033,55 +1033,59 @@ serve(async (req) => {
     }
     
     // === PREFERRED CONTACT METHODS ===
-    // Preferred contact methods - use database mappings if available
+    // Preferred contact methods - FIXED: explicitly uncheck unselected methods
     const preferredMethods = (application.preferred_contact_methods || []).map((m: string) => m.toLowerCase());
     console.info('CONTACT_METHODS_SELECTED::' + JSON.stringify(preferredMethods));
-
-    // Use database mappings if available, otherwise fall back to auto-detection
+    
     if (fieldMappings?.contactMethods) {
       console.log('Using database field mappings for contact methods');
       
-      // EMAIL - check if selected, uncheck if not
+      // EMAIL: check if selected, uncheck if not
       for (const fieldName of fieldMappings.contactMethods.email || []) {
-        setCheckbox(fieldName, preferredMethods.includes('email'));
+        const shouldCheck = preferredMethods.includes('email');
+        console.log(`Setting ${fieldName} to ${shouldCheck}`);
+        setCheckbox(fieldName, shouldCheck);
       }
       
-      // PHONE - check if selected, uncheck if not
+      // PHONE: check if selected, uncheck if not
       for (const fieldName of fieldMappings.contactMethods.phone || []) {
-        setCheckbox(fieldName, preferredMethods.includes('phone'));
+        const shouldCheck = preferredMethods.includes('phone');
+        console.log(`Setting ${fieldName} to ${shouldCheck}`);
+        setCheckbox(fieldName, shouldCheck);
       }
       
-      // TEXT - check if selected, uncheck if not
+      // TEXT: check if selected, uncheck if not
       for (const fieldName of fieldMappings.contactMethods.text || []) {
-        setCheckbox(fieldName, preferredMethods.includes('text'));
+        const shouldCheck = preferredMethods.includes('text');
+        console.log(`Setting ${fieldName} to ${shouldCheck}`);
+        setCheckbox(fieldName, shouldCheck);
       }
     } else {
-      // Fallback: auto-detect contact method fields
       console.log('No database mappings found, using auto-detection');
       const contactCandidates = form.getFields()
         .map((f: any) => ({ name: f.getName(), type: f?.constructor?.name }))
         .filter(({ name }: { name: string }) => {
           const n = name.toLowerCase();
-          return (
-            n.includes('preferred') || n.includes('contact') ||
-            n.includes('email') || n.includes('phone') || n.includes('text')
-          );
-        });
+          return n.includes('email') || n.includes('phone') || n.includes('text');
+        })
+        .filter((c: any) => c.type === 'PDFCheckBox');
+      
       console.info('CONTACT_METHOD_FIELDS::' + JSON.stringify(contactCandidates));
       
-      // For each contact method, set checkbox to true if selected, false if not
-      const methods = ['email', 'phone', 'text'] as const;
-      for (const method of methods) {
-        const isSelected = preferredMethods.includes(method);
-        for (const c of contactCandidates) {
-          const lower = c.name.toLowerCase();
-          const matches =
-            (method === 'email' && lower.includes('email')) ||
-            (method === 'phone' && lower.includes('phone')) ||
-            (method === 'text' && lower.includes('text'));
-          if (!matches || c.type !== 'PDFCheckBox') continue;
-          setCheckbox(c.name, isSelected);  // true OR false based on selection
+      for (const c of contactCandidates) {
+        const lower = c.name.toLowerCase();
+        let shouldCheck = false;
+        
+        if (lower.includes('email')) {
+          shouldCheck = preferredMethods.includes('email');
+        } else if (lower.includes('phone')) {
+          shouldCheck = preferredMethods.includes('phone');
+        } else if (lower.includes('text')) {
+          shouldCheck = preferredMethods.includes('text');
         }
+        
+        console.log(`Auto-detect: Setting ${c.name} to ${shouldCheck}`);
+        setCheckbox(c.name, shouldCheck);
       }
     }
     
