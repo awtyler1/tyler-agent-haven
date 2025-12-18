@@ -305,7 +305,7 @@ export function ContractingForm() {
         phone_business: '(502) 555-5678',
         phone_home: '(502) 555-9999',
         fax: '(502) 555-0000',
-        preferred_contact_methods: ['email', 'mobile', 'business', 'home', 'fax'], // ALL selected
+        preferred_contact_methods: ['email', 'phone', 'text'], // Matches PDF checkbox field names
         
         // Addresses - use DIFFERENT addresses to test all fields
         home_address: testAddress,
