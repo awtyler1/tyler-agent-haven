@@ -423,23 +423,26 @@ const TEXT_FIELD_MAPPINGS: Record<string, { source: string; format?: string; fal
 };
 
 // Duplicate groups - same value in multiple fields
-const DUPLICATE_GROUPS = {
+const DUPLICATE_GROUPS: Record<string, { source: string; format?: string; fields: string[] }> = {
   DATE: {
-    source: "signature_date",
-    format: "date" as const,
-    fields: ["DATE", "DATE_2", "DATE_3", "DATE_4", "DATE_5", "DATE_6", "DATE_7", "DATE_8", "DATE_9", "Date"],
+    source: 'signature_date',
+    format: 'date',
+    fields: ['DATE', 'DATE_2', 'DATE_3', 'DATE_4', 'DATE_5', 'DATE_6', 'DATE_7', 'DATE_8', 'DATE_9', 'Date'],
   },
   INITIALS: {
-    source: "signature_initials",
+    source: 'signature_initials',
     fields: [
-      "INITIALS",
-      "INITIALS_2",
-      "INITIALS_3",
-      "INITIALS_4",
-      "INITIALS_5",
-      "INITIALS_6",
-      "INITIALS_7",
-      "INITIALS_8",
+      'INITIALS', 
+      'INITIALS_2', 
+      'INITIALS_3', 
+      'INITIALS_4', 
+      'INITIALS_5', 
+      'INITIALS_6', 
+      'INITIALS_7', 
+      'INITIALS_8',
+      'Signature1_es_:signer:signature',
+      'correct to the best of my knowledge',
+      'Signature2_es_:signer'
     ],
   },
 };
@@ -813,16 +816,6 @@ serve(async (req) => {
         }
       }
     }
-
-    // ========================================================================
-    // ADDITIONAL SIGNATURE/INITIALS FIELDS
-    // ========================================================================
-
-    // Page 3 signature field (used for initials)
-    setTextField('Signature1_es_:signer:signature', application.signature_initials, 'signature_initials');
-
-    // Page 5 acknowledgment field
-    setTextField('correct to the best of my knowledge', application.signature_initials, 'signature_initials');
 
     // ========================================================================
     // PAGE 10: CARRIER SELECTIONS
