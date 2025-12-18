@@ -253,6 +253,78 @@ const LEGAL_QUESTION_ORDER: string[] = [
   '18',
   '19',
 ];
+
+// Legal Question PDF Field Mapping
+// Maps form question IDs to PDF radio group names and their Yes/No options
+interface LegalQuestionMapping {
+  groupName: string;
+  yesOption: string;
+  noOption: string;
+}
+
+const LEGAL_QUESTION_PDF_MAPPING: Record<string, LegalQuestionMapping> = {
+  // Question 1: Criminal History (main + 8 sub-questions)
+  '1': { groupName: 'Felony Misdemeanor federal andor state insurance andor securities or investments', yesOption: 'Yes', noOption: 'No' },
+  '1a': { groupName: 'undefined', yesOption: 'Yes_2', noOption: 'No_2' },
+  '1b': { groupName: 'Have you ever been convicted of or plead guilty or no contest to any Misdemeanor', yesOption: 'Yes_3', noOption: 'No_3' },
+  '1c': { groupName: 'Have you ever been convicted of or plead guilty or no contest to any violation or federal', yesOption: 'Yes_4', noOption: 'No_4' },
+  '1d': { groupName: 'Have you ever been convicted of or plead guilty or no contest to any violation of state', yesOption: 'Yes_5', noOption: 'No_5' },
+  '1e': { groupName: 'Has any foreign government court regulatory agency andor exchange ever entered an', yesOption: 'Yes_6', noOption: 'No_6' },
+  '1f': { groupName: 'undefined_2', yesOption: 'Yes_7', noOption: 'No_7' },
+  '1g': { groupName: 'undefined_3', yesOption: 'Yes_8', noOption: 'No_8' },
+  '1h': { groupName: 'undefined_4', yesOption: 'Yes_9', noOption: 'No_9' },
+  
+  // Question 2: Investigations & Lawsuits (main + 4 sub-questions)
+  '2': { groupName: 'Have you ever been or are you currently being investigated have any pending', yesOption: 'Yes_10', noOption: 'No_10' },
+  '2a': { groupName: 'undefined_5', yesOption: 'Yes_11', noOption: 'No_11' },
+  '2b': { groupName: 'undefined_6', yesOption: 'Yes_12', noOption: 'No_12' },
+  '2c': { groupName: 'civil judgments andor other legal proceedings civil or criminal You may omit family', yesOption: 'Yes_13', noOption: 'No_13' },
+  '2d': { groupName: 'Have you ever been named as a defendant or codefendant in any lawsuit or have you', yesOption: 'Yes_14', noOption: 'No_14' },
+  
+  // Questions 3-4: Fraud
+  '3': { groupName: 'undefined_7', yesOption: 'Yes_15', noOption: 'No_15' },
+  '4': { groupName: 'undefined_8', yesOption: 'Yes_16', noOption: 'No_16' },
+  
+  // Question 5: Terminations (main + 3 sub-questions)
+  '5': { groupName: 'contract or appointment or permitted you to resign for any reason other than lack of', yesOption: 'Yes_17', noOption: 'No_17' },
+  '5a': { groupName: 'andor investmentrelated statues regulations rules andor industry standards of', yesOption: 'Yes_18', noOption: 'No_18' },
+  '5b': { groupName: 'Were you terminated andor resigned because you were accused of fraud andor the', yesOption: 'Yes_19', noOption: 'No_19' },
+  '5c': { groupName: 'with insurance andor investmentrelated statues regulations rules andor industry', yesOption: 'Yes_20', noOption: 'No_20' },
+  
+  // Questions 6-7: Appointments & Chargebacks
+  '6': { groupName: 'Have you ever had an appointment with any insurance companies terminated for cause', yesOption: 'Yes_21', noOption: 'No_21' },
+  '7': { groupName: 'Does any insurer insured andor other person claim any commission chargeback andor', yesOption: 'Yes_22', noOption: 'No_22' },
+  
+  // Question 8: Surety & E&O (main + 2 sub-questions)
+  '8': { groupName: 'omissions insurer arising out of your sales andor practices or have you been refused', yesOption: 'Yes_23', noOption: 'No_23' },
+  '8a': { groupName: 'Has a bonding andor surety company ever denied paid on andor revoked a bond for', yesOption: 'Yes_24', noOption: 'No_24' },
+  '8b': { groupName: 'Has any Errors  Omissions EO carrier ever denied paid claims on andor canceled', yesOption: 'Yes_25', noOption: 'No_25' },
+  
+  // Questions 9-13: License & Regulatory Issues
+  '9': { groupName: 'Have you ever had an insurance andor securities license denied suspended canceled', yesOption: 'Yes_26', noOption: 'No_26' },
+  '10': { groupName: 'investment andor insurancerelated business having its authorization to do business', yesOption: 'Yes_27', noOption: 'No_27' },
+  '11': { groupName: 'Has any state andor federal regulatory agency revoked andor suspended your license', yesOption: 'Yes_28', noOption: 'No_28' },
+  '12': { groupName: 'Has any state andor federal regulatory agency found you to have made any false', yesOption: 'Yes_29', noOption: 'No_29' },
+  '13': { groupName: 'undefined_9', yesOption: 'Yes_30', noOption: 'No_30' },
+  
+  // Question 14: Regulatory Discipline (main + 2 sub-questions)
+  '14': { groupName: 'sanctioned censured penalized andor otherwise disciplined you for a violation of their', yesOption: 'Yes_31', noOption: 'No_31' },
+  '14a': { groupName: 'Has any regulatory body ever sanctioned censured penalized andor otherwise', yesOption: 'Yes_32', noOption: 'No_32' },
+  '14c': { groupName: 'undefined_10', yesOption: 'Yes_33', noOption: 'No_33' },
+  
+  // Question 15: Bankruptcy (main + 3 sub-questions)
+  '15': { groupName: 'Have you personally andor any insurance andor securities brokerage firms with whom', yesOption: 'Yes_34', noOption: 'No_34' },
+  '15a': { groupName: 'undefined_11', yesOption: 'Yes_35', noOption: 'No_35' },
+  '15b': { groupName: 'filed a bankruptcy petition andor been declared bankrupt either during your association', yesOption: 'Yes_36', noOption: 'No_36' },
+  '15c': { groupName: 'undefined_12', yesOption: 'Yes_37', noOption: 'No_37' },
+  
+  // Questions 16-19: Final Questions
+  '16': { groupName: 'undefined_13', yesOption: 'Yes_38', noOption: 'No_38' },
+  '17': { groupName: 'Are you connected in any way with a bank savings and loan association andor other', yesOption: 'Yes_39', noOption: 'No_39' },
+  '18': { groupName: 'undefined_14', yesOption: 'Yes_40', noOption: 'No_40' },
+  '19': { groupName: 'Do you have any unresolved matters pending with the Internal Revenue Services andor', yesOption: 'Yes_41', noOption: 'No_41' },
+};
+
 // Field mappings interface (loaded from database)
 interface FieldMappings {
   contactMethods: {
