@@ -549,16 +549,17 @@ serve(async (req) => {
 
     const setTextField = (fieldName: string, value: string | undefined | null, source: string) => {
       if (!value) {
-        addReport(fieldName, "", source, "skipped");
+        addReport(fieldName, '', source, 'skipped');
         return;
       }
       try {
         const field = form.getTextField(fieldName);
         field.setText(value);
+        field.setFontSize(10);  // Add explicit font size
         field.updateAppearances(helveticaFont);
-        addReport(fieldName, value, source, "success");
+        addReport(fieldName, value, source, 'success');
       } catch (err) {
-        addReport(fieldName, value, source, "failed", String(err));
+        addReport(fieldName, value, source, 'failed', String(err));
       }
     };
 
@@ -801,6 +802,7 @@ serve(async (req) => {
           try {
             const field = form.getTextField(fieldName);
             field.setText(value);
+            field.setFontSize(10);  // Add explicit font size
             field.updateAppearances(helveticaFont);
             addReport(fieldName, value, config.source, 'success');
           } catch (err) {
