@@ -757,12 +757,6 @@ serve(async (req) => {
 
     setTextField("BrokerDealer Name", application.finra_broker_dealer_name, "finra_broker_dealer_name");
     setTextField("CRD", application.finra_crd_number, "finra_crd_number");
-    setTextField(
-      "Nevada Accident and Health Insurance License",
-      application.insurance_license_number,
-      "insurance_license_number",
-    );
-    setTextField("Expiration Date", formatDate(application.license_expiration_date), "license_expiration_date");
 
     // ========================================================================
     // DUPLICATE GROUPS (DATE, INITIALS)
