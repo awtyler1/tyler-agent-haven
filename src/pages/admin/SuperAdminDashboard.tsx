@@ -2,6 +2,7 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { SystemStatusCard } from '@/components/admin/SystemStatusCard';
 import { UserManagementTable } from '@/components/admin/UserManagementTable';
+import { DevOpsDocumentation } from '@/components/admin/DevOpsDocumentation';
 
 export default function SuperAdminDashboard() {
   return (
@@ -30,6 +31,11 @@ export default function SuperAdminDashboard() {
             <div className="lg:col-span-3">
               <UserManagementTable />
             </div>
+          </div>
+
+          {/* DevOps Section - Full Width */}
+          <div className="mt-8">
+            <DevOpsDocumentation />
           </div>
         </div>
       </main>
