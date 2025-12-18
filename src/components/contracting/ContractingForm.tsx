@@ -269,8 +269,8 @@ export function ContractingForm() {
         };
         setLastSubmissionSnapshot(snapshot);
         
-        // Generate PDF to get mapping report (don't save to storage in test mode)
-        const pdfResult = await generatePdf(application, false);
+        // Generate PDF to get mapping report (don't save to storage in test mode, skip validation)
+        const pdfResult = await generatePdf(application, false, true);
         
         // Store PDF data for preview
         setLastPdfData({

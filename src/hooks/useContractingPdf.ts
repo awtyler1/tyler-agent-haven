@@ -75,18 +75,20 @@ export function useContractingPdf() {
     return errors;
   };
 
-  const generatePdf = async (application: ContractingApplication, saveToStorage = true): Promise<PdfGenerationResult> => {
+  const generatePdf = async (application: ContractingApplication, saveToStorage = true, skipValidation = false): Promise<PdfGenerationResult> => {
     setGenerating(true);
     setError(null);
 
     try {
-      // Validate first
-      const validationErrors = validateApplication(application);
-      if (validationErrors.length > 0) {
-        const errorMsg = validationErrors.join(', ');
-        setError(errorMsg);
-        toast.error('Cannot generate PDF: ' + validationErrors[0]);
-        return { success: false, error: errorMsg };
+      // Validate first (unless skipped for test mode)
+      if (!skipValidation) {
+        const validationErrors = validateApplication(application);
+        if (validationErrors.length > 0) {
+          const errorMsg = validationErrors.join(', ');
+          setError(errorMsg);
+          toast.error('Cannot generate PDF: ' + validationErrors[0]);
+          return { success: false, error: errorMsg };
+        }
       }
 
       // Fetch the PDF template and convert to base64
