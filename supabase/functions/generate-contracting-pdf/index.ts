@@ -1020,33 +1020,40 @@ serve(async (req) => {
     }
     
     // === PREFERRED CONTACT METHODS ===
-    console.log('>>> XXXXX CONTACT METHODS SECTION REACHED XXXXX <<<');
-    // Preferred contact methods - FIXED: explicitly uncheck unselected methods
+    console.log('>>> CONTACT METHODS SECTION <<<');
+    // Form stores: email, mobile, business, home, fax
+    // PDF expects: Email, Phone, Text checkboxes
+    // Map form values to PDF field categories
     const preferredMethods = (application.preferred_contact_methods || []).map((m: string) => m.toLowerCase());
-    console.log('>>> XXXXX PREFERRED_METHODS: ' + JSON.stringify(preferredMethods) + ' XXXXX <<<');
+    console.log('PREFERRED_METHODS (raw):', JSON.stringify(preferredMethods));
+    
+    // Normalize form values to PDF categories
+    const wantsEmail = preferredMethods.includes('email');
+    const wantsPhone = preferredMethods.includes('mobile') || preferredMethods.includes('home') || preferredMethods.includes('business');
+    const wantsText = preferredMethods.includes('mobile'); // Text typically implies mobile
+    const wantsFax = preferredMethods.includes('fax');
+    
+    console.log('Normalized: email=' + wantsEmail + ', phone=' + wantsPhone + ', text=' + wantsText + ', fax=' + wantsFax);
     
     if (fieldMappings?.contactMethods) {
       console.log('Using database field mappings for contact methods');
       
-      // EMAIL: check if selected, uncheck if not
+      // EMAIL
       for (const fieldName of fieldMappings.contactMethods.email || []) {
-        const shouldCheck = preferredMethods.includes('email');
-        console.log(`Setting ${fieldName} to ${shouldCheck}`);
-        setCheckbox(fieldName, shouldCheck);
+        console.log(`Setting ${fieldName} to ${wantsEmail}`);
+        setCheckbox(fieldName, wantsEmail);
       }
       
-      // PHONE: check if selected, uncheck if not
+      // PHONE
       for (const fieldName of fieldMappings.contactMethods.phone || []) {
-        const shouldCheck = preferredMethods.includes('phone');
-        console.log(`Setting ${fieldName} to ${shouldCheck}`);
-        setCheckbox(fieldName, shouldCheck);
+        console.log(`Setting ${fieldName} to ${wantsPhone}`);
+        setCheckbox(fieldName, wantsPhone);
       }
       
-      // TEXT: check if selected, uncheck if not
+      // TEXT
       for (const fieldName of fieldMappings.contactMethods.text || []) {
-        const shouldCheck = preferredMethods.includes('text');
-        console.log(`Setting ${fieldName} to ${shouldCheck}`);
-        setCheckbox(fieldName, shouldCheck);
+        console.log(`Setting ${fieldName} to ${wantsText}`);
+        setCheckbox(fieldName, wantsText);
       }
     } else {
       console.log('No database mappings found, using auto-detection');
@@ -1058,18 +1065,18 @@ serve(async (req) => {
         })
         .filter((c: any) => c.type === 'PDFCheckBox');
       
-      console.info('CONTACT_METHOD_FIELDS::' + JSON.stringify(contactCandidates));
+      console.log('CONTACT_METHOD_FIELDS:', JSON.stringify(contactCandidates));
       
       for (const c of contactCandidates) {
         const lower = c.name.toLowerCase();
         let shouldCheck = false;
         
         if (lower.includes('email')) {
-          shouldCheck = preferredMethods.includes('email');
+          shouldCheck = wantsEmail;
         } else if (lower.includes('phone')) {
-          shouldCheck = preferredMethods.includes('phone');
+          shouldCheck = wantsPhone;
         } else if (lower.includes('text')) {
-          shouldCheck = preferredMethods.includes('text');
+          shouldCheck = wantsText;
         }
         
         console.log(`Auto-detect: Setting ${c.name} to ${shouldCheck}`);
@@ -1079,21 +1086,25 @@ serve(async (req) => {
     
     console.log('=== END PREFERRED CONTACT METHODS ===');
     
-    // CRITICAL FIX: Explicitly uncheck contact methods that are NOT selected
-    // This ensures checkboxes are unchecked even if the PDF template has them pre-checked
-    console.log('=== EXPLICITLY UNCHECKING NON-SELECTED CONTACT METHODS ===');
-    const allContactMethods = ['email', 'phone', 'text'];
-    for (const method of allContactMethods) {
-      if (!preferredMethods.includes(method)) {
-        console.log(`${method} is NOT selected - will uncheck`);
-        const fieldName = method.charAt(0).toUpperCase() + method.slice(1); // email -> Email
-        try {
-          const checkbox = form.getCheckBox(fieldName);
+    // Explicitly set each contact method checkbox to ensure deterministic state
+    const contactFieldMap = [
+      { pdfField: 'Email', shouldCheck: wantsEmail },
+      { pdfField: 'Phone', shouldCheck: wantsPhone },
+      { pdfField: 'Text', shouldCheck: wantsText },
+    ];
+    
+    for (const { pdfField, shouldCheck } of contactFieldMap) {
+      try {
+        const checkbox = form.getCheckBox(pdfField);
+        if (shouldCheck) {
+          checkbox.check();
+          console.log(`Checked: ${pdfField}`);
+        } else {
           checkbox.uncheck();
-          console.log(`Successfully unchecked ${fieldName}`);
-        } catch (err) {
-          console.log(`Could not uncheck ${fieldName}:`, err);
+          console.log(`Unchecked: ${pdfField}`);
         }
+      } catch (err) {
+        console.log(`Could not set ${pdfField}:`, err);
       }
     }
     console.log('=== END CONTACT METHODS FIX ===');
