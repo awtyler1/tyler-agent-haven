@@ -1910,9 +1910,10 @@ serve(async (req) => {
     });
 
     // Generate filename using the signature date from the application
-    const nameParts = application.full_legal_name.split(' ');
-    const lastName = nameParts[nameParts.length - 1];
-    const firstName = nameParts[0];
+    const fullName = application.full_legal_name || 'Unknown Agent';
+    const nameParts = fullName.split(' ');
+    const lastName = nameParts[nameParts.length - 1] || 'Unknown';
+    const firstName = nameParts[0] || 'Unknown';
     // Use signature_date from application to avoid timezone issues
     const sigDatePart = application.signature_date?.split('T')[0] || new Date().toISOString().split('T')[0];
     const dateStr = sigDatePart.replace(/-/g, '');
@@ -2051,9 +2052,10 @@ async function createPdfFromScratch(application: ContractingData, saveToStorage:
   }
   const base64 = btoa(binaryString);
 
-  const nameParts = application.full_legal_name.split(' ');
-  const lastName = nameParts[nameParts.length - 1];
-  const firstName = nameParts[0];
+  const fullName = application.full_legal_name || 'Unknown Agent';
+  const nameParts = fullName.split(' ');
+  const lastName = nameParts[nameParts.length - 1] || 'Unknown';
+  const firstName = nameParts[0] || 'Unknown';
   const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
   const filename = `TIG_Contracting_${lastName}_${firstName}_${dateStr}.pdf`;
 
