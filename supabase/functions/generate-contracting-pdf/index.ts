@@ -401,8 +401,12 @@ const CARRIER_FIELD_MAP: Record<string, { checkbox: string; nonResStates: string
   "william penn": { checkbox: "fill_153", nonResStates: "NONRES STATESWilliam Penn" },
 };
 
-// Text field mappings for disciplinary entries
-const TEXT_FIELD_MAPPINGS: Record<string, { source: string; format?: 'date' }> = {
+// Text field mappings
+const TEXT_FIELD_MAPPINGS: Record<string, { source: string; format?: string; fallback?: string }> = {
+  // FINRA
+  'BrokerDealer Name': { source: 'finra_broker_dealer_name' },
+  'CRD': { source: 'finra_crd_number' },
+  
   // Disciplinary Entries
   'Date of Action': { source: 'disciplinary_entries.entry1.date_of_action', format: 'date' },
   'Action': { source: 'disciplinary_entries.entry1.action' },
