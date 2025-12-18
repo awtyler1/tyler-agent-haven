@@ -401,6 +401,23 @@ const CARRIER_FIELD_MAP: Record<string, { checkbox: string; nonResStates: string
   "william penn": { checkbox: "fill_153", nonResStates: "NONRES STATESWilliam Penn" },
 };
 
+// Text field mappings for disciplinary entries
+const TEXT_FIELD_MAPPINGS: Record<string, { source: string; format?: 'date' }> = {
+  // Disciplinary Entries
+  'Date of Action': { source: 'disciplinary_entries.entry1.date_of_action', format: 'date' },
+  'Action': { source: 'disciplinary_entries.entry1.action' },
+  'Reason': { source: 'disciplinary_entries.entry1.reason' },
+  'Explanation': { source: 'disciplinary_entries.entry1.explanation' },
+  'Date of Action_2': { source: 'disciplinary_entries.entry2.date_of_action', format: 'date' },
+  'Action_2': { source: 'disciplinary_entries.entry2.action' },
+  'Reason_2': { source: 'disciplinary_entries.entry2.reason' },
+  'Explanation_2': { source: 'disciplinary_entries.entry2.explanation' },
+  'Date of Action_3': { source: 'disciplinary_entries.entry3.date_of_action', format: 'date' },
+  'Action_3': { source: 'disciplinary_entries.entry3.action' },
+  'Reason_3': { source: 'disciplinary_entries.entry3.reason' },
+  'Explanation_3': { source: 'disciplinary_entries.entry3.explanation' },
+};
+
 // Duplicate groups - same value in multiple fields
 const DUPLICATE_GROUPS = {
   DATE: {
