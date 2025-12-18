@@ -1033,74 +1033,58 @@ serve(async (req) => {
     }
     
     // === PREFERRED CONTACT METHODS ===
-    // PDF has three checkboxes: Email, Phone, Text
-    // IMPORTANT: Only check if explicitly selected, leave unchecked otherwise
+    // Preferred contact methods - use database mappings if available
+    const preferredMethods = (application.preferred_contact_methods || []).map((m: string) => m.toLowerCase());
+    console.info('CONTACT_METHODS_SELECTED::' + JSON.stringify(preferredMethods));
 
-    const rawPreferred = application.preferred_contact_methods;
-    const normalizedMethods: string[] = Array.isArray(rawPreferred)
-      ? rawPreferred.map((m: unknown) => String(m).toLowerCase().trim())
-      : [];
-
-    console.log('=== PREFERRED CONTACT METHODS ===');
-    console.log('Raw preferred_contact_methods:', rawPreferred);
-    console.log('Normalized methods:', normalizedMethods);
-
-    // Prefer DB mappings if present (field names can vary by template).
-    // Regardless of mappings, we ALWAYS explicitly uncheck non-selected options
-    // to avoid any default-checked PDF state.
-    const methodToFields: Record<'email' | 'phone' | 'text', string[]> = {
-      email: fieldMappings?.contactMethods?.email?.length
-        ? fieldMappings.contactMethods.email
-        : ['Email'],
-      phone: fieldMappings?.contactMethods?.phone?.length
-        ? fieldMappings.contactMethods.phone
-        : ['Phone'],
-      text: fieldMappings?.contactMethods?.text?.length
-        ? fieldMappings.contactMethods.text
-        : ['Text'],
-    };
-
-    (['email', 'phone', 'text'] as const).forEach((method) => {
-      const isSelected = normalizedMethods.includes(method);
-      const fields = methodToFields[method];
-
-      console.log(
-        `Contact method "${method}": isSelected=${isSelected}, fields=${JSON.stringify(fields)}`,
-      );
-
-      for (const fieldName of fields) {
-        try {
-          const checkbox = form.getCheckBox(fieldName);
-          if (isSelected) {
-            checkbox.check();
-            console.log(`SUCCESS: Checked "${fieldName}"`);
-          } else {
-            checkbox.uncheck();
-            console.log(`SUCCESS: Unchecked "${fieldName}" (not selected)`);
-          }
-
-          mappingReport.push({
-            pdfFieldKey: fieldName,
-            valueApplied: isSelected ? 'checked' : 'unchecked',
-            sourceFormField: 'preferred_contact_methods',
-            isBlank: false,
-            status: 'success',
-          });
-        } catch (err) {
-          const errMsg = err instanceof Error ? err.message : String(err);
-          console.log(`FAILED: Could not set "${fieldName}" checkbox:`, errMsg);
-
-          mappingReport.push({
-            pdfFieldKey: fieldName,
-            valueApplied: 'ERROR',
-            sourceFormField: 'preferred_contact_methods',
-            isBlank: false,
-            status: 'failed',
-          });
+    // Use database mappings if available, otherwise fall back to auto-detection
+    if (fieldMappings?.contactMethods) {
+      console.log('Using database field mappings for contact methods');
+      
+      // EMAIL - check if selected, uncheck if not
+      for (const fieldName of fieldMappings.contactMethods.email || []) {
+        setCheckbox(fieldName, preferredMethods.includes('email'));
+      }
+      
+      // PHONE - check if selected, uncheck if not
+      for (const fieldName of fieldMappings.contactMethods.phone || []) {
+        setCheckbox(fieldName, preferredMethods.includes('phone'));
+      }
+      
+      // TEXT - check if selected, uncheck if not
+      for (const fieldName of fieldMappings.contactMethods.text || []) {
+        setCheckbox(fieldName, preferredMethods.includes('text'));
+      }
+    } else {
+      // Fallback: auto-detect contact method fields
+      console.log('No database mappings found, using auto-detection');
+      const contactCandidates = form.getFields()
+        .map((f: any) => ({ name: f.getName(), type: f?.constructor?.name }))
+        .filter(({ name }: { name: string }) => {
+          const n = name.toLowerCase();
+          return (
+            n.includes('preferred') || n.includes('contact') ||
+            n.includes('email') || n.includes('phone') || n.includes('text')
+          );
+        });
+      console.info('CONTACT_METHOD_FIELDS::' + JSON.stringify(contactCandidates));
+      
+      // For each contact method, set checkbox to true if selected, false if not
+      const methods = ['email', 'phone', 'text'] as const;
+      for (const method of methods) {
+        const isSelected = preferredMethods.includes(method);
+        for (const c of contactCandidates) {
+          const lower = c.name.toLowerCase();
+          const matches =
+            (method === 'email' && lower.includes('email')) ||
+            (method === 'phone' && lower.includes('phone')) ||
+            (method === 'text' && lower.includes('text'));
+          if (!matches || c.type !== 'PDFCheckBox') continue;
+          setCheckbox(c.name, isSelected);  // true OR false based on selection
         }
       }
-    });
-
+    }
+    
     console.log('=== END PREFERRED CONTACT METHODS ===');
     
     // Marketing consent - use database mappings if available
