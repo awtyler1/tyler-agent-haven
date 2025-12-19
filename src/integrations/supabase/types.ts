@@ -455,6 +455,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_active: boolean
+          is_test: boolean | null
           manager_id: string | null
           onboarding_status: Database["public"]["Enums"]["onboarding_status"]
           password_created_at: string | null
@@ -471,6 +472,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_active?: boolean
+          is_test?: boolean | null
           manager_id?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
           password_created_at?: string | null
@@ -487,6 +489,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_active?: boolean
+          is_test?: boolean | null
           manager_id?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
           password_created_at?: string | null
