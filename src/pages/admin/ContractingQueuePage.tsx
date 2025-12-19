@@ -28,6 +28,7 @@ import {
   Building,
   ChevronRight
 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import {
@@ -132,6 +133,7 @@ export default function ContractingQueuePage() {
   const [contractLevel, setContractLevel] = useState('');
   const [uplineId, setUplineId] = useState('');
   const [carrierStatuses, setCarrierStatuses] = useState<Record<string, string>>({});
+  const [carrierTransfers, setCarrierTransfers] = useState<Record<string, boolean>>({});
   const [updatingCarrier, setUpdatingCarrier] = useState<string | null>(null);
   const [loadingCarrierStatuses, setLoadingCarrierStatuses] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -160,6 +162,7 @@ export default function ContractingQueuePage() {
   useEffect(() => {
     // Clear old statuses immediately to prevent stale data showing
     setCarrierStatuses({});
+    setCarrierTransfers({});
     setLoadingCarrierStatuses(true);
     
     if (selected) {
@@ -174,6 +177,7 @@ export default function ContractingQueuePage() {
         });
       } else {
         setCarrierStatuses({});
+        setCarrierTransfers({});
         setLoadingCarrierStatuses(false);
       }
     } else {
@@ -240,12 +244,57 @@ export default function ContractingQueuePage() {
       }
 
       const statusMap: Record<string, string> = {};
+      const transferMap: Record<string, boolean> = {};
       data?.forEach(cs => {
         statusMap[cs.carrier_name] = cs.status || 'pending';
+        transferMap[cs.carrier_name] = cs.is_transfer || false;
       });
       setCarrierStatuses(statusMap);
+      setCarrierTransfers(transferMap);
     } finally {
       setLoadingCarrierStatuses(false);
+    }
+  };
+
+  const updateCarrierTransfer = async (carrierName: string, isTransfer: boolean) => {
+    if (!selected) return;
+    
+    try {
+      const { data: existing } = await supabase
+        .from('carrier_statuses')
+        .select('id')
+        .eq('application_id', selected.id)
+        .eq('carrier_name', carrierName)
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await supabase
+          .from('carrier_statuses')
+          .update({ 
+            is_transfer: isTransfer, 
+            updated_at: new Date().toISOString() 
+          })
+          .eq('id', existing.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('carrier_statuses')
+          .insert({
+            application_id: selected.id,
+            carrier_name: carrierName,
+            status: 'pending',
+            is_transfer: isTransfer
+          });
+
+        if (error) throw error;
+      }
+
+      setCarrierTransfers(prev => ({ ...prev, [carrierName]: isTransfer }));
+      toast.success(`${carrierName} marked as ${isTransfer ? 'transfer' : 'new contracting'}`);
+    } catch (err) {
+      console.error('Error updating carrier transfer status:', err);
+      toast.error('Failed to update transfer status');
     }
   };
 
@@ -757,7 +806,10 @@ export default function ContractingQueuePage() {
                           key={carrier} 
                           className="flex items-center justify-between p-3 bg-muted/30 rounded-lg animate-pulse"
                         >
-                          <span className="font-medium text-muted-foreground">{carrier}</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-4 h-4 bg-muted rounded"></div>
+                            <span className="font-medium text-muted-foreground">{carrier}</span>
+                          </div>
                           <div className="w-32 h-8 bg-muted rounded-md"></div>
                         </div>
                       ))}
@@ -766,6 +818,7 @@ export default function ContractingQueuePage() {
                     <div className="space-y-2">
                       {carriers.map(carrier => {
                         const status = carrierStatuses[carrier] || 'pending';
+                        const isTransfer = carrierTransfers[carrier] || false;
                         return (
                           <div 
                             key={carrier} 
@@ -777,11 +830,23 @@ export default function ContractingQueuePage() {
                                   : 'bg-muted/50'
                             }`}
                           >
-                            <div className="flex items-center gap-2">
-                              {status === 'appointed' && <CheckCircle className="w-4 h-4 text-green-600" />}
-                              {status === 'issue' && <AlertCircle className="w-4 h-4 text-red-600" />}
-                              {status === 'pending' && <Clock className="w-4 h-4 text-amber-600" />}
-                              <span className="font-medium text-foreground">{carrier}</span>
+                            <div className="flex items-center gap-3">
+                              <Checkbox
+                                id={`transfer-${carrier}`}
+                                checked={isTransfer}
+                                onCheckedChange={(checked) => updateCarrierTransfer(carrier, checked as boolean)}
+                              />
+                              <div className="flex items-center gap-2">
+                                {status === 'appointed' && <CheckCircle className="w-4 h-4 text-green-600" />}
+                                {status === 'issue' && <AlertCircle className="w-4 h-4 text-red-600" />}
+                                {status === 'pending' && <Clock className="w-4 h-4 text-amber-600" />}
+                                <span className="font-medium text-foreground">{carrier}</span>
+                                {isTransfer && (
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">
+                                    Transfer
+                                  </span>
+                                )}
+                              </div>
                             </div>
                             <Select 
                               value={status} 

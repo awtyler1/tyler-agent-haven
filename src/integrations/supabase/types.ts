@@ -20,6 +20,7 @@ export type Database = {
           carrier_name: string
           created_at: string | null
           id: string
+          is_transfer: boolean | null
           notes: string | null
           status: string | null
           updated_at: string | null
@@ -30,6 +31,7 @@ export type Database = {
           carrier_name: string
           created_at?: string | null
           id?: string
+          is_transfer?: boolean | null
           notes?: string | null
           status?: string | null
           updated_at?: string | null
@@ -40,6 +42,7 @@ export type Database = {
           carrier_name?: string
           created_at?: string | null
           id?: string
+          is_transfer?: boolean | null
           notes?: string | null
           status?: string | null
           updated_at?: string | null
