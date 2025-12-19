@@ -9,7 +9,8 @@ import {
   ArrowRight,
   Shield,
   TestTube,
-  Map
+  Map,
+  UserPlus
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -68,6 +69,13 @@ export default function DeveloperDashboard() {
       icon: Map,
       href: '/developer/platform-map',
       status: 'stable',
+    },
+    {
+      title: 'Test Data Seeder',
+      description: 'Create fake contracting submissions for testing',
+      icon: UserPlus,
+      href: '/developer/test-seeder',
+      status: 'new',
     },
   ];
 
