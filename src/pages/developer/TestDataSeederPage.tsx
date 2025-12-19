@@ -8,13 +8,17 @@ import {
   RefreshCw,
   AlertTriangle,
   Database,
-  Users
+  Users,
+  Eye,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useFeatureFlags } from '@/contexts/FeatureFlagsContext';
+import { useViewMode } from '@/contexts/ViewModeContext';
 
 const FAKE_AGENTS = [
   { name: 'Sarah Johnson', email: 'sarah.test@example.com', state: 'TX', npn: '11111111' },
@@ -29,13 +33,16 @@ const CARRIERS = ['Aetna', 'Humana', 'UnitedHealthcare', 'Cigna', 'WellCare', 'A
 export default function TestDataSeederPage() {
   const navigate = useNavigate();
   const { isEnabled } = useFeatureFlags();
+  const { startImpersonating } = useViewMode();
   const [creating, setCreating] = useState(false);
   const [creatingAgents, setCreatingAgents] = useState(false);
+  const [creatingCompleteAgent, setCreatingCompleteAgent] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [createdCount, setCreatedCount] = useState(0);
   const [testCount, setTestCount] = useState(0);
   const [realCount, setRealCount] = useState(0);
   const [testAgentCount, setTestAgentCount] = useState(0);
+  const [lastCreatedAgent, setLastCreatedAgent] = useState<{ name: string; email: string; userId: string } | null>(null);
 
   const isTestMode = isEnabled('test_mode');
 
@@ -197,6 +204,130 @@ export default function TestDataSeederPage() {
     }
   };
 
+  const createCompleteTestAgent = async () => {
+    setCreatingCompleteAgent(true);
+    setLastCreatedAgent(null);
+    
+    try {
+      // Pick a random agent template
+      const template = FAKE_AGENTS[Math.floor(Math.random() * FAKE_AGENTS.length)];
+      const timestamp = Date.now();
+      const uniqueEmail = `test.complete.${timestamp}@example.com`;
+      const uniqueNpn = String(Math.floor(Math.random() * 90000000) + 10000000);
+      const licenseNumber = `LIC-${Math.floor(Math.random() * 900000) + 100000}`;
+      
+      // Step 1: Create the auth user via edge function
+      const { data: createResult, error: createError } = await supabase.functions.invoke('create-agent', {
+        body: {
+          email: uniqueEmail,
+          fullName: template.name,
+          role: 'independent_agent',
+          sendSetupEmail: false,
+          isTest: true,
+        },
+      });
+
+      if (createError || !createResult?.userId) {
+        throw new Error(createError?.message || 'Failed to create user');
+      }
+
+      const userId = createResult.userId;
+      console.log('Created test user:', userId);
+
+      // Step 2: Update profile with onboarding status (simulating submitted state)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          onboarding_status: 'CONTRACT_SUBMITTED',
+          is_test: true,
+        })
+        .eq('user_id', userId);
+
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+      }
+
+      // Step 3: Select random carriers (3-5)
+      const numCarriers = Math.floor(Math.random() * 3) + 3;
+      const shuffled = [...CARRIERS].sort(() => 0.5 - Math.random());
+      const selectedCarriers = shuffled.slice(0, numCarriers);
+
+      // Step 4: Create contracting application linked to this user
+      const { data: application, error: appError } = await supabase
+        .from('contracting_applications')
+        .insert({
+          user_id: userId,
+          full_legal_name: template.name,
+          email_address: uniqueEmail,
+          phone_mobile: '(555) 123-4567',
+          birth_date: '1985-06-15',
+          resident_state: template.state,
+          resident_license_number: licenseNumber,
+          npn_number: uniqueNpn,
+          home_address: {
+            street: '123 Test Street',
+            city: 'Test City',
+            state: template.state,
+            zip: '12345',
+          },
+          status: 'submitted',
+          submitted_at: new Date().toISOString(),
+          selected_carriers: { carriers: selectedCarriers },
+          uploaded_documents: {
+            eo_certificate: `${userId}/eo_certificate/${timestamp}_test_eo.pdf`,
+            voided_check: `${userId}/voided_check/${timestamp}_test_check.pdf`,
+            insurance_license: `${userId}/insurance_license/${timestamp}_test_license.pdf`,
+          },
+          signature_initials: template.name.split(' ').map(n => n[0]).join(''),
+          signature_name: template.name,
+          signature_date: new Date().toISOString(),
+          is_test: true,
+        })
+        .select()
+        .single();
+
+      if (appError) {
+        console.error('Application error:', appError);
+        throw appError;
+      }
+
+      console.log('Created contracting application:', application.id);
+
+      // Step 5: Create carrier statuses for each selected carrier
+      const carrierStatusInserts = selectedCarriers.map((carrier, index) => ({
+        application_id: application.id,
+        carrier_name: carrier,
+        status: index === 0 ? 'appointed' : 'pending',
+        is_transfer: Math.random() > 0.7,
+        is_test: true,
+      }));
+
+      const { error: statusError } = await supabase
+        .from('carrier_statuses')
+        .insert(carrierStatusInserts);
+
+      if (statusError) {
+        console.error('Carrier status error:', statusError);
+      }
+
+      // Success!
+      setLastCreatedAgent({
+        name: template.name,
+        email: uniqueEmail,
+        userId: userId,
+      });
+      
+      toast.success(`Created complete test agent: ${template.name}`);
+      fetchCounts();
+      
+    } catch (err) {
+      console.error('Error creating complete test agent:', err);
+      toast.error('Failed to create complete test agent');
+    } finally {
+      setCreatingCompleteAgent(false);
+    }
+  };
+
   const handleDeleteTestData = async () => {
     if (!confirm('Delete ALL test data including test agent accounts?')) return;
     
@@ -298,6 +429,93 @@ export default function TestDataSeederPage() {
                   <div className="text-sm text-muted-foreground">Real submissions</div>
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Complete Test Agent - Featured Card */}
+        <Card className="border-primary/50 bg-primary/5">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <CardTitle>Create Complete Test Agent</CardTitle>
+            </div>
+            <CardDescription>
+              Creates a full test agent with profile, contracting application, and carrier statuses - 
+              all linked together for end-to-end testing
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={createCompleteTestAgent} 
+              disabled={creatingCompleteAgent}
+              className="w-full sm:w-auto"
+            >
+              {creatingCompleteAgent ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating complete agent...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Create Complete Test Agent
+                </>
+              )}
+            </Button>
+            
+            {lastCreatedAgent && (
+              <div className="border rounded-lg p-4 bg-background space-y-3">
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span className="font-medium">Agent Created Successfully</span>
+                </div>
+                <div className="text-sm space-y-1">
+                  <p><strong>Name:</strong> {lastCreatedAgent.name}</p>
+                  <p><strong>Email:</strong> {lastCreatedAgent.email}</p>
+                </div>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => navigate('/admin/agents')}
+                  >
+                    View in Agents
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => navigate('/admin/contracting')}
+                  >
+                    View in Queue
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="secondary"
+                    onClick={() => {
+                      startImpersonating({
+                        userId: lastCreatedAgent.userId,
+                        fullName: lastCreatedAgent.name,
+                        email: lastCreatedAgent.email,
+                      });
+                      navigate('/');
+                    }}
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    View as Agent
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <div className="border rounded-lg p-3 bg-muted/30 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground mb-1">This creates:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Auth user account</li>
+                <li>Profile with CONTRACT_SUBMITTED status</li>
+                <li>Contracting application with all fields populated</li>
+                <li>3-5 carrier statuses (1 appointed, rest pending)</li>
+              </ul>
             </div>
           </CardContent>
         </Card>
