@@ -77,6 +77,13 @@ export default function DeveloperDashboard() {
       href: '/developer/test-seeder',
       status: 'new',
     },
+    {
+      title: 'Platform Experience Map',
+      description: 'Complete user journey across Agent, Head of Contracting, and Admin roles',
+      icon: Map,
+      href: '/developer/experience-map',
+      status: 'new',
+    },
   ];
 
   const getStatusBadge = (status?: string) => {
