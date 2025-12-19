@@ -52,6 +52,7 @@ import PdfFieldAuditPage from "./pages/admin/PdfFieldAuditPage";
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 import FeatureFlagsPage from "./pages/developer/FeatureFlagsPage";
 import SystemHealthPage from "./pages/developer/SystemHealthPage";
+import TestDataSeederPage from "./pages/developer/TestDataSeederPage";
 
 const queryClient = new QueryClient();
 
@@ -245,6 +246,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireDeveloper>
                   <PlatformMapPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/test-seeder" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <TestDataSeederPage />
                 </ProtectedRoute>
               } 
             />
