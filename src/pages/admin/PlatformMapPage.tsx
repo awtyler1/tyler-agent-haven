@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,9 +14,9 @@ export default function PlatformMapPage() {
       {/* Header - hidden in print */}
       <div className="print:hidden bg-background border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/admin/super')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/developer')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            Back to Developer Dashboard
           </Button>
           <Button onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
@@ -52,14 +51,33 @@ export default function PlatformMapPage() {
 
             {/* Admin */}
             <div className="border rounded-lg p-4 bg-blue-50">
-              <h3 className="font-bold text-lg mb-3 text-blue-800">👑 Admin Dashboard (6 pages)</h3>
+              <h3 className="font-bold text-lg mb-3 text-blue-800">👑 Admin Dashboard (9 pages)</h3>
               <ul className="space-y-2 text-sm">
-                <li><code className="bg-white px-2 py-0.5 rounded">/admin/super</code> — Super Admin Dashboard</li>
-                <li><code className="bg-white px-2 py-0.5 rounded">/admin/users/:id</code> — User Detail Page</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin</code> — Admin Dashboard</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/admin/super</code> — Super Admin Dashboard</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/agents</code> — Agents List</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/agents/new</code> — Create Agent</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/admin/managers</code> — Managers List</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/admin/managers/new</code> — Create Manager</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/admin/users/:id</code> — User Detail Page</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/admin/contracting</code> — Contracting Queue</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/documents</code> — Document Management</li>
+              </ul>
+            </div>
+
+            {/* Developer */}
+            <div className="border rounded-lg p-4 bg-purple-50">
+              <h3 className="font-bold text-lg mb-3 text-purple-800">🛠️ Developer Tools (8 pages)</h3>
+              <ul className="space-y-2 text-sm">
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer</code> — Developer Dashboard</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer/feature-flags</code> — Feature Flags</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer/system-health</code> — System Health</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer/platform-map</code> — Platform Map (this page)</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer/experience-map</code> — Experience Map</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer/test-seeder</code> — Test Data Seeder</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer/pdf-audit</code> — PDF Field Audit</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer/pdf-mapper</code> — PDF Field Mapper</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/developer/pdf-extractor</code> — PDF Field Extractor</li>
               </ul>
             </div>
 
@@ -67,15 +85,18 @@ export default function PlatformMapPage() {
             <div className="border rounded-lg p-4 bg-pink-50">
               <h3 className="font-bold text-lg mb-3 text-pink-800">📋 Agent Onboarding (1 page)</h3>
               <ul className="space-y-2 text-sm">
-                <li><code className="bg-white px-2 py-0.5 rounded">/contracting</code> — Submit Contracting Form</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/contracting</code> — 9-Step Contracting Wizard</li>
               </ul>
+              <div className="mt-3 text-xs text-pink-700">
+                Steps: Welcome → Personal Info → Licensing → Legal → Banking → Training → Carriers → Agreements → Review
+              </div>
             </div>
 
             {/* Main Platform */}
             <div className="border rounded-lg p-4 bg-emerald-50">
               <h3 className="font-bold text-lg mb-3 text-emerald-800">🏠 Main Platform (3 pages)</h3>
               <ul className="space-y-2 text-sm">
-                <li><code className="bg-white px-2 py-0.5 rounded">/</code> — Homepage</li>
+                <li><code className="bg-white px-2 py-0.5 rounded">/</code> — Homepage Dashboard</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/start-here</code> — Getting Started Guide</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/contracting-hub</code> — Contracting Hub</li>
               </ul>
@@ -106,7 +127,7 @@ export default function PlatformMapPage() {
 
             {/* Agent Tools */}
             <div className="border rounded-lg p-4 bg-orange-50">
-              <h3 className="font-bold text-lg mb-3 text-orange-800">🛠️ Agent Tools (2 pages)</h3>
+              <h3 className="font-bold text-lg mb-3 text-orange-800">🧰 Agent Tools (2 pages)</h3>
               <ul className="space-y-2 text-sm">
                 <li><code className="bg-white px-2 py-0.5 rounded">/agent-tools</code> — Agent Tools</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/forms-library</code> — Forms Library</li>
@@ -131,10 +152,10 @@ export default function PlatformMapPage() {
           
           {/* New User Journey */}
           <div className="mb-8">
-            <h3 className="font-bold text-lg mb-4">New User Onboarding Flow</h3>
+            <h3 className="font-bold text-lg mb-4">New Agent Onboarding Flow</h3>
             <div className="flex items-center flex-wrap gap-2 text-sm">
               <div className="bg-blue-100 border border-blue-300 rounded px-3 py-2">
-                Super Admin<br/>creates user
+                Admin creates<br/>agent account
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-blue-100 border border-blue-300 rounded px-3 py-2">
@@ -142,7 +163,7 @@ export default function PlatformMapPage() {
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-amber-100 border border-amber-300 rounded px-3 py-2">
-                User clicks<br/>email link
+                Agent clicks<br/>email link
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-amber-100 border border-amber-300 rounded px-3 py-2">
@@ -150,33 +171,45 @@ export default function PlatformMapPage() {
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-pink-100 border border-pink-300 rounded px-3 py-2">
-                /contracting<br/>(if agent)
+                /contracting<br/>(9-step wizard)
+              </div>
+              <span className="text-2xl">→</span>
+              <div className="bg-purple-100 border border-purple-300 rounded px-3 py-2">
+                Contracting Queue<br/>(under review)
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-emerald-100 border border-emerald-300 rounded px-3 py-2">
-                Full platform<br/>access
+                Appointed →<br/>Full access
               </div>
             </div>
           </div>
 
-          {/* Admin Workflow */}
+          {/* Contracting Review Workflow */}
           <div className="mb-8">
-            <h3 className="font-bold text-lg mb-4">Admin User Management Workflow</h3>
+            <h3 className="font-bold text-lg mb-4">Head of Contracting Workflow</h3>
             <div className="flex items-center flex-wrap gap-2 text-sm">
-              <div className="bg-blue-100 border border-blue-300 rounded px-3 py-2">
-                /admin/super<br/>Dashboard
+              <div className="bg-purple-100 border border-purple-300 rounded px-3 py-2">
+                /admin/contracting<br/>View Queue
+              </div>
+              <span className="text-2xl">→</span>
+              <div className="bg-purple-100 border border-purple-300 rounded px-3 py-2">
+                Select submission<br/>Review details
+              </div>
+              <span className="text-2xl">→</span>
+              <div className="bg-purple-100 border border-purple-300 rounded px-3 py-2">
+                Set contract level<br/>& upline
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-blue-100 border border-blue-300 rounded px-3 py-2">
-                Create user or<br/>click existing
+                Send to Upline
               </div>
               <span className="text-2xl">→</span>
-              <div className="bg-blue-100 border border-blue-300 rounded px-3 py-2">
-                /admin/users/:id<br/>User Detail
+              <div className="bg-amber-100 border border-amber-300 rounded px-3 py-2">
+                Update carrier<br/>statuses
               </div>
               <span className="text-2xl">→</span>
-              <div className="bg-blue-100 border border-blue-300 rounded px-3 py-2">
-                Update role,<br/>status, resend link
+              <div className="bg-emerald-100 border border-emerald-300 rounded px-3 py-2">
+                All appointed →<br/>Complete
               </div>
             </div>
           </div>
@@ -184,7 +217,7 @@ export default function PlatformMapPage() {
           {/* Agent Daily Use */}
           <div>
             <h3 className="font-bold text-lg mb-4">Agent Daily Platform Use</h3>
-            <div className="grid grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-4 gap-4 text-sm">
               <div className="text-center">
                 <div className="bg-emerald-100 border border-emerald-300 rounded px-3 py-2 mb-2">
                   Homepage /
@@ -202,6 +235,12 @@ export default function PlatformMapPage() {
                   Carrier Resources
                 </div>
                 <span className="text-gray-500">Plans & portals</span>
+              </div>
+              <div className="text-center">
+                <div className="bg-orange-100 border border-orange-300 rounded px-3 py-2 mb-2">
+                  Agent Tools
+                </div>
+                <span className="text-gray-500">Forms & utilities</span>
               </div>
             </div>
           </div>
@@ -222,23 +261,33 @@ export default function PlatformMapPage() {
             <tbody>
               <tr>
                 <td className="border p-3 font-medium">Super Admin</td>
-                <td className="border p-3">All pages + /admin/super</td>
-                <td className="border p-3">Create users, assign roles, manage system</td>
+                <td className="border p-3">All pages + /admin/super + /admin/*</td>
+                <td className="border p-3">Create users, assign roles, manage system, delete test data</td>
               </tr>
               <tr className="bg-gray-50">
-                <td className="border p-3 font-medium">Contracting Admin</td>
-                <td className="border p-3">All pages + /admin</td>
-                <td className="border p-3">Manage agent contracting, view agents</td>
+                <td className="border p-3 font-medium">Admin</td>
+                <td className="border p-3">All pages + /admin/*</td>
+                <td className="border p-3">Manage agents, review contracting queue</td>
               </tr>
               <tr>
-                <td className="border p-3 font-medium">Broker Manager</td>
+                <td className="border p-3 font-medium">Manager</td>
                 <td className="border p-3">All pages + team view</td>
                 <td className="border p-3">View team members, training oversight</td>
               </tr>
               <tr className="bg-gray-50">
-                <td className="border p-3 font-medium">Agent</td>
+                <td className="border p-3 font-medium">Internal TIG Agent</td>
                 <td className="border p-3">Main platform pages</td>
                 <td className="border p-3">Training, certifications, carrier tools</td>
+              </tr>
+              <tr>
+                <td className="border p-3 font-medium">Independent Agent</td>
+                <td className="border p-3">Main platform pages</td>
+                <td className="border p-3">Training, certifications, carrier tools</td>
+              </tr>
+              <tr className="bg-gray-50">
+                <td className="border p-3 font-medium">Developer</td>
+                <td className="border p-3">/developer/* pages</td>
+                <td className="border p-3">Feature flags, system health, test tools (profile flag)</td>
               </tr>
             </tbody>
           </table>
@@ -251,17 +300,17 @@ export default function PlatformMapPage() {
           <div className="flex items-center justify-center gap-4 text-sm">
             <div className="bg-red-100 border-2 border-red-400 rounded-lg px-4 py-3 text-center">
               <div className="font-bold text-red-800">CONTRACTING_REQUIRED</div>
-              <div className="text-red-600 text-xs mt-1">New agent, needs paperwork</div>
+              <div className="text-red-600 text-xs mt-1">New agent, locked to /contracting</div>
             </div>
             <span className="text-3xl">→</span>
             <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg px-4 py-3 text-center">
               <div className="font-bold text-yellow-800">CONTRACT_SUBMITTED</div>
-              <div className="text-yellow-600 text-xs mt-1">Awaiting approval</div>
+              <div className="text-yellow-600 text-xs mt-1">In queue, full platform access</div>
             </div>
             <span className="text-3xl">→</span>
             <div className="bg-green-100 border-2 border-green-400 rounded-lg px-4 py-3 text-center">
               <div className="font-bold text-green-800">APPOINTED</div>
-              <div className="text-green-600 text-xs mt-1">Full access granted</div>
+              <div className="text-green-600 text-xs mt-1">All carriers confirmed</div>
             </div>
           </div>
           <div className="text-center mt-4">
@@ -281,19 +330,19 @@ export default function PlatformMapPage() {
           <div className="mb-8 border-l-4 border-blue-500 pl-4">
             <div className="flex items-center gap-2 mb-3">
               <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</span>
-              <h3 className="font-bold text-lg">Super Admin Creates User</h3>
+              <h3 className="font-bold text-lg">Admin Creates User</h3>
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div className="bg-blue-50 rounded p-3">
                 <div className="font-semibold text-blue-800 mb-2">📄 UI Page</div>
-                <code className="text-xs">/admin/super</code>
-                <div className="text-gray-600 mt-1">CreateUserDialog component</div>
+                <code className="text-xs">/admin/agents/new</code>
+                <div className="text-gray-600 mt-1">NewAgentPage component</div>
               </div>
               <div className="bg-purple-50 rounded p-3">
                 <div className="font-semibold text-purple-800 mb-2">⚡ Edge Function</div>
                 <code className="text-xs">create-agent</code>
                 <ul className="text-gray-600 mt-1 text-xs list-disc ml-4">
-                  <li>Validates super_admin role</li>
+                  <li>Validates admin role</li>
                   <li>Creates auth.users record</li>
                   <li>Triggers handle_new_user()</li>
                 </ul>
@@ -321,7 +370,7 @@ export default function PlatformMapPage() {
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div className="bg-blue-50 rounded p-3">
                 <div className="font-semibold text-blue-800 mb-2">📄 UI Page</div>
-                <code className="text-xs">/admin/super</code> or <code className="text-xs">/admin/users/:id</code>
+                <code className="text-xs">/admin/agents</code> or <code className="text-xs">/admin/users/:id</code>
                 <div className="text-gray-600 mt-1">"Send Setup Link" button</div>
               </div>
               <div className="bg-purple-50 rounded p-3">
@@ -414,36 +463,103 @@ export default function PlatformMapPage() {
               <div className="bg-blue-50 rounded p-3">
                 <div className="font-semibold text-blue-800 mb-2">📄 UI Page</div>
                 <code className="text-xs">/contracting</code>
-                <div className="text-gray-600 mt-1">ContractingPage component</div>
+                <div className="text-gray-600 mt-1">9-step ContractingWizard</div>
               </div>
               <div className="bg-purple-50 rounded p-3">
                 <div className="font-semibold text-purple-800 mb-2">⚡ Edge Function</div>
-                <code className="text-xs">send-contracting-packet</code>
+                <code className="text-xs">generate-contracting-pdf</code>
                 <ul className="text-gray-600 mt-1 text-xs list-disc ml-4">
-                  <li>Collects agent info</li>
-                  <li>Sends to admin/carrier</li>
+                  <li>Fills PDF template</li>
+                  <li>Stores in Supabase Storage</li>
+                </ul>
+                <code className="text-xs mt-2 block">send-contracting-packet</code>
+                <ul className="text-gray-600 mt-1 text-xs list-disc ml-4">
+                  <li>Emails PDF to admin</li>
                 </ul>
               </div>
               <div className="bg-green-50 rounded p-3">
                 <div className="font-semibold text-green-800 mb-2">🗄️ Database</div>
                 <ul className="text-gray-600 text-xs list-disc ml-4">
+                  <li><code>contracting_applications</code> — created/updated</li>
                   <li><code>profiles.onboarding_status</code> = CONTRACT_SUBMITTED</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Step 6: Admin Approves */}
+          {/* Step 6: Head of Contracting Reviews */}
+          <div className="mb-8 border-l-4 border-purple-500 pl-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">6</span>
+              <h3 className="font-bold text-lg">Head of Contracting Reviews & Sends to Upline</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="bg-blue-50 rounded p-3">
+                <div className="font-semibold text-blue-800 mb-2">📄 UI Page</div>
+                <code className="text-xs">/admin/contracting</code>
+                <div className="text-gray-600 mt-1">ContractingQueuePage</div>
+              </div>
+              <div className="bg-purple-50 rounded p-3">
+                <div className="font-semibold text-purple-800 mb-2">⚡ Actions</div>
+                <ul className="text-gray-600 mt-1 text-xs list-disc ml-4">
+                  <li>Review submission details</li>
+                  <li>Set contract level (Agent/Street)</li>
+                  <li>Select upline</li>
+                  <li>Click "Send to Upline"</li>
+                </ul>
+              </div>
+              <div className="bg-green-50 rounded p-3">
+                <div className="font-semibold text-green-800 mb-2">🗄️ Database</div>
+                <ul className="text-gray-600 text-xs list-disc ml-4">
+                  <li><code>contracting_applications.sent_to_upline_at</code></li>
+                  <li><code>contracting_applications.contract_level</code></li>
+                  <li><code>contracting_applications.upline_id</code></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 7: Carrier Processing */}
+          <div className="mb-8 border-l-4 border-amber-500 pl-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="bg-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">7</span>
+              <h3 className="font-bold text-lg">Carrier Processing & Status Updates</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="bg-blue-50 rounded p-3">
+                <div className="font-semibold text-blue-800 mb-2">📄 UI Page</div>
+                <code className="text-xs">/admin/contracting</code>
+                <div className="text-gray-600 mt-1">Carrier status panel</div>
+              </div>
+              <div className="bg-purple-50 rounded p-3">
+                <div className="font-semibold text-purple-800 mb-2">⚡ Actions</div>
+                <ul className="text-gray-600 mt-1 text-xs list-disc ml-4">
+                  <li>Update per-carrier status</li>
+                  <li>Mark as transfer if applicable</li>
+                  <li>Add notes</li>
+                </ul>
+              </div>
+              <div className="bg-green-50 rounded p-3">
+                <div className="font-semibold text-green-800 mb-2">🗄️ Database</div>
+                <ul className="text-gray-600 text-xs list-disc ml-4">
+                  <li><code>carrier_statuses</code> — per carrier</li>
+                  <li>Status: pending → appointed/issue</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 8: Agent Appointed */}
           <div className="mb-8 border-l-4 border-emerald-500 pl-4">
             <div className="flex items-center gap-2 mb-3">
-              <span className="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">6</span>
-              <h3 className="font-bold text-lg">Admin Approves → Agent Appointed</h3>
+              <span className="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">8</span>
+              <h3 className="font-bold text-lg">All Carriers Appointed → Agent Complete</h3>
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div className="bg-blue-50 rounded p-3">
                 <div className="font-semibold text-blue-800 mb-2">📄 UI Page</div>
                 <code className="text-xs">/admin/users/:id</code>
-                <div className="text-gray-600 mt-1">Change status dropdown</div>
+                <div className="text-gray-600 mt-1">Change status to APPOINTED</div>
               </div>
               <div className="bg-purple-50 rounded p-3">
                 <div className="font-semibold text-purple-800 mb-2">⚡ Supabase Client</div>
@@ -484,44 +600,80 @@ export default function PlatformMapPage() {
               <tr>
                 <td className="border p-3 font-mono text-xs">create-agent</td>
                 <td className="border p-3">Create new user account</td>
-                <td className="border p-3">Super Admin only</td>
-                <td className="border p-3">Resend (email)</td>
+                <td className="border p-3">Admin/Super Admin</td>
+                <td className="border p-3">—</td>
               </tr>
               <tr className="bg-gray-50">
                 <td className="border p-3 font-mono text-xs">send-setup-link</td>
                 <td className="border p-3">Send/resend password setup email</td>
-                <td className="border p-3">Super Admin only</td>
-                <td className="border p-3">Resend (email)</td>
+                <td className="border p-3">Admin/Super Admin</td>
+                <td className="border p-3">Resend</td>
               </tr>
               <tr>
-                <td className="border p-3 font-mono text-xs">send-contracting-packet</td>
-                <td className="border p-3">Submit agent contracting info</td>
+                <td className="border p-3 font-mono text-xs">generate-contracting-pdf</td>
+                <td className="border p-3">Fill PDF template with agent data</td>
                 <td className="border p-3">Authenticated user</td>
-                <td className="border p-3">Resend (email)</td>
+                <td className="border p-3">pdf-lib</td>
               </tr>
               <tr className="bg-gray-50">
+                <td className="border p-3 font-mono text-xs">send-contracting-packet</td>
+                <td className="border p-3">Email completed contracting PDF</td>
+                <td className="border p-3">Authenticated user</td>
+                <td className="border p-3">Resend</td>
+              </tr>
+              <tr>
                 <td className="border p-3 font-mono text-xs">validate-password</td>
                 <td className="border p-3">Validate site-wide password gate</td>
                 <td className="border p-3">None (public)</td>
-                <td className="border p-3">None</td>
+                <td className="border p-3">—</td>
               </tr>
-              <tr>
+              <tr className="bg-gray-50">
                 <td className="border p-3 font-mono text-xs">agent-chat</td>
                 <td className="border p-3">AI chatbot for agent questions</td>
                 <td className="border p-3">None (public)</td>
                 <td className="border p-3">OpenAI</td>
               </tr>
-              <tr className="bg-gray-50">
+              <tr>
                 <td className="border p-3 font-mono text-xs">agent-chat-rag</td>
                 <td className="border p-3">RAG-powered document search</td>
                 <td className="border p-3">None (public)</td>
                 <td className="border p-3">OpenAI</td>
               </tr>
-              <tr>
+              <tr className="bg-gray-50">
                 <td className="border p-3 font-mono text-xs">process-document</td>
                 <td className="border p-3">Process PDFs for RAG embeddings</td>
-                <td className="border p-3">Authenticated</td>
+                <td className="border p-3">Admin</td>
                 <td className="border p-3">OpenAI</td>
+              </tr>
+              <tr>
+                <td className="border p-3 font-mono text-xs">extract-pdf-fields</td>
+                <td className="border p-3">Extract field names from PDFs</td>
+                <td className="border p-3">Developer</td>
+                <td className="border p-3">pdf-lib</td>
+              </tr>
+              <tr className="bg-gray-50">
+                <td className="border p-3 font-mono text-xs">pdf-field-audit</td>
+                <td className="border p-3">Audit PDF form field mappings</td>
+                <td className="border p-3">Developer</td>
+                <td className="border p-3">pdf-lib</td>
+              </tr>
+              <tr>
+                <td className="border p-3 font-mono text-xs">fetch-edge-logs</td>
+                <td className="border p-3">Fetch edge function logs</td>
+                <td className="border p-3">Developer</td>
+                <td className="border p-3">Supabase API</td>
+              </tr>
+              <tr className="bg-gray-50">
+                <td className="border p-3 font-mono text-xs">delete-user</td>
+                <td className="border p-3">Delete user from auth.users</td>
+                <td className="border p-3">Super Admin</td>
+                <td className="border p-3">—</td>
+              </tr>
+              <tr>
+                <td className="border p-3 font-mono text-xs">send-agent-inquiry</td>
+                <td className="border p-3">Send agent inquiry email</td>
+                <td className="border p-3">None (public)</td>
+                <td className="border p-3">Resend</td>
               </tr>
             </tbody>
           </table>
@@ -538,25 +690,56 @@ export default function PlatformMapPage() {
                 <li><code className="bg-gray-100 px-1 rounded">user_id</code> — links to auth.users</li>
                 <li><code className="bg-gray-100 px-1 rounded">email</code>, <code className="bg-gray-100 px-1 rounded">full_name</code></li>
                 <li><code className="bg-gray-100 px-1 rounded">onboarding_status</code> — enum</li>
-                <li><code className="bg-gray-100 px-1 rounded">setup_link_sent_at</code></li>
-                <li><code className="bg-gray-100 px-1 rounded">password_created_at</code></li>
-                <li><code className="bg-gray-100 px-1 rounded">first_login_at</code></li>
-                <li><code className="bg-gray-100 px-1 rounded">appointed_at</code></li>
-                <li><code className="bg-gray-100 px-1 rounded">manager_id</code> — self-reference</li>
+                <li><code className="bg-gray-100 px-1 rounded">setup_link_sent_at</code>, <code className="bg-gray-100 px-1 rounded">password_created_at</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">first_login_at</code>, <code className="bg-gray-100 px-1 rounded">appointed_at</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">manager_id</code>, <code className="bg-gray-100 px-1 rounded">developer_access</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">is_test</code>, <code className="bg-gray-100 px-1 rounded">is_active</code></li>
               </ul>
             </div>
             <div className="border rounded-lg p-4">
               <h3 className="font-bold text-lg mb-3">user_roles</h3>
               <ul className="text-sm space-y-1">
                 <li><code className="bg-gray-100 px-1 rounded">user_id</code> — links to auth.users</li>
-                <li><code className="bg-gray-100 px-1 rounded">role</code> — enum: super_admin, admin, manager, agent</li>
+                <li><code className="bg-gray-100 px-1 rounded">role</code> — enum:</li>
+                <li className="ml-4 text-xs">super_admin, admin, manager, internal_tig_agent, independent_agent</li>
               </ul>
             </div>
             <div className="border rounded-lg p-4">
-              <h3 className="font-bold text-lg mb-3">system_config</h3>
+              <h3 className="font-bold text-lg mb-3">contracting_applications</h3>
               <ul className="text-sm space-y-1">
-                <li><code className="bg-gray-100 px-1 rounded">config_key</code> — string key</li>
-                <li><code className="bg-gray-100 px-1 rounded">config_value</code> — JSONB</li>
+                <li><code className="bg-gray-100 px-1 rounded">user_id</code> — links to auth.users</li>
+                <li><code className="bg-gray-100 px-1 rounded">full_legal_name</code>, <code className="bg-gray-100 px-1 rounded">email_address</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">selected_carriers</code> — JSONB</li>
+                <li><code className="bg-gray-100 px-1 rounded">status</code>, <code className="bg-gray-100 px-1 rounded">submitted_at</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">sent_to_upline_at</code>, <code className="bg-gray-100 px-1 rounded">contract_level</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">is_test</code></li>
+              </ul>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h3 className="font-bold text-lg mb-3">carrier_statuses</h3>
+              <ul className="text-sm space-y-1">
+                <li><code className="bg-gray-100 px-1 rounded">application_id</code> — links to contracting_applications</li>
+                <li><code className="bg-gray-100 px-1 rounded">carrier_name</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">status</code> — pending/appointed/issue</li>
+                <li><code className="bg-gray-100 px-1 rounded">is_transfer</code>, <code className="bg-gray-100 px-1 rounded">notes</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">is_test</code></li>
+              </ul>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h3 className="font-bold text-lg mb-3">carriers</h3>
+              <ul className="text-sm space-y-1">
+                <li><code className="bg-gray-100 px-1 rounded">name</code>, <code className="bg-gray-100 px-1 rounded">code</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">is_active</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">requires_corporate_resolution</code></li>
+                <li><code className="bg-gray-100 px-1 rounded">requires_non_resident_states</code></li>
+              </ul>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h3 className="font-bold text-lg mb-3">feature_flags</h3>
+              <ul className="text-sm space-y-1">
+                <li><code className="bg-gray-100 px-1 rounded">flag_key</code> — unique identifier</li>
+                <li><code className="bg-gray-100 px-1 rounded">flag_value</code> — boolean</li>
+                <li><code className="bg-gray-100 px-1 rounded">description</code></li>
               </ul>
             </div>
             <div className="border rounded-lg p-4">
@@ -565,6 +748,13 @@ export default function PlatformMapPage() {
                 <li><code className="bg-gray-100 px-1 rounded">document_name</code>, <code className="bg-gray-100 px-1 rounded">carrier</code></li>
                 <li><code className="bg-gray-100 px-1 rounded">chunk_text</code>, <code className="bg-gray-100 px-1 rounded">embedding</code></li>
                 <li>Used for AI chatbot RAG</li>
+              </ul>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h3 className="font-bold text-lg mb-3">system_config</h3>
+              <ul className="text-sm space-y-1">
+                <li><code className="bg-gray-100 px-1 rounded">config_key</code> — string key</li>
+                <li><code className="bg-gray-100 px-1 rounded">config_value</code> — JSONB</li>
               </ul>
             </div>
           </div>
@@ -580,25 +770,28 @@ export default function PlatformMapPage() {
               <ul className="text-sm space-y-2">
                 <li>✓ <code>/auth</code> — Login page</li>
                 <li>✓ <code>/auth/set-password</code> — Password setup</li>
-                <li>✓ <code>/admin/super</code> — User management</li>
+                <li>✓ <code>/admin/agents</code> — Agent management</li>
+                <li>✓ <code>/admin/agents/new</code> — Create agent</li>
+                <li>✓ <code>/admin/contracting</code> — Contracting queue</li>
                 <li>✓ <code>/admin/users/:id</code> — User detail</li>
-                <li>✓ <code>/contracting</code> — Contracting form</li>
+                <li>✓ <code>/contracting</code> — Contracting wizard</li>
                 <li>✓ <code>create-agent</code> function</li>
                 <li>✓ <code>send-setup-link</code> function</li>
-                <li>✓ <code>profiles</code> table</li>
-                <li>✓ <code>user_roles</code> table</li>
+                <li>✓ <code>generate-contracting-pdf</code> function</li>
+                <li>✓ <code>profiles</code>, <code>user_roles</code>, <code>contracting_applications</code>, <code>carrier_statuses</code> tables</li>
               </ul>
             </div>
             <div className="border-2 border-gray-400 rounded-lg p-4 bg-gray-50">
-              <h3 className="font-bold text-lg mb-3 text-gray-700">🔧 Optional / Can Be Simplified</h3>
+              <h3 className="font-bold text-lg mb-3 text-gray-700">🔧 Optional / Enhancement</h3>
               <ul className="text-sm space-y-2">
                 <li>○ AI Chatbot (agent-chat, agent-chat-rag)</li>
                 <li>○ Document processing (process-document)</li>
                 <li>○ document_chunks table</li>
                 <li>○ processing_jobs table</li>
                 <li>○ Password gate (validate-password)</li>
-                <li>○ Training pages (if external LMS)</li>
-                <li>○ Carrier resource pages (if using portals)</li>
+                <li>○ Developer tools (/developer/*)</li>
+                <li>○ Feature flags system</li>
+                <li>○ Test data seeder</li>
               </ul>
             </div>
           </div>
@@ -609,23 +802,23 @@ export default function PlatformMapPage() {
           <h2 className="text-2xl font-bold mb-6">Summary</h2>
           <div className="grid grid-cols-5 gap-4 text-center">
             <div className="bg-gray-100 rounded-lg p-4">
-              <div className="text-3xl font-bold">27</div>
+              <div className="text-3xl font-bold">38</div>
               <div className="text-sm text-gray-600">Total Pages</div>
             </div>
             <div className="bg-gray-100 rounded-lg p-4">
-              <div className="text-3xl font-bold">7</div>
+              <div className="text-3xl font-bold">13</div>
               <div className="text-sm text-gray-600">Edge Functions</div>
             </div>
             <div className="bg-gray-100 rounded-lg p-4">
-              <div className="text-3xl font-bold">4</div>
+              <div className="text-3xl font-bold">8</div>
               <div className="text-sm text-gray-600">Database Tables</div>
             </div>
             <div className="bg-gray-100 rounded-lg p-4">
-              <div className="text-3xl font-bold">4</div>
+              <div className="text-3xl font-bold">6</div>
               <div className="text-sm text-gray-600">User Roles</div>
             </div>
             <div className="bg-gray-100 rounded-lg p-4">
-              <div className="text-3xl font-bold">6</div>
+              <div className="text-3xl font-bold">8</div>
               <div className="text-sm text-gray-600">Onboarding Steps</div>
             </div>
           </div>
@@ -640,6 +833,7 @@ export default function PlatformMapPage() {
             print-color-adjust: exact !important;
           }
           .page-break-after { page-break-after: always; }
+          .page-break-before { page-break-before: always; }
           @page { margin: 0.5in; }
         }
       `}</style>
