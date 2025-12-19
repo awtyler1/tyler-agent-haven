@@ -90,6 +90,29 @@ const CONTRACT_LEVELS = [
   { value: 'street_level', label: 'Street Level' },
 ];
 
+const initializeCarrierStatuses = async (applicationId: string, carriers: string[]) => {
+  // Check if statuses already exist
+  const { data: existing } = await supabase
+    .from('carrier_statuses')
+    .select('carrier_name')
+    .eq('application_id', applicationId);
+
+  const existingCarriers = existing?.map(e => e.carrier_name) || [];
+  const newCarriers = carriers.filter(c => !existingCarriers.includes(c));
+
+  if (newCarriers.length > 0) {
+    const { error } = await supabase
+      .from('carrier_statuses')
+      .insert(newCarriers.map(carrier => ({
+        application_id: applicationId,
+        carrier_name: carrier,
+        status: 'pending'
+      })));
+
+    if (error) console.error('Error initializing carrier statuses:', error);
+  }
+};
+
 export default function ContractingQueuePage() {
   const [submissions, setSubmissions] = useState<ContractingSubmission[]>([]);
   const [managers, setManagers] = useState<Manager[]>([]);
@@ -108,6 +131,8 @@ export default function ContractingQueuePage() {
   // Form state for selected submission
   const [contractLevel, setContractLevel] = useState('');
   const [uplineId, setUplineId] = useState('');
+  const [carrierStatuses, setCarrierStatuses] = useState<Record<string, string>>({});
+  const [updatingCarrier, setUpdatingCarrier] = useState<string | null>(null);
 
   const selected = submissions.find(s => s.id === selectedId);
 
@@ -121,8 +146,16 @@ export default function ContractingQueuePage() {
     if (selected) {
       setContractLevel(selected.contract_level || '');
       setUplineId(selected.upline_id || '');
+      
+      // Initialize and fetch carrier statuses
+      const carriers = (selected.selected_carriers as { carriers?: string[] })?.carriers || [];
+      if (carriers.length > 0) {
+        initializeCarrierStatuses(selected.id, carriers).then(() => {
+          fetchCarrierStatuses(selected.id);
+        });
+      }
     }
-  }, [selectedId, selected]);
+  }, [selectedId, selected?.id]);
 
   const fetchSubmissions = async () => {
     try {
@@ -166,6 +199,71 @@ export default function ContractingQueuePage() {
       }
     } catch (err) {
       console.error('Error fetching managers:', err);
+    }
+  };
+
+  const fetchCarrierStatuses = async (applicationId: string) => {
+    const { data, error } = await supabase
+      .from('carrier_statuses')
+      .select('*')
+      .eq('application_id', applicationId);
+
+    if (error) {
+      console.error('Error fetching carrier statuses:', error);
+      return;
+    }
+
+    const statusMap: Record<string, string> = {};
+    data?.forEach(cs => {
+      statusMap[cs.carrier_name] = cs.status || 'pending';
+    });
+    setCarrierStatuses(statusMap);
+  };
+
+  const updateCarrierStatus = async (carrierName: string, newStatus: string) => {
+    if (!selected) return;
+    
+    setUpdatingCarrier(carrierName);
+    try {
+      // Check if record exists
+      const { data: existing } = await supabase
+        .from('carrier_statuses')
+        .select('id')
+        .eq('application_id', selected.id)
+        .eq('carrier_name', carrierName)
+        .maybeSingle();
+
+      if (existing) {
+        // Update existing
+        const { error } = await supabase
+          .from('carrier_statuses')
+          .update({ 
+            status: newStatus, 
+            updated_at: new Date().toISOString() 
+          })
+          .eq('id', existing.id);
+
+        if (error) throw error;
+      } else {
+        // Insert new
+        const { error } = await supabase
+          .from('carrier_statuses')
+          .insert({
+            application_id: selected.id,
+            carrier_name: carrierName,
+            status: newStatus
+          });
+
+        if (error) throw error;
+      }
+
+      setCarrierStatuses(prev => ({ ...prev, [carrierName]: newStatus }));
+      toast.success(`${carrierName} status updated to ${newStatus}`);
+    } catch (err) {
+      console.error('Error updating carrier status:', err);
+      toast.error('Failed to update carrier status');
+    } finally {
+      setUpdatingCarrier(null);
     }
   };
 
@@ -612,24 +710,68 @@ export default function ContractingQueuePage() {
                 </div>
 
                 {/* Carriers */}
-                <div className="space-y-3">
-                  <h3 className="font-medium text-foreground">
-                    Selected Carriers ({carriers.length})
+                <div className="bg-white rounded-xl border border-[#E5E2DB] p-6 mb-6 shadow-sm">
+                  <h3 className="font-semibold text-foreground mb-4">
+                    Carrier Appointment Status ({carriers.length})
                   </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {carriers.map(carrier => (
-                      <div 
-                        key={carrier}
-                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                      >
-                        <span className="text-sm font-medium text-foreground">{carrier}</span>
-                        <span className="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-700">
-                          Pending
-                        </span>
-                      </div>
-                    ))}
+                  <div className="space-y-2">
+                    {carriers.map(carrier => {
+                      const status = carrierStatuses[carrier] || 'pending';
+                      return (
+                        <div 
+                          key={carrier} 
+                          className={`flex items-center justify-between p-3 rounded-lg ${
+                            status === 'appointed' 
+                              ? 'bg-green-50 border border-green-200' 
+                              : status === 'issue'
+                                ? 'bg-red-50 border border-red-200'
+                                : 'bg-muted/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            {status === 'appointed' && <CheckCircle className="w-4 h-4 text-green-600" />}
+                            {status === 'issue' && <AlertCircle className="w-4 h-4 text-red-600" />}
+                            {status === 'pending' && <Clock className="w-4 h-4 text-amber-600" />}
+                            <span className="font-medium text-foreground">{carrier}</span>
+                          </div>
+                          <Select 
+                            value={status} 
+                            onValueChange={(value) => updateCarrierStatus(carrier, value)}
+                            disabled={updatingCarrier === carrier}
+                          >
+                            <SelectTrigger className="w-32 h-8 text-xs">
+                              {updatingCarrier === carrier ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <SelectValue />
+                              )}
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                  Pending
+                                </span>
+                              </SelectItem>
+                              <SelectItem value="appointed">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                  Appointed
+                                </span>
+                              </SelectItem>
+                              <SelectItem value="issue">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                  Issue
+                                </span>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      );
+                    })}
                     {carriers.length === 0 && (
-                      <p className="text-muted-foreground text-sm col-span-2">
+                      <p className="text-sm text-muted-foreground text-center py-4">
                         No carriers selected
                       </p>
                     )}
