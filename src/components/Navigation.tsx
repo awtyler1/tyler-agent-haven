@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, Shield, LogIn, LogOut, Code } from "lucide-react";
 import { AgentProfileDropdown } from "./AgentProfileDropdown";
+import { AgentViewToggle } from "./AgentViewToggle";
 import tylerLogo from "@/assets/tyler-logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { useViewMode } from "@/contexts/ViewModeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
@@ -23,6 +25,7 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const { canAccessAdmin, canAccessDeveloper, isAuthenticated, isAgent, isContractingRequired } = useAuth();
+  const { isViewingAsAgent } = useViewMode();
   const navigate = useNavigate();
 
   // Hide navigation for agents who need to complete contracting
@@ -141,8 +144,11 @@ const Navigation = () => {
               </div>
             ))}
             
-            {/* Admin Link - Only for admins */}
-            {canAccessAdmin() && (
+            {/* Agent View Toggle - Only for admins */}
+            <AgentViewToggle />
+
+            {/* Admin Link - Only for admins, hidden in agent view */}
+            {canAccessAdmin() && !isViewingAsAgent && (
               <Link
                 to="/admin"
                 className="text-[13px] font-medium text-primary hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"

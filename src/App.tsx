@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { TestModeBanner } from "./components/TestModeBanner";
+import { ViewModeBanner } from "./components/ViewModeBanner";
+import { ViewModeProvider } from "./contexts/ViewModeContext";
 import { AgentChatWidget } from "./components/AgentChatWidget";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -86,11 +88,13 @@ function ConditionalChatWidget() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <TestModeBanner />
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+    <ViewModeProvider>
+      <TooltipProvider>
+        <ViewModeBanner />
+        <TestModeBanner />
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
           <RecoveryRedirectHandler />
           <Routes>
             {/* Auth */}
@@ -282,7 +286,8 @@ const App = () => (
           </Routes>
           <ConditionalChatWidget />
         </BrowserRouter>
-    </TooltipProvider>
+      </TooltipProvider>
+    </ViewModeProvider>
   </QueryClientProvider>
 );
 
