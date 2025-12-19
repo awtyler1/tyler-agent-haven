@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { Json } from '@/integrations/supabase/types';
 import { useContractingPdf } from './useContractingPdf';
-import { useFeatureFlags } from './useFeatureFlags';
+import { useFeatureFlags } from '@/contexts/FeatureFlagsContext';
 
 // Debounce delay for auto-save (ms)
 const SAVE_DEBOUNCE_MS = 800;
