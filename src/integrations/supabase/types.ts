@@ -20,6 +20,7 @@ export type Database = {
           carrier_name: string
           created_at: string | null
           id: string
+          is_test: boolean | null
           is_transfer: boolean | null
           notes: string | null
           status: string | null
@@ -31,6 +32,7 @@ export type Database = {
           carrier_name: string
           created_at?: string | null
           id?: string
+          is_test?: boolean | null
           is_transfer?: boolean | null
           notes?: string | null
           status?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           carrier_name?: string
           created_at?: string | null
           id?: string
+          is_test?: boolean | null
           is_transfer?: boolean | null
           notes?: string | null
           status?: string | null
@@ -141,6 +144,7 @@ export type Database = {
           insurance_license_number: string | null
           is_corporation: boolean | null
           is_finra_registered: boolean | null
+          is_test: boolean | null
           legal_questions: Json | null
           license_expiration_date: string | null
           mailing_address: Json | null
@@ -216,6 +220,7 @@ export type Database = {
           insurance_license_number?: string | null
           is_corporation?: boolean | null
           is_finra_registered?: boolean | null
+          is_test?: boolean | null
           legal_questions?: Json | null
           license_expiration_date?: string | null
           mailing_address?: Json | null
@@ -291,6 +296,7 @@ export type Database = {
           insurance_license_number?: string | null
           is_corporation?: boolean | null
           is_finra_registered?: boolean | null
+          is_test?: boolean | null
           legal_questions?: Json | null
           license_expiration_date?: string | null
           mailing_address?: Json | null

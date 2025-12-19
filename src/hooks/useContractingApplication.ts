@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { Json } from '@/integrations/supabase/types';
 import { useContractingPdf } from './useContractingPdf';
+import { useFeatureFlags } from './useFeatureFlags';
 
 // Debounce delay for auto-save (ms)
 const SAVE_DEBOUNCE_MS = 800;
@@ -25,6 +26,7 @@ const toDbFormat = (data: Partial<ContractingApplication>): Record<string, unkno
 export function useContractingApplication() {
   const { user } = useAuth();
   const { generatePdf, generating: generatingPdf } = useContractingPdf();
+  const { isEnabled } = useFeatureFlags();
   const [application, setApplication] = useState<ContractingApplication | null>(null);
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +36,9 @@ export function useContractingApplication() {
   // Refs for debounced saving
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<Record<string, unknown>>({});
+  
+  // Check if test mode is enabled
+  const isTestMode = isEnabled('test_mode');
 
   // Fetch or create application
   useEffect(() => {
@@ -73,6 +78,7 @@ export function useContractingApplication() {
               status: 'in_progress',
               current_step: 1,
               completed_steps: [],
+              is_test: isTestMode,
             } as never)
             .select()
             .single();
