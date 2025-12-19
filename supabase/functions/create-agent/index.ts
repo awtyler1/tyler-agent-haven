@@ -12,6 +12,7 @@ interface CreateAgentRequest {
   managerId?: string | null;
   role?: 'super_admin' | 'contracting_admin' | 'broker_manager' | 'agent';
   sendSetupEmail?: boolean;
+  isTest?: boolean;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -54,11 +55,13 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Unauthorized: Super admin role required");
     }
 
-    const { email, fullName, managerId, role = 'agent', sendSetupEmail = false }: CreateAgentRequest = await req.json();
+    const { email, fullName, managerId, role = 'agent', sendSetupEmail = false, isTest = false }: CreateAgentRequest = await req.json();
 
     if (!email || !fullName) {
       throw new Error("Email and full name are required");
     }
+
+    console.log(`Creating agent: ${email}, isTest: ${isTest}`);
 
     // Generate a random password (user won't know this - they'll set their own)
     const tempPassword = crypto.randomUUID();
@@ -77,11 +80,15 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`User created: ${newUser.user.id} (${email})`);
 
-    // Update the profile with manager if provided
-    if (managerId) {
+    // Update the profile with manager and test flag if provided
+    const profileUpdates: Record<string, any> = {};
+    if (managerId) profileUpdates.manager_id = managerId;
+    if (isTest) profileUpdates.is_test = true;
+    
+    if (Object.keys(profileUpdates).length > 0) {
       await supabaseAdmin
         .from("profiles")
-        .update({ manager_id: managerId })
+        .update(profileUpdates)
         .eq("user_id", newUser.user.id);
     }
 
@@ -222,6 +229,7 @@ serve(async (req: Request): Promise<Response> => {
         success: true, 
         userId: newUser.user.id,
         emailSent,
+        isTest,
         message: emailSent ? "User created and setup email sent" : "User created successfully" 
       }),
       { 

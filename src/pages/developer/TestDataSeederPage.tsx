@@ -4,11 +4,11 @@ import {
   ArrowLeft, 
   UserPlus, 
   Loader2,
-  CheckCircle,
   Trash2,
   RefreshCw,
   AlertTriangle,
-  Database
+  Database,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -30,10 +30,12 @@ export default function TestDataSeederPage() {
   const navigate = useNavigate();
   const { isEnabled } = useFeatureFlags();
   const [creating, setCreating] = useState(false);
+  const [creatingAgents, setCreatingAgents] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [createdCount, setCreatedCount] = useState(0);
   const [testCount, setTestCount] = useState(0);
   const [realCount, setRealCount] = useState(0);
+  const [testAgentCount, setTestAgentCount] = useState(0);
 
   const isTestMode = isEnabled('test_mode');
 
@@ -47,9 +49,15 @@ export default function TestDataSeederPage() {
       .from('contracting_applications')
       .select('*', { count: 'exact', head: true })
       .eq('is_test', false);
+
+    const { count: testAgents } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_test', true);
     
     setTestCount(testC || 0);
     setRealCount(realC || 0);
+    setTestAgentCount(testAgents || 0);
   };
 
   useEffect(() => {
@@ -135,26 +143,97 @@ export default function TestDataSeederPage() {
     }
   };
 
+  const createTestAgent = async (agent: typeof FAKE_AGENTS[0]) => {
+    const timestamp = Date.now();
+    const uniqueEmail = `test.agent.${timestamp}@example.com`;
+    
+    const { data, error } = await supabase.functions.invoke('create-agent', {
+      body: {
+        email: uniqueEmail,
+        fullName: agent.name,
+        role: 'independent_agent',
+        sendSetupEmail: false,
+        isTest: true,
+      },
+    });
+
+    if (error) throw error;
+    return data;
+  };
+
+  const handleCreateTestAgents = async () => {
+    setCreatingAgents(true);
+    try {
+      for (const agent of FAKE_AGENTS.slice(0, 3)) {
+        const result = await createTestAgent(agent);
+        
+        if (result?.userId) {
+          const numCarriers = Math.floor(Math.random() * 3) + 2;
+          const shuffled = [...CARRIERS].sort(() => 0.5 - Math.random());
+          const selectedCarriers = shuffled.slice(0, numCarriers);
+          
+          await supabase
+            .from('contracting_applications')
+            .insert({
+              user_id: result.userId,
+              full_legal_name: agent.name,
+              email_address: `${result.userId}@example.com`,
+              resident_state: agent.state,
+              npn_number: String(Math.floor(Math.random() * 90000000) + 10000000),
+              status: 'submitted',
+              submitted_at: new Date().toISOString(),
+              selected_carriers: { carriers: selectedCarriers },
+              is_test: true,
+            });
+        }
+      }
+      toast.success('Created 3 test agents with contracting applications');
+      fetchCounts();
+    } catch (err) {
+      console.error('Error creating test agents:', err);
+      toast.error('Failed to create test agents');
+    } finally {
+      setCreatingAgents(false);
+    }
+  };
+
   const handleDeleteTestData = async () => {
-    if (!confirm('Delete ALL test submissions (is_test = true)?')) return;
+    if (!confirm('Delete ALL test data including test agent accounts?')) return;
     
     setDeleting(true);
     try {
       // Delete carrier statuses for test applications
-      const { error: carrierError } = await supabase
+      await supabase
         .from('carrier_statuses')
         .delete()
         .eq('is_test', true);
-      
-      if (carrierError) throw carrierError;
 
       // Delete test contracting applications
-      const { error: appError } = await supabase
+      await supabase
         .from('contracting_applications')
         .delete()
         .eq('is_test', true);
 
-      if (appError) throw appError;
+      // Get test profiles to delete their user roles
+      const { data: testProfiles } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('is_test', true);
+
+      if (testProfiles && testProfiles.length > 0) {
+        const userIds = testProfiles.map(p => p.user_id);
+        
+        await supabase
+          .from('user_roles')
+          .delete()
+          .in('user_id', userIds);
+        
+        await supabase
+          .from('profiles')
+          .delete()
+          .eq('is_test', true);
+      }
+
       toast.success('Test data deleted');
       fetchCounts();
     } catch (err) {
@@ -198,6 +277,10 @@ export default function TestDataSeederPage() {
             <div className="flex items-center gap-6">
               <Database className="h-5 w-5 text-muted-foreground" />
               <div className="flex gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">{testAgentCount}</div>
+                  <div className="text-sm text-muted-foreground">Test agents</div>
+                </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-600">{testCount}</div>
                   <div className="text-sm text-muted-foreground">Test submissions</div>
@@ -269,12 +352,36 @@ export default function TestDataSeederPage() {
           </CardContent>
         </Card>
 
+        {/* Create Test Agents */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Test Agents</CardTitle>
+            <CardDescription>
+              Generate complete test agent accounts that appear in the Agents page
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={handleCreateTestAgents} 
+              disabled={creatingAgents}
+              variant="outline"
+            >
+              {creatingAgents ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Users className="h-4 w-4 mr-2" />
+              )}
+              Create 3 Test Agents
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Cleanup */}
         <Card>
           <CardHeader>
             <CardTitle>Cleanup</CardTitle>
             <CardDescription>
-              Remove all test data (<code>is_test=true</code>)
+              Remove all test data including test agents (<code>is_test=true</code>)
             </CardDescription>
           </CardHeader>
           <CardContent>

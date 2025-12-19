@@ -12,6 +12,7 @@ import type { Profile } from '@/hooks/useProfile';
 
 interface AgentWithRole extends Profile {
   role?: string;
+  is_test?: boolean;
 }
 
 export default function AgentsPage() {
@@ -142,9 +143,16 @@ export default function AgentsPage() {
                 <div key={agent.id} className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-gold/30 hover:-translate-y-0.5 transition-all duration-150">
                   <div className="flex items-center justify-between">
                     <Link to={`/admin/users/${agent.user_id}`} className="flex-1 group">
-                      <h3 className="font-medium text-foreground group-hover:text-gold transition-colors">
-                        {agent.full_name || 'Unnamed Agent'}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-foreground group-hover:text-gold transition-colors">
+                          {agent.full_name || 'Unnamed Agent'}
+                        </h3>
+                        {agent.is_test && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-medium">
+                            TEST
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">{agent.email}</p>
                     </Link>
                     <div className="flex items-center gap-3">
@@ -152,7 +160,9 @@ export default function AgentsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           startImpersonating({
                             userId: agent.user_id,
                             fullName: agent.full_name || 'Unknown',
@@ -160,7 +170,7 @@ export default function AgentsPage() {
                           });
                           navigate('/');
                         }}
-                        className="h-8 px-2 text-muted-foreground hover:text-amber-600"
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-amber-600 hover:bg-amber-50"
                         title="View as this agent"
                       >
                         <Eye className="h-4 w-4" />
