@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -7,12 +7,14 @@ import {
   CheckCircle,
   Trash2,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  Database
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 const FAKE_AGENTS = [
   { name: 'Sarah Johnson', email: 'sarah.test@example.com', state: 'TX', npn: '11111111' },
@@ -26,9 +28,33 @@ const CARRIERS = ['Aetna', 'Humana', 'UnitedHealthcare', 'Cigna', 'WellCare', 'A
 
 export default function TestDataSeederPage() {
   const navigate = useNavigate();
+  const { isEnabled } = useFeatureFlags();
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [createdCount, setCreatedCount] = useState(0);
+  const [testCount, setTestCount] = useState(0);
+  const [realCount, setRealCount] = useState(0);
+
+  const isTestMode = isEnabled('test_mode');
+
+  const fetchCounts = async () => {
+    const { count: testC } = await supabase
+      .from('contracting_applications')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_test', true);
+    
+    const { count: realC } = await supabase
+      .from('contracting_applications')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_test', false);
+    
+    setTestCount(testC || 0);
+    setRealCount(realC || 0);
+  };
+
+  useEffect(() => {
+    fetchCounts();
+  }, []);
 
   const createTestSubmission = async (agent: typeof FAKE_AGENTS[0]) => {
     // Get current user's ID (so foreign key constraint is satisfied)
@@ -67,6 +93,7 @@ export default function TestDataSeederPage() {
         signature_initials: agent.name.split(' ').map(n => n[0]).join(''),
         signature_name: agent.name,
         signature_date: new Date().toISOString(),
+        is_test: true, // Always mark seeded data as test
       });
 
     if (error) {
@@ -85,6 +112,7 @@ export default function TestDataSeederPage() {
         setCreatedCount(prev => prev + 1);
       }
       toast.success(`Created ${FAKE_AGENTS.length} test submissions`);
+      fetchCounts();
     } catch (err) {
       toast.error('Failed to create some test data');
     } finally {
@@ -98,6 +126,7 @@ export default function TestDataSeederPage() {
       const randomAgent = FAKE_AGENTS[Math.floor(Math.random() * FAKE_AGENTS.length)];
       await createTestSubmission(randomAgent);
       toast.success(`Created test submission for ${randomAgent.name}`);
+      fetchCounts();
     } catch (err) {
       console.error('Create error:', err);
       toast.error('Failed to create test data');
@@ -107,17 +136,27 @@ export default function TestDataSeederPage() {
   };
 
   const handleDeleteTestData = async () => {
-    if (!confirm('Delete ALL test submissions (emails ending in @example.com)?')) return;
+    if (!confirm('Delete ALL test submissions (is_test = true)?')) return;
     
     setDeleting(true);
     try {
-      const { error } = await supabase
+      // Delete carrier statuses for test applications
+      const { error: carrierError } = await supabase
+        .from('carrier_statuses')
+        .delete()
+        .eq('is_test', true);
+      
+      if (carrierError) throw carrierError;
+
+      // Delete test contracting applications
+      const { error: appError } = await supabase
         .from('contracting_applications')
         .delete()
-        .like('email_address', '%@example.com');
+        .eq('is_test', true);
 
-      if (error) throw error;
+      if (appError) throw appError;
       toast.success('Test data deleted');
+      fetchCounts();
     } catch (err) {
       console.error('Error deleting test data:', err);
       toast.error('Failed to delete test data');
@@ -145,10 +184,29 @@ export default function TestDataSeederPage() {
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                <strong>Testing Only:</strong> This creates fake data with @example.com emails. 
-                These won't have real uploaded documents but will appear in the contracting queue.
-              </p>
+              <div className="text-sm text-amber-700 dark:text-amber-300">
+                <p><strong>Testing Only:</strong> This creates fake data with <code>is_test=true</code>.</p>
+                <p className="mt-1">These won't have real uploaded documents but will appear in the contracting queue with a TEST badge.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Data Counts */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-6">
+              <Database className="h-5 w-5 text-muted-foreground" />
+              <div className="flex gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">{testCount}</div>
+                  <div className="text-sm text-muted-foreground">Test submissions</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground">{realCount}</div>
+                  <div className="text-sm text-muted-foreground">Real submissions</div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -216,7 +274,7 @@ export default function TestDataSeederPage() {
           <CardHeader>
             <CardTitle>Cleanup</CardTitle>
             <CardDescription>
-              Remove all test data (submissions with @example.com emails)
+              Remove all test data (<code>is_test=true</code>)
             </CardDescription>
           </CardHeader>
           <CardContent>

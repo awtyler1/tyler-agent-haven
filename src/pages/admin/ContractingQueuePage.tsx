@@ -65,6 +65,7 @@ interface ContractingSubmission {
   upline_id?: string | null;
   sent_to_upline_at?: string | null;
   sent_to_upline_by?: string | null;
+  is_test?: boolean;
 }
 
 interface Manager {
@@ -91,7 +92,7 @@ const CONTRACT_LEVELS = [
   { value: 'street_level', label: 'Street Level' },
 ];
 
-const initializeCarrierStatuses = async (applicationId: string, carriers: string[]) => {
+const initializeCarrierStatuses = async (applicationId: string, carriers: string[], isTest: boolean = false) => {
   // Check if statuses already exist
   const { data: existing } = await supabase
     .from('carrier_statuses')
@@ -107,7 +108,8 @@ const initializeCarrierStatuses = async (applicationId: string, carriers: string
       .insert(newCarriers.map(carrier => ({
         application_id: applicationId,
         carrier_name: carrier,
-        status: 'pending'
+        status: 'pending',
+        is_test: isTest
       })));
 
     if (error) console.error('Error initializing carrier statuses:', error);
@@ -120,6 +122,7 @@ export default function ContractingQueuePage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [hideTestData, setHideTestData] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<{ url: string; name: string } | null>(null);
   const [sendingToUpline, setSendingToUpline] = useState(false);
@@ -172,7 +175,7 @@ export default function ContractingQueuePage() {
       // Initialize and fetch carrier statuses
       const carriers = (selected.selected_carriers as { carriers?: string[] })?.carriers || [];
       if (carriers.length > 0) {
-        initializeCarrierStatuses(selected.id, carriers).then(() => {
+        initializeCarrierStatuses(selected.id, carriers, selected.is_test || false).then(() => {
           fetchCarrierStatuses(selected.id);
         });
       } else {
@@ -504,8 +507,9 @@ export default function ContractingQueuePage() {
       s.npn_number?.includes(searchTerm);
     
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
+    const matchesTestFilter = hideTestData ? !s.is_test : true;
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesTestFilter;
   });
 
   const statusCounts = {
@@ -546,7 +550,7 @@ export default function ContractingQueuePage() {
               </div>
 
               {/* Filter Tabs */}
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
                 {[
                   { value: 'all', label: 'All', count: statusCounts.all },
                   { value: 'submitted', label: 'New', count: statusCounts.submitted },
@@ -565,6 +569,18 @@ export default function ContractingQueuePage() {
                     {tab.label} ({tab.count})
                   </button>
                 ))}
+              </div>
+
+              {/* Hide Test Data Toggle */}
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="hide-test"
+                  checked={hideTestData}
+                  onCheckedChange={(checked) => setHideTestData(checked as boolean)}
+                />
+                <label htmlFor="hide-test" className="text-sm text-muted-foreground cursor-pointer">
+                  Hide test data
+                </label>
               </div>
 
             </div>
@@ -592,8 +608,13 @@ export default function ContractingQueuePage() {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-foreground truncate">
+                      <span className="font-medium text-foreground truncate flex items-center gap-2">
                         {submission.full_legal_name || 'Unknown'}
+                        {submission.is_test && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">
+                            TEST
+                          </span>
+                        )}
                       </span>
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(submission.status)}`}>
                         {getStatusIcon(submission.status)}
