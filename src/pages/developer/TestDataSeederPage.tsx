@@ -333,23 +333,116 @@ export default function TestDataSeederPage() {
     
     setDeleting(true);
     try {
-      // Delete carrier statuses for test applications
-      await supabase
+      // Step 1: Delete carrier statuses for test applications
+      console.log('Deleting test carrier statuses...');
+      const { error: carrierError } = await supabase
         .from('carrier_statuses')
         .delete()
         .eq('is_test', true);
+      
+      if (carrierError) {
+        console.error('Carrier status delete error:', carrierError);
+      } else {
+        console.log('Deleted test carrier statuses');
+      }
 
-      // Delete test contracting applications
-      await supabase
+      // Step 2: Delete test contracting applications
+      console.log('Deleting test contracting applications...');
+      const { error: appError } = await supabase
         .from('contracting_applications')
         .delete()
         .eq('is_test', true);
 
-      // Get test profiles to delete their user roles
+      if (appError) {
+        console.error('Application delete error:', appError);
+        throw appError;
+      }
+      console.log('Deleted test contracting applications');
+
+      // Step 3: Get test profiles
       const { data: testProfiles } = await supabase
         .from('profiles')
         .select('user_id')
         .eq('is_test', true);
+
+      console.log('Found test profiles:', testProfiles?.length || 0);
+
+      // Step 4: Delete test user roles and profiles
+      if (testProfiles && testProfiles.length > 0) {
+        const userIds = testProfiles.map(p => p.user_id);
+        
+        console.log('Deleting user roles for:', userIds);
+        const { error: rolesError } = await supabase
+          .from('user_roles')
+          .delete()
+          .in('user_id', userIds);
+        
+        if (rolesError) {
+          console.error('Roles delete error:', rolesError);
+        }
+        
+        console.log('Deleting test profiles...');
+        const { error: profilesError } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('is_test', true);
+          
+        if (profilesError) {
+          console.error('Profiles delete error:', profilesError);
+        }
+      }
+
+      toast.success('Test data deleted');
+      
+      // Wait a moment for database to sync, then fetch fresh counts
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await fetchCounts();
+      
+    } catch (err) {
+      console.error('Error deleting test data:', err);
+      toast.error('Failed to delete test data');
+      await fetchCounts();
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteByEmail = async () => {
+    if (!confirm('Delete ALL data with @example.com emails? This catches old test data without is_test flag.')) return;
+    
+    setDeleting(true);
+    try {
+      // Find applications with example.com emails
+      const { data: testApps } = await supabase
+        .from('contracting_applications')
+        .select('id')
+        .like('email_address', '%@example.com');
+      
+      console.log('Found @example.com applications:', testApps?.length || 0);
+      
+      if (testApps && testApps.length > 0) {
+        const appIds = testApps.map(a => a.id);
+        
+        // Delete carrier statuses for these applications
+        await supabase
+          .from('carrier_statuses')
+          .delete()
+          .in('application_id', appIds);
+        
+        // Delete the applications
+        await supabase
+          .from('contracting_applications')
+          .delete()
+          .like('email_address', '%@example.com');
+      }
+
+      // Delete profiles with example.com emails
+      const { data: testProfiles } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .like('email', '%@example.com');
+
+      console.log('Found @example.com profiles:', testProfiles?.length || 0);
 
       if (testProfiles && testProfiles.length > 0) {
         const userIds = testProfiles.map(p => p.user_id);
@@ -362,22 +455,15 @@ export default function TestDataSeederPage() {
         await supabase
           .from('profiles')
           .delete()
-          .eq('is_test', true);
+          .like('email', '%@example.com');
       }
 
-      // Update counters immediately (optimistic update)
-      setTestCount(0);
-      setTestAgentCount(0);
-
-      toast.success('Test data deleted');
-      
-      // Then fetch to confirm actual counts
-      fetchCounts();
+      toast.success('Cleaned up @example.com data');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await fetchCounts();
     } catch (err) {
-      console.error('Error deleting test data:', err);
-      toast.error('Failed to delete test data');
-      // Refetch on error to get accurate counts
-      fetchCounts();
+      console.error('Error:', err);
+      toast.error('Failed to clean up data');
     } finally {
       setDeleting(false);
     }
@@ -607,22 +693,41 @@ export default function TestDataSeederPage() {
           <CardHeader>
             <CardTitle>Cleanup</CardTitle>
             <CardDescription>
-              Remove all test data including test agents (<code>is_test=true</code>)
+              Remove test data from the system
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button 
-              variant="destructive" 
-              onClick={handleDeleteTestData}
-              disabled={deleting}
-            >
-              {deleting ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
-              Delete All Test Data
-            </Button>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-3">
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteTestData}
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4 mr-2" />
+                )}
+                Delete Test Data (is_test=true)
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleDeleteByEmail}
+                disabled={deleting}
+                className="border-destructive/50 text-destructive hover:bg-destructive/10"
+              >
+                {deleting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4 mr-2" />
+                )}
+                Clean @example.com
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Use "Clean @example.com" if old test data wasn't flagged with is_test=true
+            </p>
           </CardContent>
         </Card>
 
