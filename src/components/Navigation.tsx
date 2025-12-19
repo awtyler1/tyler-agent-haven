@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, Shield, LogIn, LogOut, Code } from "lucide-react";
+import { AgentProfileDropdown } from "./AgentProfileDropdown";
 import tylerLogo from "@/assets/tyler-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -165,15 +166,9 @@ const Navigation = () => {
             {/* Dark Mode Toggle */}
             <DarkModeToggle />
 
-            {/* Auth Link */}
+            {/* Profile Dropdown - For authenticated users */}
             {isAuthenticated ? (
-              <button
-                onClick={handleLogout}
-                className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
-              >
-                <LogOut size={14} />
-                Log Out
-              </button>
+              <AgentProfileDropdown />
             ) : (
               <Link
                 to="/auth"
