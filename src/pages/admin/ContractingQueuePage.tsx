@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -134,6 +134,8 @@ export default function ContractingQueuePage() {
   const [carrierStatuses, setCarrierStatuses] = useState<Record<string, string>>({});
   const [updatingCarrier, setUpdatingCarrier] = useState<string | null>(null);
   const [loadingCarrierStatuses, setLoadingCarrierStatuses] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const previousSelectedId = useRef<string | null>(null);
 
   const selected = submissions.find(s => s.id === selectedId);
 
@@ -141,6 +143,18 @@ export default function ContractingQueuePage() {
     fetchSubmissions();
     fetchManagers();
   }, []);
+
+  // Handle transition animation when switching submissions
+  useEffect(() => {
+    if (selectedId !== previousSelectedId.current) {
+      setIsTransitioning(true);
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 150);
+      previousSelectedId.current = selectedId;
+      return () => clearTimeout(timer);
+    }
+  }, [selectedId]);
 
   // Update form state when selection changes
   useEffect(() => {
@@ -522,10 +536,10 @@ export default function ContractingQueuePage() {
                   <button
                     key={submission.id}
                     onClick={() => setSelectedId(submission.id)}
-                    className={`w-full p-4 border-b border-border text-left transition-colors ${
+                    className={`w-full p-4 border-b border-border text-left transition-all duration-200 ${
                       selectedId === submission.id
-                        ? 'bg-primary/10 border-l-4 border-l-primary'
-                        : 'hover:bg-muted/50'
+                        ? 'bg-amber-50 border-l-4 border-l-amber-500'
+                        : 'hover:bg-muted/50 border-l-4 border-l-transparent'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -554,7 +568,13 @@ export default function ContractingQueuePage() {
           {/* Right Panel - Details */}
           <div className="flex-1 overflow-y-auto bg-background">
             {selected ? (
-              <div className="p-6 space-y-6">
+              <div 
+                className={`p-6 space-y-6 transition-all duration-200 ease-out ${
+                  isTransitioning 
+                    ? 'opacity-0 translate-y-1' 
+                    : 'opacity-100 translate-y-0'
+                }`}
+              >
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div>
