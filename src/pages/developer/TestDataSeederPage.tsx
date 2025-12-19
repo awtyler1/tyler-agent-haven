@@ -469,6 +469,53 @@ export default function TestDataSeederPage() {
     }
   };
 
+  const runDiagnostics = async () => {
+    console.log('=== DIAGNOSTICS ===');
+    
+    // Check contracting applications
+    const { data: allApps, count: totalApps } = await supabase
+      .from('contracting_applications')
+      .select('id, email_address, is_test, status', { count: 'exact' });
+    
+    console.log('Total contracting applications:', totalApps);
+    console.log('Applications:', allApps);
+    
+    const testApps = allApps?.filter(a => a.is_test === true);
+    const nonTestApps = allApps?.filter(a => a.is_test !== true);
+    const exampleEmails = allApps?.filter(a => a.email_address?.includes('@example.com'));
+    
+    console.log('With is_test=true:', testApps?.length || 0);
+    console.log('Without is_test=true:', nonTestApps?.length || 0);
+    console.log('With @example.com email:', exampleEmails?.length || 0);
+    
+    // Check profiles
+    const { data: allProfiles, count: totalProfiles } = await supabase
+      .from('profiles')
+      .select('id, email, is_test', { count: 'exact' });
+    
+    console.log('Total profiles:', totalProfiles);
+    
+    const testProfiles = allProfiles?.filter(p => p.is_test === true);
+    console.log('Profiles with is_test=true:', testProfiles?.length || 0);
+    
+    // Check carrier statuses
+    const { count: totalStatuses } = await supabase
+      .from('carrier_statuses')
+      .select('*', { count: 'exact', head: true });
+    
+    const { count: testStatuses } = await supabase
+      .from('carrier_statuses')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_test', true);
+    
+    console.log('Total carrier statuses:', totalStatuses);
+    console.log('Carrier statuses with is_test=true:', testStatuses);
+    
+    console.log('=== END DIAGNOSTICS ===');
+    
+    toast.info('Check browser console for diagnostics');
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -486,12 +533,17 @@ export default function TestDataSeederPage() {
         {/* Warning */}
         <Card className="border-amber-500/50 bg-amber-500/10">
           <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
-              <div className="text-sm text-amber-700 dark:text-amber-300">
-                <p><strong>Testing Only:</strong> This creates fake data with <code>is_test=true</code>.</p>
-                <p className="mt-1">These won't have real uploaded documents but will appear in the contracting queue with a TEST badge.</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
+                <div className="text-sm text-amber-700 dark:text-amber-300">
+                  <p><strong>Testing Only:</strong> This creates fake data with <code>is_test=true</code>.</p>
+                  <p className="mt-1">These won't have real uploaded documents but will appear in the contracting queue with a TEST badge.</p>
+                </div>
               </div>
+              <Button variant="outline" size="sm" onClick={runDiagnostics}>
+                Run Diagnostics
+              </Button>
             </div>
           </CardContent>
         </Card>
