@@ -34,6 +34,29 @@ export function useFeatureFlags() {
 
   useEffect(() => {
     fetchFlags();
+
+    // Subscribe to real-time changes on feature_flags table
+    const channel = supabase
+      .channel('feature_flags_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'feature_flags',
+        },
+        (payload) => {
+          console.log('Feature flag changed:', payload);
+          // Refetch all flags when any change occurs
+          fetchFlags();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [fetchFlags]);
 
   const isEnabled = useCallback((flagKey: string): boolean => {
