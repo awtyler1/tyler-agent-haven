@@ -1,4 +1,4 @@
-import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+import { useFeatureFlags } from "@/contexts/FeatureFlagsContext";
 import { FlaskConical } from "lucide-react";
 
 export const TestModeBanner = () => {

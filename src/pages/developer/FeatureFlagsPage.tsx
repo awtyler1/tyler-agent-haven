@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useFeatureFlags } from '@/contexts/FeatureFlagsContext';
 import { toast } from 'sonner';
 import {
   Dialog,

@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useFeatureFlags } from '@/contexts/FeatureFlagsContext';
 
 const FAKE_AGENTS = [
   { name: 'Sarah Johnson', email: 'sarah.test@example.com', state: 'TX', npn: '11111111' },

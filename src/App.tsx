@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-ro
 import { TestModeBanner } from "./components/TestModeBanner";
 import { ViewModeBanner } from "./components/ViewModeBanner";
 import { ViewModeProvider } from "./contexts/ViewModeContext";
+import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
 import { AgentChatWidget } from "./components/AgentChatWidget";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -88,13 +89,14 @@ function ConditionalChatWidget() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ViewModeProvider>
-      <TooltipProvider>
-        <ViewModeBanner />
-        <TestModeBanner />
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+    <FeatureFlagsProvider>
+      <ViewModeProvider>
+        <TooltipProvider>
+          <ViewModeBanner />
+          <TestModeBanner />
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <RecoveryRedirectHandler />
           <Routes>
             {/* Auth */}
@@ -288,6 +290,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </ViewModeProvider>
+  </FeatureFlagsProvider>
   </QueryClientProvider>
 );
 

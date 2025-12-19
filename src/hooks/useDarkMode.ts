@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useFeatureFlags } from './useFeatureFlags';
+import { useFeatureFlags } from '@/contexts/FeatureFlagsContext';
 
 export function useDarkMode() {
   const { isEnabled } = useFeatureFlags();
