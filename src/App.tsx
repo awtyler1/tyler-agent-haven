@@ -57,6 +57,7 @@ import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 import FeatureFlagsPage from "./pages/developer/FeatureFlagsPage";
 import SystemHealthPage from "./pages/developer/SystemHealthPage";
 import TestDataSeederPage from "./pages/developer/TestDataSeederPage";
+import PlatformExperienceMapPage from "./pages/developer/PlatformExperienceMapPage";
 
 const queryClient = new QueryClient();
 
@@ -262,6 +263,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireDeveloper>
                   <TestDataSeederPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/experience-map" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <PlatformExperienceMapPage />
                 </ProtectedRoute>
               } 
             />
