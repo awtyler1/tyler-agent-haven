@@ -234,11 +234,19 @@ export default function TestDataSeederPage() {
           .eq('is_test', true);
       }
 
+      // Update counters immediately (optimistic update)
+      setTestCount(0);
+      setTestAgentCount(0);
+
       toast.success('Test data deleted');
+      
+      // Then fetch to confirm actual counts
       fetchCounts();
     } catch (err) {
       console.error('Error deleting test data:', err);
       toast.error('Failed to delete test data');
+      // Refetch on error to get accurate counts
+      fetchCounts();
     } finally {
       setDeleting(false);
     }
