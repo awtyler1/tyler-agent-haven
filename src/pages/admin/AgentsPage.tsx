@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { UserPlus, Search, Loader2, ArrowLeft, ChevronRight, Users } from 'lucide-react';
+import { UserPlus, Search, Loader2, ArrowLeft, ChevronRight, Users, Eye } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { useViewMode } from '@/contexts/ViewModeContext';
 import type { Profile } from '@/hooks/useProfile';
 
 interface AgentWithRole extends Profile {
@@ -17,6 +18,8 @@ export default function AgentsPage() {
   const [agents, setAgents] = useState<AgentWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const { startImpersonating } = useViewMode();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAgents();
@@ -136,22 +139,38 @@ export default function AgentsPage() {
           ) : (
             <div className="space-y-2">
               {filteredAgents.map((agent) => (
-                <Link key={agent.id} to={`/admin/users/${agent.user_id}`} className="group block">
-                  <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-gold/30 hover:-translate-y-0.5 transition-all duration-150">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-foreground group-hover:text-gold transition-colors">
-                          {agent.full_name || 'Unnamed Agent'}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">{agent.email}</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {getStatusBadge(agent.onboarding_status)}
-                        <ChevronRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-gold group-hover:translate-x-0.5 transition-all" />
-                      </div>
+                <div key={agent.id} className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-gold/30 hover:-translate-y-0.5 transition-all duration-150">
+                  <div className="flex items-center justify-between">
+                    <Link to={`/admin/users/${agent.user_id}`} className="flex-1 group">
+                      <h3 className="font-medium text-foreground group-hover:text-gold transition-colors">
+                        {agent.full_name || 'Unnamed Agent'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">{agent.email}</p>
+                    </Link>
+                    <div className="flex items-center gap-3">
+                      {getStatusBadge(agent.onboarding_status)}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          startImpersonating({
+                            userId: agent.user_id,
+                            fullName: agent.full_name || 'Unknown',
+                            email: agent.email || '',
+                          });
+                          navigate('/');
+                        }}
+                        className="h-8 px-2 text-muted-foreground hover:text-amber-600"
+                        title="View as this agent"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Link to={`/admin/users/${agent.user_id}`}>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground/40 hover:text-gold hover:translate-x-0.5 transition-all" />
+                      </Link>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
