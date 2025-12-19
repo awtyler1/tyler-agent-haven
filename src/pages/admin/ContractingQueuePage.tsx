@@ -133,6 +133,7 @@ export default function ContractingQueuePage() {
   const [uplineId, setUplineId] = useState('');
   const [carrierStatuses, setCarrierStatuses] = useState<Record<string, string>>({});
   const [updatingCarrier, setUpdatingCarrier] = useState<string | null>(null);
+  const [loadingCarrierStatuses, setLoadingCarrierStatuses] = useState(false);
 
   const selected = submissions.find(s => s.id === selectedId);
 
@@ -143,6 +144,10 @@ export default function ContractingQueuePage() {
 
   // Update form state when selection changes
   useEffect(() => {
+    // Clear old statuses immediately to prevent stale data showing
+    setCarrierStatuses({});
+    setLoadingCarrierStatuses(true);
+    
     if (selected) {
       setContractLevel(selected.contract_level || '');
       setUplineId(selected.upline_id || '');
@@ -153,7 +158,12 @@ export default function ContractingQueuePage() {
         initializeCarrierStatuses(selected.id, carriers).then(() => {
           fetchCarrierStatuses(selected.id);
         });
+      } else {
+        setCarrierStatuses({});
+        setLoadingCarrierStatuses(false);
       }
+    } else {
+      setLoadingCarrierStatuses(false);
     }
   }, [selectedId, selected?.id]);
 
@@ -203,21 +213,26 @@ export default function ContractingQueuePage() {
   };
 
   const fetchCarrierStatuses = async (applicationId: string) => {
-    const { data, error } = await supabase
-      .from('carrier_statuses')
-      .select('*')
-      .eq('application_id', applicationId);
+    setLoadingCarrierStatuses(true);
+    try {
+      const { data, error } = await supabase
+        .from('carrier_statuses')
+        .select('*')
+        .eq('application_id', applicationId);
 
-    if (error) {
-      console.error('Error fetching carrier statuses:', error);
-      return;
+      if (error) {
+        console.error('Error fetching carrier statuses:', error);
+        return;
+      }
+
+      const statusMap: Record<string, string> = {};
+      data?.forEach(cs => {
+        statusMap[cs.carrier_name] = cs.status || 'pending';
+      });
+      setCarrierStatuses(statusMap);
+    } finally {
+      setLoadingCarrierStatuses(false);
     }
-
-    const statusMap: Record<string, string> = {};
-    data?.forEach(cs => {
-      statusMap[cs.carrier_name] = cs.status || 'pending';
-    });
-    setCarrierStatuses(statusMap);
   };
 
   const updateCarrierStatus = async (carrierName: string, newStatus: string) => {
@@ -714,68 +729,83 @@ export default function ContractingQueuePage() {
                   <h3 className="font-semibold text-foreground mb-4">
                     Carrier Appointment Status ({carriers.length})
                   </h3>
-                  <div className="space-y-2">
-                    {carriers.map(carrier => {
-                      const status = carrierStatuses[carrier] || 'pending';
-                      return (
+                  
+                  {loadingCarrierStatuses ? (
+                    <div className="space-y-2">
+                      {carriers.map((carrier) => (
                         <div 
                           key={carrier} 
-                          className={`flex items-center justify-between p-3 rounded-lg ${
-                            status === 'appointed' 
-                              ? 'bg-green-50 border border-green-200' 
-                              : status === 'issue'
-                                ? 'bg-red-50 border border-red-200'
-                                : 'bg-muted/50'
-                          }`}
+                          className="flex items-center justify-between p-3 bg-muted/30 rounded-lg animate-pulse"
                         >
-                          <div className="flex items-center gap-2">
-                            {status === 'appointed' && <CheckCircle className="w-4 h-4 text-green-600" />}
-                            {status === 'issue' && <AlertCircle className="w-4 h-4 text-red-600" />}
-                            {status === 'pending' && <Clock className="w-4 h-4 text-amber-600" />}
-                            <span className="font-medium text-foreground">{carrier}</span>
-                          </div>
-                          <Select 
-                            value={status} 
-                            onValueChange={(value) => updateCarrierStatus(carrier, value)}
-                            disabled={updatingCarrier === carrier}
-                          >
-                            <SelectTrigger className="w-32 h-8 text-xs">
-                              {updatingCarrier === carrier ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <SelectValue />
-                              )}
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">
-                                <span className="flex items-center gap-1.5">
-                                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                                  Pending
-                                </span>
-                              </SelectItem>
-                              <SelectItem value="appointed">
-                                <span className="flex items-center gap-1.5">
-                                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                  Appointed
-                                </span>
-                              </SelectItem>
-                              <SelectItem value="issue">
-                                <span className="flex items-center gap-1.5">
-                                  <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                  Issue
-                                </span>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <span className="font-medium text-muted-foreground">{carrier}</span>
+                          <div className="w-32 h-8 bg-muted rounded-md"></div>
                         </div>
-                      );
-                    })}
-                    {carriers.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No carriers selected
-                      </p>
-                    )}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {carriers.map(carrier => {
+                        const status = carrierStatuses[carrier] || 'pending';
+                        return (
+                          <div 
+                            key={carrier} 
+                            className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
+                              status === 'appointed' 
+                                ? 'bg-green-50 border border-green-200' 
+                                : status === 'issue'
+                                  ? 'bg-red-50 border border-red-200'
+                                  : 'bg-muted/50'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {status === 'appointed' && <CheckCircle className="w-4 h-4 text-green-600" />}
+                              {status === 'issue' && <AlertCircle className="w-4 h-4 text-red-600" />}
+                              {status === 'pending' && <Clock className="w-4 h-4 text-amber-600" />}
+                              <span className="font-medium text-foreground">{carrier}</span>
+                            </div>
+                            <Select 
+                              value={status} 
+                              onValueChange={(value) => updateCarrierStatus(carrier, value)}
+                              disabled={updatingCarrier === carrier}
+                            >
+                              <SelectTrigger className="w-32 h-8 text-xs">
+                                {updatingCarrier === carrier ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <SelectValue />
+                                )}
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    Pending
+                                  </span>
+                                </SelectItem>
+                                <SelectItem value="appointed">
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                    Appointed
+                                  </span>
+                                </SelectItem>
+                                <SelectItem value="issue">
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                    Issue
+                                  </span>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      })}
+                      {carriers.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          No carriers selected
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Actions */}
