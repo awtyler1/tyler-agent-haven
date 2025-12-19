@@ -31,27 +31,38 @@ export default function TestDataSeederPage() {
   const [createdCount, setCreatedCount] = useState(0);
 
   const createTestSubmission = async (agent: typeof FAKE_AGENTS[0]) => {
-    const fakeUserId = crypto.randomUUID();
+    // Get current user's ID (so foreign key constraint is satisfied)
+    const { data: { user } } = await supabase.auth.getUser();
     
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+    
+    // Random carriers (2-4)
     const numCarriers = Math.floor(Math.random() * 3) + 2;
     const shuffled = [...CARRIERS].sort(() => 0.5 - Math.random());
     const selectedCarriers = shuffled.slice(0, numCarriers);
 
+    // Create unique identifiers for this test submission
+    const timestamp = Date.now();
+    const uniqueEmail = `test.${timestamp}@example.com`;
+    const uniqueNpn = String(Math.floor(Math.random() * 90000000) + 10000000);
+
     const { error } = await supabase
       .from('contracting_applications')
       .insert({
-        user_id: fakeUserId,
+        user_id: user.id,
         full_legal_name: agent.name,
-        email_address: agent.email,
+        email_address: uniqueEmail,
         resident_state: agent.state,
-        npn_number: agent.npn,
+        npn_number: uniqueNpn,
         status: 'submitted',
         submitted_at: new Date().toISOString(),
         selected_carriers: { carriers: selectedCarriers },
         uploaded_documents: {
-          eo_certificate: `${fakeUserId}/eo_certificate/fake_eo.pdf`,
-          voided_check: `${fakeUserId}/voided_check/fake_check.pdf`,
-          insurance_license: `${fakeUserId}/insurance_license/fake_license.pdf`,
+          eo_certificate: `${user.id}/eo_certificate/${timestamp}_fake_eo.pdf`,
+          voided_check: `${user.id}/voided_check/${timestamp}_fake_check.pdf`,
+          insurance_license: `${user.id}/insurance_license/${timestamp}_fake_license.pdf`,
         },
         signature_initials: agent.name.split(' ').map(n => n[0]).join(''),
         signature_name: agent.name,
@@ -85,14 +96,10 @@ export default function TestDataSeederPage() {
     setCreating(true);
     try {
       const randomAgent = FAKE_AGENTS[Math.floor(Math.random() * FAKE_AGENTS.length)];
-      const uniqueAgent = {
-        ...randomAgent,
-        email: `test.${Date.now()}@example.com`,
-        npn: String(Math.floor(Math.random() * 90000000) + 10000000),
-      };
-      await createTestSubmission(uniqueAgent);
-      toast.success(`Created test submission for ${uniqueAgent.name}`);
+      await createTestSubmission(randomAgent);
+      toast.success(`Created test submission for ${randomAgent.name}`);
     } catch (err) {
+      console.error('Create error:', err);
       toast.error('Failed to create test data');
     } finally {
       setCreating(false);
