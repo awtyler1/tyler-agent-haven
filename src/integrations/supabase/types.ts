@@ -65,6 +65,7 @@ export type Database = {
         Row: {
           code: string
           created_at: string
+          display_name: string | null
           id: string
           is_active: boolean
           name: string
@@ -72,11 +73,13 @@ export type Database = {
           product_tags: string[] | null
           requires_corporate_resolution: boolean
           requires_non_resident_states: boolean
+          state_availability: string[] | null
           updated_at: string
         }
         Insert: {
           code: string
           created_at?: string
+          display_name?: string | null
           id?: string
           is_active?: boolean
           name: string
@@ -84,11 +87,13 @@ export type Database = {
           product_tags?: string[] | null
           requires_corporate_resolution?: boolean
           requires_non_resident_states?: boolean
+          state_availability?: string[] | null
           updated_at?: string
         }
         Update: {
           code?: string
           created_at?: string
+          display_name?: string | null
           id?: string
           is_active?: boolean
           name?: string
@@ -96,6 +101,7 @@ export type Database = {
           product_tags?: string[] | null
           requires_corporate_resolution?: boolean
           requires_non_resident_states?: boolean
+          state_availability?: string[] | null
           updated_at?: string
         }
         Relationships: []
