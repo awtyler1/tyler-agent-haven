@@ -513,6 +513,44 @@ export type Database = {
           },
         ]
       }
+      state_carriers: {
+        Row: {
+          carrier_id: string | null
+          created_at: string | null
+          id: string
+          is_available: boolean | null
+          is_default: boolean | null
+          state_code: string
+          updated_at: string | null
+        }
+        Insert: {
+          carrier_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_available?: boolean | null
+          is_default?: boolean | null
+          state_code: string
+          updated_at?: string | null
+        }
+        Update: {
+          carrier_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_available?: boolean | null
+          is_default?: boolean | null
+          state_code?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_carriers_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_config: {
         Row: {
           config_key: string
