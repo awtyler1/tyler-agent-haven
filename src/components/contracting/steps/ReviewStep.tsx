@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ContractingApplication, SelectedCarrier, Address, WIZARD_STEPS } from '@/types/contracting';
-import { ClipboardCheck, CheckCircle, AlertCircle, Loader2, Download, FileText, ExternalLink } from 'lucide-react';
+import { ContractingApplication, Address, WIZARD_STEPS } from '@/types/contracting';
+import { ClipboardCheck, CheckCircle, AlertCircle, Loader2, Download, FileText, ExternalLink, Info } from 'lucide-react';
 import { useState } from 'react';
 import { WizardProgress } from '../WizardProgress';
 import { useContractingPdf } from '@/hooks/useContractingPdf';
@@ -18,6 +18,7 @@ const DOCUMENT_LABELS: Record<string, string> = {
   corporate_resolution: 'Corporate Resolution',
   background_explanation: 'Background Documentation',
 };
+
 interface ProgressProps {
   currentStep: number;
   completedSteps: number[];
@@ -40,12 +41,10 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
     setSubmitting(true);
     
     try {
-      // First generate the PDF
       const pdfResult = await generatePdf(application);
       if (pdfResult.success && pdfResult.pdf && pdfResult.filename) {
         setPdfData({ filename: pdfResult.filename, pdf: pdfResult.pdf });
         
-        // Send the PDF to the applicant's email
         if (application.email_address) {
           const { error: emailError } = await supabase.functions.invoke('send-contracting-packet', {
             body: {
@@ -64,12 +63,10 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
           
           if (emailError) {
             console.error('Failed to send email:', emailError);
-            // Don't block submission if email fails
           }
         }
       }
       
-      // Then submit the application
       await onSubmit();
     } finally {
       setSubmitting(false);
@@ -82,12 +79,11 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
     }
   };
 
-  const selectedCarriers = (application.selected_carriers as SelectedCarrier[]) || [];
   const homeAddress = application.home_address as Address;
   const agreements = application.agreements as Record<string, boolean>;
   const uploadedDocs = application.uploaded_documents as Record<string, string>;
 
-  // Validation checks
+  // Validation checks - carrier selection removed
   const checks = [
     { label: 'Personal information', passed: !!application.full_legal_name && !!application.email_address },
     { label: 'Home address', passed: !!homeAddress?.street && !!homeAddress?.city },
@@ -95,7 +91,6 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
     { label: 'Legal questions answered', passed: Object.keys(application.legal_questions || {}).length > 0 },
     { label: 'Banking information', passed: !!application.bank_routing_number && !!application.bank_account_number },
     { label: 'E&O Insurance', passed: !!application.uploaded_documents?.eo_certificate },
-    { label: 'Carrier selection', passed: selectedCarriers.length > 0 },
     { label: 'Required agreements', passed: agreements?.info_accurate && agreements?.receive_emails && agreements?.enter_info && agreements?.facsimile_signature },
     { label: 'Electronic signature', passed: !!application.signature_name && !!application.signature_initials },
   ];
@@ -103,7 +98,6 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
   const allPassed = checks.every(c => c.passed);
   const docCount = Object.keys(uploadedDocs || {}).length;
 
-  // Pre-validation for PDF generation
   const pdfValidationErrors = validateApplication(application);
   const canGeneratePdf = pdfValidationErrors.length === 0;
 
@@ -129,6 +123,7 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
             Review your application before submitting
           </p>
         </div>
+
         <CardContent className="space-y-4 py-4 px-6">
           {/* Summary */}
           <div className="grid gap-3 grid-cols-2">
@@ -138,8 +133,22 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
               <p className="text-xs text-muted-foreground">{application.email_address}</p>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="text-xs text-muted-foreground">Carriers Selected</p>
-              <p className="font-medium text-sm">{selectedCarriers.length} carrier{selectedCarriers.length !== 1 ? 's' : ''}</p>
+              <p className="text-xs text-muted-foreground">Resident State</p>
+              <p className="font-medium text-sm">{application.resident_state || 'Not provided'}</p>
+              <p className="text-xs text-muted-foreground">NPN: {application.npn_number || 'Not provided'}</p>
+            </div>
+          </div>
+
+          {/* Carrier Assignment Notice */}
+          <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <Info className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-blue-800">Carrier Assignments</p>
+              <p className="text-xs text-blue-700 mt-0.5">
+                After your application is reviewed, our contracting team will assign you to carriers 
+                based on your resident state and qualifications. You'll receive email notifications 
+                with contracting links for each carrier.
+              </p>
             </div>
           </div>
 
@@ -154,7 +163,7 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
                   const handleViewDocument = async () => {
                     const { data } = await supabase.storage
                       .from('contracting-documents')
-                      .createSignedUrl(filePath as string, 300); // 5 min expiry
+                      .createSignedUrl(filePath as string, 300);
                     
                     if (data?.signedUrl) {
                       window.open(data.signedUrl, '_blank');
@@ -200,20 +209,6 @@ export function ReviewStep({ application, onBack, onSubmit, progressProps }: Rev
               ))}
             </div>
           </div>
-
-          {/* Carriers list */}
-          {selectedCarriers.length > 0 && (
-            <div className="border rounded-lg p-3">
-              <h3 className="font-medium text-sm mb-2">Selected Carriers</h3>
-              <div className="flex flex-wrap gap-1">
-                {selectedCarriers.map(carrier => (
-                  <span key={carrier.carrier_id} className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded">
-                    {carrier.carrier_name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Signature confirmation */}
           <div className="border rounded-lg p-3 bg-muted/30">
