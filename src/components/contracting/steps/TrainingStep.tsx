@@ -296,8 +296,13 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
           </div>
 
           {/* Helper text */}
-          <p className="text-xs text-muted-foreground text-center mt-4 mb-4">
+          <p className="text-xs text-muted-foreground text-center mt-4 mb-2">
             E&O certificate is required. Other certificates are optional—we'll follow up on anything needed before appointments are finalized.
+          </p>
+          
+          {/* Carrier assignment note */}
+          <p className="text-xs text-primary/80 text-center mb-4 italic">
+            Carriers will be assigned by our contracting team after review.
           </p>
 
           {/* Validation Banner */}
@@ -313,7 +318,7 @@ export function TrainingStep({ application, initials, onUpdate, onUpload, onRemo
             </Button>
             <p className="text-xs text-muted-foreground flex items-center gap-1.5">
               <ArrowRight className="h-3 w-3" />
-              <span className="text-foreground/70">Next: Carrier Selection</span>
+              <span className="text-foreground/70">Next: Agreements & Signature</span>
             </p>
             <Button onClick={handleContinue}>
               Continue
