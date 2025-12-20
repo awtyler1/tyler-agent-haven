@@ -11,6 +11,7 @@ export interface LegalQuestion {
   explanation?: string;
 }
 
+// Keeping this interface for PDF mapping compatibility
 export interface SelectedCarrier {
   carrier_id: string;
   carrier_name: string;
@@ -89,11 +90,12 @@ export interface ContractingApplication {
   finra_broker_dealer_name: string | null;
   finra_crd_number: string | null;
   
-  // Step 7: Carriers
+  // Carriers - assigned by Caroline, not agent-selected
+  // Keeping selected_carriers for backward compatibility and PDF mapping
   selected_carriers: SelectedCarrier[];
   is_corporation: boolean;
   
-  // Step 8: Agreements
+  // Step 7: Agreements (was step 8)
   agreements: Record<string, boolean>;
   signature_name: string | null;
   signature_initials: string | null;
@@ -102,7 +104,7 @@ export interface ContractingApplication {
   // Section acknowledgments for single-page form
   section_acknowledgments: Record<string, { acknowledged: boolean; acknowledgedAt: string | null; initials?: string }>;
   
-  // Disciplinary/Action History entries (separate from uploaded_documents)
+  // Disciplinary/Action History entries
   disciplinary_entries: {
     entry1?: {
       date_of_action?: string;
@@ -156,29 +158,11 @@ export const PRODUCT_TAGS = [
   { id: 'ancillary', label: 'Ancillary', description: 'Vision, supplemental' },
 ] as const;
 
-// Recommended carriers (by code)
-export const RECOMMENDED_CARRIER_CODES = [
-  'AETNA_MA',
-  'AETNA_MS',
-  'ANTHEM',
-  'CIGNA_FE_MS',
-  'CIGNA_HS',
-  'DEVOTED',
-  'GTL',
-  'HUMANA',
-  'MOLINA_ACA',
-  'MUT_OMAHA_MS_PDP',
-  'MUT_OMAHA',
-  'NATIONWIDE',
-  'NACOLAH',
-  'UHC',
-  'WELLCARE',
-];
-
+// Wizard steps - carrier selection removed, now 8 steps
 export const WIZARD_STEPS = [
   { id: 1, name: 'Welcome', shortName: 'Welcome' },
-  { id: 2, name: 'Personal Info & Addresses', shortName: 'Personal' },
-  { id: 3, name: 'Licensing & IDs', shortName: 'Licensing' },
+  { id: 2, name: 'Personal & Contact Info', shortName: 'Personal' },
+  { id: 3, name: 'Licensing & ID', shortName: 'Licensing' },
   { id: 4, name: 'Legal Questions', shortName: 'Legal' },
   { id: 5, name: 'Banking & Direct Deposit', shortName: 'Banking' },
   { id: 6, name: 'Training & Certificates', shortName: 'Training' },
@@ -332,7 +316,7 @@ export const getEmptyApplication = (userId: string): Partial<ContractingApplicat
   beneficiary_name: null,
   beneficiary_relationship: null,
   beneficiary_birth_date: null,
-  requesting_commission_advancing: false, // Default to false (No) - never undefined
+  requesting_commission_advancing: false,
   has_aml_course: null,
   aml_course_name: null,
   aml_course_date: null,
