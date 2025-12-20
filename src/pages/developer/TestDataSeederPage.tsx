@@ -143,16 +143,8 @@ export default function TestDataSeederPage() {
 
       if (appError) throw appError;
 
-      // Step 5: Create carrier statuses
-      const carrierStatusInserts = selectedCarriers.map((carrier, index) => ({
-        application_id: application.id,
-        carrier_name: carrier,
-        status: index === 0 ? 'appointed' : 'pending',
-        is_transfer: Math.random() > 0.7,
-        is_test: true,
-      }));
-
-      await supabase.from('carrier_statuses').insert(carrierStatusInserts);
+      // Note: carrier_statuses are now user-based and assigned by Caroline after review
+      // Skipping carrier status creation for test data
 
       setLastCreatedAgent({
         name: template.name,
@@ -176,8 +168,8 @@ export default function TestDataSeederPage() {
     
     setDeleting(true);
     try {
-      // Delete carrier statuses
-      await supabase.from('carrier_statuses').delete().eq('is_test', true);
+      // Note: carrier_statuses table no longer has is_test column
+      // Carrier statuses are now managed separately
 
       // Delete contracting applications
       await supabase.from('contracting_applications').delete().eq('is_test', true);
