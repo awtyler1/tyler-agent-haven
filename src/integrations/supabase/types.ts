@@ -16,47 +16,53 @@ export type Database = {
     Tables: {
       carrier_statuses: {
         Row: {
-          application_id: string | null
-          carrier_name: string
+          carrier_id: string
+          contracted_at: string | null
+          contracting_link_sent_at: string | null
+          contracting_link_url: string | null
+          contracting_status: string
+          contracting_submitted_at: string | null
           created_at: string | null
           id: string
-          is_test: boolean | null
-          is_transfer: boolean | null
-          notes: string | null
-          status: string | null
+          issue_description: string | null
+          link_resend_requested_at: string | null
           updated_at: string | null
-          updated_by: string | null
+          user_id: string
         }
         Insert: {
-          application_id?: string | null
-          carrier_name: string
+          carrier_id: string
+          contracted_at?: string | null
+          contracting_link_sent_at?: string | null
+          contracting_link_url?: string | null
+          contracting_status?: string
+          contracting_submitted_at?: string | null
           created_at?: string | null
           id?: string
-          is_test?: boolean | null
-          is_transfer?: boolean | null
-          notes?: string | null
-          status?: string | null
+          issue_description?: string | null
+          link_resend_requested_at?: string | null
           updated_at?: string | null
-          updated_by?: string | null
+          user_id: string
         }
         Update: {
-          application_id?: string | null
-          carrier_name?: string
+          carrier_id?: string
+          contracted_at?: string | null
+          contracting_link_sent_at?: string | null
+          contracting_link_url?: string | null
+          contracting_status?: string
+          contracting_submitted_at?: string | null
           created_at?: string | null
           id?: string
-          is_test?: boolean | null
-          is_transfer?: boolean | null
-          notes?: string | null
-          status?: string | null
+          issue_description?: string | null
+          link_resend_requested_at?: string | null
           updated_at?: string | null
-          updated_by?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "carrier_statuses_application_id_fkey"
-            columns: ["application_id"]
+            foreignKeyName: "carrier_statuses_carrier_id_fkey"
+            columns: ["carrier_id"]
             isOneToOne: false
-            referencedRelation: "contracting_applications"
+            referencedRelation: "carriers"
             referencedColumns: ["id"]
           },
         ]
