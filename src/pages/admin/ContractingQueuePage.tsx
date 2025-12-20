@@ -92,29 +92,9 @@ const CONTRACT_LEVELS = [
   { value: 'street_level', label: 'Street Level' },
 ];
 
-const initializeCarrierStatuses = async (applicationId: string, carriers: string[], isTest: boolean = false) => {
-  // Check if statuses already exist
-  const { data: existing } = await supabase
-    .from('carrier_statuses')
-    .select('carrier_name')
-    .eq('application_id', applicationId);
-
-  const existingCarriers = existing?.map(e => e.carrier_name) || [];
-  const newCarriers = carriers.filter(c => !existingCarriers.includes(c));
-
-  if (newCarriers.length > 0) {
-    const { error } = await supabase
-      .from('carrier_statuses')
-      .insert(newCarriers.map(carrier => ({
-        application_id: applicationId,
-        carrier_name: carrier,
-        status: 'pending',
-        is_test: isTest
-      })));
-
-    if (error) console.error('Error initializing carrier statuses:', error);
-  }
-};
+// Note: Carrier statuses are now managed separately via user_id + carrier_id
+// The carrier_statuses table tracks per-user per-carrier contracting status
+// Carriers are assigned by Caroline after application review, not selected by agents
 
 export default function ContractingQueuePage() {
   const [submissions, setSubmissions] = useState<ContractingSubmission[]>([]);
@@ -166,25 +146,13 @@ export default function ContractingQueuePage() {
     // Clear old statuses immediately to prevent stale data showing
     setCarrierStatuses({});
     setCarrierTransfers({});
-    setLoadingCarrierStatuses(true);
+    setLoadingCarrierStatuses(false);
     
     if (selected) {
       setContractLevel(selected.contract_level || '');
       setUplineId(selected.upline_id || '');
-      
-      // Initialize and fetch carrier statuses
-      const carriers = (selected.selected_carriers as { carriers?: string[] })?.carriers || [];
-      if (carriers.length > 0) {
-        initializeCarrierStatuses(selected.id, carriers, selected.is_test || false).then(() => {
-          fetchCarrierStatuses(selected.id);
-        });
-      } else {
-        setCarrierStatuses({});
-        setCarrierTransfers({});
-        setLoadingCarrierStatuses(false);
-      }
-    } else {
-      setLoadingCarrierStatuses(false);
+      // Note: Carrier statuses are now managed via user-based carrier_statuses table
+      // Carriers will be assigned by Caroline after application review
     }
   }, [selectedId, selected?.id]);
 
@@ -233,119 +201,21 @@ export default function ContractingQueuePage() {
     }
   };
 
-  const fetchCarrierStatuses = async (applicationId: string) => {
-    setLoadingCarrierStatuses(true);
-    try {
-      const { data, error } = await supabase
-        .from('carrier_statuses')
-        .select('*')
-        .eq('application_id', applicationId);
+  // Note: fetchCarrierStatuses removed - carrier statuses are now user-based
+  // Carriers will be assigned post-submission via the new carrier_statuses schema
 
-      if (error) {
-        console.error('Error fetching carrier statuses:', error);
-        return;
-      }
-
-      const statusMap: Record<string, string> = {};
-      const transferMap: Record<string, boolean> = {};
-      data?.forEach(cs => {
-        statusMap[cs.carrier_name] = cs.status || 'pending';
-        transferMap[cs.carrier_name] = cs.is_transfer || false;
-      });
-      setCarrierStatuses(statusMap);
-      setCarrierTransfers(transferMap);
-    } finally {
-      setLoadingCarrierStatuses(false);
-    }
-  };
-
+  // Note: updateCarrierTransfer removed - carrier management moved to user-based workflow
   const updateCarrierTransfer = async (carrierName: string, isTransfer: boolean) => {
-    if (!selected) return;
-    
-    try {
-      const { data: existing } = await supabase
-        .from('carrier_statuses')
-        .select('id')
-        .eq('application_id', selected.id)
-        .eq('carrier_name', carrierName)
-        .maybeSingle();
-
-      if (existing) {
-        const { error } = await supabase
-          .from('carrier_statuses')
-          .update({ 
-            is_transfer: isTransfer, 
-            updated_at: new Date().toISOString() 
-          })
-          .eq('id', existing.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('carrier_statuses')
-          .insert({
-            application_id: selected.id,
-            carrier_name: carrierName,
-            status: 'pending',
-            is_transfer: isTransfer
-          });
-
-        if (error) throw error;
-      }
-
-      setCarrierTransfers(prev => ({ ...prev, [carrierName]: isTransfer }));
-      toast.success(`${carrierName} marked as ${isTransfer ? 'transfer' : 'new contracting'}`);
-    } catch (err) {
-      console.error('Error updating carrier transfer status:', err);
-      toast.error('Failed to update transfer status');
-    }
+    // Placeholder - carrier transfers will be managed via user-based carrier_statuses
+    setCarrierTransfers(prev => ({ ...prev, [carrierName]: isTransfer }));
+    toast.info('Carrier assignments are now managed after application review');
   };
 
+  // Note: updateCarrierStatus removed - carrier management moved to user-based workflow
   const updateCarrierStatus = async (carrierName: string, newStatus: string) => {
-    if (!selected) return;
-    
-    setUpdatingCarrier(carrierName);
-    try {
-      // Check if record exists
-      const { data: existing } = await supabase
-        .from('carrier_statuses')
-        .select('id')
-        .eq('application_id', selected.id)
-        .eq('carrier_name', carrierName)
-        .maybeSingle();
-
-      if (existing) {
-        // Update existing
-        const { error } = await supabase
-          .from('carrier_statuses')
-          .update({ 
-            status: newStatus, 
-            updated_at: new Date().toISOString() 
-          })
-          .eq('id', existing.id);
-
-        if (error) throw error;
-      } else {
-        // Insert new
-        const { error } = await supabase
-          .from('carrier_statuses')
-          .insert({
-            application_id: selected.id,
-            carrier_name: carrierName,
-            status: newStatus
-          });
-
-        if (error) throw error;
-      }
-
-      setCarrierStatuses(prev => ({ ...prev, [carrierName]: newStatus }));
-      toast.success(`${carrierName} status updated to ${newStatus}`);
-    } catch (err) {
-      console.error('Error updating carrier status:', err);
-      toast.error('Failed to update carrier status');
-    } finally {
-      setUpdatingCarrier(null);
-    }
+    // Placeholder - carrier statuses will be managed via user-based carrier_statuses
+    setCarrierStatuses(prev => ({ ...prev, [carrierName]: newStatus }));
+    toast.info('Carrier status updates are now managed via the carrier assignment workflow');
   };
 
   const previewDocument = async (docPath: string, docType: string) => {
