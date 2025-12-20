@@ -7,7 +7,6 @@ import { LicensingStep } from './steps/LicensingStep';
 import { LegalQuestionsStep } from './steps/LegalQuestionsStep';
 import { BankingStep } from './steps/BankingStep';
 import { TrainingStep } from './steps/TrainingStep';
-import { CarrierSelectionStep } from './steps/CarrierSelectionStep';
 import { AgreementsStep } from './steps/AgreementsStep';
 import { ReviewStep } from './steps/ReviewStep';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -201,11 +200,10 @@ export function ContractingWizard() {
         );
       case 7:
         return (
-          <CarrierSelectionStep
+          <AgreementsStep
             application={application}
             initials={application.signature_initials}
             onUpdate={updateField}
-            onUpload={uploadDocument}
             onBack={() => goToStep(6)}
             onContinue={() => completeStepAndNext(7)}
             progressProps={progressProps}
@@ -213,20 +211,9 @@ export function ContractingWizard() {
         );
       case 8:
         return (
-          <AgreementsStep
-            application={application}
-            initials={application.signature_initials}
-            onUpdate={updateField}
-            onBack={() => goToStep(7)}
-            onContinue={() => completeStepAndNext(8)}
-            progressProps={progressProps}
-          />
-        );
-      case 9:
-        return (
           <ReviewStep
             application={application}
-            onBack={() => goToStep(8)}
+            onBack={() => goToStep(7)}
             onSubmit={submitApplication}
             progressProps={progressProps}
           />

@@ -182,9 +182,8 @@ export const WIZARD_STEPS = [
   { id: 4, name: 'Legal Questions', shortName: 'Legal' },
   { id: 5, name: 'Banking & Direct Deposit', shortName: 'Banking' },
   { id: 6, name: 'Training & Certificates', shortName: 'Training' },
-  { id: 7, name: 'Carrier Selection', shortName: 'Carriers' },
-  { id: 8, name: 'Agreements & Signature', shortName: 'Signature' },
-  { id: 9, name: 'Review & Submit', shortName: 'Submit' },
+  { id: 7, name: 'Agreements & Signature', shortName: 'Signature' },
+  { id: 8, name: 'Review & Submit', shortName: 'Submit' },
 ] as const;
 
 export const LEGAL_QUESTIONS = [
