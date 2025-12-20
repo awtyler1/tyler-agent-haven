@@ -524,11 +524,16 @@ export type Database = {
       profiles: {
         Row: {
           appointed_at: string | null
+          assigned_carriers: string[] | null
+          contracting_notes: string | null
           created_at: string
           developer_access: boolean | null
           email: string | null
+          excluded_carriers: string[] | null
           first_login_at: string | null
           full_name: string | null
+          hierarchy_entity_id: string | null
+          hierarchy_type: string | null
           id: string
           is_active: boolean
           is_test: boolean | null
@@ -537,15 +542,21 @@ export type Database = {
           password_created_at: string | null
           setup_link_sent_at: string | null
           updated_at: string
+          upline_user_id: string | null
           user_id: string
         }
         Insert: {
           appointed_at?: string | null
+          assigned_carriers?: string[] | null
+          contracting_notes?: string | null
           created_at?: string
           developer_access?: boolean | null
           email?: string | null
+          excluded_carriers?: string[] | null
           first_login_at?: string | null
           full_name?: string | null
+          hierarchy_entity_id?: string | null
+          hierarchy_type?: string | null
           id?: string
           is_active?: boolean
           is_test?: boolean | null
@@ -554,15 +565,21 @@ export type Database = {
           password_created_at?: string | null
           setup_link_sent_at?: string | null
           updated_at?: string
+          upline_user_id?: string | null
           user_id: string
         }
         Update: {
           appointed_at?: string | null
+          assigned_carriers?: string[] | null
+          contracting_notes?: string | null
           created_at?: string
           developer_access?: boolean | null
           email?: string | null
+          excluded_carriers?: string[] | null
           first_login_at?: string | null
           full_name?: string | null
+          hierarchy_entity_id?: string | null
+          hierarchy_type?: string | null
           id?: string
           is_active?: boolean
           is_test?: boolean | null
@@ -571,9 +588,17 @@ export type Database = {
           password_created_at?: string | null
           setup_link_sent_at?: string | null
           updated_at?: string
+          upline_user_id?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_hierarchy_entity_id_fkey"
+            columns: ["hierarchy_entity_id"]
+            isOneToOne: false
+            referencedRelation: "hierarchy_entities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_manager_id_fkey"
             columns: ["manager_id"]
