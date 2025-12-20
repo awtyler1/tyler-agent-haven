@@ -382,6 +382,38 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_owners: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          id: string
+          is_primary: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          id?: string
+          is_primary?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          id?: string
+          is_primary?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_owners_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "hierarchy_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feature_flags: {
         Row: {
           created_at: string | null
@@ -408,6 +440,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      hierarchy_entities: {
+        Row: {
+          created_at: string | null
+          entity_type: string
+          id: string
+          is_active: boolean | null
+          name: string
+          parent_entity_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_type: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          parent_entity_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_type?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          parent_entity_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hierarchy_entities_parent_entity_id_fkey"
+            columns: ["parent_entity_id"]
+            isOneToOne: false
+            referencedRelation: "hierarchy_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       processing_jobs: {
         Row: {
