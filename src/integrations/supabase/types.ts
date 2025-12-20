@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      ahip_certifications: {
+        Row: {
+          certificate_url: string | null
+          certification_year: number
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          certificate_url?: string | null
+          certification_year: number
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          certificate_url?: string | null
+          certification_year?: number
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      carrier_certifications: {
+        Row: {
+          carrier_id: string
+          certificate_url: string | null
+          certification_year: number
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          carrier_id: string
+          certificate_url?: string | null
+          certification_year: number
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          carrier_id?: string
+          certificate_url?: string | null
+          certification_year?: number
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_certifications_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carrier_statuses: {
         Row: {
           carrier_id: string
@@ -111,6 +188,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      certification_windows: {
+        Row: {
+          carrier_id: string | null
+          certification_year: number
+          closes_at: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          opens_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          carrier_id?: string | null
+          certification_year: number
+          closes_at: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          opens_at: string
+          updated_at?: string | null
+        }
+        Update: {
+          carrier_id?: string | null
+          certification_year?: number
+          closes_at?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          opens_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certification_windows_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contracting_applications: {
         Row: {
