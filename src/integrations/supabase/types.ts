@@ -828,6 +828,7 @@ export type Database = {
           email: string
           email_confirmed_at: string
           id: string
+          last_sign_in_at: string
         }[]
       }
       get_auth_user_ids: {
