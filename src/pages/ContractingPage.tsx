@@ -1,5 +1,5 @@
-import { ContractingWizard } from '@/components/contracting/ContractingWizard';
+import { ContractingForm } from '@/components/contracting/ContractingForm';
 
 export default function ContractingPage() {
-  return <ContractingWizard />;
+  return <ContractingForm />;
 }
