@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -78,6 +79,7 @@ interface User {
   setup_link_sent_at: string | null;
   first_login_at: string | null;
   created_at: string;
+  has_auth_user: boolean;
 }
 
 const ROLE_LABELS: Record<string, { label: string; color: string }> = {
@@ -94,6 +96,7 @@ export function UserManagementTable() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [showInactive, setShowInactive] = useState(false);
   
   // Modal states
   const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
@@ -115,7 +118,7 @@ export function UserManagementTable() {
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchQuery, roleFilter]);
+  }, [users, searchQuery, roleFilter, showInactive]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -141,6 +144,14 @@ export function UserManagementTable() {
         .select('id, name');
 
       if (entitiesError) throw entitiesError;
+
+      // Fetch auth users to check for orphaned profiles
+      const { data: authUsers, error: authError } = await supabase.rpc('get_auth_user_ids');
+      
+      // Build set of valid auth user IDs
+      const validAuthUserIds = new Set<string>(
+        authError ? [] : (authUsers || []).map((u: { id: string }) => u.id)
+      );
 
       // Build role map
       const roleMap = (roles || []).reduce((acc, r) => {
@@ -180,6 +191,7 @@ export function UserManagementTable() {
         setup_link_sent_at: p.setup_link_sent_at,
         first_login_at: p.first_login_at,
         created_at: p.created_at,
+        has_auth_user: validAuthUserIds.size === 0 || validAuthUserIds.has(p.user_id),
       }));
 
       setUsers(mappedUsers);
@@ -193,6 +205,14 @@ export function UserManagementTable() {
 
   const filterUsers = () => {
     let filtered = [...users];
+
+    // Always exclude orphaned profiles (no auth user)
+    filtered = filtered.filter(u => u.has_auth_user);
+
+    // Active/inactive filter (default: show only active)
+    if (!showInactive) {
+      filtered = filtered.filter(u => u.is_active);
+    }
 
     // Search filter
     if (searchQuery) {
@@ -213,15 +233,15 @@ export function UserManagementTable() {
 
   const getStatusBadge = (user: User) => {
     if (!user.is_active) {
-      return <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200"><AlertCircle className="h-3 w-3 mr-1" />Inactive</Badge>;
+      return <Badge variant="outline" className="text-muted-foreground"><AlertCircle className="w-3 h-3 mr-1" />Inactive</Badge>;
     }
     if (user.first_login_at) {
-      return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200"><CheckCircle className="h-3 w-3 mr-1" />Active</Badge>;
+      return <Badge variant="outline" className="text-green-600 border-green-200"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
     }
     if (user.setup_link_sent_at) {
-      return <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200"><Clock className="h-3 w-3 mr-1" />Link Sent</Badge>;
+      return <Badge variant="outline" className="text-amber-600 border-amber-200"><Clock className="w-3 h-3 mr-1" />Link Sent</Badge>;
     }
-    return <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200"><Circle className="h-3 w-3 mr-1" />Created</Badge>;
+    return <Badge variant="outline" className="text-muted-foreground"><Circle className="w-3 h-3 mr-1" />Created</Badge>;
   };
 
   const getRoleBadge = (role: string | null) => {
@@ -264,7 +284,7 @@ export function UserManagementTable() {
       if (error) throw error;
 
       toast.success(`Setup email sent to ${user.email}`);
-      fetchUsers(); // Refresh to update setup_link_sent_at
+      fetchUsers();
     } catch (error: any) {
       console.error('Error sending setup email:', error);
       toast.error(error.message || 'Failed to send email');
@@ -278,13 +298,11 @@ export function UserManagementTable() {
 
     setChangingRole(true);
     try {
-      // Delete existing role
       await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', changeRoleUser.user_id);
 
-      // Insert new role
       const { error } = await supabase
         .from('user_roles')
         .insert({ user_id: changeRoleUser.user_id, role: newRole as any });
@@ -342,6 +360,9 @@ export function UserManagementTable() {
     }
   };
 
+  // Count inactive users for the toggle label
+  const inactiveCount = users.filter(u => !u.is_active && u.has_auth_user).length;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -377,15 +398,30 @@ export function UserManagementTable() {
               <SelectItem value="internal_tig_agent">TIG Agent</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={fetchUsers}>
+          <Button variant="outline" size="icon" onClick={fetchUsers}>
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Summary */}
-        <div className="text-sm text-muted-foreground">
-          {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
-          {roleFilter !== 'all' && ` (${ROLE_LABELS[roleFilter]?.label || roleFilter})`}
+        {/* Secondary filters row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="show-inactive"
+              checked={showInactive}
+              onCheckedChange={(checked) => setShowInactive(checked === true)}
+            />
+            <Label htmlFor="show-inactive" className="text-sm text-muted-foreground cursor-pointer">
+              Show inactive users{inactiveCount > 0 && ` (${inactiveCount})`}
+            </Label>
+          </div>
+
+          {/* Summary */}
+          <span className="text-sm text-muted-foreground">
+            {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
+            {roleFilter !== 'all' && ` · ${ROLE_LABELS[roleFilter]?.label || roleFilter}`}
+            {!showInactive && ' · Active only'}
+          </span>
         </div>
 
         {/* Table */}
@@ -531,10 +567,10 @@ export function UserManagementTable() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>New Role</Label>
+              <Label htmlFor="new-role">New Role</Label>
               <Select value={newRole} onValueChange={setNewRole}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="super_admin">Super Admin</SelectItem>
