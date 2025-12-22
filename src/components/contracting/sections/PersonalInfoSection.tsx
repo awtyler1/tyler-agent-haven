@@ -144,26 +144,34 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
 
           {/* Birth City */}
           <div className="space-y-2">
-            <Label htmlFor="birth_city">City of Birth</Label>
+            <Label htmlFor="birth_city">City of Birth <span className="text-destructive">*</span></Label>
             <Input
               id="birth_city"
               value={application.birth_city || ''}
-              onChange={(e) => onUpdate('birth_city', e.target.value)}
+              onChange={(e) => {
+                onUpdate('birth_city', e.target.value);
+                if (e.target.value && onClearError) onClearError('birth_city');
+              }}
               placeholder="City where you were born"
-              className="h-11 rounded-xl"
+              className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.birth_city, showValidation))}
             />
+            <FormFieldError error={fieldErrors.birth_city} show={showValidation} />
           </div>
 
           {/* Birth State */}
           <div className="space-y-2">
-            <Label htmlFor="birth_state">State of Birth</Label>
+            <Label htmlFor="birth_state">State of Birth <span className="text-destructive">*</span></Label>
             <Input
               id="birth_state"
               value={application.birth_state || ''}
-              onChange={(e) => onUpdate('birth_state', e.target.value)}
+              onChange={(e) => {
+                onUpdate('birth_state', e.target.value);
+                if (e.target.value && onClearError) onClearError('birth_state');
+              }}
               placeholder="State where you were born"
-              className="h-11 rounded-xl"
+              className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.birth_state, showValidation))}
             />
+            <FormFieldError error={fieldErrors.birth_state} show={showValidation} />
           </div>
 
           {/* Email */}
