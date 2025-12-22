@@ -82,8 +82,7 @@ export default function ContractingQueuePage() {
         .from("profiles")
         .select("user_id, full_name, email, created_at, onboarding_status")
         .eq("onboarding_status", "CONTRACTING_REQUIRED")
-        .eq("role", "agent")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as { data: Array<{ user_id: string; full_name: string | null; email: string | null; created_at: string; onboarding_status: string }> | null; error: Error | null };
 
       if (waitingError) {
         console.error("Error fetching waiting agents:", waitingError);
