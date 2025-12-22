@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { 
   Loader2, 
   CheckCircle, 
@@ -16,6 +17,9 @@ import {
   AlertCircle,
   Circle,
   Plus,
+  Link as LinkIcon,
+  ExternalLink,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -35,6 +39,8 @@ interface CarrierStatus {
   contracting_status: ContractingStatus;
   contracted_at: string | null;
   issue_description: string | null;
+  contracting_link_url: string | null;
+  contracting_link_sent_at: string | null;
 }
 
 interface CarrierStatusPanelProps {
@@ -58,6 +64,8 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(false);
   const [updatingCarrier, setUpdatingCarrier] = useState<string | null>(null);
+  const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
+  const [linkValue, setLinkValue] = useState('');
 
   // Fetch carriers, defaults, and existing statuses
   useEffect(() => {
@@ -97,6 +105,8 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
             contracting_status,
             contracted_at,
             issue_description,
+            contracting_link_url,
+            contracting_link_sent_at,
             carriers (name)
           `)
           .eq('user_id', userId);
@@ -110,6 +120,8 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
           contracting_status: s.contracting_status as ContractingStatus,
           contracted_at: s.contracted_at,
           issue_description: s.issue_description,
+          contracting_link_url: s.contracting_link_url,
+          contracting_link_sent_at: s.contracting_link_sent_at,
         }));
 
         setStatuses(mappedStatuses);
@@ -186,6 +198,8 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
           contracting_status,
           contracted_at,
           issue_description,
+          contracting_link_url,
+          contracting_link_sent_at,
           carriers (name)
         `)
         .eq('user_id', userId);
@@ -199,6 +213,8 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
         contracting_status: s.contracting_status as ContractingStatus,
         contracted_at: s.contracted_at,
         issue_description: s.issue_description,
+        contracting_link_url: s.contracting_link_url,
+        contracting_link_sent_at: s.contracting_link_sent_at,
       }));
 
       setStatuses(mappedStatuses);
@@ -242,6 +258,49 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
     } catch (error) {
       console.error('Error updating carrier status:', error);
       toast.error('Failed to update status');
+    } finally {
+      setUpdatingCarrier(null);
+    }
+  };
+
+  const handleSaveLink = async (statusId: string) => {
+    setUpdatingCarrier(statusId);
+    try {
+      const updates: Record<string, unknown> = {
+        contracting_link_url: linkValue || null,
+      };
+      
+      // Set sent timestamp if adding a new link
+      const currentStatus = statuses.find(s => s.id === statusId);
+      if (linkValue && !currentStatus?.contracting_link_sent_at) {
+        updates.contracting_link_sent_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from('carrier_statuses')
+        .update(updates)
+        .eq('id', statusId);
+
+      if (error) throw error;
+
+      setStatuses(prev => prev.map(s => 
+        s.id === statusId 
+          ? { 
+              ...s, 
+              contracting_link_url: linkValue || null,
+              contracting_link_sent_at: linkValue && !s.contracting_link_sent_at 
+                ? new Date().toISOString() 
+                : s.contracting_link_sent_at
+            }
+          : s
+      ));
+      
+      setEditingLinkId(null);
+      setLinkValue('');
+      toast.success('Contracting link saved');
+    } catch (error) {
+      console.error('Error saving link:', error);
+      toast.error('Failed to save link');
     } finally {
       setUpdatingCarrier(null);
     }
@@ -346,40 +405,108 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
             const config = STATUS_CONFIG[status.contracting_status];
             const Icon = config.icon;
             const isUpdating = updatingCarrier === status.id;
+            const isEditingLink = editingLinkId === status.id;
 
             return (
-              <div key={status.id} className="flex items-center justify-between p-2 rounded bg-muted/30">
-                <div className="flex items-center gap-2">
-                  <Icon className={cn('h-4 w-4', config.color)} />
-                  <span className="text-sm font-medium">{status.carrier_name}</span>
+              <div key={status.id} className="space-y-2 p-3 rounded-lg bg-muted/30 border border-border/50">
+                {/* Main row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon className={cn('h-4 w-4', config.color)} />
+                    <span className="text-sm font-medium">{status.carrier_name}</span>
+                    {status.contracting_link_url && (
+                      <a href={status.contracting_link_url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+
+                  <Select
+                    value={status.contracting_status}
+                    onValueChange={(value) => handleStatusChange(status.id, value as ContractingStatus)}
+                    disabled={isUpdating}
+                  >
+                    <SelectTrigger className="w-[140px] h-8">
+                      {isUpdating ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <SelectValue />
+                      )}
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(STATUS_CONFIG).map(([value, cfg]) => {
+                        const StatusIcon = cfg.icon;
+                        return (
+                          <SelectItem key={value} value={value}>
+                            <div className="flex items-center gap-2">
+                              <StatusIcon className={cn('h-3 w-3', cfg.color)} />
+                              <span>{cfg.label}</span>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <Select
-                  value={status.contracting_status}
-                  onValueChange={(value) => handleStatusChange(status.id, value as ContractingStatus)}
-                  disabled={isUpdating}
-                >
-                  <SelectTrigger className="w-[140px] h-8">
-                    {isUpdating ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                {/* Link row */}
+                {isEditingLink ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={linkValue}
+                      onChange={(e) => setLinkValue(e.target.value)}
+                      placeholder="Paste contracting link URL..."
+                      className="h-8 text-sm flex-1"
+                      autoFocus
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                      onClick={() => {
+                        setEditingLinkId(null);
+                        setLinkValue('');
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="h-8"
+                      onClick={() => handleSaveLink(status.id)}
+                      disabled={isUpdating}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between text-xs">
+                    {status.contracting_link_url ? (
+                      <a 
+                        href={status.contracting_link_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-foreground flex items-center gap-1 truncate max-w-[200px]"
+                      >
+                        <LinkIcon className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{status.contracting_link_url}</span>
+                      </a>
                     ) : (
-                      <SelectValue />
+                      <span className="text-muted-foreground">No contracting link</span>
                     )}
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(STATUS_CONFIG).map(([value, cfg]) => {
-                      const StatusIcon = cfg.icon;
-                      return (
-                        <SelectItem key={value} value={value}>
-                          <div className="flex items-center gap-2">
-                            <StatusIcon className={cn('h-3 w-3', cfg.color)} />
-                            <span>{cfg.label}</span>
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs"
+                      onClick={() => {
+                        setEditingLinkId(status.id);
+                        setLinkValue(status.contracting_link_url || '');
+                      }}
+                    >
+                      {status.contracting_link_url ? 'Edit' : 'Add Link'}
+                    </Button>
+                  </div>
+                )}
               </div>
             );
           })}
