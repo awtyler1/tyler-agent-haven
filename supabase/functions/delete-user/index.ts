@@ -152,7 +152,7 @@ serve(async (req) => {
       console.error('Error deleting user roles:', rolesError);
     }
 
-    // 4. Delete profile
+    // 4. Delete profile (before auth user to avoid orphaned profiles)
     console.log('Step 4: Deleting profile...');
     const { error: profileError } = await adminClient
       .from('profiles')
@@ -163,7 +163,7 @@ serve(async (req) => {
       console.error('Error deleting profile:', profileError);
     }
 
-    // 5. Delete the auth user
+    // 5. Delete the auth user (last step)
     console.log('Step 5: Deleting auth user...');
     const { error: authDeleteError } = await adminClient.auth.admin.deleteUser(userId);
     
