@@ -5,66 +5,125 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, UserPlus, Users } from 'lucide-react';
+import { Loader2, ArrowLeft, UserPlus, Users, Info } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import type { Profile } from '@/hooks/useProfile';
+
+interface HierarchyOption {
+  id: string;
+  label: string;
+  type: 'team' | 'downline';
+  entityId?: string;
+  uplineUserId?: string;
+}
 
 export default function NewAgentPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [managers, setManagers] = useState<Profile[]>([]);
+  const [hierarchyOptions, setHierarchyOptions] = useState<HierarchyOption[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
   
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    managerId: '',
+    hierarchyId: '',
+    agentType: 'new' as 'new' | 'existing',
+    sendSetupEmail: true,
   });
 
   useEffect(() => {
-    fetchManagers();
+    fetchHierarchyOptions();
   }, []);
 
-  const fetchManagers = async () => {
+  const fetchHierarchyOptions = async () => {
+    setLoadingOptions(true);
     try {
-      const { data: managerRoles } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', 'manager');
+      const options: HierarchyOption[] = [];
 
-      if (managerRoles && managerRoles.length > 0) {
-        const managerIds = managerRoles.map(r => r.user_id);
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('user_id', managerIds);
-        
-        if (profiles) {
-          setManagers(profiles as Profile[]);
-        }
+      // Fetch teams from hierarchy_entities
+      const { data: teams, error: teamsError } = await supabase
+        .from('hierarchy_entities')
+        .select('id, name')
+        .eq('entity_type', 'team')
+        .eq('is_active', true);
+
+      if (teamsError) throw teamsError;
+
+      if (teams) {
+        teams.forEach(team => {
+          options.push({
+            id: `team-${team.id}`,
+            label: team.name,
+            type: 'team',
+            entityId: team.id,
+          });
+        });
       }
+
+      // Fetch Andrew for downline option (dynamic by email)
+      const { data: andrewProfile, error: andrewError } = await supabase
+        .from('profiles')
+        .select('id, user_id, full_name')
+        .eq('email', 'andrew@tylerinsurancegroup.com')
+        .single();
+
+      if (!andrewError && andrewProfile) {
+        options.push({
+          id: `downline-${andrewProfile.user_id}`,
+          label: andrewProfile.full_name || 'Andrew',
+          type: 'downline',
+          uplineUserId: andrewProfile.user_id,
+        });
+      }
+
+      setHierarchyOptions(options);
     } catch (err) {
-      console.error('Error fetching managers:', err);
+      console.error('Error fetching hierarchy options:', err);
+      toast.error('Failed to load hierarchy options');
+    } finally {
+      setLoadingOptions(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.hierarchyId) {
+      toast.error('Please select a hierarchy assignment');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const selectedOption = hierarchyOptions.find(o => o.id === formData.hierarchyId);
+      
+      if (!selectedOption) {
+        throw new Error('Invalid hierarchy selection');
+      }
+
       const { data, error } = await supabase.functions.invoke('create-agent', {
         body: {
           email: formData.email,
           fullName: formData.fullName,
-          managerId: formData.managerId || null,
+          hierarchyType: selectedOption.type,
+          hierarchyEntityId: selectedOption.entityId || null,
+          uplineUserId: selectedOption.uplineUserId || null,
+          isExistingAgent: formData.agentType === 'existing',
+          sendSetupEmail: formData.sendSetupEmail,
         },
       });
 
       if (error) throw error;
 
-      toast.success('Agent created successfully! Welcome email sent.');
+      const message = formData.agentType === 'existing' 
+        ? 'Existing agent added successfully!' 
+        : 'New agent created! They will receive a welcome email with setup instructions.';
+      
+      toast.success(message);
       navigate('/admin/agents');
     } catch (err: any) {
       console.error('Error creating agent:', err);
@@ -88,7 +147,7 @@ export default function NewAgentPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="heading-section">Add New Agent</h1>
+              <h1 className="heading-section">Add Agent</h1>
               <p className="text-sm text-muted-foreground">Create a new agent account</p>
             </div>
           </div>
@@ -102,12 +161,13 @@ export default function NewAgentPage() {
               <div>
                 <h2 className="font-semibold text-foreground">Agent Information</h2>
                 <p className="text-xs text-muted-foreground">
-                  They will receive a welcome email with setup instructions
+                  Enter the agent's details and assign their hierarchy
                 </p>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
                 <Input
@@ -120,6 +180,7 @@ export default function NewAgentPage() {
                 />
               </div>
 
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
                 <Input
@@ -133,29 +194,86 @@ export default function NewAgentPage() {
                 />
               </div>
 
+              {/* Hierarchy Assignment */}
               <div className="space-y-2">
-                <Label htmlFor="manager" className="text-sm font-medium">Assign Manager (Optional)</Label>
+                <Label className="text-sm font-medium">Hierarchy Assignment *</Label>
                 <Select
-                  value={formData.managerId || "none"}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, managerId: value === "none" ? "" : value }))}
+                  value={formData.hierarchyId}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, hierarchyId: value }))}
+                  disabled={loadingOptions}
                 >
                   <SelectTrigger className="border-[#E5E2DB]">
-                    <SelectValue placeholder="Select a manager" />
+                    <SelectValue placeholder={loadingOptions ? "Loading..." : "Select hierarchy"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No manager</SelectItem>
-                    {managers.map((manager) => (
-                      <SelectItem key={manager.id} value={manager.id}>
-                        {manager.full_name || manager.email}
+                    {hierarchyOptions.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  The assigned manager will be able to view this agent's progress.
+                  Determines which portal(s) can view this agent
                 </p>
               </div>
 
+              {/* Agent Type */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Agent Type *</Label>
+                <RadioGroup
+                  value={formData.agentType}
+                  onValueChange={(value: 'new' | 'existing') => setFormData(prev => ({ ...prev, agentType: value }))}
+                  className="space-y-3"
+                >
+                  <div className="flex items-start gap-3 p-3 rounded-lg border border-[#E5E2DB] hover:border-gold/30 transition-colors">
+                    <RadioGroupItem value="new" id="new" className="mt-0.5" />
+                    <div className="flex-1">
+                      <Label htmlFor="new" className="font-medium cursor-pointer">New Agent</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Must complete contracting wizard before accessing the platform
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg border border-[#E5E2DB] hover:border-gold/30 transition-colors">
+                    <RadioGroupItem value="existing" id="existing" className="mt-0.5" />
+                    <div className="flex-1">
+                      <Label htmlFor="existing" className="font-medium cursor-pointer">Existing Agent</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Already contracted - skips wizard and gets immediate platform access
+                      </p>
+                    </div>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Send Setup Email */}
+              <div className="flex items-start gap-3 p-3 rounded-lg border border-[#E5E2DB]">
+                <Checkbox
+                  id="sendSetupEmail"
+                  checked={formData.sendSetupEmail}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, sendSetupEmail: checked as boolean }))}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="sendSetupEmail" className="font-medium cursor-pointer">Send setup email</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Agent will receive an email with instructions to set their password and access the platform
+                  </p>
+                </div>
+              </div>
+
+              {/* Info Box for Existing Agents */}
+              {formData.agentType === 'existing' && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                  <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-blue-700">
+                    Existing agents will have immediate access to the platform and will not appear in the contracting queue.
+                  </p>
+                </div>
+              )}
+
+              {/* Submit Buttons */}
               <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
@@ -178,7 +296,7 @@ export default function NewAgentPage() {
                   ) : (
                     <>
                       <UserPlus className="mr-2 h-4 w-4" />
-                      Create Agent
+                      {formData.agentType === 'existing' ? 'Add Existing Agent' : 'Create Agent'}
                     </>
                   )}
                 </Button>
