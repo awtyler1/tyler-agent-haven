@@ -313,7 +313,7 @@ export default function AdminDashboard() {
           {/* Settings Link (Super Admin Only) */}
           {isSuperAdmin() && (
             <div className="text-center">
-              <Link to="/admin/super" className="text-sm text-muted-foreground hover:text-gold inline-flex items-center gap-1">
+              <Link to="/admin/settings" className="text-sm text-muted-foreground hover:text-gold inline-flex items-center gap-1">
                 <Settings className="w-4 h-4" />
                 System Settings
               </Link>
