@@ -51,6 +51,7 @@ import PdfFieldExtractorPage from "./pages/admin/PdfFieldExtractorPage";
 import PdfFieldMapperPage from "./pages/admin/PdfFieldMapperPage";
 import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
 import PdfFieldAuditPage from "./pages/admin/PdfFieldAuditPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 
 // Developer pages
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
@@ -197,6 +198,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <PdfFieldAuditPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/settings" 
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <AdminSettingsPage />
                 </ProtectedRoute>
               } 
             />
