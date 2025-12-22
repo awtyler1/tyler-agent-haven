@@ -32,7 +32,9 @@ export default function NewManagerPage() {
         body: {
           email: formData.email.trim(),
           fullName: formData.fullName.trim(),
-          role: 'manager',
+          hierarchyType: 'team',
+          isExistingAgent: true,
+          sendSetupEmail: true,
         },
       });
 
