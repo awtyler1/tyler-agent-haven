@@ -820,6 +820,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_auth_user_details: {
+        Args: { _user_id: string }
+        Returns: {
+          banned_until: string
+          created_at: string
+          email: string
+          email_confirmed_at: string
+          id: string
+        }[]
+      }
       get_auth_user_ids: {
         Args: never
         Returns: {
