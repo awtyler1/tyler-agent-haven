@@ -398,6 +398,15 @@ export function UserManagementTable() {
               <SelectItem value="internal_tig_agent">TIG Agent</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={showInactive ? 'all' : 'active'} onValueChange={(val) => setShowInactive(val === 'all')}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active Only</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
+            </SelectContent>
+          </Select>
           <Button variant="outline" size="icon" onClick={fetchUsers}>
             <RefreshCw className="h-4 w-4" />
           </Button>
