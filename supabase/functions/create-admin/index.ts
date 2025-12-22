@@ -47,10 +47,10 @@ serve(async (req: Request): Promise<Response> => {
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .eq("role", "super_admin");
+      .in("role", ["super_admin", "admin"]);
 
     if (!roles || roles.length === 0) {
-      throw new Error("Unauthorized: Super admin role required");
+      throw new Error("Unauthorized: Admin role required");
     }
 
     const { 
