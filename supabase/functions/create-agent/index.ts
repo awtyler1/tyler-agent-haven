@@ -9,8 +9,10 @@ const corsHeaders = {
 interface CreateAgentRequest {
   email: string;
   fullName: string;
-  managerId?: string | null;
-  role?: 'super_admin' | 'contracting_admin' | 'broker_manager' | 'agent';
+  hierarchyType: 'team' | 'downline';
+  hierarchyEntityId?: string | null;
+  uplineUserId?: string | null;
+  isExistingAgent: boolean;
   sendSetupEmail?: boolean;
   isTest?: boolean;
 }
@@ -30,7 +32,7 @@ serve(async (req: Request): Promise<Response> => {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
-    // Verify the requesting user is a super admin
+    // Verify the requesting user is an admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       throw new Error("No authorization header");
@@ -44,24 +46,37 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Unauthorized");
     }
 
-    // Only super admins can create users
+    // Check for admin or super_admin role
     const { data: roles } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .eq("role", "super_admin");
+      .in("role", ["super_admin", "admin"]);
 
     if (!roles || roles.length === 0) {
-      throw new Error("Unauthorized: Super admin role required");
+      throw new Error("Unauthorized: Admin role required");
     }
 
-    const { email, fullName, managerId, role = 'agent', sendSetupEmail = false, isTest = false }: CreateAgentRequest = await req.json();
+    const { 
+      email, 
+      fullName, 
+      hierarchyType,
+      hierarchyEntityId,
+      uplineUserId,
+      isExistingAgent,
+      sendSetupEmail = true, 
+      isTest = false 
+    }: CreateAgentRequest = await req.json();
 
     if (!email || !fullName) {
       throw new Error("Email and full name are required");
     }
 
-    console.log(`Creating agent: ${email}, isTest: ${isTest}`);
+    if (!hierarchyType) {
+      throw new Error("Hierarchy type is required");
+    }
+
+    console.log(`Creating agent: ${email}, hierarchy: ${hierarchyType}, existing: ${isExistingAgent}, isTest: ${isTest}`);
 
     // Generate a random password (user won't know this - they'll set their own)
     const tempPassword = crypto.randomUUID();
@@ -80,34 +95,54 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`User created: ${newUser.user.id} (${email})`);
 
-    // Update the profile with manager and test flag if provided
-    const profileUpdates: Record<string, any> = {};
-    if (managerId) profileUpdates.manager_id = managerId;
-    if (isTest) profileUpdates.is_test = true;
-    
-    if (Object.keys(profileUpdates).length > 0) {
-      await supabaseAdmin
-        .from("profiles")
-        .update(profileUpdates)
-        .eq("user_id", newUser.user.id);
+    // Determine onboarding status based on agent type
+    const onboardingStatus = isExistingAgent ? 'APPOINTED' : 'CONTRACTING_REQUIRED';
+
+    // Update the profile with hierarchy and status
+    const profileUpdates: Record<string, unknown> = {
+      hierarchy_type: hierarchyType,
+      onboarding_status: onboardingStatus,
+    };
+
+    // Set entity or upline based on hierarchy type
+    if (hierarchyType === 'team' && hierarchyEntityId) {
+      profileUpdates.hierarchy_entity_id = hierarchyEntityId;
+    } else if (hierarchyType === 'downline' && uplineUserId) {
+      profileUpdates.upline_user_id = uplineUserId;
     }
 
-    // Assign the specified role
+    if (isTest) {
+      profileUpdates.is_test = true;
+    }
+
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .update(profileUpdates)
+      .eq("user_id", newUser.user.id);
+
+    if (profileError) {
+      console.error("Failed to update profile:", profileError);
+      throw new Error(`Failed to update profile: ${profileError.message}`);
+    }
+
+    console.log(`Profile updated with hierarchy_type: ${hierarchyType}, status: ${onboardingStatus}`);
+
+    // Assign the agent role
+    const agentRole = 'independent_agent';
     const { error: roleError } = await supabaseAdmin
       .from("user_roles")
-      .insert({ user_id: newUser.user.id, role });
+      .insert({ user_id: newUser.user.id, role: agentRole });
 
     if (roleError) {
       console.error("Failed to assign role:", roleError);
       throw new Error(`Failed to assign role: ${roleError.message}`);
     }
 
-    console.log(`Role assigned: ${role} for user ${newUser.user.id}`);
+    console.log(`Role assigned: ${agentRole} for user ${newUser.user.id}`);
 
     // Send setup email with password reset link if requested
     let emailSent = false;
     if (sendSetupEmail && resendApiKey) {
-      // Generate a password recovery link so user can set their own password
       const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery',
         email: email,
@@ -121,11 +156,73 @@ serve(async (req: Request): Promise<Response> => {
         throw new Error(`Failed to generate setup link: ${linkError.message}`);
       }
 
-      // The link contains the token - we need to construct the proper URL
       const setupLink = linkData.properties.action_link;
       console.log(`Generated setup link for ${email}`);
 
       const firstName = fullName.split(' ')[0] || 'there';
+
+      // Different email content based on agent type
+      const emailContent = isExistingAgent 
+        ? `
+          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+            Your Tyler Insurance Group agent account is ready.
+          </p>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 10px 0;">
+            <strong>Start here:</strong>
+          </p>
+          
+          <table border="0" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
+            <tr>
+              <td style="background-color: #A38529; border-radius: 6px;">
+                <a href="${setupLink}" style="display: inline-block; padding: 14px 28px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: 600;">
+                  Set Your Password
+                </a>
+              </td>
+            </tr>
+          </table>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+            Once you set your password, you'll have full access to the agent portal where you can access carrier resources, training materials, and more.
+          </p>
+        `
+        : `
+          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+            Your account is set up and ready for activation.
+          </p>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 10px 0;">
+            <strong>Start here:</strong>
+          </p>
+          
+          <table border="0" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
+            <tr>
+              <td style="background-color: #A38529; border-radius: 6px;">
+                <a href="${setupLink}" style="display: inline-block; padding: 14px 28px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: 600;">
+                  Activate Your Account
+                </a>
+              </td>
+            </tr>
+          </table>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+            When you sign in for the first time, you will land on the Contracting page. That page guides you through everything you need to complete before your full agent tools unlock.
+          </p>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 10px 0;">
+            <strong>You'll be able to:</strong>
+          </p>
+          
+          <ul style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 20px 0; padding-left: 20px;">
+            <li>Download required forms</li>
+            <li>Upload your documents</li>
+            <li>Track what's complete and what still needs attention</li>
+          </ul>
+          
+          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+            Once every item on that page is finished, the rest of your platform will open automatically.
+          </p>
+        `;
 
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -136,7 +233,7 @@ serve(async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           from: "Caroline Tyler <caroline@tylerinsurancegroup.com>",
           to: [email],
-          subject: "Your Agent Account Is Ready",
+          subject: isExistingAgent ? "Your Agent Account Is Ready" : "Welcome to Tyler Insurance Group",
           html: `
             <!DOCTYPE html>
             <html>
@@ -144,57 +241,31 @@ serve(async (req: Request): Promise<Response> => {
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
             </head>
-            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a1a1a; background-color: #f5f5f5; margin: 0; padding: 0;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
                 <tr>
                   <td align="center">
-                    <table width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; background: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <table width="600" border="0" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                       <tr>
                         <td style="padding: 40px;">
-                          <!-- Content -->
-                          <p style="font-size: 18px; color: #1a1a1a; margin: 0 0 24px 0;">Hi ${firstName},</p>
+                          <p style="font-size: 18px; line-height: 1.6; color: #333333; margin: 0 0 24px 0;">
+                            Hi ${firstName},
+                          </p>
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Your account is set up and ready for activation.</p>
+                          ${emailContent}
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 8px 0;"><strong>Start here:</strong></p>
+                          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+                            If anything is unclear, reply to this email and our team will help.
+                          </p>
                           
-                          <!-- Button -->
-                          <table width="100%" cellpadding="0" cellspacing="0">
-                            <tr>
-                              <td align="center" style="padding: 16px 0 32px 0;">
-                                <a href="${setupLink}" style="display: inline-block; background: #A38529; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Activate Your Account</a>
-                              </td>
-                            </tr>
-                          </table>
+                          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 24px 0;">
+                            Welcome aboard.
+                          </p>
                           
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">When you sign in for the first time, you will land on the <strong>Contracting</strong> page. That page guides you through everything you need to complete before your full agent tools unlock.</p>
-                          
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 12px 0;"><strong>You'll be able to:</strong></p>
-                          
-                          <!-- Bullet List -->
-                          <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0;">
-                            <tr>
-                              <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Download required forms</td>
-                            </tr>
-                            <tr>
-                              <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Upload your documents</td>
-                            </tr>
-                            <tr>
-                              <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Track what's complete and what still needs attention</td>
-                            </tr>
-                          </table>
-                          
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Once every item on that page is finished, the rest of your platform will open automatically.</p>
-                          
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 32px 0;">If anything is unclear, reply to this email and our team will help.</p>
-                          
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Welcome aboard.</p>
-                          
-                          <!-- Signature -->
-                          <p style="font-size: 16px; color: #1a1a1a; margin: 0;">
-                            <strong>Caroline</strong><br/>
-                            Head of Contracting<br/>
-                            Tyler Insurance Group<br/>
+                          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0;">
+                            <strong>Caroline</strong><br>
+                            Head of Contracting<br>
+                            Tyler Insurance Group<br>
                             <a href="mailto:caroline@tylerinsurancegroup.com" style="color: #A38529; text-decoration: none;">caroline@tylerinsurancegroup.com</a>
                           </p>
                         </td>
@@ -213,7 +284,6 @@ serve(async (req: Request): Promise<Response> => {
         emailSent = true;
         console.log(`Setup email sent to ${email}`);
 
-        // Update the profile to track when setup link was sent
         await supabaseAdmin
           .from("profiles")
           .update({ setup_link_sent_at: new Date().toISOString() })
@@ -229,18 +299,22 @@ serve(async (req: Request): Promise<Response> => {
         success: true, 
         userId: newUser.user.id,
         emailSent,
+        isExistingAgent,
         isTest,
-        message: emailSent ? "User created and setup email sent" : "User created successfully" 
+        message: emailSent 
+          ? `Agent created and setup email sent` 
+          : `Agent created successfully` 
       }),
       { 
         status: 200, 
         headers: { "Content-Type": "application/json", ...corsHeaders } 
       }
     );
-  } catch (error: any) {
-    console.error("Error in create-agent:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error in create-agent:", errorMessage);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { 
         status: 400, 
         headers: { "Content-Type": "application/json", ...corsHeaders } 
