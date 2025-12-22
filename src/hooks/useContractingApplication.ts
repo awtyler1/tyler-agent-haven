@@ -224,6 +224,23 @@ export function useContractingApplication() {
 
       console.log('PDF generated successfully:', pdfResult.filename);
 
+      // Add contracting packet path to uploaded_documents
+      if (pdfResult.filename) {
+        const currentDocs = (application.uploaded_documents || {}) as Record<string, string>;
+        const packetPath = `${application.user_id}/${pdfResult.filename}`;
+        
+        const { error: docUpdateError } = await supabase
+          .from('contracting_applications')
+          .update({ 
+            uploaded_documents: { ...currentDocs, contracting_packet: packetPath } 
+          })
+          .eq('id', application.id);
+
+        if (docUpdateError) {
+          console.error('Failed to save contracting packet path:', docUpdateError);
+        }
+      }
+
       // Update profile status to CONTRACT_SUBMITTED
       const { error: profileError } = await supabase
         .from('profiles')
