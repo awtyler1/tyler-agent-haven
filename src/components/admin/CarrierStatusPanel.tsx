@@ -20,6 +20,8 @@ import {
   Link as LinkIcon,
   ExternalLink,
   X,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -60,6 +62,7 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
   const [defaultCarrierIds, setDefaultCarrierIds] = useState<Set<string>>(new Set());
   const [statuses, setStatuses] = useState<CarrierStatus[]>([]);
   const [selectedCarriers, setSelectedCarriers] = useState<Set<string>>(new Set());
+  const [isExpanded, setIsExpanded] = useState(false);
   
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(false);
@@ -67,13 +70,10 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
   const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
   const [linkValue, setLinkValue] = useState('');
 
-  // Fetch carriers, defaults, and existing statuses
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-
       try {
-        // Fetch all active carriers
         const { data: carriersData, error: carriersError } = await supabase
           .from('carriers')
           .select('id, name, code')
@@ -83,7 +83,6 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
         if (carriersError) throw carriersError;
         setCarriers(carriersData || []);
 
-        // Fetch state defaults if we have a resident state
         if (residentState) {
           const { data: defaultsData, error: defaultsError } = await supabase
             .from('state_carriers')
@@ -96,19 +95,9 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
           }
         }
 
-        // Fetch existing carrier statuses for this user
         const { data: statusesData, error: statusesError } = await supabase
           .from('carrier_statuses')
-          .select(`
-            id,
-            carrier_id,
-            contracting_status,
-            contracted_at,
-            issue_description,
-            contracting_link_url,
-            contracting_link_sent_at,
-            carriers (name)
-          `)
+          .select(`id, carrier_id, contracting_status, contracted_at, issue_description, contracting_link_url, contracting_link_sent_at, carriers (name)`)
           .eq('user_id', userId);
 
         if (statusesError) throw statusesError;
@@ -126,7 +115,6 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
 
         setStatuses(mappedStatuses);
         setSelectedCarriers(new Set(mappedStatuses.map(s => s.carrier_id)));
-
       } catch (error) {
         console.error('Error fetching carrier data:', error);
         toast.error('Failed to load carrier information');
@@ -134,74 +122,40 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
         setLoading(false);
       }
     }
-
     fetchData();
   }, [userId, residentState]);
 
   const handleToggleCarrier = (carrierId: string) => {
     setSelectedCarriers(prev => {
       const next = new Set(prev);
-      if (next.has(carrierId)) {
-        next.delete(carrierId);
-      } else {
-        next.add(carrierId);
-      }
+      if (next.has(carrierId)) next.delete(carrierId);
+      else next.add(carrierId);
       return next;
     });
   };
 
   const handleInitializeStatuses = async () => {
     setInitializing(true);
-
     try {
-      // Find carriers that need to be added
       const existingCarrierIds = new Set(statuses.map(s => s.carrier_id));
-      const carriersToAdd = Array.from(selectedCarriers)
-        .filter(id => !existingCarrierIds.has(id));
+      const carriersToAdd = Array.from(selectedCarriers).filter(id => !existingCarrierIds.has(id));
+      const carriersToRemove = statuses.filter(s => !selectedCarriers.has(s.carrier_id)).map(s => s.id);
 
-      // Find carriers that need to be removed
-      const carriersToRemove = statuses
-        .filter(s => !selectedCarriers.has(s.carrier_id))
-        .map(s => s.id);
-
-      // Remove unselected carriers
       if (carriersToRemove.length > 0) {
-        const { error: deleteError } = await supabase
-          .from('carrier_statuses')
-          .delete()
-          .in('id', carriersToRemove);
-
+        const { error: deleteError } = await supabase.from('carrier_statuses').delete().in('id', carriersToRemove);
         if (deleteError) throw deleteError;
       }
 
-      // Add new carriers
       if (carriersToAdd.length > 0) {
-        const { error: insertError } = await supabase
-          .from('carrier_statuses')
-          .insert(
-            carriersToAdd.map(carrierId => ({
-              user_id: userId,
-              carrier_id: carrierId,
-              contracting_status: 'not_started',
-            }))
-          );
-
+        const { error: insertError } = await supabase.from('carrier_statuses').insert(
+          carriersToAdd.map(carrierId => ({ user_id: userId, carrier_id: carrierId, contracting_status: 'not_started' }))
+        );
         if (insertError) throw insertError;
       }
 
-      // Refetch statuses
       const { data: statusesData, error: statusesError } = await supabase
         .from('carrier_statuses')
-        .select(`
-          id,
-          carrier_id,
-          contracting_status,
-          contracted_at,
-          issue_description,
-          contracting_link_url,
-          contracting_link_sent_at,
-          carriers (name)
-        `)
+        .select(`id, carrier_id, contracting_status, contracted_at, issue_description, contracting_link_url, contracting_link_sent_at, carriers (name)`)
         .eq('user_id', userId);
 
       if (statusesError) throw statusesError;
@@ -219,7 +173,6 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
 
       setStatuses(mappedStatuses);
       toast.success('Carrier assignments updated');
-
     } catch (error) {
       console.error('Error initializing carrier statuses:', error);
       toast.error('Failed to update carrier assignments');
@@ -230,31 +183,14 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
 
   const handleStatusChange = async (statusId: string, newStatus: ContractingStatus) => {
     setUpdatingCarrier(statusId);
-
     try {
-      const updateData: Record<string, unknown> = {
-        contracting_status: newStatus,
-      };
+      const updateData: Record<string, unknown> = { contracting_status: newStatus };
+      if (newStatus === 'contracted') updateData.contracted_at = new Date().toISOString();
 
-      // Set contracted_at when moving to contracted
-      if (newStatus === 'contracted') {
-        updateData.contracted_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from('carrier_statuses')
-        .update(updateData)
-        .eq('id', statusId);
-
+      const { error } = await supabase.from('carrier_statuses').update(updateData).eq('id', statusId);
       if (error) throw error;
 
-      // Update local state
-      setStatuses(prev => prev.map(s => 
-        s.id === statusId 
-          ? { ...s, contracting_status: newStatus, contracted_at: newStatus === 'contracted' ? new Date().toISOString() : s.contracted_at }
-          : s
-      ));
-
+      setStatuses(prev => prev.map(s => s.id === statusId ? { ...s, contracting_status: newStatus, contracted_at: newStatus === 'contracted' ? new Date().toISOString() : s.contracted_at } : s));
     } catch (error) {
       console.error('Error updating carrier status:', error);
       toast.error('Failed to update status');
@@ -266,35 +202,14 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
   const handleSaveLink = async (statusId: string) => {
     setUpdatingCarrier(statusId);
     try {
-      const updates: Record<string, unknown> = {
-        contracting_link_url: linkValue || null,
-      };
-      
-      // Set sent timestamp if adding a new link
+      const updates: Record<string, unknown> = { contracting_link_url: linkValue || null };
       const currentStatus = statuses.find(s => s.id === statusId);
-      if (linkValue && !currentStatus?.contracting_link_sent_at) {
-        updates.contracting_link_sent_at = new Date().toISOString();
-      }
+      if (linkValue && !currentStatus?.contracting_link_sent_at) updates.contracting_link_sent_at = new Date().toISOString();
 
-      const { error } = await supabase
-        .from('carrier_statuses')
-        .update(updates)
-        .eq('id', statusId);
-
+      const { error } = await supabase.from('carrier_statuses').update(updates).eq('id', statusId);
       if (error) throw error;
 
-      setStatuses(prev => prev.map(s => 
-        s.id === statusId 
-          ? { 
-              ...s, 
-              contracting_link_url: linkValue || null,
-              contracting_link_sent_at: linkValue && !s.contracting_link_sent_at 
-                ? new Date().toISOString() 
-                : s.contracting_link_sent_at
-            }
-          : s
-      ));
-      
+      setStatuses(prev => prev.map(s => s.id === statusId ? { ...s, contracting_link_url: linkValue || null, contracting_link_sent_at: linkValue && !s.contracting_link_sent_at ? new Date().toISOString() : s.contracting_link_sent_at } : s));
       setEditingLinkId(null);
       setLinkValue('');
       toast.success('Contracting link saved');
@@ -306,218 +221,127 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
     }
   };
 
-  // Check if carrier selection has changed
   const existingCarrierIds = new Set(statuses.map(s => s.carrier_id));
-  const hasChanges = 
-    Array.from(selectedCarriers).some(id => !existingCarrierIds.has(id)) ||
-    Array.from(existingCarrierIds).some(id => !selectedCarriers.has(id));
+  const hasChanges = Array.from(selectedCarriers).some(id => !existingCarrierIds.has(id)) || Array.from(existingCarrierIds).some(id => !selectedCarriers.has(id));
+
+  const contractedCount = statuses.filter(s => s.contracting_status === 'contracted').length;
+  const inProgressCount = statuses.filter(s => s.contracting_status === 'in_progress').length;
+  const issueCount = statuses.filter(s => s.contracting_status === 'issue').length;
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-border bg-card p-4">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Loading carrier information...
+      <div className="border border-border rounded-lg bg-card">
+        <div className="p-3 flex items-center justify-center">
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading carriers...
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 space-y-4">
-      <h4 className="font-medium text-foreground">Carrier Contracting Status</h4>
-
-      {/* Carrier Selection */}
-      {statuses.length === 0 || hasChanges ? (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">
-                Select carriers for this agent
-              </p>
-              {residentState && (
-                <p className="text-xs text-muted-foreground">
-                  ({residentState} defaults pre-selected)
-                </p>
-              )}
-            </div>
-            {hasChanges && (
-              <Button size="sm" onClick={handleInitializeStatuses} disabled={initializing}>
-                {initializing ? (
-                  <>
-                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="h-3 w-3 mr-1" />
-                    Apply Changes
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {carriers.map(carrier => {
-              const isDefault = defaultCarrierIds.has(carrier.id);
-              const isSelected = selectedCarriers.has(carrier.id);
-              
-              return (
-                <label key={carrier.id} className="flex items-center gap-2 p-2 rounded border border-border hover:bg-accent/50 cursor-pointer">
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={() => handleToggleCarrier(carrier.id)}
-                  />
-                  <span className="text-sm">{carrier.name}</span>
-                  {isDefault && (
-                    <span className="text-xs bg-primary/10 text-primary px-1 rounded">Default</span>
-                  )}
-                </label>
-              );
-            })}
-          </div>
+    <div className="border border-border rounded-lg bg-card overflow-hidden">
+      <button onClick={() => setIsExpanded(!isExpanded)} className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors">
+        <div className="flex items-center gap-2">
+          {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          <span className="font-medium text-sm">Carrier Contracting</span>
         </div>
-      ) : null}
+        <div className="flex items-center gap-2 text-xs">
+          {statuses.length === 0 ? (
+            <span className="text-muted-foreground">No carriers</span>
+          ) : (
+            <>
+              {contractedCount > 0 && <span className="flex items-center gap-1 text-green-600"><CheckCircle className="h-3 w-3" />{contractedCount}</span>}
+              {inProgressCount > 0 && <span className="flex items-center gap-1 text-amber-500"><Clock className="h-3 w-3" />{inProgressCount}</span>}
+              {issueCount > 0 && <span className="flex items-center gap-1 text-red-500"><AlertCircle className="h-3 w-3" />{issueCount}</span>}
+              <span className="text-muted-foreground ml-1">{statuses.length} total</span>
+            </>
+          )}
+        </div>
+      </button>
 
-      {/* Status List */}
-      {statuses.length > 0 && (
-        <div className="space-y-2">
-          {!hasChanges && (
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm text-muted-foreground">
-                {statuses.length} carrier{statuses.length !== 1 ? 's' : ''} assigned
-              </p>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => {
-                  // Show carrier selection by toggling a carrier
-                  // This triggers hasChanges to show the selection UI
-                }}
-              >
-                Edit Carriers
-              </Button>
+      {isExpanded && (
+        <div className="border-t border-border">
+          {(statuses.length === 0 || hasChanges) && (
+            <div className="p-3 border-b border-border bg-muted/30">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <p className="text-xs font-medium text-foreground">Select carriers for this agent</p>
+                  {residentState && <p className="text-xs text-muted-foreground">({residentState} defaults pre-selected)</p>}
+                </div>
+                {hasChanges && (
+                  <Button size="sm" onClick={handleInitializeStatuses} disabled={initializing} className="h-7 text-xs">
+                    {initializing ? <><Loader2 className="h-3 w-3 mr-1 animate-spin" />Saving...</> : <><Plus className="h-3 w-3 mr-1" />Apply Changes</>}
+                  </Button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {carriers.map(carrier => (
+                  <label key={carrier.id} className="flex items-center gap-1.5 text-xs cursor-pointer py-0.5">
+                    <Checkbox checked={selectedCarriers.has(carrier.id)} onCheckedChange={() => handleToggleCarrier(carrier.id)} />
+                    <span className="truncate">{carrier.name}</span>
+                    {defaultCarrierIds.has(carrier.id) && <span className="text-[10px] text-muted-foreground">(Default)</span>}
+                  </label>
+                ))}
+              </div>
             </div>
           )}
 
-          {statuses.map(status => {
-            const config = STATUS_CONFIG[status.contracting_status];
-            const Icon = config.icon;
-            const isUpdating = updatingCarrier === status.id;
-            const isEditingLink = editingLinkId === status.id;
-
-            return (
-              <div key={status.id} className="space-y-2 p-3 rounded-lg bg-muted/30 border border-border/50">
-                {/* Main row */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon className={cn('h-4 w-4', config.color)} />
-                    <span className="text-sm font-medium">{status.carrier_name}</span>
-                    {status.contracting_link_url && (
-                      <a href={status.contracting_link_url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    )}
-                  </div>
-
-                  <Select
-                    value={status.contracting_status}
-                    onValueChange={(value) => handleStatusChange(status.id, value as ContractingStatus)}
-                    disabled={isUpdating}
-                  >
-                    <SelectTrigger className="w-[140px] h-8">
-                      {isUpdating ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <SelectValue />
-                      )}
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(STATUS_CONFIG).map(([value, cfg]) => {
-                        const StatusIcon = cfg.icon;
-                        return (
-                          <SelectItem key={value} value={value}>
-                            <div className="flex items-center gap-2">
-                              <StatusIcon className={cn('h-3 w-3', cfg.color)} />
-                              <span>{cfg.label}</span>
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+          {statuses.length > 0 && (
+            <div className="divide-y divide-border">
+              {!hasChanges && (
+                <div className="px-3 py-2 flex items-center justify-between bg-muted/20">
+                  <span className="text-xs text-muted-foreground">{statuses.length} carrier{statuses.length !== 1 ? 's' : ''} assigned</span>
+                  <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => { const first = carriers.find(c => !selectedCarriers.has(c.id)); if (first) { handleToggleCarrier(first.id); handleToggleCarrier(first.id); } }}>Edit Carriers</Button>
                 </div>
+              )}
 
-                {/* Link row */}
-                {isEditingLink ? (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={linkValue}
-                      onChange={(e) => setLinkValue(e.target.value)}
-                      placeholder="Paste contracting link URL..."
-                      className="h-8 text-sm flex-1"
-                      autoFocus
-                    />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2"
-                      onClick={() => {
-                        setEditingLinkId(null);
-                        setLinkValue('');
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="h-8"
-                      onClick={() => handleSaveLink(status.id)}
-                      disabled={isUpdating}
-                    >
-                      Save
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between text-xs">
-                    {status.contracting_link_url ? (
-                      <a 
-                        href={status.contracting_link_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-foreground flex items-center gap-1 truncate max-w-[200px]"
-                      >
-                        <LinkIcon className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{status.contracting_link_url}</span>
-                      </a>
+              {statuses.map(status => {
+                const config = STATUS_CONFIG[status.contracting_status];
+                const Icon = config.icon;
+                const isUpdating = updatingCarrier === status.id;
+                const isEditingLink = editingLinkId === status.id;
+
+                return (
+                  <div key={status.id} className="px-3 py-2 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <Icon className={cn("h-4 w-4 flex-shrink-0", config.color)} />
+                        <span className="text-sm font-medium truncate">{status.carrier_name}</span>
+                        {status.contracting_link_url && <a href={status.contracting_link_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-muted-foreground hover:text-primary"><ExternalLink className="h-3 w-3" /></a>}
+                      </div>
+                      <Select value={status.contracting_status} onValueChange={(v) => handleStatusChange(status.id, v as ContractingStatus)} disabled={isUpdating}>
+                        <SelectTrigger className="w-[130px] h-7 text-xs">{isUpdating ? <Loader2 className="h-3 w-3 animate-spin" /> : <SelectValue />}</SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(STATUS_CONFIG).map(([value, cfg]) => {
+                            const StatusIcon = cfg.icon;
+                            return <SelectItem key={value} value={value} className="text-xs"><div className="flex items-center gap-1.5"><StatusIcon className={cn("h-3 w-3", cfg.color)} />{cfg.label}</div></SelectItem>;
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {isEditingLink ? (
+                      <div className="flex items-center gap-1.5 pl-6">
+                        <Input value={linkValue} onChange={(e) => setLinkValue(e.target.value)} placeholder="Paste contracting link URL..." className="h-7 text-xs flex-1" autoFocus />
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { setEditingLinkId(null); setLinkValue(''); }}><X className="h-3 w-3" /></Button>
+                        <Button size="sm" className="h-7 text-xs" onClick={() => handleSaveLink(status.id)} disabled={isUpdating}>Save</Button>
+                      </div>
                     ) : (
-                      <span className="text-muted-foreground">No contracting link</span>
+                      <div className="flex items-center gap-2 pl-6 text-xs">
+                        {status.contracting_link_url ? <a href={status.contracting_link_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate max-w-[200px]"><LinkIcon className="h-3 w-3 inline mr-1" />{status.contracting_link_url}</a> : <span className="text-muted-foreground">No link</span>}
+                        <Button variant="ghost" size="sm" className="h-5 text-[10px] px-1.5" onClick={() => { setEditingLinkId(status.id); setLinkValue(status.contracting_link_url || ''); }}>{status.contracting_link_url ? 'Edit' : 'Add Link'}</Button>
+                      </div>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-xs"
-                      onClick={() => {
-                        setEditingLinkId(status.id);
-                        setLinkValue(status.contracting_link_url || '');
-                      }}
-                    >
-                      {status.contracting_link_url ? 'Edit' : 'Add Link'}
-                    </Button>
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+                );
+              })}
+            </div>
+          )}
 
-      {/* Empty State */}
-      {statuses.length === 0 && selectedCarriers.size === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          No carriers assigned yet. Select carriers above to begin.
-        </p>
+          {statuses.length === 0 && selectedCarriers.size === 0 && <div className="p-4 text-center text-sm text-muted-foreground">No carriers assigned. Select carriers above to begin.</div>}
+        </div>
       )}
     </div>
   );
