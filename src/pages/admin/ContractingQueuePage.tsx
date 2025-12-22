@@ -30,6 +30,9 @@ interface ContractingSubmission {
   resident_state: string | null;
   uploaded_documents: Record<string, string> | null;
   is_test?: boolean;
+  // From profiles join
+  profile_name?: string | null;
+  profile_email?: string | null;
 }
 
 export default function ContractingQueuePage() {
@@ -62,17 +65,45 @@ export default function ContractingQueuePage() {
 
   const fetchSubmissions = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch contracting applications
+      const { data: applications, error: appError } = await supabase
         .from('contracting_applications')
         .select('id, user_id, full_legal_name, email_address, status, submitted_at, created_at, updated_at, npn_number, resident_state, uploaded_documents, is_test')
         .order('submitted_at', { ascending: false, nullsFirst: false });
 
-      if (error) throw error;
-      setSubmissions((data || []) as ContractingSubmission[]);
+      if (appError) throw appError;
+
+      // Fetch profiles to get names for agents who haven't completed the wizard
+      const userIds = (applications || []).map(a => a.user_id).filter(Boolean);
+      
+      let profileMap: Record<string, { full_name: string | null; email: string | null }> = {};
+      
+      if (userIds.length > 0) {
+        const { data: profiles, error: profileError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, email')
+          .in('user_id', userIds);
+
+        if (!profileError && profiles) {
+          profileMap = profiles.reduce((acc, p) => {
+            acc[p.user_id] = { full_name: p.full_name, email: p.email };
+            return acc;
+          }, {} as Record<string, { full_name: string | null; email: string | null }>);
+        }
+      }
+
+      // Merge profile data with applications
+      const merged = (applications || []).map(app => ({
+        ...app,
+        profile_name: profileMap[app.user_id]?.full_name || null,
+        profile_email: profileMap[app.user_id]?.email || null,
+      })) as ContractingSubmission[];
+
+      setSubmissions(merged);
       
       // Auto-select first submission
-      if (data && data.length > 0 && !selectedId) {
-        setSelectedId(data[0].id);
+      if (merged.length > 0 && !selectedId) {
+        setSelectedId(merged[0].id);
       }
     } catch (err) {
       console.error('Error fetching submissions:', err);
@@ -80,6 +111,16 @@ export default function ContractingQueuePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Get display name - prefer full_legal_name, fall back to profile name
+  const getDisplayName = (submission: ContractingSubmission): string => {
+    return submission.full_legal_name || submission.profile_name || 'Unknown';
+  };
+
+  // Get display email - prefer email_address, fall back to profile email
+  const getDisplayEmail = (submission: ContractingSubmission): string => {
+    return submission.email_address || submission.profile_email || '';
   };
 
   const getStatusStyle = (status: string) => {
@@ -106,16 +147,20 @@ export default function ContractingQueuePage() {
     switch (status) {
       case 'submitted': return <Clock className="h-3 w-3" />;
       case 'approved': return <CheckCircle className="h-3 w-3" />;
-      case 'rejected': return <X className="h-3 w-3" />;
-      case 'in_progress': return <AlertCircle className="h-3 w-3" />;
+      case 'rejected': return <AlertCircle className="h-3 w-3" />;
+      case 'in_progress': return <FileText className="h-3 w-3" />;
       default: return <FileText className="h-3 w-3" />;
     }
   };
 
   const filteredSubmissions = submissions.filter(s => {
+    const displayName = getDisplayName(s).toLowerCase();
+    const displayEmail = getDisplayEmail(s).toLowerCase();
+    const searchLower = searchTerm.toLowerCase();
+    
     const matchesSearch = 
-      s.full_legal_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.email_address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      displayName.includes(searchLower) ||
+      displayEmail.includes(searchLower) ||
       s.npn_number?.includes(searchTerm);
     
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
@@ -134,19 +179,22 @@ export default function ContractingQueuePage() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
-      <div className="flex h-[calc(100vh-64px)]">
+
+      <div className="flex h-[calc(100vh-4rem)]">
+
         {/* Left Panel - Submissions List */}
         <div className="w-96 border-r border-border flex flex-col bg-card">
+
           {/* Header */}
           <div className="p-4 border-b border-border space-y-4">
+
             <h1 className="text-xl font-semibold text-foreground">Contracting Queue</h1>
             
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name, email, or NPN..."
+                placeholder="Search by name, email, NPN..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -154,7 +202,7 @@ export default function ContractingQueuePage() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-2 flex-wrap">
               {[
                 { value: 'all', label: 'All', count: statusCounts.all },
                 { value: 'submitted', label: 'New', count: statusCounts.submitted },
@@ -186,6 +234,7 @@ export default function ContractingQueuePage() {
                 Hide test data
               </label>
             </div>
+
           </div>
 
           {/* Submissions List */}
@@ -210,52 +259,51 @@ export default function ContractingQueuePage() {
                       : 'hover:bg-muted/50 border-l-4 border-l-transparent'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center justify-between mb-1">
                     <span className="font-medium text-foreground truncate">
-                      {submission.full_legal_name || 'Unknown'}
+                      {getDisplayName(submission)}
                       {submission.is_test && (
-                        <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded bg-amber-100 text-amber-700">
+                        <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
                           TEST
                         </span>
                       )}
                     </span>
-                    <span className={`flex items-center gap-1 px-2 py-0.5 text-xs rounded-full whitespace-nowrap ${getStatusStyle(submission.status)}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 ${getStatusStyle(submission.status)}`}>
                       {getStatusIcon(submission.status)}
                       {getStatusLabel(submission.status)}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1 truncate">
+                  <div className="text-xs text-muted-foreground mb-1">
                     {submission.resident_state || 'N/A'} • NPN: {submission.npn_number || 'N/A'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  </div>
+                  <div className="text-xs text-muted-foreground">
                     {submission.submitted_at 
                       ? format(new Date(submission.submitted_at), 'MMM d, yyyy h:mm a')
                       : 'Not submitted'}
-                  </p>
+                  </div>
                 </button>
               ))
             )}
           </div>
+
         </div>
 
         {/* Right Panel - Submission Details */}
-        <div className="flex-1 overflow-y-auto bg-background">
+        <div className="flex-1 overflow-hidden bg-muted/30">
           {selected ? (
-            <div className={`p-6 transition-opacity duration-150 ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
-              <ContractingSubmissionDetail
-                submission={selected}
-                onRefresh={fetchSubmissions}
-              />
+            <div className={`h-full transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+              <ContractingSubmissionDetail submission={selected as any} onRefresh={fetchSubmissions} />
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full">
+            <div className="h-full flex items-center justify-center">
               <div className="text-center text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="text-lg">Select a submission to view details</p>
               </div>
             </div>
           )}
         </div>
+
       </div>
     </div>
   );
