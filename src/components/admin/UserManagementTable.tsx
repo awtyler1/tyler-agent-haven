@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,7 +60,8 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  Circle
+  Circle,
+  Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -360,6 +362,43 @@ export function UserManagementTable() {
     }
   };
 
+  const handleExport = () => {
+    const exportData = filteredUsers.map(user => ({
+      'Name': user.full_name || '—',
+      'Email': user.email || '—',
+      'Role': ROLE_LABELS[user.role || '']?.label || user.role || 'Unknown',
+      'Hierarchy': user.hierarchy_name || '—',
+      'Status': !user.is_active 
+        ? 'Inactive' 
+        : user.first_login_at 
+          ? 'Active' 
+          : user.setup_link_sent_at 
+            ? 'Link Sent' 
+            : 'Created',
+      'Created': format(new Date(user.created_at), 'MMM d, yyyy'),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 20 }, // Name
+      { wch: 30 }, // Email
+      { wch: 12 }, // Role
+      { wch: 15 }, // Hierarchy
+      { wch: 10 }, // Status
+      { wch: 12 }, // Created
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    
+    const timestamp = format(new Date(), 'yyyy-MM-dd');
+    XLSX.writeFile(workbook, `TIG_Users_${timestamp}.xlsx`);
+    
+    toast.success(`Exported ${exportData.length} users`);
+  };
+
   // Count inactive users for the toggle label
   const inactiveCount = users.filter(u => !u.is_active && u.has_auth_user).length;
 
@@ -407,7 +446,10 @@ export function UserManagementTable() {
               <SelectItem value="all">All Statuses</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" onClick={fetchUsers}>
+          <Button variant="outline" size="icon" onClick={handleExport} title="Download Excel">
+            <Download className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={fetchUsers} title="Refresh">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
