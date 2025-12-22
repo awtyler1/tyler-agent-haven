@@ -206,6 +206,7 @@ export function useContractingPdf() {
           saveToStorage,
           skipValidation,
           userId: application.user_id,
+          applicationId: application.id,
           templateBase64,
         },
       });
