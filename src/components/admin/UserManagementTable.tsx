@@ -412,25 +412,10 @@ export function UserManagementTable() {
           </Button>
         </div>
 
-        {/* Secondary filters row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="show-inactive"
-              checked={showInactive}
-              onCheckedChange={(checked) => setShowInactive(checked === true)}
-            />
-            <Label htmlFor="show-inactive" className="text-sm text-muted-foreground cursor-pointer">
-              Show inactive users{inactiveCount > 0 && ` (${inactiveCount})`}
-            </Label>
-          </div>
-
-          {/* Summary */}
-          <span className="text-sm text-muted-foreground">
-            {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
-            {roleFilter !== 'all' && ` · ${ROLE_LABELS[roleFilter]?.label || roleFilter}`}
-            {!showInactive && ' · Active only'}
-          </span>
+        {/* Summary */}
+        <div className="text-sm text-muted-foreground">
+          {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
+          {roleFilter !== 'all' && ` · ${ROLE_LABELS[roleFilter]?.label || roleFilter}`}
         </div>
 
         {/* Table */}
