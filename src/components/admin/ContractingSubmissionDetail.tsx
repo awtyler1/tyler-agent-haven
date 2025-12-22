@@ -84,7 +84,8 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
       .createSignedUrl(filePath, 300);
 
     if (data?.signedUrl) {
-      setPreviewDoc({ url: data.signedUrl, name: DOCUMENT_LABELS[docType] || docType });
+      // Open in new tab - Chrome blocks iframes for Supabase signed URLs
+      window.open(data.signedUrl, '_blank');
     }
   };
 
