@@ -180,7 +180,7 @@ export default function ContractingQueuePage() {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <div className="flex h-[calc(100vh-4rem)]">
+      <div className="flex h-[calc(100vh-80px)] pt-20">
 
         {/* Left Panel - Submissions List */}
         <div className="w-96 border-r border-border flex flex-col bg-card">
