@@ -1,28 +1,41 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Users, UserPlus, FileText, Settings, UserCog, ArrowRight, FileType } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { 
+  Users, 
+  UserPlus, 
+  FileText, 
+  AlertCircle,
+  ArrowRight,
+  Clock,
+  CheckCircle,
+  Settings
+} from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
-interface AdminCard {
-  title: string;
-  description: string;
-  icon: typeof Users;
-  href: string;
-  secondaryAction?: {
-    label: string;
-    href: string;
-  };
-}
-
 interface DashboardStats {
   totalAgents: number;
-  pendingContracting: number;
-  appointedAgents: number;
-  brokerManagers: number;
+  inContracting: number;
+  appointed: number;
+}
+
+interface AttentionItem {
+  id: string;
+  userId: string;
+  name: string;
+  reason: string;
+  daysAgo: number;
+  type: 'contracting_stale' | 'issue' | 'new_submission';
+}
+
+interface RecentActivity {
+  id: string;
+  description: string;
+  timestamp: string;
 }
 
 export default function AdminDashboard() {
@@ -30,19 +43,29 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
     totalAgents: 0,
-    pendingContracting: 0,
-    appointedAgents: 0,
-    brokerManagers: 0,
+    inContracting: 0,
+    appointed: 0,
   });
+  const [attentionItems, setAttentionItems] = useState<AttentionItem[]>([]);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [newSubmissions, setNewSubmissions] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
+    fetchDashboardData();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const { data: profiles } = await supabase.from('profiles').select('*');
-      const { data: roles } = await supabase.from('user_roles').select('user_id, role');
+      // Fetch profiles and roles
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
 
       if (!profiles || !roles) return;
 
@@ -51,143 +74,252 @@ export default function AdminDashboard() {
         return acc;
       }, {} as Record<string, string>);
 
+      // Filter to just agents
       const agentRoles = ['independent_agent', 'internal_tig_agent'];
       const agents = profiles.filter(p => agentRoles.includes(roleMap[p.user_id] || ''));
-      const managers = profiles.filter(p => roleMap[p.user_id] === 'manager');
+
+      // Calculate stats
+      const inContracting = agents.filter(a => 
+        a.onboarding_status === 'CONTRACTING_REQUIRED' || 
+        a.onboarding_status === 'CONTRACT_SUBMITTED'
+      ).length;
+
+      const appointed = agents.filter(a => a.onboarding_status === 'APPOINTED').length;
 
       setStats({
         totalAgents: agents.length,
-        pendingContracting: agents.filter(a => a.onboarding_status === 'CONTRACT_SUBMITTED').length,
-        appointedAgents: agents.filter(a => a.onboarding_status === 'APPOINTED').length,
-        brokerManagers: managers.length,
+        inContracting,
+        appointed,
       });
-    } catch (err) {
-      console.error('Error fetching stats:', err);
+
+      // Fetch contracting applications for attention items and new submissions
+      const { data: applications } = await supabase
+        .from('contracting_applications')
+        .select('id, user_id, full_legal_name, status, submitted_at, updated_at')
+        .in('status', ['submitted', 'in_progress'])
+        .order('submitted_at', { ascending: true });
+
+      if (applications) {
+        const now = new Date();
+        const attention: AttentionItem[] = [];
+
+        // Count new submissions
+        const newSubs = applications.filter(a => a.status === 'submitted').length;
+        setNewSubmissions(newSubs);
+
+        // Find stale applications (submitted more than 3 days ago)
+        applications.forEach(app => {
+          if (app.submitted_at) {
+            const submittedDate = new Date(app.submitted_at);
+            const daysAgo = Math.floor((now.getTime() - submittedDate.getTime()) / (1000 * 60 * 60 * 24));
+            
+            if (daysAgo >= 3 && app.status === 'submitted') {
+              attention.push({
+                id: app.id,
+                userId: app.user_id,
+                name: app.full_legal_name || 'Unknown',
+                reason: `Submitted ${daysAgo} days ago, not yet started`,
+                daysAgo,
+                type: 'contracting_stale',
+              });
+            }
+          }
+        });
+
+        // Check for carrier issues
+        const { data: carrierIssues } = await supabase
+          .from('carrier_statuses')
+          .select(`
+            id,
+            user_id,
+            issue_description,
+            carriers (name)
+          `)
+          .eq('contracting_status', 'issue');
+
+        if (carrierIssues) {
+          for (const issue of carrierIssues) {
+            const agent = profiles.find(p => p.user_id === issue.user_id);
+            if (agent) {
+              attention.push({
+                id: issue.id,
+                userId: issue.user_id,
+                name: agent.full_name || 'Unknown',
+                reason: `Issue with ${(issue.carriers as { name: string })?.name || 'carrier'}`,
+                daysAgo: 0,
+                type: 'issue',
+              });
+            }
+          }
+        }
+
+        setAttentionItems(attention.slice(0, 5)); // Show max 5
+      }
+
+      // Build recent activity from recent agents
+      const recentAgents = agents.slice(0, 5).map(agent => ({
+        id: agent.id,
+        description: `${agent.full_name || 'New agent'} added`,
+        timestamp: agent.created_at,
+      }));
+      setRecentActivity(recentAgents);
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const adminCards: AdminCard[] = [
-    {
-      title: 'Manage Agents',
-      description: 'View and manage all agents in the system',
-      icon: Users,
-      href: '/admin/agents',
-      secondaryAction: {
-        label: 'Add Agent',
-        href: '/admin/agents/new',
-      },
-    },
-    {
-      title: 'Contracting Queue',
-      description: 'Review pending contracting submissions',
-      icon: FileText,
-      href: '/admin/contracting',
-    },
-    {
-      title: 'PDF Field Mapper',
-      description: 'Map PDF form fields to application data',
-      icon: FileType,
-      href: '/admin/pdf-mapper',
-    },
-  ];
-
-  if (isSuperAdmin()) {
-    adminCards.unshift({
-      title: 'Manage Managers',
-      description: 'View and manage broker managers',
-      icon: UserCog,
-      href: '/admin/managers',
-      secondaryAction: {
-        label: 'Add Manager',
-        href: '/admin/managers/new',
-      },
-    });
-    adminCards.unshift({
-      title: 'Super Admin Dashboard',
-      description: 'Full platform control center',
-      icon: Settings,
-      href: '/admin/super',
-    });
-  }
+  const firstName = profile?.full_name?.split(' ')[0] || 'there';
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <Navigation />
-      
+
       <main className="flex-1 pt-28 pb-12">
-        <div className="container-narrow px-6 md:px-12 lg:px-20">
+        <div className="container-narrow px-6 md:px-12 lg:px-20 max-w-4xl mx-auto">
+          
           {/* Header */}
-          <div className="text-center mb-10">
-            <h1 className="heading-display mb-2">Admin Dashboard</h1>
-            <p className="text-body max-w-xl mx-auto">
-              Welcome back, {profile?.full_name || 'Admin'}
+          <div className="mb-10">
+            <h1 className="text-3xl font-serif font-semibold text-foreground mb-1">
+              Welcome back, {firstName}
+            </h1>
+            <p className="text-muted-foreground">
+              Here's what's happening with your agents
             </p>
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mx-auto mt-4"></div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-            <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] text-center">
-              <div className="text-3xl font-serif font-bold text-foreground">{stats.totalAgents}</div>
-              <p className="text-xs text-muted-foreground mt-1">Total Agents</p>
-            </div>
-            <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] text-center">
-              <div className="text-3xl font-serif font-bold text-amber-600">{stats.pendingContracting}</div>
-              <p className="text-xs text-muted-foreground mt-1">Pending Review</p>
-            </div>
-            <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] text-center">
-              <div className="text-3xl font-serif font-bold text-green-600">{stats.appointedAgents}</div>
-              <p className="text-xs text-muted-foreground mt-1">Appointed</p>
-            </div>
-            <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] text-center">
-              <div className="text-3xl font-serif font-bold text-gold">{stats.brokerManagers}</div>
-              <p className="text-xs text-muted-foreground mt-1">Managers</p>
-            </div>
-          </div>
-
-          {/* Admin Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {adminCards.map((card) => (
-              <Link key={card.href} to={card.href} className="group">
-                <div className="h-full bg-white border border-[#E5E2DB] rounded-xl p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.15)] hover:border-gold/30 hover:-translate-y-1 transition-all duration-200">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
-                      <card.icon className="w-5 h-5 text-gold" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-gold transition-colors">
-                        {card.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {card.description}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                    <span className="text-xs text-gold font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                      View <ArrowRight className="w-3 h-3" />
-                    </span>
-                    
-                    {card.secondaryAction && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs h-7 border-gold/30 text-gold hover:bg-gold hover:text-white hover:border-gold"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate(card.secondaryAction!.href);
-                        }}
-                      >
-                        <UserPlus className="h-3 w-3 mr-1.5" />
-                        {card.secondaryAction.label}
-                      </Button>
-                    )}
-                  </div>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 mb-10">
+            <div className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-gold" />
                 </div>
-              </Link>
-            ))}
+                <div>
+                  <p className="text-2xl font-semibold text-foreground">{stats.totalAgents}</p>
+                  <p className="text-sm text-muted-foreground">Total Agents</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-semibold text-foreground">{stats.inContracting}</p>
+                  <p className="text-sm text-muted-foreground">In Contracting</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-semibold text-foreground">{stats.appointed}</p>
+                  <p className="text-sm text-muted-foreground">Appointed</p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Needs Attention */}
+          {attentionItems.length > 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-10">
+              <h2 className="text-sm font-medium text-amber-800 mb-3 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                Needs Attention
+              </h2>
+              <div className="space-y-2">
+                {attentionItems.map((item, index) => (
+                  <div key={item.id} className="flex items-center justify-between py-2 border-b border-amber-200 last:border-0">
+                    <AlertCircle className="w-4 h-4 text-amber-600 mr-3 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-amber-900">{item.name}</p>
+                      <p className="text-xs text-amber-700">{item.reason}</p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-amber-600 ml-2 flex-shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick Actions */}
+          <div className="mb-10">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-3 gap-4">
+              <Button
+                onClick={() => navigate('/admin/agents/new')}
+                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
+                variant="outline"
+              >
+                <UserPlus className="w-6 h-6 text-gold" />
+                Add Agent
+              </Button>
+
+              <Button
+                onClick={() => navigate('/admin/contracting')}
+                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm relative"
+                variant="outline"
+              >
+                <FileText className="w-6 h-6 text-gold" />
+                Contracting Queue
+                {newSubmissions > 0 && (
+                  <span className="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    {newSubmissions}
+                  </span>
+                )}
+              </Button>
+
+              <Button
+                onClick={() => navigate('/admin/agents')}
+                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
+                variant="outline"
+              >
+                <Users className="w-6 h-6 text-gold" />
+                All Agents
+              </Button>
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          {recentActivity.length > 0 && (
+            <div className="mb-10">
+              <h2 className="text-sm font-medium text-muted-foreground mb-3">
+                Recent Activity
+              </h2>
+              <div className="bg-white rounded-xl border border-[#E5E2DB] divide-y divide-[#E5E2DB]">
+                {recentActivity.map((activity, index) => (
+                  <div key={activity.id} className="px-4 py-3 flex items-center justify-between">
+                    <p className="text-sm text-foreground">{activity.description}</p>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Settings Link (Super Admin Only) */}
+          {isSuperAdmin() && (
+            <div className="text-center">
+              <Link to="/admin/super" className="text-sm text-muted-foreground hover:text-gold inline-flex items-center gap-1">
+                <Settings className="w-4 h-4" />
+                System Settings
+              </Link>
+            </div>
+          )}
+
         </div>
       </main>
 
