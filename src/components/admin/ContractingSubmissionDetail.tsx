@@ -13,12 +13,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -66,7 +60,6 @@ const DOCUMENT_LABELS: Record<string, string> = {
 };
 
 export function ContractingSubmissionDetail({ submission, onRefresh }: ContractingSubmissionDetailProps) {
-  const [previewDoc, setPreviewDoc] = useState<{ url: string; name: string } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     action: 'approve' | 'reject' | null;
@@ -256,22 +249,6 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
           </Button>
         </div>
       )}
-
-      {/* Document Preview Modal */}
-      <Dialog open={!!previewDoc} onOpenChange={() => setPreviewDoc(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>{previewDoc?.name}</DialogTitle>
-          </DialogHeader>
-          {previewDoc && (
-            <iframe
-              src={previewDoc.url}
-              className="w-full h-[70vh] rounded border"
-              title={previewDoc.name}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Confirmation Dialog */}
       <AlertDialog
