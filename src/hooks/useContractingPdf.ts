@@ -146,6 +146,7 @@ export function useContractingPdf() {
       const { data, error: fnError } = await supabase.functions.invoke('generate-contracting-pdf', {
         body: {
           application: {
+            user_id: application.user_id,
             full_legal_name: application.full_legal_name,
             agency_name: application.agency_name,
             gender: application.gender,
@@ -205,7 +206,6 @@ export function useContractingPdf() {
           },
           saveToStorage,
           skipValidation,
-          userId: application.user_id,
           applicationId: application.id,
           templateBase64,
         },
