@@ -1,0 +1,7 @@
+{
+  "config_key": "email_configured",
+  "config_value": {
+    "provider": "resend",
+    "status": true
+  }
+}
