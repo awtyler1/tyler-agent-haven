@@ -41,3 +41,6 @@ verify_jwt = true
 
 [functions.reset-user-password]
 verify_jwt = true
+
+[functions.reset-contracting-status]
+verify_jwt = true

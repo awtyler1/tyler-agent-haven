@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, Loader2, FlaskConical } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, FlaskConical, RotateCcw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 export function SystemStatusCard() {
   const { status, userStats } = useSystemStatus();
   const [resetting, setResetting] = useState(false);
+  const [resettingByEmail, setResettingByEmail] = useState(false);
 
 
   const handleTestContracting = async () => {
@@ -161,6 +162,31 @@ export function SystemStatusCard() {
     }
   };
 
+  const handleResetContractingByEmail = async (email: string) => {
+    setResettingByEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('reset-contracting-status', {
+        body: { email },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      toast.success(`Contracting status reset for ${email}`);
+    } catch (error) {
+      console.error('Error resetting contracting status:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset contracting status';
+      toast.error(errorMessage);
+    } finally {
+      setResettingByEmail(false);
+    }
+  };
+
   if (status.loading) {
     return (
       <Card>
@@ -226,20 +252,36 @@ export function SystemStatusCard() {
         {/* Dev Tools */}
         <div className="border-t pt-4">
           <h4 className="text-sm font-medium text-muted-foreground mb-3">Dev Tools</h4>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full"
-            onClick={handleTestContracting}
-            disabled={resetting}
-          >
-            {resetting ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <FlaskConical className="h-4 w-4 mr-2" />
-            )}
-            Test Contracting Flow
-          </Button>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={handleTestContracting}
+              disabled={resetting}
+            >
+              {resetting ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <FlaskConical className="h-4 w-4 mr-2" />
+              )}
+              Test Contracting Flow
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleResetContractingByEmail('austinwhitmertyler@gmail.com')}
+              disabled={resettingByEmail}
+            >
+              {resettingByEmail ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <RotateCcw className="h-4 w-4 mr-2" />
+              )}
+              Reset Contracting (Austin)
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
