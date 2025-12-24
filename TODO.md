@@ -3,81 +3,11 @@
 ---
 
 ## 🎯 Today (Pick ONE)
-- [ ] Complete Supabase Migration (Phase 0.5) - BLOCKS EVERYTHING ELSE
+- [ ] Test PDF generation with contracting form submission (Phase 0)
 
 ---
 
-## Phase 0.5: Migrate Off Lovable to Your Own Supabase
-> WHY: Lovable controls your database. You can't access logs, deploy edge functions, 
-> or debug issues. PDF generation doesn't work because edge function was never deployed.
-> You need full control of your backend.
-
-### Step 1: Create Your Own Supabase Project
-- [ ] Go to supabase.com, sign up with austin@tylerinsurancegroup.com
-- [ ] Create new project, name it "TIG Platform" 
-- [ ] Pick region: US East (closest to Kentucky)
-- [ ] Save the new project URL and anon key somewhere safe
-- [ ] NOTE: This gives you a fresh, empty database you fully control
-
-### Step 2: Export Schema from Lovable
-- [ ] In Lovable, ask: "Export my complete database schema as SQL"
-- [ ] Save the SQL file to TIG Platform folder
-- [ ] NOTE: Schema = the structure (tables, columns) without data
-
-### Step 3: Create Tables in New Supabase
-- [ ] In YOUR Supabase: SQL Editor → paste schema → Run
-- [ ] Verify tables appear: profiles, contracting_applications, carriers, etc.
-- [ ] NOTE: Now you have the same structure, just empty
-
-### Step 4: Export & Import Data
-- [ ] In Lovable, ask: "Export all data from carriers table as CSV"
-- [ ] In Lovable, ask: "Export all data from [other tables] as CSV"
-- [ ] In YOUR Supabase: Table Editor → Import CSV for each table
-- [ ] NOTE: Skip profiles table - we'll create users fresh
-
-### Step 5: Set Up Auth Users
-- [ ] In YOUR Supabase: Authentication → Users → Add user
-- [ ] Add: austin@tylerinsurancegroup.com (super_admin)
-- [ ] Add: andrew@tylerinsurancegroup.com (admin)
-- [ ] Add: caroline@tylerinsurancegroup.com (admin)
-- [ ] Set temporary passwords, share with Andrew/Caroline
-- [ ] NOTE: Can't migrate passwords, so fresh accounts needed
-
-### Step 6: Deploy Edge Functions
-- [ ] Install Supabase CLI: npm install -g supabase
-- [ ] Run: supabase login
-- [ ] Run: supabase link --project-ref [your-new-project-id]
-- [ ] Run: supabase functions deploy generate-contracting-pdf
-- [ ] NOTE: This deploys the PDF generator that was never deployed in Lovable
-
-### Step 7: Update Your Code
-- [ ] Open .env file in Cursor
-- [ ] Replace VITE_SUPABASE_PROJECT_ID with new project ID
-- [ ] Replace VITE_SUPABASE_URL with new project URL
-- [ ] Replace VITE_SUPABASE_PUBLISHABLE_KEY with new anon key
-- [ ] NOTE: Now your app talks to YOUR Supabase, not Lovable's
-
-### Step 8: Update Vercel
-- [ ] Go to Vercel dashboard → TIG project → Settings → Environment Variables
-- [ ] Update the same 3 variables with new values
-- [ ] Redeploy the site
-- [ ] NOTE: Live site now uses your Supabase too
-
-### Step 9: Test Everything
-- [ ] Test login on localhost
-- [ ] Test login on tigagenthub.com
-- [ ] Test contracting form submission
-- [ ] Test PDF generation
-- [ ] NOTE: If all works, you're free from Lovable!
-
-### Step 10: Downgrade Lovable
-- [ ] Once confirmed working, downgrade Lovable plan
-- [ ] Keep code repo on GitHub (you already have this)
-- [ ] NOTE: Save money, no longer need Lovable
-
----
-
-## Phase 0: Verify Current State (AFTER MIGRATION)
+## Phase 0: Verify Current State
 > Before improving anything, confirm what works and what's broken
 
 - [ ] Log in as test agent in Edge/Incognito
@@ -148,6 +78,8 @@
 - [ ] Email notifications
 - [ ] Auto-fill test data button (dev only)
 - [ ] Bulk carrier assignment
+- [ ] Explore AI powered search
+- [ ] Add Andrew and Caroline as admin users
 
 ---
 
@@ -158,15 +90,43 @@
 - [x] Fixed document viewer - open in new tab
 - [x] Set up test files folder for form testing
 - [x] Created workflow system (this TODO!)
+- [x] **SUPABASE MIGRATION COMPLETE (Dec 24, 2024)**
+  - [x] Created new Supabase project under austin@tylerinsurancegroup.com
+  - [x] Enabled pgvector extension
+  - [x] Exported and imported schema from Lovable
+  - [x] Exported and imported carriers data (68 carriers)
+  - [x] Exported and imported system_config (email, PDF field mappings, PDF template fields)
+  - [x] Created auth user for Austin (super_admin)
+  - [x] Created profile and user_roles entries
+  - [x] Set up RLS policies for profiles and user_roles tables
+  - [x] Updated local .env with new Supabase credentials
+  - [x] Updated Vercel environment variables
+  - [x] Deployed generate-contracting-pdf edge function via Supabase CLI
+  - [x] Created test agent account (independent_agent role)
+  - [x] Verified login works on localhost and tigagenthub.com
 
 ---
 
-## Notes
-_Quick notes during sessions_
+## Key Project Info
 
-Current blocker: Can't access Supabase dashboard because Lovable owns it.
-PDF doesn't generate because edge function was never deployed.
-Migration fixes both problems.
+### Supabase Project
+- **Project ID:** mgczpsrtkdkkjzmztpyd
+- **URL:** https://mgczpsrtkdkkjzmztpyd.supabase.co
+- **Dashboard:** https://supabase.com/dashboard/project/mgczpsrtkdkkjzmztpyd
+
+### User Roles (app_role enum)
+- super_admin
+- admin
+- manager
+- internal_tig_agent
+- independent_agent
+
+### Key Tables
+- profiles (user_id links to auth.users)
+- user_roles (user_id + role)
+- carriers (68 insurance carriers)
+- system_config (PDF mappings, email config)
+- contracting_submissions
 
 ---
 
@@ -174,7 +134,7 @@ Migration fixes both problems.
 1. Open Cursor
 2. Terminal: `git pull`
 3. Terminal: `npm run dev`
-4. Open Chrome tabs (localhost, Supabase, Table Editor)
+4. Open Chrome tabs (localhost, Supabase dashboard, Table Editor)
 5. Open TODO.md - pick ONE task
 6. Work until done or stuck
 7. Commit working code
