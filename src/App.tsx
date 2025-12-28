@@ -51,6 +51,7 @@ import PdfFieldMapperPage from "./pages/admin/PdfFieldMapperPage";
 import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
 import PdfFieldAuditPage from "./pages/admin/PdfFieldAuditPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import HierarchyManagementPage from "./pages/admin/HierarchyManagementPage";
 
 // Developer pages
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
@@ -58,6 +59,7 @@ import FeatureFlagsPage from "./pages/developer/FeatureFlagsPage";
 import SystemHealthPage from "./pages/developer/SystemHealthPage";
 import TestDataSeederPage from "./pages/developer/TestDataSeederPage";
 import PlatformExperienceMapPage from "./pages/developer/PlatformExperienceMapPage";
+import ViewAsPage from "./pages/developer/ViewAsPage";
 
 const queryClient = new QueryClient();
 
@@ -197,6 +199,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/admin/hierarchy" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <HierarchyManagementPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/admin/settings" 
               element={
                 <ProtectedRoute requireSuperAdmin>
@@ -275,6 +285,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireDeveloper>
                   <PlatformExperienceMapPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer/view-as" 
+              element={
+                <ProtectedRoute requireDeveloper>
+                  <ViewAsPage />
                 </ProtectedRoute>
               } 
             />

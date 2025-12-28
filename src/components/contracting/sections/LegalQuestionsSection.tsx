@@ -18,6 +18,7 @@ interface LegalQuestionsSectionProps {
 export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemove, disabled }: LegalQuestionsSectionProps) {
   const legalQuestions = application.legal_questions || {};
   const uploadedDocs = application.uploaded_documents || {};
+  const disciplinaryEntries = application.disciplinary_entries || {};
 
   const getQuestion = (id: string): LegalQuestion => {
     return legalQuestions[id] || { answer: null, explanation: '' };
@@ -183,16 +184,28 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                           <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
                           <Input
                             type="date"
-                            value={uploadedDocs.date_of_action || ''}
-                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, date_of_action: e.target.value })}
+                            value={disciplinaryEntries.entry1?.date_of_action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry1: { 
+                                ...disciplinaryEntries.entry1, 
+                                date_of_action: e.target.value 
+                              } 
+                            })}
                             className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                           />
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs font-medium text-amber-900/70">Action</Label>
                           <Input
-                            value={uploadedDocs.action || ''}
-                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, action: e.target.value })}
+                            value={disciplinaryEntries.entry1?.action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry1: { 
+                                ...disciplinaryEntries.entry1, 
+                                action: e.target.value 
+                              } 
+                            })}
                             placeholder="What action was taken"
                             className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                           />
@@ -201,8 +214,14 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                       <div className="space-y-1">
                         <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
                         <Input
-                          value={uploadedDocs.reason || ''}
-                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, reason: e.target.value })}
+                          value={disciplinaryEntries.entry1?.reason || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry1: { 
+                              ...disciplinaryEntries.entry1, 
+                              reason: e.target.value 
+                            } 
+                          })}
                           placeholder="Reason for the action"
                           className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                         />
@@ -210,8 +229,14 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                       <div className="space-y-1">
                         <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
                         <Textarea
-                          value={uploadedDocs.explanation || ''}
-                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, explanation: e.target.value })}
+                          value={disciplinaryEntries.entry1?.explanation || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry1: { 
+                              ...disciplinaryEntries.entry1, 
+                              explanation: e.target.value 
+                            } 
+                          })}
                           placeholder="Detailed explanation of circumstances and outcomes"
                           className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                         />
@@ -226,16 +251,28 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                           <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
                           <Input
                             type="date"
-                            value={uploadedDocs.date_of_action_2 || ''}
-                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, date_of_action_2: e.target.value })}
+                            value={disciplinaryEntries.entry2?.date_of_action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry2: { 
+                                ...disciplinaryEntries.entry2, 
+                                date_of_action: e.target.value 
+                              } 
+                            })}
                             className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                           />
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs font-medium text-amber-900/70">Action</Label>
                           <Input
-                            value={uploadedDocs.action_2 || ''}
-                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, action_2: e.target.value })}
+                            value={disciplinaryEntries.entry2?.action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry2: { 
+                                ...disciplinaryEntries.entry2, 
+                                action: e.target.value 
+                              } 
+                            })}
                             placeholder="What action was taken"
                             className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                           />
@@ -244,8 +281,14 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                       <div className="space-y-1">
                         <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
                         <Input
-                          value={uploadedDocs.reason_2 || ''}
-                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, reason_2: e.target.value })}
+                          value={disciplinaryEntries.entry2?.reason || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry2: { 
+                              ...disciplinaryEntries.entry2, 
+                              reason: e.target.value 
+                            } 
+                          })}
                           placeholder="Reason for the action"
                           className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                         />
@@ -253,8 +296,14 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                       <div className="space-y-1">
                         <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
                         <Textarea
-                          value={uploadedDocs.explanation_2 || ''}
-                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, explanation_2: e.target.value })}
+                          value={disciplinaryEntries.entry2?.explanation || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry2: { 
+                              ...disciplinaryEntries.entry2, 
+                              explanation: e.target.value 
+                            } 
+                          })}
                           placeholder="Detailed explanation of circumstances and outcomes"
                           className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                         />
@@ -269,16 +318,28 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                           <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
                           <Input
                             type="date"
-                            value={uploadedDocs.date_of_action_3 || ''}
-                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, date_of_action_3: e.target.value })}
+                            value={disciplinaryEntries.entry3?.date_of_action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry3: { 
+                                ...disciplinaryEntries.entry3, 
+                                date_of_action: e.target.value 
+                              } 
+                            })}
                             className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                           />
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs font-medium text-amber-900/70">Action</Label>
                           <Input
-                            value={uploadedDocs.action_3 || ''}
-                            onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, action_3: e.target.value })}
+                            value={disciplinaryEntries.entry3?.action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry3: { 
+                                ...disciplinaryEntries.entry3, 
+                                action: e.target.value 
+                              } 
+                            })}
                             placeholder="What action was taken"
                             className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                           />
@@ -287,8 +348,14 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                       <div className="space-y-1">
                         <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
                         <Input
-                          value={uploadedDocs.reason_3 || ''}
-                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, reason_3: e.target.value })}
+                          value={disciplinaryEntries.entry3?.reason || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry3: { 
+                              ...disciplinaryEntries.entry3, 
+                              reason: e.target.value 
+                            } 
+                          })}
                           placeholder="Reason for the action"
                           className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                         />
@@ -296,8 +363,14 @@ export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemov
                       <div className="space-y-1">
                         <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
                         <Textarea
-                          value={uploadedDocs.explanation_3 || ''}
-                          onChange={(e) => onUpdate('uploaded_documents', { ...uploadedDocs, explanation_3: e.target.value })}
+                          value={disciplinaryEntries.entry3?.explanation || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry3: { 
+                              ...disciplinaryEntries.entry3, 
+                              explanation: e.target.value 
+                            } 
+                          })}
                           placeholder="Detailed explanation of circumstances and outcomes"
                           className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
                         />

@@ -224,27 +224,13 @@ export function useContractingApplication() {
 
       console.log('PDF generated successfully:', pdfResult.filename);
 
-      // Add contracting packet path to uploaded_documents
-      if (pdfResult.filename) {
-        const currentDocs = (application.uploaded_documents || {}) as Record<string, string>;
-        const packetPath = `${application.user_id}/${pdfResult.filename}`;
-        
-        const { error: docUpdateError } = await supabase
-          .from('contracting_applications')
-          .update({ 
-            uploaded_documents: { ...currentDocs, contracting_packet: packetPath } 
-          })
-          .eq('id', application.id);
+      // NOTE: The edge function already saves the PDF path to uploaded_documents
+      // when saveToStorage=true, so we don't need to do it here
 
-        if (docUpdateError) {
-          console.error('Failed to save contracting packet path:', docUpdateError);
-        }
-      }
-
-      // Update profile status to CONTRACT_SUBMITTED
+      // Update profile status to CONTRACTING_SUBMITTED
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ onboarding_status: 'CONTRACT_SUBMITTED' })
+        .update({ onboarding_status: 'CONTRACTING_SUBMITTED' })
         .eq('user_id', user?.id);
 
       if (profileError) throw profileError;

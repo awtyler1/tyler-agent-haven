@@ -403,7 +403,7 @@ export default function PlatformExperienceMapPage() {
 
       setLiveStats({
         contractingRequired: agentProfiles.filter(p => p.onboarding_status === 'CONTRACTING_REQUIRED').length,
-        contractSubmitted: agentProfiles.filter(p => p.onboarding_status === 'CONTRACT_SUBMITTED').length,
+        contractSubmitted: agentProfiles.filter(p => p.onboarding_status === 'CONTRACTING_SUBMITTED').length,
         appointed: agentProfiles.filter(p => p.onboarding_status === 'APPOINTED').length,
         totalAgents: agentProfiles.length,
         lastSubmission: lastApp?.submitted_at || null,

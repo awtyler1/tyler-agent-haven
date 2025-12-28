@@ -25,7 +25,7 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const { canAccessAdmin, canAccessDeveloper, isAuthenticated, isAgent, isContractingRequired } = useAuth();
-  const { isViewingAsAgent } = useViewMode();
+  const { isViewingAsAgent, impersonatedAgent } = useViewMode();
   const navigate = useNavigate();
 
   // Hide navigation for agents who need to complete contracting
@@ -148,7 +148,7 @@ const Navigation = () => {
             <AgentViewToggle />
 
             {/* Admin Link - Only for admins, hidden in agent view */}
-            {canAccessAdmin() && !isViewingAsAgent && (
+            {((canAccessAdmin() && !impersonatedAgent) || (impersonatedAgent?.role && ['super_admin', 'admin'].includes(impersonatedAgent.role))) && (
               <Link
                 to="/admin"
                 className="text-[13px] font-medium text-primary hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
@@ -272,7 +272,7 @@ const Navigation = () => {
               ))}
               
               {/* Admin Link - Only for admins */}
-              {canAccessAdmin() && (
+              {((canAccessAdmin() && !impersonatedAgent) || (impersonatedAgent?.role && ['super_admin', 'admin'].includes(impersonatedAgent.role))) && (
                 <Link
                   to="/admin"
                   onClick={() => setIsOpen(false)}

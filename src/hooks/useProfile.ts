@@ -4,7 +4,7 @@ import { User } from '@supabase/supabase-js';
 
 export type OnboardingStatus = 
   | 'CONTRACTING_REQUIRED'
-  | 'CONTRACT_SUBMITTED'
+  | 'CONTRACTING_SUBMITTED'
   | 'APPOINTED'
   | 'SUSPENDED';
 
@@ -88,7 +88,7 @@ export function useProfile() {
     onboardingStatus: profile?.onboarding_status ?? null,
     isAppointed: profile?.onboarding_status === 'APPOINTED',
     isContractingRequired: profile?.onboarding_status === 'CONTRACTING_REQUIRED',
-    isContractSubmitted: profile?.onboarding_status === 'CONTRACT_SUBMITTED',
+    isContractSubmitted: profile?.onboarding_status === 'CONTRACTING_SUBMITTED',
     isSuspended: profile?.onboarding_status === 'SUSPENDED',
     refetch,
   };

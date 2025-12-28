@@ -13,7 +13,8 @@ import {
   CheckCircle,
   Settings,
   RotateCcw,
-  Loader2
+  Loader2,
+  Building2
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Navigation from '@/components/Navigation';
@@ -85,7 +86,7 @@ export default function AdminDashboard() {
       // Calculate stats
       const inContracting = agents.filter(a => 
         a.onboarding_status === 'CONTRACTING_REQUIRED' || 
-        a.onboarding_status === 'CONTRACT_SUBMITTED'
+        a.onboarding_status === 'CONTRACTING_SUBMITTED'
       ).length;
 
       const appointed = agents.filter(a => a.onboarding_status === 'APPOINTED').length;
@@ -443,7 +444,7 @@ export default function AdminDashboard() {
             <h2 className="text-sm font-medium text-muted-foreground mb-3">
               Quick Actions
             </h2>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Button
                 onClick={() => navigate('/admin/agents/new')}
                 className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
@@ -474,6 +475,15 @@ export default function AdminDashboard() {
               >
                 <Users className="w-6 h-6 text-gold" />
                 All Agents
+              </Button>
+
+              <Button
+                onClick={() => navigate('/admin/hierarchy')}
+                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
+                variant="outline"
+              >
+                <Building2 className="w-6 h-6 text-gold" />
+                Hierarchy
               </Button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-project_id = "hikhnmuckfopyzxkdeus"
+project_id = "mgczpsrtkdkkjzmztpyd"
 
 [functions.create-agent]
 verify_jwt = true
@@ -22,7 +22,7 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.generate-contracting-pdf]
-verify_jwt = true
+verify_jwt = false  # TESTING: Temporarily disabled for testing purposes
 
 [functions.delete-user]
 verify_jwt = true

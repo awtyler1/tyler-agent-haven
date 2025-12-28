@@ -101,7 +101,7 @@ export default function TestDataSeederPage() {
       await supabase
         .from('profiles')
         .update({ 
-          onboarding_status: 'CONTRACT_SUBMITTED',
+          onboarding_status: 'CONTRACTING_SUBMITTED',
           is_test: true,
         })
         .eq('user_id', userId);
@@ -299,6 +299,7 @@ export default function TestDataSeederPage() {
                         userId: lastCreatedAgent.userId,
                         fullName: lastCreatedAgent.name,
                         email: lastCreatedAgent.email,
+                        role: null,
                       });
                       navigate('/');
                     }}

@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 import { Loader2, ArrowLeft, UserPlus, Users, Info } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { useViewMode } from '@/contexts/ViewModeContext';
 
 interface HierarchyOption {
   id: string;
@@ -22,7 +21,6 @@ interface HierarchyOption {
 
 export default function NewAgentPage() {
   const navigate = useNavigate();
-  const { impersonatedAgent } = useViewMode();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hierarchyOptions, setHierarchyOptions] = useState<HierarchyOption[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(true);
@@ -37,7 +35,7 @@ export default function NewAgentPage() {
 
   useEffect(() => {
     fetchHierarchyOptions();
-  }, [impersonatedAgent]);
+  }, []);
 
   const fetchHierarchyOptions = async () => {
     setLoadingOptions(true);
@@ -45,53 +43,30 @@ export default function NewAgentPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Check if user is admin/super_admin
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .in('role', ['super_admin', 'admin']);
+      // Step 1: Get entity IDs this user owns
+      const { data: ownerships, error: ownerError } = await supabase
+        .from('entity_owners')
+        .select('entity_id')
+        .eq('user_id', user.id);
 
-      const isAdmin = (userRoles?.length || 0) > 0;
+      if (ownerError) throw ownerError;
 
-      let teams;
-
-      if (isAdmin) {
-        // Admins see ALL active teams
-        const { data, error } = await supabase
-          .from('hierarchy_entities')
-          .select('id, name')
-          .eq('entity_type', 'team')
-          .eq('is_active', true);
-
-        if (error) throw error;
-        teams = data;
-      } else {
-        // Non-admins only see teams they own
-        const { data: ownerships, error: ownerError } = await supabase
-          .from('entity_owners')
-          .select('entity_id')
-          .eq('user_id', user.id);
-
-        if (ownerError) throw ownerError;
-
-        if (!ownerships || ownerships.length === 0) {
-          setHierarchyOptions([]);
-          return;
-        }
-
-        const entityIds = ownerships.map(o => o.entity_id);
-
-        const { data, error } = await supabase
-          .from('hierarchy_entities')
-          .select('id, name')
-          .in('id', entityIds)
-          .eq('entity_type', 'team')
-          .eq('is_active', true);
-
-        if (error) throw error;
-        teams = data;
+      if (!ownerships || ownerships.length === 0) {
+        setHierarchyOptions([]);
+        return;
       }
+
+      const entityIds = ownerships.map(o => o.entity_id);
+
+      // Step 2: Fetch those entities that are active teams
+      const { data: teams, error: teamsError } = await supabase
+        .from('hierarchy_entities')
+        .select('id, name')
+        .in('id', entityIds)
+        .eq('entity_type', 'team')
+        .eq('is_active', true);
+
+      if (teamsError) throw teamsError;
 
       const options: HierarchyOption[] = (teams || []).map(team => ({
         id: `team-${team.id}`,

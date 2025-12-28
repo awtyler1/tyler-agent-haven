@@ -1,7 +1,7 @@
 -- Create enum for onboarding status
 CREATE TYPE public.onboarding_status AS ENUM (
   'CONTRACTING_REQUIRED',
-  'CONTRACT_SUBMITTED',
+  'CONTRACTING_SUBMITTED',
   'APPOINTED',
   'SUSPENDED'
 );

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { UserPlus, Search, Loader2, ArrowLeft, ChevronRight, Users, Eye } from 'lucide-react';
 import Navigation from '@/components/Navigation';
@@ -19,12 +18,57 @@ export default function AgentsPage() {
   const [agents, setAgents] = useState<AgentWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [canAddAgents, setCanAddAgents] = useState(false);
+  const [checkingPermissions, setCheckingPermissions] = useState(true);
   const { startImpersonating } = useViewMode();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchAgents();
+    checkEntityOwnership();
   }, []);
+
+  const checkEntityOwnership = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setCanAddAgents(false);
+        return;
+      }
+
+      // Check if user owns any team entities
+      const { data: ownerships, error } = await supabase
+        .from('entity_owners')
+        .select('entity_id')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      if (!ownerships || ownerships.length === 0) {
+        setCanAddAgents(false);
+        return;
+      }
+
+      // Verify at least one of those entities is an active team
+      const entityIds = ownerships.map(o => o.entity_id);
+      const { data: teams, error: teamsError } = await supabase
+        .from('hierarchy_entities')
+        .select('id')
+        .in('id', entityIds)
+        .eq('entity_type', 'team')
+        .eq('is_active', true)
+        .limit(1);
+
+      if (teamsError) throw teamsError;
+
+      setCanAddAgents((teams?.length || 0) > 0);
+    } catch (err) {
+      console.error('Error checking entity ownership:', err);
+      setCanAddAgents(false);
+    } finally {
+      setCheckingPermissions(false);
+    }
+  };
 
   const fetchAgents = async () => {
     try {
@@ -67,7 +111,7 @@ export default function AgentsPage() {
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { className: string, label: string }> = {
       CONTRACTING_REQUIRED: { className: 'bg-muted text-muted-foreground', label: 'Needs Contracting' },
-      CONTRACT_SUBMITTED: { className: 'bg-amber-100 text-amber-700', label: 'Pending Review' },
+      CONTRACTING_SUBMITTED: { className: 'bg-amber-100 text-amber-700', label: 'Pending Review' },
       APPOINTED: { className: 'bg-green-100 text-green-700', label: 'Appointed' },
       SUSPENDED: { className: 'bg-red-100 text-red-700', label: 'Suspended' },
     };
@@ -92,12 +136,15 @@ export default function AgentsPage() {
               <h1 className="heading-section">Agents</h1>
               <p className="text-sm text-muted-foreground">Manage all agents in the system</p>
             </div>
-            <Link to="/admin/agents/new">
-              <Button className="bg-gold hover:bg-gold/90 text-white">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Add Agent
-              </Button>
-            </Link>
+            {/* Only show Add Agent button if user owns at least one team */}
+            {!checkingPermissions && canAddAgents && (
+              <Link to="/admin/agents/new">
+                <Button className="bg-gold hover:bg-gold/90 text-white">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Add Agent
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Search */}
@@ -128,7 +175,7 @@ export default function AgentsPage() {
               <p className="text-sm text-muted-foreground mb-6">
                 {searchQuery ? 'Try adjusting your search terms' : 'Add your first agent to get started'}
               </p>
-              {!searchQuery && (
+              {!searchQuery && canAddAgents && (
                 <Link to="/admin/agents/new">
                   <Button className="bg-gold hover:bg-gold/90 text-white">
                     <UserPlus className="mr-2 h-4 w-4" />
@@ -167,6 +214,7 @@ export default function AgentsPage() {
                             userId: agent.user_id,
                             fullName: agent.full_name || 'Unknown',
                             email: agent.email || '',
+                            role: agent.role || null,
                           });
                           navigate('/');
                         }}

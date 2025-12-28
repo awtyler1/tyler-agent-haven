@@ -878,7 +878,7 @@ export type Database = {
         | "internal_tig_agent"
       onboarding_status:
         | "CONTRACTING_REQUIRED"
-        | "CONTRACT_SUBMITTED"
+        | "CONTRACTING_SUBMITTED"
         | "APPOINTED"
         | "SUSPENDED"
     }
@@ -1017,7 +1017,7 @@ export const Constants = {
       ],
       onboarding_status: [
         "CONTRACTING_REQUIRED",
-        "CONTRACT_SUBMITTED",
+        "CONTRACTING_SUBMITTED",
         "APPOINTED",
         "SUSPENDED",
       ],

@@ -10,11 +10,12 @@ import {
   Shield,
   TestTube,
   Map,
-  UserPlus
+  UserPlus,
+  Eye
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { useAuth } from '@/hooks/useAuth';
+import { useViewMode } from '@/contexts/ViewModeContext';
 
 interface DevToolCard {
   title: string;
@@ -25,15 +26,50 @@ interface DevToolCard {
 }
 
 export default function DeveloperDashboard() {
-  const { profile } = useAuth();
+  const { impersonatedAgent } = useViewMode();
 
   const devTools: DevToolCard[] = [
+    {
+      title: 'View As',
+      description: 'Impersonate any user to test their experience',
+      icon: Eye,
+      href: '/developer/view-as',
+      status: 'new',
+    },
     {
       title: 'Feature Flags',
       description: 'Toggle features on/off without deploying code',
       icon: Flag,
       href: '/developer/feature-flags',
-      status: 'new',
+      status: 'stable',
+    },
+    {
+      title: 'Test Data Seeder',
+      description: 'Create fake contracting submissions for testing',
+      icon: UserPlus,
+      href: '/developer/test-seeder',
+      status: 'stable',
+    },
+    {
+      title: 'System Health',
+      description: 'Monitor Supabase connection, Edge Functions, storage',
+      icon: Activity,
+      href: '/developer/system-health',
+      status: 'beta',
+    },
+    {
+      title: 'Platform Map',
+      description: 'Visual overview of all platform pages and routes',
+      icon: Map,
+      href: '/developer/platform-map',
+      status: 'stable',
+    },
+    {
+      title: 'Platform Experience Map',
+      description: 'Complete user journey across Agent, Head of Contracting, and Admin roles',
+      icon: Map,
+      href: '/developer/experience-map',
+      status: 'stable',
     },
     {
       title: 'PDF Field Audit',
@@ -55,34 +91,6 @@ export default function DeveloperDashboard() {
       icon: FileText,
       href: '/developer/pdf-extractor',
       status: 'stable',
-    },
-    {
-      title: 'System Health',
-      description: 'Monitor Supabase connection, Edge Functions, storage',
-      icon: Activity,
-      href: '/developer/system-health',
-      status: 'beta',
-    },
-    {
-      title: 'Platform Map',
-      description: 'Visual overview of all platform pages and routes',
-      icon: Map,
-      href: '/developer/platform-map',
-      status: 'stable',
-    },
-    {
-      title: 'Test Data Seeder',
-      description: 'Create fake contracting submissions for testing',
-      icon: UserPlus,
-      href: '/developer/test-seeder',
-      status: 'new',
-    },
-    {
-      title: 'Platform Experience Map',
-      description: 'Complete user journey across Agent, Head of Contracting, and Admin roles',
-      icon: Map,
-      href: '/developer/experience-map',
-      status: 'new',
     },
   ];
 
@@ -148,12 +156,35 @@ export default function DeveloperDashboard() {
 
             <div className="bg-card border border-border rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <TestTube className="h-4 w-4 text-amber-600" />
+                <Eye className="h-4 w-4 text-amber-600" />
               </div>
-              <p className="text-sm text-muted-foreground">Test Mode</p>
-              <p className="text-lg font-semibold text-foreground">Off</p>
+              <p className="text-sm text-muted-foreground">View Mode</p>
+              <p className="text-lg font-semibold text-foreground">
+                {impersonatedAgent ? 'Active' : 'Off'}
+              </p>
             </div>
           </div>
+
+          {/* Impersonation Status Banner */}
+          {impersonatedAgent && (
+            <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Eye className="h-5 w-5 text-amber-600" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800">
+                    Currently viewing as: {impersonatedAgent.fullName}
+                  </p>
+                  <p className="text-xs text-amber-600">{impersonatedAgent.email}</p>
+                </div>
+              </div>
+              <Link 
+                to="/developer/view-as"
+                className="text-sm font-medium text-amber-700 hover:text-amber-800"
+              >
+                Change →
+              </Link>
+            </div>
+          )}
 
           {/* Dev Tools Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">

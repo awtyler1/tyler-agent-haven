@@ -81,7 +81,7 @@ const allRoles: AppRole[] = ['super_admin', 'admin', 'manager', 'internal_tig_ag
 
 const onboardingStatusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   CONTRACTING_REQUIRED: { label: 'Contracting Required', variant: 'destructive' },
-  CONTRACT_SUBMITTED: { label: 'Contract Submitted', variant: 'outline' },
+  CONTRACTING_SUBMITTED: { label: 'Contract Submitted', variant: 'outline' },
   APPOINTED: { label: 'Appointed', variant: 'default' },
   SUSPENDED: { label: 'Suspended', variant: 'destructive' },
 };

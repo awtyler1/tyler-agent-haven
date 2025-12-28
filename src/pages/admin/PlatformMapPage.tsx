@@ -304,7 +304,7 @@ export default function PlatformMapPage() {
             </div>
             <span className="text-3xl">→</span>
             <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg px-4 py-3 text-center">
-              <div className="font-bold text-yellow-800">CONTRACT_SUBMITTED</div>
+              <div className="font-bold text-yellow-800">CONTRACTING_SUBMITTED</div>
               <div className="text-yellow-600 text-xs mt-1">In queue, full platform access</div>
             </div>
             <span className="text-3xl">→</span>
@@ -481,7 +481,7 @@ export default function PlatformMapPage() {
                 <div className="font-semibold text-green-800 mb-2">🗄️ Database</div>
                 <ul className="text-gray-600 text-xs list-disc ml-4">
                   <li><code>contracting_applications</code> — created/updated</li>
-                  <li><code>profiles.onboarding_status</code> = CONTRACT_SUBMITTED</li>
+                  <li><code>profiles.onboarding_status</code> = CONTRACTING_SUBMITTED</li>
                 </ul>
               </div>
             </div>

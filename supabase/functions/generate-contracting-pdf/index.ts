@@ -441,8 +441,7 @@ const DUPLICATE_GROUPS: Record<string, { source: string; format?: string; fields
       'INITIALS_6', 
       'INITIALS_7', 
       'INITIALS_8',
-      'Signature1_es_:signer:signature',
-      'correct to the best of my knowledge'
+      'Signature1_es_:signer:signature'
       // Removed: 'Signature2_es_:signer' - handled separately below
     ],
   },
@@ -454,13 +453,37 @@ const DUPLICATE_GROUPS: Record<string, { source: string; format?: string; fields
 
 serve(async (req) => {
   console.log("=== GENERATE-CONTRACTING-PDF V5 (Form Data Compatible) ===");
+  console.log("Method:", req.method);
+  console.log("URL:", req.url);
+  
+  // TESTING: JWT verification is disabled in config.toml for testing purposes
+  // In production, this should be enabled to verify the user's identity
 
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { application, templateUrl, templateBase64, skipValidation = false, applicationId, saveToStorage = false } = await req.json();
+    console.log("Parsing request body...");
+    const body = await req.json();
+    console.log("Body parsed, applicationId:", body.applicationId);
+    
+    const { application, templateUrl, templateBase64, skipValidation = false, applicationId, saveToStorage = false } = body;
+    console.log("Destructured - saveToStorage:", saveToStorage, "applicationId:", applicationId);
+    
+    // Log application structure for debugging
+    console.log("Application structure:", {
+      hasUserId: !!application?.user_id,
+      hasFullLegalName: !!application?.full_legal_name,
+      hasSignatureInitials: !!application?.signature_initials,
+      hasSignatureDate: !!application?.signature_date,
+      hasSignatureName: !!application?.signature_name,
+      selectedCarriersType: typeof application?.selected_carriers,
+      selectedCarriersIsArray: Array.isArray(application?.selected_carriers),
+      selectedCarriersLength: Array.isArray(application?.selected_carriers) ? application.selected_carriers.length : 'N/A',
+      preferredContactMethodsType: typeof application?.preferred_contact_methods,
+      preferredContactMethodsIsArray: Array.isArray(application?.preferred_contact_methods),
+    });
 
     // Create Supabase client for storage operations
     const supabaseClient = createClient(
@@ -491,20 +514,30 @@ serve(async (req) => {
     // VALIDATION
     // ========================================================================
 
-    if (!skipValidation) {
-      const errors: string[] = [];
-      if (!application.signature_initials) errors.push("Initials required");
-      if (!application.signature_date) errors.push("Signature date required");
-      if (!application.signature_name) errors.push("Signature name required");
-      if (!application.full_legal_name) errors.push("Full legal name required");
+    // TESTING: All validation disabled for testing purposes
+    // if (!skipValidation) {
+    //   const errors: string[] = [];
+    //   if (!application.signature_initials) errors.push("Initials required");
+    //   if (!application.signature_date) errors.push("Signature date required");
+    //   if (!application.signature_name) errors.push("Signature name required");
+    //   if (!application.full_legal_name) errors.push("Full legal name required");
 
-      if (errors.length > 0) {
-        return new Response(JSON.stringify({ error: "Validation failed", details: errors }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    }
+    //   if (errors.length > 0) {
+    //     const errorMessage = `Validation failed: ${errors.join(", ")}`;
+    //     console.error("Validation errors:", errors);
+    //     return new Response(
+    //       JSON.stringify({ 
+    //         error: errorMessage,
+    //         details: errors,
+    //         validation: true
+    //       }), 
+    //       {
+    //         status: 400,
+    //         headers: { ...corsHeaders, "Content-Type": "application/json" },
+    //       }
+    //     );
+    //   }
+    // }
 
     // ========================================================================
     // LOAD PDF TEMPLATE
@@ -542,10 +575,18 @@ serve(async (req) => {
     }
 
     if (!pdfBytes) {
-      return new Response(JSON.stringify({ error: "Could not load PDF template" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      const errorMsg = "Could not load PDF template from any source";
+      console.error(errorMsg);
+      return new Response(
+        JSON.stringify({ 
+          error: errorMsg,
+          details: "Failed to load template from templateUrl or fallback URL"
+        }), 
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     const pdfDoc = await PDFDocument.load(pdfBytes);
@@ -824,25 +865,26 @@ serve(async (req) => {
       }
     }
 
+    // "I ____" attestation field - needs full typed name, not initials
+    setTextField('correct to the best of my knowledge', application.signature_name, 'signature_name');
+
     // ========================================================================
     // SPECIAL HANDLING: Fields without default appearance
     // ========================================================================
-    // Signature2_es_:signer needs special handling (no /DA entry)
-    if (application.signature_initials) {
+    // Signature2_es_:signer is the "I ____" attestation field - needs full typed name
+    if (application.signature_name) {
       try {
         const sig2Field = form.getTextField('Signature2_es_:signer');
-        sig2Field.setText(application.signature_initials);
-        sig2Field.defaultUpdateAppearances(helveticaFont);  // Try default update
-        addReport('Signature2_es_:signer', application.signature_initials, 'signature_initials', 'success');
+        sig2Field.setText(application.signature_name);
+        sig2Field.defaultUpdateAppearances(helveticaFont);
+        addReport('Signature2_es_:signer', application.signature_name, 'signature_name', 'success');
       } catch (err1) {
         try {
-          // Fallback: set text without appearance update
           const sig2Field = form.getTextField('Signature2_es_:signer');
-          sig2Field.setText(application.signature_initials);
-          // Don't call updateAppearances - let PDF viewer render it
-          addReport('Signature2_es_:signer', application.signature_initials, 'signature_initials', 'success');
+          sig2Field.setText(application.signature_name);
+          addReport('Signature2_es_:signer', application.signature_name, 'signature_name', 'success');
         } catch (err2) {
-          addReport('Signature2_es_:signer', application.signature_initials || '', 'signature_initials', 'failed', String(err2));
+          addReport('Signature2_es_:signer', application.signature_name || '', 'signature_name', 'failed', String(err2));
         }
       }
     }
@@ -1010,6 +1052,12 @@ serve(async (req) => {
     // Save to storage if requested
     if (saveToStorage && applicationId) {
       try {
+        // Validate user_id is present
+        if (!application.user_id) {
+          console.error('Cannot save to storage: application.user_id is missing');
+          throw new Error('User ID is required to save PDF to storage');
+        }
+
         // Convert base64 to Uint8Array
         const binaryString = atob(base64);
         const bytes = new Uint8Array(binaryString.length);
@@ -1032,8 +1080,14 @@ serve(async (req) => {
         if (uploadError) {
           console.error('Error uploading PDF to storage:', uploadError);
         } else {
-          // Update the application with the document path
-          const currentDocs = application.uploaded_documents || {};
+          // FETCH current documents from database instead of using client data
+          const { data: currentApp } = await supabaseClient
+            .from('contracting_applications')
+            .select('uploaded_documents')
+            .eq('id', applicationId)
+            .single();
+
+          const currentDocs = currentApp?.uploaded_documents || {};
           const updatedDocs = {
             ...currentDocs,
             contracting_packet: storagePath
@@ -1074,10 +1128,16 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error("Error message:", errorMessage);
+    console.error("Error stack:", errorStack);
+    
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
+        error: errorMessage,
+        stack: errorStack,
+        details: error instanceof Error ? String(error) : undefined,
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

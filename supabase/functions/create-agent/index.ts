@@ -18,11 +18,16 @@ interface CreateAgentRequest {
 }
 
 serve(async (req: Request): Promise<Response> => {
+  console.log("=== create-agent function called ===");
+  console.log("Method:", req.method);
+  console.log("URL:", req.url);
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log("Starting request processing...");
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
@@ -34,27 +39,59 @@ serve(async (req: Request): Promise<Response> => {
 
     // Verify the requesting user is an admin
     const authHeader = req.headers.get("Authorization");
+    console.log("Auth header present:", !!authHeader);
+    console.log("Auth header length:", authHeader?.length || 0);
+    
     if (!authHeader) {
+      console.error("No authorization header found");
       throw new Error("No authorization header");
     }
 
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
+    const token = authHeader.replace("Bearer ", "");
+    console.log("Token extracted, length:", token.length);
+    console.log("Token prefix:", token.substring(0, 20) + "...");
 
-    if (authError || !user) {
-      throw new Error("Unauthorized");
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError) {
+      console.error("Auth error:", authError.message, authError.status);
+      throw new Error(`Authentication failed: ${authError.message}`);
     }
 
+    if (!user) {
+      console.error("No user returned from auth.getUser");
+      throw new Error("Unauthorized: User not found");
+    }
+
+    console.log("User authenticated:", user.id, user.email);
+
     // Check for admin or super_admin role
-    const { data: roles } = await supabaseAdmin
+    const { data: roles, error: rolesError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .in("role", ["super_admin", "admin"]);
 
+    if (rolesError) {
+      console.error("Error checking roles:", rolesError.message);
+      throw new Error(`Failed to check roles: ${rolesError.message}`);
+    }
+
+    console.log("User roles found:", roles?.map(r => r.role) || []);
+
     if (!roles || roles.length === 0) {
+      console.error("User does not have admin or super_admin role");
       throw new Error("Unauthorized: Admin role required");
+    }
+
+    // Parse and log request body
+    let requestBody: CreateAgentRequest;
+    try {
+      requestBody = await req.json();
+      console.log("Received request body:", JSON.stringify(requestBody, null, 2));
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      throw new Error("Invalid request body: " + (parseError instanceof Error ? parseError.message : "Unknown error"));
     }
 
     const { 
@@ -66,7 +103,7 @@ serve(async (req: Request): Promise<Response> => {
       isExistingAgent,
       sendSetupEmail = true, 
       isTest = false 
-    }: CreateAgentRequest = await req.json();
+    } = requestBody;
 
     if (!email || !fullName) {
       throw new Error("Email and full name are required");
@@ -74,6 +111,14 @@ serve(async (req: Request): Promise<Response> => {
 
     if (!hierarchyType) {
       throw new Error("Hierarchy type is required");
+    }
+
+    // Validate hierarchy-specific requirements
+    if (hierarchyType === 'team' && !hierarchyEntityId) {
+      throw new Error("hierarchyEntityId is required when hierarchyType is 'team'");
+    }
+    if (hierarchyType === 'downline' && !uplineUserId) {
+      throw new Error("uplineUserId is required when hierarchyType is 'downline'");
     }
 
     console.log(`Creating agent: ${email}, hierarchy: ${hierarchyType}, existing: ${isExistingAgent}, isTest: ${isTest}`);
@@ -98,34 +143,27 @@ serve(async (req: Request): Promise<Response> => {
     // Determine onboarding status based on agent type
     const onboardingStatus = isExistingAgent ? 'APPOINTED' : 'CONTRACTING_REQUIRED';
 
-    // Update the profile with hierarchy and status
-    const profileUpdates: Record<string, unknown> = {
-      hierarchy_type: hierarchyType,
-      onboarding_status: onboardingStatus,
-    };
-
-    // Set entity or upline based on hierarchy type
-    if (hierarchyType === 'team' && hierarchyEntityId) {
-      profileUpdates.hierarchy_entity_id = hierarchyEntityId;
-    } else if (hierarchyType === 'downline' && uplineUserId) {
-      profileUpdates.upline_user_id = uplineUserId;
-    }
-
-    if (isTest) {
-      profileUpdates.is_test = true;
-    }
-
+    // Insert a new profile row for the newly created user
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
-      .update(profileUpdates)
-      .eq("user_id", newUser.user.id);
+      .insert({
+        user_id: newUser.user.id,
+        email: email,
+        full_name: fullName,
+        hierarchy_type: hierarchyType,
+        hierarchy_entity_id: hierarchyType === 'team' ? hierarchyEntityId : null,
+        upline_user_id: uplineUserId || null,
+        onboarding_status: onboardingStatus,
+        is_active: true,
+        is_test: isTest || false,
+      });
 
     if (profileError) {
-      console.error("Failed to update profile:", profileError);
-      throw new Error(`Failed to update profile: ${profileError.message}`);
+      console.error("Failed to insert profile:", profileError);
+      throw new Error(`Failed to insert profile: ${profileError.message}`);
     }
 
-    console.log(`Profile updated with hierarchy_type: ${hierarchyType}, status: ${onboardingStatus}`);
+    console.log(`Profile inserted with hierarchy_type: ${hierarchyType}, status: ${onboardingStatus}`);
 
     // Assign the agent role
     const agentRole = 'independent_agent';
@@ -312,11 +350,25 @@ serve(async (req: Request): Promise<Response> => {
     );
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
     console.error("Error in create-agent:", errorMessage);
+    if (errorStack) {
+      console.error("Error stack:", errorStack);
+    }
+    
+    // Determine appropriate status code
+    let statusCode = 400;
+    if (errorMessage.includes("Unauthorized") || errorMessage.includes("No authorization")) {
+      statusCode = 401;
+    }
+    
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: errorMessage,
+        details: errorStack ? undefined : errorMessage 
+      }),
       { 
-        status: 400, 
+        status: statusCode, 
         headers: { "Content-Type": "application/json", ...corsHeaders } 
       }
     );
