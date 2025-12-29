@@ -463,7 +463,7 @@ export default function PlatformMapPage() {
               <div className="bg-blue-50 rounded p-3">
                 <div className="font-semibold text-blue-800 mb-2">📄 UI Page</div>
                 <code className="text-xs">/contracting</code>
-                <div className="text-gray-600 mt-1">9-step ContractingWizard</div>
+                <div className="text-gray-600 mt-1">8-step Contracting Form</div>
               </div>
               <div className="bg-purple-50 rounded p-3">
                 <div className="font-semibold text-purple-800 mb-2">⚡ Edge Function</div>

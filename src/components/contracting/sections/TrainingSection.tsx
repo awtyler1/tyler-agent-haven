@@ -4,7 +4,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication } from '@/types/contracting';
-import { FileDropZone } from '../FileDropZone';
 import { GraduationCap, Lock, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
@@ -12,16 +11,13 @@ import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 interface TrainingSectionProps {
   application: ContractingApplication;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
-  onUpload: (file: File, documentType: string) => Promise<string | null>;
-  onRemove: (documentType: string) => Promise<void>;
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
 }
 
-export function TrainingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false, onClearError }: TrainingSectionProps) {
-  const uploadedDocs = application.uploaded_documents || {};
+export function TrainingSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: TrainingSectionProps) {
 
   return (
     <Card 
@@ -55,19 +51,6 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
           <div>
             <h4 className="text-sm font-medium mb-4">E&O Insurance</h4>
             
-            <div className="mb-4">
-              <FileDropZone
-                label="E&O Certificate"
-                documentType="eo_certificate"
-                existingFile={uploadedDocs['eo_certificate']}
-                onUpload={onUpload}
-                onRemove={() => onRemove('eo_certificate')}
-                onClearError={onClearError}
-                description="Your E&O certificate must list your full name as the insured"
-                hasError={showValidation && !!fieldErrors.eo_certificate}
-              />
-              <FormFieldError error={fieldErrors.eo_certificate} show={showValidation} />
-            </div>
 
             {/* Get E&O Coverage Link */}
             <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
@@ -197,17 +180,6 @@ export function TrainingSection({ application, onUpdate, onUpload, onRemove, dis
               </div>
             </label>
 
-            {application.has_ltc_certification && (
-              <div className="mt-4 pl-6">
-                <FileDropZone
-                  label="LTC Certificate"
-                  documentType="ltc_certificate"
-                  existingFile={uploadedDocs['ltc_certificate']}
-                  onUpload={onUpload}
-                  onRemove={() => onRemove('ltc_certificate')}
-                />
-              </div>
-            )}
           </div>
 
           {/* Continuing Education */}

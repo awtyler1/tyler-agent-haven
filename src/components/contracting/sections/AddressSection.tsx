@@ -1,10 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
-import { MapPin, Lock } from 'lucide-react';
+import { Lock, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
 
@@ -50,25 +46,36 @@ function AddressFields({
 
   return (
     <div className="space-y-3">
-      <Label className="font-medium">{label} {required && <span className="text-destructive">*</span>}</Label>
+      <label className="block text-sm font-medium text-slate-700">
+        {label} {required && <span className="text-rose-400">*</span>}
+      </label>
       <div className="grid gap-3 md:grid-cols-2">
         <div className="md:col-span-2">
-          <Input
+          <input
             value={address.street || ''}
             onChange={(e) => updateField('street', e.target.value)}
             placeholder="Street Address"
-            className={cn("h-11 rounded-xl", hasError && showValidation && !address.street?.trim() && getFieldErrorClass(true, true))}
+            className={cn(
+              "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+              hasError && showValidation && !address.street?.trim() && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+            )}
           />
         </div>
-        <Input
+        <input
           value={address.city || ''}
           onChange={(e) => updateField('city', e.target.value)}
           placeholder="City"
-          className={cn("h-11 rounded-xl", hasError && showValidation && !address.city?.trim() && getFieldErrorClass(true, true))}
+          className={cn(
+            "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+            hasError && showValidation && !address.city?.trim() && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+          )}
         />
         <div className="grid grid-cols-2 gap-3">
           <Select value={address.state || ''} onValueChange={(v) => updateField('state', v)}>
-            <SelectTrigger className={cn("h-11 rounded-xl", hasError && showValidation && !address.state && getFieldErrorClass(true, true))}>
+            <SelectTrigger className={cn(
+              "h-12 rounded-xl bg-slate-50 border border-slate-200",
+              hasError && showValidation && !address.state && "border-rose-300 bg-rose-50"
+            )}>
               <SelectValue placeholder="State" />
             </SelectTrigger>
             <SelectContent>
@@ -79,19 +86,22 @@ function AddressFields({
               ))}
             </SelectContent>
           </Select>
-          <Input
+          <input
             value={address.zip || ''}
             onChange={(e) => updateField('zip', e.target.value)}
             placeholder="ZIP"
-            className={cn("h-11 rounded-xl", hasError && showValidation && !address.zip?.trim() && getFieldErrorClass(true, true))}
+            className={cn(
+              "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+              hasError && showValidation && !address.zip?.trim() && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+            )}
             maxLength={10}
           />
         </div>
-        <Input
+        <input
           value={address.county || ''}
           onChange={(e) => updateField('county', e.target.value)}
           placeholder="County"
-          className="h-11 rounded-xl"
+          className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
         />
       </div>
       <FormFieldError error={hasError && showValidation ? "Please complete all address fields" : undefined} show={hasError && showValidation} />
@@ -105,27 +115,10 @@ export function AddressSection({ application, onUpdate, disabled, fieldErrors = 
   const upsAddress = application.ups_address || EMPTY_ADDRESS;
 
   return (
-    <Card 
-      className="rounded-[28px] border-0 overflow-hidden"
-      style={{ 
-        background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
-        boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.06)'
-      }}
-    >
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <MapPin className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-lg font-medium">Addresses</CardTitle>
-            <p className="text-xs text-muted-foreground/60">Your home, mailing, and shipping addresses</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6 pb-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+      <div className="p-8">
         {disabled && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 text-muted-foreground/60">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-slate-400 mb-6">
             <Lock className="h-4 w-4" />
             <span className="text-sm">Enter your initials above to unlock this section</span>
           </div>
@@ -145,44 +138,62 @@ export function AddressSection({ application, onUpdate, disabled, fieldErrors = 
           />
 
           {/* Mailing Address */}
-          <div className="pt-4 border-t border-border/10">
-            <label className="flex items-center gap-2 mb-4 cursor-pointer">
-              <Checkbox
-                checked={application.mailing_address_same_as_home !== false}
-                onCheckedChange={(checked) => onUpdate('mailing_address_same_as_home', !!checked)}
-              />
-              <span className="text-sm">Mailing address is the same as home address</span>
+          <div className="pt-6 border-t border-slate-200">
+            <label 
+              className="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
+              onClick={() => onUpdate('mailing_address_same_as_home', application.mailing_address_same_as_home === false)}
+            >
+              <div className={cn(
+                "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
+                application.mailing_address_same_as_home !== false
+                  ? "bg-slate-900 border-slate-900" 
+                  : "border-slate-300"
+              )}>
+                {application.mailing_address_same_as_home !== false && <Check className="h-3 w-3 text-white" />}
+              </div>
+              <span className="text-sm text-slate-700">Mailing address is the same as home address</span>
             </label>
             
             {!application.mailing_address_same_as_home && (
-              <AddressFields
-                label="Mailing Address"
-                address={mailingAddress}
-                onChange={(addr) => onUpdate('mailing_address', addr)}
-              />
+              <div className="mt-4">
+                <AddressFields
+                  label="Mailing Address"
+                  address={mailingAddress}
+                  onChange={(addr) => onUpdate('mailing_address', addr)}
+                />
+              </div>
             )}
           </div>
 
           {/* UPS/Shipping Address */}
-          <div className="pt-4 border-t border-border/10">
-            <label className="flex items-center gap-2 mb-4 cursor-pointer">
-              <Checkbox
-                checked={application.ups_address_same_as_home !== false}
-                onCheckedChange={(checked) => onUpdate('ups_address_same_as_home', !!checked)}
-              />
-              <span className="text-sm">UPS/Shipping address is the same as home address</span>
+          <div className="pt-6 border-t border-slate-200">
+            <label 
+              className="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
+              onClick={() => onUpdate('ups_address_same_as_home', application.ups_address_same_as_home === false)}
+            >
+              <div className={cn(
+                "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
+                application.ups_address_same_as_home !== false
+                  ? "bg-slate-900 border-slate-900" 
+                  : "border-slate-300"
+              )}>
+                {application.ups_address_same_as_home !== false && <Check className="h-3 w-3 text-white" />}
+              </div>
+              <span className="text-sm text-slate-700">UPS/Shipping address is the same as home address</span>
             </label>
             
             {!application.ups_address_same_as_home && (
-              <AddressFields
-                label="UPS/Shipping Address"
-                address={upsAddress}
-                onChange={(addr) => onUpdate('ups_address', addr)}
-              />
+              <div className="mt-4">
+                <AddressFields
+                  label="UPS/Shipping Address"
+                  address={upsAddress}
+                  onChange={(addr) => onUpdate('ups_address', addr)}
+                />
+              </div>
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

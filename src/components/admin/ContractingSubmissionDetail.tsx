@@ -26,6 +26,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { HierarchyAssignmentPanel } from './HierarchyAssignmentPanel';
 import { CarrierStatusPanel } from './CarrierStatusPanel';
+import { US_STATES } from '@/types/contracting';
 
 interface ContractingSubmission {
   id: string;
@@ -47,16 +48,33 @@ interface ContractingSubmissionDetailProps {
 }
 
 const DOCUMENT_LABELS: Record<string, string> = {
-  insurance_license: 'Insurance License',
+  insurance_license: 'Resident License',
   government_id: 'Government ID',
   voided_check: 'Voided Check',
   eo_certificate: 'E&O Certificate',
-  aml_certificate: 'AML Certificate',
+  aml_training: 'AML Certificate',
+  aml_certificate: 'AML Certificate', // legacy key
   ce_certificate: 'CE Certificate',
   ltc_certificate: 'LTC Certificate',
   corporate_resolution: 'Corporate Resolution',
   background_explanation: 'Background Documentation',
   contracting_packet: 'Contracting Packet',
+};
+
+const getDocumentLabel = (key: string): string | null => {
+  // Check static labels first
+  if (DOCUMENT_LABELS[key]) {
+    return DOCUMENT_LABELS[key];
+  }
+  
+  // Handle non-resident license pattern: non_resident_license_XX
+  if (key.startsWith('non_resident_license_')) {
+    const stateCode = key.replace('non_resident_license_', '');
+    const stateName = US_STATES.find(s => s.code === stateCode)?.name || stateCode;
+    return `${stateName} License`;
+  }
+  
+  return null;
 };
 
 export function ContractingSubmissionDetail({ submission, onRefresh }: ContractingSubmissionDetailProps) {
@@ -68,8 +86,12 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
 
   const uploadedDocs = (submission.uploaded_documents || {}) as Record<string, string>;
   const docEntries = Object.entries(uploadedDocs).filter(
-    ([key, value]) => value && DOCUMENT_LABELS[key]
+    ([key, value]) => value && getDocumentLabel(key)
   );
+  
+  // Separate required docs from non-resident licenses
+  const requiredDocs = docEntries.filter(([key]) => !key.startsWith('non_resident_license_'));
+  const nonResidentDocs = docEntries.filter(([key]) => key.startsWith('non_resident_license_'));
 
   const handleViewDocument = async (docType: string, filePath: string) => {
     const { data } = await supabase.storage
@@ -182,26 +204,55 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
       </div>
 
       {/* Documents */}
-      {docEntries.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-foreground">
-            Documents ({docEntries.length})
-          </h4>
-          <div className="grid grid-cols-2 gap-2">
-            {docEntries.map(([docType, filePath]) => (
-              <button
-                key={docType}
-                onClick={() => handleViewDocument(docType, filePath)}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
-              >
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm truncate flex-1">
-                  {DOCUMENT_LABELS[docType]}
-                </span>
-                <Eye className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
-            ))}
-          </div>
+      {(requiredDocs.length > 0 || nonResidentDocs.length > 0) && (
+        <div className="space-y-4">
+          {/* Required Documents */}
+          {requiredDocs.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-foreground">
+                Documents ({requiredDocs.length})
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                {requiredDocs.map(([docType, filePath]) => (
+                  <button
+                    key={docType}
+                    onClick={() => handleViewDocument(docType, filePath)}
+                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                  >
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm truncate flex-1">
+                      {getDocumentLabel(docType)}
+                    </span>
+                    <Eye className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Non-Resident Licenses */}
+          {nonResidentDocs.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-foreground">
+                Non-Resident Licenses ({nonResidentDocs.length})
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                {nonResidentDocs.map(([docType, filePath]) => (
+                  <button
+                    key={docType}
+                    onClick={() => handleViewDocument(docType, filePath)}
+                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                  >
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm truncate flex-1">
+                      {getDocumentLabel(docType)}
+                    </span>
+                    <Eye className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

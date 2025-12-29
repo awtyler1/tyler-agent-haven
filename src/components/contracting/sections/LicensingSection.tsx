@@ -1,50 +1,26 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
-import { FileDropZone } from '../FileDropZone';
-import { IdCard, Lock, Upload } from 'lucide-react';
+import { Lock, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { formatSSN } from '@/lib/formatters';
 
 interface LicensingSectionProps {
   application: ContractingApplication;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
-  onUpload: (file: File, documentType: string) => Promise<string | null>;
-  onRemove: (documentType: string) => Promise<void>;
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
 }
 
-export function LicensingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false, onClearError }: LicensingSectionProps) {
-  const uploadedDocs = application.uploaded_documents || {};
+export function LicensingSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: LicensingSectionProps) {
 
   return (
-    <Card 
-      className="rounded-[28px] border-0 overflow-hidden"
-      style={{ 
-        background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
-        boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.06)'
-      }}
-    >
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <IdCard className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-lg font-medium">Licensing & Identification</CardTitle>
-            <p className="text-xs text-muted-foreground/60">Insurance license, NPN, and identification details</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6 pb-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+      <div className="p-8">
         {disabled && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 text-muted-foreground/60">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-slate-400 mb-6">
             <Lock className="h-4 w-4" />
             <span className="text-sm">Enter your initials above to unlock this section</span>
           </div>
@@ -54,75 +30,70 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
           {/* Identity Information */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="birth_date">Date of Birth <span className="text-destructive">*</span></Label>
-              <Input
-                id="birth_date"
-                type="date"
-                value={application.birth_date || ''}
-                onChange={(e) => {
-                  onUpdate('birth_date', e.target.value);
-                  if (e.target.value && onClearError) onClearError('birth_date');
-                }}
-                className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.birth_date, showValidation))}
-              />
-              <FormFieldError error={fieldErrors.birth_date} show={showValidation} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="tax_id">
-                SSN <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <label htmlFor="tax_id" className="block text-sm font-medium text-slate-700">
+                SSN <span className="text-rose-400">*</span>
+              </label>
+              <input
                 id="tax_id"
                 value={application.tax_id || ''}
                 onChange={(e) => {
-                  onUpdate('tax_id', e.target.value);
-                  if (e.target.value && onClearError) onClearError('tax_id');
+                  const formatted = formatSSN(e.target.value);
+                  onUpdate('tax_id', formatted);
+                  if (formatted.length === 11 && onClearError) onClearError('tax_id');
                 }}
                 placeholder="XXX-XX-XXXX"
-                className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.tax_id, showValidation))}
+                className={cn(
+                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  fieldErrors.tax_id && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                )}
                 maxLength={11}
               />
               <FormFieldError error={fieldErrors.tax_id} show={showValidation} />
-              {!fieldErrors.tax_id && <p className="text-[10px] text-muted-foreground/50">Used only for contracting. Securely encrypted.</p>}
+              {!fieldErrors.tax_id && <p className="text-xs text-slate-400">Used only for contracting. Securely encrypted.</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="agency_name">Agency / Business Name</Label>
-              <Input
+              <label htmlFor="agency_name" className="block text-sm font-medium text-slate-700">
+                Agency / Business Name
+              </label>
+              <input
                 id="agency_name"
                 value={application.agency_name || ''}
                 onChange={(e) => {
                   onUpdate('agency_name', e.target.value);
                 }}
                 placeholder="If applicable"
-                className="h-11 rounded-xl"
+                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="agency_tax_id">Agency Tax ID</Label>
-              <Input
+              <label htmlFor="agency_tax_id" className="block text-sm font-medium text-slate-700">
+                Agency Tax ID
+              </label>
+              <input
                 id="agency_tax_id"
                 value={(application as any).agency_tax_id || ''}
                 onChange={(e) => {
                   onUpdate('agency_tax_id' as any, e.target.value);
                 }}
                 placeholder="XX-XXXXXXX"
-                className="h-11 rounded-xl"
+                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
                 maxLength={10}
               />
-              <p className="text-[10px] text-muted-foreground/50">If different from SSN</p>
+              <p className="text-xs text-slate-400">If different from SSN</p>
             </div>
           </div>
 
           {/* License Information */}
-          <div className="pt-4 border-t border-border/10">
+          <div className="pt-6 border-t border-slate-200">
             <h4 className="text-sm font-medium mb-4">Insurance License</h4>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="npn_number">NPN Number <span className="text-destructive">*</span></Label>
-                <Input
+                <label htmlFor="npn_number" className="block text-sm font-medium text-slate-700">
+                  NPN Number <span className="text-rose-400">*</span>
+                </label>
+                <input
                   id="npn_number"
                   value={application.npn_number || ''}
                   onChange={(e) => {
@@ -130,32 +101,45 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
                     if (e.target.value && onClearError) onClearError('npn_number');
                   }}
                   placeholder="National Producer Number"
-                  className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.npn_number, showValidation))}
+                  className={cn(
+                    "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                    fieldErrors.npn_number && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  )}
                 />
                 <FormFieldError error={fieldErrors.npn_number} show={showValidation} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="insurance_license_number">Insurance License # <span className="text-destructive">*</span></Label>
-                <Input
+                <label htmlFor="insurance_license_number" className="block text-sm font-medium text-slate-700">
+                  Insurance License # <span className="text-rose-400">*</span>
+                </label>
+                <input
                   id="insurance_license_number"
                   value={application.insurance_license_number || ''}
                   onChange={(e) => {
                     onUpdate('insurance_license_number', e.target.value);
                     if (e.target.value && onClearError) onClearError('insurance_license_number');
                   }}
-                  className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.insurance_license_number, showValidation))}
+                  className={cn(
+                    "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                    fieldErrors.insurance_license_number && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  )}
                 />
                 <FormFieldError error={fieldErrors.insurance_license_number} show={showValidation} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="resident_state">Resident State <span className="text-destructive">*</span></Label>
+                <label htmlFor="resident_state" className="block text-sm font-medium text-slate-700">
+                  Resident State <span className="text-rose-400">*</span>
+                </label>
                 <Select value={application.resident_state || ''} onValueChange={(v) => {
                   onUpdate('resident_state', v);
                   if (v && onClearError) onClearError('resident_state');
                 }}>
-                  <SelectTrigger className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.resident_state, showValidation))}>
+                  <SelectTrigger className={cn(
+                    "h-12 rounded-xl bg-slate-50 border border-slate-200",
+                    fieldErrors.resident_state && showValidation && "border-rose-300 bg-rose-50"
+                  )}>
                     <SelectValue placeholder="Select state..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -172,30 +156,40 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
           </div>
 
           {/* Driver's License */}
-          <div className="pt-4 border-t border-border/10">
+          <div className="pt-6 border-t border-slate-200">
             <h4 className="text-sm font-medium mb-4">Driver's License</h4>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="drivers_license_number">Driver's License # <span className="text-destructive">*</span></Label>
-                <Input
+                <label htmlFor="drivers_license_number" className="block text-sm font-medium text-slate-700">
+                  Driver's License # <span className="text-rose-400">*</span>
+                </label>
+                <input
                   id="drivers_license_number"
                   value={application.drivers_license_number || ''}
                   onChange={(e) => {
                     onUpdate('drivers_license_number', e.target.value);
                     if (e.target.value && onClearError) onClearError('drivers_license_number');
                   }}
-                  className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.drivers_license_number, showValidation))}
+                  className={cn(
+                    "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                    fieldErrors.drivers_license_number && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  )}
                 />
                 <FormFieldError error={fieldErrors.drivers_license_number} show={showValidation} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="drivers_license_state">Driver's License State <span className="text-destructive">*</span></Label>
+                <label htmlFor="drivers_license_state" className="block text-sm font-medium text-slate-700">
+                  Driver's License State <span className="text-rose-400">*</span>
+                </label>
                 <Select value={application.drivers_license_state || ''} onValueChange={(v) => {
                   onUpdate('drivers_license_state', v);
                   if (v && onClearError) onClearError('drivers_license_state');
                 }}>
-                  <SelectTrigger className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.drivers_license_state, showValidation))}>
+                  <SelectTrigger className={cn(
+                    "h-12 rounded-xl bg-slate-50 border border-slate-200",
+                    fieldErrors.drivers_license_state && showValidation && "border-rose-300 bg-rose-50"
+                  )}>
                     <SelectValue placeholder="Select state..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -212,42 +206,28 @@ export function LicensingSection({ application, onUpdate, onUpload, onRemove, di
           </div>
 
           {/* Corporation */}
-          <div className="pt-4 border-t border-border/10">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <Checkbox
-                checked={application.is_corporation || false}
-                onCheckedChange={(checked) => onUpdate('is_corporation', !!checked)}
-              />
+          <div className="pt-6 border-t border-slate-200">
+            <label 
+              className="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
+              onClick={() => onUpdate('is_corporation', !application.is_corporation)}
+            >
+              <div className={cn(
+                "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
+                application.is_corporation
+                  ? "bg-slate-900 border-slate-900" 
+                  : "border-slate-300"
+              )}>
+                {application.is_corporation && <Check className="h-3 w-3 text-white" />}
+              </div>
               <div>
-                <span className="text-sm font-medium">I am applying as a corporation or business entity</span>
-                <p className="text-xs text-muted-foreground/60">Additional documentation may be required</p>
+                <span className="text-sm font-medium text-slate-700">I am applying as a corporation or business entity</span>
+                <p className="text-xs text-slate-500">Additional documentation may be required</p>
               </div>
             </label>
           </div>
 
-          {/* Document Uploads */}
-          <div className="pt-4 border-t border-border/10">
-            <h4 className="text-sm font-medium mb-2">Required Documents</h4>
-            <p className="text-xs text-muted-foreground/60 mb-4">Upload clear photos or scans of your documents</p>
-            
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <FileDropZone
-                  label="Insurance License"
-                  documentType="insurance_license"
-                  existingFile={uploadedDocs['insurance_license']}
-                  onUpload={onUpload}
-                  onRemove={() => onRemove('insurance_license')}
-                  onClearError={onClearError}
-                  required
-                  hasError={showValidation && !!fieldErrors.insurance_license}
-                />
-                <FormFieldError error={fieldErrors.insurance_license} show={showValidation} />
-              </div>
-            </div>
-          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

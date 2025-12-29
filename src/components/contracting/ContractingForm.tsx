@@ -4,7 +4,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown } from 'lucide-react';
+import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -17,18 +17,19 @@ import { LEGAL_QUESTIONS, type Address, ContractingApplication } from '@/types/c
 import { InitialsEntrySection } from './sections/InitialsEntrySection';
 import { PersonalInfoSection } from './sections/PersonalInfoSection';
 import { MarketingConsentSection } from './sections/MarketingConsentSection';
-import { AddressSection } from './sections/AddressSection';
+import { HomeAddressSection } from './sections/HomeAddressSection';
+import { MailingShippingSection } from './sections/MailingShippingSection';
 import { LicensingSection } from './sections/LicensingSection';
-import { LegalQuestionsSection } from './sections/LegalQuestionsSection';
-import { BackgroundSignatureSection } from './sections/BackgroundSignatureSection';
+import { AdditionalLicensesSection } from './sections/AdditionalLicensesSection';
+import { BackgroundQuestionsSection1 } from './sections/BackgroundQuestionsSection1';
+import { BackgroundQuestionsSection2 } from './sections/BackgroundQuestionsSection2';
 import { BankingSection } from './sections/BankingSection';
-import { TrainingSection } from './sections/TrainingSection';
-import { CarrierSelectionSection } from './sections/CarrierSelectionSection';
-import { SignatureSection } from './sections/SignatureSection';
-import { SectionNav } from './SectionNav';
-import { SectionAcknowledgment } from './SectionAcknowledgment';
+import { DocumentsSection } from './sections/DocumentsSection';
+import { AgreementsSection } from './sections/AgreementsSection';
+import { SignSubmitSection } from './sections/SignSubmitSection';
 import { ValidationBanner } from './ValidationBanner';
 import { TestModeSnapshotPanel } from './TestModeSnapshotPanel';
+import { SuccessModal } from './SuccessModal';
 
 import { TestModeValidationReport } from './TestModeValidationReport';
 import { TestModeMappingReport } from './TestModeMappingReport';
@@ -54,16 +55,40 @@ export interface SectionStatus {
 }
 
 const SECTIONS = [
-  { id: 'initials', name: 'Get Started', requiresAcknowledgment: false },
-  { id: 'personal', name: 'Personal Information', requiresAcknowledgment: true },
-  { id: 'address', name: 'Addresses', requiresAcknowledgment: true },
-  { id: 'licensing', name: 'Licensing & Identification', requiresAcknowledgment: true },
-  { id: 'legal', name: 'Background Questions', requiresAcknowledgment: true },
-  { id: 'banking', name: 'Banking & Direct Deposit', requiresAcknowledgment: true },
-  { id: 'training', name: 'Training & Certifications', requiresAcknowledgment: true },
-  { id: 'carriers', name: 'Carrier Selection', requiresAcknowledgment: true },
-  { id: 'signature', name: 'Electronic Signature', requiresAcknowledgment: false },
+  { id: 'initials', name: 'Get Started', step: 1, requiresAcknowledgment: false },
+  { id: 'personal', name: 'Personal Info', step: 2, requiresAcknowledgment: true },
+  { id: 'home-address', name: 'Home Address', step: 3, requiresAcknowledgment: true },
+  { id: 'other-addresses', name: 'Mailing & Shipping', step: 4, requiresAcknowledgment: true },
+  { id: 'licensing', name: 'Licensing', step: 5, requiresAcknowledgment: true },
+  { id: 'additional-licenses', name: 'Additional Licenses', step: 6, requiresAcknowledgment: true },
+  { id: 'background-1', name: 'Background', step: 7, requiresAcknowledgment: true },
+  { id: 'background-2', name: 'Background', step: 8, requiresAcknowledgment: true },
+  { id: 'banking', name: 'Banking', step: 9, requiresAcknowledgment: true },
+  { id: 'documents', name: 'Documents', step: 10, requiresAcknowledgment: true },
+  { id: 'agreements', name: 'Agreements', step: 11, requiresAcknowledgment: true },
+  { id: 'signature', name: 'Sign & Submit', step: 12, requiresAcknowledgment: false },
 ];
+
+const TOTAL_STEPS = 12;
+
+// Step descriptions helper
+const getStepDescription = (step: number): string => {
+  const descriptions: Record<number, string> = {
+    1: "Let's get started",
+    2: "How can we reach you?",
+    3: "Where do you live?",
+    4: "Any other addresses?",
+    5: "Your license information",
+    6: "Additional states and registrations",
+    7: "A few background questions",
+    8: "Just a few more questions",
+    9: "Set up your payments",
+    10: "Upload your documents",
+    11: "Review the agreements",
+    12: "Sign and submit",
+  };
+  return descriptions[step] || "";
+};
 
 // Generate a simple initials image as base64
 const generateTestInitialsImage = (initials: string): string => {
@@ -97,7 +122,6 @@ export function ContractingForm() {
   const { profile } = useProfile();
   const {
     application,
-    carriers,
     loading,
     saving,
     lastSaved,
@@ -112,6 +136,10 @@ export function ContractingForm() {
   const [showSaved, setShowSaved] = useState(false);
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, SectionStatus>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const [testMode, setTestMode] = useState(false);
   const [lastSubmissionSnapshot, setLastSubmissionSnapshot] = useState<SubmissionSnapshot | null>(null);
@@ -171,6 +199,15 @@ export function ContractingForm() {
     }
   }, [lastSaved]);
 
+  // Cleanup save timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
@@ -188,11 +225,48 @@ export function ContractingForm() {
   };
 
   const scrollToSection = useCallback((sectionId: string) => {
-    const element = sectionRefs.current[sectionId];
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const section = SECTIONS.find(s => s.id === sectionId);
+    if (section) {
+      setCurrentStep(section.step);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, []);
+
+  const goToStep = useCallback((step: number) => {
+    if (step >= 1 && step <= TOTAL_STEPS) {
+      setCurrentStep(step);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  const goNext = useCallback(() => goToStep(currentStep + 1), [currentStep, goToStep]);
+  const goBack = useCallback(() => goToStep(currentStep - 1), [currentStep, goToStep]);
+
+  // Wrapper for updateField with save status tracking
+  const updateFieldWithStatus = useCallback(<K extends keyof ContractingApplication>(
+    field: K, 
+    value: ContractingApplication[K]
+  ) => {
+    setSaveStatus('saving');
+    
+    // Clear any existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    // Call the original update function
+    updateField(field, value);
+    
+    // Show saved status after a short delay (to account for debounce)
+    saveTimeoutRef.current = setTimeout(() => {
+      setSaveStatus('saved');
+      // Reset to idle after 2 seconds
+      saveTimeoutRef.current = setTimeout(() => {
+        setSaveStatus('idle');
+        saveTimeoutRef.current = null;
+      }, 2000);
+    }, 900); // Slightly longer than debounce delay to ensure save completes
+  }, [updateField]);
 
   const acknowledgeSection = useCallback(async (sectionId: string) => {
     if (!application?.signature_initials) {
@@ -306,7 +380,7 @@ export function ContractingForm() {
     }
     
     // PRODUCTION MODE: Run validation and block if invalid
-    const result = validateForm(application!, sectionStatuses, carriers);
+    const result = validateForm(application!, sectionStatuses, []);
     if (!result.isFormValid) {
       // Scroll to first error section with smooth animation
       if (result.firstErrorSection) {
@@ -323,7 +397,8 @@ export function ContractingForm() {
       // PRODUCTION: Normal submission
       const success = await submitApplication();
       if (success) {
-        // PDF generation handled by edge function
+        // Show success modal instead of redirecting immediately
+        setShowSuccess(true);
       }
     } finally {
       setIsSubmitting(false);
@@ -332,10 +407,10 @@ export function ContractingForm() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-white">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground/70">Loading your application...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-slate-900" />
+          <p className="text-sm text-slate-500">Loading your application...</p>
         </div>
       </div>
     );
@@ -343,8 +418,8 @@ export function ContractingForm() {
 
   if (!application) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
-        <p className="text-muted-foreground">Unable to load application</p>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-white">
+        <p className="text-slate-500">Unable to load application</p>
       </div>
     );
   }
@@ -352,34 +427,29 @@ export function ContractingForm() {
   // Show submitted state (pending review)
   if (application.status === 'submitted') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-white">
         <Card 
-          className="max-w-lg w-full text-center rounded-[28px] border-0"
-          style={{ 
-            background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
-            boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
-          }}
+          className="max-w-lg w-full text-center rounded-2xl shadow-sm border border-slate-200/60"
         >
           <div className="space-y-6 p-10">
             <div className="relative pb-6">
-              <img src={tylerLogo} alt="Tyler Insurance Group" className="h-14 mx-auto" />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+              <img src={tylerLogo} alt="Tyler Insurance Group" className="h-14 mx-auto opacity-80" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-slate-200" />
             </div>
             <div className="mx-auto w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center">
               <Clock className="h-8 w-8 text-amber-600" />
             </div>
-            <h2 className="text-2xl font-serif" style={{ letterSpacing: '0.025em' }}>Contracting Under Review</h2>
-            <p className="text-muted-foreground/70 text-[15px] leading-relaxed">
+            <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Contracting Under Review</h2>
+            <p className="text-slate-500 text-sm leading-relaxed">
               Your contracting documents have been submitted and are being reviewed. You'll receive an email once approved.
             </p>
-            <Button 
-              variant="outline" 
+            <button 
               onClick={handleLogout} 
-              className="gap-2 h-12 px-6 border-foreground/12 hover:bg-secondary/30 rounded-2xl"
+              className="inline-flex items-center gap-2 h-12 px-6 rounded-full border border-slate-200 hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700"
             >
               <LogOut className="h-4 w-4" />
               Log Out
-            </Button>
+            </button>
           </div>
         </Card>
       </div>
@@ -388,83 +458,218 @@ export function ContractingForm() {
 
   const initialsEntered = !!application.signature_initials && !!(application.uploaded_documents as Record<string, string>)?.initials_image;
 
-  return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-50 border-b border-border/20 bg-white/95 backdrop-blur-md">
-        <div className="container max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <img src={tylerLogo} alt="Tyler Insurance Group" className="h-8" />
-          
-          {/* Save indicator */}
-          <div className="flex items-center gap-4">
-            <div 
-              className={`flex items-center gap-1.5 text-xs transition-all duration-300 ${
-                saving 
-                  ? 'opacity-60 text-muted-foreground/50' 
-                  : showSaved 
-                    ? 'opacity-100 text-primary/70' 
-                    : 'opacity-0'
-              }`}
-            >
-              {saving ? (
-                <>
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
-                  <span>Saving</span>
-                </>
-              ) : showSaved ? (
-                <>
-                  <Check className="h-3 w-3" />
-                  <span>Saved</span>
-                </>
-              ) : null}
-            </div>
-            
-            {/* Test Mode Toggle */}
-            <div className="flex items-center gap-2 px-2 py-1 rounded-lg border border-dashed border-amber-500/50 bg-amber-50/50">
-              <Switch
-                id="test-mode"
-                checked={testMode}
-                onCheckedChange={setTestMode}
-                className="data-[state=checked]:bg-amber-600"
+  // Render current step content
+  const renderCurrentStep = () => {
+    const initialsEntered = !!application.signature_initials;
+
+    switch (currentStep) {
+      case 1:
+        return (
+          <InitialsEntrySection
+            fullName={profile?.full_name || application.full_legal_name}
+            initials={application.signature_initials}
+            initialsImage={(application.uploaded_documents as Record<string, string>)?.initials_image}
+            onInitialsChange={(initials) => updateFieldWithStatus('signature_initials', initials)}
+            onInitialsImageChange={(image) => {
+              const docs = (application.uploaded_documents || {}) as Record<string, string>;
+              if (image) {
+                updateFieldWithStatus('uploaded_documents', { ...docs, initials_image: image });
+              } else {
+                const { initials_image, ...rest } = docs;
+                updateFieldWithStatus('uploaded_documents', rest);
+              }
+            }}
+            isLocked={initialsEntered && Object.values(sectionStatuses).some(s => s.acknowledged)}
+          />
+        );
+      case 2:
+        return (
+          <>
+            <PersonalInfoSection
+              application={application}
+              onUpdate={updateFieldWithStatus}
+              disabled={!initialsEntered}
+              fieldErrors={validationState.fieldErrors}
+              showValidation={validationState.hasValidated && !validationState.isFormValid}
+              onClearError={clearFieldError}
+              testMode={testMode}
+            />
+            <div className="mt-4">
+              <MarketingConsentSection
+                application={application}
+                onUpdate={updateFieldWithStatus}
+                disabled={!initialsEntered}
               />
-              <Label htmlFor="test-mode" className="text-xs text-amber-700 cursor-pointer">
-                Test Mode
-              </Label>
             </div>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleLogout} 
-              className="gap-2 text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Log Out
-            </Button>
+          </>
+        );
+      case 3:
+        return (
+          <HomeAddressSection
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            disabled={!initialsEntered}
+            fieldErrors={validationState.fieldErrors}
+            showValidation={validationState.hasValidated && !validationState.isFormValid}
+            onClearError={clearFieldError}
+          />
+        );
+      case 4:
+        return (
+          <MailingShippingSection
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            disabled={!initialsEntered}
+          />
+        );
+      case 5:
+        return (
+          <LicensingSection
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            disabled={!initialsEntered}
+            fieldErrors={validationState.fieldErrors}
+            showValidation={validationState.hasValidated && !validationState.isFormValid}
+            onClearError={clearFieldError}
+          />
+        );
+      case 6:
+        return (
+          <AdditionalLicensesSection
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            disabled={!initialsEntered}
+            fieldErrors={validationState.fieldErrors}
+            showValidation={validationState.hasValidated && !validationState.isFormValid}
+            onClearError={clearFieldError}
+          />
+        );
+      case 7:
+        return (
+          <BackgroundQuestionsSection1
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            disabled={!initialsEntered}
+          />
+        );
+      case 8:
+        return (
+          <BackgroundQuestionsSection2
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            onUpload={uploadDocument}
+            onRemove={deleteDocument}
+            disabled={!initialsEntered}
+          />
+        );
+      case 9:
+        return (
+          <BankingSection
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            disabled={!initialsEntered}
+            fieldErrors={validationState.fieldErrors}
+            showValidation={validationState.hasValidated && !validationState.isFormValid}
+            onClearError={clearFieldError}
+          />
+        );
+      case 10:
+        return (
+          <DocumentsSection
+            application={application}
+            onUpload={uploadDocument}
+            onRemove={deleteDocument}
+            disabled={!initialsEntered}
+            fieldErrors={validationState.fieldErrors}
+            showValidation={validationState.hasValidated && !validationState.isFormValid}
+            onClearError={clearFieldError}
+          />
+        );
+      case 11:
+        return (
+          <AgreementsSection
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            disabled={!initialsEntered}
+          />
+        );
+      case 12:
+        return (
+          <SignSubmitSection
+            application={application}
+            onUpdate={updateFieldWithStatus}
+            disabled={!initialsEntered}
+            fieldErrors={validationState.fieldErrors}
+            showValidation={validationState.hasValidated && !validationState.isFormValid}
+            onClearError={clearFieldError}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* Minimal Floating Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 border-b border-slate-200/50">
+        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
+          {/* Logo - subtle */}
+          <img src={tylerLogo} alt="Tyler Insurance" className="h-6 opacity-80" />
+          
+          {/* Step indicator - minimal */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-500">Step {currentStep} of {TOTAL_STEPS}</span>
+              <div className="w-16 h-1 bg-slate-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-slate-900 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
+                />
+              </div>
+            </div>
+            {/* Save status indicator */}
+            <div className="flex items-center gap-2">
+              {saveStatus === 'saving' && (
+                <div className="flex items-center gap-1.5 text-slate-400 animate-in fade-in duration-150">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span className="text-xs">Saving...</span>
+                </div>
+              )}
+              {saveStatus === 'saved' && (
+                <div className="flex items-center gap-1.5 text-emerald-600 animate-in fade-in duration-150">
+                  <CheckCircle className="h-3 w-3" />
+                  <span className="text-xs">Saved</span>
+                </div>
+              )}
+            </div>
           </div>
+          
+          {/* Logout - ghost */}
+          <button 
+            onClick={handleLogout}
+            className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            Log out
+          </button>
         </div>
       </header>
 
-      {/* Section Navigation */}
-      <SectionNav 
-        sections={SECTIONS}
-        sectionStatuses={sectionStatuses}
-        initialsEntered={initialsEntered}
-        onSectionClick={scrollToSection}
-      />
 
       {/* Validation Banner - shows only after submit attempt with errors (hidden in test mode) */}
       {!testMode && (
-        <ValidationBanner 
-          show={validationState.hasValidated && !validationState.isFormValid}
-          sectionErrors={validationState.sectionErrors}
-          onSectionClick={scrollToSection}
-        />
+        <div className="max-w-2xl mx-auto px-6">
+          <ValidationBanner 
+            show={validationState.hasValidated && !validationState.isFormValid}
+            sectionErrors={validationState.sectionErrors}
+            onSectionClick={scrollToSection}
+          />
+        </div>
       )}
 
       {/* Test Mode Panels */}
       {testMode && (
-        <div className="container max-w-4xl mx-auto px-4 py-4 space-y-4">
+        <div className="max-w-2xl mx-auto px-6 py-4 space-y-4">
           {/* Schema Panel - always show in test mode */}
           <TestModeSchemaPanel application={application} />
           
@@ -510,257 +715,86 @@ export function ContractingForm() {
       )}
 
       {/* Main Form Content */}
-      <main className="flex-1 container max-w-4xl mx-auto px-4 py-8">
-        <div className="space-y-8">
-          {/* Section 1: Get Started / Initials */}
-          <div 
-            ref={el => sectionRefs.current['initials'] = el} 
-            id="section-initials"
-            className="scroll-mt-32"
-          >
-            <InitialsEntrySection
-              fullName={profile?.full_name || application.full_legal_name}
-              initials={application.signature_initials}
-              initialsImage={(application.uploaded_documents as Record<string, string>)?.initials_image}
-              onInitialsChange={(initials) => updateField('signature_initials', initials)}
-              onInitialsImageChange={(image) => {
-                const docs = (application.uploaded_documents || {}) as Record<string, string>;
-                if (image) {
-                  updateField('uploaded_documents', { ...docs, initials_image: image });
-                } else {
-                  const { initials_image, ...rest } = docs;
-                  updateField('uploaded_documents', rest);
-                }
-              }}
-              isLocked={initialsEntered && Object.values(sectionStatuses).some(s => s.acknowledged)}
-            />
-          </div>
-
-          {/* Section 2: Personal Information */}
-          <div 
-            ref={el => sectionRefs.current['personal'] = el} 
-            id="section-personal"
-            className="scroll-mt-32"
-          >
-            <PersonalInfoSection
-              application={application}
-              onUpdate={updateField}
-              disabled={!initialsEntered}
-              fieldErrors={validationState.fieldErrors}
-              showValidation={validationState.hasValidated && !validationState.isFormValid}
-              onClearError={clearFieldError}
-              testMode={testMode}
-            />
-            
-            {/* Marketing Consent - goes right after personal info */}
-            <div className="mt-4">
-              <MarketingConsentSection
-                application={application}
-                onUpdate={updateField}
-                disabled={!initialsEntered}
-              />
-            </div>
-            
-            <SectionAcknowledgment
-              sectionId="personal"
-              sectionName="Personal Information"
-              initials={application.signature_initials}
-              status={sectionStatuses['personal']}
-              onAcknowledge={() => acknowledgeSection('personal')}
-              disabled={!initialsEntered}
-              hasValidationError={validationState.hasValidated && validationState.sectionErrors['personal']?.needsAcknowledgment}
-            />
-          </div>
-
-          {/* Section 3: Addresses */}
-          <div 
-            ref={el => sectionRefs.current['address'] = el} 
-            id="section-address"
-            className="scroll-mt-32"
-          >
-            <AddressSection
-              application={application}
-              onUpdate={updateField}
-              disabled={!initialsEntered}
-              fieldErrors={validationState.fieldErrors}
-              showValidation={validationState.hasValidated && !validationState.isFormValid}
-              onClearError={clearFieldError}
-            />
-            <SectionAcknowledgment
-              sectionId="address"
-              sectionName="Addresses"
-              initials={application.signature_initials}
-              status={sectionStatuses['address']}
-              onAcknowledge={() => acknowledgeSection('address')}
-              disabled={!initialsEntered}
-              hasValidationError={validationState.hasValidated && validationState.sectionErrors['address']?.needsAcknowledgment}
-            />
-          </div>
-
-          {/* Section 4: Licensing */}
-          <div 
-            ref={el => sectionRefs.current['licensing'] = el} 
-            id="section-licensing"
-            className="scroll-mt-32"
-          >
-            <LicensingSection
-              application={application}
-              onUpdate={updateField}
-              onUpload={uploadDocument}
-              onRemove={deleteDocument}
-              disabled={!initialsEntered}
-              fieldErrors={validationState.fieldErrors}
-              showValidation={validationState.hasValidated && !validationState.isFormValid}
-              onClearError={clearFieldError}
-            />
-            <SectionAcknowledgment
-              sectionId="licensing"
-              sectionName="Licensing & Identification"
-              initials={application.signature_initials}
-              status={sectionStatuses['licensing']}
-              onAcknowledge={() => acknowledgeSection('licensing')}
-              disabled={!initialsEntered}
-              hasValidationError={validationState.hasValidated && validationState.sectionErrors['licensing']?.needsAcknowledgment}
-            />
-          </div>
-
-          {/* Section 5: Legal Questions */}
-          <div 
-            ref={el => sectionRefs.current['legal'] = el} 
-            id="section-legal"
-            className="scroll-mt-32"
-          >
-            <LegalQuestionsSection
-              application={application}
-              onUpdate={updateField}
-              onUpload={uploadDocument}
-              onRemove={deleteDocument}
-              disabled={!initialsEntered}
-            />
-            
-            {/* Background Questions Signature - required after legal questions */}
-            <BackgroundSignatureSection
-              application={application}
-              onUpdate={updateField}
-              disabled={!initialsEntered}
-              fieldErrors={validationState.fieldErrors}
-              showValidation={validationState.hasValidated && !validationState.isFormValid}
-              onClearError={clearFieldError}
-            />
-            
-            <SectionAcknowledgment
-              sectionId="legal"
-              sectionName="Background Questions"
-              initials={application.signature_initials}
-              status={sectionStatuses['legal']}
-              onAcknowledge={() => acknowledgeSection('legal')}
-              disabled={!initialsEntered}
-              hasValidationError={validationState.hasValidated && validationState.sectionErrors['legal']?.needsAcknowledgment}
-            />
-          </div>
-
-          {/* Section 6: Banking */}
-          <div 
-            ref={el => sectionRefs.current['banking'] = el} 
-            id="section-banking"
-            className="scroll-mt-32"
-          >
-            <BankingSection
-              application={application}
-              onUpdate={updateField}
-              onUpload={uploadDocument}
-              onRemove={deleteDocument}
-              disabled={!initialsEntered}
-              fieldErrors={validationState.fieldErrors}
-              showValidation={validationState.hasValidated && !validationState.isFormValid}
-              onClearError={clearFieldError}
-            />
-            <SectionAcknowledgment
-              sectionId="banking"
-              sectionName="Banking & Direct Deposit"
-              initials={application.signature_initials}
-              status={sectionStatuses['banking']}
-              onAcknowledge={() => acknowledgeSection('banking')}
-              disabled={!initialsEntered}
-              hasValidationError={validationState.hasValidated && validationState.sectionErrors['banking']?.needsAcknowledgment}
-            />
-          </div>
-
-          {/* Section 7: Training */}
-          <div 
-            ref={el => sectionRefs.current['training'] = el} 
-            id="section-training"
-            className="scroll-mt-32"
-          >
-            <TrainingSection
-              application={application}
-              onUpdate={updateField}
-              onUpload={uploadDocument}
-              onRemove={deleteDocument}
-              disabled={!initialsEntered}
-              fieldErrors={validationState.fieldErrors}
-              showValidation={validationState.hasValidated && !validationState.isFormValid}
-              onClearError={clearFieldError}
-            />
-            <SectionAcknowledgment
-              sectionId="training"
-              sectionName="Training & Certifications"
-              initials={application.signature_initials}
-              status={sectionStatuses['training']}
-              onAcknowledge={() => acknowledgeSection('training')}
-              disabled={!initialsEntered}
-              hasValidationError={validationState.hasValidated && validationState.sectionErrors['training']?.needsAcknowledgment}
-            />
-          </div>
-
-          {/* Section 8: Carrier Selection */}
-          <div 
-            ref={el => sectionRefs.current['carriers'] = el} 
-            id="section-carriers"
-            className="scroll-mt-32"
-          >
-            <CarrierSelectionSection
-              application={application}
-              carriers={carriers}
-              onUpdate={updateField}
-              onUpload={uploadDocument}
-              disabled={!initialsEntered}
-              fieldErrors={validationState.fieldErrors}
-              showValidation={validationState.hasValidated && !validationState.isFormValid}
-              onClearError={clearFieldError}
-            />
-            <SectionAcknowledgment
-              sectionId="carriers"
-              sectionName="Carrier Selection"
-              initials={application.signature_initials}
-              status={sectionStatuses['carriers']}
-              onAcknowledge={() => acknowledgeSection('carriers')}
-              disabled={!initialsEntered}
-              hasValidationError={validationState.hasValidated && validationState.sectionErrors['carriers']?.needsAcknowledgment}
-            />
-          </div>
-
-          {/* Section 9: Electronic Signature */}
-          <div 
-            ref={el => sectionRefs.current['signature'] = el} 
-            id="section-signature"
-            className="scroll-mt-32"
-          >
-            <SignatureSection
-              application={application}
-              sectionStatuses={sectionStatuses}
-              onUpdate={updateField}
-              onSubmit={handleSubmit}
-              isSubmitting={isSubmitting}
-              disabled={!initialsEntered}
-              fieldErrors={validationState.fieldErrors}
-              sectionErrors={validationState.sectionErrors}
-              showValidation={validationState.hasValidated && !validationState.isFormValid}
-              onScrollToSection={scrollToSection}
-            />
-          </div>
+      <main className="max-w-2xl mx-auto px-6 py-12">
+        {/* Step Title */}
+        <div className="text-center mb-10">
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
+            {SECTIONS.find(s => s.step === currentStep)?.name}
+          </h1>
+          <p className="text-slate-500 mt-2 text-sm">
+            {getStepDescription(currentStep)}
+          </p>
+        </div>
+        
+        {/* Step Content with transition */}
+        <div 
+          key={currentStep}
+          className="transition-all duration-300 ease-out"
+        >
+          {renderCurrentStep()}
         </div>
       </main>
+
+      {/* Fixed Bottom Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200/50">
+        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Back button */}
+          {currentStep > 1 ? (
+            <button
+              onClick={goBack}
+              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="text-sm font-medium">Back</span>
+            </button>
+          ) : (
+            <div />
+          )}
+          
+          {/* Continue/Submit button */}
+          {currentStep < TOTAL_STEPS ? (
+            <button
+              onClick={goNext}
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] transition-all duration-200 font-medium text-sm"
+            >
+              <span>Continue</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-8 py-3 rounded-full bg-emerald-600 text-white hover:bg-emerald-500 active:scale-[0.98] transition-all duration-200 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Submitting...</span>
+                </>
+              ) : (
+                <>
+                  <span>Submit Application</span>
+                  <Check className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Spacer to prevent content from hiding behind fixed nav */}
+      <div className="h-24" />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccess}
+        agentName={application?.full_legal_name || ''}
+        onClose={() => {
+          setShowSuccess(false);
+          // Navigate to dashboard or next step
+          window.location.href = '/dashboard';
+        }}
+      />
     </div>
   );
 }

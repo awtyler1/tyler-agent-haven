@@ -1,12 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication } from '@/types/contracting';
-import { User, Mail, Phone, Lock } from 'lucide-react';
+import { Mail, Phone, Lock, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { formatPhone } from '@/lib/formatters';
 
 interface PersonalInfoSectionProps {
   application: ContractingApplication;
@@ -42,229 +42,277 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
   };
 
   return (
-    <Card 
-      className="rounded-[28px] border-0 overflow-hidden"
-      style={{ 
-        background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
-        boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.06)'
-      }}
-    >
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <User className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-lg font-medium">Personal Information</CardTitle>
-            <p className="text-xs text-muted-foreground/60">Your legal name and contact details</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6 pb-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+      <div className="p-8">
         {disabled && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 text-muted-foreground/60">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-slate-400 mb-6">
             <Lock className="h-4 w-4" />
             <span className="text-sm">Enter your initials above to unlock this section</span>
           </div>
         )}
 
-        <div className="grid gap-4 md:grid-cols-2" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-          {/* Full Legal Name */}
-          <div className="space-y-2">
-            <Label htmlFor="full_legal_name">
-              Full Legal Name <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="full_legal_name"
-              value={application.full_legal_name || ''}
-              onChange={(e) => {
-                onUpdate('full_legal_name', e.target.value);
-                if (e.target.value && onClearError) onClearError('full_legal_name');
-              }}
-              placeholder="As it appears on your government ID"
-              className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.full_legal_name, showValidation))}
-            />
-            <FormFieldError error={fieldErrors.full_legal_name} show={showValidation} />
-          </div>
-
-          {/* Personal Name or Principal (for businesses) */}
-          <div className="space-y-2">
-            <Label htmlFor="personal_name_principal">Personal Name or Principal</Label>
-            <Input
-              id="personal_name_principal"
-              value={(application.uploaded_documents as any)?.personal_name_principal || ''}
-              onChange={(e) => {
-                const docs = application.uploaded_documents || {};
-                onUpdate('uploaded_documents', { ...docs, personal_name_principal: e.target.value });
-              }}
-              placeholder="If different from legal name"
-              className="h-11 rounded-xl"
-            />
-            <p className="text-[10px] text-muted-foreground/50">For business entities: the principal/owner name</p>
-          </div>
-
-          {/* Gender */}
-          <div className="md:col-span-2 space-y-2">
-            <Label>Gender <span className="text-destructive">*</span></Label>
-            <RadioGroup
-              value={normalizedGender}
-              onValueChange={handleGenderChange}
-              className="flex gap-6"
-            >
-              <label className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors",
-                normalizedGender === 'Male' 
-                  ? "border-primary bg-primary/5" 
-                  : fieldErrors.gender && showValidation
-                    ? "border-destructive/60 bg-destructive/[0.02]"
-                    : "border-border/20 hover:bg-muted/20"
-              )}>
-                <RadioGroupItem value="Male" id="gender-male" />
-                <span className="text-sm">Male</span>
+        <div className="space-y-6" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Full Legal Name */}
+            <div className="space-y-2">
+              <label htmlFor="full_legal_name" className="block text-sm font-medium text-slate-700">
+                Full Legal Name <span className="text-rose-400">*</span>
               </label>
-              <label className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors",
-                normalizedGender === 'Female' 
-                  ? "border-primary bg-primary/5" 
-                  : fieldErrors.gender && showValidation
-                    ? "border-destructive/60 bg-destructive/[0.02]"
-                    : "border-border/20 hover:bg-muted/20"
-              )}>
-                <RadioGroupItem value="Female" id="gender-female" />
-                <span className="text-sm">Female</span>
+              <input
+                id="full_legal_name"
+                value={application.full_legal_name || ''}
+                onChange={(e) => {
+                  onUpdate('full_legal_name', e.target.value);
+                  if (e.target.value && onClearError) onClearError('full_legal_name');
+                }}
+                placeholder="As it appears on your government ID"
+                className={cn(
+                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  fieldErrors.full_legal_name && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                )}
+              />
+              <FormFieldError error={fieldErrors.full_legal_name} show={showValidation} />
+            </div>
+
+            {/* Personal Name or Principal (for businesses) */}
+            <div className="space-y-2">
+              <label htmlFor="personal_name_principal" className="block text-sm font-medium text-slate-700">
+                Personal Name or Principal
               </label>
-            </RadioGroup>
-            <FormFieldError error={fieldErrors.gender} show={showValidation} />
-            {testMode && (
-              <p className="text-xs font-mono text-amber-700 bg-amber-50 px-2 py-1 rounded">
-                gender = {application.gender === null ? 'null' : application.gender === undefined ? 'undefined' : `"${application.gender}"`}
-              </p>
-            )}
+              <input
+                id="personal_name_principal"
+                value={(application.uploaded_documents as any)?.personal_name_principal || ''}
+                onChange={(e) => {
+                  const docs = application.uploaded_documents || {};
+                  onUpdate('uploaded_documents', { ...docs, personal_name_principal: e.target.value });
+                }}
+                placeholder="If different from legal name"
+                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+              />
+              <p className="text-xs text-slate-400">For business entities: the principal/owner name</p>
+            </div>
+
+            {/* Date of Birth */}
+            <div className="space-y-2">
+              <label htmlFor="birth_date" className="block text-sm font-medium text-slate-700">
+                Date of Birth <span className="text-rose-400">*</span>
+              </label>
+              <input
+                id="birth_date"
+                type="date"
+                value={application.birth_date || ''}
+                onChange={(e) => {
+                  onUpdate('birth_date', e.target.value);
+                  if (e.target.value && onClearError) onClearError('birth_date');
+                }}
+                className={cn(
+                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  fieldErrors.birth_date && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                )}
+              />
+              <FormFieldError error={fieldErrors.birth_date} show={showValidation} />
+            </div>
+
+            {/* Gender */}
+            <div className="md:col-span-2 space-y-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Gender <span className="text-rose-400">*</span>
+              </label>
+              <RadioGroup
+                value={normalizedGender}
+                onValueChange={handleGenderChange}
+                className="flex gap-4"
+              >
+                <label className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors",
+                  normalizedGender === 'Male' 
+                    ? "border-slate-900 bg-slate-100" 
+                    : fieldErrors.gender && showValidation
+                      ? "border-rose-300 bg-rose-50"
+                      : "border-slate-200 hover:bg-slate-50"
+                )}>
+                  <RadioGroupItem value="Male" id="gender-male" />
+                  <span className="text-sm text-slate-700">Male</span>
+                </label>
+                <label className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors",
+                  normalizedGender === 'Female' 
+                    ? "border-slate-900 bg-slate-100" 
+                    : fieldErrors.gender && showValidation
+                      ? "border-rose-300 bg-rose-50"
+                      : "border-slate-200 hover:bg-slate-50"
+                )}>
+                  <RadioGroupItem value="Female" id="gender-female" />
+                  <span className="text-sm text-slate-700">Female</span>
+                </label>
+              </RadioGroup>
+              <FormFieldError error={fieldErrors.gender} show={showValidation} />
+              {testMode && (
+                <p className="text-xs font-mono text-amber-700 bg-amber-50 px-2 py-1 rounded">
+                  gender = {application.gender === null ? 'null' : application.gender === undefined ? 'undefined' : `"${application.gender}"`}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Birth City */}
-          <div className="space-y-2">
-            <Label htmlFor="birth_city">City of Birth <span className="text-destructive">*</span></Label>
-            <Input
-              id="birth_city"
-              value={application.birth_city || ''}
-              onChange={(e) => {
-                onUpdate('birth_city', e.target.value);
-                if (e.target.value && onClearError) onClearError('birth_city');
-              }}
-              placeholder="City where you were born"
-              className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.birth_city, showValidation))}
-            />
-            <FormFieldError error={fieldErrors.birth_city} show={showValidation} />
-          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Birth City */}
+            <div className="space-y-2">
+              <label htmlFor="birth_city" className="block text-sm font-medium text-slate-700">
+                City of Birth <span className="text-rose-400">*</span>
+              </label>
+              <input
+                id="birth_city"
+                value={application.birth_city || ''}
+                onChange={(e) => {
+                  onUpdate('birth_city', e.target.value);
+                  if (e.target.value && onClearError) onClearError('birth_city');
+                }}
+                placeholder="City where you were born"
+                className={cn(
+                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  fieldErrors.birth_city && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                )}
+              />
+              <FormFieldError error={fieldErrors.birth_city} show={showValidation} />
+            </div>
 
-          {/* Birth State */}
-          <div className="space-y-2">
-            <Label htmlFor="birth_state">State of Birth <span className="text-destructive">*</span></Label>
-            <Input
-              id="birth_state"
-              value={application.birth_state || ''}
-              onChange={(e) => {
-                onUpdate('birth_state', e.target.value);
-                if (e.target.value && onClearError) onClearError('birth_state');
-              }}
-              placeholder="State where you were born"
-              className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.birth_state, showValidation))}
-            />
-            <FormFieldError error={fieldErrors.birth_state} show={showValidation} />
-          </div>
+            {/* Birth State */}
+            <div className="space-y-2">
+              <label htmlFor="birth_state" className="block text-sm font-medium text-slate-700">
+                State of Birth <span className="text-rose-400">*</span>
+              </label>
+              <input
+                id="birth_state"
+                value={application.birth_state || ''}
+                onChange={(e) => {
+                  onUpdate('birth_state', e.target.value);
+                  if (e.target.value && onClearError) onClearError('birth_state');
+                }}
+                placeholder="State where you were born"
+                className={cn(
+                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  fieldErrors.birth_state && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                )}
+              />
+              <FormFieldError error={fieldErrors.birth_state} show={showValidation} />
+            </div>
 
-          {/* Email */}
-          <div className="space-y-2">
-            <Label htmlFor="email_address" className="flex items-center gap-2">
-              <Mail className="h-3.5 w-3.5 text-muted-foreground/50" />
-              Email Address <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="email_address"
-              type="email"
-              value={application.email_address || ''}
-              onChange={(e) => onUpdate('email_address', e.target.value)}
-              className="h-11 rounded-xl bg-muted/20"
-              disabled
-            />
-            <p className="text-[10px] text-muted-foreground/50">Synced with your login email</p>
-          </div>
+            {/* Email */}
+            <div className="space-y-2">
+              <label htmlFor="email_address" className="block text-sm font-medium text-slate-700">
+                Email Address <span className="text-rose-400">*</span>
+              </label>
+              <input
+                id="email_address"
+                type="email"
+                value={application.email_address || ''}
+                onChange={(e) => onUpdate('email_address', e.target.value)}
+                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                disabled
+              />
+              <p className="text-xs text-slate-400">Synced with your login email</p>
+            </div>
 
-          {/* Mobile Phone */}
-          <div className="space-y-2">
-            <Label htmlFor="phone_mobile" className="flex items-center gap-2">
-              <Phone className="h-3.5 w-3.5 text-muted-foreground/50" />
-              Mobile Phone <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="phone_mobile"
-              type="tel"
-              value={application.phone_mobile || ''}
-              onChange={(e) => {
-                onUpdate('phone_mobile', e.target.value);
-                if (e.target.value && onClearError) onClearError('phone_mobile');
-              }}
-              placeholder="(555) 123-4567"
-              className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.phone_mobile, showValidation))}
-            />
-            <FormFieldError error={fieldErrors.phone_mobile} show={showValidation} />
-          </div>
+            {/* Mobile Phone */}
+            <div className="space-y-2">
+              <label htmlFor="phone_mobile" className="block text-sm font-medium text-slate-700">
+                Mobile Phone <span className="text-rose-400">*</span>
+              </label>
+              <input
+                id="phone_mobile"
+                type="tel"
+                value={application.phone_mobile || ''}
+                onChange={(e) => {
+                  const formatted = formatPhone(e.target.value);
+                  onUpdate('phone_mobile', formatted);
+                  if (formatted.length === 14 && onClearError) onClearError('phone_mobile');
+                }}
+                placeholder="(555) 123-4567"
+                className={cn(
+                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  fieldErrors.phone_mobile && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                )}
+                maxLength={14}
+              />
+              <FormFieldError error={fieldErrors.phone_mobile} show={showValidation} />
+            </div>
 
-          {/* Business Phone */}
-          <div className="space-y-2">
-            <Label htmlFor="phone_business">Business Phone</Label>
-            <Input
-              id="phone_business"
-              type="tel"
-              value={application.phone_business || ''}
-              onChange={(e) => onUpdate('phone_business', e.target.value)}
-              placeholder="Optional"
-              className="h-11 rounded-xl"
-            />
-          </div>
+            {/* Business Phone */}
+            <div className="space-y-2">
+              <label htmlFor="phone_business" className="block text-sm font-medium text-slate-700">
+                Business Phone
+              </label>
+              <input
+                id="phone_business"
+                type="tel"
+                value={application.phone_business || ''}
+                onChange={(e) => {
+                  const formatted = formatPhone(e.target.value);
+                  onUpdate('phone_business', formatted);
+                  if (formatted.length === 14 && onClearError) onClearError('phone_business');
+                }}
+                placeholder="(555) 123-4567"
+                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+                maxLength={14}
+              />
+            </div>
 
-          {/* Home Phone */}
-          <div className="space-y-2">
-            <Label htmlFor="phone_home">Home Phone</Label>
-            <Input
-              id="phone_home"
-              type="tel"
-              value={application.phone_home || ''}
-              onChange={(e) => onUpdate('phone_home', e.target.value)}
-              placeholder="Optional"
-              className="h-11 rounded-xl"
-            />
-          </div>
+            {/* Home Phone */}
+            <div className="space-y-2">
+              <label htmlFor="phone_home" className="block text-sm font-medium text-slate-700">
+                Home Phone
+              </label>
+              <input
+                id="phone_home"
+                type="tel"
+                value={application.phone_home || ''}
+                onChange={(e) => {
+                  const formatted = formatPhone(e.target.value);
+                  onUpdate('phone_home', formatted);
+                  if (formatted.length === 14 && onClearError) onClearError('phone_home');
+                }}
+                placeholder="(555) 123-4567"
+                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+                maxLength={14}
+              />
+            </div>
 
-          {/* Fax */}
-          <div className="space-y-2">
-            <Label htmlFor="fax">Fax</Label>
-            <Input
-              id="fax"
-              type="tel"
-              value={application.fax || ''}
-              onChange={(e) => onUpdate('fax', e.target.value)}
-              placeholder="Optional"
-              className="h-11 rounded-xl"
-            />
+            {/* Fax */}
+            <div className="space-y-2">
+              <label htmlFor="fax" className="block text-sm font-medium text-slate-700">
+                Fax
+              </label>
+              <input
+                id="fax"
+                type="tel"
+                value={application.fax || ''}
+                onChange={(e) => onUpdate('fax', e.target.value)}
+                placeholder="Optional"
+                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+              />
+            </div>
           </div>
         </div>
 
         {/* Preferred Contact Method */}
-        <div className="pt-4 border-t border-border/10" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-          <Label className="mb-3 block">Preferred Contact Method</Label>
+        <div className="pt-6 border-t border-slate-200" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+          <label className="block text-sm font-medium text-slate-700 mb-3">Preferred Contact Method</label>
           <div className="flex flex-wrap gap-3">
             {['Email', 'Phone', 'Text'].map((method) => (
               <label
                 key={method}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border/20 cursor-pointer hover:bg-muted/20 transition-colors"
+                className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors"
               >
-                <Checkbox
-                  checked={contactMethods.includes(method)}
-                  onCheckedChange={() => toggleContactMethod(method)}
-                />
-                <span className="text-sm">{method}</span>
+                <div className={cn(
+                  "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
+                  contactMethods.includes(method)
+                    ? "bg-slate-900 border-slate-900" 
+                    : "border-slate-300"
+                )}>
+                  {contactMethods.includes(method) && <Check className="h-3 w-3 text-white" />}
+                </div>
+                <span className="text-sm text-slate-700">{method}</span>
               </label>
             ))}
           </div>
@@ -274,7 +322,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             </p>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

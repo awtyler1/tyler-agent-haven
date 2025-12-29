@@ -3,24 +3,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ContractingApplication } from '@/types/contracting';
-import { FileDropZone } from '../FileDropZone';
-import { Building2, Lock } from 'lucide-react';
+import { Building2, Lock, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { formatRoutingNumber, formatAccountNumber, getBankName, isValidRoutingNumber } from '@/lib/formatters';
+import { useState, useEffect } from 'react';
 
 interface BankingSectionProps {
   application: ContractingApplication;
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
-  onUpload: (file: File, documentType: string) => Promise<string | null>;
-  onRemove: (documentType: string) => Promise<void>;
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
 }
 
-export function BankingSection({ application, onUpdate, onUpload, onRemove, disabled, fieldErrors = {}, showValidation = false, onClearError }: BankingSectionProps) {
-  const uploadedDocs = application.uploaded_documents || {};
+export function BankingSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: BankingSectionProps) {
+  const [detectedBank, setDetectedBank] = useState<string | null>(null);
+
+  // Sync detected bank when routing number changes
+  useEffect(() => {
+    if (application.bank_routing_number?.length === 9) {
+      const bank = getBankName(application.bank_routing_number);
+      setDetectedBank(bank);
+    } else {
+      setDetectedBank(null);
+    }
+  }, [application.bank_routing_number]);
 
   return (
     <Card 
@@ -58,13 +67,32 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
                 id="bank_routing_number"
                 value={application.bank_routing_number || ''}
                 onChange={(e) => {
-                  onUpdate('bank_routing_number', e.target.value);
-                  if (e.target.value && onClearError) onClearError('bank_routing_number');
+                  const formatted = formatRoutingNumber(e.target.value);
+                  onUpdate('bank_routing_number', formatted);
+                  
+                  // Detect bank name
+                  if (formatted.length === 9) {
+                    const bank = getBankName(formatted);
+                    setDetectedBank(bank);
+                    if (onClearError) onClearError('bank_routing_number');
+                  } else {
+                    setDetectedBank(null);
+                  }
                 }}
                 placeholder="9 digits"
                 className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.bank_routing_number, showValidation))}
                 maxLength={9}
               />
+              {/* Bank name display */}
+              {detectedBank && (
+                <p className="text-xs text-emerald-600 flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  {detectedBank}
+                </p>
+              )}
+              {application.bank_routing_number?.length === 9 && !detectedBank && isValidRoutingNumber(application.bank_routing_number) && (
+                <p className="text-xs text-slate-500">Valid routing number</p>
+              )}
               <FormFieldError error={fieldErrors.bank_routing_number} show={showValidation} />
             </div>
 
@@ -74,10 +102,13 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
                 id="bank_account_number"
                 value={application.bank_account_number || ''}
                 onChange={(e) => {
-                  onUpdate('bank_account_number', e.target.value);
-                  if (e.target.value && onClearError) onClearError('bank_account_number');
+                  const formatted = formatAccountNumber(e.target.value);
+                  onUpdate('bank_account_number', formatted);
+                  if (formatted.length >= 4 && onClearError) onClearError('bank_account_number');
                 }}
+                placeholder="Account number"
                 className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.bank_account_number, showValidation))}
+                maxLength={17}
               />
               <FormFieldError error={fieldErrors.bank_account_number} show={showValidation} />
             </div>
@@ -94,21 +125,6 @@ export function BankingSection({ application, onUpdate, onUpload, onRemove, disa
             </div>
           </div>
 
-          {/* Voided Check Upload */}
-          <div>
-            <FileDropZone
-              label="Voided Check or Bank Letter"
-              documentType="voided_check"
-              existingFile={uploadedDocs['voided_check']}
-              onUpload={onUpload}
-              onRemove={() => onRemove('voided_check')}
-              onClearError={onClearError}
-              required
-              description="Required for direct deposit setup"
-              hasError={showValidation && !!fieldErrors.voided_check}
-            />
-            <FormFieldError error={fieldErrors.voided_check} show={showValidation} />
-          </div>
 
           {/* Commission Advancing */}
           <div className="pt-4 border-t border-border/10">
