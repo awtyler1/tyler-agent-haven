@@ -52,10 +52,11 @@ export function useSystemStatus() {
         return acc;
       }, {} as Record<string, any>) || {};
 
-      // Fetch user stats
+      // Fetch user stats (exclude test records)
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, setup_link_sent_at, password_created_at, first_login_at');
+        .select('id, setup_link_sent_at, password_created_at, first_login_at')
+        .or('is_test.is.null,is_test.eq.false');
 
       if (profilesError) {
         console.error('Error fetching profiles:', profilesError);

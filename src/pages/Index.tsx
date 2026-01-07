@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Rocket, FileText, Award, Wrench, GraduationCap, Building2, ExternalLink, Check, X, FolderOpen, Building } from "lucide-react";
+import { Rocket, FileText, Award, Wrench, Building2, ExternalLink, Check, X, FolderOpen, Building } from "lucide-react";
 
 import tylerLogo from "@/assets/tyler-logo.png";
 import austinHeadshot from "@/assets/austin-headshot.jpg";
@@ -39,12 +39,13 @@ const controlCenterTiles = [
     icon: Building2,
     link: "/carrier-resources"
   },
-  {
-    title: "Training",
-    description: "Medicare Fundamentals, Sales Training, and Leads & Marketing.",
-    icon: GraduationCap,
-    link: "/sales-training"
-  },
+  // MVP: Training removed (placeholder content)
+  // {
+  //   title: "Training",
+  //   description: "Medicare Fundamentals, Sales Training, and Leads & Marketing.",
+  //   icon: GraduationCap,
+  //   link: "/sales-training"
+  // },
   {
     title: "Forms Library",
     description: "SOA, HIPAA, enrollment worksheets, and essential appointment forms.",

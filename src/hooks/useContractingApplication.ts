@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { Json } from '@/integrations/supabase/types';
 import { useContractingPdf } from './useContractingPdf';
-import { useFeatureFlags } from '@/contexts/FeatureFlagsContext';
 
 // Debounce delay for auto-save (ms)
 const SAVE_DEBOUNCE_MS = 800;
@@ -26,7 +25,6 @@ const toDbFormat = (data: Partial<ContractingApplication>): Record<string, unkno
 export function useContractingApplication() {
   const { user } = useAuth();
   const { generatePdf, generating: generatingPdf } = useContractingPdf();
-  const { isEnabled } = useFeatureFlags();
   const [application, setApplication] = useState<ContractingApplication | null>(null);
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,9 +35,6 @@ export function useContractingApplication() {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<Record<string, unknown>>({});
   
-  // Check if test mode is enabled
-  const isTestMode = isEnabled('test_mode');
-
   // Fetch or create application
   useEffect(() => {
     if (!user?.id) return;
@@ -78,7 +73,7 @@ export function useContractingApplication() {
               status: 'in_progress',
               current_step: 1,
               completed_steps: [],
-              is_test: isTestMode,
+              is_test: false,
             } as never)
             .select()
             .single();
@@ -212,17 +207,14 @@ export function useContractingApplication() {
         requesting_commission_advancing: application.requesting_commission_advancing === true,
       };
 
-      // First, generate the PDF and save to storage
-      console.log('Generating contracting PDF...');
-      const pdfResult = await generatePdf(normalizedApplication, true); // saveToStorage = true
-      
+      // Generate the PDF and save to storage
+      const pdfResult = await generatePdf(normalizedApplication, true);
+
       if (!pdfResult.success) {
         console.error('PDF generation failed:', pdfResult.error);
         toast.error('Failed to generate contracting packet: ' + (pdfResult.error || 'Unknown error'));
         return false;
       }
-
-      console.log('PDF generated successfully:', pdfResult.filename);
 
       // NOTE: The edge function already saves the PDF path to uploaded_documents
       // when saveToStorage=true, so we don't need to do it here

@@ -60,10 +60,10 @@ const downloads = [
 ];
 
 const cmsLinks = [
-  { name: "Medicare Communications & Marketing Guidelines", url: "#" },
-  { name: "Medicare Learning Network", url: "#" },
-  { name: "CMS.gov Official Site", url: "#" },
-  { name: "Medicare Plan Finder", url: "#" },
+  { name: "Medicare Communications & Marketing Guidelines", url: "https://www.cms.gov/medicare/health-plans/managed-care-marketing" },
+  { name: "Medicare Learning Network", url: "https://www.cms.gov/medicare/learning-network" },
+  { name: "CMS.gov Official Site", url: "https://www.cms.gov" },
+  { name: "Medicare Plan Finder", url: "https://www.medicare.gov/plan-compare" },
 ];
 
 const CompliancePage = () => {

@@ -12,15 +12,7 @@ export function OutlookConnectButton() {
     setError(null);
 
     try {
-      // Get current session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      console.log('Session check:', { 
-        hasSession: !!session, 
-        sessionError,
-        userId: session?.user?.id,
-        tokenExpiry: session?.expires_at 
-      });
 
       if (!session) {
         throw new Error('You must be logged in to connect Outlook');
@@ -29,31 +21,18 @@ export function OutlookConnectButton() {
       // Check if token is expired
       const expiresAt = session.expires_at ? session.expires_at * 1000 : 0;
       const now = Date.now();
-      console.log('Token expiry check:', { 
-        expiresAt: new Date(expiresAt).toISOString(), 
-        now: new Date(now).toISOString(),
-        isExpired: now > expiresAt 
-      });
 
       if (now > expiresAt) {
-        // Try to refresh the session
-        console.log('Token expired, attempting refresh...');
         const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
         if (refreshError || !refreshData.session) {
           throw new Error('Session expired. Please log in again.');
         }
-        console.log('Session refreshed successfully');
       }
 
-      console.log('Calling microsoft-oauth-start function...');
-      
       const { data, error: fnError } = await supabase.functions.invoke('microsoft-oauth-start');
 
-      console.log('Function response:', { data, fnError });
-
       if (fnError) {
-        // Try to get more details from the error
-        console.error('Function error details:', JSON.stringify(fnError, null, 2));
+        console.error('OAuth function error:', fnError);
         throw new Error(fnError.message || 'Edge function error');
       }
 
@@ -62,7 +41,6 @@ export function OutlookConnectButton() {
       }
 
       if (data?.authUrl) {
-        console.log('Redirecting to:', data.authUrl);
         window.location.href = data.authUrl;
       } else {
         throw new Error('No auth URL returned from function');

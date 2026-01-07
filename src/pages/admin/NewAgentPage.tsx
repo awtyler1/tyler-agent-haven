@@ -130,7 +130,6 @@ export default function NewAgentPage() {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session?.access_token) {
-        console.error('Session error:', sessionError);
         // Try to refresh the session
         const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
         if (refreshError || !refreshedSession?.access_token) {
@@ -150,17 +149,8 @@ export default function NewAgentPage() {
         .select('role')
         .eq('user_id', user.id)
         .in('role', ['super_admin', 'admin']);
-      
-      console.log('User roles check:', { 
-        userId: user.id, 
-        roles: userRoles?.map(r => r.role) || [], 
-        hasAdmin: (userRoles?.length || 0) > 0,
-        rolesError: rolesError?.message 
-      });
-      
-      if (rolesError) {
-        console.warn('Could not verify user roles:', rolesError);
-      } else if (!userRoles || userRoles.length === 0) {
+
+      if (!rolesError && (!userRoles || userRoles.length === 0)) {
         throw new Error('You do not have admin permissions. Please contact a system administrator.');
       }
 
@@ -175,102 +165,42 @@ export default function NewAgentPage() {
         fullName: formData.fullName,
         hierarchyType: 'team' as const,
         hierarchyEntityId: selectedOption.entityId,
-        uplineUserId: user.id,  // Always set to current user
+        uplineUserId: user.id,
         isExistingAgent: formData.agentType === 'existing',
         sendSetupEmail: formData.sendSetupEmail,
       };
 
-      console.log('Calling create-agent with body:', requestBody);
-      console.log('User ID:', user.id);
-
-      // Get current session first
+      // Get current session and refresh if needed
       const { data: { session: initialSession } } = await supabase.auth.getSession();
-      
-      // Check if session exists and is valid
+
       if (!initialSession?.access_token) {
         throw new Error('No valid session. Please sign in again.');
       }
-      
-      // Check if session is expired or about to expire (within 1 minute)
+
+      // Try to refresh if expired or expiring soon
       const now = Math.floor(Date.now() / 1000);
       const expiresAt = initialSession.expires_at || 0;
       const timeUntilExpiry = expiresAt - now;
-      
-      console.log('Current session - expires at:', new Date(expiresAt * 1000).toISOString());
-      console.log('Time until expiry (seconds):', timeUntilExpiry);
-      
-      // Try to refresh if expired or expiring soon
-      let sessionToUse = initialSession;
+
       if (timeUntilExpiry < 60) {
-        console.log('Session expiring soon, attempting refresh...');
-        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-        
-        if (refreshError) {
-          console.error('Failed to refresh session:', refreshError);
-          // Don't throw here - try with current session first
-        } else if (refreshedSession?.access_token) {
-          sessionToUse = refreshedSession;
-          console.log('Session refreshed successfully');
+        const { data: { session: refreshedSession } } = await supabase.auth.refreshSession();
+        if (!refreshedSession?.access_token) {
+          throw new Error('Session expired. Please sign in again.');
         }
       }
-      
-      console.log('Using session token - length:', sessionToUse.access_token.length);
-      console.log('Token expires at:', sessionToUse.expires_at ? new Date(sessionToUse.expires_at * 1000).toISOString() : 'N/A');
 
-      // Use supabase.functions.invoke() which handles JWT automatically
-      // It will use the current session's access token from the Supabase client
       const { data, error } = await supabase.functions.invoke('create-agent', {
         body: requestBody,
       });
 
       if (error) {
-        console.error('Supabase function error (full):', JSON.stringify(error, null, 2));
-        console.error('Error type:', typeof error);
-        console.error('Error keys:', Object.keys(error || {}));
-        console.error('Error message:', error?.message);
-        console.error('Error context:', error?.context);
-        
-        // If it's a 401, try fetching directly to get the actual error message
+        console.error('Create agent error:', error);
+
+        // Handle 401 errors
         if (error?.message?.includes('401') || error?.message?.includes('non-2xx')) {
-          console.log('Got 401 error, trying direct fetch to get error details...');
-          try {
-            // Get the latest session for the direct fetch
-            const { data: { session: fetchSession } } = await supabase.auth.getSession();
-            if (!fetchSession?.access_token) {
-              throw new Error('No valid session available');
-            }
-            
-            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-            const directResponse = await fetch(`${supabaseUrl}/functions/v1/create-agent`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${fetchSession.access_token}`,
-              },
-              body: JSON.stringify(requestBody),
-            });
-            
-            const errorText = await directResponse.text();
-            console.error('Direct fetch error response:', errorText);
-            
-            try {
-              const errorJson = JSON.parse(errorText);
-              if (errorJson.message === 'Invalid JWT') {
-                throw new Error('Your session token is invalid. Please sign out and sign back in, then try again.');
-              }
-              throw new Error(errorJson.message || errorJson.error || 'Authentication failed. Please sign in again.');
-            } catch (parseError) {
-              if (errorText.includes('Invalid JWT')) {
-                throw new Error('Your session token is invalid. Please sign out and sign back in, then try again.');
-              }
-              throw new Error(errorText || 'Authentication failed. Please sign in again.');
-            }
-          } catch (fetchError: any) {
-            // If direct fetch also fails, use the original error
-            console.error('Direct fetch also failed:', fetchError);
-          }
+          throw new Error('Authentication failed. Please sign out and sign back in, then try again.');
         }
-        
+
         // Extract error message from various formats
         let errorMessage = 'Failed to create agent';
         if (error.message) {
@@ -282,19 +212,12 @@ export default function NewAgentPage() {
         } else if (error.error) {
           errorMessage = error.error;
         }
-        
-        throw new Error(errorMessage);
-      }
 
-      // Check if the response contains an error (non-2xx status)
-      if (data && typeof data === 'object' && 'error' in data) {
-        console.error('Function returned error in response:', data.error);
-        throw new Error(data.error || 'Failed to create agent');
+        throw new Error(errorMessage);
       }
 
       // Check if the response contains an error
       if (data && 'error' in data) {
-        console.error('Function returned error in response:', data.error);
         throw new Error(data.error || 'Failed to create agent');
       }
 

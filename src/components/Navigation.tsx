@@ -15,7 +15,8 @@ const navLinks = [
   { name: "Onboarding", href: "/start-here" },
   { name: "Contracting Hub", href: "/contracting-hub" },
   { name: "Certifications", href: "/certifications" },
-  { name: "Training Hub", href: "/sales-training" },
+  // MVP: Hidden until content ready
+  // { name: "Training Hub", href: "/sales-training" },
   { name: "Agent Tools", href: "/agent-tools" },
   { name: "Compliance", href: "/compliance" },
   { name: "Support", href: "/contact" },

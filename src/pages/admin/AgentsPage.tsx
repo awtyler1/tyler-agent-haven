@@ -72,9 +72,11 @@ export default function AgentsPage() {
 
   const fetchAgents = async () => {
     try {
+      // Exclude test records from agent list
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
+        .or('is_test.is.null,is_test.eq.false')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;

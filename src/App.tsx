@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { TestModeBanner } from "./components/TestModeBanner";
 import { ViewModeBanner } from "./components/ViewModeBanner";
 import { ViewModeProvider } from "./contexts/ViewModeContext";
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
@@ -18,10 +17,11 @@ import SetPasswordPage from "./pages/auth/SetPasswordPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import StartHerePage from "./pages/StartHerePage";
 import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
-import SalesTrainingPage from "./pages/SalesTrainingPage";
-import SalesTrainingModulePage from "./pages/SalesTrainingModulePage";
-import TrainingLibraryPage from "./pages/TrainingLibraryPage";
-import MedicareFundamentalsPage from "./pages/MedicareFundamentalsPage";
+// MVP: Training pages removed (placeholder content)
+// import SalesTrainingPage from "./pages/SalesTrainingPage";
+// import SalesTrainingModulePage from "./pages/SalesTrainingModulePage";
+// import TrainingLibraryPage from "./pages/TrainingLibraryPage";
+// import MedicareFundamentalsPage from "./pages/MedicareFundamentalsPage";
 import CompliancePage from "./pages/CompliancePage";
 import CarrierResourcesPage from "./pages/CarrierResourcesPage";
 import AgentToolsPage from "./pages/AgentToolsPage";
@@ -96,7 +96,6 @@ const App = () => (
       <ViewModeProvider>
         <TooltipProvider>
           <ViewModeBanner />
-          <TestModeBanner />
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -301,10 +300,12 @@ const App = () => (
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
             <Route path="/industry-updates" element={<ProtectedRoute><IndustryUpdatesPage /></ProtectedRoute>} />
+            {/* MVP: Training routes removed (placeholder content)
             <Route path="/sales-training" element={<ProtectedRoute><SalesTrainingPage /></ProtectedRoute>} />
             <Route path="/sales-training-module" element={<ProtectedRoute><SalesTrainingModulePage /></ProtectedRoute>} />
             <Route path="/training-library" element={<ProtectedRoute><TrainingLibraryPage /></ProtectedRoute>} />
             <Route path="/medicare-fundamentals" element={<ProtectedRoute><MedicareFundamentalsPage /></ProtectedRoute>} />
+            */}
             <Route path="/compliance" element={<ProtectedRoute><CompliancePage /></ProtectedRoute>} />
             <Route path="/carrier-resources" element={<ProtectedRoute><CarrierResourcesPage /></ProtectedRoute>} />
             <Route path="/carrier-resources/plans" element={<ProtectedRoute><CarrierPlansPage /></ProtectedRoute>} />

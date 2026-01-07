@@ -68,11 +68,9 @@ export function useContractingPdf() {
       let templateBase64: string | undefined;
       try {
         const pdfPath = `/templates/${templateFileName}${cacheBuster}`;
-        console.log('[pdf-template] Loading PDF from path:', pdfPath);
         const templateResponse = await fetch(pdfPath);
         if (templateResponse.ok) {
           const templateBlob = await templateResponse.blob();
-          console.log('[pdf-template] PDF loaded, byte length:', templateBlob.size);
           templateBase64 = await new Promise<string>((resolve) => {
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -81,12 +79,9 @@ export function useContractingPdf() {
             };
             reader.readAsDataURL(templateBlob);
           });
-          console.log('[pdf-template] Base64 prepared, length:', templateBase64.length);
-        } else {
-          console.log('[pdf-template] Fetch failed, status:', templateResponse.status, 'path:', pdfPath);
         }
       } catch (e) {
-        console.log('[pdf-template] Could not load template, will use fallback:', e);
+        // Template load failed, will use fallback
       }
 
       // Call the edge function
@@ -111,13 +106,8 @@ export function useContractingPdf() {
       const preferredContactMethods = normalizeArray<string>(application.preferred_contact_methods);
       const previousAddresses = normalizeArray(application.previous_addresses);
 
-      // Debug (birth fields only)
       const birthCity = typeof application.birth_city === 'string' ? application.birth_city.trim() : '';
       const birthState = typeof application.birth_state === 'string' ? application.birth_state.trim() : '';
-      const birthKeys = Object.keys(application).filter((k) => k.toLowerCase().includes('birth'));
-      console.log('PDF payload birth keys:', birthKeys);
-      console.log('PDF payload birth_city (raw->trimmed):', application.birth_city, '->', birthCity);
-      console.log('PDF payload birth_state (raw->trimmed):', application.birth_state, '->', birthState);
 
       // TESTING: Birth field validation disabled for testing purposes
       // if (!skipValidation && (!birthCity || !birthState)) {
@@ -143,19 +133,10 @@ export function useContractingPdf() {
         return { success: false, error: errorMsg };
       }
 
-      // Log session info for debugging
+      // If token is expired, try to refresh
       const expiresAt = session.expires_at ? session.expires_at * 1000 : null;
       const now = Date.now();
-      const expiresInMinutes = expiresAt ? Math.round((expiresAt - now) / 60000) : null;
-      console.log('[pdf-generation] Session info:', {
-        hasSession: !!session,
-        expiresInMinutes,
-        isExpired: expiresAt ? expiresAt < now : false,
-      });
-      
-      // If token is expired, try to refresh
       if (expiresAt && expiresAt < now) {
-        console.log('[pdf-generation] Token expired, attempting refresh...');
         const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
         if (refreshError || !refreshedSession) {
           const errorMsg = 'Your session has expired. Please refresh the page and log in again.';
@@ -164,31 +145,7 @@ export function useContractingPdf() {
           toast.error(errorMsg);
           return { success: false, error: errorMsg };
         }
-        console.log('[pdf-generation] Session refreshed successfully');
       }
-      
-      console.log('[pdf-generation] Calling Edge Function');
-
-      // Log the payload being sent (excluding large base64 images)
-      const payloadToLog = {
-        ...application,
-        uploaded_documents: uploadedDocs ? {
-          initials_image: uploadedDocs.initials_image ? `[BASE64:${uploadedDocs.initials_image.length} chars]` : '',
-          background_signature: uploadedDocs.background_signature ? `[BASE64:${uploadedDocs.background_signature.length} chars]` : '',
-          final_signature: uploadedDocs.final_signature ? `[BASE64:${uploadedDocs.final_signature.length} chars]` : '',
-        } : {},
-      };
-      console.log('[pdf-generation] Calling Edge Function with payload:', {
-        applicationId: application.id,
-        saveToStorage,
-        skipValidation,
-        hasTemplate: !!templateBase64,
-        hasSession: !!session,
-        sessionExpiresAt: session?.expires_at,
-        applicationFields: Object.keys(payloadToLog),
-        selectedCarriersCount: Array.isArray(application.selected_carriers) ? application.selected_carriers.length : 'not-array',
-        preferredContactMethods: Array.isArray(application.preferred_contact_methods) ? application.preferred_contact_methods : 'not-array',
-      });
 
       const { data, error: fnError } = await supabase.functions.invoke('generate-contracting-pdf', {
         body: {
@@ -262,58 +219,26 @@ export function useContractingPdf() {
       // When Edge Function returns non-2xx, fnError is set but data may still contain error details
       if (fnError) {
         console.error('Edge function error:', fnError);
-        console.error('Error details:', {
-          message: fnError.message,
-          context: (fnError as any).context,
-          status: (fnError as any).status,
-          data: data,
-        });
-        
+
         // Check if it's an authentication error (401)
         const errorStatus = (fnError as any).status || (fnError as any).context?.status;
         const is401 = errorStatus === 401 || fnError.message?.includes('401') || fnError.message?.includes('Unauthorized');
-        
+
         if (is401) {
-          console.error('[pdf-generation] Authentication error detected:', {
-            status: errorStatus,
-            message: fnError.message,
-            context: (fnError as any).context,
-          });
-          
           // Try to refresh the session and retry once
-          console.log('[pdf-generation] Attempting to refresh session and retry...');
           try {
-            // Get current session to check refresh token
             const { data: { session: currentSession } } = await supabase.auth.getSession();
-            console.log('[pdf-generation] Current session before refresh:', {
-              hasSession: !!currentSession,
-              hasRefreshToken: !!currentSession?.refresh_token,
-              expiresAt: currentSession?.expires_at,
-            });
-            
-            // Try to refresh using the current session's refresh token
             const { data: { session: newSession }, error: refreshError } = await supabase.auth.refreshSession(currentSession);
-            
-            console.log('[pdf-generation] Refresh result:', {
-              hasNewSession: !!newSession,
-              hasAccessToken: !!newSession?.access_token,
-              refreshError: refreshError?.message,
-            });
-            
+
             if (refreshError || !newSession || !newSession.access_token) {
-              console.error('[pdf-generation] Session refresh failed:', {
-                error: refreshError,
-                hasSession: !!newSession,
-                hasAccessToken: !!newSession?.access_token,
-              });
+              console.error('[pdf-generation] Session refresh failed:', refreshError);
               const authErrorMsg = 'Your session has expired. Please refresh the page and log in again.';
               setError(authErrorMsg);
               toast.error(authErrorMsg);
               return { success: false, error: authErrorMsg };
             }
-            
+
             // Retry the function call with the refreshed session
-            console.log('[pdf-generation] Retrying with refreshed session, access token length:', newSession.access_token.length);
             const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-contracting-pdf', {
               body: {
                 application: {
@@ -395,7 +320,6 @@ export function useContractingPdf() {
             }
             
             // Success on retry
-            console.log('[pdf-generation] Retry successful');
             toast.success('Contracting packet generated successfully');
             return {
               success: true,

@@ -52,6 +52,7 @@ export default function ContractingQueuePage() {
           uploaded_documents
         `)
         .eq('status', 'submitted')
+        .or('is_test.is.null,is_test.eq.false')
         .order('submitted_at', { ascending: false });
 
       if (error) throw error;

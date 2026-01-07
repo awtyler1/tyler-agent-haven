@@ -62,10 +62,11 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch profiles and roles
+      // Fetch profiles and roles (exclude test records)
       const { data: profiles } = await supabase
         .from('profiles')
         .select('*')
+        .or('is_test.is.null,is_test.eq.false')
         .order('created_at', { ascending: false });
 
       const { data: roles } = await supabase
@@ -97,11 +98,12 @@ export default function AdminDashboard() {
         appointed,
       });
 
-      // Fetch contracting applications for attention items and new submissions
+      // Fetch contracting applications for attention items and new submissions (exclude test records)
       const { data: applications } = await supabase
         .from('contracting_applications')
         .select('id, user_id, full_legal_name, status, submitted_at, updated_at')
         .in('status', ['submitted', 'in_progress'])
+        .or('is_test.is.null,is_test.eq.false')
         .order('submitted_at', { ascending: true });
 
       if (applications) {

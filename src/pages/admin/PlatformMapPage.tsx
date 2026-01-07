@@ -102,16 +102,13 @@ export default function PlatformMapPage() {
               </ul>
             </div>
 
-            {/* Training */}
+            {/* Compliance */}
             <div className="border rounded-lg p-4 bg-indigo-50">
-              <h3 className="font-bold text-lg mb-3 text-indigo-800">📚 Training & Compliance (5 pages)</h3>
+              <h3 className="font-bold text-lg mb-3 text-indigo-800">📚 Compliance (1 page)</h3>
               <ul className="space-y-2 text-sm">
-                <li><code className="bg-white px-2 py-0.5 rounded">/sales-training</code> — Sales Training</li>
-                <li><code className="bg-white px-2 py-0.5 rounded">/sales-training-module</code> — Training Module</li>
-                <li><code className="bg-white px-2 py-0.5 rounded">/training-library</code> — Training Library</li>
-                <li><code className="bg-white px-2 py-0.5 rounded">/medicare-fundamentals</code> — Medicare Basics</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/compliance</code> — Compliance Center</li>
               </ul>
+              <p className="text-xs text-indigo-600 mt-2 italic">Training pages removed for MVP</p>
             </div>
 
             {/* Carrier Resources */}

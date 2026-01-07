@@ -7,9 +7,6 @@ import { toast } from 'sonner';
 import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Clock } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
 import { LEGAL_QUESTIONS, type Address, ContractingApplication } from '@/types/contracting';
 
@@ -28,23 +25,8 @@ import { DocumentsSection } from './sections/DocumentsSection';
 import { AgreementsSection } from './sections/AgreementsSection';
 import { SignSubmitSection } from './sections/SignSubmitSection';
 import { ValidationBanner } from './ValidationBanner';
-import { TestModeSnapshotPanel } from './TestModeSnapshotPanel';
 import { SuccessModal } from './SuccessModal';
-
-import { TestModeValidationReport } from './TestModeValidationReport';
-import { TestModeMappingReport } from './TestModeMappingReport';
-import { TestModeSchemaPanel } from './TestModeSchemaPanel';
-import { TestModePdfPreviewPanel } from './TestModePdfPreviewPanel';
-import { TestModePdfDebugPanel, DebugLogEntry } from './TestModePdfDebugPanel';
-import { TestModeSignatureFieldsPanel } from './TestModeSignatureFieldsPanel';
-import { TestModeEdgeLogsPanel } from './TestModeEdgeLogsPanel';
-import { useContractingPdf, MappingEntry, SignatureFieldInfo } from '@/hooks/useContractingPdf';
-
-interface SubmissionSnapshot {
-  timestamp: string;
-  submissionId: string;
-  data: Partial<ContractingApplication>;
-}
+import { useContractingPdf } from '@/hooks/useContractingPdf';
 
 export interface SectionStatus {
   id: string;
@@ -91,34 +73,6 @@ const getStepDescription = (step: number): string => {
   return descriptions[step] || "";
 };
 
-// Generate a simple initials image as base64
-const generateTestInitialsImage = (initials: string): string => {
-  const canvas = document.createElement('canvas');
-  canvas.width = 200;
-  canvas.height = 80;
-  const ctx = canvas.getContext('2d');
-  if (ctx) {
-    ctx.fillStyle = '#000';
-    ctx.font = 'italic 40px serif';
-    ctx.fillText(initials, 50, 55);
-  }
-  return canvas.toDataURL('image/png');
-};
-
-// Generate a simple signature image as base64
-const generateTestSignatureImage = (name: string): string => {
-  const canvas = document.createElement('canvas');
-  canvas.width = 400;
-  canvas.height = 100;
-  const ctx = canvas.getContext('2d');
-  if (ctx) {
-    ctx.fillStyle = '#000';
-    ctx.font = 'italic 32px cursive';
-    ctx.fillText(name, 20, 60);
-  }
-  return canvas.toDataURL('image/png');
-};
-
 export function ContractingForm() {
   const { profile } = useProfile();
   const {
@@ -153,17 +107,6 @@ export function ContractingForm() {
   const [showSuccess, setShowSuccess] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  const [testMode, setTestMode] = useState(false);
-  const [lastSubmissionSnapshot, setLastSubmissionSnapshot] = useState<SubmissionSnapshot | null>(null);
-  const [lastMappingReport, setLastMappingReport] = useState<MappingEntry[] | null>(null);
-  const [lastPdfData, setLastPdfData] = useState<{ base64: string | null; filename: string | null; size: number | null; error: string | null }>({
-    base64: null,
-    filename: null,
-    size: null,
-    error: null,
-  });
-  const [lastDebugLogs, setLastDebugLogs] = useState<DebugLogEntry[]>([]);
-  const [lastSignatureFields, setLastSignatureFields] = useState<SignatureFieldInfo[]>([]);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   
   const { generatePdf, downloadPdf } = useContractingPdf();
@@ -341,64 +284,7 @@ export function ContractingForm() {
       return result;
     };
     
-    const flatFormData = flattenObject(application);
-    console.log('🔍 ===== SUBMISSION DEBUG: ALL FORM FIELDS (FLAT JSON) =====');
-    console.log(JSON.stringify(flatFormData, null, 2));
-    console.log('🔍 ===== END SUBMISSION DEBUG =====');
-    // ===== END DEBUG =====
-    
-    // In Test Mode: skip validation entirely
-    if (testMode) {
-      // Clear any previous validation state
-      clearValidation();
-      setIsSubmitting(true);
-      
-      try {
-        // TEST MODE: Capture snapshot regardless of validation status
-        const snapshot: SubmissionSnapshot = {
-          timestamp: new Date().toISOString(),
-          submissionId: `TEST-${Date.now().toString(36).toUpperCase()}`,
-          data: { ...application },
-        };
-        setLastSubmissionSnapshot(snapshot);
-        
-        // Generate PDF to get mapping report (don't save to storage in test mode, skip validation)
-        const pdfResult = await generatePdf(application, false, true);
-        
-        // Store PDF data for preview
-        setLastPdfData({
-          base64: pdfResult.pdf || null,
-          filename: pdfResult.filename || null,
-          size: pdfResult.size || null,
-          error: pdfResult.error || null,
-        });
-        
-        if (pdfResult.mappingReport) {
-          setLastMappingReport(pdfResult.mappingReport);
-          console.log('📋 Mapping Report:', pdfResult.mappingReport);
-        }
-        
-        // Capture debug logs from PDF generation
-        if (pdfResult.debugLogs) {
-          setLastDebugLogs(pdfResult.debugLogs);
-          console.log('🔧 Debug Logs:', pdfResult.debugLogs);
-        }
-        
-        // Capture signature fields found
-        if (pdfResult.signatureFieldsFound) {
-          setLastSignatureFields(pdfResult.signatureFieldsFound);
-          console.log('✍️ Signature Fields Found:', pdfResult.signatureFieldsFound);
-        }
-        
-        toast.success('Test submission captured! Check the reports below.');
-        console.log('📋 Test Mode Submission:', { snapshot, mappingReport: pdfResult.mappingReport });
-      } finally {
-        setIsSubmitting(false);
-      }
-      return;
-    }
-    
-    // PRODUCTION MODE: Run validation and block if invalid
+    // Run validation and block if invalid
     const result = validateForm(application!, sectionStatuses, []);
     if (!result.isFormValid) {
       // Scroll to first error section with smooth animation
@@ -515,7 +401,6 @@ export function ContractingForm() {
               fieldErrors={validationState.fieldErrors}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
               onClearError={clearFieldError}
-              testMode={testMode}
             />
             <div className="mt-4">
               <MarketingConsentSection
@@ -679,63 +564,14 @@ export function ContractingForm() {
       </header>
 
 
-      {/* Validation Banner - shows only after submit attempt with errors (hidden in test mode) */}
-      {!testMode && (
-        <div className="max-w-2xl mx-auto px-6">
-          <ValidationBanner 
-            show={validationState.hasValidated && !validationState.isFormValid}
-            sectionErrors={validationState.sectionErrors}
-            onSectionClick={scrollToSection}
-          />
-        </div>
-      )}
-
-      {/* Test Mode Panels */}
-      {testMode && (
-        <div className="max-w-2xl mx-auto px-6 py-4 space-y-4">
-          {/* Schema Panel - always show in test mode */}
-          <TestModeSchemaPanel application={application} />
-          
-          {/* PDF Preview Panel - show after PDF generation */}
-          <TestModePdfPreviewPanel
-            pdfBase64={lastPdfData.base64}
-            filename={lastPdfData.filename}
-            size={lastPdfData.size}
-            error={lastPdfData.error}
-            onDownload={downloadPdf}
-          />
-          
-          {/* Validation Report - show after validation attempt */}
-          {validationState.hasValidated && (
-            <TestModeValidationReport 
-              sectionErrors={validationState.sectionErrors}
-              application={application}
-              isFormValid={validationState.isFormValid}
-            />
-          )}
-          
-          {/* Snapshot Panel - show after test submission */}
-          {lastSubmissionSnapshot && (
-            <TestModeSnapshotPanel snapshot={lastSubmissionSnapshot} />
-          )}
-          
-          {/* Mapping Report - show after PDF generation */}
-          {lastMappingReport && lastMappingReport.length > 0 && (
-            <TestModeMappingReport mappingReport={lastMappingReport} />
-          )}
-          
-          {/* Signature Fields Found - show after PDF generation */}
-          {lastSignatureFields && lastSignatureFields.length > 0 && (
-            <TestModeSignatureFieldsPanel fields={lastSignatureFields} />
-          )}
-          
-          {/* PDF Debug Log - show after PDF generation */}
-          <TestModePdfDebugPanel logs={lastDebugLogs} />
-          
-          {/* Edge Function Logs Panel */}
-          <TestModeEdgeLogsPanel />
-        </div>
-      )}
+      {/* Validation Banner - shows only after submit attempt with errors */}
+      <div className="max-w-2xl mx-auto px-6">
+        <ValidationBanner
+          show={validationState.hasValidated && !validationState.isFormValid}
+          sectionErrors={validationState.sectionErrors}
+          onSectionClick={scrollToSection}
+        />
+      </div>
 
       {/* Main Form Content */}
       <main className="max-w-2xl mx-auto px-6 py-12">

@@ -15,10 +15,9 @@ interface PersonalInfoSectionProps {
   fieldErrors?: Record<string, string>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
-  testMode?: boolean;
 }
 
-export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError, testMode = false }: PersonalInfoSectionProps) {
+export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: PersonalInfoSectionProps) {
   const contactMethods = application.preferred_contact_methods || [];
 
   const toggleContactMethod = (method: string) => {
@@ -147,11 +146,6 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 </label>
               </RadioGroup>
               <FormFieldError error={fieldErrors.gender} show={showValidation} />
-              {testMode && (
-                <p className="text-xs font-mono text-amber-700 bg-amber-50 px-2 py-1 rounded">
-                  gender = {application.gender === null ? 'null' : application.gender === undefined ? 'undefined' : `"${application.gender}"`}
-                </p>
-              )}
             </div>
           </div>
 
@@ -317,11 +311,6 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
               </label>
             ))}
           </div>
-          {testMode && (
-            <p className="mt-2 text-xs font-mono text-amber-700 bg-amber-50 px-2 py-1 rounded">
-              preferred_contact_methods = {JSON.stringify(contactMethods)}
-            </p>
-          )}
         </div>
       </div>
     </div>
