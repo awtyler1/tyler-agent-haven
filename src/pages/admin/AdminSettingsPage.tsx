@@ -5,6 +5,8 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { UserManagementTable } from '@/components/admin/UserManagementTable';
 import { CreateAdminDialog } from '@/components/admin/CreateAdminDialog';
+import { OutlookConnectButton } from '@/components/admin/OutlookConnectButton';
+import { TestEmailButton } from '@/components/admin/TestEmailButton';
 
 export default function AdminSettingsPage() {
   return (
@@ -29,6 +31,15 @@ export default function AdminSettingsPage() {
             </div>
 
             <CreateAdminDialog />
+          </div>
+
+          {/* Outlook Connect Button - Temporary for testing */}
+          <div className="mb-8 bg-white rounded-xl border border-[#E5E2DB] p-5">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Outlook Integration</h2>
+            <OutlookConnectButton />
+            <div className="mt-4 pt-4 border-t border-[#E5E2DB]">
+              <TestEmailButton />
+            </div>
           </div>
 
           {/* User Management */}

@@ -7,6 +7,15 @@ interface BackgroundQuestionsSection1Props {
   disabled?: boolean;
 }
 
+const QUESTION_HIERARCHY: Record<string, string[]> = {
+  '1': ['1a', '1b', '1c', '1d', '1e', '1f', '1g', '1h'],
+  '2': ['2a', '2b', '2c', '2d'],
+  '5': ['5a', '5b', '5c'],
+  '8': ['8a', '8b'],
+  '14': ['14a', '14c'],
+  '15': ['15a', '15b', '15c'],
+};
+
 export function BackgroundQuestionsSection1({ application, onUpdate, disabled }: BackgroundQuestionsSection1Props) {
   const legalQuestions = application.legal_questions || {};
 
@@ -14,30 +23,73 @@ export function BackgroundQuestionsSection1({ application, onUpdate, disabled }:
     return legalQuestions[id] || { answer: null, explanation: '' };
   };
 
-  const updateQuestion = (id: string, answer: boolean) => {
-    const current = getQuestion(id);
-    onUpdate('legal_questions', { 
-      ...legalQuestions, 
-      [id]: { ...current, answer } 
-    });
+  const shouldShowSubQuestion = (subQuestionId: string): boolean => {
+    // Find the parent question ID
+    for (const [parentId, subIds] of Object.entries(QUESTION_HIERARCHY)) {
+      if (subIds.includes(subQuestionId)) {
+        const parentQuestion = getQuestion(parentId);
+        return parentQuestion.answer === true;
+      }
+    }
+    return false;
   };
 
-  // Get questions 1-10 (main questions only, not sub-questions)
-  const questions = LEGAL_QUESTIONS
+  const updateQuestion = (id: string, answer: boolean) => {
+    const current = getQuestion(id);
+    const updated = { ...legalQuestions, [id]: { ...current, answer } };
+    
+    // If parent is answered "No", automatically set all child sub-questions to "No"
+    if (answer === false && QUESTION_HIERARCHY[id]) {
+      QUESTION_HIERARCHY[id].forEach(subId => {
+        const subCurrent = getQuestion(subId);
+        updated[subId] = { ...subCurrent, answer: false };
+      });
+    }
+    
+    onUpdate('legal_questions', updated);
+  };
+
+  // Get all questions (parents AND sub-questions) for questions 1-10
+  // We'll filter to show only questions that belong to the first 10 main questions
+  const mainQuestionIds = LEGAL_QUESTIONS
     .filter(q => !('isSubQuestion' in q && q.isSubQuestion))
-    .slice(0, 10);
+    .slice(0, 10)
+    .map(q => q.id);
+  
+  const questions = LEGAL_QUESTIONS.filter(q => {
+    // Include main questions 1-10
+    if (mainQuestionIds.includes(q.id)) {
+      return true;
+    }
+    // Include sub-questions that belong to main questions 1-10
+    if ('isSubQuestion' in q && q.isSubQuestion) {
+      return mainQuestionIds.some(parentId => 
+        QUESTION_HIERARCHY[parentId]?.includes(q.id)
+      );
+    }
+    return false;
+  });
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-8">
       <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
         
         {questions.map((question) => {
+          const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;
+          const shouldShow = !isSubQuestion || shouldShowSubQuestion(question.id);
+          
+          // Skip rendering if sub-question should be hidden
+          if (!shouldShow) {
+            return null;
+          }
+          
           const q = getQuestion(question.id);
           return (
             <div 
               key={question.id}
               className={cn(
-                "flex items-start gap-4 p-4 rounded-xl transition-colors",
+                "flex items-start gap-4 p-4 rounded-xl transition-all duration-200",
+                isSubQuestion && "ml-8 border-l-2 border-slate-300 pl-6",
                 q.answer === true && "bg-amber-50",
                 q.answer === false && "bg-emerald-50/50",
                 q.answer === null && "bg-slate-50"

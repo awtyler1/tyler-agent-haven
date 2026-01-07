@@ -428,7 +428,7 @@ const DUPLICATE_GROUPS: Record<string, { source: string; format?: string; fields
   DATE: {
     source: 'signature_date',
     format: 'date',
-    fields: ['DATE', 'DATE_2', 'DATE_3', 'DATE_4', 'DATE_5', 'DATE_6', 'DATE_7', 'DATE_8', 'DATE_9', 'Date'],
+    fields: ['DATE', 'Date', 'DATE_2', 'DATE_3', 'DATE_4', 'DATE_5', 'DATE_6', 'DATE_7', 'DATE_8', 'DATE_9', 'date', 'undefined_15'],
   },
   INITIALS: {
     source: 'signature_initials',
@@ -845,6 +845,12 @@ serve(async (req) => {
 
     for (const [_groupName, config] of Object.entries(DUPLICATE_GROUPS)) {
       let value = getNestedValue(application, config.source);
+      
+      // Fallback: Use current date if signature_date is missing
+      if (config.source === 'signature_date' && !value) {
+        value = new Date().toISOString();
+      }
+      
       if ('format' in config && config.format === 'date') {
         value = formatDate(value);
       }

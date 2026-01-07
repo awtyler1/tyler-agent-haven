@@ -70,6 +70,7 @@ const SECTIONS = [
 ];
 
 const TOTAL_STEPS = 12;
+const STORAGE_KEY_STEP = 'tig_contracting_current_step';
 
 // Step descriptions helper
 const getStepDescription = (step: number): string => {
@@ -136,7 +137,18 @@ export function ContractingForm() {
   const [showSaved, setShowSaved] = useState(false);
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, SectionStatus>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY_STEP);
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= 1 && parsed <= TOTAL_STEPS) {
+          return parsed;
+        }
+      }
+    }
+    return 1;
+  });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [showSuccess, setShowSuccess] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -207,6 +219,13 @@ export function ContractingForm() {
       }
     };
   }, []);
+
+  // Persist currentStep to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY_STEP, currentStep.toString());
+    }
+  }, [currentStep]);
 
   const handleLogout = async () => {
     try {
@@ -397,6 +416,10 @@ export function ContractingForm() {
       // PRODUCTION: Normal submission
       const success = await submitApplication();
       if (success) {
+        // Clear step persistence on successful submit
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(STORAGE_KEY_STEP);
+        }
         // Show success modal instead of redirecting immediately
         setShowSuccess(true);
       }

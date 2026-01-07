@@ -302,6 +302,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {['Email', 'Phone', 'Text'].map((method) => (
               <label
                 key={method}
+                onClick={() => toggleContactMethod(method)}
                 className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors"
               >
                 <div className={cn(
