@@ -36,7 +36,10 @@ const AVAILABLE_CARRIERS = [
   { code: 'devoted', name: 'Devoted' },
   { code: 'molina', name: 'Molina' },
   { code: 'bcbs', name: 'BCBS' },
+  { code: 'essence', name: 'Essence' },
 ];
+
+const KY_CARRIER_CODES = ['aetna', 'anthem', 'devoted', 'humana', 'uhc', 'wellcare', 'essence'];
 
 const DOCUMENT_LABELS: Record<string, string> = {
   contracting_packet: 'Packet',
@@ -158,16 +161,26 @@ export function AgentPanel({
 
         {/* Carriers Section */}
         <div className="px-4 py-3">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-            Carriers to Request
-          </h3>
-          <div className="grid grid-cols-3 gap-x-4 gap-y-2">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Carriers to Request
+            </h3>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-6 text-xs px-2"
+              onClick={() => onCarriersChange(agent.id, KY_CARRIER_CODES)}
+            >
+              KY Default
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-x-2 gap-y-1">
             {AVAILABLE_CARRIERS.map((carrier) => {
               const isChecked = agent.requested_carriers.includes(carrier.code);
               return (
                 <label
                   key={carrier.code}
-                  className="flex items-center gap-2 cursor-pointer group"
+                  className="inline-flex items-center gap-1.5 cursor-pointer group w-fit py-0.5"
                 >
                   <Checkbox
                     checked={isChecked}
