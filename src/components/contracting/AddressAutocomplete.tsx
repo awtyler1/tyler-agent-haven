@@ -104,9 +104,14 @@ function parseAddressComponents(place: google.maps.places.PlaceResult): ParsedAd
   const route = getComponent(['route']);
   const street = streetNumber && route ? `${streetNumber} ${route}` : route || streetNumber;
 
+  // Get city - prioritize locality (actual city), fall back to sublocality/neighborhood only if no locality
+  const locality = getComponent(['locality']);
+  const sublocality = getComponent(['sublocality', 'sublocality_level_1', 'neighborhood']);
+  const city = locality || sublocality;
+
   const parsed = {
     street,
-    city: getComponent(['locality', 'sublocality', 'neighborhood']),
+    city,
     state: getShortComponent(['administrative_area_level_1']),
     zip: getComponent(['postal_code']),
     county: getComponent(['administrative_area_level_2']).replace(' County', ''),
