@@ -26,8 +26,8 @@ export function MailingShippingSection({ application, onUpdate, disabled }: Mail
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-8">
-      <div className="space-y-8" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+      <div className="space-y-6" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
         
         {/* Mailing Address */}
         <div className="space-y-4">

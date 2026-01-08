@@ -584,9 +584,9 @@ export function ContractingForm() {
       </div>
 
       {/* Main Form Content */}
-      <main className="max-w-2xl mx-auto px-6 py-12">
+      <main className="max-w-2xl mx-auto px-6 py-6">
         {/* Step Title */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
             {SECTIONS.find(s => s.step === currentStep)?.name}
           </h1>
@@ -624,7 +624,13 @@ export function ContractingForm() {
           {currentStep < TOTAL_STEPS ? (
             <button
               onClick={goNext}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] transition-all duration-200 font-medium text-sm"
+              disabled={currentStep === 1 && !initialsEntered}
+              className={cn(
+                "flex items-center gap-2 px-6 py-3 rounded-full font-medium text-sm transition-all duration-200",
+                currentStep === 1 && !initialsEntered
+                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                  : "bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98]"
+              )}
             >
               <span>Continue</span>
               <ChevronRight className="h-4 w-4" />

@@ -71,61 +71,63 @@ export function BackgroundQuestionsSection1({ application, onUpdate, disabled }:
   });
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-8">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
       <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
         
         {questions.map((question) => {
           const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;
           const shouldShow = !isSubQuestion || shouldShowSubQuestion(question.id);
-          
-          // Skip rendering if sub-question should be hidden
-          if (!shouldShow) {
-            return null;
-          }
-          
+
           const q = getQuestion(question.id);
           return (
-            <div 
+            <div
               key={question.id}
               className={cn(
-                "flex items-start gap-4 p-4 rounded-xl transition-all duration-200",
-                isSubQuestion && "ml-8 border-l-2 border-slate-300 pl-6",
-                q.answer === true && "bg-amber-50",
-                q.answer === false && "bg-emerald-50/50",
-                q.answer === null && "bg-slate-50"
+                "transition-all duration-300 ease-out overflow-hidden",
+                shouldShow ? "opacity-100 max-h-40" : "opacity-0 max-h-0"
               )}
             >
-              <span className="text-sm font-medium text-slate-400 shrink-0 w-6">
-                {question.id}.
-              </span>
-              <p className="text-sm text-slate-700 flex-1 leading-relaxed">
-                {question.text}
-              </p>
-              <div className="flex gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => updateQuestion(question.id, true)}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                    q.answer === true
-                      ? "bg-amber-500 text-white"
-                      : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
-                  )}
-                >
-                  Yes
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateQuestion(question.id, false)}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                    q.answer === false
-                      ? "bg-emerald-500 text-white"
-                      : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
-                  )}
-                >
-                  No
-                </button>
+              <div
+                className={cn(
+                  "flex items-start gap-4 p-4 rounded-xl",
+                  isSubQuestion && "ml-8 border-l-2 border-slate-300 pl-6",
+                  q.answer === true && "bg-amber-50",
+                  q.answer === false && "bg-emerald-50/50",
+                  q.answer === null && "bg-slate-50"
+                )}
+              >
+                <span className="text-sm font-medium text-slate-400 shrink-0 w-6">
+                  {question.id}.
+                </span>
+                <p className="text-sm text-slate-700 flex-1 leading-relaxed">
+                  {question.text}
+                </p>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => updateQuestion(question.id, true)}
+                    className={cn(
+                      "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                      q.answer === true
+                        ? "bg-amber-500 text-white"
+                        : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
+                    )}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateQuestion(question.id, false)}
+                    className={cn(
+                      "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                      q.answer === false
+                        ? "bg-emerald-500 text-white"
+                        : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
+                    )}
+                  >
+                    No
+                  </button>
+                </div>
               </div>
             </div>
           );

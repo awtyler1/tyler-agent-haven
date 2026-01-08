@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, Lock, FileText, Shield, Clock, PenLine, AlertCircle } from 'lucide-react';
+import { Check, Lock, PenLine, AlertCircle } from 'lucide-react';
 import { InitialsPad } from '../InitialsPad';
 
 interface InitialsEntrySectionProps {
@@ -49,12 +49,12 @@ export function InitialsEntrySection({
   if (isConfirmed && initialsImage) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-        <div className="p-8">
+        <div className="p-6">
           <div className="flex items-center justify-center gap-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200/50">
             <div className="w-12 h-12 rounded-xl bg-white border border-emerald-200/50 flex items-center justify-center overflow-hidden p-1">
-              <img 
-                src={initialsImage} 
-                alt="Your initials" 
+              <img
+                src={initialsImage}
+                alt="Your initials"
                 className="max-w-full max-h-full object-contain"
               />
             </div>
@@ -70,23 +70,8 @@ export function InitialsEntrySection({
                 </p>
               </div>
               <p className="text-xs text-emerald-700/70">
-                Your initials will be used throughout this document
+                Click Continue to begin your application
               </p>
-            </div>
-          </div>
-
-          <div className="mt-8 grid grid-cols-3 gap-4">
-            <div className="text-center p-4 rounded-xl bg-slate-50">
-              <FileText className="h-5 w-5 mx-auto text-slate-400 mb-2" />
-              <p className="text-xs text-slate-500">Single scrollable form</p>
-            </div>
-            <div className="text-center p-4 rounded-xl bg-slate-50">
-              <Shield className="h-5 w-5 mx-auto text-slate-400 mb-2" />
-              <p className="text-xs text-slate-500">Auto-saved securely</p>
-            </div>
-            <div className="text-center p-4 rounded-xl bg-slate-50">
-              <Clock className="h-5 w-5 mx-auto text-slate-400 mb-2" />
-              <p className="text-xs text-slate-500">~15 minutes to complete</p>
             </div>
           </div>
         </div>
@@ -96,9 +81,9 @@ export function InitialsEntrySection({
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-      <div className="p-8">
+      <div className="p-6">
         {/* Important Notice */}
-        <div className="max-w-md mx-auto mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200/50">
+        <div className="max-w-md mx-auto mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200/50">
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
@@ -140,9 +125,9 @@ export function InitialsEntrySection({
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-slate-200">
-          <h3 className="text-sm font-medium text-center mb-4 text-slate-700">What you'll need</h3>
-          <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+        <div className="mt-6 pt-4 border-t border-slate-200">
+          <h3 className="text-sm font-medium text-center mb-3 text-slate-700">What you'll need</h3>
+          <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
             <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50">
               <div className="w-2 h-2 rounded-full bg-amber-400" />
               <span className="text-xs text-slate-500">Insurance License</span>
@@ -156,8 +141,8 @@ export function InitialsEntrySection({
               <span className="text-xs text-slate-500">Voided Check</span>
             </div>
             <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50">
-              <div className="w-2 h-2 rounded-full bg-amber-400" />
-              <span className="text-xs text-slate-500">AML Certificate</span>
+              <div className="w-2 h-2 rounded-full bg-slate-300" />
+              <span className="text-xs text-slate-400">Non-resident license <span className="italic">(if applicable)</span></span>
             </div>
           </div>
         </div>

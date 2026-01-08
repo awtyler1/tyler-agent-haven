@@ -2,7 +2,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ContractingApplication } from '@/types/contracting';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ContractingApplication, US_STATES } from '@/types/contracting';
 import { Mail, Phone, Lock, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
@@ -58,7 +59,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-      <div className="p-8">
+      <div className="p-6">
         {disabled && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-slate-400 mb-6">
             <Lock className="h-4 w-4" />
@@ -66,8 +67,8 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
           </div>
         )}
 
-        <div className="space-y-6" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-          <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+          <div className="grid gap-3 md:grid-cols-2">
             {/* Full Legal Name */}
             <div className="space-y-2">
               <label htmlFor="full_legal_name" className="block text-sm font-medium text-slate-700">
@@ -81,7 +82,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                   onClearError?.('full_legal_name');
                 }}
                 onBlur={() => onFieldBlur?.('full_legal_name', application.full_legal_name, application)}
-                placeholder="As it appears on your government ID"
+                placeholder="Full name as shown on ID"
                 className={cn(
                   "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                   getFieldClass('full_legal_name')
@@ -171,7 +172,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             {/* Birth City */}
             <div className="space-y-2">
               <label htmlFor="birth_city" className="block text-sm font-medium text-slate-700">
@@ -199,20 +200,31 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
               <label htmlFor="birth_state" className="block text-sm font-medium text-slate-700">
                 State of Birth <span className="text-amber-500">*</span>
               </label>
-              <input
-                id="birth_state"
+              <Select
                 value={application.birth_state || ''}
-                onChange={(e) => {
-                  onUpdate('birth_state', e.target.value);
+                onValueChange={(v) => {
+                  onUpdate('birth_state', v);
                   onClearError?.('birth_state');
+                  // Validate immediately on selection
+                  if (onFieldBlur) {
+                    setTimeout(() => onFieldBlur('birth_state', v, application), 0);
+                  }
                 }}
-                onBlur={() => onFieldBlur?.('birth_state', application.birth_state, application)}
-                placeholder="State where you were born"
-                className={cn(
-                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+              >
+                <SelectTrigger className={cn(
+                  "h-12 rounded-xl bg-slate-50 border",
                   getFieldClass('birth_state')
-                )}
-              />
+                )}>
+                  <SelectValue placeholder="Select state..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {US_STATES.map((state) => (
+                    <SelectItem key={state.code} value={state.code}>
+                      {state.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormFieldError error={fieldErrors.birth_state} show={!!fieldErrors.birth_state} />
             </div>
 
@@ -315,7 +327,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
         </div>
 
         {/* Preferred Contact Method */}
-        <div className="pt-6 border-t border-slate-200" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+        <div className="pt-4 border-t border-slate-200" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
           <label className="block text-sm font-medium text-slate-700 mb-3">Preferred Contact Method</label>
           <div className="flex flex-wrap gap-3">
             {['Email', 'Phone', 'Text'].map((method) => (

@@ -30,15 +30,15 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-      <div className="p-8">
+      <div className="p-6">
         {disabled && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-slate-400 mb-6">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-slate-400 mb-4">
             <Lock className="h-4 w-4" />
             <span className="text-sm">Enter your initials above to unlock this section</span>
           </div>
         )}
 
-        <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-6">
+        <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-4">
           {/* Identity Information */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -99,8 +99,8 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
           </div>
 
           {/* License Information */}
-          <div className="pt-6 border-t border-slate-200">
-            <h4 className="text-sm font-medium mb-4">Insurance License</h4>
+          <div className="pt-4 border-t border-slate-200">
+            <h4 className="text-sm font-medium mb-3">Insurance License</h4>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="npn_number" className="block text-sm font-medium text-slate-700">
@@ -175,8 +175,8 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
           </div>
 
           {/* Driver's License */}
-          <div className="pt-6 border-t border-slate-200">
-            <h4 className="text-sm font-medium mb-4">Driver's License</h4>
+          <div className="pt-4 border-t border-slate-200">
+            <h4 className="text-sm font-medium mb-3">Driver's License</h4>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="drivers_license_number" className="block text-sm font-medium text-slate-700">
@@ -230,7 +230,7 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
           </div>
 
           {/* Corporation */}
-          <div className="pt-6 border-t border-slate-200">
+          <div className="pt-4 border-t border-slate-200">
             <label 
               className="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
               onClick={() => onUpdate('is_corporation', !application.is_corporation)}

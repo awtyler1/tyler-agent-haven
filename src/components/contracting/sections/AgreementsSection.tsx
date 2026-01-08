@@ -25,7 +25,7 @@ export function AgreementsSection({ application, onUpdate, disabled }: Agreement
   const allChecked = AGREEMENTS.every(a => agreements[a.id]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-8">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
       <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
         
         {AGREEMENTS.map((agreement) => (
