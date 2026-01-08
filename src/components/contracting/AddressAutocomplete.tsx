@@ -26,6 +26,9 @@ interface AddressAutocompleteProps {
 // Load Google Maps script
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
 
+// Debug: log if API key is present
+console.log('[AddressAutocomplete] API Key present:', !!GOOGLE_MAPS_API_KEY);
+
 let isScriptLoading = false;
 let isScriptLoaded = false;
 const scriptLoadCallbacks: (() => void)[] = [];
@@ -124,9 +127,16 @@ export function AddressAutocomplete({
 
   // Load Google Maps script on mount
   useEffect(() => {
+    console.log('[AddressAutocomplete] Loading script...');
     loadGoogleMapsScript()
-      .then(() => setIsReady(true))
-      .catch(() => setLoadError(true));
+      .then(() => {
+        console.log('[AddressAutocomplete] Script loaded successfully');
+        setIsReady(true);
+      })
+      .catch((err) => {
+        console.error('[AddressAutocomplete] Script load error:', err);
+        setLoadError(true);
+      });
   }, []);
 
   const {
@@ -147,7 +157,9 @@ export function AddressAutocomplete({
 
   // Initialize autocomplete when script is ready
   useEffect(() => {
+    console.log('[AddressAutocomplete] Init check - isReady:', isReady, 'google.maps.places:', !!window.google?.maps?.places, 'hook ready:', ready);
     if (isReady && window.google?.maps?.places && !ready) {
+      console.log('[AddressAutocomplete] Calling init()');
       init();
     }
   }, [isReady, ready, init]);
