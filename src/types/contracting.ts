@@ -1,5 +1,6 @@
 export interface Address {
   street: string;
+  street2?: string; // Apt, Suite, Unit, etc.
   city: string;
   state: string;
   zip: string;
@@ -270,6 +271,7 @@ export const US_STATES = [
 
 export const EMPTY_ADDRESS: Address = {
   street: '',
+  street2: '',
   city: '',
   state: '',
   zip: '',

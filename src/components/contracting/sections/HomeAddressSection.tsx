@@ -52,9 +52,10 @@ export function HomeAddressSection({
 
   // Handle address selection from autocomplete
   const handleAddressSelect = (parsed: ParsedAddress) => {
-    // Update all address fields at once
+    // Update all address fields at once, preserving street2 (user enters manually)
     const updatedAddress: Address = {
       street: parsed.street,
+      street2: homeAddress.street2 || '', // Preserve existing street2
       city: parsed.city,
       state: parsed.state,
       zip: parsed.zip,
@@ -95,6 +96,19 @@ export function HomeAddressSection({
           />
           <p className="text-xs text-slate-400">Start typing to search for your address</p>
           <FormFieldError error={fieldErrors['home_address.street']} show={!!fieldErrors['home_address.street']} />
+        </div>
+
+        {/* Address Line 2 */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-slate-700">
+            Address Line 2 <span className="text-slate-400 font-normal">(optional)</span>
+          </Label>
+          <Input
+            value={homeAddress.street2 || ''}
+            onChange={(e) => updateAddress('street2', e.target.value)}
+            placeholder="Apt, Suite, Unit, Building, Floor, etc."
+            className="h-12 rounded-xl bg-slate-50 border-slate-200"
+          />
         </div>
 
         {/* City, State, Zip */}
