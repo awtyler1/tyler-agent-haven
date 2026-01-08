@@ -34,6 +34,10 @@ verify_jwt = false
 # Internal auth: validates user session before sending
 verify_jwt = false
 
+[functions.generate-contracting-pdf]
+# Internal auth: validates user session before generating PDF
+verify_jwt = false
+
 # =============================================================================
 # FUNCTIONS RELYING ON GATEWAY JWT VERIFICATION
 # These functions don't do internal auth - rely on Supabase gateway
@@ -48,11 +52,12 @@ verify_jwt = true
 [functions.process-document]
 verify_jwt = true
 
-[functions.generate-contracting-pdf]
-verify_jwt = true
-
 [functions.fetch-edge-logs]
 verify_jwt = true
+
+[functions.microsoft-send-email]
+# Internal auth: uses user's connected Microsoft account
+verify_jwt = false
 
 # =============================================================================
 # PUBLIC ENDPOINTS (NO AUTH REQUIRED)
@@ -68,4 +73,16 @@ verify_jwt = false
 
 [functions.pdf-field-audit]
 # Utility endpoint for PDF field inspection
+verify_jwt = false
+
+[functions.validate-password]
+# Public utility - password strength validation
+verify_jwt = false
+
+[functions.microsoft-oauth-start]
+# OAuth flow initiation - must be public
+verify_jwt = false
+
+[functions.microsoft-oauth-callback]
+# OAuth redirect handler - must be public
 verify_jwt = false

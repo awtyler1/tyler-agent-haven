@@ -14,12 +14,24 @@ interface BankingSectionProps {
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
+  fieldSuccess?: Record<string, boolean>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
+  onFieldBlur?: (fieldName: string, value: any, application: ContractingApplication) => void;
 }
 
-export function BankingSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: BankingSectionProps) {
+export function BankingSection({ application, onUpdate, disabled, fieldErrors = {}, fieldSuccess = {}, showValidation = false, onClearError, onFieldBlur }: BankingSectionProps) {
   const [detectedBank, setDetectedBank] = useState<string | null>(null);
+
+  // Helper to get field styling based on validation state
+  const getFieldClass = (fieldName: string) => {
+    const hasError = fieldErrors[fieldName] && (showValidation || fieldErrors[fieldName]);
+    const isSuccess = fieldSuccess[fieldName];
+
+    if (hasError) return "border-amber-400 focus:ring-amber-400/20";
+    if (isSuccess) return "border-green-400/50";
+    return "border-slate-200";
+  };
 
   // Sync detected bank when routing number changes
   useEffect(() => {
@@ -62,14 +74,14 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
           {/* Bank Information */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="bank_routing_number">Bank Routing # <span className="text-destructive">*</span></Label>
+              <Label htmlFor="bank_routing_number">Bank Routing # <span className="text-amber-500">*</span></Label>
               <Input
                 id="bank_routing_number"
                 value={application.bank_routing_number || ''}
                 onChange={(e) => {
                   const formatted = formatRoutingNumber(e.target.value);
                   onUpdate('bank_routing_number', formatted);
-                  
+
                   // Detect bank name
                   if (formatted.length === 9) {
                     const bank = getBankName(formatted);
@@ -79,8 +91,9 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
                     setDetectedBank(null);
                   }
                 }}
+                onBlur={() => onFieldBlur?.('bank_routing_number', application.bank_routing_number, application)}
                 placeholder="9 digits"
-                className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.bank_routing_number, showValidation))}
+                className={cn("h-11 rounded-xl", getFieldClass('bank_routing_number'))}
                 maxLength={9}
               />
               {/* Bank name display */}
@@ -93,11 +106,11 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
               {application.bank_routing_number?.length === 9 && !detectedBank && isValidRoutingNumber(application.bank_routing_number) && (
                 <p className="text-xs text-slate-500">Valid routing number</p>
               )}
-              <FormFieldError error={fieldErrors.bank_routing_number} show={showValidation} />
+              <FormFieldError error={fieldErrors.bank_routing_number} show={!!fieldErrors.bank_routing_number} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bank_account_number">Account # <span className="text-destructive">*</span></Label>
+              <Label htmlFor="bank_account_number">Account # <span className="text-amber-500">*</span></Label>
               <Input
                 id="bank_account_number"
                 value={application.bank_account_number || ''}
@@ -106,11 +119,12 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
                   onUpdate('bank_account_number', formatted);
                   if (formatted.length >= 4 && onClearError) onClearError('bank_account_number');
                 }}
+                onBlur={() => onFieldBlur?.('bank_account_number', application.bank_account_number, application)}
                 placeholder="Account number"
-                className={cn("h-11 rounded-xl", getFieldErrorClass(!!fieldErrors.bank_account_number, showValidation))}
+                className={cn("h-11 rounded-xl", getFieldClass('bank_account_number'))}
                 maxLength={17}
               />
-              <FormFieldError error={fieldErrors.bank_account_number} show={showValidation} />
+              <FormFieldError error={fieldErrors.bank_account_number} show={!!fieldErrors.bank_account_number} />
             </div>
 
             <div className="md:col-span-2 space-y-2">
@@ -130,7 +144,7 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
           <div className="pt-4 border-t border-border/10">
             <div className="space-y-3">
               <div>
-                <Label className="text-sm font-medium">Requesting Commission Advancing? <span className="text-destructive">*</span></Label>
+                <Label className="text-sm font-medium">Requesting Commission Advancing? <span className="text-amber-500">*</span></Label>
                 <p className="text-xs text-muted-foreground/60 mt-0.5">Receive commissions faster with advancing (terms apply)</p>
               </div>
               <RadioGroup

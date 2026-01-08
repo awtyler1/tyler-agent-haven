@@ -420,8 +420,10 @@ export function ContractingForm() {
             onUpdate={updateFieldWithStatus}
             disabled={!initialsEntered}
             fieldErrors={validationState.fieldErrors}
+            fieldSuccess={validationState.fieldSuccess}
             showValidation={validationState.hasValidated && !validationState.isFormValid}
             onClearError={clearFieldError}
+            onFieldBlur={onFieldBlur}
           />
         );
       case 4:
@@ -439,8 +441,10 @@ export function ContractingForm() {
             onUpdate={updateFieldWithStatus}
             disabled={!initialsEntered}
             fieldErrors={validationState.fieldErrors}
+            fieldSuccess={validationState.fieldSuccess}
             showValidation={validationState.hasValidated && !validationState.isFormValid}
             onClearError={clearFieldError}
+            onFieldBlur={onFieldBlur}
           />
         );
       case 6:
@@ -479,8 +483,10 @@ export function ContractingForm() {
             onUpdate={updateFieldWithStatus}
             disabled={!initialsEntered}
             fieldErrors={validationState.fieldErrors}
+            fieldSuccess={validationState.fieldSuccess}
             showValidation={validationState.hasValidated && !validationState.isFormValid}
             onClearError={clearFieldError}
+            onFieldBlur={onFieldBlur}
           />
         );
       case 10:
@@ -510,8 +516,10 @@ export function ContractingForm() {
             onUpdate={updateFieldWithStatus}
             disabled={!initialsEntered}
             fieldErrors={validationState.fieldErrors}
+            fieldSuccess={validationState.fieldSuccess}
             showValidation={validationState.hasValidated && !validationState.isFormValid}
             onClearError={clearFieldError}
+            onFieldBlur={onFieldBlur}
           />
         );
       default:

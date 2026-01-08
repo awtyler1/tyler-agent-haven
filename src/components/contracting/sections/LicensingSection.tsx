@@ -10,11 +10,23 @@ interface LicensingSectionProps {
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
+  fieldSuccess?: Record<string, boolean>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
+  onFieldBlur?: (fieldName: string, value: any, application: ContractingApplication) => void;
 }
 
-export function LicensingSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: LicensingSectionProps) {
+export function LicensingSection({ application, onUpdate, disabled, fieldErrors = {}, fieldSuccess = {}, showValidation = false, onClearError, onFieldBlur }: LicensingSectionProps) {
+
+  // Helper to get field styling based on validation state
+  const getFieldClass = (fieldName: string) => {
+    const hasError = fieldErrors[fieldName] && (showValidation || fieldErrors[fieldName]);
+    const isSuccess = fieldSuccess[fieldName];
+
+    if (hasError) return "border-amber-400 focus:ring-amber-400/20";
+    if (isSuccess) return "border-green-400/50";
+    return "border-slate-200";
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
@@ -31,7 +43,7 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label htmlFor="tax_id" className="block text-sm font-medium text-slate-700">
-                SSN <span className="text-rose-400">*</span>
+                SSN <span className="text-amber-500">*</span>
               </label>
               <input
                 id="tax_id"
@@ -41,14 +53,15 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                   onUpdate('tax_id', formatted);
                   if (formatted.length === 11 && onClearError) onClearError('tax_id');
                 }}
+                onBlur={() => onFieldBlur?.('tax_id', application.tax_id, application)}
                 placeholder="XXX-XX-XXXX"
                 className={cn(
                   "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                  fieldErrors.tax_id && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  getFieldClass('tax_id')
                 )}
                 maxLength={11}
               />
-              <FormFieldError error={fieldErrors.tax_id} show={showValidation} />
+              <FormFieldError error={fieldErrors.tax_id} show={!!fieldErrors.tax_id} />
               {!fieldErrors.tax_id && <p className="text-xs text-slate-400">Used only for contracting. Securely encrypted.</p>}
             </div>
 
@@ -91,7 +104,7 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="npn_number" className="block text-sm font-medium text-slate-700">
-                  NPN Number <span className="text-rose-400">*</span>
+                  NPN Number <span className="text-amber-500">*</span>
                 </label>
                 <input
                   id="npn_number"
@@ -100,18 +113,19 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                     onUpdate('npn_number', e.target.value);
                     if (e.target.value && onClearError) onClearError('npn_number');
                   }}
+                  onBlur={() => onFieldBlur?.('npn_number', application.npn_number, application)}
                   placeholder="National Producer Number"
                   className={cn(
                     "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                    fieldErrors.npn_number && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                    getFieldClass('npn_number')
                   )}
                 />
-                <FormFieldError error={fieldErrors.npn_number} show={showValidation} />
+                <FormFieldError error={fieldErrors.npn_number} show={!!fieldErrors.npn_number} />
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="insurance_license_number" className="block text-sm font-medium text-slate-700">
-                  Insurance License # <span className="text-rose-400">*</span>
+                  Insurance License # <span className="text-amber-500">*</span>
                 </label>
                 <input
                   id="insurance_license_number"
@@ -120,25 +134,30 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                     onUpdate('insurance_license_number', e.target.value);
                     if (e.target.value && onClearError) onClearError('insurance_license_number');
                   }}
+                  onBlur={() => onFieldBlur?.('insurance_license_number', application.insurance_license_number, application)}
                   className={cn(
                     "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                    fieldErrors.insurance_license_number && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                    getFieldClass('insurance_license_number')
                   )}
                 />
-                <FormFieldError error={fieldErrors.insurance_license_number} show={showValidation} />
+                <FormFieldError error={fieldErrors.insurance_license_number} show={!!fieldErrors.insurance_license_number} />
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="resident_state" className="block text-sm font-medium text-slate-700">
-                  Resident State <span className="text-rose-400">*</span>
+                  Resident State <span className="text-amber-500">*</span>
                 </label>
                 <Select value={application.resident_state || ''} onValueChange={(v) => {
                   onUpdate('resident_state', v);
                   if (v && onClearError) onClearError('resident_state');
+                  // Validate immediately on selection
+                  if (onFieldBlur) {
+                    setTimeout(() => onFieldBlur('resident_state', v, application), 0);
+                  }
                 }}>
                   <SelectTrigger className={cn(
-                    "h-12 rounded-xl bg-slate-50 border border-slate-200",
-                    fieldErrors.resident_state && showValidation && "border-rose-300 bg-rose-50"
+                    "h-12 rounded-xl bg-slate-50 border",
+                    getFieldClass('resident_state')
                   )}>
                     <SelectValue placeholder="Select state..." />
                   </SelectTrigger>
@@ -150,7 +169,7 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                     ))}
                   </SelectContent>
                 </Select>
-                <FormFieldError error={fieldErrors.resident_state} show={showValidation} />
+                <FormFieldError error={fieldErrors.resident_state} show={!!fieldErrors.resident_state} />
               </div>
             </div>
           </div>
@@ -161,7 +180,7 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="drivers_license_number" className="block text-sm font-medium text-slate-700">
-                  Driver's License # <span className="text-rose-400">*</span>
+                  Driver's License # <span className="text-amber-500">*</span>
                 </label>
                 <input
                   id="drivers_license_number"
@@ -170,25 +189,30 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                     onUpdate('drivers_license_number', e.target.value);
                     if (e.target.value && onClearError) onClearError('drivers_license_number');
                   }}
+                  onBlur={() => onFieldBlur?.('drivers_license_number', application.drivers_license_number, application)}
                   className={cn(
                     "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                    fieldErrors.drivers_license_number && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                    getFieldClass('drivers_license_number')
                   )}
                 />
-                <FormFieldError error={fieldErrors.drivers_license_number} show={showValidation} />
+                <FormFieldError error={fieldErrors.drivers_license_number} show={!!fieldErrors.drivers_license_number} />
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="drivers_license_state" className="block text-sm font-medium text-slate-700">
-                  Driver's License State <span className="text-rose-400">*</span>
+                  Driver's License State <span className="text-amber-500">*</span>
                 </label>
                 <Select value={application.drivers_license_state || ''} onValueChange={(v) => {
                   onUpdate('drivers_license_state', v);
                   if (v && onClearError) onClearError('drivers_license_state');
+                  // Validate immediately on selection
+                  if (onFieldBlur) {
+                    setTimeout(() => onFieldBlur('drivers_license_state', v, application), 0);
+                  }
                 }}>
                   <SelectTrigger className={cn(
-                    "h-12 rounded-xl bg-slate-50 border border-slate-200",
-                    fieldErrors.drivers_license_state && showValidation && "border-rose-300 bg-rose-50"
+                    "h-12 rounded-xl bg-slate-50 border",
+                    getFieldClass('drivers_license_state')
                   )}>
                     <SelectValue placeholder="Select state..." />
                   </SelectTrigger>
@@ -200,7 +224,7 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                     ))}
                   </SelectContent>
                 </Select>
-                <FormFieldError error={fieldErrors.drivers_license_state} show={showValidation} />
+                <FormFieldError error={fieldErrors.drivers_license_state} show={!!fieldErrors.drivers_license_state} />
               </div>
             </div>
           </div>

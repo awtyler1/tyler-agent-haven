@@ -10,18 +10,32 @@ interface SignSubmitSectionProps {
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
+  fieldSuccess?: Record<string, boolean>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
+  onFieldBlur?: (fieldName: string, value: any, application: ContractingApplication) => void;
 }
 
-export function SignSubmitSection({ 
-  application, 
-  onUpdate, 
+export function SignSubmitSection({
+  application,
+  onUpdate,
   disabled,
   fieldErrors = {},
+  fieldSuccess = {},
   showValidation = false,
-  onClearError
+  onClearError,
+  onFieldBlur
 }: SignSubmitSectionProps) {
+
+  // Helper to get field styling based on validation state
+  const getFieldClass = (fieldName: string) => {
+    const hasError = fieldErrors[fieldName] && (showValidation || fieldErrors[fieldName]);
+    const isSuccess = fieldSuccess[fieldName];
+
+    if (hasError) return "border-amber-400 focus:ring-amber-400/20";
+    if (isSuccess) return "border-green-400/50";
+    return "border-slate-200";
+  };
   const today = new Date().toLocaleDateString('en-US', { 
     month: 'long', 
     day: 'numeric', 
@@ -54,7 +68,7 @@ export function SignSubmitSection({
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-2 space-y-2">
             <Label className="text-sm font-medium text-slate-700">
-              Full Legal Name <span className="text-rose-400">*</span>
+              Full Legal Name <span className="text-amber-500">*</span>
             </Label>
             <Input
               value={application.signature_name || ''}
@@ -62,18 +76,19 @@ export function SignSubmitSection({
                 onUpdate('signature_name', e.target.value);
                 if (onClearError) onClearError('signature_name');
               }}
+              onBlur={() => onFieldBlur?.('signature_name', application.signature_name, application)}
               placeholder="Type your full name"
               className={cn(
-                "h-12 rounded-xl bg-slate-50 border-slate-200 text-lg",
-                getFieldErrorClass(!!fieldErrors.signature_name, showValidation)
+                "h-12 rounded-xl bg-slate-50 text-lg",
+                getFieldClass('signature_name')
               )}
             />
-            <FormFieldError error={fieldErrors.signature_name} show={showValidation} />
+            <FormFieldError error={fieldErrors.signature_name} show={!!fieldErrors.signature_name} />
           </div>
-          
+
           <div className="space-y-2">
             <Label className="text-sm font-medium text-slate-700">
-              Initials <span className="text-rose-400">*</span>
+              Initials <span className="text-amber-500">*</span>
             </Label>
             <Input
               value={application.signature_initials || ''}
@@ -81,14 +96,15 @@ export function SignSubmitSection({
                 onUpdate('signature_initials', e.target.value.toUpperCase());
                 if (onClearError) onClearError('signature_initials');
               }}
+              onBlur={() => onFieldBlur?.('signature_initials', application.signature_initials, application)}
               placeholder="ABC"
               maxLength={4}
               className={cn(
-                "h-12 rounded-xl bg-slate-50 border-slate-200 text-lg text-center uppercase",
-                getFieldErrorClass(!!fieldErrors.signature_initials, showValidation)
+                "h-12 rounded-xl bg-slate-50 text-lg text-center uppercase",
+                getFieldClass('signature_initials')
               )}
             />
-            <FormFieldError error={fieldErrors.signature_initials} show={showValidation} />
+            <FormFieldError error={fieldErrors.signature_initials} show={!!fieldErrors.signature_initials} />
           </div>
         </div>
 
@@ -101,11 +117,11 @@ export function SignSubmitSection({
         {/* Drawn signature */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-slate-700">
-            Draw Your Signature <span className="text-rose-400">*</span>
+            Draw Your Signature <span className="text-amber-500">*</span>
           </Label>
           <div className={cn(
             "rounded-xl transition-all duration-300",
-            showValidation && fieldErrors.final_signature && "ring-2 ring-rose-200/70"
+            fieldErrors.final_signature && "ring-2 ring-amber-200/70"
           )}>
             <SignaturePad
               value={uploadedDocs.final_signature}
@@ -113,7 +129,7 @@ export function SignSubmitSection({
               disabled={disabled}
             />
           </div>
-          <FormFieldError error={fieldErrors.final_signature} show={showValidation} />
+          <FormFieldError error={fieldErrors.final_signature} show={!!fieldErrors.final_signature} />
         </div>
 
         {/* Final attestation */}
