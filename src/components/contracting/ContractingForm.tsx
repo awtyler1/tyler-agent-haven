@@ -334,11 +334,11 @@ export function ContractingForm() {
     );
   }
 
-  // Show submitted state (pending review)
-  if (application.status === 'submitted') {
+  // Show submitted state (pending review) - but not if success modal is showing
+  if (application.status === 'submitted' && !showSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-slate-50 to-white">
-        <Card 
+        <Card
           className="max-w-lg w-full text-center rounded-2xl shadow-sm border border-slate-200/60"
         >
           <div className="space-y-6 p-10">
@@ -353,8 +353,8 @@ export function ContractingForm() {
             <p className="text-slate-500 text-sm leading-relaxed">
               Your contracting documents have been submitted and are being reviewed. You'll receive an email once approved.
             </p>
-            <button 
-              onClick={handleLogout} 
+            <button
+              onClick={handleLogout}
               className="inline-flex items-center gap-2 h-12 px-6 rounded-full border border-slate-200 hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700"
             >
               <LogOut className="h-4 w-4" />
