@@ -709,8 +709,8 @@ export function ContractingForm() {
         agentName={application?.full_legal_name || ''}
         onClose={() => {
           setShowSuccess(false);
-          // Navigate to dashboard or next step
-          window.location.href = '/dashboard';
+          // Navigate to contracting hub
+          window.location.href = '/contracting-hub';
         }}
       />
     </div>

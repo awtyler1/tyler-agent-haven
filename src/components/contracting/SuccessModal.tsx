@@ -64,11 +64,11 @@ export function SuccessModal({ isOpen, agentName, onClose }: SuccessModalProps) 
         </div>
         
         {/* CTA */}
-        <Button 
+        <Button
           onClick={onClose}
           className="w-full h-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium"
         >
-          <span>Go to Dashboard</span>
+          <span>Go to Contracting Hub</span>
           <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
