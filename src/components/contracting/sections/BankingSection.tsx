@@ -128,7 +128,7 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
             </div>
 
             <div className="md:col-span-2 space-y-2">
-              <Label htmlFor="bank_branch_name">Bank Name / Branch Location</Label>
+              <Label htmlFor="bank_branch_name">Bank Name / Branch Location <span className="text-slate-400 font-normal">(optional)</span></Label>
               <Input
                 id="bank_branch_name"
                 value={application.bank_branch_name || ''}
@@ -169,7 +169,7 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
             <h4 className="text-sm font-medium mb-4">Beneficiary Information</h4>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="beneficiary_name">Beneficiary Name</Label>
+                <Label htmlFor="beneficiary_name">Beneficiary Name <span className="text-slate-400 font-normal">(optional)</span></Label>
                 <Input
                   id="beneficiary_name"
                   value={application.beneficiary_name || ''}
@@ -179,7 +179,7 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="beneficiary_relationship">Relationship</Label>
+                <Label htmlFor="beneficiary_relationship">Relationship <span className="text-slate-400 font-normal">(optional)</span></Label>
                 <Input
                   id="beneficiary_relationship"
                   value={application.beneficiary_relationship || ''}

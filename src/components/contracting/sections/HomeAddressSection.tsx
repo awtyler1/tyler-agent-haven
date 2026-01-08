@@ -1,10 +1,10 @@
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContractingApplication, Address, EMPTY_ADDRESS, US_STATES } from '@/types/contracting';
 import { cn } from '@/lib/utils';
-import { FormFieldError, getFieldErrorClass } from '../FormFieldError';
+import { FormFieldError } from '../FormFieldError';
+import { AddressAutocomplete, ParsedAddress } from '../AddressAutocomplete';
 
 interface HomeAddressSectionProps {
   application: ContractingApplication;
@@ -50,25 +50,50 @@ export function HomeAddressSection({
     }
   };
 
+  // Handle address selection from autocomplete
+  const handleAddressSelect = (parsed: ParsedAddress) => {
+    // Update all address fields at once
+    const updatedAddress: Address = {
+      street: parsed.street,
+      city: parsed.city,
+      state: parsed.state,
+      zip: parsed.zip,
+      county: parsed.county || homeAddress.county, // Keep existing county if not provided
+    };
+
+    onUpdate('home_address', updatedAddress);
+
+    // Clear errors for all populated fields
+    if (onClearError) {
+      if (parsed.street) onClearError('home_address.street');
+      if (parsed.city) onClearError('home_address.city');
+      if (parsed.state) onClearError('home_address.state');
+      if (parsed.zip) onClearError('home_address.zip');
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
       <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
         
-        {/* Street */}
+        {/* Street with Autocomplete */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-slate-700">
             Street Address <span className="text-amber-500">*</span>
           </Label>
-          <Input
+          <AddressAutocomplete
             value={homeAddress.street || ''}
-            onChange={(e) => updateAddress('street', e.target.value)}
+            onChange={(value) => updateAddress('street', value)}
+            onAddressSelect={handleAddressSelect}
             onBlur={() => handleAddressBlur('street')}
-            placeholder="123 Main Street"
+            placeholder="Start typing your address..."
+            disabled={disabled}
             className={cn(
               "h-12 rounded-xl bg-slate-50",
               getFieldClass('home_address.street')
             )}
           />
+          <p className="text-xs text-slate-400">Start typing to search for your address</p>
           <FormFieldError error={fieldErrors['home_address.street']} show={!!fieldErrors['home_address.street']} />
         </div>
 
@@ -142,11 +167,13 @@ export function HomeAddressSection({
 
         {/* County */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700">County</Label>
+          <Label className="text-sm font-medium text-slate-700">
+            County <span className="text-slate-400 font-normal">(optional)</span>
+          </Label>
           <Input
             value={homeAddress.county || ''}
             onChange={(e) => updateAddress('county', e.target.value)}
-            placeholder="County (optional)"
+            placeholder="Auto-filled from address"
             className="h-12 rounded-xl bg-slate-50 border-slate-200"
           />
         </div>

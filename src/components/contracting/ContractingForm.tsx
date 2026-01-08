@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import tylerLogo from '@/assets/tyler-logo.png';
 import { LEGAL_QUESTIONS, type Address, ContractingApplication } from '@/types/contracting';
+import { cn } from '@/lib/utils';
 
 // Section components
 import { InitialsEntrySection } from './sections/InitialsEntrySection';
@@ -367,6 +368,44 @@ export function ContractingForm() {
 
   const initialsEntered = !!application.signature_initials && !!(application.uploaded_documents as Record<string, string>)?.initials_image;
 
+  // Helper to check if all background questions on a step are complete
+  const QUESTION_HIERARCHY: Record<string, string[]> = {
+    '1': ['1a', '1b', '1c', '1d', '1e', '1f', '1g', '1h'],
+    '2': ['2a', '2b', '2c', '2d'],
+    '5': ['5a', '5b', '5c'],
+    '8': ['8a', '8b'],
+    '14': ['14a', '14c'],
+    '15': ['15a', '15b', '15c'],
+  };
+
+  const areBackgroundQuestionsComplete = (step: number): boolean => {
+    const legalQuestions = application.legal_questions || {};
+
+    // Get main questions for this step
+    const mainQuestions = LEGAL_QUESTIONS.filter(q => !('isSubQuestion' in q && q.isSubQuestion));
+    const stepQuestions = step === 7
+      ? mainQuestions.slice(0, 10)
+      : mainQuestions.slice(10);
+
+    for (const question of stepQuestions) {
+      const answer = legalQuestions[question.id]?.answer;
+      // Main question must be answered (not null)
+      if (answer === null || answer === undefined) {
+        return false;
+      }
+      // If main question is "Yes" and has sub-questions, check those too
+      if (answer === true && QUESTION_HIERARCHY[question.id]) {
+        for (const subId of QUESTION_HIERARCHY[question.id]) {
+          const subAnswer = legalQuestions[subId]?.answer;
+          if (subAnswer === null || subAnswer === undefined) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  };
+
   // Render current step content
   const renderCurrentStep = () => {
     const initialsEntered = !!application.signature_initials;
@@ -531,7 +570,7 @@ export function ContractingForm() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Minimal Floating Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 border-b border-slate-200/50">
-        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
           {/* Logo - subtle */}
           <img src={tylerLogo} alt="Tyler Insurance" className="h-6 opacity-80" />
           
@@ -575,7 +614,7 @@ export function ContractingForm() {
 
 
       {/* Validation Banner - shows only after submit attempt with errors */}
-      <div className="max-w-2xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto px-6">
         <ValidationBanner
           show={validationState.hasValidated && !validationState.isFormValid}
           sectionErrors={validationState.sectionErrors}
@@ -584,9 +623,9 @@ export function ContractingForm() {
       </div>
 
       {/* Main Form Content */}
-      <main className="max-w-2xl mx-auto px-6 py-6">
+      <main className="max-w-3xl mx-auto px-6 py-4">
         {/* Step Title */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
             {SECTIONS.find(s => s.step === currentStep)?.name}
           </h1>
@@ -606,7 +645,7 @@ export function ContractingForm() {
 
       {/* Fixed Bottom Navigation Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200/50">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between">
           {/* Back button */}
           {currentStep > 1 ? (
             <button
@@ -624,10 +663,14 @@ export function ContractingForm() {
           {currentStep < TOTAL_STEPS ? (
             <button
               onClick={goNext}
-              disabled={currentStep === 1 && !initialsEntered}
+              disabled={
+                (currentStep === 1 && !initialsEntered) ||
+                ((currentStep === 7 || currentStep === 8) && !areBackgroundQuestionsComplete(currentStep))
+              }
               className={cn(
                 "flex items-center gap-2 px-6 py-3 rounded-full font-medium text-sm transition-all duration-200",
-                currentStep === 1 && !initialsEntered
+                (currentStep === 1 && !initialsEntered) ||
+                ((currentStep === 7 || currentStep === 8) && !areBackgroundQuestionsComplete(currentStep))
                   ? "bg-slate-300 text-slate-500 cursor-not-allowed"
                   : "bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98]"
               )}

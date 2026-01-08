@@ -52,7 +52,7 @@ export function BackgroundQuestionsSection2({
   const updateQuestion = (id: string, answer: boolean) => {
     const current = getQuestion(id);
     const updated = { ...legalQuestions, [id]: { ...current, answer } };
-    
+
     // If parent is answered "No", automatically set all child sub-questions to "No"
     if (answer === false && QUESTION_HIERARCHY[id]) {
       QUESTION_HIERARCHY[id].forEach(subId => {
@@ -60,7 +60,14 @@ export function BackgroundQuestionsSection2({
         updated[subId] = { ...subCurrent, answer: false };
       });
     }
-    
+
+    // If parent is answered "Yes", reset sub-questions to null so user must explicitly select
+    if (answer === true && QUESTION_HIERARCHY[id]) {
+      QUESTION_HIERARCHY[id].forEach(subId => {
+        updated[subId] = { answer: null, explanation: '' };
+      });
+    }
+
     onUpdate('legal_questions', updated);
   };
 
@@ -90,7 +97,7 @@ export function BackgroundQuestionsSection2({
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
-      <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+      <div className="space-y-3" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
         
         {questions.map((question) => {
           const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;

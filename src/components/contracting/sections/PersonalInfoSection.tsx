@@ -94,7 +94,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {/* Personal Name or Principal (for businesses) */}
             <div className="space-y-2">
               <label htmlFor="personal_name_principal" className="block text-sm font-medium text-slate-700">
-                Personal Name or Principal
+                Personal Name or Principal <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <input
                 id="personal_name_principal"
@@ -272,7 +272,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {/* Business Phone */}
             <div className="space-y-2">
               <label htmlFor="phone_business" className="block text-sm font-medium text-slate-700">
-                Business Phone
+                Business Phone <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <input
                 id="phone_business"
@@ -292,7 +292,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {/* Home Phone */}
             <div className="space-y-2">
               <label htmlFor="phone_home" className="block text-sm font-medium text-slate-700">
-                Home Phone
+                Home Phone <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <input
                 id="phone_home"
@@ -312,7 +312,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {/* Fax */}
             <div className="space-y-2">
               <label htmlFor="fax" className="block text-sm font-medium text-slate-700">
-                Fax
+                Fax <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <input
                 id="fax"
