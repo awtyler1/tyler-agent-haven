@@ -26,9 +26,6 @@ interface AddressAutocompleteProps {
 // Load Google Maps script
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
 
-// Debug: log if API key is present
-console.log('[AddressAutocomplete] API Key present:', !!GOOGLE_MAPS_API_KEY);
-
 let isScriptLoading = false;
 let isScriptLoaded = false;
 const scriptLoadCallbacks: (() => void)[] = [];
@@ -83,8 +80,6 @@ function loadGoogleMapsScript(): Promise<void> {
 function parseAddressComponents(place: google.maps.places.PlaceResult): ParsedAddress {
   const components = place.address_components || [];
 
-  console.log('[AddressAutocomplete] Raw address components:', components);
-
   const getComponent = (types: string[]): string => {
     const component = components.find(c =>
       types.some(type => c.types.includes(type))
@@ -109,17 +104,13 @@ function parseAddressComponents(place: google.maps.places.PlaceResult): ParsedAd
   const sublocality = getComponent(['sublocality', 'sublocality_level_1', 'neighborhood']);
   const city = locality || sublocality;
 
-  const parsed = {
+  return {
     street,
     city,
     state: getShortComponent(['administrative_area_level_1']),
     zip: getComponent(['postal_code']),
     county: getComponent(['administrative_area_level_2']).replace(' County', ''),
   };
-
-  console.log('[AddressAutocomplete] Parsed address:', parsed);
-
-  return parsed;
 }
 
 export function AddressAutocomplete({
@@ -138,16 +129,9 @@ export function AddressAutocomplete({
 
   // Load Google Maps script on mount
   useEffect(() => {
-    console.log('[AddressAutocomplete] Loading script...');
     loadGoogleMapsScript()
-      .then(() => {
-        console.log('[AddressAutocomplete] Script loaded successfully');
-        setIsReady(true);
-      })
-      .catch((err) => {
-        console.error('[AddressAutocomplete] Script load error:', err);
-        setLoadError(true);
-      });
+      .then(() => setIsReady(true))
+      .catch(() => setLoadError(true));
   }, []);
 
   const {
@@ -168,9 +152,7 @@ export function AddressAutocomplete({
 
   // Initialize autocomplete when script is ready
   useEffect(() => {
-    console.log('[AddressAutocomplete] Init check - isReady:', isReady, 'google.maps.places:', !!window.google?.maps?.places, 'hook ready:', ready);
     if (isReady && window.google?.maps?.places && !ready) {
-      console.log('[AddressAutocomplete] Calling init()');
       init();
     }
   }, [isReady, ready, init]);
