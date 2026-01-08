@@ -83,6 +83,8 @@ function loadGoogleMapsScript(): Promise<void> {
 function parseAddressComponents(place: google.maps.places.PlaceResult): ParsedAddress {
   const components = place.address_components || [];
 
+  console.log('[AddressAutocomplete] Raw address components:', components);
+
   const getComponent = (types: string[]): string => {
     const component = components.find(c =>
       types.some(type => c.types.includes(type))
@@ -102,13 +104,17 @@ function parseAddressComponents(place: google.maps.places.PlaceResult): ParsedAd
   const route = getComponent(['route']);
   const street = streetNumber && route ? `${streetNumber} ${route}` : route || streetNumber;
 
-  return {
+  const parsed = {
     street,
     city: getComponent(['locality', 'sublocality', 'neighborhood']),
     state: getShortComponent(['administrative_area_level_1']),
     zip: getComponent(['postal_code']),
     county: getComponent(['administrative_area_level_2']).replace(' County', ''),
   };
+
+  console.log('[AddressAutocomplete] Parsed address:', parsed);
+
+  return parsed;
 }
 
 export function AddressAutocomplete({
