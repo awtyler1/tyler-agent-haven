@@ -228,11 +228,11 @@ serve(async (req: Request): Promise<Response> => {
           <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
             Your account is set up and ready for activation.
           </p>
-          
+
           <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 10px 0;">
             <strong>Start here:</strong>
           </p>
-          
+
           <table border="0" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
             <tr>
               <td style="background-color: #A38529; border-radius: 6px;">
@@ -242,23 +242,20 @@ serve(async (req: Request): Promise<Response> => {
               </td>
             </tr>
           </table>
-          
+
           <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-            When you sign in for the first time, you will land on the Contracting page. That page guides you through everything you need to complete before your full agent tools unlock.
+            When you sign in, you'll be guided through our contracting wizard. It takes about 15–20 minutes and covers:
           </p>
-          
-          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 10px 0;">
-            <strong>You'll be able to:</strong>
-          </p>
-          
+
           <ul style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 20px 0; padding-left: 20px;">
-            <li>Download required forms</li>
-            <li>Upload your documents</li>
-            <li>Track what's complete and what still needs attention</li>
+            <li>Personal and licensing information</li>
+            <li>Carrier selections</li>
+            <li>Banking details for commission deposits</li>
+            <li>Digital signatures</li>
           </ul>
-          
+
           <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-            Once every item on that page is finished, the rest of your platform will open automatically.
+            Once complete, your contracting packet is automatically generated and sent to our team. We'll handle the carrier appointments from there.
           </p>
         `;
 
