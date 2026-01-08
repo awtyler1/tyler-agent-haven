@@ -77,64 +77,62 @@ export function BackgroundQuestionsSection1({ application, onUpdate, disabled }:
     return false;
   });
 
+  // Filter to only visible questions for consistent spacing
+  const visibleQuestions = questions.filter((question) => {
+    const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;
+    return !isSubQuestion || shouldShowSubQuestion(question.id);
+  });
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
-      <div className="space-y-3" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-        
-        {questions.map((question) => {
-          const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;
-          const shouldShow = !isSubQuestion || shouldShowSubQuestion(question.id);
+      <div className="flex flex-col gap-3" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
 
+        {visibleQuestions.map((question) => {
+          const isSubQuestion = 'isSubQuestion' in question && question.isSubQuestion;
           const q = getQuestion(question.id);
+
           return (
             <div
               key={question.id}
               className={cn(
-                "transition-all duration-300 ease-out overflow-hidden",
-                shouldShow ? "opacity-100 max-h-40" : "opacity-0 max-h-0"
+                "flex items-start gap-4 p-4 rounded-xl",
+                isSubQuestion && "ml-8 border-l-2 border-slate-300 pl-6",
+                q.answer === true && "bg-amber-50",
+                q.answer === false && "bg-emerald-50/50",
+                q.answer === null && "bg-slate-50"
               )}
             >
-              <div
-                className={cn(
-                  "flex items-start gap-4 p-4 rounded-xl",
-                  isSubQuestion && "ml-8 border-l-2 border-slate-300 pl-6",
-                  q.answer === true && "bg-amber-50",
-                  q.answer === false && "bg-emerald-50/50",
-                  q.answer === null && "bg-slate-50"
-                )}
-              >
-                <span className="text-sm font-medium text-slate-400 shrink-0 w-6">
-                  {question.id}.
-                </span>
-                <p className="text-sm text-slate-700 flex-1 leading-relaxed">
-                  {question.text}
-                </p>
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => updateQuestion(question.id, true)}
-                    className={cn(
-                      "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                      q.answer === true
-                        ? "bg-amber-500 text-white"
-                        : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
-                    )}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateQuestion(question.id, false)}
-                    className={cn(
-                      "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                      q.answer === false
-                        ? "bg-emerald-500 text-white"
-                        : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
-                    )}
-                  >
-                    No
-                  </button>
-                </div>
+              <span className="text-sm font-medium text-slate-400 shrink-0 w-8">
+                {question.id}.
+              </span>
+              <p className="text-sm text-slate-700 flex-1 leading-relaxed">
+                {question.text}
+              </p>
+              <div className="flex gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => updateQuestion(question.id, true)}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    q.answer === true
+                      ? "bg-amber-500 text-white"
+                      : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
+                  )}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateQuestion(question.id, false)}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    q.answer === false
+                      ? "bg-emerald-500 text-white"
+                      : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
+                  )}
+                >
+                  No
+                </button>
               </div>
             </div>
           );
