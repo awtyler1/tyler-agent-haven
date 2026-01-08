@@ -4,8 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { ViewModeBanner } from "./components/ViewModeBanner";
-import { ViewModeProvider } from "./contexts/ViewModeContext";
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
 import { AgentChatWidget } from "./components/AgentChatWidget";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -53,14 +51,6 @@ import PdfFieldAuditPage from "./pages/admin/PdfFieldAuditPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import HierarchyManagementPage from "./pages/admin/HierarchyManagementPage";
 
-// Developer pages
-import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
-import FeatureFlagsPage from "./pages/developer/FeatureFlagsPage";
-import SystemHealthPage from "./pages/developer/SystemHealthPage";
-import TestDataSeederPage from "./pages/developer/TestDataSeederPage";
-import PlatformExperienceMapPage from "./pages/developer/PlatformExperienceMapPage";
-import ViewAsPage from "./pages/developer/ViewAsPage";
-
 const queryClient = new QueryClient();
 
 // Component to handle recovery token redirects
@@ -93,12 +83,10 @@ function ConditionalChatWidget() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <FeatureFlagsProvider>
-      <ViewModeProvider>
-        <TooltipProvider>
-          <ViewModeBanner />
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
           <RecoveryRedirectHandler />
           <Routes>
             {/* Auth */}
@@ -214,88 +202,6 @@ const App = () => (
               } 
             />
 
-            {/* Developer routes */}
-            <Route 
-              path="/developer" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <DeveloperDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/feature-flags" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <FeatureFlagsPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/system-health" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <SystemHealthPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/pdf-extractor" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <PdfFieldExtractorPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/pdf-mapper" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <PdfFieldMapperPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/pdf-audit" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <PdfFieldAuditPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/platform-map" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <PlatformMapPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/test-seeder" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <TestDataSeederPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/experience-map" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <PlatformExperienceMapPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer/view-as" 
-              element={
-                <ProtectedRoute requireDeveloper>
-                  <ViewAsPage />
-                </ProtectedRoute>
-              } 
-            />
-
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
@@ -321,8 +227,7 @@ const App = () => (
           <ConditionalChatWidget />
         </BrowserRouter>
       </TooltipProvider>
-    </ViewModeProvider>
-  </FeatureFlagsProvider>
+    </FeatureFlagsProvider>
   </QueryClientProvider>
 );
 

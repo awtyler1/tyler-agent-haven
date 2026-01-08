@@ -7,7 +7,6 @@ interface ProtectedRouteProps {
   children: ReactNode;
   requireAdmin?: boolean;
   requireSuperAdmin?: boolean;
-  requireDeveloper?: boolean;
   requireAgent?: boolean;
   allowContractingOnly?: boolean;
 }
@@ -16,7 +15,6 @@ export function ProtectedRoute({
   children,
   requireAdmin = false,
   requireSuperAdmin = false,
-  requireDeveloper = false,
   requireAgent = false,
   allowContractingOnly = false,
 }: ProtectedRouteProps) {
@@ -28,7 +26,6 @@ export function ProtectedRoute({
     isSuperAdmin,
     isAgent,
     isContractingRequired,
-    hasDeveloperAccess,
   } = useAuth();
 
   // Show loading state while checking auth
@@ -46,11 +43,6 @@ export function ProtectedRoute({
   // Not authenticated - redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
-  }
-
-  // Check developer access
-  if (requireDeveloper && !hasDeveloperAccess()) {
-    return <Navigate to="/" replace />;
   }
 
   // Check super admin access

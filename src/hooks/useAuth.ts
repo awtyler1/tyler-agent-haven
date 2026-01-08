@@ -1,13 +1,11 @@
 import { useProfile } from './useProfile';
 import { useRole } from './useRole';
-import { useDeveloperAccess } from './useDeveloperAccess';
 
 export function useAuth() {
   const profile = useProfile();
   const role = useRole();
-  const developer = useDeveloperAccess(profile.user?.id);
 
-  const loading = profile.loading || role.loading || developer.loading;
+  const loading = profile.loading || role.loading;
 
   // Determine where user should be routed after login
   const getDefaultRoute = (): string => {
@@ -36,11 +34,6 @@ export function useAuth() {
       return route === '/auth';
     }
 
-    // Developer routes
-    if (route.startsWith('/developer')) {
-      return developer.hasDeveloperAccess;
-    }
-
     // Admin routes
     if (route.startsWith('/admin')) {
       return role.canAccessAdmin();
@@ -54,26 +47,12 @@ export function useAuth() {
     return true;
   };
 
-  // Check if user has developer access
-  const hasDeveloperAccess = (): boolean => {
-    return developer.hasDeveloperAccess;
-  };
-
-  // Check if user can access developer tools
-  const canAccessDeveloper = (): boolean => {
-    return profile.isAuthenticated && developer.hasDeveloperAccess;
-  };
-
   return {
     // Profile exports
     ...profile,
 
     // Role exports
     ...role,
-
-    // Developer access
-    hasDeveloperAccess,
-    canAccessDeveloper,
 
     // Combined
     loading,

@@ -1,10 +1,43 @@
 project_id = "mgczpsrtkdkkjzmztpyd"
 
+# =============================================================================
+# FUNCTIONS WITH INTERNAL AUTH VALIDATION
+# These functions validate auth internally (getUser + role check)
+# verify_jwt disabled due to ECC key incompatibility with gateway JWT verification
+# =============================================================================
+
 [functions.create-agent]
-verify_jwt = true
+# Internal auth: extracts token, calls getUser(), checks admin role
+verify_jwt = false
+
+[functions.create-admin]
+# Internal auth: extracts token, calls getUser(), checks admin role
+verify_jwt = false
 
 [functions.send-setup-link]
-verify_jwt = true
+# Internal auth: extracts token, calls getUser(), checks super_admin role
+verify_jwt = false
+
+[functions.delete-user]
+# Internal auth: extracts token, calls getUser(), checks admin role
+verify_jwt = false
+
+[functions.reset-user-password]
+# Internal auth: extracts token, calls getUser(), checks super_admin role
+verify_jwt = false
+
+[functions.reset-contracting-status]
+# Internal auth: extracts token, calls getUser(), checks super_admin role
+verify_jwt = false
+
+[functions.send-contracting-packet]
+# Internal auth: validates user session before sending
+verify_jwt = false
+
+# =============================================================================
+# FUNCTIONS RELYING ON GATEWAY JWT VERIFICATION
+# These functions don't do internal auth - rely on Supabase gateway
+# =============================================================================
 
 [functions.agent-chat]
 verify_jwt = true
@@ -12,35 +45,27 @@ verify_jwt = true
 [functions.agent-chat-rag]
 verify_jwt = true
 
-[functions.send-contracting-packet]
-verify_jwt = true
-
 [functions.process-document]
 verify_jwt = true
 
-[functions.send-agent-inquiry]
-verify_jwt = false
-
 [functions.generate-contracting-pdf]
-verify_jwt = false  # TESTING: Temporarily disabled for testing purposes
-
-[functions.delete-user]
 verify_jwt = true
-
-[functions.extract-pdf-fields]
-verify_jwt = false
-
-[functions.pdf-field-audit]
-verify_jwt = false
 
 [functions.fetch-edge-logs]
 verify_jwt = true
 
-[functions.create-admin]
-verify_jwt = true
+# =============================================================================
+# PUBLIC ENDPOINTS (NO AUTH REQUIRED)
+# =============================================================================
 
-[functions.reset-user-password]
-verify_jwt = true
+[functions.send-agent-inquiry]
+# Public form submission - no auth needed
+verify_jwt = false
 
-[functions.reset-contracting-status]
-verify_jwt = true
+[functions.extract-pdf-fields]
+# Utility endpoint for PDF analysis
+verify_jwt = false
+
+[functions.pdf-field-audit]
+# Utility endpoint for PDF field inspection
+verify_jwt = false

@@ -86,7 +86,7 @@ export function ContractingForm() {
     submitApplication,
   } = useContractingApplication();
 
-  const { validationState, validateForm, clearValidation, clearFieldError } = useFormValidation();
+  const { validationState, validateForm, clearValidation, clearFieldError, onFieldBlur } = useFormValidation();
 
   const [showSaved, setShowSaved] = useState(false);
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, SectionStatus>>({});
@@ -399,8 +399,10 @@ export function ContractingForm() {
               onUpdate={updateFieldWithStatus}
               disabled={!initialsEntered}
               fieldErrors={validationState.fieldErrors}
+              fieldSuccess={validationState.fieldSuccess}
               showValidation={validationState.hasValidated && !validationState.isFormValid}
               onClearError={clearFieldError}
+              onFieldBlur={onFieldBlur}
             />
             <div className="mt-4">
               <MarketingConsentSection

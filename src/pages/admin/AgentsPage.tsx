@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { UserPlus, Search, Loader2, ArrowLeft, ChevronRight, Users, Eye } from 'lucide-react';
+import { UserPlus, Search, Loader2, ArrowLeft, ChevronRight, Users } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { useViewMode } from '@/contexts/ViewModeContext';
 import type { Profile } from '@/hooks/useProfile';
 
 interface AgentWithRole extends Profile {
@@ -20,8 +19,6 @@ export default function AgentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [canAddAgents, setCanAddAgents] = useState(false);
   const [checkingPermissions, setCheckingPermissions] = useState(true);
-  const { startImpersonating } = useViewMode();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAgents();
@@ -206,25 +203,6 @@ export default function AgentsPage() {
                     </Link>
                     <div className="flex items-center gap-3">
                       {getStatusBadge(agent.onboarding_status)}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          startImpersonating({
-                            userId: agent.user_id,
-                            fullName: agent.full_name || 'Unknown',
-                            email: agent.email || '',
-                            role: agent.role || null,
-                          });
-                          navigate('/');
-                        }}
-                        className="h-8 w-8 p-0 text-muted-foreground hover:text-amber-600 hover:bg-amber-50"
-                        title="View as this agent"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
                       <Link to={`/admin/users/${agent.user_id}`}>
                         <ChevronRight className="h-5 w-5 text-muted-foreground/40 hover:text-gold hover:translate-x-0.5 transition-all" />
                       </Link>

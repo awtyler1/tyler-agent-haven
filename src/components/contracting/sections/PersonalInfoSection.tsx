@@ -13,12 +13,24 @@ interface PersonalInfoSectionProps {
   onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
+  fieldSuccess?: Record<string, boolean>;
   showValidation?: boolean;
   onClearError?: (field: string) => void;
+  onFieldBlur?: (fieldName: string, value: any, application: ContractingApplication) => void;
 }
 
-export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, showValidation = false, onClearError }: PersonalInfoSectionProps) {
+export function PersonalInfoSection({ application, onUpdate, disabled, fieldErrors = {}, fieldSuccess = {}, showValidation = false, onClearError, onFieldBlur }: PersonalInfoSectionProps) {
   const contactMethods = application.preferred_contact_methods || [];
+
+  // Helper to get field styling based on validation state
+  const getFieldClass = (fieldName: string) => {
+    const hasError = fieldErrors[fieldName] && (showValidation || fieldErrors[fieldName]);
+    const isSuccess = fieldSuccess[fieldName];
+
+    if (hasError) return "border-amber-400 focus:ring-amber-400/20";
+    if (isSuccess) return "border-green-400/50";
+    return "border-slate-200";
+  };
 
   const toggleContactMethod = (method: string) => {
     if (contactMethods.includes(method)) {
@@ -37,7 +49,11 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
     // Always store normalized value
     const normalized = value === 'Male' ? 'Male' : value === 'Female' ? 'Female' : value;
     onUpdate('gender', normalized);
-    if (normalized && onClearError) onClearError('gender');
+    onClearError?.('gender');
+    // Validate immediately on selection
+    if (onFieldBlur) {
+      setTimeout(() => onFieldBlur('gender', normalized, application), 0);
+    }
   };
 
   return (
@@ -55,22 +71,23 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {/* Full Legal Name */}
             <div className="space-y-2">
               <label htmlFor="full_legal_name" className="block text-sm font-medium text-slate-700">
-                Full Legal Name <span className="text-rose-400">*</span>
+                Full Legal Name <span className="text-amber-500">*</span>
               </label>
               <input
                 id="full_legal_name"
                 value={application.full_legal_name || ''}
                 onChange={(e) => {
                   onUpdate('full_legal_name', e.target.value);
-                  if (e.target.value && onClearError) onClearError('full_legal_name');
+                  onClearError?.('full_legal_name');
                 }}
+                onBlur={() => onFieldBlur?.('full_legal_name', application.full_legal_name, application)}
                 placeholder="As it appears on your government ID"
                 className={cn(
                   "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                  fieldErrors.full_legal_name && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  getFieldClass('full_legal_name')
                 )}
               />
-              <FormFieldError error={fieldErrors.full_legal_name} show={showValidation} />
+              <FormFieldError error={fieldErrors.full_legal_name} show={!!fieldErrors.full_legal_name} />
             </div>
 
             {/* Personal Name or Principal (for businesses) */}
@@ -94,7 +111,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {/* Date of Birth */}
             <div className="space-y-2">
               <label htmlFor="birth_date" className="block text-sm font-medium text-slate-700">
-                Date of Birth <span className="text-rose-400">*</span>
+                Date of Birth <span className="text-amber-500">*</span>
               </label>
               <input
                 id="birth_date"
@@ -102,20 +119,21 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 value={application.birth_date || ''}
                 onChange={(e) => {
                   onUpdate('birth_date', e.target.value);
-                  if (e.target.value && onClearError) onClearError('birth_date');
+                  onClearError?.('birth_date');
                 }}
+                onBlur={() => onFieldBlur?.('birth_date', application.birth_date, application)}
                 className={cn(
                   "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                  fieldErrors.birth_date && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  getFieldClass('birth_date')
                 )}
               />
-              <FormFieldError error={fieldErrors.birth_date} show={showValidation} />
+              <FormFieldError error={fieldErrors.birth_date} show={!!fieldErrors.birth_date} />
             </div>
 
             {/* Gender */}
             <div className="md:col-span-2 space-y-2">
               <label className="block text-sm font-medium text-slate-700">
-                Gender <span className="text-rose-400">*</span>
+                Gender <span className="text-amber-500">*</span>
               </label>
               <RadioGroup
                 value={normalizedGender}
@@ -124,28 +142,32 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
               >
                 <label className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors",
-                  normalizedGender === 'Male' 
-                    ? "border-slate-900 bg-slate-100" 
-                    : fieldErrors.gender && showValidation
-                      ? "border-rose-300 bg-rose-50"
-                      : "border-slate-200 hover:bg-slate-50"
+                  normalizedGender === 'Male'
+                    ? "border-slate-900 bg-slate-100"
+                    : fieldSuccess.gender
+                      ? "border-green-400/50 hover:bg-slate-50"
+                      : fieldErrors.gender
+                        ? "border-amber-400"
+                        : "border-slate-200 hover:bg-slate-50"
                 )}>
                   <RadioGroupItem value="Male" id="gender-male" />
                   <span className="text-sm text-slate-700">Male</span>
                 </label>
                 <label className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors",
-                  normalizedGender === 'Female' 
-                    ? "border-slate-900 bg-slate-100" 
-                    : fieldErrors.gender && showValidation
-                      ? "border-rose-300 bg-rose-50"
-                      : "border-slate-200 hover:bg-slate-50"
+                  normalizedGender === 'Female'
+                    ? "border-slate-900 bg-slate-100"
+                    : fieldSuccess.gender
+                      ? "border-green-400/50 hover:bg-slate-50"
+                      : fieldErrors.gender
+                        ? "border-amber-400"
+                        : "border-slate-200 hover:bg-slate-50"
                 )}>
                   <RadioGroupItem value="Female" id="gender-female" />
                   <span className="text-sm text-slate-700">Female</span>
                 </label>
               </RadioGroup>
-              <FormFieldError error={fieldErrors.gender} show={showValidation} />
+              <FormFieldError error={fieldErrors.gender} show={!!fieldErrors.gender} />
             </div>
           </div>
 
@@ -153,49 +175,51 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {/* Birth City */}
             <div className="space-y-2">
               <label htmlFor="birth_city" className="block text-sm font-medium text-slate-700">
-                City of Birth <span className="text-rose-400">*</span>
+                City of Birth <span className="text-amber-500">*</span>
               </label>
               <input
                 id="birth_city"
                 value={application.birth_city || ''}
                 onChange={(e) => {
                   onUpdate('birth_city', e.target.value);
-                  if (e.target.value && onClearError) onClearError('birth_city');
+                  onClearError?.('birth_city');
                 }}
+                onBlur={() => onFieldBlur?.('birth_city', application.birth_city, application)}
                 placeholder="City where you were born"
                 className={cn(
                   "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                  fieldErrors.birth_city && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  getFieldClass('birth_city')
                 )}
               />
-              <FormFieldError error={fieldErrors.birth_city} show={showValidation} />
+              <FormFieldError error={fieldErrors.birth_city} show={!!fieldErrors.birth_city} />
             </div>
 
             {/* Birth State */}
             <div className="space-y-2">
               <label htmlFor="birth_state" className="block text-sm font-medium text-slate-700">
-                State of Birth <span className="text-rose-400">*</span>
+                State of Birth <span className="text-amber-500">*</span>
               </label>
               <input
                 id="birth_state"
                 value={application.birth_state || ''}
                 onChange={(e) => {
                   onUpdate('birth_state', e.target.value);
-                  if (e.target.value && onClearError) onClearError('birth_state');
+                  onClearError?.('birth_state');
                 }}
+                onBlur={() => onFieldBlur?.('birth_state', application.birth_state, application)}
                 placeholder="State where you were born"
                 className={cn(
                   "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                  fieldErrors.birth_state && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  getFieldClass('birth_state')
                 )}
               />
-              <FormFieldError error={fieldErrors.birth_state} show={showValidation} />
+              <FormFieldError error={fieldErrors.birth_state} show={!!fieldErrors.birth_state} />
             </div>
 
             {/* Email */}
             <div className="space-y-2">
               <label htmlFor="email_address" className="block text-sm font-medium text-slate-700">
-                Email Address <span className="text-rose-400">*</span>
+                Email Address <span className="text-amber-500">*</span>
               </label>
               <input
                 id="email_address"
@@ -211,7 +235,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             {/* Mobile Phone */}
             <div className="space-y-2">
               <label htmlFor="phone_mobile" className="block text-sm font-medium text-slate-700">
-                Mobile Phone <span className="text-rose-400">*</span>
+                Mobile Phone <span className="text-amber-500">*</span>
               </label>
               <input
                 id="phone_mobile"
@@ -220,16 +244,17 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 onChange={(e) => {
                   const formatted = formatPhone(e.target.value);
                   onUpdate('phone_mobile', formatted);
-                  if (formatted.length === 14 && onClearError) onClearError('phone_mobile');
+                  onClearError?.('phone_mobile');
                 }}
+                onBlur={() => onFieldBlur?.('phone_mobile', application.phone_mobile, application)}
                 placeholder="(555) 123-4567"
                 className={cn(
                   "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
-                  fieldErrors.phone_mobile && showValidation && "border-rose-300 bg-rose-50 focus:ring-rose-500"
+                  getFieldClass('phone_mobile')
                 )}
                 maxLength={14}
               />
-              <FormFieldError error={fieldErrors.phone_mobile} show={showValidation} />
+              <FormFieldError error={fieldErrors.phone_mobile} show={!!fieldErrors.phone_mobile} />
             </div>
 
             {/* Business Phone */}

@@ -47,8 +47,7 @@ serve(async (req) => {
     // Option 3: Try default URLs
     if (!pdfBytes) {
       const possibleUrls = [
-        'https://hikhnmuckfopyzxkdeus.lovableproject.com/templates/TIG_Contracting_Packet_Template.pdf',
-        'https://tyler-insurance-hub.lovable.app/templates/TIG_Contracting_Packet_Template.pdf',
+        'https://www.tigagenthub.com/templates/TIG_Contracting_Packet_Template.pdf',
       ];
       
       for (const url of possibleUrls) {

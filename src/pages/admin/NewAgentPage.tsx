@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 import { Loader2, ArrowLeft, UserPlus, Users, Info } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { useViewMode } from '@/contexts/ViewModeContext';
 
 interface HierarchyOption {
   id: string;
@@ -22,7 +21,6 @@ interface HierarchyOption {
 
 export default function NewAgentPage() {
   const navigate = useNavigate();
-  const { impersonatedAgent } = useViewMode();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hierarchyOptions, setHierarchyOptions] = useState<HierarchyOption[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(true);
@@ -37,7 +35,7 @@ export default function NewAgentPage() {
 
   useEffect(() => {
     fetchHierarchyOptions();
-  }, [impersonatedAgent]);
+  }, []);
 
   const fetchHierarchyOptions = async () => {
     setLoadingOptions(true);
@@ -111,7 +109,7 @@ export default function NewAgentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.hierarchyId) {
       toast.error('Please select a team');
       return;
@@ -120,42 +118,25 @@ export default function NewAgentPage() {
     setIsSubmitting(true);
 
     try {
-      // Get current user and session for upline and auth
+      // Get current user for upline assignment
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         throw new Error('Not authenticated. Please sign in again.');
       }
 
-      // Ensure we have a valid session - supabase.functions.invoke() will use this automatically
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.access_token) {
-        // Try to refresh the session
-        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-        if (refreshError || !refreshedSession?.access_token) {
-          throw new Error('Session expired. Please sign in again.');
-        }
-      }
-      
-      // Verify we have a valid session before proceeding
-      const currentSession = await supabase.auth.getSession();
-      if (!currentSession.data.session?.access_token) {
-        throw new Error('No valid session. Please sign in again.');
-      }
-
-      // Verify user has admin role (optional check for better error message)
-      const { data: userRoles, error: rolesError } = await supabase
+      // Verify user has admin role (for better error message before calling edge function)
+      const { data: userRoles } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .in('role', ['super_admin', 'admin']);
 
-      if (!rolesError && (!userRoles || userRoles.length === 0)) {
+      if (!userRoles || userRoles.length === 0) {
         throw new Error('You do not have admin permissions. Please contact a system administrator.');
       }
 
       const selectedOption = hierarchyOptions.find(o => o.id === formData.hierarchyId);
-      
+
       if (!selectedOption) {
         throw new Error('Invalid team selection');
       }
@@ -170,49 +151,34 @@ export default function NewAgentPage() {
         sendSetupEmail: formData.sendSetupEmail,
       };
 
-      // Get current session and refresh if needed
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
-
-      if (!initialSession?.access_token) {
-        throw new Error('No valid session. Please sign in again.');
-      }
-
-      // Try to refresh if expired or expiring soon
-      const now = Math.floor(Date.now() / 1000);
-      const expiresAt = initialSession.expires_at || 0;
-      const timeUntilExpiry = expiresAt - now;
-
-      if (timeUntilExpiry < 60) {
-        const { data: { session: refreshedSession } } = await supabase.auth.refreshSession();
-        if (!refreshedSession?.access_token) {
-          throw new Error('Session expired. Please sign in again.');
-        }
-      }
-
-      const { data, error } = await supabase.functions.invoke('create-agent', {
+      // Invoke the function - Supabase client handles auth automatically
+      let { data, error } = await supabase.functions.invoke('create-agent', {
         body: requestBody,
       });
 
-      if (error) {
+      // Handle 401 errors with single retry after token refresh
+      if (error && (error.message?.includes('401') || error.message?.includes('non-2xx'))) {
+        console.log('Got 401, attempting token refresh and retry...');
+        const { error: refreshError } = await supabase.auth.refreshSession();
+
+        if (refreshError) {
+          throw new Error('Session expired. Please sign in again.');
+        }
+
+        // Single retry with fresh token
+        const retryResult = await supabase.functions.invoke('create-agent', {
+          body: requestBody,
+        });
+        data = retryResult.data;
+        error = retryResult.error;
+
+        if (error) {
+          throw new Error('Authentication failed after retry. Please sign out and sign back in.');
+        }
+      } else if (error) {
+        // Non-auth error
         console.error('Create agent error:', error);
-
-        // Handle 401 errors
-        if (error?.message?.includes('401') || error?.message?.includes('non-2xx')) {
-          throw new Error('Authentication failed. Please sign out and sign back in, then try again.');
-        }
-
-        // Extract error message from various formats
-        let errorMessage = 'Failed to create agent';
-        if (error.message) {
-          errorMessage = error.message;
-        } else if (typeof error === 'string') {
-          errorMessage = error;
-        } else if (error.context?.message) {
-          errorMessage = error.context.message;
-        } else if (error.error) {
-          errorMessage = error.error;
-        }
-
+        const errorMessage = error.message || error.context?.message || 'Failed to create agent';
         throw new Error(errorMessage);
       }
 
@@ -221,27 +187,15 @@ export default function NewAgentPage() {
         throw new Error(data.error || 'Failed to create agent');
       }
 
-      const message = formData.agentType === 'existing' 
-        ? 'Existing agent added successfully!' 
+      const message = formData.agentType === 'existing'
+        ? 'Existing agent added successfully!'
         : 'New agent created! They will receive a welcome email with setup instructions.';
-      
+
       toast.success(message);
       navigate('/admin/agents');
     } catch (err: any) {
       console.error('Error creating agent:', err);
-      
-      // Extract error message from various possible error formats
-      let errorMessage = 'Failed to create agent';
-      if (err?.message) {
-        errorMessage = err.message;
-      } else if (err?.error) {
-        errorMessage = err.error;
-      } else if (typeof err === 'string') {
-        errorMessage = err;
-      } else if (err?.data?.error) {
-        errorMessage = err.data.error;
-      }
-      
+      const errorMessage = err?.message || err?.error || 'Failed to create agent';
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);

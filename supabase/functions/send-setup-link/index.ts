@@ -70,7 +70,7 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("User not found");
     }
 
-    const siteUrl = Deno.env.get("SITE_URL") || "https://app.tylerinsurancegroup.com";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://www.tigagenthub.com";
 
     // Generate a password recovery link so user can set their own password
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
