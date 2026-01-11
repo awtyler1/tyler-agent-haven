@@ -145,9 +145,11 @@ export default function SetPasswordPage() {
       setIsSuccess(true);
       toast.success('Password set successfully!');
 
-      // Redirect to home after a short delay
+      // Use full page redirect to ensure auth state is fully reloaded
+      // This ensures ProtectedRoute evaluates fresh profile data and redirects
+      // agents who need contracting to /contracting
       setTimeout(() => {
-        navigate('/');
+        window.location.href = '/';
       }, 2000);
     } catch (err: any) {
       console.error('Error setting password:', err);
