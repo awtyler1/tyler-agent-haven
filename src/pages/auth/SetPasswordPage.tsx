@@ -145,12 +145,11 @@ export default function SetPasswordPage() {
       setIsSuccess(true);
       toast.success('Password set successfully!');
 
-      // Use full page redirect to ensure auth state is fully reloaded
-      // This ensures ProtectedRoute evaluates fresh profile data and redirects
-      // agents who need contracting to /contracting
+      // Redirect directly to contracting page for new agents
+      // Using full page redirect to ensure auth state is fully reloaded
       setTimeout(() => {
-        window.location.href = '/';
-      }, 2000);
+        window.location.href = '/contracting';
+      }, 1500);
     } catch (err: any) {
       console.error('Error setting password:', err);
       setError(err.message || 'Failed to set password. Please try again.');
@@ -201,11 +200,22 @@ export default function SetPasswordPage() {
             <div className="space-y-3">
               <CardTitle className="text-[2.125rem] font-serif" style={{ letterSpacing: '0.025em' }}>Password Set!</CardTitle>
               <CardDescription className="text-muted-foreground/60 font-light text-[13px] leading-[1.7]">
-                Redirecting you to the dashboard...
+                Redirecting you to get started...
               </CardDescription>
             </div>
           </CardHeader>
-          <CardContent className="pb-16" />
+          <CardContent className="pb-16 px-11">
+            <Button
+              onClick={() => window.location.href = '/contracting'}
+              className="w-full h-[54px] text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
+              style={{
+                background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',
+                boxShadow: '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)'
+              }}
+            >
+              Continue to Contracting
+            </Button>
+          </CardContent>
         </Card>
       </div>
     );
