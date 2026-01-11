@@ -19,8 +19,6 @@ function getCorsHeaders(req: Request) {
 }
 
 serve(async (req) => {
-  console.log('Delete user function called, method:', req.method);
-  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: getCorsHeaders(req) });
@@ -29,14 +27,10 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    
+
     // Get the authorization header to verify the requesting user
     const authHeader = req.headers.get('Authorization');
-    console.log('Auth header present:', !!authHeader);
-    
     if (!authHeader) {
-      console.log('No authorization header found');
       return new Response(
         JSON.stringify({ error: 'No authorization header' }),
         { status: 401, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
@@ -47,32 +41,30 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
 
     // Create client with service role to verify the user
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
 
     // Get the requesting user using the token
     const { data: { user: requestingUser }, error: authError } = await adminClient.auth.getUser(token);
-    console.log('Auth getUser result - user:', requestingUser?.id, 'error:', authError?.message);
-    
+
     if (authError || !requestingUser) {
-      console.log('Auth failed:', authError?.message || 'No user returned');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
       );
     }
 
-    // Verify requesting user is a super admin using the admin client
-    const { data: roleData, error: roleError } = await adminClient
+    // Verify requesting user is an admin or super_admin
+    const { data: roles, error: roleError } = await adminClient
       .from('user_roles')
       .select('role')
       .eq('user_id', requestingUser.id)
-      .eq('role', 'super_admin')
-      .maybeSingle();
+      .in('role', ['super_admin', 'admin']);
 
-    if (roleError || !roleData) {
-      console.log('User is not a super admin:', requestingUser.id);
+    if (roleError || !roles || roles.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Only super admins can delete users' }),
+        JSON.stringify({ error: 'Unauthorized: Admin role required' }),
         { status: 403, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
       );
     }
@@ -94,7 +86,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('Deleting user:', userId, 'requested by:', requestingUser.id);
+    console.log("Processing user deletion request");
 
     // Use the existing adminClient for all operations
 
