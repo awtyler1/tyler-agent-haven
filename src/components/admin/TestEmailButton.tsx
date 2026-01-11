@@ -14,9 +14,15 @@ export function TestEmailButton() {
     setMessage('');
 
     try {
+      // Get the logged-in user's email
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) {
+        throw new Error('No authenticated user found');
+      }
+
       const { data, error } = await supabase.functions.invoke('microsoft-send-email', {
         body: {
-          to: 'austinwhitmertyler@gmail.com',
+          to: user.email,
           subject: 'TIG Platform Test Email',
           body: `
             <h2>Test Email from TIG Agent Platform</h2>

@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 interface SendSetupLinkRequest {
   userId: string;
@@ -12,7 +24,7 @@ interface SendSetupLinkRequest {
 
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -118,18 +130,8 @@ serve(async (req: Request): Promise<Response> => {
                       <td align="center" style="padding: 32px 40px 24px 40px; border-bottom: 1px solid #f1f5f9;">
                         <table cellpadding="0" cellspacing="0">
                           <tr>
-                            <td align="center">
-                              <!--[if mso]>
-                              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:56px;v-text-anchor:middle;width:56px;" arcsize="50%" fillcolor="#F59E0B" stroke="f">
-                              <w:anchorlock/>
-                              <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">TIG</center>
-                              </v:roundrect>
-                              <![endif]-->
-                              <!--[if !mso]><!-->
-                              <div style="display: inline-block; width: 56px; height: 56px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 50%; text-align: center; line-height: 56px;">
-                                <span style="color: #ffffff; font-size: 18px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.5px;">TIG</span>
-                              </div>
-                              <!--<![endif]-->
+                            <td align="center" valign="middle" style="width: 56px; height: 56px; background-color: #D4A855; border-radius: 50%; text-align: center; vertical-align: middle;">
+                              <span style="color: #ffffff; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif;">TIG</span>
                             </td>
                           </tr>
                           <tr>
@@ -244,7 +246,7 @@ serve(async (req: Request): Promise<Response> => {
       console.error("Failed to update setup_link_sent_at:", trackError);
     }
 
-    console.log(`Setup link sent to ${profile.email} for user ${userId}`);
+    console.log("Setup link sent successfully");
 
     return new Response(
       JSON.stringify({ 
@@ -253,7 +255,7 @@ serve(async (req: Request): Promise<Response> => {
       }),
       { 
         status: 200, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   } catch (error: any) {
@@ -262,7 +264,7 @@ serve(async (req: Request): Promise<Response> => {
       JSON.stringify({ error: error.message }),
       { 
         status: 400, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   }

@@ -10,22 +10,30 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 serve(async (req) => {
-  try {
-    const url = new URL(req.url);
-    const code = url.searchParams.get("code");
-    const state = url.searchParams.get("state");
-    const error = url.searchParams.get("error");
-    const errorDescription = url.searchParams.get("error_description");
+  // Get frontend URL first (needed for error redirects)
+  const frontendUrl = Deno.env.get("FRONTEND_URL") || "https://tyler-agent-haven.vercel.app";
 
-    // Get environment variables
+  try {
+    // Validate required environment variables
     const clientId = Deno.env.get("MICROSOFT_CLIENT_ID");
     const clientSecret = Deno.env.get("MICROSOFT_CLIENT_SECRET");
     const tenantId = Deno.env.get("MICROSOFT_TENANT_ID");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    // Your frontend URL for redirecting after OAuth
-    const frontendUrl = Deno.env.get("FRONTEND_URL") || "https://tyler-agent-haven.vercel.app";
+    if (!clientId || !clientSecret || !tenantId || !supabaseUrl || !supabaseServiceKey) {
+      console.error("Missing required environment variables for OAuth");
+      return Response.redirect(
+        `${frontendUrl}/admin/settings?error=${encodeURIComponent("Server configuration error")}`,
+        302
+      );
+    }
+
+    const url = new URL(req.url);
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const error = url.searchParams.get("error");
+    const errorDescription = url.searchParams.get("error_description");
 
     // Handle errors from Microsoft
     if (error) {
@@ -77,8 +85,8 @@ serve(async (req) => {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          client_id: clientId!,
-          client_secret: clientSecret!,
+          client_id: clientId,
+          client_secret: clientSecret,
           code: code,
           redirect_uri: redirectUri,
           grant_type: "authorization_code",
@@ -97,7 +105,6 @@ serve(async (req) => {
     }
 
     const tokens = await tokenResponse.json();
-    console.log("Token exchange successful, got access token and refresh token");
 
     // Get user info from Microsoft to store their email
     const userInfoResponse = await fetch("https://graph.microsoft.com/v1.0/me", {
@@ -110,11 +117,10 @@ serve(async (req) => {
     if (userInfoResponse.ok) {
       const userInfo = await userInfoResponse.json();
       microsoftEmail = userInfo.mail || userInfo.userPrincipalName;
-      console.log("Connected Microsoft account:", microsoftEmail);
     }
 
     // Store tokens in database using service role (bypasses RLS)
-    const supabaseAdmin = createClient(supabaseUrl!, supabaseServiceKey!);
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     // Calculate expiration time
     const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
@@ -135,14 +141,12 @@ serve(async (req) => {
       });
 
     if (upsertError) {
-      console.error("Failed to store tokens:", upsertError);
+      console.error("Failed to store OAuth tokens");
       return Response.redirect(
         `${frontendUrl}/admin/settings?error=${encodeURIComponent("Failed to save authorization")}`,
         302
       );
     }
-
-    console.log("Tokens stored successfully for user:", userId);
 
     // Redirect back to frontend with success
     return Response.redirect(

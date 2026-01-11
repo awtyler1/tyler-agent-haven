@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 interface CreateAgentRequest {
   email: string;
@@ -23,7 +35,7 @@ serve(async (req: Request): Promise<Response> => {
   console.log("URL:", req.url);
   
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -39,7 +51,7 @@ serve(async (req: Request): Promise<Response> => {
       console.error("SUPABASE_URL is not configured");
       return new Response(
         JSON.stringify({ error: "Server configuration error: SUPABASE_URL not set" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
@@ -47,7 +59,7 @@ serve(async (req: Request): Promise<Response> => {
       console.error("SUPABASE_SERVICE_ROLE_KEY is not configured");
       return new Response(
         JSON.stringify({ error: "Server configuration error: SUPABASE_SERVICE_ROLE_KEY not set" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
@@ -69,8 +81,6 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    console.log("Token extracted, length:", token.length);
-    console.log("Token prefix:", token.substring(0, 20) + "...");
 
     let user;
     let authError;
@@ -95,7 +105,7 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Unauthorized: User not found");
     }
 
-    console.log("User authenticated:", user.id, user.email);
+    console.log("User authenticated successfully");
 
     // Check for admin or super_admin role
     const { data: roles, error: rolesError } = await supabaseAdmin
@@ -120,7 +130,7 @@ serve(async (req: Request): Promise<Response> => {
     let requestBody: CreateAgentRequest;
     try {
       requestBody = await req.json();
-      console.log("Received request body:", JSON.stringify(requestBody, null, 2));
+      console.log("Request body parsed successfully");
     } catch (parseError) {
       console.error("Failed to parse request body:", parseError);
       throw new Error("Invalid request body: " + (parseError instanceof Error ? parseError.message : "Unknown error"));
@@ -374,7 +384,7 @@ serve(async (req: Request): Promise<Response> => {
       }),
       { 
         status: 200, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   } catch (error: unknown) {
@@ -399,7 +409,7 @@ serve(async (req: Request): Promise<Response> => {
       }),
       {
         status: statusCode,
-        headers: { "Content-Type": "application/json", ...corsHeaders }
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) }
       }
     );
   }

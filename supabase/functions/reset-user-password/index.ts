@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 interface ResetPasswordRequest {
   userId: string;
@@ -13,7 +25,7 @@ interface ResetPasswordRequest {
 
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -55,11 +67,27 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("userId and newPassword are required");
     }
 
-    if (newPassword.length < 6) {
-      throw new Error("Password must be at least 6 characters");
+    // Validate password strength
+    const minLength = 12;
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
+
+    if (newPassword.length < minLength) {
+      throw new Error(`Password must be at least ${minLength} characters`);
+    }
+    if (!hasUppercase || !hasLowercase) {
+      throw new Error("Password must contain uppercase and lowercase letters");
+    }
+    if (!hasNumber) {
+      throw new Error("Password must contain at least one number");
+    }
+    if (!hasSpecial) {
+      throw new Error("Password must contain at least one special character (!@#$%^&*()_+-=)");
     }
 
-    console.log(`Super admin ${user.email} resetting password for user ${userId}`);
+    console.log("Processing password reset request");
 
     // Update the user's password
     const { data: updatedUser, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
@@ -72,7 +100,7 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error(`Failed to update password: ${updateError.message}`);
     }
 
-    console.log(`Password reset successful for user ${userId} (${updatedUser.user.email})`);
+    console.log("Password reset completed successfully");
 
     return new Response(
       JSON.stringify({ 
@@ -81,7 +109,7 @@ serve(async (req: Request): Promise<Response> => {
       }),
       { 
         status: 200, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   } catch (error: unknown) {
@@ -91,7 +119,7 @@ serve(async (req: Request): Promise<Response> => {
       JSON.stringify({ error: errorMessage }),
       { 
         status: 400, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   }

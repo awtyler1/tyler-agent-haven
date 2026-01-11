@@ -6,7 +6,9 @@
       "Bash(npx supabase:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(supabase functions deploy:*)",
+      "Bash(find:*)"
     ]
   }
 }

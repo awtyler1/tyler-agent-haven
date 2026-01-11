@@ -12,10 +12,22 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 // ============================================================================
 // TYPES (matching actual form data)
@@ -452,15 +464,8 @@ const DUPLICATE_GROUPS: Record<string, { source: string; format?: string; fields
 // ============================================================================
 
 serve(async (req) => {
-  console.log("=== GENERATE-CONTRACTING-PDF V5 (Form Data Compatible) ===");
-  console.log("Method:", req.method);
-  console.log("URL:", req.url);
-  
-  // TESTING: JWT verification is disabled in config.toml for testing purposes
-  // In production, this should be enabled to verify the user's identity
-
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -468,42 +473,16 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!supabaseUrl) {
-      console.error("SUPABASE_URL is not configured");
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Missing required environment variables");
       return new Response(
-        JSON.stringify({ error: "Server configuration error: SUPABASE_URL not set" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Server configuration error" }),
+        { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
       );
     }
 
-    if (!supabaseServiceKey) {
-      console.error("SUPABASE_SERVICE_ROLE_KEY is not configured");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error: SUPABASE_SERVICE_ROLE_KEY not set" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log("Parsing request body...");
     const body = await req.json();
-    console.log("Body parsed, applicationId:", body.applicationId);
-
     const { application, templateUrl, templateBase64, skipValidation = false, applicationId, saveToStorage = false } = body;
-    console.log("Destructured - saveToStorage:", saveToStorage, "applicationId:", applicationId);
-
-    // Log application structure for debugging
-    console.log("Application structure:", {
-      hasUserId: !!application?.user_id,
-      hasFullLegalName: !!application?.full_legal_name,
-      hasSignatureInitials: !!application?.signature_initials,
-      hasSignatureDate: !!application?.signature_date,
-      hasSignatureName: !!application?.signature_name,
-      selectedCarriersType: typeof application?.selected_carriers,
-      selectedCarriersIsArray: Array.isArray(application?.selected_carriers),
-      selectedCarriersLength: Array.isArray(application?.selected_carriers) ? application.selected_carriers.length : 'N/A',
-      preferredContactMethodsType: typeof application?.preferred_contact_methods,
-      preferredContactMethodsIsArray: Array.isArray(application?.preferred_contact_methods),
-    });
 
     // Create Supabase client for storage operations
     const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
@@ -550,7 +529,7 @@ serve(async (req) => {
     //       }), 
     //       {
     //         status: 400,
-    //         headers: { ...corsHeaders, "Content-Type": "application/json" },
+    //         headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
     //       }
     //     );
     //   }
@@ -582,11 +561,10 @@ serve(async (req) => {
           const response = await fetch(url!);
           if (response.ok) {
             pdfBytes = await response.arrayBuffer();
-            console.log(`Loaded template from: ${url}`);
             break;
           }
         } catch (e) {
-          console.warn(`Failed to load from ${url}:`, e);
+          // Template load failed, try next URL
         }
       }
     }
@@ -601,7 +579,7 @@ serve(async (req) => {
         }), 
         {
           status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
         }
       );
     }
@@ -917,7 +895,6 @@ serve(async (req) => {
     // ========================================================================
 
     const selectedCarriers = application.selected_carriers || [];
-    console.log(`Processing ${selectedCarriers.length} carriers`);
 
     for (const carrier of selectedCarriers) {
       // Handle both naming conventions
@@ -952,9 +929,7 @@ serve(async (req) => {
             `selected_carriers.${carrierName}.non_resident_states`,
           );
         }
-        console.log(`Mapped carrier: ${carrierName} -> ${mapping.checkbox}`);
       } else {
-        console.warn(`No carrier mapping found for: ${carrierName} (normalized: ${normalizedName})`);
         addReport(`carrier_${normalizedName}`, carrierName, "selected_carriers", "failed", "No mapping found");
       }
     }
@@ -1063,18 +1038,6 @@ serve(async (req) => {
     const failedCount = mappingReport.filter((m) => m.status === "failed").length;
     const skippedCount = mappingReport.filter((m) => m.status === "skipped").length;
 
-    console.log(`PDF generated: ${filename}`);
-    console.log(`Mappings: ${successCount} success, ${failedCount} failed, ${skippedCount} skipped`);
-
-    // Log failures for debugging
-    const failures = mappingReport.filter((m) => m.status === "failed");
-    if (failures.length > 0) {
-      console.log(
-        "Failed mappings:",
-        failures.map((f) => `${f.pdfFieldKey}: ${f.error}`),
-      );
-    }
-
     // Save to storage if requested
     if (saveToStorage && applicationId) {
       try {
@@ -1126,8 +1089,6 @@ serve(async (req) => {
 
           if (updateError) {
             console.error('Error updating application with PDF path:', updateError);
-          } else {
-            console.log('PDF saved to storage:', storagePath);
           }
         }
       } catch (storageError) {
@@ -1150,22 +1111,20 @@ serve(async (req) => {
           skipped: skippedCount,
         },
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } },
     );
   } catch (error) {
-    console.error("Error:", error);
+    console.error("PDF generation failed:", error instanceof Error ? error.message : "Unknown error");
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : undefined;
-    console.error("Error message:", errorMessage);
-    console.error("Error stack:", errorStack);
-    
+
     return new Response(
       JSON.stringify({
         error: errorMessage,
         stack: errorStack,
         details: error instanceof Error ? String(error) : undefined,
       }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } },
     );
   }
 });

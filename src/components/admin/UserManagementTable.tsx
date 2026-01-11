@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,54 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+
+// Password validation helper
+const validatePassword = (password: string): {
+  isValid: boolean;
+  message: string;
+  strength: 'weak' | 'medium' | 'strong';
+  checks: {
+    length: boolean;
+    uppercase: boolean;
+    lowercase: boolean;
+    number: boolean;
+    special: boolean;
+  };
+} => {
+  const minLength = 12;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+  const checks = {
+    length: password.length >= minLength,
+    uppercase: hasUppercase,
+    lowercase: hasLowercase,
+    number: hasNumber,
+    special: hasSpecial,
+  };
+
+  const meetsRequirements =
+    checks.length &&
+    checks.uppercase &&
+    checks.lowercase &&
+    checks.number &&
+    checks.special;
+
+  if (!meetsRequirements) {
+    return {
+      isValid: false,
+      message: 'Password must be at least 12 characters with uppercase, lowercase, number, and special character.',
+      strength: 'weak',
+      checks,
+    };
+  }
+
+  const strength = password.length >= 16 ? 'strong' : 'medium';
+
+  return { isValid: true, message: '', strength, checks };
+};
 import {
   Table,
   TableBody,
@@ -47,10 +95,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { 
-  MoreHorizontal, 
-  Loader2, 
-  RefreshCw, 
+import {
+  MoreHorizontal,
+  Loader2,
+  RefreshCw,
   Search,
   KeyRound,
   Send,
@@ -61,7 +109,9 @@ import {
   Clock,
   AlertCircle,
   Circle,
-  Download
+  Download,
+  Check,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -574,8 +624,69 @@ export function UserManagementTable() {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter a strong password"
               />
-              <p className="text-xs text-muted-foreground">
+
+              {/* Password strength indicator */}
+              {newPassword.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  {/* Strength bar */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          validatePassword(newPassword).strength === 'strong'
+                            ? 'w-full bg-green-500'
+                            : validatePassword(newPassword).strength === 'medium'
+                            ? 'w-2/3 bg-amber-500'
+                            : 'w-1/3 bg-red-500'
+                        }`}
+                      />
+                    </div>
+                    <span
+                      className={`text-xs font-medium ${
+                        validatePassword(newPassword).strength === 'strong'
+                          ? 'text-green-600'
+                          : validatePassword(newPassword).strength === 'medium'
+                          ? 'text-amber-600'
+                          : 'text-red-600'
+                      }`}
+                    >
+                      {validatePassword(newPassword).strength === 'strong'
+                        ? 'Strong'
+                        : validatePassword(newPassword).strength === 'medium'
+                        ? 'Medium'
+                        : 'Weak'}
+                    </span>
+                  </div>
+
+                  {/* Requirements checklist */}
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                    <div className={`flex items-center gap-1.5 ${validatePassword(newPassword).checks.length ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {validatePassword(newPassword).checks.length ? <Check size={14} /> : <X size={14} />}
+                      <span>12+ characters</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 ${validatePassword(newPassword).checks.uppercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {validatePassword(newPassword).checks.uppercase ? <Check size={14} /> : <X size={14} />}
+                      <span>Uppercase letter</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 ${validatePassword(newPassword).checks.lowercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {validatePassword(newPassword).checks.lowercase ? <Check size={14} /> : <X size={14} />}
+                      <span>Lowercase letter</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 ${validatePassword(newPassword).checks.number ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {validatePassword(newPassword).checks.number ? <Check size={14} /> : <X size={14} />}
+                      <span>Number</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 ${validatePassword(newPassword).checks.special ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {validatePassword(newPassword).checks.special ? <Check size={14} /> : <X size={14} />}
+                      <span>Special character</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-xs text-muted-foreground pt-1">
                 Share this password with the user so they can log in
               </p>
             </div>
@@ -584,7 +695,10 @@ export function UserManagementTable() {
             <Button variant="outline" onClick={() => setResetPasswordUser(null)}>
               Cancel
             </Button>
-            <Button onClick={handleResetPassword} disabled={resettingPassword || !newPassword}>
+            <Button
+              onClick={handleResetPassword}
+              disabled={resettingPassword || !newPassword || !validatePassword(newPassword).isValid}
+            >
               {resettingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Reset Password
             </Button>

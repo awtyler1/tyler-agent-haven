@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 interface ResetContractingRequest {
   email: string;
@@ -12,7 +24,7 @@ interface ResetContractingRequest {
 
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -232,7 +244,7 @@ serve(async (req: Request): Promise<Response> => {
       }),
       { 
         status: 200, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   } catch (error: unknown) {
@@ -242,7 +254,7 @@ serve(async (req: Request): Promise<Response> => {
       JSON.stringify({ error: errorMessage }),
       { 
         status: 400, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   }

@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 interface CreateAdminRequest {
   email: string;
@@ -15,7 +27,7 @@ interface CreateAdminRequest {
 
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -39,11 +51,9 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     if (authError || !user) {
-      console.error("Auth error:", authError);
+      console.error("Authentication failed");
       throw new Error("Unauthorized: Invalid or expired token");
     }
-
-    console.log(`Checking roles for user: ${user.id} (${user.email})`);
 
     // Only admins can create admin users
     const { data: roles, error: rolesError } = await supabaseAdmin
@@ -53,14 +63,12 @@ serve(async (req: Request): Promise<Response> => {
       .in("role", ["super_admin", "admin"]);
 
     if (rolesError) {
-      console.error("Roles query error:", rolesError);
+      console.error("Failed to query user roles");
       throw new Error(`Failed to check roles: ${rolesError.message}`);
     }
 
-    console.log(`Found roles:`, roles);
-
     if (!roles || roles.length === 0) {
-      throw new Error(`Unauthorized: User ${user.email} does not have admin role`);
+      throw new Error("Unauthorized: Admin role required");
     }
 
     const { 
@@ -73,8 +81,6 @@ serve(async (req: Request): Promise<Response> => {
     if (!email || !fullName || !role) {
       throw new Error("Email, full name, and role are required");
     }
-
-    console.log(`Creating admin: ${email}, role: ${role}`);
 
     // Generate a random password
     const tempPassword = crypto.randomUUID();
@@ -91,8 +97,6 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error(`Failed to create user: ${createError.message}`);
     }
 
-    console.log(`User created: ${newUser.user.id} (${email})`);
-
     // Update profile - admins are always APPOINTED (no contracting needed)
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
@@ -104,7 +108,7 @@ serve(async (req: Request): Promise<Response> => {
       .eq("user_id", newUser.user.id);
 
     if (profileError) {
-      console.error("Failed to update profile:", profileError);
+      console.error("Failed to update admin profile");
     }
 
     // Assign the role
@@ -113,11 +117,9 @@ serve(async (req: Request): Promise<Response> => {
       .insert({ user_id: newUser.user.id, role });
 
     if (roleError) {
-      console.error("Failed to assign role:", roleError);
+      console.error("Failed to assign admin role");
       throw new Error(`Failed to assign role: ${roleError.message}`);
     }
-
-    console.log(`Role assigned: ${role} for user ${newUser.user.id}`);
 
     // Send setup email
     let emailSent = false;
@@ -131,7 +133,7 @@ serve(async (req: Request): Promise<Response> => {
       });
 
       if (linkError) {
-        console.error("Failed to generate recovery link:", linkError);
+        console.error("Failed to generate setup link");
         throw new Error(`Failed to generate setup link: ${linkError.message}`);
       }
 
@@ -159,9 +161,13 @@ serve(async (req: Request): Promise<Response> => {
               <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
                 <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
                   <div style="text-align: center; margin-bottom: 32px;">
-                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #a38529 0%, #c9a832 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                      <span style="color: white; font-size: 24px; font-weight: bold;">TIG</span>
-                    </div>
+                    <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto 16px;">
+                      <tr>
+                        <td align="center" valign="middle" style="width: 60px; height: 60px; background-color: #D4A855; border-radius: 50%; text-align: center; vertical-align: middle;">
+                          <span style="color: white; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif;">TIG</span>
+                        </td>
+                      </tr>
+                    </table>
                     <h1 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: 600;">Hi ${firstName},</h1>
                   </div>
                   
@@ -193,15 +199,13 @@ serve(async (req: Request): Promise<Response> => {
 
       if (emailResponse.ok) {
         emailSent = true;
-        console.log(`Setup email sent to ${email}`);
 
         await supabaseAdmin
           .from("profiles")
           .update({ setup_link_sent_at: new Date().toISOString() })
           .eq("user_id", newUser.user.id);
       } else {
-        const errorText = await emailResponse.text();
-        console.error("Failed to send setup email:", errorText);
+        console.error("Failed to send admin setup email");
       }
     }
 
@@ -214,16 +218,16 @@ serve(async (req: Request): Promise<Response> => {
       }),
       { 
         status: 200, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   } catch (error: any) {
-    console.error("Error in create-admin:", error);
+    console.error("Create admin failed:", error.message);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
         status: 400, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
       }
     );
   }

@@ -55,6 +55,7 @@ export default function AdminDashboard() {
   const [newSubmissions, setNewSubmissions] = useState(0);
   const [loading, setLoading] = useState(true);
   const [resettingContracting, setResettingContracting] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
 
   useEffect(() => {
     fetchDashboardData();
@@ -516,25 +517,34 @@ export default function AdminDashboard() {
                 Super Admin Tools
               </h2>
               <div className="bg-white rounded-xl border border-[#E5E2DB] p-5">
-                <div className="flex items-center justify-between">
+                <div className="space-y-3">
                   <div>
                     <p className="text-sm font-medium text-foreground mb-1">Reset Contracting Status</p>
-                    <p className="text-xs text-muted-foreground">Reset contracting for austinwhitmertyler@gmail.com</p>
+                    <p className="text-xs text-muted-foreground">Enter the email address to reset contracting status</p>
                   </div>
-                  <Button
-                    onClick={() => handleResetContractingByEmail('austinwhitmertyler@gmail.com')}
-                    disabled={resettingContracting}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    {resettingContracting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <RotateCcw className="h-4 w-4" />
-                    )}
-                    Reset
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="user@example.com"
+                      className="flex-1 px-3 py-2 text-sm border border-[#E5E2DB] rounded-md focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    />
+                    <Button
+                      onClick={() => resetEmail && handleResetContractingByEmail(resetEmail)}
+                      disabled={resettingContracting || !resetEmail}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      {resettingContracting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RotateCcw className="h-4 w-4" />
+                      )}
+                      Reset
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>

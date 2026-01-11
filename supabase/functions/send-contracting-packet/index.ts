@@ -1,11 +1,24 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 interface FileAttachment {
   name: string;
@@ -26,7 +39,88 @@ interface ContractingSubmission {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
+  }
+
+  // Validate Supabase environment variables
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error("Supabase environment variables not configured");
+    return new Response(
+      JSON.stringify({ success: false, error: "Server configuration error" }),
+      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
+    );
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+
+  // Verify the requesting user is an admin
+  const authHeader = req.headers.get("Authorization");
+  console.log("Auth header present:", !!authHeader);
+
+  if (!authHeader) {
+    console.error("No authorization header found");
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized: No authorization header" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
+    );
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+
+  let user;
+  let authError;
+
+  try {
+    const result = await supabaseAdmin.auth.getUser(token);
+    user = result.data?.user;
+    authError = result.error;
+    console.log("getUser result - user:", !!user, "error:", authError?.message || "none");
+  } catch (e) {
+    console.error("getUser threw exception:", e);
+    return new Response(
+      JSON.stringify({ success: false, error: "Authentication failed" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
+    );
+  }
+
+  if (authError || !user) {
+    console.error("Auth error:", authError?.message || "No user returned");
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized: Invalid token" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
+    );
+  }
+
+  console.log("User authenticated:", user.id, user.email);
+
+  // Check for admin or super_admin role
+  const { data: roles, error: rolesError } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .in("role", ["super_admin", "admin"]);
+
+  if (rolesError) {
+    console.error("Error checking roles:", rolesError.message);
+    return new Response(
+      JSON.stringify({ success: false, error: "Failed to verify permissions" }),
+      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
+    );
+  }
+
+  console.log("User roles found:", roles?.map(r => r.role) || []);
+
+  if (!roles || roles.length === 0) {
+    console.error("User does not have admin or super_admin role");
+    return new Response(
+      JSON.stringify({ success: false, error: "Unauthorized: Admin role required" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
+    );
   }
 
   // Validate API key is configured
@@ -34,7 +128,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.error("RESEND_API_KEY is not configured");
     return new Response(
       JSON.stringify({ success: false, error: "Email service not configured" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
   }
 
@@ -48,35 +142,35 @@ const handler = async (req: Request): Promise<Response> => {
     if (!name || typeof name !== "string" || name.trim().length === 0 || name.length > 100) {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid name provided" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 400, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
     if (!npn || typeof npn !== "string" || !/^\d{1,10}$/.test(npn.trim())) {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid NPN provided" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 400, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
     if (email && (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid email provided" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 400, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
     if (!residentState || typeof residentState !== "string" || residentState.trim().length === 0) {
       return new Response(
         JSON.stringify({ success: false, error: "Resident state is required" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 400, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
     if (!files || !Array.isArray(files) || files.length === 0) {
       return new Response(
         JSON.stringify({ success: false, error: "At least one file is required" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 400, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
@@ -86,12 +180,12 @@ const handler = async (req: Request): Promise<Response> => {
       if (file.content.length > maxBase64Size) {
         return new Response(
           JSON.stringify({ success: false, error: `File ${file.fileName} exceeds 15MB limit` }),
-          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          { status: 400, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
         );
       }
     }
 
-    console.log(`Processing contracting submission from ${name.trim()} (NPN: ${npn.trim()})`);
+    console.log("Processing contracting packet submission");
 
     // Get current timestamp for submission
     const submissionTimestamp = new Date().toLocaleString('en-US', {
@@ -220,13 +314,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(
       JSON.stringify({ success: true, message: "Contracting packet submitted successfully" }),
-      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      { status: 200, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
   } catch (error: any) {
     console.error("Error in send-contracting-packet function:", error);
     return new Response(
       JSON.stringify({ success: false, error: error.message || "Failed to submit contracting packet" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
   }
 };

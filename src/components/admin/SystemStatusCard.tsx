@@ -10,6 +10,7 @@ export function SystemStatusCard() {
   const { status, userStats } = useSystemStatus();
   const [resetting, setResetting] = useState(false);
   const [resettingByEmail, setResettingByEmail] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
 
 
   const handleTestContracting = async () => {
@@ -267,20 +268,27 @@ export function SystemStatusCard() {
               )}
               Test Contracting Flow
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => handleResetContractingByEmail('austinwhitmertyler@gmail.com')}
-              disabled={resettingByEmail}
-            >
-              {resettingByEmail ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <RotateCcw className="h-4 w-4 mr-2" />
-              )}
-              Reset Contracting (Austin)
-            </Button>
+            <div className="flex items-center gap-2">
+              <input
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="user@example.com"
+                className="flex-1 px-2 py-1 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/20"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => resetEmail && handleResetContractingByEmail(resetEmail)}
+                disabled={resettingByEmail || !resetEmail}
+              >
+                {resettingByEmail ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

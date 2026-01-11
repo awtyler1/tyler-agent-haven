@@ -113,13 +113,21 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/admin/users/:userId" 
-              element={<UserDetailPage />} 
+            <Route
+              path="/admin/users/:userId"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <UserDetailPage />
+                </ProtectedRoute>
+              }
             />
-            <Route 
-              path="/admin/platform-map" 
-              element={<PlatformMapPage />} 
+            <Route
+              path="/admin/platform-map"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <PlatformMapPage />
+                </ProtectedRoute>
+              }
             />
             <Route 
               path="/admin/pdf-extractor" 

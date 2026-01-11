@@ -2,25 +2,48 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { PDFDocument } from "https://esm.sh/pdf-lib@1.17.1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
+    // Validate environment variables
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Missing required environment variables");
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { pdfUrl, pdfBase64 } = await req.json();
     
     let pdfBytes: ArrayBuffer;
     
     if (pdfBase64) {
       // Decode base64
-      console.log('Using base64 PDF data');
       const binaryString = atob(pdfBase64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
@@ -28,7 +51,6 @@ serve(async (req) => {
       }
       pdfBytes = bytes.buffer;
     } else if (pdfUrl) {
-      console.log('Fetching PDF from:', pdfUrl);
       const pdfResponse = await fetch(pdfUrl);
       if (!pdfResponse.ok) {
         throw new Error(`Failed to fetch PDF: ${pdfResponse.status}`);
@@ -37,21 +59,16 @@ serve(async (req) => {
     } else {
       return new Response(
         JSON.stringify({ error: 'pdfUrl or pdfBase64 is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
       );
     }
-    
-    console.log('PDF size:', pdfBytes.byteLength, 'bytes');
-    
+
     // Load the PDF
     const pdfDoc = await PDFDocument.load(pdfBytes);
-    console.log('PDF loaded successfully, pages:', pdfDoc.getPageCount());
-    
+
     // Get the form
     const form = pdfDoc.getForm();
     const fields = form.getFields();
-    
-    console.log('Found', fields.length, 'form fields');
     
     // Extract field information
     const fieldInfo = fields.map((field: any) => {
@@ -74,7 +91,7 @@ serve(async (req) => {
           value = field.getSelected?.() || null;
         }
       } catch (e) {
-        console.log(`Could not get value for field ${name}:`, e);
+        // Could not get value for field
       }
       
       return {
@@ -93,11 +110,9 @@ serve(async (req) => {
       radioGroups: fieldInfo.filter((f: any) => f.type === 'PDFRadioGroup'),
       other: fieldInfo.filter((f: any) => !['PDFTextField', 'PDFCheckBox', 'PDFDropdown', 'PDFRadioGroup'].includes(f.type)),
     };
-    
+
     // Save to system_config for later retrieval
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     await supabase
       .from('system_config')
@@ -106,9 +121,7 @@ serve(async (req) => {
         config_value: { fields: fieldInfo, grouped, totalFields: fields.length, pageCount: pdfDoc.getPageCount() },
         updated_at: new Date().toISOString(),
       }, { onConflict: 'config_key' });
-    
-    console.log('Saved field info to system_config');
-    
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -120,7 +133,7 @@ serve(async (req) => {
       }, null, 2),
       { 
         status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } 
       }
     );
     
@@ -135,7 +148,7 @@ serve(async (req) => {
       }),
       { 
         status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } 
       }
     );
   }

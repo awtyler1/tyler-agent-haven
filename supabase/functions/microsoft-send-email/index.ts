@@ -8,10 +8,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 interface Attachment {
   name: string;
@@ -69,7 +81,7 @@ async function refreshAccessToken(refreshToken: string): Promise<{
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -78,7 +90,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: "No authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
       );
     }
 
@@ -95,7 +107,7 @@ serve(async (req) => {
     if (userError || !user) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
       );
     }
 
@@ -106,7 +118,7 @@ serve(async (req) => {
     if (!to || !subject || !body) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: to, subject, body" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
       );
     }
 
@@ -126,7 +138,7 @@ serve(async (req) => {
           code: "OUTLOOK_NOT_CONNECTED",
           message: "Please connect your Outlook account first" 
         }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
       );
     }
 
@@ -138,8 +150,6 @@ serve(async (req) => {
     const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
 
     if (expiresAt <= fiveMinutesFromNow) {
-      console.log("Access token expired or expiring soon, refreshing...");
-      
       const newTokens = await refreshAccessToken(tokenData.refresh_token_encrypted);
       
       if (!newTokens) {
@@ -149,7 +159,7 @@ serve(async (req) => {
             code: "TOKEN_REFRESH_FAILED",
             message: "Please reconnect your Outlook account" 
           }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
         );
       }
 
@@ -167,7 +177,6 @@ serve(async (req) => {
         .eq("user_id", user.id);
 
       accessToken = newTokens.access_token;
-      console.log("Token refreshed successfully");
     }
 
     // Build the email message for Microsoft Graph
@@ -221,17 +230,15 @@ serve(async (req) => {
             code: "AUTH_FAILED",
             message: "Please reconnect your Outlook account" 
           }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
         );
       }
       
       return new Response(
         JSON.stringify({ error: "Failed to send email", details: errorText }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
       );
     }
-
-    console.log("Email sent successfully via Microsoft Graph");
 
     // Log the communication in our database
     if (agentId) {
@@ -250,8 +257,7 @@ serve(async (req) => {
         });
 
       if (logError) {
-        console.error("Failed to log communication:", logError);
-        // Don't fail the request, email was still sent
+        console.error("Failed to log communication");
       }
     }
 
@@ -261,14 +267,14 @@ serve(async (req) => {
         message: "Email sent successfully",
         sentAt: new Date().toISOString()
       }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
 
   } catch (error) {
     console.error("Send email error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
   }
 });

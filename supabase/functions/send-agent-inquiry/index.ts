@@ -2,11 +2,22 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 interface AgentInquiryRequest {
   name: string;
@@ -43,13 +54,13 @@ function isRateLimited(email: string): boolean {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
     const { name, email, phone, message }: AgentInquiryRequest = await req.json();
 
-    console.log("Received agent inquiry from:", name, email);
+    console.log("Processing agent inquiry request");
 
     // Validate required fields
     if (!name || !email) {
@@ -57,7 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ error: "Name and email are required" }),
         {
           status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
+          headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
         }
       );
     }
@@ -69,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ error: "Too many requests. Please try again later." }),
         {
           status: 429,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
+          headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
         }
       );
     }
@@ -165,7 +176,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ success: true, message: "Inquiry submitted successfully" }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
       }
     );
   } catch (error: any) {
@@ -174,7 +185,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ error: error.message }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
       }
     );
   }

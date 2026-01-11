@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, FileSearch, Loader2, Download, Copy, Database, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { sampleContractingPayload, sampleContractingPayloadWithDisclosures, minimalSamplePayload } from "@/data/sampleContractingPayload";
+import { sampleContractingPayload, sampleContractingPayloadWithDisclosures, minimalSamplePayload } from "./__fixtures__/sampleContractingPayload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface FieldInfo {

@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://www.tigagenthub.com",
+  "https://tigagenthub.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  };
+}
 
 // Rate limiting configuration
 const MAX_ATTEMPTS = 5;
@@ -13,7 +25,7 @@ const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -28,7 +40,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (!password || typeof password !== "string") {
       return new Response(
         JSON.stringify({ valid: false, error: "Password is required" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 400, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
@@ -65,7 +77,7 @@ const handler = async (req: Request): Promise<Response> => {
             error: `Too many attempts. Please try again in ${remainingMinutes} minutes.`,
             locked: true
           }),
-          { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          { status: 429, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
         );
       }
 
@@ -81,7 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("SITE_PASSWORD environment variable not set");
       return new Response(
         JSON.stringify({ valid: false, error: "Server configuration error" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
       );
     }
 
@@ -120,20 +132,20 @@ const handler = async (req: Request): Promise<Response> => {
             error: "Too many failed attempts. Please try again in 15 minutes.",
             locked: true
           }),
-          { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          { status: 429, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
         );
       }
     }
 
     return new Response(
       JSON.stringify({ valid: isValid }),
-      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      { status: 200, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
   } catch (error: any) {
     console.error("Error in validate-password function:", error);
     return new Response(
       JSON.stringify({ valid: false, error: "Validation failed" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
   }
 };

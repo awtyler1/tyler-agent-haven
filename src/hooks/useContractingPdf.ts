@@ -40,8 +40,34 @@ export function useContractingPdf() {
   const [error, setError] = useState<string | null>(null);
 
   const validateApplication = (application: ContractingApplication): string[] => {
-    // TESTING: All validation disabled for testing purposes
-    return [];
+    const errors: string[] = [];
+
+    if (!application.full_legal_name?.trim()) {
+      errors.push('Full legal name is required');
+    }
+    if (!application.tax_id?.trim()) {
+      errors.push('Tax ID/SSN is required');
+    }
+    if (!application.birth_date) {
+      errors.push('Birth date is required');
+    }
+    if (!application.birth_city?.trim()) {
+      errors.push('Birth city is required');
+    }
+    if (!application.birth_state?.trim()) {
+      errors.push('Birth state is required');
+    }
+    if (!application.email_address?.trim()) {
+      errors.push('Email address is required');
+    }
+    if (!application.npn_number?.trim()) {
+      errors.push('NPN number is required');
+    }
+    if (!application.signature_name?.trim()) {
+      errors.push('Signature is required');
+    }
+
+    return errors;
   };
 
   const generatePdf = async (application: ContractingApplication, saveToStorage = true, skipValidation = false): Promise<PdfGenerationResult> => {
@@ -49,16 +75,15 @@ export function useContractingPdf() {
     setError(null);
 
     try {
-      // TESTING: Validation disabled for testing purposes
-      // if (!skipValidation) {
-      //   const validationErrors = validateApplication(application);
-      //   if (validationErrors.length > 0) {
-      //     const errorMsg = validationErrors.join(', ');
-      //     setError(errorMsg);
-      //     toast.error('Cannot generate PDF: ' + validationErrors[0]);
-      //     return { success: false, error: errorMsg };
-      //   }
-      // }
+      if (!skipValidation) {
+        const validationErrors = validateApplication(application);
+        if (validationErrors.length > 0) {
+          const errorMsg = validationErrors.join(', ');
+          setError(errorMsg);
+          toast.error('Cannot generate PDF: ' + validationErrors[0]);
+          return { success: false, error: errorMsg };
+        }
+      }
 
       // Fetch the PDF template and convert to base64
       // CRITICAL: Use the SIGNATURES_FIXED template with proper /Sig type signature fields
@@ -109,17 +134,16 @@ export function useContractingPdf() {
       const birthCity = typeof application.birth_city === 'string' ? application.birth_city.trim() : '';
       const birthState = typeof application.birth_state === 'string' ? application.birth_state.trim() : '';
 
-      // TESTING: Birth field validation disabled for testing purposes
-      // if (!skipValidation && (!birthCity || !birthState)) {
-      //   const msg = !birthCity && !birthState
-      //     ? 'Birth City and Birth State are required to generate the contracting packet PDF.'
-      //     : !birthCity
-      //       ? 'Birth City is required to generate the contracting packet PDF.'
-      //       : 'Birth State is required to generate the contracting packet PDF.';
-      //   setError(msg);
-      //   toast.error(msg);
-      //   return { success: false, error: msg };
-      // }
+      if (!skipValidation && (!birthCity || !birthState)) {
+        const msg = !birthCity && !birthState
+          ? 'Birth City and Birth State are required to generate the contracting packet PDF.'
+          : !birthCity
+            ? 'Birth City is required to generate the contracting packet PDF.'
+            : 'Birth State is required to generate the contracting packet PDF.';
+        setError(msg);
+        toast.error(msg);
+        return { success: false, error: msg };
+      }
 
       // The Supabase client automatically handles authentication and token refresh
       // Verify we have a session, and if token is close to expiring, refresh it
@@ -209,7 +233,7 @@ export function useContractingPdf() {
             },
           },
           saveToStorage,
-          skipValidation: true, // TESTING: Always skip validation for testing
+          skipValidation,
           applicationId: application.id,
           templateBase64,
         },
@@ -298,7 +322,7 @@ export function useContractingPdf() {
                   },
                 },
                 saveToStorage,
-                skipValidation: true,
+                skipValidation,
                 applicationId: application.id,
                 templateBase64,
               },

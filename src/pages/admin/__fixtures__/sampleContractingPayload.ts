@@ -1,5 +1,10 @@
-// Comprehensive sample contracting application payload for PDF generation testing
-// This payload includes all fields with realistic test data
+/**
+ * TEST DATA ONLY - Do not use in production code
+ *
+ * Sample contracting application payloads for PDF generation testing.
+ * This file contains fake PII for testing the PDF field audit tool.
+ * All data is fictional and for development/testing purposes only.
+ */
 
 export const sampleContractingPayload = {
   // Personal Information
@@ -9,7 +14,7 @@ export const sampleContractingPayload = {
   birth_state: "Kentucky",
   gender: "Male",
   tax_id: "123-45-6789",
-  
+
   // Contact Information
   email_address: "john.smith@example.com",
   phone_mobile: "(502) 555-1234",
@@ -17,7 +22,7 @@ export const sampleContractingPayload = {
   phone_business: "(502) 555-9012",
   fax: "(502) 555-3456",
   preferred_contact_methods: ["email", "text", "phone"],
-  
+
   // Home Address
   home_address: {
     street1: "123 Main Street",
@@ -26,7 +31,7 @@ export const sampleContractingPayload = {
     state: "KY",
     zip: "40202"
   },
-  
+
   // Mailing Address
   mailing_address_same_as_home: false,
   mailing_address: {
@@ -36,7 +41,7 @@ export const sampleContractingPayload = {
     state: "KY",
     zip: "40507"
   },
-  
+
   // UPS Address
   ups_address_same_as_home: false,
   ups_address: {
@@ -46,7 +51,7 @@ export const sampleContractingPayload = {
     state: "KY",
     zip: "40203"
   },
-  
+
   // Previous Addresses (last 5 years)
   previous_addresses: [
     {
@@ -68,7 +73,7 @@ export const sampleContractingPayload = {
       to_date: "2017-12-31"
     }
   ],
-  
+
   // Licensing & Identification
   npn_number: "12345678",
   insurance_license_number: "KY-INS-987654",
@@ -79,15 +84,15 @@ export const sampleContractingPayload = {
   agency_name: "Smith Insurance Agency LLC",
   agency_tax_id: "98-7654321",
   is_corporation: true,
-  
+
   // Non-Resident States
   non_resident_states: ["TN", "IN", "OH", "WV"],
-  
+
   // FINRA Registration
   is_finra_registered: true,
   finra_broker_dealer_name: "National Securities Corp",
   finra_crd_number: "CRD-123456",
-  
+
   // Legal Questions (all answered "No" for clean submission)
   legal_questions: {
     "1": { answer: "no", explanation: "" },
@@ -129,10 +134,10 @@ export const sampleContractingPayload = {
     "18": { answer: "no", explanation: "" },
     "19": { answer: "no", explanation: "" }
   },
-  
+
   // Disciplinary Entries (empty for clean submission)
   disciplinary_entries: {},
-  
+
   // Banking Information
   bank_routing_number: "083000137",
   bank_account_number: "1234567890123",
@@ -140,7 +145,7 @@ export const sampleContractingPayload = {
   beneficiary_name: "Jane Elizabeth Smith",
   beneficiary_relationship: "Spouse",
   requesting_commission_advancing: true,
-  
+
   // Training & Certifications
   has_aml_course: true,
   aml_course_name: "AHIP Anti-Money Laundering Certification",
@@ -149,13 +154,13 @@ export const sampleContractingPayload = {
   aml_training_provider: "AHIP",
   has_ltc_certification: true,
   state_requires_ce: true,
-  
+
   // E&O Insurance
   eo_provider: "NAPA E&O Insurance",
   eo_policy_number: "EO-2024-789456",
   eo_expiration_date: "2025-12-31",
   eo_not_yet_covered: false,
-  
+
   // Carrier Selection
   selected_carriers: [
     { code: "AETNA", name: "Aetna", non_resident_states: ["TN", "IN"] },
@@ -165,7 +170,7 @@ export const sampleContractingPayload = {
     { code: "ANTHEM", name: "Anthem", non_resident_states: ["IN", "WV"] },
     { code: "DEVOTED", name: "Devoted Health", non_resident_states: [] }
   ],
-  
+
   // Marketing Consent
   agreements: {
     marketing_consent: true,
@@ -173,7 +178,7 @@ export const sampleContractingPayload = {
     privacy_policy_accepted: true,
     electronic_signature_consent: true
   },
-  
+
   // Section Acknowledgments
   section_acknowledgments: {
     personal_info: { acknowledged: true, timestamp: "2024-12-18T10:30:00Z" },
@@ -185,12 +190,12 @@ export const sampleContractingPayload = {
     carriers: { acknowledged: true, timestamp: "2024-12-18T10:48:00Z" },
     agreements: { acknowledged: true, timestamp: "2024-12-18T10:50:00Z" }
   },
-  
+
   // Signatures
   signature_name: "John Michael Smith",
   signature_date: "2024-12-18T10:52:00Z",
   signature_initials: "JMS",
-  
+
   // Uploaded Documents (base64 placeholder - would be actual base64 in real use)
   uploaded_documents: {
     insurance_license: "contracting-documents/user123/license.pdf",
@@ -204,7 +209,7 @@ export const sampleContractingPayload = {
     background_signature_image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
     signature_image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
   },
-  
+
   // Application Metadata
   id: "sample-app-uuid-12345",
   user_id: "sample-user-uuid-67890",
@@ -222,14 +227,14 @@ export const sampleContractingPayloadWithDisclosures = {
   full_legal_name: "Robert James Wilson",
   birth_date: "1978-03-22",
   email_address: "r.wilson@testinsurance.com",
-  
+
   legal_questions: {
     ...sampleContractingPayload.legal_questions,
     "1": { answer: "yes", explanation: "Minor traffic violation in 2019, fully resolved." },
     "5": { answer: "yes", explanation: "Left previous agency due to relocation in 2020." },
     "15": { answer: "yes", explanation: "Filed Chapter 7 bankruptcy in 2015, discharged 2016." }
   },
-  
+
   disciplinary_entries: {
     entry1: {
       date_of_action: "2019-05-15",

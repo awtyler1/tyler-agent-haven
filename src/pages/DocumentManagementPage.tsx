@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, Loader2, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import * as pdfjsLib from "pdfjs-dist";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -17,6 +19,7 @@ interface ProcessingStatus {
 }
 
 export default function DocumentManagementPage() {
+  const navigate = useNavigate();
   const [processingStatuses, setProcessingStatuses] = useState<ProcessingStatus[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -248,6 +251,13 @@ export default function DocumentManagementPage() {
 
   const processDocument = async (filename: string): Promise<{ chunksProcessed: number }> => {
     try {
+      // Get session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        navigate('/auth');
+        throw new Error('No active session. Please sign in again.');
+      }
+
       // Fetch PDF from public folder
       const response = await fetch(`/downloads/${filename}`);
       if (!response.ok) throw new Error("Failed to fetch PDF");
@@ -301,7 +311,8 @@ export default function DocumentManagementPage() {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                "Authorization": `Bearer ${session.access_token}`,
+                "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
               },
               body: JSON.stringify({
                 documentText: chunk,
