@@ -87,7 +87,7 @@ function DocumentCard({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={cn(
-        "relative group flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all duration-200 cursor-pointer min-h-[140px]",
+        "relative group flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer min-h-[100px]",
         // Uploaded state
         isUploaded && "bg-emerald-50/50 border-emerald-200 cursor-default",
         // Uploading state
@@ -112,18 +112,18 @@ function DocumentCard({
 
       {/* Icon */}
       <div className={cn(
-        "w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-all",
+        "w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all",
         isUploaded && "bg-emerald-100",
         isUploading && "bg-primary/10",
         !isUploaded && !isUploading && "bg-slate-100 group-hover:bg-slate-200 group-hover:scale-110"
       )}>
         {isUploading ? (
-          <Loader2 className="h-6 w-6 text-primary animate-spin" />
+          <Loader2 className="h-5 w-5 text-primary animate-spin" />
         ) : isUploaded ? (
-          <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
         ) : (
           <Upload className={cn(
-            "h-5 w-5 transition-colors",
+            "h-4 w-4 transition-colors",
             hasError ? "text-rose-400" : "text-slate-500 group-hover:text-slate-700"
           )} />
         )}
@@ -142,12 +142,12 @@ function DocumentCard({
 
       {/* Status text */}
       <span className={cn(
-        "text-xs mt-1 transition-colors",
+        "text-xs transition-colors",
         isUploaded && "text-emerald-600/70",
         isUploading && "text-primary/70",
         !isUploaded && !isUploading && "text-slate-400 group-hover:text-slate-500"
       )}>
-        {isUploading ? "Uploading..." : isUploaded ? "Uploaded" : "Click or drag to upload"}
+        {isUploading ? "Uploading..." : isUploaded ? "Uploaded" : "Click or drag"}
       </span>
 
       {/* Required indicator */}
@@ -197,37 +197,36 @@ export function DocumentsSection({
   };
 
   return (
-    <Card className="rounded-[28px] border-0 overflow-hidden" style={{ 
+    <Card className="rounded-2xl border-0 overflow-hidden" style={{
       background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
       boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.06)'
     }}>
-      <CardHeader className="pb-2">
-        <div className="flex flex-col items-center text-center pt-4">
-          {/* Icon */}
-          <div className={cn(
-            "w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-colors",
-            allRequiredComplete ? "bg-emerald-100" : "bg-primary/10"
-          )}>
-            {allRequiredComplete ? (
-              <CheckCircle2 className="h-7 w-7 text-emerald-600" />
-            ) : (
-              <Upload className="h-7 w-7 text-primary" />
-            )}
+      <CardHeader className="pb-2 pt-4 px-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Icon */}
+            <div className={cn(
+              "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+              allRequiredComplete ? "bg-emerald-100" : "bg-primary/10"
+            )}>
+              {allRequiredComplete ? (
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              ) : (
+                <Upload className="h-5 w-5 text-primary" />
+              )}
+            </div>
+            <div>
+              <CardTitle className="text-base font-medium">
+                {allRequiredComplete ? "Documents Complete" : "Upload Documents"}
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {completedRequired} of {totalRequired} required
+              </p>
+            </div>
           </div>
-
-          {/* Title */}
-          <CardTitle className="text-xl font-medium">
-            {allRequiredComplete ? "Documents Complete" : "Upload Documents"}
-          </CardTitle>
-
-          {/* Progress */}
-          <p className="text-sm text-muted-foreground mt-1">
-            {completedRequired} of {totalRequired} required
-          </p>
-
           {/* Progress bar */}
-          <div className="w-48 h-1.5 bg-muted/30 rounded-full mt-4 overflow-hidden">
-            <div 
+          <div className="w-24 h-1.5 bg-muted/30 rounded-full overflow-hidden">
+            <div
               className={cn(
                 "h-full rounded-full transition-all duration-500",
                 allRequiredComplete ? "bg-emerald-500" : "bg-primary"
@@ -238,15 +237,15 @@ export function DocumentsSection({
         </div>
       </CardHeader>
 
-      <CardContent className="px-6 pb-8 pt-6">
+      <CardContent className="px-5 pb-5 pt-3">
         {disabled ? (
           <div className="flex items-center justify-center p-8 rounded-xl bg-muted/20 text-muted-foreground/60">
             <span className="text-sm">Enter your initials to unlock</span>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-4">
             {/* Required Documents Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {requiredDocs.map((doc) => (
                 <DocumentCard
                   key={doc.key}
@@ -261,14 +260,14 @@ export function DocumentsSection({
               ))}
             </div>
 
-            
+
             {/* Non-Resident Licenses */}
             {nonResidentStates.length > 0 && (
-              <div className="space-y-3 pt-4 border-t border-border/10">
+              <div className="space-y-2 pt-3 border-t border-border/10">
                 <p className="text-xs text-muted-foreground/60 text-center">
                   Non-Resident Licenses
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {nonResidentStates.map((stateCode) => {
                     const stateName = US_STATES.find(s => s.code === stateCode)?.name || stateCode;
                     const documentType = `non_resident_license_${stateCode}`;

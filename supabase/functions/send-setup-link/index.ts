@@ -107,61 +107,117 @@ serve(async (req: Request): Promise<Response> => {
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
           </head>
-          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a1a1a; background-color: #f5f5f5; margin: 0; padding: 0;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 40px 20px;">
               <tr>
                 <td align="center">
-                  <table width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; background: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                  <table width="560" cellpadding="0" cellspacing="0" style="max-width: 560px; background: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); overflow: hidden;">
+
+                    <!-- Header with TIG Logo -->
                     <tr>
-                      <td style="padding: 40px;">
-                        <!-- Content -->
-                        <p style="font-size: 18px; color: #1a1a1a; margin: 0 0 24px 0;">Hi ${firstName},</p>
-                        
-                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Your account is set up and ready for activation.</p>
-                        
-                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 8px 0;"><strong>Start here:</strong></p>
-                        
-                        <!-- Button -->
-                        <table width="100%" cellpadding="0" cellspacing="0">
+                      <td align="center" style="padding: 32px 40px 24px 40px; border-bottom: 1px solid #f1f5f9;">
+                        <table cellpadding="0" cellspacing="0">
                           <tr>
-                            <td align="center" style="padding: 16px 0 32px 0;">
-                              <a href="${setupLink}" style="display: inline-block; background: #A38529; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Activate Your Account</a>
+                            <td align="center">
+                              <!--[if mso]>
+                              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:56px;v-text-anchor:middle;width:56px;" arcsize="50%" fillcolor="#F59E0B" stroke="f">
+                              <w:anchorlock/>
+                              <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">TIG</center>
+                              </v:roundrect>
+                              <![endif]-->
+                              <!--[if !mso]><!-->
+                              <div style="display: inline-block; width: 56px; height: 56px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 50%; text-align: center; line-height: 56px;">
+                                <span style="color: #ffffff; font-size: 18px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.5px;">TIG</span>
+                              </div>
+                              <!--<![endif]-->
+                            </td>
+                          </tr>
+                          <tr>
+                            <td align="center" style="padding-top: 12px;">
+                              <span style="font-size: 14px; color: #64748b; font-weight: 500;">Tyler Insurance Group</span>
                             </td>
                           </tr>
                         </table>
-                        
-                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">When you sign in for the first time, you will land on the <strong>Contracting</strong> page. That page guides you through everything you need to complete before your full agent tools unlock.</p>
-                        
-                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 12px 0;"><strong>You'll be able to:</strong></p>
-                        
-                        <!-- Bullet List -->
-                        <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0;">
+                      </td>
+                    </tr>
+
+                    <!-- Main Content -->
+                    <tr>
+                      <td style="padding: 32px 40px 40px 40px;">
+                        <p style="font-size: 18px; color: #1e293b; margin: 0 0 20px 0;">Hi ${firstName},</p>
+
+                        <p style="font-size: 16px; color: #475569; margin: 0 0 24px 0;">Your agent account is set up and ready for activation.</p>
+
+                        <!-- Button -->
+                        <table width="100%" cellpadding="0" cellspacing="0">
                           <tr>
-                            <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Download required forms</td>
-                          </tr>
-                          <tr>
-                            <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Upload your documents</td>
-                          </tr>
-                          <tr>
-                            <td style="font-size: 16px; color: #1a1a1a; padding: 4px 0 4px 20px;">• Track what's complete and what still needs attention</td>
+                            <td align="center" style="padding: 8px 0 32px 0;">
+                              <!--[if mso]>
+                              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${setupLink}" style="height:48px;v-text-anchor:middle;width:220px;" arcsize="17%" fillcolor="#F59E0B" stroke="f">
+                              <w:anchorlock/>
+                              <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">Activate Your Account</center>
+                              </v:roundrect>
+                              <![endif]-->
+                              <!--[if !mso]><!-->
+                              <a href="${setupLink}" style="display: inline-block; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #ffffff; padding: 14px 36px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);">Activate Your Account</a>
+                              <!--<![endif]-->
+                            </td>
                           </tr>
                         </table>
-                        
-                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Once every item on that page is finished, the rest of your platform will open automatically.</p>
-                        
-                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 32px 0;">If anything is unclear, reply to this email and our team will help.</p>
-                        
-                        <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px 0;">Welcome aboard.</p>
-                        
+
+                        <p style="font-size: 15px; color: #475569; margin: 0 0 20px 0;">When you sign in, you'll land on the <strong style="color: #1e293b;">Contracting</strong> page. This guides you through everything needed before your full agent tools unlock.</p>
+
+                        <p style="font-size: 15px; color: #1e293b; margin: 0 0 12px 0; font-weight: 600;">You'll be able to:</p>
+
+                        <!-- Bullet List -->
+                        <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 20px 0;">
+                          <tr>
+                            <td style="font-size: 15px; color: #475569; padding: 6px 0 6px 0;">
+                              <span style="color: #F59E0B; margin-right: 8px;">●</span> Download required forms
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 15px; color: #475569; padding: 6px 0 6px 0;">
+                              <span style="color: #F59E0B; margin-right: 8px;">●</span> Upload your documents
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 15px; color: #475569; padding: 6px 0 6px 0;">
+                              <span style="color: #F59E0B; margin-right: 8px;">●</span> Track what's complete and what needs attention
+                            </td>
+                          </tr>
+                        </table>
+
+                        <p style="font-size: 15px; color: #475569; margin: 0 0 24px 0;">Once everything is finished, the rest of your platform opens automatically.</p>
+
+                        <p style="font-size: 15px; color: #475569; margin: 0 0 28px 0;">Questions? Just reply to this email.</p>
+
+                        <!-- Divider -->
+                        <div style="border-top: 1px solid #e2e8f0; margin: 0 0 24px 0;"></div>
+
                         <!-- Signature -->
-                        <p style="font-size: 16px; color: #1a1a1a; margin: 0;">
-                          <strong>Caroline</strong><br/>
-                          Head of Contracting<br/>
-                          Tyler Insurance Group<br/>
-                          <a href="mailto:caroline@tylerinsurancegroup.com" style="color: #A38529; text-decoration: none;">caroline@tylerinsurancegroup.com</a>
+                        <table cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td>
+                              <p style="font-size: 15px; color: #1e293b; margin: 0 0 4px 0; font-weight: 600;">Caroline</p>
+                              <p style="font-size: 14px; color: #64748b; margin: 0 0 2px 0;">Head of Contracting</p>
+                              <p style="font-size: 14px; color: #64748b; margin: 0 0 8px 0;">Tyler Insurance Group</p>
+                              <a href="mailto:caroline@tylerinsurancegroup.com" style="font-size: 14px; color: #F59E0B; text-decoration: none;">caroline@tylerinsurancegroup.com</a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                      <td align="center" style="padding: 20px 40px; background-color: #f8fafc; border-top: 1px solid #f1f5f9;">
+                        <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+                          © ${new Date().getFullYear()} Tyler Insurance Group. All rights reserved.
                         </p>
                       </td>
                     </tr>
+
                   </table>
                 </td>
               </tr>

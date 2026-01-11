@@ -51,38 +51,35 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
         boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.06)'
       }}
     >
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-2 pt-4 px-5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-primary" />
+          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Building2 className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-lg font-medium">Banking & Direct Deposit</CardTitle>
-            <p className="text-xs text-muted-foreground/60">Your bank details for commission payments</p>
+            <CardTitle className="text-base font-medium">Banking & Direct Deposit</CardTitle>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6 pb-6">
+      <CardContent className="space-y-4 pb-5 px-5">
         {disabled && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 text-muted-foreground/60">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 text-muted-foreground/60">
             <Lock className="h-4 w-4" />
             <span className="text-sm">Enter your initials above to unlock this section</span>
           </div>
         )}
 
-        <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-6">
+        <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-4">
           {/* Bank Information */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="bank_routing_number">Bank Routing # <span className="text-amber-500">*</span></Label>
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="space-y-1">
+              <Label htmlFor="bank_routing_number">Routing # <span className="text-amber-500">*</span></Label>
               <Input
                 id="bank_routing_number"
                 value={application.bank_routing_number || ''}
                 onChange={(e) => {
                   const formatted = formatRoutingNumber(e.target.value);
                   onUpdate('bank_routing_number', formatted);
-
-                  // Detect bank name
                   if (formatted.length === 9) {
                     const bank = getBankName(formatted);
                     setDetectedBank(bank);
@@ -96,20 +93,16 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
                 className={cn("h-11 rounded-xl", getFieldClass('bank_routing_number'))}
                 maxLength={9}
               />
-              {/* Bank name display */}
               {detectedBank && (
                 <p className="text-xs text-emerald-600 flex items-center gap-1">
                   <CheckCircle className="h-3 w-3" />
                   {detectedBank}
                 </p>
               )}
-              {application.bank_routing_number?.length === 9 && !detectedBank && isValidRoutingNumber(application.bank_routing_number) && (
-                <p className="text-xs text-slate-500">Valid routing number</p>
-              )}
               <FormFieldError error={fieldErrors.bank_routing_number} show={!!fieldErrors.bank_routing_number} />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="bank_account_number">Account # <span className="text-amber-500">*</span></Label>
               <Input
                 id="bank_account_number"
@@ -127,30 +120,29 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
               <FormFieldError error={fieldErrors.bank_account_number} show={!!fieldErrors.bank_account_number} />
             </div>
 
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor="bank_branch_name">Bank Name / Branch Location <span className="text-slate-400 font-normal">(optional)</span></Label>
+            <div className="space-y-1">
+              <Label htmlFor="bank_branch_name">Bank Name <span className="text-slate-400 font-normal">(opt)</span></Label>
               <Input
                 id="bank_branch_name"
                 value={application.bank_branch_name || ''}
                 onChange={(e) => onUpdate('bank_branch_name', e.target.value)}
-                placeholder="e.g. Chase Bank - Main Street Branch"
+                placeholder="e.g. Chase Bank"
                 className="h-11 rounded-xl"
               />
             </div>
           </div>
 
-
           {/* Commission Advancing */}
-          <div className="pt-4 border-t border-border/10">
-            <div className="space-y-3">
+          <div className="pt-3 border-t border-border/10">
+            <div className="flex items-center justify-between">
               <div>
-                <Label className="text-sm font-medium">Requesting Commission Advancing? <span className="text-amber-500">*</span></Label>
-                <p className="text-xs text-muted-foreground/60 mt-0.5">Receive commissions faster with advancing (terms apply)</p>
+                <Label className="text-sm font-medium">Commission Advancing? <span className="text-amber-500">*</span></Label>
+                <p className="text-xs text-muted-foreground/60">Receive commissions faster (terms apply)</p>
               </div>
               <RadioGroup
                 value={application.requesting_commission_advancing === true ? 'yes' : 'no'}
                 onValueChange={(value) => onUpdate('requesting_commission_advancing', value === 'yes')}
-                className="flex gap-6"
+                className="flex gap-4"
               >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="yes" id="commission_yes" />
@@ -165,11 +157,11 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
           </div>
 
           {/* Beneficiary */}
-          <div className="pt-4 border-t border-border/10">
-            <h4 className="text-sm font-medium mb-4">Beneficiary Information</h4>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="beneficiary_name">Beneficiary Name <span className="text-slate-400 font-normal">(optional)</span></Label>
+          <div className="pt-3 border-t border-border/10">
+            <h4 className="text-sm font-medium mb-2">Beneficiary <span className="text-slate-400 font-normal">(optional)</span></h4>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="beneficiary_name">Name</Label>
                 <Input
                   id="beneficiary_name"
                   value={application.beneficiary_name || ''}
@@ -178,8 +170,8 @@ export function BankingSection({ application, onUpdate, disabled, fieldErrors = 
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="beneficiary_relationship">Relationship <span className="text-slate-400 font-normal">(optional)</span></Label>
+              <div className="space-y-1">
+                <Label htmlFor="beneficiary_relationship">Relationship</Label>
                 <Input
                   id="beneficiary_relationship"
                   value={application.beneficiary_relationship || ''}

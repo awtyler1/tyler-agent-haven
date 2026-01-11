@@ -19,6 +19,7 @@ interface ContractingSubmission {
   npn: string;
   email?: string;
   residentState: string;
+  selectedCarriers?: string[];
   files: FileAttachment[];
 }
 
@@ -28,8 +29,20 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Validate API key is configured
+  if (!RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not configured");
+    return new Response(
+      JSON.stringify({ success: false, error: "Email service not configured" }),
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
   try {
-    const { name, npn, email, residentState, files }: ContractingSubmission = await req.json();
+    const { name, npn, email, residentState, selectedCarriers, files }: ContractingSubmission = await req.json();
+
+    // Extract first name from full name
+    const firstName = name.trim().split(' ')[0];
 
     // Server-side validation
     if (!name || typeof name !== "string" || name.trim().length === 0 || name.length > 100) {
@@ -72,7 +85,7 @@ const handler = async (req: Request): Promise<Response> => {
     for (const file of files) {
       if (file.content.length > maxBase64Size) {
         return new Response(
-          JSON.stringify({ success: false, error: `File ${file.fileName} exceeds 10MB limit` }),
+          JSON.stringify({ success: false, error: `File ${file.fileName} exceeds 15MB limit` }),
           { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
         );
       }
@@ -97,9 +110,12 @@ const handler = async (req: Request): Promise<Response> => {
       content: file.content,
     }));
 
-    // 1. Skip internal email to Caroline during testing phase
-    // TODO: Re-enable this when ready for production
-    /*
+    // Format carriers list for email
+    const carriersListHtml = selectedCarriers && selectedCarriers.length > 0
+      ? `<ul style="margin: 10px 0; padding-left: 20px;">${selectedCarriers.map(c => `<li>${c}</li>`).join('')}</ul>`
+      : '<p style="color: #666; font-style: italic;">No carriers specified</p>';
+
+    // 1. Send internal email to Caroline/Pinnacle
     const carolineEmailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -111,22 +127,40 @@ const handler = async (req: Request): Promise<Response> => {
         reply_to: "austin@tylerinsurancegroup.com",
         to: ["caroline@tylerinsurancegroup.com"],
         subject: `New Contracting Packet Submission — ${name.trim()} (NPN ${npn.trim()})`,
-        html: `...`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #333; margin-bottom: 20px;">New Contracting Packet Received</h2>
+
+            <p style="font-size: 16px; line-height: 1.6; color: #333; background: #f0f7ff; padding: 15px; border-radius: 8px; border-left: 4px solid #C8A45C;">
+              <strong>${firstName} will be agent level, direct to TIG, with the following carriers:</strong>
+            </p>
+            ${carriersListHtml}
+
+            <div style="background: #f8f8f8; padding: 20px; margin: 20px 0; border-radius: 8px;">
+              <p style="margin: 0 0 10px 0;"><strong>Agent Name:</strong> ${name.trim()}</p>
+              <p style="margin: 0 0 10px 0;"><strong>NPN:</strong> ${npn.trim()}</p>
+              <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${email || 'Not provided'}</p>
+              <p style="margin: 0;"><strong>Resident State:</strong> ${residentState}</p>
+            </div>
+
+            <p style="font-size: 14px; color: #666;">
+              Submitted: ${submissionTimestamp}<br>
+              Files attached: ${files.length} document(s)
+            </p>
+          </div>
+        `,
         attachments,
       }),
     });
 
     const carolineResult = await carolineEmailResponse.json();
-    
+
     if (!carolineEmailResponse.ok) {
       console.error("Failed to send email to Caroline:", carolineResult);
       throw new Error("Failed to send internal notification email");
     }
-    
+
     console.log("Email sent to Caroline successfully:", carolineResult);
-    */
-    
-    console.log("Skipping Caroline email (testing phase)");
 
     // 2. Send confirmation email to the agent with their PDF copy (if email provided)
     if (email && email.trim()) {

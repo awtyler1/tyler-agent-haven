@@ -232,6 +232,7 @@ export function useContractingApplication() {
         .from('contracting_applications')
         .update({
           status: 'submitted',
+          queue_status: 'needs_action',
           submitted_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })

@@ -26,21 +26,21 @@ export function MailingShippingSection({ application, onUpdate, disabled }: Mail
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
-      <div className="space-y-6" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-        
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
+      <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+
         {/* Mailing Address */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium text-slate-900">Mailing Address</Label>
             <label className="flex items-center gap-2 cursor-pointer">
               <div className={cn(
-                "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
-                application.mailing_address_same_as_home 
-                  ? "bg-slate-900 border-slate-900" 
+                "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+                application.mailing_address_same_as_home
+                  ? "bg-slate-900 border-slate-900"
                   : "border-slate-300"
               )}>
-                {application.mailing_address_same_as_home && <Check className="h-3 w-3 text-white" />}
+                {application.mailing_address_same_as_home && <Check className="h-2.5 w-2.5 text-white" />}
               </div>
               <input
                 type="checkbox"
@@ -53,37 +53,35 @@ export function MailingShippingSection({ application, onUpdate, disabled }: Mail
           </div>
 
           {!application.mailing_address_same_as_home && (
-            <div className="space-y-4 animate-in fade-in duration-200">
+            <div className="grid grid-cols-12 gap-3 animate-in fade-in duration-200">
               <Input
                 value={mailingAddress.street || ''}
                 onChange={(e) => updateMailingAddress('street', e.target.value)}
                 placeholder="Street address"
-                className="h-12 rounded-xl bg-slate-50 border-slate-200"
+                className="col-span-12 md:col-span-5 h-11 rounded-xl bg-slate-50 border-slate-200"
               />
-              <div className="grid grid-cols-6 gap-4">
-                <Input
-                  value={mailingAddress.city || ''}
-                  onChange={(e) => updateMailingAddress('city', e.target.value)}
-                  placeholder="City"
-                  className="col-span-3 h-12 rounded-xl bg-slate-50 border-slate-200"
-                />
-                <Select value={mailingAddress.state || ''} onValueChange={(v) => updateMailingAddress('state', v)}>
-                  <SelectTrigger className="col-span-2 h-12 rounded-xl bg-slate-50 border-slate-200">
-                    <SelectValue placeholder="State" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {US_STATES.map((state) => (
-                      <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  value={mailingAddress.zip || ''}
-                  onChange={(e) => updateMailingAddress('zip', e.target.value)}
-                  placeholder="ZIP"
-                  className="col-span-1 h-12 rounded-xl bg-slate-50 border-slate-200"
-                />
-              </div>
+              <Input
+                value={mailingAddress.city || ''}
+                onChange={(e) => updateMailingAddress('city', e.target.value)}
+                placeholder="City"
+                className="col-span-5 md:col-span-3 h-11 rounded-xl bg-slate-50 border-slate-200"
+              />
+              <Select value={mailingAddress.state || ''} onValueChange={(v) => updateMailingAddress('state', v)}>
+                <SelectTrigger className="col-span-4 md:col-span-2 h-11 rounded-xl bg-slate-50 border-slate-200">
+                  <SelectValue placeholder="State" />
+                </SelectTrigger>
+                <SelectContent>
+                  {US_STATES.map((state) => (
+                    <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                value={mailingAddress.zip || ''}
+                onChange={(e) => updateMailingAddress('zip', e.target.value)}
+                placeholder="ZIP"
+                className="col-span-3 md:col-span-2 h-11 rounded-xl bg-slate-50 border-slate-200"
+              />
             </div>
           )}
         </div>
@@ -92,17 +90,17 @@ export function MailingShippingSection({ application, onUpdate, disabled }: Mail
         <div className="h-px bg-slate-100" />
 
         {/* UPS/Shipping Address */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium text-slate-900">Shipping Address</Label>
             <label className="flex items-center gap-2 cursor-pointer">
               <div className={cn(
-                "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
-                application.ups_address_same_as_home 
-                  ? "bg-slate-900 border-slate-900" 
+                "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+                application.ups_address_same_as_home
+                  ? "bg-slate-900 border-slate-900"
                   : "border-slate-300"
               )}>
-                {application.ups_address_same_as_home && <Check className="h-3 w-3 text-white" />}
+                {application.ups_address_same_as_home && <Check className="h-2.5 w-2.5 text-white" />}
               </div>
               <input
                 type="checkbox"
@@ -115,37 +113,35 @@ export function MailingShippingSection({ application, onUpdate, disabled }: Mail
           </div>
 
           {!application.ups_address_same_as_home && (
-            <div className="space-y-4 animate-in fade-in duration-200">
+            <div className="grid grid-cols-12 gap-3 animate-in fade-in duration-200">
               <Input
                 value={upsAddress.street || ''}
                 onChange={(e) => updateUpsAddress('street', e.target.value)}
                 placeholder="Street address"
-                className="h-12 rounded-xl bg-slate-50 border-slate-200"
+                className="col-span-12 md:col-span-5 h-11 rounded-xl bg-slate-50 border-slate-200"
               />
-              <div className="grid grid-cols-6 gap-4">
-                <Input
-                  value={upsAddress.city || ''}
-                  onChange={(e) => updateUpsAddress('city', e.target.value)}
-                  placeholder="City"
-                  className="col-span-3 h-12 rounded-xl bg-slate-50 border-slate-200"
-                />
-                <Select value={upsAddress.state || ''} onValueChange={(v) => updateUpsAddress('state', v)}>
-                  <SelectTrigger className="col-span-2 h-12 rounded-xl bg-slate-50 border-slate-200">
-                    <SelectValue placeholder="State" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {US_STATES.map((state) => (
-                      <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  value={upsAddress.zip || ''}
-                  onChange={(e) => updateUpsAddress('zip', e.target.value)}
-                  placeholder="ZIP"
-                  className="col-span-1 h-12 rounded-xl bg-slate-50 border-slate-200"
-                />
-              </div>
+              <Input
+                value={upsAddress.city || ''}
+                onChange={(e) => updateUpsAddress('city', e.target.value)}
+                placeholder="City"
+                className="col-span-5 md:col-span-3 h-11 rounded-xl bg-slate-50 border-slate-200"
+              />
+              <Select value={upsAddress.state || ''} onValueChange={(v) => updateUpsAddress('state', v)}>
+                <SelectTrigger className="col-span-4 md:col-span-2 h-11 rounded-xl bg-slate-50 border-slate-200">
+                  <SelectValue placeholder="State" />
+                </SelectTrigger>
+                <SelectContent>
+                  {US_STATES.map((state) => (
+                    <SelectItem key={state.code} value={state.code}>{state.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                value={upsAddress.zip || ''}
+                onChange={(e) => updateUpsAddress('zip', e.target.value)}
+                placeholder="ZIP"
+                className="col-span-3 md:col-span-2 h-11 rounded-xl bg-slate-50 border-slate-200"
+              />
             </div>
           )}
         </div>

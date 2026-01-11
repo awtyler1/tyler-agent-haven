@@ -4,7 +4,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
+import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import tylerLogo from '@/assets/tyler-logo.png';
@@ -288,6 +288,7 @@ export function ContractingForm() {
     // Run validation and block if invalid
     const result = validateForm(application!, sectionStatuses, []);
     if (!result.isFormValid) {
+      toast.error('Please complete all required fields before submitting');
       // Scroll to first error section with smooth animation
       if (result.firstErrorSection) {
         scrollToSection(result.firstErrorSection);
@@ -404,6 +405,138 @@ export function ContractingForm() {
       }
     }
     return true;
+  };
+
+  // Helper to check if an address is complete
+  const isAddressComplete = (address: Address | null | undefined): boolean => {
+    if (!address) return false;
+    return !!(address.street?.trim() && address.city?.trim() && address.state && address.zip?.trim());
+  };
+
+  // Helper to check if a phone number is valid (10 digits)
+  const isValidPhone = (phone: string | null | undefined): boolean => {
+    if (!phone) return false;
+    return phone.replace(/\D/g, '').length === 10;
+  };
+
+  // Helper to check if routing number is valid (9 digits)
+  const isValidRouting = (routing: string | null | undefined): boolean => {
+    if (!routing) return false;
+    return routing.replace(/\D/g, '').length === 9;
+  };
+
+  // Check if current step has all required fields completed
+  const isStepComplete = (step: number): boolean => {
+    const docs = (application.uploaded_documents || {}) as Record<string, string>;
+
+    switch (step) {
+      case 1: // Initials
+        return !!application.signature_initials && !!docs.initials_image;
+
+      case 2: // Personal Info
+        return !!(
+          application.full_legal_name?.trim() &&
+          application.birth_date &&
+          application.gender &&
+          application.birth_city?.trim() &&
+          application.birth_state &&
+          isValidPhone(application.phone_mobile)
+        );
+
+      case 3: // Home Address
+        return isAddressComplete(application.home_address);
+
+      case 4: // Mailing & Shipping - Optional, always allow proceed
+        return true;
+
+      case 5: // Licensing
+        return !!(
+          application.npn_number?.trim() &&
+          application.resident_state &&
+          application.insurance_license_number?.trim() &&
+          application.tax_id?.replace(/\D/g, '').length === 9 &&
+          application.drivers_license_number?.trim() &&
+          application.drivers_license_state
+        );
+
+      case 6: // Additional Licenses - Optional
+        return true;
+
+      case 7: // Background Questions 1
+        return areBackgroundQuestionsComplete(7);
+
+      case 8: // Background Questions 2
+        return areBackgroundQuestionsComplete(8);
+
+      case 9: // Banking - only routing and account are required
+        return !!(
+          isValidRouting(application.bank_routing_number) &&
+          application.bank_account_number?.trim()
+        );
+
+      case 10: // Documents - require all 3: insurance_license, eo_certificate, voided_check
+        return !!(docs.insurance_license && docs.eo_certificate && docs.voided_check);
+
+      case 11: // Agreements - allow proceed (acknowledgment tracked separately)
+        return true;
+
+      case 12: // Sign & Submit
+        return !!(
+          application.signature_name?.trim() &&
+          docs.signature_image
+        );
+
+      default:
+        return true;
+    }
+  };
+
+  // Get missing fields message for tooltip
+  const getMissingFieldsHint = (step: number): string | null => {
+    const docs = (application.uploaded_documents || {}) as Record<string, string>;
+    const missing: string[] = [];
+
+    switch (step) {
+      case 1:
+        if (!application.signature_initials) missing.push('initials');
+        if (!docs.initials_image) missing.push('drawn initials');
+        break;
+      case 2:
+        if (!application.full_legal_name?.trim()) missing.push('full name');
+        if (!application.birth_date) missing.push('date of birth');
+        if (!application.gender) missing.push('gender');
+        if (!application.birth_city?.trim()) missing.push('city of birth');
+        if (!application.birth_state) missing.push('state of birth');
+        if (!isValidPhone(application.phone_mobile)) missing.push('mobile phone');
+        break;
+      case 3:
+        if (!isAddressComplete(application.home_address)) missing.push('complete address');
+        break;
+      case 5:
+        if (!application.npn_number?.trim()) missing.push('NPN');
+        if (!application.resident_state) missing.push('resident state');
+        if (!application.insurance_license_number?.trim()) missing.push('license number');
+        if (application.tax_id?.replace(/\D/g, '').length !== 9) missing.push('SSN');
+        if (!application.drivers_license_number?.trim()) missing.push("driver's license");
+        if (!application.drivers_license_state) missing.push("driver's license state");
+        break;
+      case 9:
+        if (!isValidRouting(application.bank_routing_number)) missing.push('routing number');
+        if (!application.bank_account_number?.trim()) missing.push('account number');
+        break;
+      case 10:
+        if (!docs.insurance_license) missing.push('resident license');
+        if (!docs.eo_certificate) missing.push('E&O certificate');
+        if (!docs.voided_check) missing.push('voided check');
+        break;
+      case 12:
+        if (!application.signature_name?.trim()) missing.push('typed signature');
+        if (!docs.signature_image) missing.push('drawn signature');
+        break;
+    }
+
+    if (missing.length === 0) return null;
+    return `Missing: ${missing.join(', ')}`;
   };
 
   // Render current step content
@@ -614,7 +747,7 @@ export function ContractingForm() {
 
 
       {/* Validation Banner - shows only after submit attempt with errors */}
-      <div className="max-w-3xl mx-auto px-6">
+      <div className="max-w-4xl mx-auto px-6">
         <ValidationBanner
           show={validationState.hasValidated && !validationState.isFormValid}
           sectionErrors={validationState.sectionErrors}
@@ -623,13 +756,13 @@ export function ContractingForm() {
       </div>
 
       {/* Main Form Content */}
-      <main className="max-w-3xl mx-auto px-6 py-4">
+      <main className="max-w-4xl mx-auto px-6 py-2">
         {/* Step Title */}
-        <div className="text-center mb-4">
-          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
+        <div className="text-center mb-3">
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
             {SECTIONS.find(s => s.step === currentStep)?.name}
           </h1>
-          <p className="text-slate-500 mt-2 text-sm">
+          <p className="text-slate-500 mt-1 text-sm">
             {getStepDescription(currentStep)}
           </p>
         </div>
@@ -661,23 +794,28 @@ export function ContractingForm() {
           
           {/* Continue/Submit button */}
           {currentStep < TOTAL_STEPS ? (
-            <button
-              onClick={goNext}
-              disabled={
-                (currentStep === 1 && !initialsEntered) ||
-                ((currentStep === 7 || currentStep === 8) && !areBackgroundQuestionsComplete(currentStep))
-              }
-              className={cn(
-                "flex items-center gap-2 px-6 py-3 rounded-full font-medium text-sm transition-all duration-200",
-                (currentStep === 1 && !initialsEntered) ||
-                ((currentStep === 7 || currentStep === 8) && !areBackgroundQuestionsComplete(currentStep))
-                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-                  : "bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98]"
+            <div className="relative group">
+              <button
+                onClick={goNext}
+                disabled={!isStepComplete(currentStep)}
+                className={cn(
+                  "flex items-center gap-2 px-6 py-3 rounded-full font-medium text-sm transition-all duration-200",
+                  !isStepComplete(currentStep)
+                    ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                    : "bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98]"
+                )}
+              >
+                <span>Continue</span>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              {/* Tooltip showing missing fields */}
+              {!isStepComplete(currentStep) && getMissingFieldsHint(currentStep) && (
+                <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                  {getMissingFieldsHint(currentStep)}
+                  <div className="absolute top-full right-4 border-4 border-transparent border-t-slate-800" />
+                </div>
               )}
-            >
-              <span>Continue</span>
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            </div>
           ) : (
             <button
               onClick={handleSubmit}

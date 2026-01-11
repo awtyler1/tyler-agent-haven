@@ -74,46 +74,47 @@ export function HomeAddressSection({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
-      <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-        
-        {/* Street with Autocomplete */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700">
-            Street Address <span className="text-amber-500">*</span>
-          </Label>
-          <AddressAutocomplete
-            value={homeAddress.street || ''}
-            onChange={(value) => updateAddress('street', value)}
-            onAddressSelect={handleAddressSelect}
-            onBlur={() => handleAddressBlur('street')}
-            placeholder="Start typing your address..."
-            disabled={disabled}
-            className={cn(
-              "h-12 rounded-xl bg-slate-50",
-              getFieldClass('home_address.street')
-            )}
-          />
-          <p className="text-xs text-slate-400">Start typing to search for your address</p>
-          <FormFieldError error={fieldErrors['home_address.street']} show={!!fieldErrors['home_address.street']} />
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
+      <div className="space-y-3" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+
+        {/* Street with Autocomplete + Address Line 2 side by side */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="md:col-span-2 space-y-1">
+            <Label className="text-sm font-medium text-slate-700">
+              Street Address <span className="text-amber-500">*</span>
+            </Label>
+            <AddressAutocomplete
+              value={homeAddress.street || ''}
+              onChange={(value) => updateAddress('street', value)}
+              onAddressSelect={handleAddressSelect}
+              onBlur={() => handleAddressBlur('street')}
+              placeholder="Start typing your address..."
+              disabled={disabled}
+              className={cn(
+                "h-11 rounded-xl bg-slate-50",
+                getFieldClass('home_address.street')
+              )}
+            />
+            <FormFieldError error={fieldErrors['home_address.street']} show={!!fieldErrors['home_address.street']} />
+          </div>
+
+          {/* Address Line 2 */}
+          <div className="space-y-1">
+            <Label className="text-sm font-medium text-slate-700">
+              Apt/Suite <span className="text-slate-400 font-normal">(opt)</span>
+            </Label>
+            <Input
+              value={homeAddress.street2 || ''}
+              onChange={(e) => updateAddress('street2', e.target.value)}
+              placeholder="Unit, Floor, etc."
+              className="h-11 rounded-xl bg-slate-50 border-slate-200"
+            />
+          </div>
         </div>
 
-        {/* Address Line 2 */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700">
-            Address Line 2 <span className="text-slate-400 font-normal">(optional)</span>
-          </Label>
-          <Input
-            value={homeAddress.street2 || ''}
-            onChange={(e) => updateAddress('street2', e.target.value)}
-            placeholder="Apt, Suite, Unit, Building, Floor, etc."
-            className="h-12 rounded-xl bg-slate-50 border-slate-200"
-          />
-        </div>
-
-        {/* City, State, Zip */}
-        <div className="grid grid-cols-6 gap-4">
-          <div className="col-span-3 space-y-2">
+        {/* City, State, Zip, County in one row */}
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-12 md:col-span-4 space-y-1">
             <Label className="text-sm font-medium text-slate-700">
               City <span className="text-amber-500">*</span>
             </Label>
@@ -123,14 +124,14 @@ export function HomeAddressSection({
               onBlur={() => handleAddressBlur('city')}
               placeholder="City"
               className={cn(
-                "h-12 rounded-xl bg-slate-50",
+                "h-11 rounded-xl bg-slate-50",
                 getFieldClass('home_address.city')
               )}
             />
             <FormFieldError error={fieldErrors['home_address.city']} show={!!fieldErrors['home_address.city']} />
           </div>
 
-          <div className="col-span-2 space-y-2">
+          <div className="col-span-6 md:col-span-3 space-y-1">
             <Label className="text-sm font-medium text-slate-700">
               State <span className="text-amber-500">*</span>
             </Label>
@@ -138,14 +139,13 @@ export function HomeAddressSection({
               value={homeAddress.state || ''}
               onValueChange={(v) => {
                 updateAddress('state', v);
-                // Validate immediately on selection
                 if (onFieldBlur) {
                   setTimeout(() => onFieldBlur('home_address.state', v, application), 0);
                 }
               }}
             >
               <SelectTrigger className={cn(
-                "h-12 rounded-xl bg-slate-50",
+                "h-11 rounded-xl bg-slate-50",
                 getFieldClass('home_address.state')
               )}>
                 <SelectValue placeholder="State" />
@@ -161,7 +161,7 @@ export function HomeAddressSection({
             <FormFieldError error={fieldErrors['home_address.state']} show={!!fieldErrors['home_address.state']} />
           </div>
 
-          <div className="col-span-1 space-y-2">
+          <div className="col-span-6 md:col-span-2 space-y-1">
             <Label className="text-sm font-medium text-slate-700">
               ZIP <span className="text-amber-500">*</span>
             </Label>
@@ -171,25 +171,25 @@ export function HomeAddressSection({
               onBlur={() => handleAddressBlur('zip')}
               placeholder="12345"
               className={cn(
-                "h-12 rounded-xl bg-slate-50",
+                "h-11 rounded-xl bg-slate-50",
                 getFieldClass('home_address.zip')
               )}
             />
             <FormFieldError error={fieldErrors['home_address.zip']} show={!!fieldErrors['home_address.zip']} />
           </div>
-        </div>
 
-        {/* County */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700">
-            County <span className="text-slate-400 font-normal">(optional)</span>
-          </Label>
-          <Input
-            value={homeAddress.county || ''}
-            onChange={(e) => updateAddress('county', e.target.value)}
-            placeholder="Auto-filled from address"
-            className="h-12 rounded-xl bg-slate-50 border-slate-200"
-          />
+          {/* County */}
+          <div className="col-span-12 md:col-span-3 space-y-1">
+            <Label className="text-sm font-medium text-slate-700">
+              County <span className="text-slate-400 font-normal">(opt)</span>
+            </Label>
+            <Input
+              value={homeAddress.county || ''}
+              onChange={(e) => updateAddress('county', e.target.value)}
+              placeholder="Auto-filled"
+              className="h-11 rounded-xl bg-slate-50 border-slate-200"
+            />
+          </div>
         </div>
 
       </div>

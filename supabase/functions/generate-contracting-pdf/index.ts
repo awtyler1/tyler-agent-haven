@@ -464,13 +464,33 @@ serve(async (req) => {
   }
 
   try {
+    // Validate environment variables
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl) {
+      console.error("SUPABASE_URL is not configured");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error: SUPABASE_URL not set" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!supabaseServiceKey) {
+      console.error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error: SUPABASE_SERVICE_ROLE_KEY not set" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     console.log("Parsing request body...");
     const body = await req.json();
     console.log("Body parsed, applicationId:", body.applicationId);
-    
+
     const { application, templateUrl, templateBase64, skipValidation = false, applicationId, saveToStorage = false } = body;
     console.log("Destructured - saveToStorage:", saveToStorage, "applicationId:", applicationId);
-    
+
     // Log application structure for debugging
     console.log("Application structure:", {
       hasUserId: !!application?.user_id,
@@ -486,10 +506,7 @@ serve(async (req) => {
     });
 
     // Create Supabase client for storage operations
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const mappingReport: MappingEntry[] = [];
 
@@ -995,19 +1012,22 @@ serve(async (req) => {
       }
     };
 
-    // Background signature (Page 4 - index 3)
-    await embedAndDrawImage(
-      uploadedDocs.background_signature_image || uploadedDocs.background_signature,
-      3,
-      "all carrierspecific questions_es_:signature",
-      "uploaded_documents.background_signature_image",
-    );
+    // Get the final signature image (used in multiple places)
+    const finalSignatureImage = uploadedDocs.signature_image || uploadedDocs.final_signature;
 
     // Final signature (Page 10 - index 9)
     await embedAndDrawImage(
-      uploadedDocs.signature_image || uploadedDocs.final_signature,
+      finalSignatureImage,
       9,
       "Additionally please sign in the center of the box below_es_:signature",
+      "uploaded_documents.signature_image",
+    );
+
+    // Same signature on "all carrier specific questions" field (Page 4 - index 3)
+    await embedAndDrawImage(
+      finalSignatureImage,
+      3,
+      "all carrierspecific questions_es_:signature",
       "uploaded_documents.signature_image",
     );
 

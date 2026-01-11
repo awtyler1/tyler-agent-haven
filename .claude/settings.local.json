@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Bash(xargs -I {} sh -c 'grep -L \"\"import.*cn.*from\"\" {}')"
+      "Bash(xargs -I {} sh -c 'grep -L \"\"import.*cn.*from\"\" {}')",
+      "Bash(npx supabase:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }

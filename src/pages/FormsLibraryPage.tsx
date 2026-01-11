@@ -1,137 +1,472 @@
-import { Download } from "lucide-react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useMemo } from 'react';
+import {
+  Download,
+  ExternalLink,
+  Search,
+  FileText,
+  FileEdit,
+  X,
+  Star
+} from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
-const FormsLibraryPage = () => {
-  const formCategories = [
-    {
-      title: "Scope of Appointment (SOA) Forms",
-      description: "Required before discussing Medicare Advantage or Prescription Drug Plans.",
-      forms: [
-        { name: "Download SOA (Standard)", file: "/downloads/Scope-of-Appointment_2026.pdf" }
-      ]
-    },
-    {
-      title: "Needs Assessment Forms",
-      description: "Use these to understand client needs and recommend appropriate coverage.",
-      forms: [
-        { name: "Medicare Factfinder", file: "/downloads/Fillable_TIG_Medicare_Intake_Form.pdf" }
-      ]
-    },
-    {
-      title: "CMS Forms",
-      description: "Official CMS model documents for required disclosures and communications.",
-      forms: [
-        { name: "CMS Form L564", file: "/downloads/CMS-40B.pdf" },
-        { name: "CMS-40B", file: "/downloads/CMS-40B.pdf" }
-      ]
-    },
-    {
-      title: "Other Important Documents",
-      description: "Commonly used forms for clean, compliant appointments.",
-      forms: [
-        { name: "Coming soon", file: "#" },
-        { name: "Coming soon", file: "#" },
-        { name: "Coming soon", file: "#" }
-      ]
+// Types
+type FormType = 'pdf' | 'external' | 'fillable';
+type FormCategory = 'cms' | 'compliance' | 'assistance' | 'carrier';
+
+interface Form {
+  id: string;
+  name: string;
+  description: string;
+  category: FormCategory;
+  type: FormType;
+  url: string;
+  featured?: boolean;
+  keywords?: string[];
+}
+
+// Category configuration
+const CATEGORIES: { key: FormCategory | 'all'; label: string }[] = [
+  { key: 'all', label: 'All Forms' },
+  { key: 'cms', label: 'CMS Forms' },
+  { key: 'compliance', label: 'Compliance' },
+  { key: 'assistance', label: 'Client Assistance' },
+  { key: 'carrier', label: 'Carrier Resources' },
+];
+
+// Forms data
+const FORMS: Form[] = [
+  // CMS Official Forms
+  {
+    id: 'cms-40b',
+    name: 'CMS-40B',
+    description: 'Part B enrollment for clients who missed IEP',
+    category: 'cms',
+    type: 'pdf',
+    url: '/downloads/CMS-40B.pdf',
+    featured: true,
+    keywords: ['part b', 'enrollment', 'iep', 'gep'],
+  },
+  {
+    id: 'cms-l564',
+    name: 'CMS-L564',
+    description: 'Employment verification for SEP eligibility',
+    category: 'cms',
+    type: 'external',
+    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms-l564.pdf',
+    featured: true,
+    keywords: ['sep', 'employer', 'group coverage'],
+  },
+  {
+    id: 'cms-1696',
+    name: 'CMS-1696',
+    description: 'Appointment of Representative form',
+    category: 'cms',
+    type: 'external',
+    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms1696.pdf',
+    keywords: ['representative', 'authorization', 'poa'],
+  },
+  {
+    id: 'cms-1490s',
+    name: 'CMS-1490S',
+    description: 'Patient request for medical payment',
+    category: 'cms',
+    type: 'external',
+    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms1490s.pdf',
+    keywords: ['reimbursement', 'payment', 'claim'],
+  },
+  {
+    id: 'medicare-card',
+    name: 'Medicare Card Request',
+    description: 'Replacement card through Medicare.gov',
+    category: 'cms',
+    type: 'external',
+    url: 'https://www.medicare.gov/basics/get-started-with-medicare/sign-up/get-your-medicare-card',
+    keywords: ['card', 'replacement', 'lost'],
+  },
+
+  // Compliance & Sales Process
+  {
+    id: 'soa',
+    name: 'Scope of Appointment',
+    description: 'Required before MA/Part D sales meeting',
+    category: 'compliance',
+    type: 'pdf',
+    url: '/downloads/Scope-of-Appointment_2026.pdf',
+    featured: true,
+    keywords: ['scope', 'appointment', 'ma', 'pdp'],
+  },
+  {
+    id: 'factfinder',
+    name: 'Medicare Factfinder',
+    description: 'TIG needs assessment form',
+    category: 'compliance',
+    type: 'pdf',
+    url: '/downloads/Fillable_TIG_Medicare_Intake_Form.pdf',
+    keywords: ['intake', 'needs assessment', 'factfinder'],
+  },
+  {
+    id: 'multi-carrier',
+    name: 'Multi-Carrier Disclaimer',
+    description: 'Disclosure for presenting multiple carriers',
+    category: 'compliance',
+    type: 'external',
+    url: 'https://www.cms.gov/files/document/mcmg-chapter-3.pdf',
+    keywords: ['disclaimer', 'multi-carrier', 'disclosure'],
+  },
+  {
+    id: 'hipaa',
+    name: 'HIPAA Authorization',
+    description: 'Release of health information',
+    category: 'compliance',
+    type: 'external',
+    url: 'https://www.hhs.gov/hipaa/for-professionals/privacy/guidance/model-notices-of-privacy-practices/index.html',
+    keywords: ['hipaa', 'privacy', 'authorization'],
+  },
+
+  // Client Assistance Programs
+  {
+    id: 'ssa-44',
+    name: 'SSA-44 (Extra Help)',
+    description: 'Low Income Subsidy application',
+    category: 'assistance',
+    type: 'external',
+    url: 'https://www.ssa.gov/forms/ssa-44.pdf',
+    featured: true,
+    keywords: ['lis', 'low income', 'extra help', 'subsidy'],
+  },
+  {
+    id: 'msp-ky',
+    name: 'Medicare Savings (KY)',
+    description: 'QMB/SLMB/QI application for Kentucky',
+    category: 'assistance',
+    type: 'external',
+    url: 'https://chfs.ky.gov/agencies/dcbs/dfs/mps/Pages/default.aspx',
+    keywords: ['msp', 'qmb', 'slmb', 'medicaid', 'kentucky'],
+  },
+  {
+    id: 'ship',
+    name: 'SHIP Referral',
+    description: 'Free Medicare counseling program',
+    category: 'assistance',
+    type: 'external',
+    url: 'https://www.shiphelp.org/',
+    keywords: ['ship', 'counseling', 'assistance'],
+  },
+  {
+    id: 'liheap',
+    name: 'LIHEAP',
+    description: 'Utility assistance program',
+    category: 'assistance',
+    type: 'external',
+    url: 'https://www.acf.hhs.gov/ocs/low-income-home-energy-assistance-program-liheap',
+    keywords: ['liheap', 'utility', 'energy'],
+  },
+  {
+    id: 'benefits',
+    name: 'BenefitsCheckUp',
+    description: 'NCOA benefits finder tool',
+    category: 'assistance',
+    type: 'external',
+    url: 'https://www.benefitscheckup.org/',
+    keywords: ['benefits', 'ncoa', 'seniors'],
+  },
+
+  // Carrier Resources
+  {
+    id: 'sunfire',
+    name: 'SunFire Platform',
+    description: 'Multi-carrier enrollment system',
+    category: 'carrier',
+    type: 'external',
+    url: 'https://www.sunfirematrix.com/',
+    keywords: ['sunfire', 'enrollment', 'multi-carrier'],
+  },
+  {
+    id: 'portals',
+    name: 'Carrier Portals',
+    description: 'Quick access to all carrier portals',
+    category: 'carrier',
+    type: 'external',
+    url: '/carrier-portals',
+    keywords: ['portal', 'carrier', 'login'],
+  },
+  {
+    id: 'vcc',
+    name: 'VCC Form',
+    description: 'Chronic condition verification for C-SNP',
+    category: 'carrier',
+    type: 'pdf',
+    url: '/downloads/Blank_Verification_of_Chronic_Condition_VCC.pdf',
+    keywords: ['vcc', 'csnp', 'chronic condition'],
+  },
+  {
+    id: 'connecture',
+    name: 'Connecture',
+    description: 'Alternative enrollment platform',
+    category: 'carrier',
+    type: 'external',
+    url: 'https://www.connecture.com/',
+    keywords: ['connecture', 'gohealth', 'enrollment'],
+  },
+];
+
+// Form Card Component
+function FormCard({ form, compact = false }: { form: Form; compact?: boolean }) {
+  const isExternal = form.type === 'external' || form.url.startsWith('http');
+
+  const getTypeIcon = () => {
+    switch (form.type) {
+      case 'pdf':
+        return <Download className="h-4 w-4" />;
+      case 'external':
+        return <ExternalLink className="h-4 w-4" />;
+      case 'fillable':
+        return <FileEdit className="h-4 w-4" />;
     }
-  ];
+  };
 
-  const quickAccessForms = [
-    { name: "SOA (Standard)", file: "/downloads/Scope-of-Appointment_2026.pdf" },
-    { name: "CMS-40B", file: "/downloads/CMS-40B.pdf" },
-    { name: "CMS Form L564", file: "/downloads/CMS-40B.pdf" },
-    { name: "Medicare Factfinder", file: "/downloads/Fillable_TIG_Medicare_Intake_Form.pdf" }
-  ];
+  const getCategoryColor = () => {
+    switch (form.category) {
+      case 'cms':
+        return 'border-l-blue-400';
+      case 'compliance':
+        return 'border-l-emerald-400';
+      case 'assistance':
+        return 'border-l-amber-400';
+      case 'carrier':
+        return 'border-l-slate-400';
+    }
+  };
 
+  if (compact) {
+    // Featured card style - horizontal layout
+    return (
+      <a
+        href={form.url}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
+        className="flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 rounded-lg hover:border-amber-300 hover:shadow-sm transition-all group"
+      >
+        <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
+          <FileText className="h-4 w-4 text-amber-600" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-slate-900 truncate">{form.name}</p>
+          <p className="text-xs text-slate-500 truncate">{form.description}</p>
+        </div>
+        <div className="shrink-0 text-slate-400 group-hover:text-amber-500 transition-colors">
+          {getTypeIcon()}
+        </div>
+      </a>
+    );
+  }
 
+  // Grid card style
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-      
-      <main className="flex-1">
-        {/* Hero */}
-        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="container-narrow text-center">
-            <h1 className="heading-display text-foreground mb-3">Forms Library</h1>
-            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
-              Essential sales forms and documents for your appointments.
-            </p>
-          </div>
-        </section>
-
-        {/* Quick Access Downloads */}
-        <section className="section-padding bg-cream/20 border-b border-border">
-          <div className="container-narrow">
-            <h2 className="text-2xl font-serif font-semibold text-gold mb-6">Quick Access Downloads</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {quickAccessForms.map((form) => (
-                <Button
-                  key={form.name}
-                  asChild
-                  variant="outline"
-                  className="h-auto py-4 justify-start border-[#E5E2DB] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.10)] hover:-translate-y-0.5 transition-all duration-150"
-                >
-                  <a href={form.file} target="_blank" rel="noopener noreferrer">
-                    <Download className="w-4 h-4 mr-2 text-gold" />
-                    <span className="font-medium">{form.name}</span>
-                  </a>
-                </Button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Core Form Categories */}
-        <section className="section-padding border-b border-border">
-          <div className="container-narrow">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {formCategories.map((category) => (
-                <Card key={category.title} className="border-[#E5E2DB] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-serif text-gold">{category.title}</CardTitle>
-                    <CardDescription className="text-muted-foreground">
-                      {category.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {category.forms.map((form) => (
-                      <Button
-                        key={form.name}
-                        asChild
-                        variant="ghost"
-                        className="w-full justify-start text-left h-auto py-3 hover:bg-cream/30"
-                      >
-                        <a href={form.file} target="_blank" rel="noopener noreferrer">
-                          <Download className="w-4 h-4 mr-2 text-gold flex-shrink-0" />
-                          <span>{form.name}</span>
-                        </a>
-                      </Button>
-                    ))}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Dashboard Reminder */}
-        <section className="section-padding">
-          <div className="container-narrow">
-            <div className="max-w-2xl mx-auto text-center">
-              <p className="text-sm text-muted-foreground">
-                This page is accessible anytime from the Dashboard tile for fast appointment prep.
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <Footer />
+    <div className={cn(
+      "flex flex-col p-3 bg-white border border-slate-200 border-l-2 rounded-lg hover:border-slate-300 hover:shadow-sm transition-all group",
+      getCategoryColor()
+    )}>
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <h3 className="text-sm font-medium text-slate-900 truncate cursor-default">
+              {form.name}
+            </h3>
+          </TooltipTrigger>
+          <TooltipContent>{form.name}</TooltipContent>
+        </Tooltip>
+        <div className="shrink-0 text-slate-400">
+          {form.type === 'pdf' ? (
+            <FileText className="h-4 w-4" />
+          ) : (
+            <ExternalLink className="h-4 w-4" />
+          )}
+        </div>
+      </div>
+      <p className="text-xs text-slate-500 mb-3 line-clamp-2 flex-1">{form.description}</p>
+      <Button
+        asChild
+        size="sm"
+        variant="outline"
+        className="h-7 text-xs w-full border-slate-200 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+      >
+        <a
+          href={form.url}
+          target={isExternal ? '_blank' : undefined}
+          rel={isExternal ? 'noopener noreferrer' : undefined}
+        >
+          {getTypeIcon()}
+          <span className="ml-1.5">{form.type === 'pdf' ? 'Download' : 'Open'}</span>
+        </a>
+      </Button>
     </div>
   );
-};
+}
 
-export default FormsLibraryPage;
+// Main Component
+export default function FormsLibraryPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<FormCategory | 'all'>('all');
+
+  // Featured forms for quick access
+  const featuredForms = FORMS.filter((form) => form.featured);
+
+  // Filtered forms
+  const filteredForms = useMemo(() => {
+    return FORMS.filter((form) => {
+      // Don't show featured forms in main grid when showing all
+      if (selectedCategory === 'all' && !searchQuery && form.featured) {
+        return false;
+      }
+
+      // Category filter
+      if (selectedCategory !== 'all' && form.category !== selectedCategory) {
+        return false;
+      }
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesName = form.name.toLowerCase().includes(query);
+        const matchesDescription = form.description.toLowerCase().includes(query);
+        const matchesKeywords = form.keywords?.some((kw) => kw.toLowerCase().includes(query));
+        return matchesName || matchesDescription || matchesKeywords;
+      }
+
+      return true;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Navigation />
+
+      {/* Main Content */}
+      <div className="pt-16">
+        {/* Header Row - Compact with inline search */}
+        <div className="px-6 py-3 bg-white border-b border-slate-200">
+          <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+            <h1 className="text-lg font-semibold text-slate-900 shrink-0">Forms Library</h1>
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search forms..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 text-sm bg-slate-50 border-slate-200"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Access Row */}
+        {!searchQuery && selectedCategory === 'all' && (
+          <div className="px-6 py-3 bg-gradient-to-b from-amber-50/50 to-slate-50 border-b border-slate-200">
+            <div className="max-w-6xl mx-auto">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                <span className="text-xs font-medium text-slate-600 uppercase tracking-wide">Quick Access</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                {featuredForms.map((form) => (
+                  <FormCard key={form.id} form={form} compact />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Category Tabs */}
+        <div className="px-6 py-2 bg-white border-b border-slate-200">
+          <div className="max-w-6xl mx-auto flex items-center gap-2 overflow-x-auto">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setSelectedCategory(cat.key)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all",
+                  selectedCategory === cat.key
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                )}
+              >
+                {cat.label}
+              </button>
+            ))}
+            {searchQuery && (
+              <span className="text-xs text-slate-500 ml-auto pl-4">
+                {filteredForms.length} result{filteredForms.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Forms Grid */}
+        <div className="px-6 py-4">
+          <div className="max-w-6xl mx-auto">
+            {filteredForms.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <Search className="h-10 w-10 text-slate-300 mb-3" />
+                <p className="text-sm font-medium text-slate-700">
+                  {searchQuery ? 'No forms match your search' : 'No forms in this category'}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {searchQuery ? 'Try different keywords' : 'Check back later for updates'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {filteredForms.map((form) => (
+                  <FormCard key={form.id} form={form} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Help Footer - Minimal */}
+        <div className="px-6 py-3 border-t border-slate-200 bg-white">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <p className="text-xs text-slate-500">
+              Need a form not listed? Check the{' '}
+              <a
+                href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-List"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-amber-600 hover:text-amber-700 underline"
+              >
+                CMS Forms Library
+              </a>
+            </p>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs text-slate-500"
+            >
+              <a href="/contact">Contact Support</a>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

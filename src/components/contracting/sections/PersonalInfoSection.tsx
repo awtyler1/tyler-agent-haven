@@ -59,18 +59,18 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-      <div className="p-6">
+      <div className="p-5">
         {disabled && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-slate-400 mb-6">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 text-slate-400 mb-4">
             <Lock className="h-4 w-4" />
             <span className="text-sm">Enter your initials above to unlock this section</span>
           </div>
         )}
 
-        <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+        <div className="space-y-3" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
           <div className="grid gap-3 md:grid-cols-2">
             {/* Full Legal Name */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="full_legal_name" className="block text-sm font-medium text-slate-700">
                 Full Legal Name <span className="text-amber-500">*</span>
               </label>
@@ -84,7 +84,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 onBlur={() => onFieldBlur?.('full_legal_name', application.full_legal_name, application)}
                 placeholder="Full name as shown on ID"
                 className={cn(
-                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  "w-full h-11 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                   getFieldClass('full_legal_name')
                 )}
               />
@@ -92,9 +92,9 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             </div>
 
             {/* Personal Name or Principal (for businesses) */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="personal_name_principal" className="block text-sm font-medium text-slate-700">
-                Personal Name or Principal <span className="text-slate-400 font-normal">(optional)</span>
+                Personal Name / Principal <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <input
                 id="personal_name_principal"
@@ -104,13 +104,12 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                   onUpdate('uploaded_documents', { ...docs, personal_name_principal: e.target.value });
                 }}
                 placeholder="If different from legal name"
-                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
               />
-              <p className="text-xs text-slate-400">For business entities: the principal/owner name</p>
             </div>
 
             {/* Date of Birth */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="birth_date" className="block text-sm font-medium text-slate-700">
                 Date of Birth <span className="text-amber-500">*</span>
               </label>
@@ -124,7 +123,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 }}
                 onBlur={() => onFieldBlur?.('birth_date', application.birth_date, application)}
                 className={cn(
-                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  "w-full h-11 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                   getFieldClass('birth_date')
                 )}
               />
@@ -132,17 +131,17 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             </div>
 
             {/* Gender */}
-            <div className="md:col-span-2 space-y-2">
+            <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700">
                 Gender <span className="text-amber-500">*</span>
               </label>
               <RadioGroup
                 value={normalizedGender}
                 onValueChange={handleGenderChange}
-                className="flex gap-4"
+                className="flex gap-3"
               >
                 <label className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors",
+                  "flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-colors",
                   normalizedGender === 'Male'
                     ? "border-slate-900 bg-slate-100"
                     : fieldSuccess.gender
@@ -155,7 +154,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                   <span className="text-sm text-slate-700">Male</span>
                 </label>
                 <label className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors",
+                  "flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-colors",
                   normalizedGender === 'Female'
                     ? "border-slate-900 bg-slate-100"
                     : fieldSuccess.gender
@@ -172,9 +171,9 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-4">
             {/* Birth City */}
-            <div className="space-y-2">
+            <div className="md:col-span-2 space-y-1">
               <label htmlFor="birth_city" className="block text-sm font-medium text-slate-700">
                 City of Birth <span className="text-amber-500">*</span>
               </label>
@@ -188,7 +187,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 onBlur={() => onFieldBlur?.('birth_city', application.birth_city, application)}
                 placeholder="City where you were born"
                 className={cn(
-                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  "w-full h-11 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                   getFieldClass('birth_city')
                 )}
               />
@@ -196,7 +195,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             </div>
 
             {/* Birth State */}
-            <div className="space-y-2">
+            <div className="md:col-span-2 space-y-1">
               <label htmlFor="birth_state" className="block text-sm font-medium text-slate-700">
                 State of Birth <span className="text-amber-500">*</span>
               </label>
@@ -205,14 +204,13 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 onValueChange={(v) => {
                   onUpdate('birth_state', v);
                   onClearError?.('birth_state');
-                  // Validate immediately on selection
                   if (onFieldBlur) {
                     setTimeout(() => onFieldBlur('birth_state', v, application), 0);
                   }
                 }}
               >
                 <SelectTrigger className={cn(
-                  "h-12 rounded-xl bg-slate-50 border",
+                  "h-11 rounded-xl bg-slate-50 border",
                   getFieldClass('birth_state')
                 )}>
                   <SelectValue placeholder="Select state..." />
@@ -229,7 +227,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             </div>
 
             {/* Email */}
-            <div className="space-y-2">
+            <div className="md:col-span-2 space-y-1">
               <label htmlFor="email_address" className="block text-sm font-medium text-slate-700">
                 Email Address <span className="text-amber-500">*</span>
               </label>
@@ -238,14 +236,13 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 type="email"
                 value={application.email_address || ''}
                 onChange={(e) => onUpdate('email_address', e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
                 disabled
               />
-              <p className="text-xs text-slate-400">Synced with your login email</p>
             </div>
 
             {/* Mobile Phone */}
-            <div className="space-y-2">
+            <div className="md:col-span-2 space-y-1">
               <label htmlFor="phone_mobile" className="block text-sm font-medium text-slate-700">
                 Mobile Phone <span className="text-amber-500">*</span>
               </label>
@@ -261,7 +258,7 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 onBlur={() => onFieldBlur?.('phone_mobile', application.phone_mobile, application)}
                 placeholder="(555) 123-4567"
                 className={cn(
-                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  "w-full h-11 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                   getFieldClass('phone_mobile')
                 )}
                 maxLength={14}
@@ -270,9 +267,9 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
             </div>
 
             {/* Business Phone */}
-            <div className="space-y-2">
+            <div className="md:col-span-2 space-y-1">
               <label htmlFor="phone_business" className="block text-sm font-medium text-slate-700">
-                Business Phone <span className="text-slate-400 font-normal">(optional)</span>
+                Business Phone <span className="text-slate-400 font-normal">(opt)</span>
               </label>
               <input
                 id="phone_business"
@@ -284,15 +281,15 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                   if (formatted.length === 14 && onClearError) onClearError('phone_business');
                 }}
                 placeholder="(555) 123-4567"
-                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
                 maxLength={14}
               />
             </div>
 
             {/* Home Phone */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="phone_home" className="block text-sm font-medium text-slate-700">
-                Home Phone <span className="text-slate-400 font-normal">(optional)</span>
+                Home Phone <span className="text-slate-400 font-normal">(opt)</span>
               </label>
               <input
                 id="phone_home"
@@ -304,15 +301,15 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                   if (formatted.length === 14 && onClearError) onClearError('phone_home');
                 }}
                 placeholder="(555) 123-4567"
-                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
                 maxLength={14}
               />
             </div>
 
             {/* Fax */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="fax" className="block text-sm font-medium text-slate-700">
-                Fax <span className="text-slate-400 font-normal">(optional)</span>
+                Fax <span className="text-slate-400 font-normal">(opt)</span>
               </label>
               <input
                 id="fax"
@@ -320,29 +317,29 @@ export function PersonalInfoSection({ application, onUpdate, disabled, fieldErro
                 value={application.fax || ''}
                 onChange={(e) => onUpdate('fax', e.target.value)}
                 placeholder="Optional"
-                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
               />
             </div>
           </div>
         </div>
 
         {/* Preferred Contact Method */}
-        <div className="pt-4 border-t border-slate-200" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-          <label className="block text-sm font-medium text-slate-700 mb-3">Preferred Contact Method</label>
-          <div className="flex flex-wrap gap-3">
+        <div className="pt-3 border-t border-slate-200" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Preferred Contact Method</label>
+          <div className="flex flex-wrap gap-2">
             {['Email', 'Phone', 'Text'].map((method) => (
               <label
                 key={method}
                 onClick={() => toggleContactMethod(method)}
-                className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors"
               >
                 <div className={cn(
-                  "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
+                  "w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all",
                   contactMethods.includes(method)
-                    ? "bg-slate-900 border-slate-900" 
+                    ? "bg-slate-900 border-slate-900"
                     : "border-slate-300"
                 )}>
-                  {contactMethods.includes(method) && <Check className="h-3 w-3 text-white" />}
+                  {contactMethods.includes(method) && <Check className="h-2.5 w-2.5 text-white" />}
                 </div>
                 <span className="text-sm text-slate-700">{method}</span>
               </label>

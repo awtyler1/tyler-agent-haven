@@ -46,20 +46,21 @@ function generateEmailBody(
   agentState: string | null,
   selectedCarriers: string[]
 ): string {
+  const firstName = agentName.trim().split(' ')[0];
   const carrierList = selectedCarriers.length > 0
     ? selectedCarriers.map((c) => `  - ${c}`).join('\n')
     : '  (No carriers selected)';
 
-  return `Hi Pinnacle Licensing Team,
+  return `Hey Licensing,
+
+${firstName} will be agent level, direct to TIG, with the following carriers:
+${carrierList}
 
 Please process the following contracting request:
 
 Agent: ${agentName}
 NPN: ${agentNpn || 'N/A'}
 Resident State: ${agentState || 'N/A'}
-
-Requested Carriers:
-${carrierList}
 
 All required documents are attached.
 
@@ -82,6 +83,7 @@ export function SendToPinnacleModal({
   const [body, setBody] = useState('');
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   // Reset form when modal opens with new agent data
   useEffect(() => {
@@ -91,6 +93,7 @@ export function SendToPinnacleModal({
       setBody(generateEmailBody(agentName, agentNpn, agentState, selectedCarriers));
       setSelectedDocs(documents.map((d) => d.type));
       setSendStatus('idle');
+      setIsConfirmed(false);
     }
   }, [isOpen, agentName, agentNpn, agentState, selectedCarriers, documents]);
 
@@ -259,6 +262,41 @@ export function SendToPinnacleModal({
               </p>
             )}
           </div>
+
+          {/* Confirmation Summary */}
+          <div className="border rounded-lg p-4 bg-slate-50 space-y-3">
+            <p className="text-sm font-medium text-slate-700">Confirm Send Details</p>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <span className="text-muted-foreground">Agent:</span>
+                <span className="ml-2 font-medium">{agentName}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">NPN:</span>
+                <span className="ml-2 font-medium">{agentNpn || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Recipient:</span>
+                <span className="ml-2 font-medium truncate">{to}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Documents:</span>
+                <span className="ml-2 font-medium">{selectedDocs.length} attached</span>
+              </div>
+            </div>
+
+            {/* Confirmation Checkbox */}
+            <label className="flex items-start gap-3 pt-2 border-t cursor-pointer">
+              <Checkbox
+                checked={isConfirmed}
+                onCheckedChange={(checked) => setIsConfirmed(!!checked)}
+                className="mt-0.5"
+              />
+              <span className="text-sm text-slate-700">
+                I have reviewed this application and confirm it is ready to submit to Pinnacle.
+              </span>
+            </label>
+          </div>
         </div>
 
         <DialogFooter className="relative z-20">
@@ -271,8 +309,9 @@ export function SendToPinnacleModal({
           </Button>
           <Button
             onClick={handleSend}
-            disabled={isSending || isSuccess}
+            disabled={isSending || isSuccess || !isConfirmed}
             className={`gap-2 min-w-[140px] ${isSuccess ? 'bg-green-600 hover:bg-green-600' : ''}`}
+            title={!isConfirmed ? 'Please confirm before sending' : undefined}
           >
             {getButtonContent()}
           </Button>

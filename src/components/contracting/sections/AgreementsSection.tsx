@@ -25,24 +25,24 @@ export function AgreementsSection({ application, onUpdate, disabled }: Agreement
   const allChecked = AGREEMENTS.every(a => agreements[a.id]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
-      <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-        
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
+      <div className="space-y-2" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+
         {AGREEMENTS.map((agreement) => (
-          <label 
+          <label
             key={agreement.id}
             className={cn(
-              "flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-colors",
+              "flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors",
               agreements[agreement.id] ? "bg-emerald-50" : "bg-slate-50 hover:bg-slate-100"
             )}
           >
             <div className={cn(
-              "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shrink-0 mt-0.5",
-              agreements[agreement.id] 
-                ? "bg-emerald-500 border-emerald-500" 
+              "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0 mt-0.5",
+              agreements[agreement.id]
+                ? "bg-emerald-500 border-emerald-500"
                 : "border-slate-300"
             )}>
-              {agreements[agreement.id] && <Check className="h-4 w-4 text-white" />}
+              {agreements[agreement.id] && <Check className="h-3 w-3 text-white" />}
             </div>
             <input
               type="checkbox"
@@ -50,17 +50,17 @@ export function AgreementsSection({ application, onUpdate, disabled }: Agreement
               checked={agreements[agreement.id] || false}
               onChange={() => toggleAgreement(agreement.id)}
             />
-            <span className="text-sm text-slate-700 leading-relaxed">{agreement.text}</span>
+            <span className="text-sm text-slate-700 leading-snug">{agreement.text}</span>
           </label>
         ))}
 
         {/* Progress indicator */}
-        <div className="pt-4 text-center">
+        <div className="pt-2 text-center">
           <p className={cn(
-            "text-sm",
+            "text-xs",
             allChecked ? "text-emerald-600" : "text-slate-400"
           )}>
-            {allChecked ? "All agreements accepted ✓" : `${Object.values(agreements).filter(Boolean).length} of ${AGREEMENTS.length} accepted`}
+            {allChecked ? "All accepted" : `${Object.values(agreements).filter(Boolean).length} of ${AGREEMENTS.length} accepted`}
           </p>
         </div>
 

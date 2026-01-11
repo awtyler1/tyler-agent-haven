@@ -46,7 +46,10 @@ const FIELD_SECTIONS: Record<string, string> = {
   bank_routing_number: 'banking',
   bank_account_number: 'banking',
   bank_name: 'banking',
-  selected_carriers: 'carriers',
+  doc_insurance_license: 'documents',
+  doc_eo_certificate: 'documents',
+  doc_voided_check: 'documents',
+  background_questions: 'background',
   signature_name: 'signature',
   signature_initials: 'initials',
   signature_date: 'signature',
@@ -110,6 +113,23 @@ const validateSingleField = (
       if (!isAddressComplete(value)) return 'Please complete all address fields.';
       return null;
 
+    // Address sub-fields
+    case 'home_address.street':
+      if (!value || !value.trim()) return 'Please enter your street address.';
+      return null;
+
+    case 'home_address.city':
+      if (!value || !value.trim()) return 'Please enter your city.';
+      return null;
+
+    case 'home_address.state':
+      if (!value) return 'Please select your state.';
+      return null;
+
+    case 'home_address.zip':
+      if (!value || !value.trim()) return 'Please enter your ZIP code.';
+      return null;
+
     case 'npn_number':
       if (!value || !value.trim()) return 'Please enter your NPN.';
       return null;
@@ -143,9 +163,54 @@ const validateSingleField = (
       if (!value || !value.trim()) return 'Please enter your bank name.';
       return null;
 
-    case 'selected_carriers':
-      const carriers = Array.isArray(value) ? value : [];
-      if (carriers.length === 0) return 'Please select at least one carrier.';
+    case 'doc_insurance_license':
+      if (!value || !value.trim()) return 'Please upload your insurance license.';
+      return null;
+
+    case 'doc_eo_certificate':
+      if (!value || !value.trim()) return 'Please upload your E&O certificate.';
+      return null;
+
+    case 'doc_voided_check':
+      if (!value || !value.trim()) return 'Please upload a voided check or direct deposit form.';
+      return null;
+
+    case 'background_questions':
+      // Check that all background questions are answered
+      const questions = value as Record<string, { answer: boolean | null; explanation?: string }> | null;
+      if (!questions) return 'Please answer all background questions.';
+
+      // Sub-question hierarchy - sub-questions only need answers if parent is "Yes"
+      const subQuestionParents: Record<string, string> = {
+        '1a': '1', '1b': '1', '1c': '1', '1d': '1', '1e': '1', '1f': '1', '1g': '1', '1h': '1',
+        '2a': '2', '2b': '2', '2c': '2', '2d': '2',
+        '5a': '5', '5b': '5', '5c': '5',
+        '8a': '8', '8b': '8',
+        '14a': '14', '14c': '14',
+        '15a': '15', '15b': '15', '15c': '15',
+      };
+
+      // Only validate main (parent) questions, not sub-questions
+      const mainQuestions = LEGAL_QUESTIONS.filter(q => !('isSubQuestion' in q && q.isSubQuestion));
+
+      for (const question of mainQuestions) {
+        const q = questions[question.id];
+        if (!q || q.answer === null || q.answer === undefined) {
+          return 'Please answer all background questions.';
+        }
+      }
+
+      // Check sub-questions only if their parent is "Yes"
+      for (const [subId, parentId] of Object.entries(subQuestionParents)) {
+        const parentAnswer = questions[parentId]?.answer;
+        if (parentAnswer === true) {
+          const subQ = questions[subId];
+          if (!subQ || subQ.answer === null || subQ.answer === undefined) {
+            return 'Please answer all follow-up questions for "Yes" answers.';
+          }
+        }
+      }
+
       return null;
 
     case 'signature_name':
@@ -261,19 +326,135 @@ export function useFormValidation() {
     sectionStatuses: Record<string, SectionStatus>,
     carriers: Carrier[]
   ): ValidationState => {
-    // TESTING: All validation disabled for testing purposes - return valid state immediately
-    const validState: ValidationState = {
+    const fieldErrors: Record<string, string> = {};
+    const fieldSuccess: Record<string, boolean> = {};
+    const sectionErrors: Record<string, SectionValidation> = {};
+    let firstErrorSection: string | null = null;
+    let firstErrorField: string | null = null;
+
+    // Define required fields per section (in display order)
+    const sectionFields: Record<string, { fields: string[]; name: string }> = {
+      'personal': {
+        name: 'Personal Information',
+        fields: ['full_legal_name', 'email_address', 'phone_mobile', 'birth_date', 'birth_city', 'birth_state', 'gender']
+      },
+      'home-address': {
+        name: 'Home Address',
+        fields: ['home_address']
+      },
+      'licensing': {
+        name: 'Licensing Information',
+        fields: ['npn_number', 'resident_license_number', 'resident_state', 'tax_id', 'drivers_license_number', 'drivers_license_state']
+      },
+      'banking': {
+        name: 'Banking Information',
+        fields: ['bank_routing_number', 'bank_account_number'] // bank_name is optional
+      },
+      'documents': {
+        name: 'Required Documents',
+        fields: ['doc_insurance_license', 'doc_eo_certificate', 'doc_voided_check']
+      },
+      'background': {
+        name: 'Background Questions',
+        fields: ['background_questions']
+      },
+      'signature': {
+        name: 'Signature',
+        fields: ['signature_name', 'signature_date']
+      },
+      'initials': {
+        name: 'Initials',
+        fields: ['signature_initials']
+      }
+    };
+
+    // Section order for determining first error
+    const sectionOrder = ['personal', 'home-address', 'licensing', 'banking', 'documents', 'background', 'signature', 'initials'];
+
+    // Get field value from application
+    const getFieldValue = (fieldName: string): any => {
+      switch (fieldName) {
+        case 'full_legal_name': return application.full_legal_name;
+        case 'email_address': return application.email_address;
+        case 'phone_mobile': return application.phone_mobile;
+        case 'birth_date': return application.birth_date;
+        case 'birth_city': return application.birth_city;
+        case 'birth_state': return application.birth_state;
+        case 'gender': return application.gender;
+        case 'home_address': return application.home_address;
+        case 'npn_number': return application.npn_number;
+        case 'resident_license_number': return application.insurance_license_number; // Map to actual field
+        case 'resident_state': return application.resident_state;
+        case 'tax_id': return application.tax_id;
+        case 'drivers_license_number': return application.drivers_license_number;
+        case 'drivers_license_state': return application.drivers_license_state;
+        case 'bank_routing_number': return application.bank_routing_number;
+        case 'bank_account_number': return application.bank_account_number;
+        case 'bank_name': return application.bank_name;
+        case 'doc_insurance_license': return application.uploaded_documents?.insurance_license;
+        case 'doc_eo_certificate': return application.uploaded_documents?.eo_certificate;
+        case 'doc_voided_check': return application.uploaded_documents?.voided_check;
+        case 'background_questions': return application.legal_questions;
+        case 'signature_name': return application.signature_name;
+        case 'signature_date': return application.signature_date;
+        case 'signature_initials': return application.signature_initials;
+        default: return undefined;
+      }
+    };
+
+    // Validate each section
+    for (const sectionId of sectionOrder) {
+      const sectionConfig = sectionFields[sectionId];
+      if (!sectionConfig) continue;
+
+      const sectionFieldErrors: FieldError[] = [];
+
+      for (const fieldName of sectionConfig.fields) {
+        const value = getFieldValue(fieldName);
+        const error = validateSingleField(fieldName, value, application);
+
+        if (error) {
+          fieldErrors[fieldName] = error;
+          sectionFieldErrors.push({
+            field: fieldName,
+            message: error,
+            sectionId
+          });
+
+          // Track first error
+          if (!firstErrorSection) {
+            firstErrorSection = sectionId;
+            firstErrorField = fieldName;
+          }
+        } else {
+          fieldSuccess[fieldName] = true;
+        }
+      }
+
+      sectionErrors[sectionId] = {
+        sectionId,
+        sectionName: sectionConfig.name,
+        isValid: sectionFieldErrors.length === 0,
+        errors: sectionFieldErrors,
+        needsAcknowledgment: false
+      };
+    }
+
+    const isFormValid = Object.keys(fieldErrors).length === 0;
+
+    const result: ValidationState = {
       isValidating: false,
       hasValidated: true,
-      isFormValid: true,
-      fieldErrors: {},
-      fieldSuccess: {},
-      sectionErrors: {},
-      firstErrorSection: null,
-      firstErrorField: null,
+      isFormValid,
+      fieldErrors,
+      fieldSuccess,
+      sectionErrors,
+      firstErrorSection,
+      firstErrorField,
     };
-    setValidationState(validState);
-    return validState;
+
+    setValidationState(result);
+    return result;
   }, []);
 
   return {

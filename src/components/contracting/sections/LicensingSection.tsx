@@ -30,18 +30,18 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-      <div className="p-6">
+      <div className="p-5">
         {disabled && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-slate-400 mb-4">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 text-slate-400 mb-3">
             <Lock className="h-4 w-4" />
             <span className="text-sm">Enter your initials above to unlock this section</span>
           </div>
         )}
 
-        <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-4">
+        <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-3">
           {/* Identity Information */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="space-y-1">
               <label htmlFor="tax_id" className="block text-sm font-medium text-slate-700">
                 SSN <span className="text-amber-500">*</span>
               </label>
@@ -56,18 +56,17 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                 onBlur={() => onFieldBlur?.('tax_id', application.tax_id, application)}
                 placeholder="XXX-XX-XXXX"
                 className={cn(
-                  "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                  "w-full h-11 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                   getFieldClass('tax_id')
                 )}
                 maxLength={11}
               />
               <FormFieldError error={fieldErrors.tax_id} show={!!fieldErrors.tax_id} />
-              {!fieldErrors.tax_id && <p className="text-xs text-slate-400">Used only for contracting. Securely encrypted.</p>}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="agency_name" className="block text-sm font-medium text-slate-700">
-                Agency / Business Name
+                Agency Name <span className="text-slate-400 font-normal">(opt)</span>
               </label>
               <input
                 id="agency_name"
@@ -76,13 +75,13 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                   onUpdate('agency_name', e.target.value);
                 }}
                 placeholder="If applicable"
-                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="agency_tax_id" className="block text-sm font-medium text-slate-700">
-                Agency Tax ID
+                Agency Tax ID <span className="text-slate-400 font-normal">(opt)</span>
               </label>
               <input
                 id="agency_tax_id"
@@ -91,18 +90,17 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                   onUpdate('agency_tax_id' as any, e.target.value);
                 }}
                 placeholder="XX-XXXXXXX"
-                className="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
+                className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200"
                 maxLength={10}
               />
-              <p className="text-xs text-slate-400">If different from SSN</p>
             </div>
           </div>
 
           {/* License Information */}
-          <div className="pt-4 border-t border-slate-200">
-            <h4 className="text-sm font-medium mb-3">Insurance License</h4>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
+          <div className="pt-3 border-t border-slate-200">
+            <h4 className="text-sm font-medium mb-2">Insurance License</h4>
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="space-y-1">
                 <label htmlFor="npn_number" className="block text-sm font-medium text-slate-700">
                   NPN Number <span className="text-amber-500">*</span>
                 </label>
@@ -116,16 +114,16 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                   onBlur={() => onFieldBlur?.('npn_number', application.npn_number, application)}
                   placeholder="National Producer Number"
                   className={cn(
-                    "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                    "w-full h-11 px-4 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                     getFieldClass('npn_number')
                   )}
                 />
                 <FormFieldError error={fieldErrors.npn_number} show={!!fieldErrors.npn_number} />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label htmlFor="insurance_license_number" className="block text-sm font-medium text-slate-700">
-                  Insurance License # <span className="text-amber-500">*</span>
+                  License # <span className="text-amber-500">*</span>
                 </label>
                 <input
                   id="insurance_license_number"
@@ -136,27 +134,26 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                   }}
                   onBlur={() => onFieldBlur?.('insurance_license_number', application.insurance_license_number, application)}
                   className={cn(
-                    "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                    "w-full h-11 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                     getFieldClass('insurance_license_number')
                   )}
                 />
                 <FormFieldError error={fieldErrors.insurance_license_number} show={!!fieldErrors.insurance_license_number} />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label htmlFor="resident_state" className="block text-sm font-medium text-slate-700">
                   Resident State <span className="text-amber-500">*</span>
                 </label>
                 <Select value={application.resident_state || ''} onValueChange={(v) => {
                   onUpdate('resident_state', v);
                   if (v && onClearError) onClearError('resident_state');
-                  // Validate immediately on selection
                   if (onFieldBlur) {
                     setTimeout(() => onFieldBlur('resident_state', v, application), 0);
                   }
                 }}>
                   <SelectTrigger className={cn(
-                    "h-12 rounded-xl bg-slate-50 border",
+                    "h-11 rounded-xl bg-slate-50 border",
                     getFieldClass('resident_state')
                   )}>
                     <SelectValue placeholder="Select state..." />
@@ -175,12 +172,12 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
           </div>
 
           {/* Driver's License */}
-          <div className="pt-4 border-t border-slate-200">
-            <h4 className="text-sm font-medium mb-3">Driver's License</h4>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
+          <div className="pt-3 border-t border-slate-200">
+            <h4 className="text-sm font-medium mb-2">Driver's License</h4>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
                 <label htmlFor="drivers_license_number" className="block text-sm font-medium text-slate-700">
-                  Driver's License # <span className="text-amber-500">*</span>
+                  License # <span className="text-amber-500">*</span>
                 </label>
                 <input
                   id="drivers_license_number"
@@ -191,27 +188,26 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
                   }}
                   onBlur={() => onFieldBlur?.('drivers_license_number', application.drivers_license_number, application)}
                   className={cn(
-                    "w-full h-12 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
+                    "w-full h-11 px-4 rounded-xl bg-slate-50 border text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 focus:border-transparent transition-all duration-200",
                     getFieldClass('drivers_license_number')
                   )}
                 />
                 <FormFieldError error={fieldErrors.drivers_license_number} show={!!fieldErrors.drivers_license_number} />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label htmlFor="drivers_license_state" className="block text-sm font-medium text-slate-700">
-                  Driver's License State <span className="text-amber-500">*</span>
+                  State <span className="text-amber-500">*</span>
                 </label>
                 <Select value={application.drivers_license_state || ''} onValueChange={(v) => {
                   onUpdate('drivers_license_state', v);
                   if (v && onClearError) onClearError('drivers_license_state');
-                  // Validate immediately on selection
                   if (onFieldBlur) {
                     setTimeout(() => onFieldBlur('drivers_license_state', v, application), 0);
                   }
                 }}>
                   <SelectTrigger className={cn(
-                    "h-12 rounded-xl bg-slate-50 border",
+                    "h-11 rounded-xl bg-slate-50 border",
                     getFieldClass('drivers_license_state')
                   )}>
                     <SelectValue placeholder="Select state..." />
@@ -230,22 +226,21 @@ export function LicensingSection({ application, onUpdate, disabled, fieldErrors 
           </div>
 
           {/* Corporation */}
-          <div className="pt-4 border-t border-slate-200">
-            <label 
-              className="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
+          <div className="pt-3 border-t border-slate-200">
+            <label
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
               onClick={() => onUpdate('is_corporation', !application.is_corporation)}
             >
               <div className={cn(
                 "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
                 application.is_corporation
-                  ? "bg-slate-900 border-slate-900" 
+                  ? "bg-slate-900 border-slate-900"
                   : "border-slate-300"
               )}>
                 {application.is_corporation && <Check className="h-3 w-3 text-white" />}
               </div>
               <div>
                 <span className="text-sm font-medium text-slate-700">I am applying as a corporation or business entity</span>
-                <p className="text-xs text-slate-500">Additional documentation may be required</p>
               </div>
             </label>
           </div>

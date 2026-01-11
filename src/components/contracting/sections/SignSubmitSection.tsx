@@ -56,17 +56,12 @@ export function SignSubmitSection({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
-      <div className="space-y-4" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-        
-        {/* Legal text */}
-        <p className="text-sm text-slate-500 leading-relaxed">
-          By typing your name below, you are providing a legally binding electronic signature.
-        </p>
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
+      <div className="space-y-3" style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
 
         {/* Signature fields */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2 space-y-2">
+        <div className="grid grid-cols-4 gap-3">
+          <div className="col-span-2 space-y-1">
             <Label className="text-sm font-medium text-slate-700">
               Full Legal Name <span className="text-amber-500">*</span>
             </Label>
@@ -79,14 +74,14 @@ export function SignSubmitSection({
               onBlur={() => onFieldBlur?.('signature_name', application.signature_name, application)}
               placeholder="Type your full name"
               className={cn(
-                "h-12 rounded-xl bg-slate-50 text-lg",
+                "h-11 rounded-xl bg-slate-50",
                 getFieldClass('signature_name')
               )}
             />
             <FormFieldError error={fieldErrors.signature_name} show={!!fieldErrors.signature_name} />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label className="text-sm font-medium text-slate-700">
               Initials <span className="text-amber-500">*</span>
             </Label>
@@ -100,22 +95,24 @@ export function SignSubmitSection({
               placeholder="ABC"
               maxLength={4}
               className={cn(
-                "h-12 rounded-xl bg-slate-50 text-lg text-center uppercase",
+                "h-11 rounded-xl bg-slate-50 text-center uppercase",
                 getFieldClass('signature_initials')
               )}
             />
             <FormFieldError error={fieldErrors.signature_initials} show={!!fieldErrors.signature_initials} />
           </div>
-        </div>
 
-        {/* Date */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
-          <span className="text-sm text-slate-500">Date</span>
-          <span className="text-sm font-medium text-slate-900">{today}</span>
+          {/* Date */}
+          <div className="space-y-1">
+            <Label className="text-sm font-medium text-slate-700">Date</Label>
+            <div className="h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center">
+              <span className="text-sm text-slate-900">{today}</span>
+            </div>
+          </div>
         </div>
 
         {/* Drawn signature */}
-        <div className="space-y-2">
+        <div className="space-y-1">
           <Label className="text-sm font-medium text-slate-700">
             Draw Your Signature <span className="text-amber-500">*</span>
           </Label>
@@ -133,9 +130,8 @@ export function SignSubmitSection({
         </div>
 
         {/* Final attestation */}
-        <p className="text-xs text-slate-400 text-center leading-relaxed">
+        <p className="text-xs text-slate-400 text-center">
           By signing, you acknowledge this constitutes a legally binding agreement.
-          This agreement is governed by the laws of the Commonwealth of Kentucky.
         </p>
 
       </div>

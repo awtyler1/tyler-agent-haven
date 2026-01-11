@@ -151,34 +151,32 @@ export default function NewAgentPage() {
         sendSetupEmail: formData.sendSetupEmail,
       };
 
-      // Invoke the function - Supabase client handles auth automatically
-      let { data, error } = await supabase.functions.invoke('create-agent', {
-        body: requestBody,
-      });
+      // Invoke the function using fetch directly for better error handling
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No active session. Please sign in again.');
+      }
 
-      // Handle 401 errors with single retry after token refresh
-      if (error && (error.message?.includes('401') || error.message?.includes('non-2xx'))) {
-        console.log('Got 401, attempting token refresh and retry...');
-        const { error: refreshError } = await supabase.auth.refreshSession();
-
-        if (refreshError) {
-          throw new Error('Session expired. Please sign in again.');
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-agent`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify(requestBody),
         }
+      );
 
-        // Single retry with fresh token
-        const retryResult = await supabase.functions.invoke('create-agent', {
-          body: requestBody,
-        });
-        data = retryResult.data;
-        error = retryResult.error;
+      const data = await response.json();
+      console.log('Create agent response:', response.status, data);
 
-        if (error) {
-          throw new Error('Authentication failed after retry. Please sign out and sign back in.');
-        }
-      } else if (error) {
-        // Non-auth error
-        console.error('Create agent error:', error);
-        const errorMessage = error.message || error.context?.message || 'Failed to create agent';
+      if (!response.ok) {
+        // Extract the actual error message from the function response
+        const errorMessage = data?.error || data?.message || data?.details || `Request failed with status ${response.status}`;
+        console.error('Create agent failed:', errorMessage);
         throw new Error(errorMessage);
       }
 

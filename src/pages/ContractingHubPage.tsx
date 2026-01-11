@@ -11,10 +11,12 @@ import {
   ArrowRight,
   Download,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import tylerLogo from '@/assets/tyler-logo.png';
+import { useToast } from '@/hooks/use-toast';
 
 interface ContractingApplication {
   id: string;
@@ -26,8 +28,10 @@ interface ContractingApplication {
 
 const ContractingHubPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [application, setApplication] = useState<ContractingApplication | null>(null);
+  const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -55,6 +59,29 @@ const ContractingHubPage = () => {
 
     fetchApplication();
   }, [navigate]);
+
+  const handleDownload = async (path: string, label: string) => {
+    setDownloadingDoc(path);
+    try {
+      const { data, error } = await supabase.storage
+        .from('contracting-documents')
+        .createSignedUrl(path, 60); // URL valid for 60 seconds
+
+      if (error) throw error;
+
+      // Open in new tab for viewing, or trigger download
+      window.open(data.signedUrl, '_blank');
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({
+        title: 'Download failed',
+        description: 'Unable to download the document. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDownloadingDoc(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -124,7 +151,7 @@ const ContractingHubPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/')}
             className="text-slate-600"
           >
             Back to Dashboard
@@ -189,8 +216,24 @@ const ContractingHubPage = () => {
                   <div className="flex items-center gap-3">
                     <FileText className="h-4 w-4 text-slate-400" />
                     <span className="text-sm text-slate-700">{doc.label}</span>
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                   </div>
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDownload(doc.path, doc.label)}
+                    disabled={downloadingDoc === doc.path}
+                    className="h-8 px-3 text-slate-600 hover:text-slate-900"
+                  >
+                    {downloadingDoc === doc.path ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4 mr-1.5" />
+                        View
+                      </>
+                    )}
+                  </Button>
                 </div>
               ))}
             </div>

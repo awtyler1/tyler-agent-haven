@@ -28,10 +28,31 @@ serve(async (req: Request): Promise<Response> => {
 
   try {
     console.log("Starting request processing...");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Validate environment variables
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const siteUrl = Deno.env.get("SITE_URL") || "https://www.tigagenthub.com";
+
+    if (!supabaseUrl) {
+      console.error("SUPABASE_URL is not configured");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error: SUPABASE_URL not set" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!supabaseServiceKey) {
+      console.error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error: SUPABASE_SERVICE_ROLE_KEY not set" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log("Environment variables validated");
+    console.log("Service role key present, length:", supabaseServiceKey.length);
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }
@@ -41,7 +62,7 @@ serve(async (req: Request): Promise<Response> => {
     const authHeader = req.headers.get("Authorization");
     console.log("Auth header present:", !!authHeader);
     console.log("Auth header length:", authHeader?.length || 0);
-    
+
     if (!authHeader) {
       console.error("No authorization header found");
       throw new Error("No authorization header");
@@ -51,10 +72,21 @@ serve(async (req: Request): Promise<Response> => {
     console.log("Token extracted, length:", token.length);
     console.log("Token prefix:", token.substring(0, 20) + "...");
 
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    let user;
+    let authError;
+
+    try {
+      const result = await supabaseAdmin.auth.getUser(token);
+      user = result.data?.user;
+      authError = result.error;
+      console.log("getUser result - user:", !!user, "error:", authError?.message || "none");
+    } catch (e) {
+      console.error("getUser threw exception:", e);
+      throw new Error(`Authentication exception: ${e instanceof Error ? e.message : String(e)}`);
+    }
 
     if (authError) {
-      console.error("Auth error:", authError.message, authError.status);
+      console.error("Auth error details:", JSON.stringify(authError));
       throw new Error(`Authentication failed: ${authError.message}`);
     }
 
@@ -360,13 +392,14 @@ serve(async (req: Request): Promise<Response> => {
     }
     
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: errorMessage,
-        details: errorStack ? undefined : errorMessage 
+        message: errorMessage,
+        details: errorMessage
       }),
-      { 
-        status: statusCode, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
+      {
+        status: statusCode,
+        headers: { "Content-Type": "application/json", ...corsHeaders }
       }
     );
   }

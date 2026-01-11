@@ -39,18 +39,28 @@ serve(async (req: Request): Promise<Response> => {
     );
 
     if (authError || !user) {
-      throw new Error("Unauthorized");
+      console.error("Auth error:", authError);
+      throw new Error("Unauthorized: Invalid or expired token");
     }
 
-    // Only super admins can create admin users
-    const { data: roles } = await supabaseAdmin
+    console.log(`Checking roles for user: ${user.id} (${user.email})`);
+
+    // Only admins can create admin users
+    const { data: roles, error: rolesError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .in("role", ["super_admin", "admin"]);
 
+    if (rolesError) {
+      console.error("Roles query error:", rolesError);
+      throw new Error(`Failed to check roles: ${rolesError.message}`);
+    }
+
+    console.log(`Found roles:`, roles);
+
     if (!roles || roles.length === 0) {
-      throw new Error("Unauthorized: Admin role required");
+      throw new Error(`Unauthorized: User ${user.email} does not have admin role`);
     }
 
     const { 

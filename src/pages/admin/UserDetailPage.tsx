@@ -523,19 +523,21 @@ export default function UserDetailPage() {
                       <AlertDialogTitle className="text-destructive">
                         Permanently Delete Account?
                       </AlertDialogTitle>
-                      <AlertDialogDescription className="space-y-2">
-                        <p>
-                          This will permanently delete <strong>{user.full_name || user.email}</strong> and all associated data:
-                        </p>
-                        <ul className="list-disc list-inside text-sm space-y-1 mt-2">
-                          <li>User profile and login credentials</li>
-                          <li>Contracting application and data</li>
-                          <li>All uploaded documents</li>
-                          <li>Role assignments</li>
-                        </ul>
-                        <p className="text-destructive font-medium mt-3">
-                          This action cannot be undone.
-                        </p>
+                      <AlertDialogDescription asChild>
+                        <div className="space-y-2 text-sm text-muted-foreground">
+                          <p>
+                            This will permanently delete <strong>{user.full_name || user.email}</strong> and all associated data:
+                          </p>
+                          <ul className="list-disc list-inside text-sm space-y-1 mt-2">
+                            <li>User profile and login credentials</li>
+                            <li>Contracting application and data</li>
+                            <li>All uploaded documents</li>
+                            <li>Role assignments</li>
+                          </ul>
+                          <p className="text-destructive font-medium mt-3">
+                            This action cannot be undone.
+                          </p>
+                        </div>
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
