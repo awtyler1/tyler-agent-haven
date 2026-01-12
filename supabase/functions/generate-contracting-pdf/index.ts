@@ -84,6 +84,21 @@ function getStreetAddress(addr: Address | null | undefined): string {
 }
 
 /**
+ * Get current date in Central Time as ISO string (YYYY-MM-DD)
+ */
+function getCurrentDateCentral(): string {
+  const now = new Date();
+  // Format in Central Time (America/Chicago)
+  const centralDate = now.toLocaleDateString('en-CA', {
+    timeZone: 'America/Chicago',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  return centralDate; // Returns YYYY-MM-DD format
+}
+
+/**
  * Format date to MM/DD/YYYY
  */
 function formatDate(dateStr: string | undefined | null): string {
@@ -841,9 +856,9 @@ serve(async (req) => {
     for (const [_groupName, config] of Object.entries(DUPLICATE_GROUPS)) {
       let value = getNestedValue(application, config.source);
       
-      // Fallback: Use current date if signature_date is missing
+      // Fallback: Use current date (Central Time) if signature_date is missing
       if (config.source === 'signature_date' && !value) {
-        value = new Date().toISOString();
+        value = getCurrentDateCentral();
       }
       
       if ('format' in config && config.format === 'date') {
@@ -1017,7 +1032,7 @@ serve(async (req) => {
     const nameParts = (application.full_legal_name || "Unknown").split(" ");
     const lastName = nameParts[nameParts.length - 1];
     const firstName = nameParts[0];
-    const dateStr = (application.signature_date?.split("T")[0] || new Date().toISOString().split("T")[0]).replace(
+    const dateStr = (application.signature_date?.split("T")[0] || getCurrentDateCentral()).replace(
       /-/g,
       "",
     );
