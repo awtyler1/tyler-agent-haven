@@ -9,7 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { toast } from 'sonner';
 
 const DOCUMENT_LABELS: Record<string, string> = {
-  insurance_license: 'Insurance License',
+  insurance_license: 'Resident License',
   government_id: 'Government ID',
   voided_check: 'Voided Check',
   eo_certificate: 'E&O Certificate',

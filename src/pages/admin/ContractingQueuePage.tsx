@@ -68,7 +68,7 @@ interface QueueAgent {
 const DOCUMENT_LABELS: Record<string, string> = {
   contracting_packet: 'Contracting Packet',
   eo_certificate: 'E&O Certificate',
-  insurance_license: 'Insurance License',
+  insurance_license: 'Resident License',
   voided_check: 'Voided Check',
   government_id: 'Government ID',
   aml_certificate: 'AML Certificate',
