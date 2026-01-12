@@ -44,6 +44,7 @@ import { SendToPinnacleModal, PinnacleDocument, SendToPinnacleData } from '@/com
 import { useSendEmail, fileUrlToBase64, EmailAttachment } from '@/hooks/useSendEmail';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { US_STATES } from '@/types/contracting';
 
 // Types
 type QueueStatus = 'needs_action' | 'in_progress' | 'sent_to_pinnacle' | 'completed';
@@ -75,6 +76,20 @@ const DOCUMENT_LABELS: Record<string, string> = {
   ltc_certificate: 'LTC Certificate',
   corporate_resolution: 'Corporate Resolution',
   background_explanation: 'Background Documentation',
+};
+
+// Helper to get document label, including non-resident licenses
+const getDocumentLabel = (key: string): string | null => {
+  if (DOCUMENT_LABELS[key]) {
+    return DOCUMENT_LABELS[key];
+  }
+  // Handle non-resident license pattern: non_resident_license_XX
+  if (key.startsWith('non_resident_license_')) {
+    const stateCode = key.replace('non_resident_license_', '');
+    const stateName = US_STATES.find(s => s.code === stateCode)?.name || stateCode;
+    return `${stateName} License`;
+  }
+  return null;
 };
 
 const AVAILABLE_CARRIERS = [
@@ -218,7 +233,7 @@ function DetailPanel({
 
   const documents = agent.uploaded_documents || {};
   const docEntries = Object.entries(documents).filter(
-    ([key, value]) => value && DOCUMENT_LABELS[key]
+    ([key, value]) => value && getDocumentLabel(key)
   );
 
   const handleViewDocument = async (docType: string, path: string) => {
@@ -233,7 +248,7 @@ function DetailPanel({
 
       setPreviewDoc({
         url: data.signedUrl,
-        label: DOCUMENT_LABELS[docType] || docType,
+        label: getDocumentLabel(docType) || docType,
       });
     } catch (error) {
       console.error('Error viewing document:', error);
@@ -326,11 +341,11 @@ function DetailPanel({
                         <FileText className="h-4 w-4 text-slate-400 group-hover:text-amber-600" />
                       )}
                       <span className="text-[10px] text-slate-500 text-center leading-tight">
-                        {DOCUMENT_LABELS[docType]?.split(' ')[0]}
+                        {getDocumentLabel(docType)?.split(' ')[0]}
                       </span>
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent>{DOCUMENT_LABELS[docType]} - Click to view</TooltipContent>
+                  <TooltipContent>{getDocumentLabel(docType)} - Click to view</TooltipContent>
                 </Tooltip>
               ))}
             </div>
@@ -548,10 +563,11 @@ export default function ContractingQueuePage() {
     const uploadedDocs = agent.uploaded_documents || {};
 
     for (const [docType, filePath] of Object.entries(uploadedDocs)) {
-      if (filePath && DOCUMENT_LABELS[docType]) {
+      const label = getDocumentLabel(docType);
+      if (filePath && label) {
         docs.push({
           type: docType,
-          label: DOCUMENT_LABELS[docType],
+          label: label,
           url: filePath,
         });
       }
