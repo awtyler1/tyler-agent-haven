@@ -483,7 +483,7 @@ export function ContractingForm() {
       case 12: // Sign & Submit
         return !!(
           application.signature_name?.trim() &&
-          docs.signature_image
+          docs.final_signature
         );
 
       default:
@@ -531,7 +531,7 @@ export function ContractingForm() {
         break;
       case 12:
         if (!application.signature_name?.trim()) missing.push('typed signature');
-        if (!docs.signature_image) missing.push('drawn signature');
+        if (!docs.final_signature) missing.push('drawn signature');
         break;
     }
 
