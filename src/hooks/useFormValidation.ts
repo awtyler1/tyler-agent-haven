@@ -39,13 +39,13 @@ const FIELD_SECTIONS: Record<string, string> = {
   gender: 'personal',
   home_address: 'home-address',
   npn_number: 'licensing',
-  resident_license_number: 'licensing',
+  insurance_license_number: 'licensing',
   resident_state: 'licensing',
   drivers_license_number: 'licensing',
   drivers_license_state: 'licensing',
   bank_routing_number: 'banking',
   bank_account_number: 'banking',
-  bank_name: 'banking',
+  bank_branch_name: 'banking',
   doc_insurance_license: 'documents',
   doc_eo_certificate: 'documents',
   doc_voided_check: 'documents',
@@ -134,7 +134,7 @@ const validateSingleField = (
       if (!value || !value.trim()) return 'Please enter your NPN.';
       return null;
 
-    case 'resident_license_number':
+    case 'insurance_license_number':
       if (!value || !value.trim()) return 'Please enter your license number.';
       return null;
 
@@ -159,7 +159,7 @@ const validateSingleField = (
       if (!value || !value.trim()) return 'Please enter your account number.';
       return null;
 
-    case 'bank_name':
+    case 'bank_branch_name':
       if (!value || !value.trim()) return 'Please enter your bank name.';
       return null;
 
@@ -383,14 +383,14 @@ export function useFormValidation() {
         case 'gender': return application.gender;
         case 'home_address': return application.home_address;
         case 'npn_number': return application.npn_number;
-        case 'resident_license_number': return application.insurance_license_number; // Map to actual field
+        case 'insurance_license_number': return application.insurance_license_number;
         case 'resident_state': return application.resident_state;
         case 'tax_id': return application.tax_id;
         case 'drivers_license_number': return application.drivers_license_number;
         case 'drivers_license_state': return application.drivers_license_state;
         case 'bank_routing_number': return application.bank_routing_number;
         case 'bank_account_number': return application.bank_account_number;
-        case 'bank_name': return application.bank_name;
+        case 'bank_branch_name': return application.bank_branch_name;
         case 'doc_insurance_license': return application.uploaded_documents?.insurance_license;
         case 'doc_eo_certificate': return application.uploaded_documents?.eo_certificate;
         case 'doc_voided_check': return application.uploaded_documents?.voided_check;

@@ -263,10 +263,15 @@ export function ContractingForm() {
 
   const handleSubmit = async () => {
     // Ensure signature date is set before validation
-    if (!application?.signature_date) {
-      await updateField('signature_date', new Date().toISOString());
+    // Create an updated application object to avoid race condition with state update
+    let appToValidate = application!;
+    if (!appToValidate.signature_date) {
+      const signatureDate = new Date().toISOString();
+      updateField('signature_date', signatureDate);
+      // Use the updated value for validation (state won't update until next render)
+      appToValidate = { ...appToValidate, signature_date: signatureDate };
     }
-    
+
     // ===== DEBUG: Log all form fields as flat JSON at submission time =====
     const flattenObject = (obj: any, prefix = ''): Record<string, any> => {
       const result: Record<string, any> = {};
@@ -284,9 +289,9 @@ export function ContractingForm() {
       }
       return result;
     };
-    
+
     // Run validation and block if invalid
-    const result = validateForm(application!, sectionStatuses, []);
+    const result = validateForm(appToValidate, sectionStatuses, []);
     if (!result.isFormValid) {
       toast.error('Please complete all required fields before submitting');
       // Scroll to first error section with smooth animation

@@ -1,27 +1,12 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const allowedOrigins = [
-  "https://www.tigagenthub.com",
-  "https://tigagenthub.com",
-  "http://localhost:5173",
-  "http://localhost:3000",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  return {
-    "Access-Control-Allow-Origin": corsOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  };
-}
+import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
+import { getErrorMessage } from "../_shared/auth.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return handleCorsOptions(req);
   }
 
   try {
@@ -77,13 +62,12 @@ serve(async (req) => {
       headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
-    const errMsg = error instanceof Error ? error.message : String(error);
-    console.error('Error fetching edge logs:', errMsg);
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: errMsg,
-      logs: [] 
+  } catch (error: unknown) {
+    console.error('Error fetching edge logs:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: getErrorMessage(error),
+      logs: []
     }), {
       status: 500,
       headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },

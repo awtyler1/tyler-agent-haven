@@ -1,23 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
+import { getErrorMessage } from "../_shared/auth.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-
-const allowedOrigins = [
-  "https://www.tigagenthub.com",
-  "https://tigagenthub.com",
-  "http://localhost:5173",
-  "http://localhost:3000",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  return {
-    "Access-Control-Allow-Origin": corsOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  };
-}
 
 interface AgentInquiryRequest {
   name: string;
@@ -54,7 +39,7 @@ function isRateLimited(email: string): boolean {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return handleCorsOptions(req);
   }
 
   try {
@@ -179,10 +164,10 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-agent-inquiry function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },

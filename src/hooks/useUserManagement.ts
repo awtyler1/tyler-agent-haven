@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/errors';
 
 export interface ManagedUser {
   id: string;
@@ -62,8 +63,9 @@ export function useUserManagement() {
 
       setUsers(usersWithRoles);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      setError(message);
       console.error('Error fetching users:', err);
     } finally {
       setLoading(false);
@@ -91,9 +93,10 @@ export function useUserManagement() {
       toast.success(message);
       await fetchUsers();
       return { success: true, userId: result.userId };
-    } catch (err: any) {
-      toast.error(`Failed to create user: ${err.message}`);
-      return { success: false, error: err.message };
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      toast.error(`Failed to create user: ${message}`);
+      return { success: false, error: message };
     }
   };
 
@@ -109,9 +112,10 @@ export function useUserManagement() {
       toast.success('Setup link sent successfully');
       await fetchUsers();
       return { success: true };
-    } catch (err: any) {
-      toast.error(`Failed to send setup link: ${err.message}`);
-      return { success: false, error: err.message };
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      toast.error(`Failed to send setup link: ${message}`);
+      return { success: false, error: message };
     }
   };
 
@@ -133,9 +137,10 @@ export function useUserManagement() {
       toast.success('Role updated successfully');
       await fetchUsers();
       return { success: true };
-    } catch (err: any) {
-      toast.error(`Failed to update role: ${err.message}`);
-      return { success: false, error: err.message };
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      toast.error(`Failed to update role: ${message}`);
+      return { success: false, error: message };
     }
   };
 
@@ -151,9 +156,10 @@ export function useUserManagement() {
       toast.success(isActive ? 'Account activated' : 'Account deactivated');
       await fetchUsers();
       return { success: true };
-    } catch (err: any) {
-      toast.error(`Failed to update account status: ${err.message}`);
-      return { success: false, error: err.message };
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      toast.error(`Failed to update account status: ${message}`);
+      return { success: false, error: message };
     }
   };
 
@@ -169,9 +175,10 @@ export function useUserManagement() {
       toast.success('Profile updated successfully');
       await fetchUsers();
       return { success: true };
-    } catch (err: any) {
-      toast.error(`Failed to update profile: ${err.message}`);
-      return { success: false, error: err.message };
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      toast.error(`Failed to update profile: ${message}`);
+      return { success: false, error: message };
     }
   };
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getErrorMessage } from '@/lib/errors';
 
 export interface EmailAttachment {
   name: string;
@@ -109,8 +110,8 @@ export function useSendEmail() {
         message: data.message,
         sentAt: data.sentAt,
       };
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error sending email';
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
       console.error('Send email error:', err);
       setError(errorMessage);
       return { success: false, error: errorMessage };

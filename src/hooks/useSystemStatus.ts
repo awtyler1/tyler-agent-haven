@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getErrorMessage } from '@/lib/errors';
 
 export interface SystemStatus {
   superAdminActive: boolean;
@@ -79,11 +80,11 @@ export function useSystemStatus() {
         loading: false,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setStatus(prev => ({
         ...prev,
         loading: false,
-        error: error.message,
+        error: getErrorMessage(error),
       }));
     }
   };

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ContractingApplication } from '@/types/contracting';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/errors';
 
 export interface MappingEntry {
   pdfFieldKey: string;
@@ -399,8 +400,8 @@ export function useContractingPdf() {
         signatureFieldsFound: data.signatureFieldsFound,
       };
 
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err);
       console.error('PDF generation error:', err);
       setError(errorMsg);
       toast.error('Failed to generate PDF');

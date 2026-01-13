@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { Json } from '@/integrations/supabase/types';
 import { useContractingPdf } from './useContractingPdf';
+import { getErrorMessage } from '@/lib/errors';
 
 // Debounce delay for auto-save (ms)
 const SAVE_DEBOUNCE_MS = 800;
@@ -91,9 +92,9 @@ export function useContractingApplication() {
 
         if (carrierError) throw carrierError;
         setCarriers(carrierData as Carrier[]);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error fetching application:', error);
-        toast.error('Failed to load your application');
+        toast.error('Failed to load your application: ' + getErrorMessage(error));
       } finally {
         setLoading(false);
       }
@@ -119,9 +120,9 @@ export function useContractingApplication() {
 
       if (error) throw error;
       setLastSaved(new Date());
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving:', error);
-      toast.error('Failed to save changes');
+      toast.error('Failed to save changes: ' + getErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -166,9 +167,9 @@ export function useContractingApplication() {
         .eq('id', application.id);
 
       if (error) throw error;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving:', error);
-      toast.error('Failed to save changes');
+      toast.error('Failed to save changes: ' + getErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -243,9 +244,9 @@ export function useContractingApplication() {
       setApplication(prev => prev ? { ...prev, status: 'submitted', submitted_at: new Date().toISOString() } : null);
       toast.success('Application submitted successfully!');
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error submitting:', error);
-      toast.error('Failed to submit application');
+      toast.error('Failed to submit application: ' + getErrorMessage(error));
       return false;
     } finally {
       setSaving(false);
@@ -275,9 +276,9 @@ export function useContractingApplication() {
 
       toast.success(`${documentType} uploaded successfully`);
       return fileName;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error uploading:', error);
-      toast.error('Failed to upload document');
+      toast.error('Failed to upload document: ' + getErrorMessage(error));
       return null;
     }
   }, [user?.id, application?.id, application?.uploaded_documents, updateField]);
@@ -301,9 +302,9 @@ export function useContractingApplication() {
 
       await updateField('uploaded_documents', updatedDocs);
       toast.success('Document removed');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error deleting:', error);
-      toast.error('Failed to delete document');
+      toast.error('Failed to delete document: ' + getErrorMessage(error));
     }
   }, [application?.id, application?.uploaded_documents, updateField]);
 

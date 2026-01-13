@@ -1,22 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
-
-const allowedOrigins = [
-  "https://www.tigagenthub.com",
-  "https://tigagenthub.com",
-  "http://localhost:5173",
-  "http://localhost:3000",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  return {
-    "Access-Control-Allow-Origin": corsOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  };
-}
+import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
+import { createSupabaseAdmin, requireAdmin } from "../_shared/auth.ts";
 
 interface CreateAgentRequest {
   email: string;
@@ -33,98 +17,24 @@ serve(async (req: Request): Promise<Response> => {
   console.log("=== create-agent function called ===");
   console.log("Method:", req.method);
   console.log("URL:", req.url);
-  
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return handleCorsOptions(req);
   }
 
   try {
     console.log("Starting request processing...");
 
-    // Validate environment variables
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const siteUrl = Deno.env.get("SITE_URL") || "https://www.tigagenthub.com";
 
-    if (!supabaseUrl) {
-      console.error("SUPABASE_URL is not configured");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error: SUPABASE_URL not set" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-      );
-    }
-
-    if (!supabaseServiceKey) {
-      console.error("SUPABASE_SERVICE_ROLE_KEY is not configured");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error: SUPABASE_SERVICE_ROLE_KEY not set" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-      );
-    }
-
-    console.log("Environment variables validated");
-    console.log("Service role key present, length:", supabaseServiceKey.length);
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
+    const supabaseAdmin = createSupabaseAdmin();
+    console.log("Supabase admin client created");
 
     // Verify the requesting user is an admin
-    const authHeader = req.headers.get("Authorization");
-    console.log("Auth header present:", !!authHeader);
-    console.log("Auth header length:", authHeader?.length || 0);
-
-    if (!authHeader) {
-      console.error("No authorization header found");
-      throw new Error("No authorization header");
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-
-    let user;
-    let authError;
-
-    try {
-      const result = await supabaseAdmin.auth.getUser(token);
-      user = result.data?.user;
-      authError = result.error;
-      console.log("getUser result - user:", !!user, "error:", authError?.message || "none");
-    } catch (e) {
-      console.error("getUser threw exception:", e);
-      throw new Error(`Authentication exception: ${e instanceof Error ? e.message : String(e)}`);
-    }
-
-    if (authError) {
-      console.error("Auth error details:", JSON.stringify(authError));
-      throw new Error(`Authentication failed: ${authError.message}`);
-    }
-
-    if (!user) {
-      console.error("No user returned from auth.getUser");
-      throw new Error("Unauthorized: User not found");
-    }
-
-    console.log("User authenticated successfully");
-
-    // Check for admin or super_admin role
-    const { data: roles, error: rolesError } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .in("role", ["super_admin", "admin"]);
-
-    if (rolesError) {
-      console.error("Error checking roles:", rolesError.message);
-      throw new Error(`Failed to check roles: ${rolesError.message}`);
-    }
-
-    console.log("User roles found:", roles?.map(r => r.role) || []);
-
-    if (!roles || roles.length === 0) {
-      console.error("User does not have admin or super_admin role");
-      throw new Error("Unauthorized: Admin role required");
-    }
+    console.log("Auth header present:", !!req.headers.get("Authorization"));
+    const user = await requireAdmin(req, supabaseAdmin);
+    console.log("User authenticated successfully:", user.id);
 
     // Parse and log request body
     let requestBody: CreateAgentRequest;

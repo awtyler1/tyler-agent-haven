@@ -1,22 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
-
-const allowedOrigins = [
-  "https://www.tigagenthub.com",
-  "https://tigagenthub.com",
-  "http://localhost:5173",
-  "http://localhost:3000",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  return {
-    "Access-Control-Allow-Origin": corsOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  };
-}
+import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
+import { createSupabaseAdmin, requireSuperAdmin, isAuthError, getErrorStatus, getErrorMessage } from "../_shared/auth.ts";
 
 interface ResetContractingRequest {
   email: string;
@@ -24,41 +8,14 @@ interface ResetContractingRequest {
 
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return handleCorsOptions(req);
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
+    const supabaseAdmin = createSupabaseAdmin();
 
     // Verify the requesting user is a super admin
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header");
-    }
-
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (authError || !user) {
-      throw new Error("Unauthorized");
-    }
-
-    // Only super admins can reset contracting status
-    const { data: roles } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "super_admin");
-
-    if (!roles || roles.length === 0) {
-      throw new Error("Unauthorized: Super admin role required");
-    }
+    const user = await requireSuperAdmin(req, supabaseAdmin);
 
     const { email }: ResetContractingRequest = await req.json();
 
@@ -248,13 +205,13 @@ serve(async (req: Request): Promise<Response> => {
       }
     );
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error in reset-contracting-status:", errorMessage);
+    console.error("Error in reset-contracting-status:", getErrorMessage(error));
+    const status = isAuthError(error) ? getErrorStatus(error) : 400;
     return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        status: 400, 
-        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
+      JSON.stringify({ error: getErrorMessage(error) }),
+      {
+        status,
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) }
       }
     );
   }

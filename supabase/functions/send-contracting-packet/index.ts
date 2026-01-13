@@ -1,24 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
+import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
+import { createSupabaseAdmin, requireAdmin, isAuthError, getErrorStatus, getErrorMessage } from "../_shared/auth.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-
-const allowedOrigins = [
-  "https://www.tigagenthub.com",
-  "https://tigagenthub.com",
-  "http://localhost:5173",
-  "http://localhost:3000",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  return {
-    "Access-Control-Allow-Origin": corsOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  };
-}
 
 interface FileAttachment {
   name: string;
@@ -39,100 +23,25 @@ interface ContractingSubmission {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
-  }
-
-  // Validate Supabase environment variables
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    console.error("Supabase environment variables not configured");
-    return new Response(
-      JSON.stringify({ success: false, error: "Server configuration error" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-    );
-  }
-
-  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { autoRefreshToken: false, persistSession: false }
-  });
-
-  // Verify the requesting user is an admin
-  const authHeader = req.headers.get("Authorization");
-  console.log("Auth header present:", !!authHeader);
-
-  if (!authHeader) {
-    console.error("No authorization header found");
-    return new Response(
-      JSON.stringify({ success: false, error: "Unauthorized: No authorization header" }),
-      { status: 401, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-    );
-  }
-
-  const token = authHeader.replace("Bearer ", "");
-
-  let user;
-  let authError;
-
-  try {
-    const result = await supabaseAdmin.auth.getUser(token);
-    user = result.data?.user;
-    authError = result.error;
-    console.log("getUser result - user:", !!user, "error:", authError?.message || "none");
-  } catch (e) {
-    console.error("getUser threw exception:", e);
-    return new Response(
-      JSON.stringify({ success: false, error: "Authentication failed" }),
-      { status: 401, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-    );
-  }
-
-  if (authError || !user) {
-    console.error("Auth error:", authError?.message || "No user returned");
-    return new Response(
-      JSON.stringify({ success: false, error: "Unauthorized: Invalid token" }),
-      { status: 401, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-    );
-  }
-
-  console.log("User authenticated:", user.id, user.email);
-
-  // Check for admin or super_admin role
-  const { data: roles, error: rolesError } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", user.id)
-    .in("role", ["super_admin", "admin"]);
-
-  if (rolesError) {
-    console.error("Error checking roles:", rolesError.message);
-    return new Response(
-      JSON.stringify({ success: false, error: "Failed to verify permissions" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-    );
-  }
-
-  console.log("User roles found:", roles?.map(r => r.role) || []);
-
-  if (!roles || roles.length === 0) {
-    console.error("User does not have admin or super_admin role");
-    return new Response(
-      JSON.stringify({ success: false, error: "Unauthorized: Admin role required" }),
-      { status: 401, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-    );
-  }
-
-  // Validate API key is configured
-  if (!RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is not configured");
-    return new Response(
-      JSON.stringify({ success: false, error: "Email service not configured" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
-    );
+    return handleCorsOptions(req);
   }
 
   try {
+    const supabaseAdmin = createSupabaseAdmin();
+
+    // Verify the requesting user is an admin
+    const user = await requireAdmin(req, supabaseAdmin);
+    console.log("User authenticated:", user.id, user.email);
+
+    // Validate API key is configured
+    if (!RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ success: false, error: "Email service not configured" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
+      );
+    }
+
     const { name, npn, email, residentState, selectedCarriers, files }: ContractingSubmission = await req.json();
 
     // Extract first name from full name
@@ -316,11 +225,12 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ success: true, message: "Contracting packet submitted successfully" }),
       { status: 200, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-contracting-packet function:", error);
+    const status = isAuthError(error) ? getErrorStatus(error) : 500;
     return new Response(
-      JSON.stringify({ success: false, error: error.message || "Failed to submit contracting packet" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
+      JSON.stringify({ success: false, error: getErrorMessage(error) }),
+      { status, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
   }
 };
