@@ -32,6 +32,7 @@ import CarrierPortalsPage from "./pages/CarrierPortalsPage";
 import CarrierPlansPage from "./pages/CarrierPlansPage";
 import DocumentManagementPage from "./pages/DocumentManagementPage";
 import NotFound from "./pages/NotFound";
+import TrainingPage from "./pages/TrainingPage";
 
 // Agent-specific pages
 import ContractingPage from "./pages/ContractingPage";
@@ -214,12 +215,9 @@ const App = () => (
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
             <Route path="/industry-updates" element={<ProtectedRoute><IndustryUpdatesPage /></ProtectedRoute>} />
-            {/* MVP: Training routes removed (placeholder content)
-            <Route path="/sales-training" element={<ProtectedRoute><SalesTrainingPage /></ProtectedRoute>} />
-            <Route path="/sales-training-module" element={<ProtectedRoute><SalesTrainingModulePage /></ProtectedRoute>} />
-            <Route path="/training-library" element={<ProtectedRoute><TrainingLibraryPage /></ProtectedRoute>} />
-            <Route path="/medicare-fundamentals" element={<ProtectedRoute><MedicareFundamentalsPage /></ProtectedRoute>} />
-            */}
+            {/* Training Library */}
+            <Route path="/training" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />
+            <Route path="/training/:videoId" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />
             <Route path="/compliance" element={<ProtectedRoute><CompliancePage /></ProtectedRoute>} />
             <Route path="/carrier-resources" element={<ProtectedRoute><CarrierResourcesPage /></ProtectedRoute>} />
             <Route path="/carrier-resources/plans" element={<ProtectedRoute><CarrierPlansPage /></ProtectedRoute>} />

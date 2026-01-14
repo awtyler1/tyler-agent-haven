@@ -101,7 +101,7 @@ export function CreateAdminDialog({ onSuccess }: Props) {
             <Label htmlFor="fullName">Full Name</Label>
             <Input
               id="fullName"
-              placeholder="Caroline Tyler"
+              placeholder="Caroline Horn"
               value={formData.fullName}
               onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
               required

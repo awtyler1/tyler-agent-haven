@@ -218,7 +218,7 @@ serve(async (req: Request): Promise<Response> => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Caroline Tyler <caroline@tylerinsurancegroup.com>",
+          from: "Caroline Horn <caroline@tylerinsurancegroup.com>",
           to: [email],
           subject: isExistingAgent ? "Your Agent Account Is Ready" : "Welcome to Tyler Insurance Group",
           html: `
@@ -251,7 +251,7 @@ serve(async (req: Request): Promise<Response> => {
                           
                           <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0;">
                             <strong>Caroline</strong><br>
-                            Head of Contracting<br>
+                            Director of Operations<br>
                             Tyler Insurance Group<br>
                             <a href="mailto:caroline@tylerinsurancegroup.com" style="color: #A38529; text-decoration: none;">caroline@tylerinsurancegroup.com</a>
                           </p>

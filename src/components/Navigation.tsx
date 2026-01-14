@@ -10,14 +10,9 @@ import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 const navLinks = [
   { name: "Dashboard", href: "/" },
-  { name: "Onboarding", href: "/start-here" },
-  { name: "Contracting Hub", href: "/contracting-hub" },
-  { name: "Certifications", href: "/certifications" },
-  // MVP: Hidden until content ready
-  // { name: "Training Hub", href: "/sales-training" },
-  { name: "Agent Tools", href: "/agent-tools" },
-  { name: "Compliance", href: "/compliance" },
-  { name: "Support", href: "/contact" },
+  { name: "Contracting", href: "/contracting-hub" },
+  { name: "Tools", href: "/agent-tools" },
+  { name: "Training", href: "/training" },
 ];
 
 const Navigation = () => {
@@ -61,7 +56,7 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-5">
+          <div className="hidden lg:flex items-center gap-6">
             {showFullNavigation && navLinks.map((link) => (
               <div 
                 key={link.name} 

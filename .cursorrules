@@ -1,0 +1,34 @@
+# TIG Platform - Cursor Rules
+
+## Project Context
+This is a Medicare FMO agent management platform built with React/TypeScript/Supabase.
+Read CLAUDE_CONTEXT.md for full strategic context and current sprint tasks.
+
+## Code Style
+- TypeScript strict mode - no `any` types, no `as unknown as` casting
+- Use existing patterns in the codebase before inventing new ones
+- All database changes need migrations in /supabase/migrations
+- Use the existing shadcn/ui components from /src/components/ui
+- Error handling: always add .catch() or try/catch, never silent failures
+
+## When Writing Code
+- Add brief comments explaining WHY, not just WHAT
+- If creating a new file, explain where it fits in the architecture
+- If modifying existing code, explain what it did before and what it does now
+- Suggest error handling and edge cases proactively
+
+## Response Style
+- Explain concepts simply - the developer is learning as he builds
+- Before writing code, briefly explain the approach and why
+- After writing code, summarize what was done and what to test
+- If a request is outside the current sprint (see CLAUDE_CONTEXT.md), flag it
+
+## Don't Do
+- Don't add new dependencies without explaining why and getting approval
+- Don't create "temporary" or "quick fix" solutions
+- Don't refactor unrelated code while fixing something specific
+- Don't build features not in the current sprint without flagging it
+
+## Current Focus
+Week 1: Stability - Sentry integration, removing console.logs, fixing TypeScript issues.
+Check CLAUDE_CONTEXT.md for the full sprint board.
