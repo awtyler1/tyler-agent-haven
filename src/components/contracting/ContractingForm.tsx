@@ -171,6 +171,11 @@ export function ContractingForm() {
     }
   }, [currentStep]);
 
+  // Scroll to top when step changes (after DOM update)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
@@ -191,14 +196,14 @@ export function ContractingForm() {
     const section = SECTIONS.find(s => s.id === sectionId);
     if (section) {
       setCurrentStep(section.step);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Scroll handled by useEffect on currentStep change
     }
   }, []);
 
   const goToStep = useCallback((step: number) => {
     if (step >= 1 && step <= TOTAL_STEPS) {
       setCurrentStep(step);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Scroll handled by useEffect on currentStep change
     }
   }, []);
 
