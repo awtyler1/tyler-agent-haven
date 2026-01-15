@@ -28,6 +28,7 @@ import { SignSubmitSection } from './sections/SignSubmitSection';
 import { ValidationBanner } from './ValidationBanner';
 import { SuccessModal } from './SuccessModal';
 import { useContractingPdf } from '@/hooks/useContractingPdf';
+import { logActivity, ActivityAction } from '@/utils/activityLogger';
 
 export interface SectionStatus {
   id: string;
@@ -177,6 +178,9 @@ export function ContractingForm() {
   }, [currentStep]);
 
   const handleLogout = async () => {
+    // Log logout before signing out (need auth to log)
+    await logActivity(ActivityAction.LOGOUT);
+
     try {
       await supabase.auth.signOut({ scope: 'local' });
     } catch {

@@ -6,6 +6,7 @@ import { useAuth } from './useAuth';
 import { Database, Json } from '@/integrations/supabase/types';
 import { useContractingPdf } from './useContractingPdf';
 import { getErrorMessage } from '@/lib/errors';
+import { logActivity, ActivityAction, EntityType } from '@/utils/activityLogger';
 
 // Type alias for the database row
 type DbContractingApplication = Database['public']['Tables']['contracting_applications']['Row'];
@@ -347,6 +348,14 @@ export function useContractingApplication() {
       if (error) throw error;
 
       setApplication(prev => prev ? { ...prev, status: 'submitted', submitted_at: new Date().toISOString() } : null);
+
+      // Log contracting submission
+      await logActivity(
+        ActivityAction.CONTRACTING_SUBMITTED,
+        EntityType.CONTRACTING_APPLICATION,
+        application.id
+      );
+
       toast.success('Application submitted successfully!');
       return true;
     } catch (error: unknown) {

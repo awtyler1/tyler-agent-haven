@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { logActivity, ActivityAction } from "@/utils/activityLogger";
 
 const navLinks = [
   { name: "Dashboard", href: "/" },
@@ -25,6 +26,9 @@ const Navigation = () => {
   const showFullNavigation = !isAgent() || !isContractingRequired;
 
   const handleLogout = async () => {
+    // Log logout before signing out (need auth to log)
+    await logActivity(ActivityAction.LOGOUT);
+
     try {
       await supabase.auth.signOut({ scope: 'local' });
     } catch {

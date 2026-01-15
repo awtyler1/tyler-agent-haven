@@ -52,6 +52,7 @@ import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
 import PdfFieldAuditPage from "./pages/admin/PdfFieldAuditPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import HierarchyManagementPage from "./pages/admin/HierarchyManagementPage";
+import ActivityLogPage from "./pages/admin/ActivityLogPage";
 
 const queryClient = new QueryClient();
 
@@ -232,13 +233,21 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/admin/settings" 
+            <Route
+              path="/admin/settings"
               element={
                 <ProtectedRoute requireSuperAdmin>
                   <AdminSettingsPage />
                 </ProtectedRoute>
-              } 
+              }
+            />
+            <Route
+              path="/admin/activity-log"
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <ActivityLogPage />
+                </ProtectedRoute>
+              }
             />
 
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />

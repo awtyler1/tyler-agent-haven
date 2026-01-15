@@ -1,6 +1,6 @@
 # TIG Platform - Development Context for AI Assistants
 
-> **Last Updated:** January 14, 2025
+> **Last Updated:** January 14, 2026
 > **Owner:** Austin (Producer at AmeriLife, Co-owner Tyler Insurance Group)
 > **Strategic Advisor:** Claude (Anthropic) - for business/product decisions, paste updates in claude.ai
 
@@ -22,20 +22,25 @@ Tyler Insurance Group Agent Management Platform - a comprehensive web applicatio
 
 ---
 
-## CURRENT SPRINT (30 Days Starting Jan 14, 2025)
+## CURRENT SPRINT (30 Days Starting Jan 14, 2026)
 
-### Week 1: Stability <-- CURRENT FOCUS
-- [ ] Sentry error tracking integration
-- [ ] Remove console.log statements (35+ in codebase)
-- [ ] Fix TypeScript issues in useContractingApplication.ts
-- [ ] Add .catch() to promises in useProfile.ts
+### Week 1: Stability ✅ COMPLETE
+- [x] Sentry error tracking integration
+- [x] Remove console.log statements (113 found, cleaned up debug leftovers)
+- [x] Fix TypeScript issues in useContractingApplication.ts
+- [x] Add .catch() to promises in useProfile.ts
+- [x] Test full contracting flow
+- [x] Fix scroll bug in form wizard (bonus)
 
-### Week 2: Activity Tracking
-- [ ] Create activity_logs table
-- [ ] Log: login, logout, contracting submission, admin actions
-- [ ] Build admin activity log viewer
+### Week 2: Activity Tracking ✅ COMPLETE
+- [x] Create activity_logs table
+- [x] Add RLS policy (super_admin only can view)
+- [x] Create logActivity() utility function
+- [x] Log: login, logout, contracting submission
+- [x] Log: admin actions (queue status changes, send to Pinnacle)
+- [x] Build admin activity log viewer
 
-### Week 3: Test Rollout
+### Week 3: Test Rollout ⬅️ CURRENT FOCUS
 - [ ] Populate KY + Nevada certification data
 - [ ] Onboard Andrew's team (5 agents) as test group
 - [ ] Fix bugs from real usage
@@ -121,12 +126,30 @@ If a decision involves:
 - Agent performance dashboards
 - Org chart visualization
 - Automated carrier appointment status checks
-
+- NPN lookup integration (validate NPN against NIPR database)
+- Bank routing number validation
 ---
 
 ## PROGRESS LOG
 
-### January 14, 2025
+### January 14, 2026
 - Created development context document
-- Starting Week 1: Stability sprint
-- Next task: Sentry integration
+- Completed Week 1: Stability sprint
+  - Sentry error monitoring integrated
+  - Console statements cleaned up (113 found, debug leftovers removed)
+  - TypeScript anti-patterns fixed in useContractingApplication.ts
+  - Promise error handling added to useProfile.ts
+  - Scroll bug fixed in contracting form wizard
+- Starting Week 2: Activity Tracking
+
+### January 14, 2026 (Session 2)
+- Completed Week 2: Activity Tracking
+  - Created activity_logs table with indexes
+  - Added RLS policy (super_admin only can view)
+  - Built logActivity() utility with type-safe constants
+  - Wired up logging for: login, logout, contracting submission
+  - Added admin action logging: queue status changes, send to Pinnacle
+  - Built admin Activity Log viewer page at /admin/activity-log
+  - Added nav link to Admin Dashboard
+- Added QUEUE_STATUS_CHANGED to ActivityAction constants
+- Fixed migration history sync issue (marked 38 existing migrations as applied)

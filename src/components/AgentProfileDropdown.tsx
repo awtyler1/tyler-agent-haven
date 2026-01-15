@@ -4,12 +4,16 @@ import { LogOut, User, ChevronDown, FileText, Loader2 } from 'lucide-react';
 import { useAgentProfile } from '@/hooks/useAgentProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logActivity, ActivityAction } from '@/utils/activityLogger';
 
 export function AgentProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { fullName, email, npn, licenseNumber, residentState, loading, getInitials, hasContractingData } = useAgentProfile();
 
   const handleLogout = async () => {
+    // Log logout before signing out (need auth to log)
+    await logActivity(ActivityAction.LOGOUT);
+
     try {
       await supabase.auth.signOut({ scope: 'local' });
     } catch {

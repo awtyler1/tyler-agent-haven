@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { 
-  Users, 
-  UserPlus, 
-  FileText, 
+import {
+  Users,
+  UserPlus,
+  FileText,
   AlertCircle,
   ArrowRight,
   Clock,
@@ -14,7 +14,8 @@ import {
   Settings,
   RotateCcw,
   Loader2,
-  Building2
+  Building2,
+  Activity
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Navigation from '@/components/Navigation';
@@ -550,9 +551,13 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Settings Link (Super Admin Only) */}
+          {/* Super Admin Links */}
           {isSuperAdmin() && (
-            <div className="text-center">
+            <div className="flex items-center justify-center gap-6">
+              <Link to="/admin/activity-log" className="text-sm text-muted-foreground hover:text-gold inline-flex items-center gap-1">
+                <Activity className="w-4 h-4" />
+                Activity Log
+              </Link>
               <Link to="/admin/settings" className="text-sm text-muted-foreground hover:text-gold inline-flex items-center gap-1">
                 <Settings className="w-4 h-4" />
                 System Settings

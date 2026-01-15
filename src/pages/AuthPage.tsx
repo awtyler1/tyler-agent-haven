@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Loader2, Mail, Phone, CheckCircle2, Send } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
 import { formatPhoneNumber } from '@/lib/formatters';
+import { logActivity, ActivityAction } from '@/utils/activityLogger';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -71,6 +72,9 @@ export default function AuthPage() {
           return;
         }
       }
+
+      // Log successful login
+      await logActivity(ActivityAction.LOGIN);
 
       toast.success('Welcome back!');
     } catch (err) {

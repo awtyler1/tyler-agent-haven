@@ -45,6 +45,7 @@ import { useSendEmail, fileUrlToBase64, EmailAttachment } from '@/hooks/useSendE
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { US_STATES } from '@/types/contracting';
+import { logActivity, ActivityAction, EntityType } from '@/utils/activityLogger';
 
 // Types
 type QueueStatus = 'needs_action' | 'in_progress' | 'sent_to_pinnacle' | 'completed';
@@ -516,6 +517,9 @@ export default function ContractingQueuePage() {
 
   // Handlers
   const handleStatusChange = async (agentId: string, newStatus: QueueStatus) => {
+    // Capture previous status for logging
+    const previousStatus = agents.find((a) => a.id === agentId)?.queue_status;
+
     setAgents((prev) =>
       prev.map((agent) =>
         agent.id === agentId ? { ...agent, queue_status: newStatus } : agent
@@ -533,6 +537,14 @@ export default function ContractingQueuePage() {
     if (error) {
       toast.error('Failed to update status');
       fetchApplications();
+    } else {
+      // Log the status change
+      await logActivity(
+        ActivityAction.QUEUE_STATUS_CHANGED,
+        EntityType.CONTRACTING_APPLICATION,
+        agentId,
+        { previous_status: previousStatus, new_status: newStatus }
+      );
     }
   };
 
@@ -648,6 +660,18 @@ export default function ContractingQueuePage() {
         toast.error('Email sent but failed to update status');
       } else {
         toast.success(`Contracting request sent for ${selectedAgent.full_legal_name}`);
+
+        // Log the Send to Pinnacle action
+        await logActivity(
+          ActivityAction.SENT_TO_PINNACLE,
+          EntityType.CONTRACTING_APPLICATION,
+          selectedAgent.id,
+          {
+            agent_name: selectedAgent.full_legal_name,
+            carriers: modalCarriers,
+            recipient: data.to,
+          }
+        );
       }
 
       fetchApplications();
