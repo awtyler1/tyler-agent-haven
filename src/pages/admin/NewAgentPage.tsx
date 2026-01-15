@@ -171,7 +171,6 @@ export default function NewAgentPage() {
       );
 
       const data = await response.json();
-      console.log('Create agent response:', response.status, data);
 
       if (!response.ok) {
         // Extract the actual error message from the function response

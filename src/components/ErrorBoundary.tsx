@@ -22,12 +22,9 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error to console for debugging
-    console.error('ErrorBoundary caught an error:', error);
-    console.error('Component stack:', errorInfo.componentStack);
-
-    // TODO: In production, send to error tracking service (e.g., Sentry)
+  componentDidCatch(_error: Error, _errorInfo: ErrorInfo) {
+    // Sentry automatically captures errors via the ErrorBoundary in App.tsx
+    // This component serves as a backup fallback UI
   }
 
   handleReset = () => {

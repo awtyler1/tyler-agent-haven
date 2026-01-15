@@ -27,8 +27,8 @@ const Navigation = () => {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
-    } catch (error) {
-      console.log('Logout error:', error);
+    } catch {
+      // Logout errors are non-critical - we clear localStorage anyway
     }
     // Force clear all Supabase auth data from localStorage
     const keys = Object.keys(localStorage);

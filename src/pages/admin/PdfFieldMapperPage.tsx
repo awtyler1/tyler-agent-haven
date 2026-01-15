@@ -1055,8 +1055,8 @@ export default function PdfFieldMapperPage() {
             reader.readAsDataURL(templateBlob);
           });
         }
-      } catch (e) {
-        console.log('Could not load PDF template for test generation, will use fallback:', e);
+      } catch {
+        // Template load failed - will use server-side fallback
       }
 
       const { data, error } = await supabase.functions.invoke('generate-contracting-pdf', {

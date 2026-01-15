@@ -125,8 +125,6 @@ export default function PdfFieldAuditPage() {
         )
       );
 
-      console.log("Template loaded, size:", arrayBuffer.byteLength, "base64 length:", base64.length);
-
       // Call audit endpoint
       const { data, error: fnError } = await supabase.functions.invoke("pdf-field-audit", {
         body: { templateBase64: base64 },

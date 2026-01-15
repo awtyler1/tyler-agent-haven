@@ -71,8 +71,6 @@ export default function SetPasswordPage() {
   useEffect(() => {
     // Listen for auth state changes - this will fire when Supabase processes the recovery token
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event:', event, 'Session:', !!session);
-      
       if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
         if (session) {
           setHasValidSession(true);

@@ -12,8 +12,8 @@ export function AgentProfileDropdown() {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
-    } catch (error) {
-      console.log('Logout error:', error);
+    } catch {
+      // Logout errors are non-critical - we clear localStorage anyway
     }
     const keys = Object.keys(localStorage);
     keys.forEach(key => {

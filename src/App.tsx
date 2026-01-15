@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import * as Sentry from "@sentry/react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -81,13 +82,42 @@ function ConditionalChatWidget() {
   return <AgentChatWidget />;
 }
 
+// =============================================================================
+// SENTRY ERROR BOUNDARY
+// =============================================================================
+// ErrorBoundary catches React errors that would crash the whole app.
+// Instead of showing a white screen, it:
+// 1. Reports the error to Sentry (so you know about it)
+// 2. Shows a fallback UI (so users know something went wrong)
+//
+// This is different from try/catch - ErrorBoundary catches errors in the
+// React component tree (render errors, lifecycle errors, etc.)
+// =============================================================================
+const SentryFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="text-center p-8 max-w-md">
+      <h1 className="text-xl font-semibold text-slate-900 mb-2">Something went wrong</h1>
+      <p className="text-slate-600 mb-4">
+        We've been notified and are looking into it. Please refresh the page to try again.
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+      >
+        Refresh Page
+      </button>
+    </div>
+  </div>
+);
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <FeatureFlagsProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+  <Sentry.ErrorBoundary fallback={<SentryFallback />} showDialog>
+    <QueryClientProvider client={queryClient}>
+      <FeatureFlagsProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <RecoveryRedirectHandler />
           <Routes>
             {/* Auth */}
@@ -235,6 +265,7 @@ const App = () => (
       </TooltipProvider>
     </FeatureFlagsProvider>
   </QueryClientProvider>
+  </Sentry.ErrorBoundary>
 );
 
 export default App;

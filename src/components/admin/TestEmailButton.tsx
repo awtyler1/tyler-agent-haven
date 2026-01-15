@@ -34,8 +34,6 @@ export function TestEmailButton() {
         },
       });
 
-      console.log('Send email response:', { data, error });
-
       if (error) {
         throw new Error(error.message);
       }
