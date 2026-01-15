@@ -30,10 +30,13 @@ export function useProfile() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
+          // Use setTimeout to avoid Supabase auth deadlock, catch any errors
           setTimeout(() => {
-            fetchProfile(session.user.id);
+            fetchProfile(session.user.id).catch((err) => {
+              console.error('Failed to fetch profile on auth change:', err);
+            });
           }, 0);
         } else {
           setProfile(null);
@@ -42,14 +45,22 @@ export function useProfile() {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchProfile(session.user.id).catch((err) => {
+            console.error('Failed to fetch profile on init:', err);
+          });
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to get auth session:', err);
+        setError(err instanceof Error ? err : new Error('Failed to get session'));
         setLoading(false);
-      }
-    });
+      });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -74,7 +85,9 @@ export function useProfile() {
 
   const refetch = () => {
     if (user?.id) {
-      fetchProfile(user.id);
+      fetchProfile(user.id).catch((err) => {
+        console.error('Failed to refetch profile:', err);
+      });
     }
   };
 
