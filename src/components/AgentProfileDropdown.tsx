@@ -109,7 +109,7 @@ export function AgentProfileDropdown() {
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 <FileText className="h-4 w-4" />
-                My Contracting Status
+                My Carrier Status
               </Link>
             </div>
 

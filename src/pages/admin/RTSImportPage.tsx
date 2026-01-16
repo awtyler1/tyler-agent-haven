@@ -309,18 +309,22 @@ export default function RTSImportPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-white rounded-lg p-4 border border-emerald-200">
                   <p className="text-2xl font-bold text-emerald-700">{formatNumber(result.matched)}</p>
                   <p className="text-sm text-slate-600">Agents matched</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-emerald-200">
                   <p className="text-2xl font-bold text-slate-500">{formatNumber(result.skipped)}</p>
-                  <p className="text-sm text-slate-600">Skipped (not registered)</p>
+                  <p className="text-sm text-slate-600">Skipped</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-emerald-200">
                   <p className="text-2xl font-bold text-emerald-700">{formatNumber(result.certifications_imported)}</p>
-                  <p className="text-sm text-slate-600">Certifications imported</p>
+                  <p className="text-sm text-slate-600">Certifications</p>
+                </div>
+                <div className="bg-white rounded-lg p-4 border border-emerald-200">
+                  <p className="text-2xl font-bold text-emerald-700">{formatNumber(result.carrier_statuses_updated)}</p>
+                  <p className="text-sm text-slate-600">Contracted</p>
                 </div>
               </div>
 
