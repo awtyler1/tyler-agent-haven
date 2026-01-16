@@ -55,6 +55,7 @@ import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import HierarchyManagementPage from "./pages/admin/HierarchyManagementPage";
 import ActivityLogPage from "./pages/admin/ActivityLogPage";
 import RTSImportPage from "./pages/admin/RTSImportPage";
+import RoadmapGeneratorPage from "./pages/admin/RoadmapGeneratorPage";
 
 const queryClient = new QueryClient();
 
@@ -256,6 +257,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <RTSImportPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/roadmaps"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <RoadmapGeneratorPage />
                 </ProtectedRoute>
               }
             />
