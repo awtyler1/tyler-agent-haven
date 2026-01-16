@@ -15,7 +15,8 @@ import {
   RotateCcw,
   Loader2,
   Building2,
-  Activity
+  Activity,
+  FileSpreadsheet
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Navigation from '@/components/Navigation';
@@ -488,6 +489,15 @@ export default function AdminDashboard() {
               >
                 <Building2 className="w-6 h-6 text-gold" />
                 Hierarchy
+              </Button>
+
+              <Button
+                onClick={() => navigate('/admin/rts-import')}
+                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
+                variant="outline"
+              >
+                <FileSpreadsheet className="w-6 h-6 text-gold" />
+                RTS Import
               </Button>
             </div>
           </div>

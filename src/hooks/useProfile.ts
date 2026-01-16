@@ -18,6 +18,10 @@ export interface Profile {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // AHIP certification fields
+  ahip_cert_year: number | null;
+  ahip_cert_uploaded_at: string | null;
+  ahip_cert_file_path: string | null;
 }
 
 export function useProfile() {

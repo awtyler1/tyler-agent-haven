@@ -93,6 +93,7 @@ const getDocumentLabel = (key: string): string | null => {
   return null;
 };
 
+// Names must match RTS import names exactly to avoid duplicates on My Carriers page
 const AVAILABLE_CARRIERS = [
   { code: 'aetna', name: 'Aetna' },
   { code: 'humana', name: 'Humana' },
@@ -100,10 +101,10 @@ const AVAILABLE_CARRIERS = [
   { code: 'cigna', name: 'Cigna' },
   { code: 'uhc', name: 'UHC' },
   { code: 'wellcare', name: 'Wellcare' },
-  { code: 'devoted', name: 'Devoted' },
+  { code: 'devoted', name: 'Devoted Health' },
   { code: 'molina', name: 'Molina' },
   { code: 'bcbs', name: 'BCBS' },
-  { code: 'essence', name: 'Essence' },
+  { code: 'essence', name: 'Essence Healthcare' },
 ];
 
 const KY_CARRIER_CODES = ['aetna', 'anthem', 'devoted', 'humana', 'uhc', 'wellcare', 'essence'];
@@ -672,6 +673,40 @@ export default function ContractingQueuePage() {
             recipient: data.to,
           }
         );
+
+        // Create carrier_statuses records so agent sees carriers on My Carriers page
+        try {
+          // Fetch all carriers and filter case-insensitively (DB has mixed case)
+          const { data: allCarriers, error: lookupError } = await supabase
+            .from('carriers')
+            .select('id, code');
+
+          const modalCarriersLower = modalCarriers.map(c => c.toLowerCase());
+          const carrierRecords = allCarriers?.filter(c =>
+            modalCarriersLower.includes(c.code.toLowerCase())
+          ) || [];
+
+          if (lookupError) {
+            console.error('Carrier lookup failed:', lookupError);
+          } else if (carrierRecords.length > 0) {
+            const { error: carrierStatusError } = await supabase
+              .from('carrier_statuses')
+              .upsert(
+                carrierRecords.map(carrier => ({
+                  user_id: selectedAgent.user_id,
+                  carrier_id: carrier.id,
+                  contracting_status: 'in_progress',
+                })),
+                { onConflict: 'user_id,carrier_id' }
+              );
+
+            if (carrierStatusError) {
+              console.error('Failed to create carrier_statuses:', carrierStatusError);
+            }
+          }
+        } catch (carrierErr) {
+          console.error('Error creating carrier_statuses:', carrierErr);
+        }
       }
 
       fetchApplications();

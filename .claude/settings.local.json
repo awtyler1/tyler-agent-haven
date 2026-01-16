@@ -8,7 +8,17 @@
       "Bash(git commit:*)",
       "Bash(git push)",
       "Bash(supabase functions deploy:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git push:*)",
+      "Bash(npx vercel --prod)",
+      "Bash(npm run dev:*)",
+      "Bash(npx tsc:*)",
+      "Bash(vercel --prod)",
+      "Bash(npm install:*)",
+      "Bash(grep:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(node -e:*)",
+      "Bash(git rebase:*)"
     ]
   }
 }

@@ -12,6 +12,7 @@ import { logActivity, ActivityAction } from "@/utils/activityLogger";
 const navLinks = [
   { name: "Dashboard", href: "/" },
   { name: "Contracting", href: "/contracting-hub" },
+  { name: "My Carriers", href: "/my-carriers" },
   { name: "Tools", href: "/agent-tools" },
   { name: "Training", href: "/training" },
 ];

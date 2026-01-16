@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_certifications: {
+        Row: {
+          id: string
+          profile_id: string
+          carrier_name: string
+          product_type: string
+          certification_year: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          carrier_name: string
+          product_type: string
+          certification_year?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          carrier_name?: string
+          product_type?: string
+          certification_year?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_certifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ahip_certifications: {
         Row: {
           certificate_url: string | null
@@ -726,6 +764,44 @@ export type Database = {
           {
             foreignKeyName: "profiles_manager_id_fkey"
             columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rts_import_logs: {
+        Row: {
+          id: string
+          uploaded_by: string
+          file_name: string
+          agents_matched: number
+          agents_skipped: number
+          certifications_imported: number
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          uploaded_by: string
+          file_name: string
+          agents_matched?: number
+          agents_skipped?: number
+          certifications_imported?: number
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          uploaded_by?: string
+          file_name?: string
+          agents_matched?: number
+          agents_skipped?: number
+          certifications_imported?: number
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rts_import_logs_uploaded_by_fkey"
+            columns: ["uploaded_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

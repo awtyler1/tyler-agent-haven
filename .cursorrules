@@ -30,5 +30,22 @@ Read CLAUDE_CONTEXT.md for full strategic context and current sprint tasks.
 - Don't build features not in the current sprint without flagging it
 
 ## Current Focus
-Week 1: Stability - Sentry integration, removing console.logs, fixing TypeScript issues.
-Check CLAUDE_CONTEXT.md for the full sprint board.
+Week 2: Hierarchy + Agent Invites
+
+Completed:
+- RTS import working (/admin/rts-import)
+- My Carriers page working (/my-carriers)
+- Send to Pinnacle creates carrier_statuses
+
+Next tasks:
+1. Add reports_to_id to profiles (simple upline model)
+2. Hierarchy admin UI (Caroline assigns uplines)
+3. "My Team" view (agents see downline)
+4. "My Upline" view (agents see chain to TIG)
+5. Agent invite flow (Caroline invites current TIG agents)
+
+Key tables this sprint:
+- agent_certifications (RTS data from Pinnacle import)
+- carrier_statuses (contracting progress)
+- rts_import_logs (import history)
+- profiles (needs reports_to_id column)
