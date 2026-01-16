@@ -16,7 +16,8 @@ import {
   Loader2,
   Building2,
   Activity,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Map
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Navigation from '@/components/Navigation';
@@ -498,6 +499,15 @@ export default function AdminDashboard() {
               >
                 <FileSpreadsheet className="w-6 h-6 text-gold" />
                 RTS Import
+              </Button>
+
+              <Button
+                onClick={() => navigate('/admin/roadmaps')}
+                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
+                variant="outline"
+              >
+                <Map className="w-6 h-6 text-gold" />
+                Roadmaps
               </Button>
             </div>
           </div>
