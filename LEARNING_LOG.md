@@ -98,6 +98,33 @@
 
 ---
 
+## January 15, 2026 - Sprint Replanning + Hierarchy Design
+
+### What I worked on:
+- Analyzed Pinnacle RTS report (472 agents, 44 carrier/product certifications)
+- Analyzed Production report to understand hierarchy levels
+- Discovered Pinnacle hierarchy data is unreliable
+- Designed simple hierarchy model (reports_to_id)
+- Created team review documents for hierarchy model
+- Replanned Week 2 to prioritize agent data over activity tracking
+
+### What I learned:
+- **RTS is per-carrier, not global.** An agent can be RTS with Humana but not UHC. RTS = AHIP + that carrier's certification.
+- **AHIP is a prerequisite.** You can't do carrier certs without AHIP, so if an agent has any 2026 cert, they have AHIP.
+- **Hierarchy can be simple.** One field (reports_to_id) handles unlimited depth. No need for MGA/GA flags. If people report to you, you're a team lead.
+- **Don't import unreliable data.** Better to build hierarchy manually than import wrong relationships.
+
+### Key decisions made:
+- RTS report is source of truth for certifications (not agent self-reporting)
+- Caroline manually assigns hierarchy (no auto-import)
+- Week 2 reprioritized: RTS import + hierarchy before activity tracking
+- Agents only see carriers they're contracted with
+
+### What's next:
+- Week 2: Build RTS import, hierarchy admin, certification display, My Team view
+
+---
+
 ## Template for Future Entries
 
 <!--

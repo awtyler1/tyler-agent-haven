@@ -1,6 +1,6 @@
 # TIG Platform - Development Context for AI Assistants
 
-> **Last Updated:** January 14, 2026
+> **Last Updated:** January 15, 2026
 > **Owner:** Austin (Producer at AmeriLife, Co-owner Tyler Insurance Group)
 > **Strategic Advisor:** Claude (Anthropic) - for business/product decisions, paste updates in claude.ai
 
@@ -26,29 +26,32 @@ Tyler Insurance Group Agent Management Platform - a comprehensive web applicatio
 
 ### Week 1: Stability ✅ COMPLETE
 - [x] Sentry error tracking integration
-- [x] Remove console.log statements (113 found, cleaned up debug leftovers)
+- [x] Remove console.log statements
 - [x] Fix TypeScript issues in useContractingApplication.ts
 - [x] Add .catch() to promises in useProfile.ts
 - [x] Test full contracting flow
-- [x] Fix scroll bug in form wizard (bonus)
+- [x] Fix scroll bug in form wizard
 
-### Week 2: Activity Tracking ✅ COMPLETE
-- [x] Create activity_logs table
-- [x] Add RLS policy (super_admin only can view)
-- [x] Create logActivity() utility function
-- [x] Log: login, logout, contracting submission
-- [x] Log: admin actions (queue status changes, send to Pinnacle)
-- [x] Build admin activity log viewer
+### Week 2: Agent Data + Hierarchy ⬅️ CURRENT FOCUS
+- [ ] Add reports_to_id column to profiles table
+- [ ] Build RTS spreadsheet import (Caroline uploads Pinnacle report)
+- [ ] Match agents by NPN, create profiles if not exists
+- [ ] Import certification status per carrier
+- [ ] Build agent certification status page (agent sees their RTS status)
+- [ ] Build hierarchy admin UI (Caroline assigns who reports to whom)
+- [ ] Build "My Team" view for agents with downline
 
-### Week 3: Test Rollout ⬅️ CURRENT FOCUS
-- [ ] Populate KY + Nevada certification data
+### Week 3: Test Rollout
 - [ ] Onboard Andrew's team (5 agents) as test group
+- [ ] Add activity logging (login, logout, key actions)
 - [ ] Fix bugs from real usage
+- [ ] Gather feedback
 
 ### Week 4: Multi-Org Foundation
-- [ ] Create organizations table with parent/child relationships
+- [ ] Create organizations table with branding config
 - [ ] Add organization_id to profiles
 - [ ] Update RLS policies for org scoping
+- [ ] Prep for white-label (Traci O'Brien)
 
 ---
 
@@ -128,6 +131,7 @@ If a decision involves:
 - Automated carrier appointment status checks
 - NPN lookup integration (validate NPN against NIPR database)
 - Bank routing number validation
+- Sales leaderboard for agents
 ---
 
 ## PROGRESS LOG
@@ -153,3 +157,11 @@ If a decision involves:
   - Added nav link to Admin Dashboard
 - Added QUEUE_STATUS_CHANGED to ActivityAction constants
 - Fixed migration history sync issue (marked 38 existing migrations as applied)
+
+### January 15, 2026
+- Completed Week 1 stability sprint
+- Analyzed Pinnacle RTS report structure (472 agents, 44 carrier certifications)
+- Designed hierarchy model (simple reports_to_id approach)
+- Created hierarchy model document for team review
+- Revised sprint plan: prioritized RTS import + hierarchy over activity tracking
+- Week 2 focus: Agent data import and hierarchy management
