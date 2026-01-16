@@ -98,30 +98,48 @@
 
 ---
 
-## January 15, 2026 - Sprint Replanning + Hierarchy Design
+## January 16, 2026 - Merged Contracting & Carriers Page
 
 ### What I worked on:
-- Analyzed Pinnacle RTS report (472 agents, 44 carrier/product certifications)
-- Analyzed Production report to understand hierarchy levels
-- Discovered Pinnacle hierarchy data is unreliable
-- Designed simple hierarchy model (reports_to_id)
-- Created team review documents for hierarchy model
-- Replanned Week 2 to prioritize agent data over activity tracking
+- Combined ContractingHubPage + MyCarriersPage into single unified view
+- Fixed RTS import pipeline to update carrier_statuses
+- Cleaned up navigation and routes
+
+### Merged Contracting & Carriers Page
+- Agents now see contracting status AND certification status in one table
+- Hero progress bar shows "X of Y Ready to Sell"
+- AHIP and Resources moved to compact header bar
+- License states bar shows resident + non-resident states
+- Compact above-the-fold layout (no scrolling for typical agent)
+
+### Fixed RTS Import Pipeline
+- Import now updates carrier_statuses table (was only updating agent_certifications)
+- Carrier name matching uses rts_aliases for fuzzy matching (WellCare vs Wellcare)
+- Dynamic year calculation: Oct-Dec = next year, Jan-Sept = current year
+- No more hardcoded years - automatically handles 2026 → 2027 transition
 
 ### What I learned:
-- **RTS is per-carrier, not global.** An agent can be RTS with Humana but not UHC. RTS = AHIP + that carrier's certification.
-- **AHIP is a prerequisite.** You can't do carrier certs without AHIP, so if an agent has any 2026 cert, they have AHIP.
-- **Hierarchy can be simple.** One field (reports_to_id) handles unlimited depth. No need for MGA/GA flags. If people report to you, you're a team lead.
-- **Don't import unreliable data.** Better to build hierarchy manually than import wrong relationships.
+- **carrier_statuses vs agent_certifications**: Two different concepts!
+  - `carrier_statuses` = contracting status (one-time: not_started → in_progress → contracted)
+  - `agent_certifications` = certification status (annual: certification_year per carrier/product)
+  - RTS = contracted + certified for current year (per carrier)
 
-### Key decisions made:
-- RTS report is source of truth for certifications (not agent self-reporting)
-- Caroline manually assigns hierarchy (no auto-import)
-- Week 2 reprioritized: RTS import + hierarchy before activity tracking
-- Agents only see carriers they're contracted with
+- **Dynamic year calculation**: Medicare AEP runs Oct 15 - Dec 7, so in Oct-Dec agents are certifying for NEXT year. Formula: `month >= 9 ? year + 1 : year`
 
-### What's next:
-- Week 2: Build RTS import, hierarchy admin, certification display, My Team view
+- **Carrier name normalization**: RTS reports use different names than our carriers table. Solution: `rts_aliases` column stores alternate names, import matches against both name and aliases.
+
+### Files Changed
+- `ContractingHubPage.tsx` - Complete rebuild with compact layout
+- `rtsImport.ts` - Fixed to update carrier_statuses + dynamic years
+- `Navigation.tsx` - Removed Contracting and My Carriers links
+- `AgentProfileDropdown.tsx` - Changed label to "My Carrier Status"
+- `App.tsx` - Removed /my-carriers route
+- `MyCarriersPage.tsx` - DELETED (merged into ContractingHubPage)
+
+### Commands/patterns to remember:
+- Date-based year logic: `new Date().getMonth() >= 9 ? year + 1 : year`
+- Supabase alias matching: Store aliases in text[] column, match with `.toLowerCase()`
+- Click-outside dropdown: `useEffect` with `mousedown` listener + ref check
 
 ---
 
