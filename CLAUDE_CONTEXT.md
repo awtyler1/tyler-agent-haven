@@ -48,14 +48,25 @@ Tyler Insurance Group Agent Management Platform - a comprehensive web applicatio
 - [ ] Build "My Team" view for agents with downline
 - [ ] Build "My Upline" view (agent sees their full chain up to TIG)
 
-### Week 3: Test Rollout ⬅️ CURRENT FOCUS (Day 1 Complete)
+### Week 3: Test Rollout ⬅️ CURRENT FOCUS
+
+**Day 1 Complete (Jan 16, 2026):**
 - [x] Merged Contracting & Carriers page (ContractingHubPage.tsx rebuilt)
-- [x] Compact header layout with progress bar, AHIP status, Resources dropdown
+- [x] Fixed RTS import to update both agent_certifications AND carrier_statuses
+- [x] Dynamic year logic (no more hardcoded 2026)
 - [x] Added 2026/2027 certification year columns
+- [x] Compact header layout (progress bar + AHIP + Resources dropdown)
 - [x] License states bar showing resident + non-resident states
-- [x] Navigation cleanup (accessed via user dropdown "My Carrier Status")
-- [x] Deleted MyCarriersPage.tsx, cleaned up routes
-- [ ] Populate KY + Nevada certification data
+- [x] Navigation cleanup (page accessed via user dropdown "My Carrier Status")
+- [x] Deleted MyCarriersPage.tsx, removed old routes
+
+**Ready for Testing:**
+- Contracting & Carriers page fully functional
+- RTS import tested with all scenarios (in_progress→contracted, missing records, etc.)
+
+**Remaining This Week:**
+- [ ] Hierarchy system (reports_to_id for agent uplines)
+- [ ] Dashboard status card
 - [ ] Onboard Andrew's team (5 agents) as test group
 - [ ] Fix bugs from real usage
 
