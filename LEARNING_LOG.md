@@ -143,6 +143,58 @@
 
 ---
 
+## January 17, 2026 - V6 Roadmap Generator Complete
+
+### What I worked on:
+- Completed all 7 pages of Strategic Growth Roadmap PDF generator
+- Added personalization throughout based on agent profile
+- Fixed logic bugs before MVP launch
+- Created comprehensive documentation for business partner handoff
+
+### Page-by-Page Enhancements:
+- **Page 1**: Tier 2 channels (Lead Star, MIRA, Seminars) get gray backgrounds for visual distinction. Expected Sales column now calculated for all channels.
+- **Page 2**: Added PRIMARY FOCUS badge for priority channel. Scripts now in gold/cream boxes with quotation marks.
+- **Page 3**: Extended economics from 3 years to 5 years. Added bar chart visualization and emotional payoff callout.
+- **Page 5**: First Week Checklist personalized based on book_size and lead_star_leads. Weekly Rhythm shows actual attempt numbers.
+- **Page 6**: Redesigned activity tracker with larger cells and targets. Added "Behind Pace?" recovery section. Replaced "My Commitment" with "My Numbers" reflection.
+- **Page 7**: Added Referral Engine math breakdown. Added "When Stuck" troubleshooting section.
+
+### Logic Fixes:
+- **COI cap at 50%**: Circle of Influence expected sales was showing 100% of goal (unrealistic). Now capped at 50%.
+- **Unified referral formula**: Two different formulas were calculating weekly referral asks. Unified to use same REFERRAL constants everywhere.
+- **New agent advice**: "Behind Pace" and "When Stuck" sections now show COI-based advice for agents with small books instead of assuming they have clients.
+
+### What I learned:
+- **pdf-lib patterns**: `drawRect()` for backgrounds, `drawText()` for content, `drawLine()` for borders. Colors use `rgb(r, g, b)` with 0-1 values not 0-255.
+
+- **Conditional PDF content**: Build arrays/objects first, then iterate to render. Makes conditional logic cleaner than inline ternaries in draw calls.
+
+- **Supabase Edge Function config**: `verify_jwt = false` in config.toml is needed when gateway JWT verification fails (ECC key incompatibility). Function can still do internal auth if needed.
+
+- **Business logic documentation**: When sharing code with non-technical partners, explain the "why" behind constants. Why 85% retention? Why 15% Lead Star close rate? Industry benchmarks matter.
+
+- **Personalization hierarchy**: The most valuable personalization is advice that changes based on agent situation. Showing different numbers is table stakes; showing different *guidance* is what makes it useful.
+
+### Commands/patterns to remember:
+- `npx supabase functions deploy <name> --project-ref <id>` - deploy edge function
+- PowerShell heredoc: `$body = @' ... '@` for multi-line JSON
+- pdf-lib text: `font.widthOfTextAtSize(text, size)` for right-alignment calculations
+- Supabase function invoke: `supabase.functions.invoke('name', { body: {...} })`
+
+### Key decisions made:
+- COI capped at 50% of goal (prevents over-reliance on one channel)
+- New agents get COI-based advice, experienced agents get client-based advice
+- Documentation created as markdown for easy sharing/editing
+- Referral constants centralized (TENURE_ELIGIBLE_PERCENT, YIELD_RATE, etc.)
+
+### Files created/modified:
+- `supabase/functions/generate-roadmap-pdf/index.ts` - Complete V6 rewrite (~1650 lines)
+- `src/types/roadmap.ts` - Added expected_display, priority, referral metrics
+- `supabase/config.toml` - Added verify_jwt = false for roadmap function
+- `ROADMAP_GENERATOR_COMPLETE_DOCUMENTATION.md` - Full documentation for partner
+
+---
+
 ## Template for Future Entries
 
 <!--
