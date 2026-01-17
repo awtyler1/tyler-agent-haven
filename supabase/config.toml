@@ -38,6 +38,10 @@ verify_jwt = false
 # Internal auth: validates user session before generating PDF
 verify_jwt = false
 
+[functions.generate-roadmap-pdf]
+# Roadmap PDF generation - disable gateway JWT due to ECC key issue
+verify_jwt = false
+
 # =============================================================================
 # FUNCTIONS RELYING ON GATEWAY JWT VERIFICATION
 # These functions don't do internal auth - rely on Supabase gateway
