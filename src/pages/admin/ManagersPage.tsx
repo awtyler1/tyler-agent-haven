@@ -123,7 +123,7 @@ export default function ManagersPage() {
           ) : (
             <div className="space-y-2">
               {filteredManagers.map((manager) => (
-                <Link key={manager.id} to={`/admin/users/${manager.user_id}`} className="group block">
+                <Link key={manager.id} to={`/admin/agents/${manager.id}`} className="group block">
                   <div className="bg-white border border-[#E5E2DB] rounded-lg p-4 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:border-gold/30 hover:-translate-y-0.5 transition-all duration-150">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">

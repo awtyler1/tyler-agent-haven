@@ -56,6 +56,7 @@ import HierarchyManagementPage from "./pages/admin/HierarchyManagementPage";
 import ActivityLogPage from "./pages/admin/ActivityLogPage";
 import RTSImportPage from "./pages/admin/RTSImportPage";
 import RoadmapGeneratorPage from "./pages/admin/RoadmapGeneratorPage";
+import AgentProfilePage from "./pages/admin/AgentProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -196,15 +197,23 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/admin/agents/new" 
+            <Route
+              path="/admin/agents/new"
               element={
                 <ProtectedRoute requireAdmin>
                   <NewAgentPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
+            <Route
+              path="/admin/agents/:profileId"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AgentProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/contracting" 
               element={
                 <ProtectedRoute requireAdmin>

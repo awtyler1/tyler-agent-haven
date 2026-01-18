@@ -54,6 +54,7 @@ type FilterStatus = QueueStatus | 'all';
 interface QueueAgent {
   id: string;
   user_id: string;
+  profile_id: string | null;  // Profile ID for linking to agent profile page
   full_legal_name: string | null;
   npn_number: string | null;
   resident_state: string | null;
@@ -401,7 +402,8 @@ function DetailPanel({
         <Button
           variant="outline"
           className="w-full h-9 text-slate-600"
-          onClick={() => window.location.href = `/admin/users/${agent.user_id}`}
+          onClick={() => agent.profile_id && (window.location.href = `/admin/agents/${agent.profile_id}`)}
+          disabled={!agent.profile_id}
         >
           <ExternalLink className="h-4 w-4 mr-2" />
           View Full Profile
@@ -438,6 +440,7 @@ export default function ContractingQueuePage() {
   // Fetch applications
   const fetchApplications = useCallback(async () => {
     try {
+      // Fetch contracting applications
       const { data, error } = await supabase
         .from('contracting_applications')
         .select(`
@@ -459,9 +462,23 @@ export default function ContractingQueuePage() {
 
       if (error) throw error;
 
+      // Fetch profiles to get profile IDs from user IDs
+      const userIds = (data || []).map(app => app.user_id).filter(Boolean);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, user_id')
+        .in('user_id', userIds);
+
+      // Create user_id -> profile_id lookup map
+      const profileIdMap: Record<string, string> = {};
+      (profiles || []).forEach(p => {
+        if (p.user_id) profileIdMap[p.user_id] = p.id;
+      });
+
       const mappedAgents: QueueAgent[] = (data || []).map((app) => ({
         id: app.id,
         user_id: app.user_id,
+        profile_id: profileIdMap[app.user_id] || null,
         full_legal_name: app.full_legal_name,
         npn_number: app.npn_number,
         resident_state: app.resident_state,
@@ -964,7 +981,10 @@ export default function ContractingQueuePage() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => window.location.href = `/admin/users/${agent.user_id}`}>
+                                <DropdownMenuItem
+                                  onClick={() => agent.profile_id && (window.location.href = `/admin/agents/${agent.profile_id}`)}
+                                  disabled={!agent.profile_id}
+                                >
                                   <ExternalLink className="h-3.5 w-3.5 mr-2" />
                                   View Full Profile
                                 </DropdownMenuItem>

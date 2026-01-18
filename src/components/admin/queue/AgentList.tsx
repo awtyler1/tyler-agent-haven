@@ -7,6 +7,7 @@ export type QueueStatus = 'needs_action' | 'in_progress' | 'sent_to_pinnacle' | 
 export interface QueueAgent {
   id: string;
   user_id: string;
+  profile_id: string | null;  // Profile ID for linking to agent profile page
   full_legal_name: string | null;
   npn_number: string | null;
   resident_state: string | null;

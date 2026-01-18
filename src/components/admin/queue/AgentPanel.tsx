@@ -212,7 +212,8 @@ export function AgentPanel({
         <Button
           variant="ghost"
           className="w-full text-muted-foreground hover:text-gold"
-          onClick={() => window.location.href = `/admin/users/${agent.user_id}`}
+          onClick={() => agent.profile_id && (window.location.href = `/admin/agents/${agent.profile_id}`)}
+          disabled={!agent.profile_id}
         >
           <ExternalLink className="h-4 w-4 mr-2" />
           View Full Profile

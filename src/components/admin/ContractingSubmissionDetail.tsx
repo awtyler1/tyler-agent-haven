@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { 
-  FileText, 
-  Eye, 
-  User, 
-  Calendar, 
+import {
+  FileText,
+  Eye,
+  User,
+  Calendar,
   MapPin,
   CheckCircle,
   X,
@@ -31,6 +31,7 @@ import { US_STATES } from '@/types/contracting';
 interface ContractingSubmission {
   id: string;
   user_id: string;
+  profile_id?: string | null;  // Profile ID for linking to agent profile page
   full_legal_name: string | null;
   email_address: string | null;
   status: string;
@@ -83,6 +84,46 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
     action: 'approve' | 'reject' | null;
   }>({ open: false, action: null });
   const [processing, setProcessing] = useState(false);
+
+  // Profile state for hierarchy assignment
+  const [profile, setProfile] = useState<{ id: string; manager_id: string | null } | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+
+  // Fetch profile for this user
+  useEffect(() => {
+    async function fetchProfile() {
+      setProfileLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, manager_id')
+          .eq('user_id', submission.user_id)
+          .single();
+
+        if (error) throw error;
+        setProfile(data);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        setProfile(null);
+      } finally {
+        setProfileLoading(false);
+      }
+    }
+
+    fetchProfile();
+  }, [submission.user_id]);
+
+  // Refresh profile after hierarchy changes
+  const handleHierarchyRefresh = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, manager_id')
+      .eq('user_id', submission.user_id)
+      .single();
+
+    if (data) setProfile(data);
+    onRefresh();
+  };
 
   const uploadedDocs = (submission.uploaded_documents || {}) as Record<string, string>;
   const docEntries = Object.entries(uploadedDocs).filter(
@@ -257,13 +298,26 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
       )}
 
       {/* Hierarchy Assignment */}
-      <HierarchyAssignmentPanel
-        userId={submission.user_id}
-        currentHierarchyType={null}
-        currentEntityId={null}
-        currentUplineUserId={null}
-        onSave={onRefresh}
-      />
+      {profileLoading ? (
+        <div className="rounded-lg border border-border bg-card p-4">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading hierarchy...
+          </div>
+        </div>
+      ) : profile ? (
+        <HierarchyAssignmentPanel
+          profileId={profile.id}
+          currentManagerId={profile.manager_id}
+          onSave={handleHierarchyRefresh}
+        />
+      ) : (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+          <p className="text-sm text-destructive">
+            Unable to load profile for hierarchy assignment.
+          </p>
+        </div>
+      )}
 
       {/* Carrier Status */}
       <CarrierStatusPanel
@@ -274,10 +328,11 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
       {/* Actions */}
       {submission.status !== 'approved' && submission.status !== 'rejected' && (
         <div className="flex items-center gap-2 pt-4 border-t border-border">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
-            onClick={() => window.location.href = `/admin/users/${submission.user_id}`}
+            onClick={() => submission.profile_id && (window.location.href = `/admin/agents/${submission.profile_id}`)}
+            disabled={!submission.profile_id}
           >
             <ExternalLink className="h-4 w-4 mr-1" />
             View Full Profile

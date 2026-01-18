@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui/button';
@@ -122,10 +123,8 @@ interface User {
   full_name: string | null;
   email: string | null;
   role: string | null;
-  hierarchy_type: string | null;
-  hierarchy_entity_id: string | null;
-  upline_user_id: string | null;
-  hierarchy_name: string | null;
+  manager_id: string | null;
+  manager_name: string | null;  // Resolved from manager's profile
   onboarding_status: string | null;
   is_active: boolean;
   setup_link_sent_at: string | null;
@@ -190,16 +189,9 @@ export function UserManagementTable() {
 
       if (rolesError) throw rolesError;
 
-      // Fetch hierarchy entities for names
-      const { data: entities, error: entitiesError } = await supabase
-        .from('hierarchy_entities')
-        .select('id, name');
-
-      if (entitiesError) throw entitiesError;
-
       // Fetch auth users to check for orphaned profiles
       const { data: authUsers, error: authError } = await supabase.rpc('get_auth_user_ids');
-      
+
       // Build set of valid auth user IDs
       const validAuthUserIds = new Set<string>(
         authError ? [] : (authUsers || []).map((u: { id: string }) => u.id)
@@ -211,15 +203,9 @@ export function UserManagementTable() {
         return acc;
       }, {} as Record<string, string>);
 
-      // Build entity map
-      const entityMap = (entities || []).reduce((acc, e) => {
-        acc[e.id] = e.name;
-        return acc;
-      }, {} as Record<string, string>);
-
-      // Build upline name map (for downline agents)
-      const profileMap = (profiles || []).reduce((acc, p) => {
-        acc[p.user_id] = p.full_name;
+      // Build profile ID to name map (for resolving manager names)
+      const profileIdToName = (profiles || []).reduce((acc, p) => {
+        acc[p.id] = p.full_name;
         return acc;
       }, {} as Record<string, string | null>);
 
@@ -230,14 +216,8 @@ export function UserManagementTable() {
         full_name: p.full_name,
         email: p.email,
         role: roleMap[p.user_id] || null,
-        hierarchy_type: p.hierarchy_type,
-        hierarchy_entity_id: p.hierarchy_entity_id,
-        upline_user_id: p.upline_user_id,
-        hierarchy_name: p.hierarchy_entity_id 
-          ? entityMap[p.hierarchy_entity_id] 
-          : p.upline_user_id 
-            ? profileMap[p.upline_user_id]
-            : null,
+        manager_id: p.manager_id,
+        manager_name: p.manager_id ? profileIdToName[p.manager_id] : null,
         onboarding_status: p.onboarding_status,
         is_active: p.is_active !== false,
         setup_link_sent_at: p.setup_link_sent_at,
@@ -417,13 +397,13 @@ export function UserManagementTable() {
       'Name': user.full_name || '—',
       'Email': user.email || '—',
       'Role': ROLE_LABELS[user.role || '']?.label || user.role || 'Unknown',
-      'Hierarchy': user.hierarchy_name || '—',
-      'Status': !user.is_active 
-        ? 'Inactive' 
-        : user.first_login_at 
-          ? 'Active' 
-          : user.setup_link_sent_at 
-            ? 'Link Sent' 
+      'Reports To': user.manager_name || (user.manager_id === null ? 'Direct to TIG' : '—'),
+      'Status': !user.is_active
+        ? 'Inactive'
+        : user.first_login_at
+          ? 'Active'
+          : user.setup_link_sent_at
+            ? 'Link Sent'
             : 'Created',
       'Created': format(new Date(user.created_at), 'MMM d, yyyy'),
     }));
@@ -436,7 +416,7 @@ export function UserManagementTable() {
       { wch: 20 }, // Name
       { wch: 30 }, // Email
       { wch: 12 }, // Role
-      { wch: 15 }, // Hierarchy
+      { wch: 18 }, // Reports To
       { wch: 10 }, // Status
       { wch: 12 }, // Created
     ];
@@ -518,7 +498,7 @@ export function UserManagementTable() {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Hierarchy</TableHead>
+                <TableHead>Reports To</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
@@ -535,7 +515,12 @@ export function UserManagementTable() {
                 filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">
-                      {user.full_name || '—'}
+                      <Link
+                        to={`/admin/agents/${user.id}`}
+                        className="hover:text-gold hover:underline transition-colors"
+                      >
+                        {user.full_name || '—'}
+                      </Link>
                     </TableCell>
                     <TableCell>
                       {user.email || '—'}
@@ -544,7 +529,7 @@ export function UserManagementTable() {
                       {getRoleBadge(user.role)}
                     </TableCell>
                     <TableCell>
-                      {user.hierarchy_name || '—'}
+                      {user.manager_name || (user.manager_id === null ? 'Direct to TIG' : '—')}
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(user)}
