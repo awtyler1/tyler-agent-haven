@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,9 @@ import {
   Users,
   LayoutGrid,
   List,
+  Send,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { TeamCards } from '@/components/admin/TeamCards';
@@ -23,18 +25,15 @@ import type { Profile } from '@/hooks/useProfile';
 interface AgentWithRole extends Profile {
   role?: string;
   is_test?: boolean;
+  setup_link_sent_at?: string | null;
+  password_created_at?: string | null;
 }
 
 type ViewMode = 'teams' | 'myteam' | 'list';
 
-interface LocationState {
-  managerId?: string | null;
-}
-
 export default function AgentsPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const locationState = location.state as LocationState | null;
+  const [searchParams, setSearchParams] = useSearchParams();
   const { profile, isAdmin, isManager, isAgent, loading: authLoading } = useAuth();
 
   // Determine default view based on role
@@ -47,14 +46,27 @@ export default function AgentsPage() {
   // View mode: teams (hierarchical cards), myteam (manager's team), or list (flat)
   const [viewMode, setViewMode] = useState<ViewMode | null>(null);
 
-  // For teams view: undefined = show cards, string/null = show drilldown
-  const [selectedTeamId, setSelectedTeamId] = useState<string | null | undefined>(undefined);
+  // Read drill-down state from URL params
+  // ?manager=abc-123 → drilled into manager abc-123
+  // ?view=direct → viewing "Direct to TIG"
+  // no params → top-level team cards
+  const managerParam = searchParams.get('manager');
+  const viewParam = searchParams.get('view');
+
+  // Derive selectedTeamId from URL params
+  // undefined = show team cards, null = Direct to TIG, string = specific manager
+  const selectedTeamId: string | null | undefined =
+    viewParam === 'direct' ? null :
+    managerParam ? managerParam :
+    undefined;
+
   const [selectedTeamName, setSelectedTeamName] = useState<string>('');
 
   // For list view
   const [agents, setAgents] = useState<AgentWithRole[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sendingLinkForId, setSendingLinkForId] = useState<string | null>(null);
 
   // Set default view mode once auth is loaded
   useEffect(() => {
@@ -62,16 +74,6 @@ export default function AgentsPage() {
       setViewMode(getDefaultViewMode());
     }
   }, [authLoading]);
-
-  // Restore drill-down state from location state (when navigating back from agent profile)
-  useEffect(() => {
-    if (locationState && 'managerId' in locationState) {
-      // managerId can be null (Direct to TIG) or a string (MGA id)
-      setSelectedTeamId(locationState.managerId);
-      // Clear the location state so refreshing doesn't keep restoring
-      navigate(location.pathname, { replace: true, state: null });
-    }
-  }, [locationState]);
 
   // Redirect agents to their profile - they shouldn't access this page
   useEffect(() => {
@@ -156,25 +158,69 @@ export default function AgentsPage() {
     );
   };
 
-  const handleSelectTeam = async (managerId: string | null) => {
-    setSelectedTeamId(managerId);
+  const handleSendSetupLink = async (e: React.MouseEvent, agent: AgentWithRole) => {
+    e.preventDefault(); // Prevent Link navigation
+    e.stopPropagation();
+    if (!agent.user_id) return;
 
-    // Get the team name for breadcrumb
+    setSendingLinkForId(agent.user_id);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('send-setup-link', {
+        body: { userId: agent.user_id },
+      });
+
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+
+      toast.success(`Setup link sent to ${agent.full_name || 'agent'}`);
+
+      // Update the agent's setup_link_sent_at in local state
+      setAgents((prev) =>
+        prev.map((a) =>
+          a.user_id === agent.user_id
+            ? { ...a, setup_link_sent_at: new Date().toISOString() }
+            : a
+        )
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to send setup link';
+      toast.error(`Failed to send setup link: ${message}`);
+    } finally {
+      setSendingLinkForId(null);
+    }
+  };
+
+  // Fetch team name when URL params change
+  useEffect(() => {
+    const fetchTeamName = async () => {
+      if (selectedTeamId === undefined) {
+        setSelectedTeamName('');
+      } else if (selectedTeamId === null) {
+        setSelectedTeamName('Direct to TIG');
+      } else {
+        const { data } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', selectedTeamId)
+          .single();
+        setSelectedTeamName(data?.full_name || 'Unknown Team');
+      }
+    };
+    fetchTeamName();
+  }, [selectedTeamId]);
+
+  const handleSelectTeam = (managerId: string | null) => {
+    // Update URL params instead of state
     if (managerId === null) {
-      setSelectedTeamName('Direct to TIG');
+      setSearchParams({ view: 'direct' });
     } else {
-      const { data } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', managerId)
-        .single();
-      setSelectedTeamName(data?.full_name || 'Unknown Team');
+      setSearchParams({ manager: managerId });
     }
   };
 
   const handleBackToTeams = () => {
-    setSelectedTeamId(undefined);
-    setSelectedTeamName('');
+    // Clear URL params to go back to team cards
+    setSearchParams({});
   };
 
   // Determine what to show
@@ -277,7 +323,7 @@ export default function AgentsPage() {
                   }`}
                   onClick={() => {
                     setViewMode('teams');
-                    setSelectedTeamId(undefined);
+                    setSearchParams({});
                   }}
                 >
                   <LayoutGrid className="h-4 w-4" />
@@ -406,6 +452,20 @@ export default function AgentsPage() {
                         </Link>
                         <div className="flex items-center gap-3">
                           {getStatusBadge(agent.onboarding_status)}
+                          {isAdmin() && agent.user_id && !agent.password_created_at && (
+                            <button
+                              onClick={(e) => handleSendSetupLink(e, agent)}
+                              disabled={sendingLinkForId === agent.user_id}
+                              className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-gold transition-colors"
+                              title={agent.setup_link_sent_at ? 'Resend Setup Link' : 'Send Setup Link'}
+                            >
+                              {sendingLinkForId === agent.user_id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Send className="h-4 w-4" />
+                              )}
+                            </button>
+                          )}
                           <Link to={`/admin/agents/${agent.id}`}>
                             <ChevronRight className="h-5 w-5 text-muted-foreground/40 hover:text-gold hover:translate-x-0.5 transition-all" />
                           </Link>

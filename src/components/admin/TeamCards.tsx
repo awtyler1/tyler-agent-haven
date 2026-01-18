@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -37,11 +38,16 @@ type SortOption = 'name-asc' | 'name-desc' | 'size-desc' | 'size-asc';
 type ViewMode = 'cards' | 'list';
 
 export function TeamCards({ onSelectTeam }: TeamCardsProps) {
+  const navigate = useNavigate();
   const [teams, setTeams] = useState<TeamData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('name-asc');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
+
+  const handleViewProfile = (profileId: string) => {
+    navigate(`/admin/agents/${profileId}`);
+  };
 
   useEffect(() => {
     fetchTeamData();
@@ -287,7 +293,12 @@ export function TeamCards({ onSelectTeam }: TeamCardsProps) {
       ) : viewMode === 'cards' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAndSortedTeams.map((team) => (
-            <TeamCard key={team.id ?? 'direct'} team={team} onClick={() => onSelectTeam(team.id)} />
+            <TeamCard
+              key={team.id ?? 'direct'}
+              team={team}
+              onViewTeam={() => onSelectTeam(team.id)}
+              onViewProfile={team.id ? () => handleViewProfile(team.id!) : undefined}
+            />
           ))}
         </div>
       ) : (
@@ -296,7 +307,8 @@ export function TeamCards({ onSelectTeam }: TeamCardsProps) {
             <TeamListItem
               key={team.id ?? 'direct'}
               team={team}
-              onClick={() => onSelectTeam(team.id)}
+              onViewTeam={() => onSelectTeam(team.id)}
+              onViewProfile={team.id ? () => handleViewProfile(team.id!) : undefined}
             />
           ))}
         </div>
@@ -306,11 +318,32 @@ export function TeamCards({ onSelectTeam }: TeamCardsProps) {
 }
 
 // Card View Component
-function TeamCard({ team, onClick }: { team: TeamData; onClick: () => void }) {
+function TeamCard({
+  team,
+  onViewTeam,
+  onViewProfile,
+}: {
+  team: TeamData;
+  onViewTeam: () => void;
+  onViewProfile?: () => void;
+}) {
+  const isManager = !team.isDirectToTIG && onViewProfile;
+
+  // For Direct to TIG, the whole card is clickable to drill in
+  // For managers, only the "View Team" button drills in
+  const handleCardClick = () => {
+    if (team.isDirectToTIG) {
+      onViewTeam();
+    }
+    // For managers, card click does nothing - use specific buttons
+  };
+
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left bg-white border border-[#E5E2DB] rounded-xl p-5 shadow-sm hover:shadow-md hover:border-gold/30 hover:-translate-y-0.5 transition-all duration-150 group"
+    <div
+      onClick={handleCardClick}
+      className={`w-full text-left bg-white border border-[#E5E2DB] rounded-xl p-5 shadow-sm hover:shadow-md hover:border-gold/30 transition-all duration-150 ${
+        team.isDirectToTIG ? 'cursor-pointer hover:-translate-y-0.5' : ''
+      }`}
     >
       <div className="flex items-start justify-between mb-4">
         <div
@@ -324,40 +357,92 @@ function TeamCard({ team, onClick }: { team: TeamData; onClick: () => void }) {
             <Users className="w-5 h-5 text-gold" />
           )}
         </div>
-        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-gold transition-colors" />
+        {team.isDirectToTIG && (
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        )}
       </div>
 
-      <h3 className="font-semibold text-foreground mb-1 group-hover:text-gold transition-colors">
-        {team.name}
-      </h3>
+      {isManager ? (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewProfile?.();
+          }}
+          className="font-semibold text-foreground mb-1 hover:text-gold transition-colors cursor-pointer text-left"
+        >
+          {team.name}
+          <span className="text-xs font-normal text-muted-foreground ml-2">
+            ({team.totalAgents} agents)
+          </span>
+        </button>
+      ) : (
+        <h3 className="font-semibold text-foreground mb-1">
+          {team.name}
+        </h3>
+      )}
       {team.email && (
         <p className="text-xs text-muted-foreground mb-3 truncate">{team.email}</p>
       )}
 
-      <div className="flex items-center gap-4 pt-3 border-t border-[#E5E2DB]">
-        <div className="flex items-center gap-1.5">
-          <UserCheck className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">{team.totalAgents}</span>
-          <span className="text-xs text-muted-foreground">agents</span>
-        </div>
-        {!team.isDirectToTIG && team.gaCount > 0 && (
+      <div className="flex items-center justify-between pt-3 border-t border-[#E5E2DB]">
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">{team.gaCount}</span>
-            <span className="text-xs text-muted-foreground">GAs</span>
+            <UserCheck className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">{team.totalAgents}</span>
+            <span className="text-xs text-muted-foreground">agents</span>
           </div>
+          {!team.isDirectToTIG && team.gaCount > 0 && (
+            <div className="flex items-center gap-1.5">
+              <Users className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">{team.gaCount}</span>
+              <span className="text-xs text-muted-foreground">GAs</span>
+            </div>
+          )}
+        </div>
+        {isManager && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewTeam();
+            }}
+            className="text-xs h-7 px-2 gap-1"
+          >
+            View Team
+            <ChevronRight className="w-3 h-3" />
+          </Button>
         )}
       </div>
-    </button>
+    </div>
   );
 }
 
 // List View Component
-function TeamListItem({ team, onClick }: { team: TeamData; onClick: () => void }) {
+function TeamListItem({
+  team,
+  onViewTeam,
+  onViewProfile,
+}: {
+  team: TeamData;
+  onViewTeam: () => void;
+  onViewProfile?: () => void;
+}) {
+  const isManager = !team.isDirectToTIG && onViewProfile;
+
+  const handleRowClick = () => {
+    if (team.isDirectToTIG) {
+      onViewTeam();
+    }
+    // For managers, row click does nothing - use specific buttons
+  };
+
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left bg-white border border-[#E5E2DB] rounded-lg px-4 py-3 shadow-sm hover:shadow-md hover:border-gold/30 transition-all duration-150 group flex items-center gap-4"
+    <div
+      onClick={handleRowClick}
+      className={`w-full text-left bg-white border border-[#E5E2DB] rounded-lg px-4 py-3 shadow-sm hover:shadow-md hover:border-gold/30 transition-all duration-150 flex items-center gap-4 ${
+        team.isDirectToTIG ? 'cursor-pointer' : ''
+      }`}
     >
       <div
         className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -372,27 +457,61 @@ function TeamListItem({ team, onClick }: { team: TeamData; onClick: () => void }
       </div>
 
       <div className="flex-1 min-w-0">
-        <h3 className="font-medium text-foreground group-hover:text-gold transition-colors truncate">
-          {team.name}
-        </h3>
+        {isManager ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewProfile?.();
+            }}
+            className="font-medium text-foreground hover:text-gold transition-colors truncate cursor-pointer text-left"
+          >
+            {team.name}
+            <span className="text-xs font-normal text-muted-foreground ml-2">
+              ({team.totalAgents} agents)
+            </span>
+          </button>
+        ) : (
+          <h3 className="font-medium text-foreground truncate">
+            {team.name}
+          </h3>
+        )}
         {team.email && (
           <p className="text-xs text-muted-foreground truncate">{team.email}</p>
         )}
       </div>
 
-      <div className="flex items-center gap-6 flex-shrink-0">
-        <div className="text-right">
-          <p className="text-sm font-medium text-foreground">{team.totalAgents}</p>
-          <p className="text-xs text-muted-foreground">agents</p>
-        </div>
-        {!team.isDirectToTIG && (
-          <div className="text-right">
-            <p className="text-sm font-medium text-foreground">{team.gaCount}</p>
-            <p className="text-xs text-muted-foreground">GAs</p>
-          </div>
+      <div className="flex items-center gap-4 flex-shrink-0">
+        {!isManager && (
+          <>
+            <div className="text-right">
+              <p className="text-sm font-medium text-foreground">{team.totalAgents}</p>
+              <p className="text-xs text-muted-foreground">agents</p>
+            </div>
+            {!team.isDirectToTIG && (
+              <div className="text-right">
+                <p className="text-sm font-medium text-foreground">{team.gaCount}</p>
+                <p className="text-xs text-muted-foreground">GAs</p>
+              </div>
+            )}
+          </>
         )}
-        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-gold transition-colors" />
+        {isManager ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewTeam();
+            }}
+            className="text-xs h-7 px-2 gap-1"
+          >
+            View Team
+            <ChevronRight className="w-3 h-3" />
+          </Button>
+        ) : (
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        )}
       </div>
-    </button>
+    </div>
   );
 }
