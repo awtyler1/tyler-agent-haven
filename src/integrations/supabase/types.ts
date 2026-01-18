@@ -10,36 +10,77 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_certifications: {
         Row: {
-          id: string
-          profile_id: string
           carrier_name: string
-          product_type: string
           certification_year: number
           created_at: string | null
+          id: string
+          product_type: string
+          profile_id: string
           updated_at: string | null
         }
         Insert: {
-          id?: string
-          profile_id: string
           carrier_name: string
-          product_type: string
           certification_year?: number
           created_at?: string | null
+          id?: string
+          product_type: string
+          profile_id: string
           updated_at?: string | null
         }
         Update: {
-          id?: string
-          profile_id?: string
           carrier_name?: string
-          product_type?: string
           certification_year?: number
           created_at?: string | null
+          id?: string
+          product_type?: string
+          profile_id?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -85,6 +126,93 @@ export type Database = {
         }
         Relationships: []
       }
+      broker_roadmaps: {
+        Row: {
+          activity_targets: Json | null
+          assigned_channels: Json | null
+          book_size: number
+          broker_name: string
+          created_at: string | null
+          created_by: string | null
+          economics: Json | null
+          id: string
+          last_generated_at: string | null
+          lead_star_leads: number | null
+          manager_id: string | null
+          manager_name: string
+          mira_access: boolean | null
+          monthly_goal: number
+          pdf_storage_path: string | null
+          profile_id: string | null
+          review_date: string | null
+          seminar_dates: string[] | null
+          seminar_eligible: boolean | null
+          seminars_planned: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity_targets?: Json | null
+          assigned_channels?: Json | null
+          book_size?: number
+          broker_name: string
+          created_at?: string | null
+          created_by?: string | null
+          economics?: Json | null
+          id?: string
+          last_generated_at?: string | null
+          lead_star_leads?: number | null
+          manager_id?: string | null
+          manager_name: string
+          mira_access?: boolean | null
+          monthly_goal?: number
+          pdf_storage_path?: string | null
+          profile_id?: string | null
+          review_date?: string | null
+          seminar_dates?: string[] | null
+          seminar_eligible?: boolean | null
+          seminars_planned?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity_targets?: Json | null
+          assigned_channels?: Json | null
+          book_size?: number
+          broker_name?: string
+          created_at?: string | null
+          created_by?: string | null
+          economics?: Json | null
+          id?: string
+          last_generated_at?: string | null
+          lead_star_leads?: number | null
+          manager_id?: string | null
+          manager_name?: string
+          mira_access?: boolean | null
+          monthly_goal?: number
+          pdf_storage_path?: string | null
+          profile_id?: string | null
+          review_date?: string | null
+          seminar_dates?: string[] | null
+          seminar_eligible?: boolean | null
+          seminars_planned?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broker_roadmaps_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broker_roadmaps_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carrier_certifications: {
         Row: {
           carrier_id: string
@@ -119,15 +247,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "carrier_certifications_carrier_id_fkey"
-            columns: ["carrier_id"]
-            isOneToOne: false
-            referencedRelation: "carriers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       carrier_statuses: {
         Row: {
@@ -172,15 +292,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "carrier_statuses_carrier_id_fkey"
-            columns: ["carrier_id"]
-            isOneToOne: false
-            referencedRelation: "carriers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       carriers: {
         Row: {
@@ -194,6 +306,7 @@ export type Database = {
           product_tags: string[] | null
           requires_corporate_resolution: boolean
           requires_non_resident_states: boolean
+          rts_aliases: string[] | null
           state_availability: string[] | null
           updated_at: string
         }
@@ -208,6 +321,7 @@ export type Database = {
           product_tags?: string[] | null
           requires_corporate_resolution?: boolean
           requires_non_resident_states?: boolean
+          rts_aliases?: string[] | null
           state_availability?: string[] | null
           updated_at?: string
         }
@@ -222,6 +336,7 @@ export type Database = {
           product_tags?: string[] | null
           requires_corporate_resolution?: boolean
           requires_non_resident_states?: boolean
+          rts_aliases?: string[] | null
           state_availability?: string[] | null
           updated_at?: string
         }
@@ -258,15 +373,7 @@ export type Database = {
           opens_at?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "certification_windows_carrier_id_fkey"
-            columns: ["carrier_id"]
-            isOneToOne: false
-            referencedRelation: "carriers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       contracting_applications: {
         Row: {
@@ -277,6 +384,7 @@ export type Database = {
           aml_course_date: string | null
           aml_course_name: string | null
           aml_training_provider: string | null
+          assigned_carriers: string[] | null
           bank_account_number: string | null
           bank_branch_name: string | null
           bank_routing_number: string | null
@@ -324,11 +432,14 @@ export type Database = {
           phone_mobile: string | null
           preferred_contact_methods: string[] | null
           previous_addresses: Json | null
+          queue_status: string | null
+          requested_carriers: string[] | null
           requesting_commission_advancing: boolean | null
           resident_license_number: string | null
           resident_state: string | null
           section_acknowledgments: Json | null
           selected_carriers: Json | null
+          sent_to_pinnacle_at: string | null
           sent_to_upline_at: string | null
           sent_to_upline_by: string | null
           signature_date: string | null
@@ -353,6 +464,7 @@ export type Database = {
           aml_course_date?: string | null
           aml_course_name?: string | null
           aml_training_provider?: string | null
+          assigned_carriers?: string[] | null
           bank_account_number?: string | null
           bank_branch_name?: string | null
           bank_routing_number?: string | null
@@ -400,11 +512,14 @@ export type Database = {
           phone_mobile?: string | null
           preferred_contact_methods?: string[] | null
           previous_addresses?: Json | null
+          queue_status?: string | null
+          requested_carriers?: string[] | null
           requesting_commission_advancing?: boolean | null
           resident_license_number?: string | null
           resident_state?: string | null
           section_acknowledgments?: Json | null
           selected_carriers?: Json | null
+          sent_to_pinnacle_at?: string | null
           sent_to_upline_at?: string | null
           sent_to_upline_by?: string | null
           signature_date?: string | null
@@ -429,6 +544,7 @@ export type Database = {
           aml_course_date?: string | null
           aml_course_name?: string | null
           aml_training_provider?: string | null
+          assigned_carriers?: string[] | null
           bank_account_number?: string | null
           bank_branch_name?: string | null
           bank_routing_number?: string | null
@@ -476,11 +592,14 @@ export type Database = {
           phone_mobile?: string | null
           preferred_contact_methods?: string[] | null
           previous_addresses?: Json | null
+          queue_status?: string | null
+          requested_carriers?: string[] | null
           requesting_commission_advancing?: boolean | null
           resident_license_number?: string | null
           resident_state?: string | null
           section_acknowledgments?: Json | null
           selected_carriers?: Json | null
+          sent_to_pinnacle_at?: string | null
           sent_to_upline_at?: string | null
           sent_to_upline_by?: string | null
           signature_date?: string | null
@@ -496,6 +615,51 @@ export type Database = {
           ups_address?: Json | null
           ups_address_same_as_home?: boolean | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      contracting_communications: {
+        Row: {
+          agent_id: string | null
+          attachments: string[] | null
+          body_html: string | null
+          carriers_included: string[] | null
+          communication_type: string
+          created_at: string | null
+          external_message_id: string | null
+          id: string
+          recipient_email: string
+          sent_at: string | null
+          sent_by: string | null
+          subject: string
+        }
+        Insert: {
+          agent_id?: string | null
+          attachments?: string[] | null
+          body_html?: string | null
+          carriers_included?: string[] | null
+          communication_type: string
+          created_at?: string | null
+          external_message_id?: string | null
+          id?: string
+          recipient_email: string
+          sent_at?: string | null
+          sent_by?: string | null
+          subject: string
+        }
+        Update: {
+          agent_id?: string | null
+          attachments?: string[] | null
+          body_html?: string | null
+          carriers_included?: string[] | null
+          communication_type?: string
+          created_at?: string | null
+          external_message_id?: string | null
+          id?: string
+          recipient_email?: string
+          sent_at?: string | null
+          sent_by?: string | null
+          subject?: string
         }
         Relationships: []
       }
@@ -566,15 +730,7 @@ export type Database = {
           is_primary?: boolean | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "entity_owners_entity_id_fkey"
-            columns: ["entity_id"]
-            isOneToOne: false
-            referencedRelation: "hierarchy_entities"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       feature_flags: {
         Row: {
@@ -631,15 +787,43 @@ export type Database = {
           parent_entity_id?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "hierarchy_entities_parent_entity_id_fkey"
-            columns: ["parent_entity_id"]
-            isOneToOne: false
-            referencedRelation: "hierarchy_entities"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      microsoft_oauth_tokens: {
+        Row: {
+          access_token_encrypted: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          microsoft_email: string | null
+          refresh_token_encrypted: string
+          scope: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_token_encrypted: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          microsoft_email?: string | null
+          refresh_token_encrypted: string
+          scope?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_token_encrypted?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          microsoft_email?: string | null
+          refresh_token_encrypted?: string
+          scope?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       processing_jobs: {
         Row: {
@@ -685,6 +869,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ahip_cert_file_path: string | null
+          ahip_cert_uploaded_at: string | null
+          ahip_cert_year: number | null
           appointed_at: string | null
           assigned_carriers: string[] | null
           contracting_notes: string | null
@@ -694,20 +881,21 @@ export type Database = {
           excluded_carriers: string[] | null
           first_login_at: string | null
           full_name: string | null
-          hierarchy_entity_id: string | null
-          hierarchy_type: string | null
           id: string
           is_active: boolean
           is_test: boolean | null
           manager_id: string | null
+          npn: string | null
           onboarding_status: Database["public"]["Enums"]["onboarding_status"]
           password_created_at: string | null
           setup_link_sent_at: string | null
           updated_at: string
-          upline_user_id: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
+          ahip_cert_file_path?: string | null
+          ahip_cert_uploaded_at?: string | null
+          ahip_cert_year?: number | null
           appointed_at?: string | null
           assigned_carriers?: string[] | null
           contracting_notes?: string | null
@@ -717,20 +905,21 @@ export type Database = {
           excluded_carriers?: string[] | null
           first_login_at?: string | null
           full_name?: string | null
-          hierarchy_entity_id?: string | null
-          hierarchy_type?: string | null
           id?: string
           is_active?: boolean
           is_test?: boolean | null
           manager_id?: string | null
+          npn?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
           password_created_at?: string | null
           setup_link_sent_at?: string | null
           updated_at?: string
-          upline_user_id?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
+          ahip_cert_file_path?: string | null
+          ahip_cert_uploaded_at?: string | null
+          ahip_cert_year?: number | null
           appointed_at?: string | null
           assigned_carriers?: string[] | null
           contracting_notes?: string | null
@@ -740,63 +929,46 @@ export type Database = {
           excluded_carriers?: string[] | null
           first_login_at?: string | null
           full_name?: string | null
-          hierarchy_entity_id?: string | null
-          hierarchy_type?: string | null
           id?: string
           is_active?: boolean
           is_test?: boolean | null
           manager_id?: string | null
+          npn?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
           password_created_at?: string | null
           setup_link_sent_at?: string | null
           updated_at?: string
-          upline_user_id?: string | null
-          user_id?: string
+          user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_hierarchy_entity_id_fkey"
-            columns: ["hierarchy_entity_id"]
-            isOneToOne: false
-            referencedRelation: "hierarchy_entities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_manager_id_fkey"
-            columns: ["manager_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       rts_import_logs: {
         Row: {
-          id: string
-          uploaded_by: string
-          file_name: string
           agents_matched: number
           agents_skipped: number
           certifications_imported: number
           created_at: string | null
+          file_name: string
+          id: string
+          uploaded_by: string
         }
         Insert: {
+          agents_matched?: number
+          agents_skipped?: number
+          certifications_imported?: number
+          created_at?: string | null
+          file_name: string
           id?: string
           uploaded_by: string
-          file_name: string
-          agents_matched?: number
-          agents_skipped?: number
-          certifications_imported?: number
-          created_at?: string | null
         }
         Update: {
-          id?: string
-          uploaded_by?: string
-          file_name?: string
           agents_matched?: number
           agents_skipped?: number
           certifications_imported?: number
           created_at?: string | null
+          file_name?: string
+          id?: string
+          uploaded_by?: string
         }
         Relationships: [
           {
@@ -836,15 +1008,7 @@ export type Database = {
           state_code?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "state_carriers_carrier_id_fkey"
-            columns: ["carrier_id"]
-            isOneToOne: false
-            referencedRelation: "carriers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       system_config: {
         Row: {
@@ -896,23 +1060,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_auth_user_details: {
-        Args: { _user_id: string }
-        Returns: {
-          banned_until: string
-          created_at: string
-          email: string
-          email_confirmed_at: string
-          id: string
-          last_sign_in_at: string
-        }[]
-      }
-      get_auth_user_ids: {
-        Args: never
-        Returns: {
-          id: string
-        }[]
-      }
       get_my_profile_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
@@ -925,38 +1072,19 @@ export type Database = {
         }
         Returns: boolean
       }
-      search_documents: {
-        Args: {
-          filter_carrier?: string
-          filter_type?: string
-          match_count?: number
-          match_threshold?: number
-          query_embedding: string
-        }
-        Returns: {
-          carrier: string
-          chunk_text: string
-          document_name: string
-          document_type: string
-          id: string
-          page_number: number
-          plan_name: string
-          similarity: number
-        }[]
-      }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role:
         | "super_admin"
         | "admin"
         | "manager"
-        | "independent_agent"
         | "internal_tig_agent"
+        | "independent_agent"
       onboarding_status:
         | "CONTRACTING_REQUIRED"
         | "CONTRACTING_SUBMITTED"
         | "APPOINTED"
-        | "SUSPENDED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1088,14 +1216,13 @@ export const Constants = {
         "super_admin",
         "admin",
         "manager",
-        "independent_agent",
         "internal_tig_agent",
+        "independent_agent",
       ],
       onboarding_status: [
         "CONTRACTING_REQUIRED",
         "CONTRACTING_SUBMITTED",
         "APPOINTED",
-        "SUSPENDED",
       ],
     },
   },

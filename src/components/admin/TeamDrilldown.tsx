@@ -148,7 +148,13 @@ export function TeamDrilldown({ managerId, onBack, hideBackButton = false }: Tea
   };
 
   const handleAgentClick = (profileId: string) => {
-    navigate(`/admin/agents/${profileId}`);
+    // Pass location state so the agent profile page can navigate back to this view
+    navigate(`/admin/agents/${profileId}`, {
+      state: {
+        from: '/admin/agents',
+        managerId: managerId, // null for Direct to TIG, or the MGA's profile id
+      }
+    });
   };
 
   // Calculate totals

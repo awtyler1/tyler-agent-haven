@@ -188,7 +188,7 @@ function buildChannels(profile: BrokerProfile): GrowthChannel[] {
     weekly_target: `${coiTarget} conversations`,
     setup: 'List 50 people you know who are 60+. Reach out to 10 this week.',
     script: '"I help people navigate Medicare now. Do you know anyone turning 65 soon?"',
-    expected_display: `~${coiExpected}/mo potential`,
+    expected_display: `~${Math.floor(coiExpected)}/mo potential`,
     priority: 2,
   });
 
@@ -245,7 +245,7 @@ function buildChannels(profile: BrokerProfile): GrowthChannel[] {
       weekly_target: weeklyTarget,
       setup,
       script: '"Who else do you know who could use this kind of help?"',
-      expected_display: `~${monthlyExpectedSales} from referrals`,
+      expected_display: book < 16 ? 'Build the habit' : `~${Math.floor(monthlyExpectedSales)} from referrals`,
       priority: 2,
     });
   }
@@ -314,7 +314,7 @@ function buildChannels(profile: BrokerProfile): GrowthChannel[] {
       weekly_target: `${weeklyLeads} leads, respond in <1 hour`,
       setup: 'Check dashboard every morning. Speed to lead is everything.',
       script: '"Hi, you requested Medicare information. Do you have a few minutes to chat?"',
-      expected_display: `~${expectedSales} from ${profile.lead_star_leads} leads`,
+      expected_display: `~${Math.floor(expectedSales)} from ${profile.lead_star_leads} leads`,
       priority: 2,
     });
   }
@@ -350,7 +350,7 @@ function buildChannels(profile: BrokerProfile): GrowthChannel[] {
       weekly_target: planned > 0 ? `Prep for ${planned} seminar${planned > 1 ? 's' : ''}` : 'Prepare presentation materials',
       setup: 'Confirm venue, practice presentation, prep follow-up system.',
       script: '"I\'ll stay after to answer individual questions."',
-      expected_display: planned > 0 ? `~${seminarExpected} from seminars` : 'TBA',
+      expected_display: planned > 0 ? `~${Math.floor(seminarExpected)} from seminars` : 'TBA',
       priority: 2,
     });
   }

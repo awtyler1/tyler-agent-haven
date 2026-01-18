@@ -8,170 +8,119 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Loader2, Users, Building2, User, Briefcase } from 'lucide-react';
+import { Loader2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
-type HierarchyType = 'direct' | 'team' | 'downline' | 'mga' | 'ga' | 'loa' | null;
-
-interface HierarchyEntity {
-  id: string;
-  name: string;
-  entity_type: 'team' | 'mga' | 'ga';
-  is_active: boolean;
-}
-
-interface UplineUser {
-  id: string;
-  user_id: string;
+interface PotentialManager {
+  id: string; // profile id
   full_name: string | null;
   email: string | null;
 }
 
 interface HierarchyAssignmentPanelProps {
-  userId: string;
-  currentHierarchyType: HierarchyType;
-  currentEntityId: string | null;
-  currentUplineUserId: string | null;
+  profileId: string; // The profile.id of the agent being assigned
+  currentManagerId: string | null; // Current manager_id value
   onSave: () => void;
 }
 
-const HIERARCHY_OPTIONS = [
-  { value: 'direct', label: 'Direct to TIG', icon: Building2, description: 'Reports directly to TIG' },
-  { value: 'team', label: 'Team Member', icon: Users, description: 'Member of a team (e.g., A&A)' },
-  { value: 'downline', label: 'Downline', icon: User, description: 'Under a specific person' },
-  { value: 'mga', label: 'Under MGA', icon: Briefcase, description: 'Under a Managing General Agent' },
-  { value: 'ga', label: 'Under GA', icon: Briefcase, description: 'Under a General Agent' },
-  { value: 'loa', label: 'LOA', icon: Building2, description: 'Licensed Only Agent (W2)' },
-] as const;
+// Special value for "no manager" option
+const NO_MANAGER = '__none__';
 
 export function HierarchyAssignmentPanel({
-  userId,
-  currentHierarchyType,
-  currentEntityId,
-  currentUplineUserId,
+  profileId,
+  currentManagerId,
   onSave,
 }: HierarchyAssignmentPanelProps) {
-  const [hierarchyType, setHierarchyType] = useState<HierarchyType>(currentHierarchyType);
-  const [entityId, setEntityId] = useState<string | null>(currentEntityId);
-  const [uplineUserId, setUplineUserId] = useState<string | null>(currentUplineUserId);
-  
-  const [entities, setEntities] = useState<HierarchyEntity[]>([]);
-  const [uplineUsers, setUplineUsers] = useState<UplineUser[]>([]);
+  const [managerId, setManagerId] = useState<string | null>(currentManagerId);
+  const [potentialManagers, setPotentialManagers] = useState<PotentialManager[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Fetch hierarchy entities and potential upline users
+  // Fetch potential managers (users who can have downlines)
   useEffect(() => {
-    async function fetchData() {
+    async function fetchPotentialManagers() {
       setLoading(true);
-      
+
       try {
-        // Fetch hierarchy entities (teams, MGAs, GAs)
-        const { data: entitiesData, error: entitiesError } = await supabase
-          .from('hierarchy_entities')
-          .select('id, name, entity_type, is_active')
-          .eq('is_active', true)
-          .order('entity_type')
-          .order('name');
+        // Get users with manager, admin, or super_admin roles
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .in('role', ['manager', 'admin', 'super_admin']);
 
-        if (entitiesError) throw entitiesError;
-        setEntities((entitiesData || []) as HierarchyEntity[]);
+        if (roleError) throw roleError;
 
-        // Fetch users who can be uplines (managers and above)
-        const { data: usersData, error: usersError } = await supabase
+        const managerUserIds = roleData?.map((r) => r.user_id) || [];
+
+        if (managerUserIds.length === 0) {
+          setPotentialManagers([]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch profiles for these users, excluding the current agent
+        const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, user_id, full_name, email')
+          .select('id, full_name, email')
+          .in('user_id', managerUserIds)
+          .neq('id', profileId) // Can't report to yourself
           .eq('is_active', true)
           .order('full_name');
 
-        if (usersError) throw usersError;
-        setUplineUsers(usersData || []);
+        if (profilesError) throw profilesError;
 
+        setPotentialManagers(profilesData || []);
       } catch (error) {
-        console.error('Error fetching hierarchy data:', error);
-        toast.error('Failed to load hierarchy options');
+        console.error('Error fetching potential managers:', error);
+        toast.error('Failed to load manager options');
       } finally {
         setLoading(false);
       }
     }
 
-    fetchData();
-  }, []);
+    fetchPotentialManagers();
+  }, [profileId]);
 
-  // Reset dependent fields when hierarchy type changes
-  useEffect(() => {
-    if (hierarchyType !== 'team' && hierarchyType !== 'mga' && hierarchyType !== 'ga') {
-      setEntityId(null);
-    }
-    if (hierarchyType !== 'downline') {
-      setUplineUserId(null);
-    }
-  }, [hierarchyType]);
-
-  const handleSave = async () => {
+  const handleSave = async (newManagerId: string | null) => {
     setSaving(true);
 
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({
-          hierarchy_type: hierarchyType,
-          hierarchy_entity_id: entityId,
-          upline_user_id: uplineUserId,
-        })
-        .eq('user_id', userId);
+        .update({ manager_id: newManagerId })
+        .eq('id', profileId);
 
       if (error) throw error;
 
-      toast.success('Hierarchy assignment saved');
+      toast.success('Manager assignment saved');
       onSave();
     } catch (error) {
-      console.error('Error saving hierarchy:', error);
-      toast.error('Failed to save hierarchy assignment');
+      console.error('Error saving manager assignment:', error);
+      toast.error('Failed to save manager assignment');
     } finally {
       setSaving(false);
     }
   };
 
-  // Auto-save when selections change
-  useEffect(() => {
-    // Don't save on initial load
-    if (loading) return;
-    
-    // Check if values have actually changed from props
-    const hasChanged = 
-      hierarchyType !== currentHierarchyType ||
-      entityId !== currentEntityId ||
-      uplineUserId !== currentUplineUserId;
+  const handleChange = (value: string) => {
+    const newManagerId = value === NO_MANAGER ? null : value;
+    setManagerId(newManagerId);
 
-    if (hasChanged) {
-      const timer = setTimeout(handleSave, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [hierarchyType, entityId, uplineUserId]);
-
-  const teams = entities.filter(e => e.entity_type === 'team');
-  const mgas = entities.filter(e => e.entity_type === 'mga');
-  const gas = entities.filter(e => e.entity_type === 'ga');
-
-  const showEntityPicker = hierarchyType === 'team' || hierarchyType === 'mga' || hierarchyType === 'ga';
-  const showUplinePicker = hierarchyType === 'downline';
-
-  const getEntitiesForType = () => {
-    switch (hierarchyType) {
-      case 'team': return teams;
-      case 'mga': return mgas;
-      case 'ga': return gas;
-      default: return [];
-    }
+    // Auto-save on change
+    handleSave(newManagerId);
   };
+
+  // Get the current manager's name for display
+  const currentManagerName = managerId
+    ? potentialManagers.find((m) => m.id === managerId)?.full_name || 'Unknown'
+    : null;
 
   if (loading) {
     return (
       <div className="rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Loading hierarchy options...
+          Loading manager options...
         </div>
       </div>
     );
@@ -180,7 +129,10 @@ export function HierarchyAssignmentPanel({
   return (
     <div className="rounded-lg border border-border bg-card p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-foreground">Hierarchy Assignment</h4>
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <h4 className="font-medium text-foreground">Reports To</h4>
+        </div>
         {saving && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -189,117 +141,44 @@ export function HierarchyAssignmentPanel({
         )}
       </div>
 
-      {/* Hierarchy Type Selector */}
       <div className="space-y-2">
-        <Label>Assignment Type</Label>
+        <Label htmlFor="manager-select">Manager / Upline</Label>
         <Select
-          value={hierarchyType || ''}
-          onValueChange={(value) => setHierarchyType(value as HierarchyType)}
+          value={managerId || NO_MANAGER}
+          onValueChange={handleChange}
         >
-          <SelectTrigger>
-            <SelectValue placeholder="Select assignment type..." />
+          <SelectTrigger id="manager-select">
+            <SelectValue placeholder="Select manager..." />
           </SelectTrigger>
           <SelectContent>
-            {HIERARCHY_OPTIONS.map((option) => {
-              const Icon = option.icon;
-              const isDisabled = 
-                (option.value === 'mga' && mgas.length === 0) ||
-                (option.value === 'ga' && gas.length === 0);
-              
-              return (
-                <SelectItem key={option.value} value={option.value} disabled={isDisabled}>
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                    <span className="flex items-center gap-1">
-                      {option.label}
-                      {isDisabled && (
-                        <span className="text-xs text-muted-foreground">(none available)</span>
-                      )}
-                    </span>
-                  </div>
-                </SelectItem>
-              );
-            })}
+            <SelectItem value={NO_MANAGER}>
+              <span className="text-muted-foreground">None (Direct to TIG)</span>
+            </SelectItem>
+            {potentialManagers.map((manager) => (
+              <SelectItem key={manager.id} value={manager.id}>
+                <div className="flex flex-col">
+                  <span>{manager.full_name || 'Unnamed'}</span>
+                  {manager.email && (
+                    <span className="text-xs text-muted-foreground">{manager.email}</span>
+                  )}
+                </div>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
-        {hierarchyType && (
-          <p className="text-xs text-muted-foreground">
-            {HIERARCHY_OPTIONS.find(o => o.value === hierarchyType)?.description}
-          </p>
-        )}
       </div>
 
-      {/* Entity Picker (for team/mga/ga) */}
-      {showEntityPicker && (
-        <div className="space-y-2">
-          <Label>
-            Select {hierarchyType === 'team' ? 'Team' : hierarchyType?.toUpperCase()}
-          </Label>
-          <Select value={entityId || ''} onValueChange={setEntityId}>
-            <SelectTrigger>
-              <SelectValue placeholder={`Select ${hierarchyType}...`} />
-            </SelectTrigger>
-            <SelectContent>
-              {getEntitiesForType().map((entity) => (
-                <SelectItem key={entity.id} value={entity.id}>
-                  {entity.name}
-                </SelectItem>
-              ))}
-              {getEntitiesForType().length === 0 && (
-                <div className="p-2 text-sm text-muted-foreground text-center">
-                  No {hierarchyType}s available
-                </div>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {/* Upline User Picker (for downline) */}
-      {showUplinePicker && (
-        <div className="space-y-2">
-          <Label>Select Upline</Label>
-          <Select value={uplineUserId || ''} onValueChange={setUplineUserId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select upline..." />
-            </SelectTrigger>
-            <SelectContent>
-              {uplineUsers.map((user) => (
-                <SelectItem key={user.user_id} value={user.user_id}>
-                  <div className="flex flex-col">
-                    <span>{user.full_name || 'Unnamed'}</span>
-                    <span className="text-xs text-muted-foreground">{user.email}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
       {/* Current Assignment Summary */}
-      {hierarchyType && (
-        <div className="pt-2 border-t border-border">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium">Current: </span>
-            {hierarchyType === 'direct' && 'Direct to TIG'}
-            {hierarchyType === 'loa' && 'LOA (Internal W2)'}
-            {hierarchyType === 'team' && entityId && (
-              <>Team: {entities.find(e => e.id === entityId)?.name}</>
-            )}
-            {hierarchyType === 'downline' && uplineUserId && (
-              <>Downline of: {uplineUsers.find(u => u.user_id === uplineUserId)?.full_name}</>
-            )}
-            {hierarchyType === 'mga' && entityId && (
-              <>MGA: {entities.find(e => e.id === entityId)?.name}</>
-            )}
-            {hierarchyType === 'ga' && entityId && (
-              <>GA: {entities.find(e => e.id === entityId)?.name}</>
-            )}
-            {!hierarchyType && 'Not assigned'}
-          </p>
-        </div>
-      )}
+      <div className="pt-2 border-t border-border">
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium">Current: </span>
+          {currentManagerName ? (
+            <>Reports to {currentManagerName}</>
+          ) : (
+            <>Direct to TIG (no upline)</>
+          )}
+        </p>
+      </div>
     </div>
   );
 }

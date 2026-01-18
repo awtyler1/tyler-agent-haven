@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -27,8 +27,14 @@ interface AgentWithRole extends Profile {
 
 type ViewMode = 'teams' | 'myteam' | 'list';
 
+interface LocationState {
+  managerId?: string | null;
+}
+
 export default function AgentsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as LocationState | null;
   const { profile, isAdmin, isManager, isAgent, loading: authLoading } = useAuth();
 
   // Determine default view based on role
@@ -56,6 +62,16 @@ export default function AgentsPage() {
       setViewMode(getDefaultViewMode());
     }
   }, [authLoading]);
+
+  // Restore drill-down state from location state (when navigating back from agent profile)
+  useEffect(() => {
+    if (locationState && 'managerId' in locationState) {
+      // managerId can be null (Direct to TIG) or a string (MGA id)
+      setSelectedTeamId(locationState.managerId);
+      // Clear the location state so refreshing doesn't keep restoring
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [locationState]);
 
   // Redirect agents to their profile - they shouldn't access this page
   useEffect(() => {

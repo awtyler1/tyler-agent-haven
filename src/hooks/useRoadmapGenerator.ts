@@ -1,9 +1,16 @@
 // src/hooks/useRoadmapGenerator.ts
+// V5 - Updated for goal-driven roadmaps with resource assignments
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { BrokerProfile, RoadmapGenerationResult } from '@/types/roadmap';
 import { toast } from 'sonner';
+import {
+  BrokerProfile,
+  RoadmapGenerationResult,
+  GrowthChannel,
+  ActivityTargets,
+  Economics,
+} from '@/types/roadmap';
 
 export function useRoadmapGenerator() {
   const [generating, setGenerating] = useState(false);
@@ -11,153 +18,188 @@ export function useRoadmapGenerator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Generate PDF via edge function
-  const generateRoadmap = async (
-    profile: BrokerProfile,
-    saveToStorage = true
-  ): Promise<RoadmapGenerationResult> => {
+  // Generate roadmap PDF via edge function
+  const generateRoadmap = async (profile: BrokerProfile): Promise<RoadmapGenerationResult> => {
     setGenerating(true);
     setError(null);
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke('generate-roadmap-pdf', {
         body: {
-          profile,
-          saveToStorage,
+          profile: {
+            broker_name: profile.broker_name,
+            manager_name: profile.manager_name,
+            book_size: profile.book_size || 0,
+            monthly_goal: profile.monthly_goal,
+            lead_star_leads: profile.lead_star_leads || 0,
+            seminar_eligible: profile.seminar_eligible || false,
+            seminars_planned: profile.seminars_planned || 0,
+            mira_access: profile.mira_access || false,
+          },
         },
       });
 
-      if (fnError || data?.error) {
-        const errorMsg = fnError?.message || data?.error;
-        setError(errorMsg);
-        toast.error('Failed to generate roadmap: ' + errorMsg);
-        return { success: false, error: errorMsg };
+      if (fnError) {
+        throw new Error(fnError.message);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to generate roadmap');
       }
 
       toast.success('Roadmap generated successfully');
-      return {
-        success: true,
-        filename: data.filename,
-        pdf: data.pdf,
-        size: data.size,
-        channels: data.channels,
-        phase: data.phase,
-        review_date: data.review_date,
-      };
-
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-      setError(errorMsg);
-      toast.error('Failed to generate roadmap');
-      return { success: false, error: errorMsg };
+      return data as RoadmapGenerationResult;
+    } catch (err: any) {
+      const message = err.message || 'Failed to generate roadmap';
+      setError(message);
+      toast.error(message);
+      return { success: false, error: message };
     } finally {
       setGenerating(false);
     }
   };
 
   // Save broker profile to database
-  const saveBrokerProfile = async (
-    profile: BrokerProfile
-  ): Promise<{ success: boolean; id?: string; error?: string }> => {
+  const saveBrokerProfile = async (profile: BrokerProfile): Promise<string | null> => {
     setSaving(true);
     setError(null);
 
     try {
       const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        throw new Error('Not authenticated');
+      }
 
-      // Remove undefined values and prepare data
-      const profileData: Record<string, unknown> = {
+      const profileData = {
         broker_name: profile.broker_name,
+        manager_id: profile.manager_id,
         manager_name: profile.manager_name,
-        manager_id: profile.manager_id || null,
-        profile_id: profile.profile_id || null,
-        months_in_business: profile.months_in_business,
-        book_size: profile.book_size,
+        book_size: profile.book_size || 0,
         monthly_goal: profile.monthly_goal,
-        personality: profile.personality,
-        phone_comfort: profile.phone_comfort,
-        community_connections: profile.community_connections,
-        strengths: profile.strengths || null,
-        mira_access: profile.mira_access,
-        seminar_assigned: profile.seminar_assigned,
-        seminar_dates: profile.seminar_dates || null,
-        experience_phase: profile.experience_phase || null,
-        assigned_channels: profile.assigned_channels || null,
-        created_by: userData.user?.id,
+        lead_star_leads: profile.lead_star_leads || 0,
+        seminar_eligible: profile.seminar_eligible || false,
+        seminars_planned: profile.seminars_planned || 0,
+        mira_access: profile.mira_access || false,
+        profile_id: profile.profile_id || null,
+        created_by: userData.user.id,
+        updated_at: new Date().toISOString(),
       };
 
       if (profile.id) {
         // Update existing
-        const { data, error } = await supabase
+        const { error: updateError } = await supabase
           .from('broker_roadmaps')
           .update(profileData)
-          .eq('id', profile.id)
-          .select()
-          .single();
+          .eq('id', profile.id);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
         toast.success('Profile updated');
-        return { success: true, id: data.id };
+        return profile.id;
       } else {
         // Insert new
-        const { data, error } = await supabase
+        const { data: insertData, error: insertError } = await supabase
           .from('broker_roadmaps')
-          .insert(profileData)
-          .select()
+          .insert({
+            ...profileData,
+            created_at: new Date().toISOString(),
+          })
+          .select('id')
           .single();
 
-        if (error) throw error;
+        if (insertError) throw insertError;
         toast.success('Profile saved');
-        return { success: true, id: data.id };
+        return insertData.id;
       }
-
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-      setError(errorMsg);
-      toast.error('Failed to save profile: ' + errorMsg);
-      return { success: false, error: errorMsg };
+    } catch (err: any) {
+      const message = err.message || 'Failed to save profile';
+      setError(message);
+      toast.error(message);
+      return null;
     } finally {
       setSaving(false);
     }
   };
 
-  // Update profile after generation
+  // Update profile after PDF generation (store generated data)
   const updateProfileAfterGeneration = async (
     profileId: string,
-    pdfPath: string,
-    reviewDate: string,
-    phase: string,
-    channels: unknown
-  ) => {
+    result: RoadmapGenerationResult,
+    pdfStoragePath?: string
+  ): Promise<boolean> => {
     try {
-      await supabase
+      const updateData: any = {
+        last_generated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      if (result.channels) {
+        updateData.assigned_channels = result.channels;
+      }
+      if (result.activity) {
+        updateData.activity_targets = result.activity;
+      }
+      if (result.economics) {
+        updateData.economics = result.economics;
+      }
+      if (result.review_date) {
+        updateData.review_date = result.review_date;
+      }
+      if (pdfStoragePath) {
+        updateData.pdf_storage_path = pdfStoragePath;
+      }
+
+      const { error: updateError } = await supabase
         .from('broker_roadmaps')
-        .update({
-          last_generated_at: new Date().toISOString(),
-          pdf_storage_path: pdfPath,
-          review_date: reviewDate,
-          experience_phase: phase,
-          assigned_channels: channels,
-        })
+        .update(updateData)
         .eq('id', profileId);
-    } catch (err) {
+
+      if (updateError) throw updateError;
+      return true;
+    } catch (err: any) {
       console.error('Failed to update profile after generation:', err);
+      return false;
     }
   };
 
-  // Fetch all broker roadmaps
+  // Fetch all broker roadmaps (for list view)
   const fetchBrokerRoadmaps = async (): Promise<BrokerProfile[]> => {
     setLoading(true);
+    setError(null);
+
     try {
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('broker_roadmaps')
         .select('*')
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
-      return (data || []) as BrokerProfile[];
-    } catch (err) {
-      toast.error('Failed to load roadmaps');
+      if (fetchError) throw fetchError;
+
+      return (data || []).map((row: any) => ({
+        id: row.id,
+        profile_id: row.profile_id,
+        broker_name: row.broker_name,
+        manager_id: row.manager_id,
+        manager_name: row.manager_name,
+        book_size: row.book_size || 0,
+        monthly_goal: row.monthly_goal || 6,
+        lead_star_leads: row.lead_star_leads || 0,
+        seminar_eligible: row.seminar_eligible || false,
+        seminars_planned: row.seminars_planned || 0,
+        mira_access: row.mira_access || false,
+        last_generated_at: row.last_generated_at,
+        pdf_storage_path: row.pdf_storage_path,
+        review_date: row.review_date,
+        assigned_channels: row.assigned_channels,
+        activity_targets: row.activity_targets,
+        economics: row.economics,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        created_by: row.created_by,
+      }));
+    } catch (err: any) {
+      const message = err.message || 'Failed to fetch roadmaps';
+      setError(message);
+      toast.error(message);
       return [];
     } finally {
       setLoading(false);
@@ -167,17 +209,43 @@ export function useRoadmapGenerator() {
   // Fetch single broker profile
   const fetchBrokerProfile = async (id: string): Promise<BrokerProfile | null> => {
     setLoading(true);
+    setError(null);
+
     try {
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('broker_roadmaps')
         .select('*')
         .eq('id', id)
         .single();
 
-      if (error) throw error;
-      return data as BrokerProfile;
-    } catch (err) {
-      toast.error('Failed to load profile');
+      if (fetchError) throw fetchError;
+
+      return {
+        id: data.id,
+        profile_id: data.profile_id,
+        broker_name: data.broker_name,
+        manager_id: data.manager_id,
+        manager_name: data.manager_name,
+        book_size: data.book_size || 0,
+        monthly_goal: data.monthly_goal || 6,
+        lead_star_leads: data.lead_star_leads || 0,
+        seminar_eligible: data.seminar_eligible || false,
+        seminars_planned: data.seminars_planned || 0,
+        mira_access: data.mira_access || false,
+        last_generated_at: data.last_generated_at,
+        pdf_storage_path: data.pdf_storage_path,
+        review_date: data.review_date,
+        assigned_channels: data.assigned_channels,
+        activity_targets: data.activity_targets,
+        economics: data.economics,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        created_by: data.created_by,
+      };
+    } catch (err: any) {
+      const message = err.message || 'Failed to fetch profile';
+      setError(message);
+      toast.error(message);
       return null;
     } finally {
       setLoading(false);
@@ -187,21 +255,22 @@ export function useRoadmapGenerator() {
   // Delete broker profile
   const deleteBrokerProfile = async (id: string): Promise<boolean> => {
     try {
-      const { error } = await supabase
+      const { error: deleteError } = await supabase
         .from('broker_roadmaps')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
       toast.success('Profile deleted');
       return true;
-    } catch (err) {
-      toast.error('Failed to delete profile');
+    } catch (err: any) {
+      const message = err.message || 'Failed to delete profile';
+      toast.error(message);
       return false;
     }
   };
 
-  // Download PDF helper
+  // Download PDF from base64
   const downloadPdf = (base64: string, filename: string) => {
     try {
       const byteCharacters = atob(base64);

@@ -12,119 +12,84 @@ import { Loader2, ArrowLeft, UserPlus, Users, Info } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
-interface HierarchyOption {
-  id: string;
-  label: string;
-  type: 'team';
-  entityId: string;
+interface PotentialManager {
+  id: string; // profile id
+  full_name: string | null;
+  email: string | null;
 }
+
+// Special value for "no manager" option
+const NO_MANAGER = '__none__';
 
 export default function NewAgentPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hierarchyOptions, setHierarchyOptions] = useState<HierarchyOption[]>([]);
-  const [loadingOptions, setLoadingOptions] = useState(true);
-  
+  const [potentialManagers, setPotentialManagers] = useState<PotentialManager[]>([]);
+  const [loadingManagers, setLoadingManagers] = useState(true);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    hierarchyId: '',
+    managerId: NO_MANAGER, // NULL means direct to TIG
     agentType: 'new' as 'new' | 'existing',
     sendSetupEmail: true,
   });
 
   useEffect(() => {
-    fetchHierarchyOptions();
+    fetchPotentialManagers();
   }, []);
 
-  const fetchHierarchyOptions = async () => {
-    setLoadingOptions(true);
+  const fetchPotentialManagers = async () => {
+    setLoadingManagers(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Check if user is admin/super_admin
-      const { data: userRoles } = await supabase
+      // Get users with manager, admin, or super_admin roles
+      const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .in('role', ['super_admin', 'admin']);
+        .select('user_id')
+        .in('role', ['manager', 'admin', 'super_admin']);
 
-      const isAdmin = (userRoles?.length || 0) > 0;
+      if (roleError) throw roleError;
 
-      let teams;
+      const managerUserIds = roleData?.map((r) => r.user_id) || [];
 
-      if (isAdmin) {
-        // Admins see ALL active teams
-        const { data, error } = await supabase
-          .from('hierarchy_entities')
-          .select('id, name')
-          .eq('entity_type', 'team')
-          .eq('is_active', true);
-
-        if (error) throw error;
-        teams = data;
-      } else {
-        // Non-admins only see teams they own
-        const { data: ownerships, error: ownerError } = await supabase
-          .from('entity_owners')
-          .select('entity_id')
-          .eq('user_id', user.id);
-
-        if (ownerError) throw ownerError;
-
-        if (!ownerships || ownerships.length === 0) {
-          setHierarchyOptions([]);
-          return;
-        }
-
-        const entityIds = ownerships.map(o => o.entity_id);
-
-        const { data, error } = await supabase
-          .from('hierarchy_entities')
-          .select('id, name')
-          .in('id', entityIds)
-          .eq('entity_type', 'team')
-          .eq('is_active', true);
-
-        if (error) throw error;
-        teams = data;
+      if (managerUserIds.length === 0) {
+        setPotentialManagers([]);
+        setLoadingManagers(false);
+        return;
       }
 
-      const options: HierarchyOption[] = (teams || []).map(team => ({
-        id: `team-${team.id}`,
-        label: team.name,
-        type: 'team' as const,
-        entityId: team.id,
-      }));
+      // Fetch profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('user_id', managerUserIds)
+        .eq('is_active', true)
+        .order('full_name');
 
-      setHierarchyOptions(options);
+      if (profilesError) throw profilesError;
+
+      setPotentialManagers(profilesData || []);
     } catch (err) {
-      console.error('Error fetching hierarchy options:', err);
-      toast.error('Failed to load hierarchy options');
+      console.error('Error fetching potential managers:', err);
+      toast.error('Failed to load manager options');
     } finally {
-      setLoadingOptions(false);
+      setLoadingManagers(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.hierarchyId) {
-      toast.error('Please select a team');
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      // Get current user for upline assignment
+      // Get current user for auth
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         throw new Error('Not authenticated. Please sign in again.');
       }
 
-      // Verify user has admin role (for better error message before calling edge function)
+      // Verify user has admin role
       const { data: userRoles } = await supabase
         .from('user_roles')
         .select('role')
@@ -135,23 +100,18 @@ export default function NewAgentPage() {
         throw new Error('You do not have admin permissions. Please contact a system administrator.');
       }
 
-      const selectedOption = hierarchyOptions.find(o => o.id === formData.hierarchyId);
-
-      if (!selectedOption) {
-        throw new Error('Invalid team selection');
-      }
+      // Convert NO_MANAGER to null for the actual value
+      const managerId = formData.managerId === NO_MANAGER ? null : formData.managerId;
 
       const requestBody = {
         email: formData.email,
         fullName: formData.fullName,
-        hierarchyType: 'team' as const,
-        hierarchyEntityId: selectedOption.entityId,
-        uplineUserId: user.id,
+        managerId: managerId,
         isExistingAgent: formData.agentType === 'existing',
         sendSetupEmail: formData.sendSetupEmail,
       };
 
-      // Invoke the function using fetch directly for better error handling
+      // Invoke the edge function
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
         throw new Error('No active session. Please sign in again.');
@@ -173,13 +133,11 @@ export default function NewAgentPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Extract the actual error message from the function response
         const errorMessage = data?.error || data?.message || data?.details || `Request failed with status ${response.status}`;
         console.error('Create agent failed:', errorMessage);
         throw new Error(errorMessage);
       }
 
-      // Check if the response contains an error
       if (data && 'error' in data) {
         throw new Error(data.error || 'Failed to create agent');
       }
@@ -199,10 +157,15 @@ export default function NewAgentPage() {
     }
   };
 
+  // Get manager name for display
+  const selectedManagerName = formData.managerId !== NO_MANAGER
+    ? potentialManagers.find(m => m.id === formData.managerId)?.full_name || 'Unknown'
+    : null;
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       <Navigation />
-      
+
       <main className="flex-1 pt-28 pb-12">
         <div className="max-w-xl mx-auto px-6">
           {/* Header */}
@@ -227,7 +190,7 @@ export default function NewAgentPage() {
               <div>
                 <h2 className="font-semibold text-foreground">Agent Information</h2>
                 <p className="text-xs text-muted-foreground">
-                  Enter the agent's details and assign their hierarchy
+                  Enter the agent's details and assign their upline
                 </p>
               </div>
             </div>
@@ -260,46 +223,37 @@ export default function NewAgentPage() {
                 />
               </div>
 
-              {/* Hierarchy Assignment */}
+              {/* Reports To (Manager Assignment) */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Team Assignment *</Label>
+                <Label className="text-sm font-medium">Reports To</Label>
                 <Select
-                  value={formData.hierarchyId}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, hierarchyId: value }))}
-                  disabled={loadingOptions}
+                  value={formData.managerId}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, managerId: value }))}
+                  disabled={loadingManagers}
                 >
                   <SelectTrigger className="border-[#E5E2DB]">
-                    <SelectValue placeholder={loadingOptions ? "Loading..." : "Select team"} />
+                    <SelectValue placeholder={loadingManagers ? "Loading..." : "Select manager"} />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
-                    {hierarchyOptions.length === 0 ? (
-                      <SelectItem value="__empty__" disabled className="text-muted-foreground">
-                        No options available
+                    <SelectItem value={NO_MANAGER}>
+                      <span className="text-muted-foreground">None (Direct to TIG)</span>
+                    </SelectItem>
+                    {potentialManagers.map((manager) => (
+                      <SelectItem key={manager.id} value={manager.id}>
+                        <div className="flex flex-col">
+                          <span>{manager.full_name || 'Unnamed'}</span>
+                          {manager.email && (
+                            <span className="text-xs text-muted-foreground">{manager.email}</span>
+                          )}
+                        </div>
                       </SelectItem>
-                    ) : (
-                      hierarchyOptions.map((option) => (
-                        <SelectItem key={option.id} value={option.id}>
-                          {option.label}
-                        </SelectItem>
-                      ))
-                    )}
+                    ))}
                   </SelectContent>
                 </Select>
-                {hierarchyOptions.length === 0 && !loadingOptions && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-destructive">
-                      No teams found. You must own at least one team to create agents.
-                    </p>
-                    <Link 
-                      to="/admin/hierarchy" 
-                      className="text-xs text-gold hover:underline inline-block"
-                    >
-                      Go to Hierarchy Management →
-                    </Link>
-                  </div>
-                )}
                 <p className="text-xs text-muted-foreground">
-                  Select a team you own to assign this agent to
+                  {selectedManagerName
+                    ? `This agent will report to ${selectedManagerName}`
+                    : 'This agent will report directly to TIG (no upline)'}
                 </p>
               </div>
 
@@ -368,9 +322,9 @@ export default function NewAgentPage() {
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting} 
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
                   className="flex-1 bg-gold hover:bg-gold/90 text-white"
                 >
                   {isSubmitting ? (

@@ -5,9 +5,7 @@ import { createSupabaseAdmin, requireAdmin } from "../_shared/auth.ts";
 interface CreateAgentRequest {
   email: string;
   fullName: string;
-  hierarchyType: 'team' | 'downline';
-  hierarchyEntityId?: string | null;
-  uplineUserId?: string | null;
+  managerId?: string | null;  // profile.id of the manager (null = direct to TIG)
   isExistingAgent: boolean;
   sendSetupEmail?: boolean;
   isTest?: boolean;
@@ -46,34 +44,20 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Invalid request body: " + (parseError instanceof Error ? parseError.message : "Unknown error"));
     }
 
-    const { 
-      email, 
-      fullName, 
-      hierarchyType,
-      hierarchyEntityId,
-      uplineUserId,
+    const {
+      email,
+      fullName,
+      managerId = null,  // null means direct to TIG (no upline)
       isExistingAgent,
-      sendSetupEmail = true, 
-      isTest = false 
+      sendSetupEmail = true,
+      isTest = false
     } = requestBody;
 
     if (!email || !fullName) {
       throw new Error("Email and full name are required");
     }
 
-    if (!hierarchyType) {
-      throw new Error("Hierarchy type is required");
-    }
-
-    // Validate hierarchy-specific requirements
-    if (hierarchyType === 'team' && !hierarchyEntityId) {
-      throw new Error("hierarchyEntityId is required when hierarchyType is 'team'");
-    }
-    if (hierarchyType === 'downline' && !uplineUserId) {
-      throw new Error("uplineUserId is required when hierarchyType is 'downline'");
-    }
-
-    console.log(`Creating agent: ${email}, hierarchy: ${hierarchyType}, existing: ${isExistingAgent}, isTest: ${isTest}`);
+    console.log(`Creating agent: ${email}, managerId: ${managerId || 'direct-to-TIG'}, existing: ${isExistingAgent}, isTest: ${isTest}`);
 
     // Generate a random password (user won't know this - they'll set their own)
     const tempPassword = crypto.randomUUID();
@@ -96,15 +80,14 @@ serve(async (req: Request): Promise<Response> => {
     const onboardingStatus = isExistingAgent ? 'APPOINTED' : 'CONTRACTING_REQUIRED';
 
     // Insert a new profile row for the newly created user
+    // manager_id is the profile.id of the upline manager (null = direct to TIG)
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
       .insert({
         user_id: newUser.user.id,
         email: email,
         full_name: fullName,
-        hierarchy_type: hierarchyType,
-        hierarchy_entity_id: hierarchyType === 'team' ? hierarchyEntityId : null,
-        upline_user_id: uplineUserId || null,
+        manager_id: managerId,
         onboarding_status: onboardingStatus,
         is_active: true,
         is_test: isTest || false,
@@ -115,7 +98,7 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error(`Failed to insert profile: ${profileError.message}`);
     }
 
-    console.log(`Profile inserted with hierarchy_type: ${hierarchyType}, status: ${onboardingStatus}`);
+    console.log(`Profile inserted with manager_id: ${managerId || 'null (direct to TIG)'}, status: ${onboardingStatus}`);
 
     // Assign the agent role
     const agentRole = 'independent_agent';

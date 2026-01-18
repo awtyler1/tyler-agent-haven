@@ -1,4 +1,5 @@
 // src/pages/admin/RoadmapGeneratorPage.tsx
+// V5 - Roadmap Generator with goal-driven profiles
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,7 +21,8 @@ import {
   Pencil,
   Trash2,
   MoreVertical,
-  Sparkles
+  Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -38,7 +40,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 
 type ViewMode = 'list' | 'new' | 'edit';
 
@@ -51,7 +53,6 @@ export default function RoadmapGeneratorPage() {
     generateRoadmap,
     saveBrokerProfile,
     fetchBrokerRoadmaps,
-    fetchBrokerProfile,
     deleteBrokerProfile,
     updateProfileAfterGeneration,
     downloadPdf,
@@ -64,7 +65,8 @@ export default function RoadmapGeneratorPage() {
   const [profileToDelete, setProfileToDelete] = useState<string | null>(null);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
 
-  const managerName = profile?.full_name || 'Manager';
+  // Get manager name for form
+  const managerName = profile?.full_name || 'TIG Leadership';
   const managerId = profile?.id;
 
   // Load profiles on mount
@@ -77,283 +79,298 @@ export default function RoadmapGeneratorPage() {
     setBrokerProfiles(profiles);
   };
 
-  const handleCreateNew = () => {
-    setEditingProfile(null);
-    setViewMode('new');
-  };
-
-  const handleEdit = async (id: string) => {
-    const profile = await fetchBrokerProfile(id);
-    if (profile) {
-      setEditingProfile(profile);
-      setViewMode('edit');
+  // Handle form submission (save only)
+  const handleSubmit = async (formData: BrokerProfile) => {
+    const savedId = await saveBrokerProfile(formData);
+    if (savedId) {
+      await loadProfiles();
+      setViewMode('list');
+      setEditingProfile(null);
     }
   };
 
-  const handleBack = () => {
-    setViewMode('list');
-    setEditingProfile(null);
-    loadProfiles();
-  };
+  // Handle generate (save + generate PDF + download)
+  const handleGenerate = async (formData: BrokerProfile) => {
+    // First save the profile
+    const savedId = await saveBrokerProfile(formData);
+    if (!savedId) return;
 
-  const handleSave = async (profileData: BrokerProfile) => {
-    const result = await saveBrokerProfile(profileData);
-    if (result.success) {
-      handleBack();
-    }
-  };
+    // Update formData with saved ID
+    const profileWithId = { ...formData, id: savedId };
 
-  const handleGenerate = async (profileData: BrokerProfile) => {
-    // Save first if new
-    let profileId = profileData.id;
-    if (!profileId) {
-      const saveResult = await saveBrokerProfile(profileData);
-      if (!saveResult.success || !saveResult.id) return;
-      profileId = saveResult.id;
-      profileData.id = profileId;
-    }
+    // Generate the roadmap
+    const result = await generateRoadmap(profileWithId);
 
-    const result = await generateRoadmap(profileData, true);
     if (result.success && result.pdf && result.filename) {
+      // Update the profile with generated data
+      await updateProfileAfterGeneration(savedId, result);
+
       // Download the PDF
       downloadPdf(result.pdf, result.filename);
 
-      // Update the profile with generation data
-      if (profileId && result.phase && result.channels) {
-        await updateProfileAfterGeneration(
-          profileId,
-          result.filename,
-          result.review_date || '',
-          result.phase.name,
-          result.channels
-        );
-      }
-
-      handleBack();
+      // Refresh the list and go back
+      await loadProfiles();
+      setViewMode('list');
+      setEditingProfile(null);
     }
   };
 
-  const handleGenerateFromList = async (brokerProfile: BrokerProfile) => {
+  // Handle regenerate from list
+  const handleRegenerate = async (brokerProfile: BrokerProfile) => {
     if (!brokerProfile.id) return;
+
     setGeneratingId(brokerProfile.id);
 
-    const result = await generateRoadmap(brokerProfile, true);
+    const result = await generateRoadmap(brokerProfile);
+
     if (result.success && result.pdf && result.filename) {
+      await updateProfileAfterGeneration(brokerProfile.id, result);
       downloadPdf(result.pdf, result.filename);
-
-      if (result.phase && result.channels) {
-        await updateProfileAfterGeneration(
-          brokerProfile.id,
-          result.filename,
-          result.review_date || '',
-          result.phase.name,
-          result.channels
-        );
-      }
-
-      loadProfiles();
+      await loadProfiles();
     }
+
     setGeneratingId(null);
+  };
+
+  // Handle edit
+  const handleEdit = (brokerProfile: BrokerProfile) => {
+    setEditingProfile(brokerProfile);
+    setViewMode('edit');
+  };
+
+  // Handle delete
+  const handleDeleteClick = (id: string) => {
+    setProfileToDelete(id);
+    setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
     if (profileToDelete) {
-      await deleteBrokerProfile(profileToDelete);
-      setDeleteDialogOpen(false);
-      setProfileToDelete(null);
-      loadProfiles();
+      const success = await deleteBrokerProfile(profileToDelete);
+      if (success) {
+        await loadProfiles();
+      }
     }
+    setDeleteDialogOpen(false);
+    setProfileToDelete(null);
   };
 
-  const getPhaseColor = (months: number) => {
-    if (months < 6) return 'bg-blue-100 text-blue-700';
-    if (months < 18) return 'bg-amber-100 text-amber-700';
-    return 'bg-green-100 text-green-700';
-  };
+  // Render list view
+  const renderListView = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Roadmap Generator</h1>
+          <p className="text-slate-500">Create strategic growth roadmaps for agents</p>
+        </div>
+        <Button
+          onClick={() => {
+            setEditingProfile(null);
+            setViewMode('new');
+          }}
+          className="bg-gold hover:bg-gold/90 text-white"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          New Roadmap
+        </Button>
+      </div>
 
-  const getPhaseName = (months: number) => {
-    if (months < 6) return 'Foundation';
-    if (months < 18) return 'Growth';
-    return 'Expansion';
-  };
+      {/* Loading state */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-gold" />
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && brokerProfiles.length === 0 && (
+        <div className="bg-white rounded-xl border border-[#E5E2DB] p-12 text-center">
+          <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">No roadmaps yet</h3>
+          <p className="text-slate-500 mb-6">Create your first agent roadmap to get started</p>
+          <Button
+            onClick={() => setViewMode('new')}
+            className="bg-gold hover:bg-gold/90 text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Roadmap
+          </Button>
+        </div>
+      )}
+
+      {/* Profile cards */}
+      {!loading && brokerProfiles.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {brokerProfiles.map((bp) => (
+            <div
+              key={bp.id}
+              className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* Card header */}
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-lg">{bp.broker_name}</h3>
+                  <p className="text-sm text-slate-500">{bp.manager_name}</p>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleEdit(bp)}>
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRegenerate(bp)}>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Regenerate PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteClick(bp.id!)}
+                      className="text-red-600"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="bg-slate-50 rounded-lg p-2 text-center">
+                  <Target className="w-4 h-4 text-gold mx-auto mb-1" />
+                  <p className="text-xs text-slate-500">Goal</p>
+                  <p className="font-semibold">{bp.monthly_goal}/mo</p>
+                </div>
+                <div className="bg-slate-50 rounded-lg p-2 text-center">
+                  <Users className="w-4 h-4 text-gold mx-auto mb-1" />
+                  <p className="text-xs text-slate-500">Book</p>
+                  <p className="font-semibold">{bp.book_size}</p>
+                </div>
+                <div className="bg-slate-50 rounded-lg p-2 text-center">
+                  <Sparkles className="w-4 h-4 text-gold mx-auto mb-1" />
+                  <p className="text-xs text-slate-500">Lead Star</p>
+                  <p className="font-semibold">{bp.lead_star_leads || 0}</p>
+                </div>
+              </div>
+
+              {/* Resources badges */}
+              <div className="flex flex-wrap gap-1 mb-4">
+                {bp.lead_star_leads > 0 && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                    Lead Star: {bp.lead_star_leads}/mo
+                  </span>
+                )}
+                {bp.seminar_eligible && (
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                    Seminars {bp.seminars_planned && bp.seminars_planned > 0 ? `(${bp.seminars_planned} planned)` : '(eligible)'}
+                  </span>
+                )}
+                {bp.mira_access && (
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                    MIRA Access
+                  </span>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+                {bp.last_generated_at ? (
+                  <span className="flex items-center gap-1">
+                    <FileText className="w-3 h-3" />
+                    Generated {formatDistanceToNow(new Date(bp.last_generated_at), { addSuffix: true })}
+                  </span>
+                ) : (
+                  <span className="text-amber-600">Not generated yet</span>
+                )}
+                {bp.review_date && (
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    Review: {format(new Date(bp.review_date), 'MMM d')}
+                  </span>
+                )}
+              </div>
+
+              {/* Generate button if generating */}
+              {generatingId === bp.id && (
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-center gap-2 text-sm text-gold">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating PDF...
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  // Render form view (new or edit)
+  const renderFormView = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          onClick={() => {
+            setViewMode('list');
+            setEditingProfile(null);
+          }}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold">
+            {viewMode === 'edit' ? 'Edit Roadmap' : 'New Roadmap'}
+          </h1>
+          <p className="text-slate-500">
+            {viewMode === 'edit'
+              ? `Editing roadmap for ${editingProfile?.broker_name}`
+              : 'Create a strategic growth roadmap for an agent'}
+          </p>
+        </div>
+      </div>
+
+      {/* Form */}
+      <BrokerProfileForm
+        initialData={editingProfile || undefined}
+        managerName={managerName}
+        managerId={managerId}
+        onSubmit={handleSubmit}
+        onGenerate={handleGenerate}
+        isSubmitting={saving}
+        isGenerating={generating}
+      />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+    <div className="min-h-screen flex flex-col bg-[#FAF9F7]">
       <Navigation />
 
       <main className="flex-1 pt-28 pb-12">
         <div className="container-narrow px-6 md:px-12 lg:px-20 max-w-5xl mx-auto">
-
-          {/* Header */}
-          <div className="mb-8">
-            {viewMode !== 'list' && (
-              <button
-                onClick={handleBack}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to list
-              </button>
-            )}
-
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-serif font-semibold text-foreground mb-1">
-                  {viewMode === 'list' && 'Strategic Roadmaps'}
-                  {viewMode === 'new' && 'Create Roadmap'}
-                  {viewMode === 'edit' && 'Edit Broker Profile'}
-                </h1>
-                <p className="text-muted-foreground">
-                  {viewMode === 'list' && 'Generate personalized growth roadmaps for your brokers'}
-                  {viewMode === 'new' && 'Enter broker information to generate a personalized roadmap'}
-                  {viewMode === 'edit' && `Editing ${editingProfile?.broker_name}`}
-                </p>
-              </div>
-
-              {viewMode === 'list' && (
-                <Button
-                  onClick={handleCreateNew}
-                  className="h-11 px-5 bg-gold hover:bg-gold/90 text-white"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Roadmap
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* List View */}
-          {viewMode === 'list' && (
-            <div className="space-y-4">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : brokerProfiles.length === 0 ? (
-                <div className="bg-white rounded-xl border border-[#E5E2DB] p-12 text-center shadow-sm">
-                  <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
-                    <FileText className="w-8 h-8 text-gold" />
-                  </div>
-                  <h3 className="text-lg font-medium text-foreground mb-2">No roadmaps yet</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Create your first broker roadmap to get started
-                  </p>
-                  <Button
-                    onClick={handleCreateNew}
-                    className="bg-gold hover:bg-gold/90 text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Roadmap
-                  </Button>
-                </div>
-              ) : (
-                brokerProfiles.map((bp) => (
-                  <div
-                    key={bp.id}
-                    className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm hover:border-gold/30 transition-colors"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-medium text-foreground">
-                            {bp.broker_name}
-                          </h3>
-                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${getPhaseColor(bp.months_in_business)}`}>
-                            {getPhaseName(bp.months_in_business)}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1.5">
-                            <Users className="w-4 h-4" />
-                            {bp.book_size} clients
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Target className="w-4 h-4" />
-                            {bp.monthly_goal} plans/mo goal
-                          </span>
-                          {bp.last_generated_at && (
-                            <span className="flex items-center gap-1.5">
-                              <Calendar className="w-4 h-4" />
-                              Generated {formatDistanceToNow(new Date(bp.last_generated_at), { addSuffix: true })}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleGenerateFromList(bp)}
-                          disabled={generatingId === bp.id}
-                          className="h-9"
-                        >
-                          {generatingId === bp.id ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          ) : (
-                            <Download className="w-4 h-4 mr-2" />
-                          )}
-                          {bp.last_generated_at ? 'Regenerate' : 'Generate'}
-                        </Button>
-
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEdit(bp.id!)}>
-                              <Pencil className="w-4 h-4 mr-2" />
-                              Edit Profile
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setProfileToDelete(bp.id!);
-                                setDeleteDialogOpen(true);
-                              }}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* Form View (New/Edit) */}
-          {(viewMode === 'new' || viewMode === 'edit') && (
-            <BrokerProfileForm
-              initialData={editingProfile || undefined}
-              managerName={managerName}
-              managerId={managerId}
-              onSubmit={handleSave}
-              onGenerate={handleGenerate}
-              isSubmitting={saving}
-              isGenerating={generating}
-            />
-          )}
-
+        {viewMode === 'list' && renderListView()}
+        {(viewMode === 'new' || viewMode === 'edit') && renderFormView()}
         </div>
       </main>
 
       <Footer />
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete confirmation dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Broker Profile?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Roadmap?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this broker profile and any associated roadmap data.
-              This action cannot be undone.
+              This will permanently delete this broker's roadmap profile. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
