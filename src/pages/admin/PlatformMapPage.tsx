@@ -57,8 +57,6 @@ export default function PlatformMapPage() {
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/super</code> — Super Admin Dashboard</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/agents</code> — Agents List</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/agents/new</code> — Create Agent</li>
-                <li><code className="bg-white px-2 py-0.5 rounded">/admin/managers</code> — Managers List</li>
-                <li><code className="bg-white px-2 py-0.5 rounded">/admin/managers/new</code> — Create Manager</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/users/:id</code> — User Detail Page</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/contracting</code> — Contracting Queue</li>
                 <li><code className="bg-white px-2 py-0.5 rounded">/admin/documents</code> — Document Management</li>
@@ -194,11 +192,11 @@ export default function PlatformMapPage() {
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-purple-100 border border-purple-300 rounded px-3 py-2">
-                Set contract level<br/>& upline
+                Set contract level<br/>& manager
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-blue-100 border border-blue-300 rounded px-3 py-2">
-                Send to Upline
+                Send to Manager
               </div>
               <span className="text-2xl">→</span>
               <div className="bg-amber-100 border border-amber-300 rounded px-3 py-2">
@@ -488,7 +486,7 @@ export default function PlatformMapPage() {
           <div className="mb-8 border-l-4 border-purple-500 pl-4">
             <div className="flex items-center gap-2 mb-3">
               <span className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">6</span>
-              <h3 className="font-bold text-lg">Head of Contracting Reviews & Sends to Upline</h3>
+              <h3 className="font-bold text-lg">Head of Contracting Reviews & Sends to Manager</h3>
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div className="bg-blue-50 rounded p-3">
@@ -501,8 +499,8 @@ export default function PlatformMapPage() {
                 <ul className="text-gray-600 mt-1 text-xs list-disc ml-4">
                   <li>Review submission details</li>
                   <li>Set contract level (Agent/Street)</li>
-                  <li>Select upline</li>
-                  <li>Click "Send to Upline"</li>
+                  <li>Select manager</li>
+                  <li>Click "Send to Manager"</li>
                 </ul>
               </div>
               <div className="bg-green-50 rounded p-3">

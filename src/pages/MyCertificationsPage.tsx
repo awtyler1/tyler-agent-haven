@@ -134,7 +134,7 @@ export default function MyCertificationsPage() {
                 </h3>
                 <p className="text-slate-500 max-w-md mx-auto">
                   Your certification status will appear here once your RTS data has been imported from Pinnacle.
-                  Contact your upline if you believe this is an error.
+                  Contact your manager if you believe this is an error.
                 </p>
               </CardContent>
             </Card>
@@ -217,7 +217,7 @@ export default function MyCertificationsPage() {
           {!loading && certifications.length > 0 && (
             <p className="text-center text-sm text-slate-500 mt-8">
               Certification data is imported from Pinnacle RTS reports.
-              Contact your upline for questions about your status.
+              Contact your manager for questions about your status.
             </p>
           )}
         </div>

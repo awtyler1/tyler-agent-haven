@@ -42,28 +42,12 @@ export default function NewAgentPage() {
   const fetchPotentialManagers = async () => {
     setLoadingManagers(true);
     try {
-      // Get users with manager, admin, or super_admin roles
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .in('role', ['manager', 'admin', 'super_admin']);
-
-      if (roleError) throw roleError;
-
-      const managerUserIds = roleData?.map((r) => r.user_id) || [];
-
-      if (managerUserIds.length === 0) {
-        setPotentialManagers([]);
-        setLoadingManagers(false);
-        return;
-      }
-
-      // Fetch profiles for these users
+      // Fetch all active, non-test profiles as potential managers
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, full_name, email')
-        .in('user_id', managerUserIds)
         .eq('is_active', true)
+        .or('is_test.is.null,is_test.eq.false')
         .order('full_name');
 
       if (profilesError) throw profilesError;
@@ -159,7 +143,7 @@ export default function NewAgentPage() {
 
   // Get manager name for display
   const selectedManagerName = formData.managerId !== NO_MANAGER
-    ? potentialManagers.find(m => m.id === formData.managerId)?.full_name || 'Unknown'
+    ? potentialManagers.find(u => u.id === formData.managerId)?.full_name || 'Unknown'
     : null;
 
   return (
@@ -190,7 +174,7 @@ export default function NewAgentPage() {
               <div>
                 <h2 className="font-semibold text-foreground">Agent Information</h2>
                 <p className="text-xs text-muted-foreground">
-                  Enter the agent's details and assign their upline
+                  Enter the agent's details and assign their manager
                 </p>
               </div>
             </div>
@@ -253,7 +237,7 @@ export default function NewAgentPage() {
                 <p className="text-xs text-muted-foreground">
                   {selectedManagerName
                     ? `This agent will report to ${selectedManagerName}`
-                    : 'This agent will report directly to TIG (no upline)'}
+                    : 'This agent will report directly to TIG (no manager)'}
                 </p>
               </div>
 

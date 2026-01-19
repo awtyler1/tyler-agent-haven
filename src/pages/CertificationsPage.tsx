@@ -343,7 +343,7 @@ const CertificationsPage = () => {
       "• AHIP must be completed BEFORE carrier certifications",
       "• All certifications expire annually and must be renewed",
       "• Keep certificates saved for compliance records",
-      "• Contact your upline with certification issues"
+      "• Contact your manager with certification issues"
     ];
 
     reminders.forEach(reminder => {

@@ -558,7 +558,7 @@ const ContractingHubPage = () => {
           ) : carrierRows.length === 0 ? (
             <div className="p-6 text-center">
               <Building2 className="h-5 w-5 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm text-slate-500">No carriers found. Contact your upline to get started.</p>
+              <p className="text-sm text-slate-500">No carriers found. Contact your manager to get started.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

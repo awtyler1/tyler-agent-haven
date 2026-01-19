@@ -140,10 +140,10 @@ const ROLE_DROPDOWN_LABELS: Record<AppRole, string> = {
 };
 
 // Roles that regular admins can assign (not super_admin or admin)
-const ADMIN_ASSIGNABLE_ROLES: AppRole[] = ['manager', 'internal_tig_agent', 'independent_agent'];
+const ADMIN_ASSIGNABLE_ROLES: AppRole[] = ['internal_tig_agent', 'independent_agent'];
 
 // All roles for super admins
-const ALL_ROLES: AppRole[] = ['super_admin', 'admin', 'manager', 'internal_tig_agent', 'independent_agent'];
+const ALL_ROLES: AppRole[] = ['super_admin', 'admin', 'internal_tig_agent', 'independent_agent'];
 
 interface LocationState {
   from?: string;
@@ -931,7 +931,7 @@ Tyler Insurance Group`;
 
     while (currentId) {
       if (currentId === profile.id) {
-        return true; // Found the current agent in the upline - cycle!
+        return true; // Found the current agent in the hierarchy - cycle!
       }
       if (visited.has(currentId)) {
         break; // Already visited, prevent infinite loop

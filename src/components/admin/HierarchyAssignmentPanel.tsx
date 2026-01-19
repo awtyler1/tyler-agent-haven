@@ -36,33 +36,16 @@ export function HierarchyAssignmentPanel({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Fetch potential managers (users who can have downlines)
+  // Fetch potential managers (any active profile can be a manager)
   useEffect(() => {
     async function fetchPotentialManagers() {
       setLoading(true);
 
       try {
-        // Get users with manager, admin, or super_admin roles
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .in('role', ['manager', 'admin', 'super_admin']);
-
-        if (roleError) throw roleError;
-
-        const managerUserIds = roleData?.map((r) => r.user_id) || [];
-
-        if (managerUserIds.length === 0) {
-          setPotentialManagers([]);
-          setLoading(false);
-          return;
-        }
-
-        // Fetch profiles for these users, excluding the current agent
+        // Fetch all active profiles, excluding the current agent
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
           .select('id, full_name, email')
-          .in('user_id', managerUserIds)
           .neq('id', profileId) // Can't report to yourself
           .eq('is_active', true)
           .order('full_name');
@@ -112,7 +95,7 @@ export function HierarchyAssignmentPanel({
 
   // Get the current manager's name for display
   const currentManagerName = managerId
-    ? potentialManagers.find((m) => m.id === managerId)?.full_name || 'Unknown'
+    ? potentialManagers.find((u) => u.id === managerId)?.full_name || 'Unknown'
     : null;
 
   if (loading) {
@@ -142,7 +125,7 @@ export function HierarchyAssignmentPanel({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="manager-select">Manager / Upline</Label>
+        <Label htmlFor="manager-select">Manager</Label>
         <Select
           value={managerId || NO_MANAGER}
           onValueChange={handleChange}
@@ -175,7 +158,7 @@ export function HierarchyAssignmentPanel({
           {currentManagerName ? (
             <>Reports to {currentManagerName}</>
           ) : (
-            <>Direct to TIG (no upline)</>
+            <>Direct to TIG (no manager)</>
           )}
         </p>
       </div>
