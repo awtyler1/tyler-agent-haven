@@ -1,3 +1,4 @@
+Initialising login role...
 export type Json =
   | string
   | number
@@ -11,6 +12,31 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -292,7 +318,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "carrier_statuses_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       carriers: {
         Row: {
@@ -882,13 +916,17 @@ export type Database = {
           first_login_at: string | null
           full_name: string | null
           id: string
+          invited_at: string | null
           is_active: boolean
           is_test: boolean | null
           manager_id: string | null
           npn: string | null
           onboarding_status: Database["public"]["Enums"]["onboarding_status"]
           password_created_at: string | null
+          phone: string | null
           setup_link_sent_at: string | null
+          state: string | null
+          team_reference: string | null
           updated_at: string
           user_id: string | null
         }
@@ -906,13 +944,17 @@ export type Database = {
           first_login_at?: string | null
           full_name?: string | null
           id?: string
+          invited_at?: string | null
           is_active?: boolean
           is_test?: boolean | null
           manager_id?: string | null
           npn?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
           password_created_at?: string | null
+          phone?: string | null
           setup_link_sent_at?: string | null
+          state?: string | null
+          team_reference?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -930,13 +972,17 @@ export type Database = {
           first_login_at?: string | null
           full_name?: string | null
           id?: string
+          invited_at?: string | null
           is_active?: boolean
           is_test?: boolean | null
           manager_id?: string | null
           npn?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
           password_created_at?: string | null
+          phone?: string | null
           setup_link_sent_at?: string | null
+          state?: string | null
+          team_reference?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -1060,11 +1106,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_has_downline: { Args: never; Returns: boolean }
       get_my_profile_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      has_downline: { Args: { profile_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1210,6 +1258,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: [

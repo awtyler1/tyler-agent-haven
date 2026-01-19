@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { 
-  ArrowLeft, 
-  Mail, 
-  User, 
-  Shield, 
-  Clock, 
-  Send, 
-  CheckCircle2, 
+import {
+  Mail,
+  User,
+  Shield,
+  Clock,
+  Send,
+  CheckCircle2,
   Circle,
   Loader2,
   FileText,
@@ -44,8 +43,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AgentDocumentsCard } from '@/components/admin/AgentDocumentsCard';
 
 interface UserProfile {
@@ -74,10 +72,10 @@ const roleLabels: Record<AppRole, string> = {
 };
 
 // Roles that Admins can assign (not Super Admin or Admin)
-const adminAssignableRoles: AppRole[] = ['manager', 'internal_tig_agent', 'independent_agent'];
+const adminAssignableRoles: AppRole[] = ['internal_tig_agent', 'independent_agent'];
 
 // All roles for Super Admins
-const allRoles: AppRole[] = ['super_admin', 'admin', 'manager', 'internal_tig_agent', 'independent_agent'];
+const allRoles: AppRole[] = ['super_admin', 'admin', 'internal_tig_agent', 'independent_agent'];
 
 const onboardingStatusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   CONTRACTING_REQUIRED: { label: 'Contracting Required', variant: 'destructive' },
@@ -337,13 +335,11 @@ export default function UserDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-        <Navigation />
+      <AdminLayout showBackButton backLabel="Back" onBack={() => navigate(-1)}>
         <div className="flex items-center justify-center py-24">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-        <Footer />
-      </div>
+      </AdminLayout>
     );
   }
 
@@ -354,23 +350,11 @@ export default function UserDetailPage() {
   const onboardingInfo = onboardingStatusLabels[user.onboarding_status] || { label: user.onboarding_status, variant: 'outline' as const };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-      <main className="flex-1 pt-28 pb-12">
-        <div className="container-narrow px-6 md:px-12 lg:px-20 max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate(-1)}
-              className="mb-4 hover:bg-gold/10"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            
-            <div className="flex items-start justify-between">
+    <AdminLayout showBackButton backLabel="Back" onBack={() => navigate(-1)}>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-3">
                   <h1 className="heading-section">{user.full_name || 'Unnamed User'}</h1>
@@ -686,9 +670,7 @@ export default function UserDetailPage() {
             <AgentDocumentsCard userId={user.user_id} />
           </div>
         )}
-        </div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

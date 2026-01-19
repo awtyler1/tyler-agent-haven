@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Edit2, Trash2, Loader2, Building2, Users } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, Building2, Users } from 'lucide-react';
 import { toast } from 'sonner';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 import {
   Table,
   TableBody,
@@ -38,6 +37,7 @@ interface HierarchyEntity {
 }
 
 export default function HierarchyManagementPage() {
+  const navigate = useNavigate();
   const [entities, setEntities] = useState<HierarchyEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -168,30 +168,18 @@ export default function HierarchyManagementPage() {
   const gas = entities.filter(e => e.entity_type === 'ga' && e.is_active);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-
-      <main className="flex-1 pt-28 pb-12">
-        <div className="container-narrow px-6 md:px-12 lg:px-20 max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <Link to="/admin">
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-serif font-semibold text-foreground">Hierarchy Management</h1>
-                <p className="text-sm text-muted-foreground">Manage teams, MGAs, and GAs for agent assignments</p>
-              </div>
-            </div>
-
-            <Button onClick={() => handleOpenDialog()} className="bg-gold hover:bg-gold/90 text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Entity
-            </Button>
-          </div>
+    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-serif font-medium text-foreground">Hierarchy Management</h1>
+          <p className="text-sm text-muted-foreground">Manage teams, MGAs, and GAs for agent assignments</p>
+        </div>
+        <Button onClick={() => handleOpenDialog()}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Entity
+        </Button>
+      </div>
 
           {/* Info Card */}
           <Card className="mb-6 border-[#E5E2DB]">
@@ -314,8 +302,6 @@ export default function HierarchyManagementPage() {
               </CardContent>
             </Card>
           )}
-        </div>
-      </main>
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -400,9 +386,7 @@ export default function HierarchyManagementPage() {
           </form>
         </DialogContent>
       </Dialog>
-
-      <Footer />
-    </div>
+    </AdminLayout>
   );
 }
 

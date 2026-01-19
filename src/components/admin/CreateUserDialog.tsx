@@ -54,10 +54,10 @@ const allRoleLabels: Record<AppRole, string> = {
 };
 
 // Roles that Admins can assign (not Super Admin or Admin)
-const adminAssignableRoles: AppRole[] = ['manager', 'internal_tig_agent', 'independent_agent'];
+const adminAssignableRoles: AppRole[] = ['internal_tig_agent', 'independent_agent'];
 
 // All roles for Super Admins
-const allRoles: AppRole[] = ['super_admin', 'admin', 'manager', 'internal_tig_agent', 'independent_agent'];
+const allRoles: AppRole[] = ['super_admin', 'admin', 'internal_tig_agent', 'independent_agent'];
 
 export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
   const [open, setOpen] = useState(false);

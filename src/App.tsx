@@ -38,12 +38,11 @@ import TrainingPage from "./pages/TrainingPage";
 
 // Agent-specific pages
 import ContractingPage from "./pages/ContractingPage";
+import MyProfilePage from "./pages/MyProfilePage";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AgentsPage from "./pages/admin/AgentsPage";
-import ManagersPage from "./pages/admin/ManagersPage";
-import NewManagerPage from "./pages/admin/NewManagerPage";
 import UserDetailPage from "./pages/admin/UserDetailPage";
 import PlatformMapPage from "./pages/admin/PlatformMapPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
@@ -57,6 +56,7 @@ import ActivityLogPage from "./pages/admin/ActivityLogPage";
 import RTSImportPage from "./pages/admin/RTSImportPage";
 import RoadmapGeneratorPage from "./pages/admin/RoadmapGeneratorPage";
 import AgentProfilePage from "./pages/admin/AgentProfilePage";
+import TeamDetailPage from "./pages/admin/TeamDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -181,27 +181,19 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/admin/managers" 
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <ManagersPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/managers/new" 
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <NewManagerPage />
-                </ProtectedRoute>
-              } 
-            />
             <Route
               path="/admin/agents/new"
               element={
                 <ProtectedRoute requireAdmin>
                   <NewAgentPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/agents/team/:profileId"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <TeamDetailPage />
                 </ProtectedRoute>
               }
             />
@@ -281,6 +273,7 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
+            <Route path="/my-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
             <Route path="/industry-updates" element={<ProtectedRoute><IndustryUpdatesPage /></ProtectedRoute>} />
             {/* Training Library */}
             <Route path="/training" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />

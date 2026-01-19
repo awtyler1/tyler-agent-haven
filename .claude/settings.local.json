@@ -19,7 +19,15 @@
       "Bash(npx ts-node:*)",
       "Bash(node -e:*)",
       "Bash(git rebase:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(supabase db push:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"=== {} ===\"\" && grep -A5 \"\"<Navigation\"\" {}')",
+      "Bash(powershell -Command:*)",
+      "Bash(curl:*)",
+      "Bash(del \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\decode_pdf.cjs\")",
+      "Bash(del \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\test_roadmap_response.json\")",
+      "Bash(ls:*)"
     ]
   }
 }

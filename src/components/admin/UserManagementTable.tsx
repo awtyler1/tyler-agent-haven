@@ -462,7 +462,6 @@ export function UserManagementTable() {
               <SelectItem value="all">All Roles</SelectItem>
               <SelectItem value="super_admin">Super Admin</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="manager">Manager</SelectItem>
               <SelectItem value="independent_agent">Agent</SelectItem>
               <SelectItem value="internal_tig_agent">TIG Agent</SelectItem>
             </SelectContent>
@@ -710,7 +709,6 @@ export function UserManagementTable() {
                 <SelectContent>
                   <SelectItem value="super_admin">Super Admin</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
                   <SelectItem value="independent_agent">Agent</SelectItem>
                   <SelectItem value="internal_tig_agent">TIG Agent</SelectItem>
                 </SelectContent>

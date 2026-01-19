@@ -1,179 +1,111 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import {
   Users,
   UserPlus,
   FileText,
-  AlertCircle,
-  ArrowRight,
-  Clock,
-  CheckCircle,
-  Settings,
-  RotateCcw,
-  Loader2,
-  Building2,
-  Activity,
+  Search,
   FileSpreadsheet,
-  Map
+  Building2,
+  ChevronRight,
+  Loader2,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import { toast } from 'sonner';
+import tylerLogo from '@/assets/tyler-logo.png';
 
 interface DashboardStats {
   totalAgents: number;
-  inContracting: number;
-  appointed: number;
 }
 
-interface AttentionItem {
+interface SearchResult {
   id: string;
-  userId: string;
-  name: string;
-  reason: string;
-  daysAgo: number;
-  type: 'contracting_stale' | 'issue' | 'new_submission';
-}
-
-interface RecentActivity {
-  id: string;
-  description: string;
-  timestamp: string;
+  full_name: string | null;
+  npn: string | null;
+  email: string | null;
+  onboarding_status: string | null;
+  manager_id: string | null;
+  manager_name?: string | null;
 }
 
 export default function AdminDashboard() {
-  const { profile, isSuperAdmin } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
     totalAgents: 0,
-    inContracting: 0,
-    appointed: 0,
   });
-  const [attentionItems, setAttentionItems] = useState<AttentionItem[]>([]);
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
-  const [newSubmissions, setNewSubmissions] = useState(0);
+  const [contractingQueueCount, setContractingQueueCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [resettingContracting, setResettingContracting] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const fetchDashboardData = async () => {
     try {
-      // Fetch profiles and roles (exclude test records)
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*')
-        .or('is_test.is.null,is_test.eq.false')
-        .order('created_at', { ascending: false });
-
+      // Get all roles to identify admins (to exclude)
       const { data: roles } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
-      if (!profiles || !roles) return;
+      // Create set of admin user_ids (only those with user_id)
+      const adminUserIds = new Set(
+        (roles || [])
+          .filter(r => r.role === 'admin' || r.role === 'super_admin')
+          .map(r => r.user_id)
+      );
 
-      const roleMap = roles.reduce((acc, r) => {
-        acc[r.user_id] = r.role;
-        return acc;
-      }, {} as Record<string, string>);
+      // Fetch all profiles (exclude test records)
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, user_id, onboarding_status, manager_id')
+        .or('is_test.is.null,is_test.eq.false');
 
-      // Filter to just agents
-      const agentRoles = ['independent_agent', 'internal_tig_agent'];
-      const agents = profiles.filter(p => agentRoles.includes(roleMap[p.user_id] || ''));
-
-      // Calculate stats
-      const inContracting = agents.filter(a => 
-        a.onboarding_status === 'CONTRACTING_REQUIRED' || 
-        a.onboarding_status === 'CONTRACTING_SUBMITTED'
-      ).length;
-
-      const appointed = agents.filter(a => a.onboarding_status === 'APPOINTED').length;
-
-      setStats({
-        totalAgents: agents.length,
-        inContracting,
-        appointed,
-      });
-
-      // Fetch contracting applications for attention items and new submissions (exclude test records)
-      const { data: applications } = await supabase
-        .from('contracting_applications')
-        .select('id, user_id, full_legal_name, status, submitted_at, updated_at')
-        .in('status', ['submitted', 'in_progress'])
-        .or('is_test.is.null,is_test.eq.false')
-        .order('submitted_at', { ascending: true });
-
-      if (applications) {
-        const now = new Date();
-        const attention: AttentionItem[] = [];
-
-        // Count new submissions
-        const newSubs = applications.filter(a => a.status === 'submitted').length;
-        setNewSubmissions(newSubs);
-
-        // Find stale applications (submitted more than 3 days ago)
-        applications.forEach(app => {
-          if (app.submitted_at) {
-            const submittedDate = new Date(app.submitted_at);
-            const daysAgo = Math.floor((now.getTime() - submittedDate.getTime()) / (1000 * 60 * 60 * 24));
-            
-            if (daysAgo >= 3 && app.status === 'submitted') {
-              attention.push({
-                id: app.id,
-                userId: app.user_id,
-                name: app.full_legal_name || 'Unknown',
-                reason: `Submitted ${daysAgo} days ago, not yet started`,
-                daysAgo,
-                type: 'contracting_stale',
-              });
-            }
-          }
+      if (profiles) {
+        // Count all profiles that are NOT admin/super_admin
+        // Include profiles with null user_id (imported agents without auth account)
+        const agents = profiles.filter(p => {
+          // If user_id is null, include them (imported agent)
+          if (!p.user_id) return true;
+          // If user_id exists, check it's not an admin
+          return !adminUserIds.has(p.user_id);
         });
 
-        // Check for carrier issues
-        const { data: carrierIssues } = await supabase
-          .from('carrier_statuses')
-          .select(`
-            id,
-            user_id,
-            issue_description,
-            carriers (name)
-          `)
-          .eq('contracting_status', 'issue');
-
-        if (carrierIssues) {
-          for (const issue of carrierIssues) {
-            const agent = profiles.find(p => p.user_id === issue.user_id);
-            if (agent) {
-              attention.push({
-                id: issue.id,
-                userId: issue.user_id,
-                name: agent.full_name || 'Unknown',
-                reason: `Issue with ${(issue.carriers as { name: string })?.name || 'carrier'}`,
-                daysAgo: 0,
-                type: 'issue',
-              });
-            }
-          }
-        }
-
-        setAttentionItems(attention.slice(0, 5)); // Show max 5
+        setStats({
+          totalAgents: agents.length,
+        });
       }
 
-      // Build recent activity from recent agents
-      const recentAgents = agents.slice(0, 5).map(agent => ({
-        id: agent.id,
-        description: `${agent.full_name || 'New agent'} added`,
-        timestamp: agent.created_at,
-      }));
-      setRecentActivity(recentAgents);
+      // Fetch contracting queue count
+      const { count } = await supabase
+        .from('contracting_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'submitted')
+        .or('is_test.is.null,is_test.eq.false');
+
+      setContractingQueueCount(count || 0);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -182,413 +114,304 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleResetContractingByEmail = async (email: string) => {
-    setResettingContracting(true);
+  // Debounced search function
+  const performSearch = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    setIsSearching(true);
     try {
-      // Find user by email from profiles table
-      const { data: profile, error: profileError } = await supabase
+      // Search profiles by name, NPN, or email (case insensitive)
+      const { data: results } = await supabase
         .from('profiles')
-        .select('user_id')
-        .eq('email', email.toLowerCase())
-        .maybeSingle();
+        .select('id, full_name, npn, email, onboarding_status, manager_id')
+        .or('is_test.is.null,is_test.eq.false')
+        .or(`full_name.ilike.%${query}%,npn.ilike.%${query}%,email.ilike.%${query}%`)
+        .limit(8);
 
-      if (profileError) {
-        throw new Error(`Failed to find user: ${profileError.message}`);
-      }
+      if (results && results.length > 0) {
+        // Get manager names for results that have manager_id
+        const managerIds = [...new Set(results.filter(r => r.manager_id).map(r => r.manager_id))];
 
-      if (!profile) {
-        throw new Error(`User with email ${email} not found`);
-      }
+        let managerMap: Record<string, string> = {};
+        if (managerIds.length > 0) {
+          const { data: managers } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .in('id', managerIds);
 
-      const userId = profile.user_id;
-
-      // Delete uploaded documents from storage (best-effort)
-      try {
-        const { data: files, error: listError } = await supabase.storage
-          .from('contracting-documents')
-          .list(userId);
-
-        if (!listError && files && files.length > 0) {
-          const filePaths = files.map((f) => `${userId}/${f.name}`);
-          await supabase.storage.from('contracting-documents').remove(filePaths);
-
-          // Also check for subdirectories (like contracting_packet/)
-          for (const file of files) {
-            if (!file.name.includes('.')) {
-              const { data: subFiles } = await supabase.storage
-                .from('contracting-documents')
-                .list(`${userId}/${file.name}`);
-
-              if (subFiles && subFiles.length > 0) {
-                const subPaths = subFiles.map((sf) => `${userId}/${file.name}/${sf.name}`);
-                await supabase.storage.from('contracting-documents').remove(subPaths);
-              }
-            }
+          if (managers) {
+            managerMap = managers.reduce((acc, m) => {
+              acc[m.id] = m.full_name || 'Unknown';
+              return acc;
+            }, {} as Record<string, string>);
           }
         }
-      } catch (e) {
-        console.warn('Storage cleanup skipped/failed:', e);
-      }
 
-      // Delete carrier_statuses for this user
-      const { error: carrierStatusError } = await supabase
-        .from('carrier_statuses')
-        .delete()
-        .eq('user_id', userId);
-      
-      if (carrierStatusError) {
-        console.warn('Failed to delete carrier_statuses:', carrierStatusError);
-      }
+        // Attach manager names to results
+        const enrichedResults = results.map(r => ({
+          ...r,
+          manager_name: r.manager_id ? managerMap[r.manager_id] : null,
+        }));
 
-      // Reset contracting_applications
-      const { data: existingApp, error: fetchAppError } = await supabase
-        .from('contracting_applications')
-        .select('id')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (fetchAppError) {
-        throw new Error(`Failed to fetch application: ${fetchAppError.message}`);
-      }
-
-      const resetPayload = {
-        status: 'in_progress',
-        submitted_at: null,
-        current_step: 1,
-        completed_steps: [],
-
-        // form fields
-        full_legal_name: null,
-        agency_name: null,
-        agency_tax_id: null,
-        gender: null,
-        birth_date: null,
-        birth_city: null,
-        birth_state: null,
-        npn_number: null,
-        insurance_license_number: null,
-        tax_id: null,
-        email_address: email,
-        phone_mobile: null,
-        phone_business: null,
-        phone_home: null,
-        fax: null,
-        preferred_contact_methods: [],
-
-        home_address: {},
-        mailing_address_same_as_home: true,
-        mailing_address: {},
-        ups_address_same_as_home: true,
-        ups_address: {},
-        previous_addresses: [],
-
-        resident_license_number: null,
-        resident_state: null,
-        license_expiration_date: null,
-        non_resident_states: [],
-        drivers_license_number: null,
-        drivers_license_state: null,
-
-        legal_questions: {},
-
-        bank_routing_number: null,
-        bank_account_number: null,
-        bank_branch_name: null,
-        beneficiary_name: null,
-        beneficiary_relationship: null,
-        beneficiary_birth_date: null,
-        beneficiary_drivers_license_number: null,
-        beneficiary_drivers_license_state: null,
-        requesting_commission_advancing: false,
-
-        has_aml_course: null,
-        aml_course_name: null,
-        aml_course_date: null,
-        aml_training_provider: null,
-        aml_completion_date: null,
-        has_ltc_certification: false,
-        state_requires_ce: false,
-        eo_not_yet_covered: false,
-        eo_provider: null,
-        eo_policy_number: null,
-        eo_expiration_date: null,
-        is_finra_registered: false,
-        finra_broker_dealer_name: null,
-        finra_crd_number: null,
-
-        selected_carriers: [],
-        is_corporation: false,
-        agreements: {},
-
-        signature_name: null,
-        signature_initials: null,
-        signature_date: null,
-
-        section_acknowledgments: {},
-        uploaded_documents: {},
-      };
-
-      if (existingApp?.id) {
-        const { error: resetError } = await supabase
-          .from('contracting_applications')
-          .update(resetPayload)
-          .eq('id', existingApp.id);
-        if (resetError) {
-          throw new Error(`Failed to update application: ${resetError.message}`);
-        }
+        setSearchResults(enrichedResults);
+        setShowResults(true);
       } else {
-        const { error: createError } = await supabase
-          .from('contracting_applications')
-          .insert({ user_id: userId, ...resetPayload } as never);
-        if (createError) {
-          throw new Error(`Failed to create application: ${createError.message}`);
-        }
+        setSearchResults([]);
+        setShowResults(true);
       }
-
-      // Reset profile onboarding status
-      const { error: profileUpdateError } = await supabase
-        .from('profiles')
-        .update({ onboarding_status: 'CONTRACTING_REQUIRED' })
-        .eq('user_id', userId);
-      
-      if (profileUpdateError) {
-        throw new Error(`Failed to update profile: ${profileUpdateError.message}`);
-      }
-
-      toast.success(`Contracting status reset for ${email}`);
     } catch (error) {
-      console.error('Error resetting contracting status:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to reset contracting status';
-      toast.error(errorMessage);
+      console.error('Search error:', error);
     } finally {
-      setResettingContracting(false);
+      setIsSearching(false);
+    }
+  }, []);
+
+  // Handle search input change with debounce
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      performSearch(query);
+    }, 300);
+  };
+
+  // Get initials from name
+  const getInitials = (name: string | null) => {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  // Get status badge styling
+  const getStatusBadge = (status: string | null) => {
+    switch (status) {
+      case 'APPOINTED':
+        return { label: 'Appointed', className: 'bg-green-100 text-green-700' };
+      case 'CONTRACTING_SUBMITTED':
+        return { label: 'Submitted', className: 'bg-amber-100 text-amber-700' };
+      case 'CONTRACTING_REQUIRED':
+        return { label: 'Pending', className: 'bg-gray-100 text-gray-600' };
+      default:
+        return { label: status || 'Unknown', className: 'bg-gray-100 text-gray-600' };
     }
   };
 
-  const firstName = profile?.full_name?.split(' ')[0] || 'there';
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+      {/* Header */}
+      <header className="border-b border-border bg-background/95 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center">
+            <img src={tylerLogo} alt="Tyler Insurance Group" className="h-12 w-auto" />
+          </Link>
 
-      <main className="flex-1 pt-28 pb-12">
-        <div className="container-narrow px-6 md:px-12 lg:px-20 max-w-4xl mx-auto">
-          
-          {/* Header */}
-          <div className="mb-10">
-            <h1 className="text-3xl font-serif font-semibold text-foreground mb-1">
-              Welcome back, {firstName}
-            </h1>
-            <p className="text-muted-foreground">
-              Here's what's happening with your agents
-            </p>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground hidden sm:block">
+              {profile?.full_name}
+            </span>
+            <UserAvatarDropdown />
           </div>
+        </div>
+      </header>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mb-10">
-            <div className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-gold" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold text-foreground">{stats.totalAgents}</p>
-                  <p className="text-sm text-muted-foreground">Total Agents</p>
-                </div>
-              </div>
+      <main className="max-w-3xl mx-auto px-6 py-12">
+        {/* Search Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl md:text-4xl font-serif font-medium text-foreground mb-2">
+            Find an Agent
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            Search by name, NPN, or email
+          </p>
+
+          {/* Search Input */}
+          <div className="relative max-w-xl mx-auto" ref={searchRef}>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
+                placeholder="Start typing to search..."
+                className="w-full h-14 pl-12 pr-4 text-base bg-white border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+              {isSearching && (
+                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground animate-spin" />
+              )}
             </div>
 
-            <div className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-amber-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold text-foreground">{stats.inContracting}</p>
-                  <p className="text-sm text-muted-foreground">In Contracting</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold text-foreground">{stats.appointed}</p>
-                  <p className="text-sm text-muted-foreground">Appointed</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Needs Attention */}
-          {attentionItems.length > 0 && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-10">
-              <h2 className="text-sm font-medium text-amber-800 mb-3 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                Needs Attention
-              </h2>
-              <div className="space-y-2">
-                {attentionItems.map((item, index) => (
-                  <div key={item.id} className="flex items-center justify-between py-2 border-b border-amber-200 last:border-0">
-                    <AlertCircle className="w-4 h-4 text-amber-600 mr-3 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-amber-900">{item.name}</p>
-                      <p className="text-xs text-amber-700">{item.reason}</p>
+            {/* Search Results Dropdown */}
+            {showResults && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-xl shadow-elevated overflow-hidden z-50">
+                {searchResults.length > 0 ? (
+                  <>
+                    <div className="max-h-80 overflow-y-auto">
+                      {searchResults.map((result) => {
+                        const status = getStatusBadge(result.onboarding_status);
+                        return (
+                          <button
+                            key={result.id}
+                            onClick={() => {
+                              navigate(`/admin/agents/${result.id}`);
+                              setShowResults(false);
+                              setSearchQuery('');
+                            }}
+                            className="w-full px-4 py-3 flex items-center gap-3 hover:bg-muted/50 transition-colors text-left border-b border-border last:border-0"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium flex-shrink-0">
+                              {getInitials(result.full_name)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {result.full_name || 'No name'}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {result.npn ? `NPN: ${result.npn}` : result.email}
+                                {result.manager_name && ` · ${result.manager_name}`}
+                              </p>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${status.className}`}>
+                              {status.label}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
-                    <ArrowRight className="w-4 h-4 text-amber-600 ml-2 flex-shrink-0" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Quick Actions */}
-          <div className="mb-10">
-            <h2 className="text-sm font-medium text-muted-foreground mb-3">
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button
-                onClick={() => navigate('/admin/agents/new')}
-                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
-                variant="outline"
-              >
-                <UserPlus className="w-6 h-6 text-gold" />
-                Add Agent
-              </Button>
-
-              <Button
-                onClick={() => navigate('/admin/contracting')}
-                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm relative"
-                variant="outline"
-              >
-                <FileText className="w-6 h-6 text-gold" />
-                Contracting Queue
-                {newSubmissions > 0 && (
-                  <span className="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {newSubmissions}
-                  </span>
-                )}
-              </Button>
-
-              <Button
-                onClick={() => navigate('/admin/agents')}
-                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
-                variant="outline"
-              >
-                <Users className="w-6 h-6 text-gold" />
-                All Agents
-              </Button>
-
-              <Button
-                onClick={() => navigate('/admin/hierarchy')}
-                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
-                variant="outline"
-              >
-                <Building2 className="w-6 h-6 text-gold" />
-                Hierarchy
-              </Button>
-
-              <Button
-                onClick={() => navigate('/admin/rts-import')}
-                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
-                variant="outline"
-              >
-                <FileSpreadsheet className="w-6 h-6 text-gold" />
-                RTS Import
-              </Button>
-
-              <Button
-                onClick={() => navigate('/admin/roadmaps')}
-                className="h-auto py-6 flex flex-col items-center gap-2 bg-white border border-[#E5E2DB] text-foreground hover:border-gold hover:bg-gold/5 shadow-sm"
-                variant="outline"
-              >
-                <Map className="w-6 h-6 text-gold" />
-                Roadmaps
-              </Button>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          {recentActivity.length > 0 && (
-            <div className="mb-10">
-              <h2 className="text-sm font-medium text-muted-foreground mb-3">
-                Recent Activity
-              </h2>
-              <div className="bg-white rounded-xl border border-[#E5E2DB] divide-y divide-[#E5E2DB]">
-                {recentActivity.map((activity, index) => (
-                  <div key={activity.id} className="px-4 py-3 flex items-center justify-between">
-                    <p className="text-sm text-foreground">{activity.description}</p>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Super Admin Tools */}
-          {isSuperAdmin() && (
-            <div className="mb-10">
-              <h2 className="text-sm font-medium text-muted-foreground mb-3">
-                Super Admin Tools
-              </h2>
-              <div className="bg-white rounded-xl border border-[#E5E2DB] p-5">
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground mb-1">Reset Contracting Status</p>
-                    <p className="text-xs text-muted-foreground">Enter the email address to reset contracting status</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="email"
-                      value={resetEmail}
-                      onChange={(e) => setResetEmail(e.target.value)}
-                      placeholder="user@example.com"
-                      className="flex-1 px-3 py-2 text-sm border border-[#E5E2DB] rounded-md focus:outline-none focus:ring-2 focus:ring-gold/20"
-                    />
-                    <Button
-                      onClick={() => resetEmail && handleResetContractingByEmail(resetEmail)}
-                      disabled={resettingContracting || !resetEmail}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-2"
+                    <Link
+                      to="/admin/agents?tab=all"
+                      onClick={() => setShowResults(false)}
+                      className="block px-4 py-3 text-sm text-primary font-medium hover:bg-muted/50 transition-colors border-t border-border text-center"
                     >
-                      {resettingContracting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <RotateCcw className="h-4 w-4" />
-                      )}
-                      Reset
-                    </Button>
+                      View all agents
+                    </Link>
+                  </>
+                ) : (
+                  <div className="px-4 py-8 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {searchQuery.length >= 2 ? 'No agents found' : 'Type at least 2 characters'}
+                    </p>
                   </div>
-                </div>
+                )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        </div>
 
-          {/* Super Admin Links */}
-          {isSuperAdmin() && (
-            <div className="flex items-center justify-center gap-6">
-              <Link to="/admin/activity-log" className="text-sm text-muted-foreground hover:text-gold inline-flex items-center gap-1">
-                <Activity className="w-4 h-4" />
-                Activity Log
-              </Link>
-              <Link to="/admin/settings" className="text-sm text-muted-foreground hover:text-gold inline-flex items-center gap-1">
-                <Settings className="w-4 h-4" />
-                System Settings
-              </Link>
-            </div>
-          )}
+        {/* Quick Access Grid */}
+        <div className="mb-8">
+          <h2 className="text-sm font-medium text-muted-foreground mb-4 text-center">
+            Quick Access
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Contracting */}
+            <Card
+              className="group cursor-pointer hover:border-primary/30 hover:shadow-lg transition-all"
+              onClick={() => navigate('/admin/contracting')}
+            >
+              <div className="p-5 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-6 h-6 text-amber-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-foreground">Contracting</p>
+                    {contractingQueueCount > 0 && (
+                      <span className="px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full">
+                        {contractingQueueCount}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">Process applications</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </Card>
 
+            {/* RTS Import */}
+            <Card
+              className="group cursor-pointer hover:border-primary/30 hover:shadow-lg transition-all"
+              onClick={() => navigate('/admin/rts-import')}
+            >
+              <div className="p-5 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <FileSpreadsheet className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground">RTS Import</p>
+                  <p className="text-sm text-muted-foreground">Upload carrier data</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </Card>
+
+            {/* All Agents */}
+            <Card
+              className="group cursor-pointer hover:border-primary/30 hover:shadow-lg transition-all"
+              onClick={() => navigate('/admin/agents?tab=all')}
+            >
+              <div className="p-5 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground">All Agents</p>
+                  <p className="text-sm text-muted-foreground">View full directory</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </Card>
+
+            {/* Teams */}
+            <Card
+              className="group cursor-pointer hover:border-primary/30 hover:shadow-lg transition-all"
+              onClick={() => navigate('/admin/agents?tab=teams')}
+            >
+              <div className="p-5 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <Building2 className="w-6 h-6 text-green-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground">Teams</p>
+                  <p className="text-sm text-muted-foreground">Manager hierarchy</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* Add New Agent Button */}
+        <div className="flex justify-center mb-12">
+          <Button
+            onClick={() => navigate('/admin/agents/new')}
+            className="gap-2"
+            size="lg"
+          >
+            <UserPlus className="w-5 h-5" />
+            Add New Agent
+          </Button>
+        </div>
+
+        {/* Stats Footer */}
+        <div className="border-t border-border pt-8">
+          <div className="text-center">
+            <p className="text-3xl font-semibold text-foreground">
+              {loading ? '—' : stats.totalAgents}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">Total Agents</p>
+          </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -15,6 +15,7 @@ export function useRole() {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [primaryRole, setPrimaryRole] = useState<AppRole | null>(null);
+  const [hasDownlineValue, setHasDownlineValue] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -26,10 +27,12 @@ export function useRole() {
         if (session?.user) {
           setTimeout(() => {
             fetchRoles(session.user.id);
+            fetchDownlineStatus();
           }, 0);
         } else {
           setRoles([]);
           setPrimaryRole(null);
+          setHasDownlineValue(false);
           setLoading(false);
         }
       }
@@ -39,6 +42,7 @@ export function useRole() {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchRoles(session.user.id);
+        fetchDownlineStatus();
       } else {
         setLoading(false);
       }
@@ -71,6 +75,21 @@ export function useRole() {
     }
   };
 
+  const fetchDownlineStatus = async () => {
+    try {
+      const { data, error } = await supabase.rpc('current_user_has_downline');
+      if (error) {
+        console.error('Error checking downline status:', error);
+        setHasDownlineValue(false);
+        return;
+      }
+      setHasDownlineValue(data === true);
+    } catch (err) {
+      console.error('Error checking downline status:', err);
+      setHasDownlineValue(false);
+    }
+  };
+
   const hasRole = (role: AppRole): boolean => roles.includes(role);
   
   const isAdmin = (): boolean => 
@@ -88,15 +107,18 @@ export function useRole() {
   
   const isInternalTigAgent = (): boolean => hasRole('internal_tig_agent');
 
+  const hasDownline = (): boolean => hasDownlineValue;
+
   const canAccessAdmin = (): boolean => isAdmin();
-  
+
   const canManageAgents = (): boolean => isAdmin();
-  
-  const canViewTeam = (): boolean => isManager() || isAdmin();
+
+  const canViewTeam = (): boolean => hasDownline() || isAdmin();
 
   const refetch = () => {
     if (user?.id) {
       fetchRoles(user.id);
+      fetchDownlineStatus();
     }
   };
 
@@ -114,6 +136,7 @@ export function useRole() {
     isAgent,
     isIndependentAgent,
     isInternalTigAgent,
+    hasDownline,
     canAccessAdmin,
     canManageAgents,
     canViewTeam,

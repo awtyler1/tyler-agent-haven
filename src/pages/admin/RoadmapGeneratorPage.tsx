@@ -2,17 +2,16 @@
 // V5 - Roadmap Generator with goal-driven profiles
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useRoadmapGenerator } from '@/hooks/useRoadmapGenerator';
 import { BrokerProfileForm } from '@/components/roadmap/BrokerProfileForm';
 import { BrokerProfile } from '@/types/roadmap';
 import { Button } from '@/components/ui/button';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 import {
   Plus,
   FileText,
-  Download,
   ArrowLeft,
   Calendar,
   Users,
@@ -45,6 +44,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 type ViewMode = 'list' | 'new' | 'edit';
 
 export default function RoadmapGeneratorPage() {
+  const navigate = useNavigate();
   const { profile } = useAuth();
   const {
     generating,
@@ -161,15 +161,14 @@ export default function RoadmapGeneratorPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Roadmap Generator</h1>
-          <p className="text-slate-500">Create strategic growth roadmaps for agents</p>
+          <h1 className="text-2xl font-serif font-medium text-foreground">Roadmap Generator</h1>
+          <p className="text-muted-foreground">Create strategic growth roadmaps for agents</p>
         </div>
         <Button
           onClick={() => {
             setEditingProfile(null);
             setViewMode('new');
           }}
-          className="bg-gold hover:bg-gold/90 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
           New Roadmap
@@ -179,20 +178,17 @@ export default function RoadmapGeneratorPage() {
       {/* Loading state */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-gold" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       )}
 
       {/* Empty state */}
       {!loading && brokerProfiles.length === 0 && (
-        <div className="bg-white rounded-xl border border-[#E5E2DB] p-12 text-center">
-          <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+        <div className="bg-white rounded-xl border border-border p-12 text-center">
+          <FileText className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
           <h3 className="text-lg font-medium mb-2">No roadmaps yet</h3>
-          <p className="text-slate-500 mb-6">Create your first agent roadmap to get started</p>
-          <Button
-            onClick={() => setViewMode('new')}
-            className="bg-gold hover:bg-gold/90 text-white"
-          >
+          <p className="text-muted-foreground mb-6">Create your first agent roadmap to get started</p>
+          <Button onClick={() => setViewMode('new')}>
             <Plus className="w-4 h-4 mr-2" />
             Create Roadmap
           </Button>
@@ -205,13 +201,13 @@ export default function RoadmapGeneratorPage() {
           {brokerProfiles.map((bp) => (
             <div
               key={bp.id}
-              className="bg-white rounded-xl border border-[#E5E2DB] p-5 shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow"
             >
               {/* Card header */}
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <h3 className="font-semibold text-lg">{bp.broker_name}</h3>
-                  <p className="text-sm text-slate-500">{bp.manager_name}</p>
+                  <p className="text-sm text-muted-foreground">{bp.manager_name}</p>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -241,19 +237,19 @@ export default function RoadmapGeneratorPage() {
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-2 mb-4">
-                <div className="bg-slate-50 rounded-lg p-2 text-center">
-                  <Target className="w-4 h-4 text-gold mx-auto mb-1" />
-                  <p className="text-xs text-slate-500">Goal</p>
+                <div className="bg-muted/50 rounded-lg p-2 text-center">
+                  <Target className="w-4 h-4 text-primary mx-auto mb-1" />
+                  <p className="text-xs text-muted-foreground">Goal</p>
                   <p className="font-semibold">{bp.monthly_goal}/mo</p>
                 </div>
-                <div className="bg-slate-50 rounded-lg p-2 text-center">
-                  <Users className="w-4 h-4 text-gold mx-auto mb-1" />
-                  <p className="text-xs text-slate-500">Book</p>
+                <div className="bg-muted/50 rounded-lg p-2 text-center">
+                  <Users className="w-4 h-4 text-primary mx-auto mb-1" />
+                  <p className="text-xs text-muted-foreground">Book</p>
                   <p className="font-semibold">{bp.book_size}</p>
                 </div>
-                <div className="bg-slate-50 rounded-lg p-2 text-center">
-                  <Sparkles className="w-4 h-4 text-gold mx-auto mb-1" />
-                  <p className="text-xs text-slate-500">Lead Star</p>
+                <div className="bg-muted/50 rounded-lg p-2 text-center">
+                  <Sparkles className="w-4 h-4 text-primary mx-auto mb-1" />
+                  <p className="text-xs text-muted-foreground">Lead Star</p>
                   <p className="font-semibold">{bp.lead_star_leads || 0}</p>
                 </div>
               </div>
@@ -278,7 +274,7 @@ export default function RoadmapGeneratorPage() {
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/50">
                 {bp.last_generated_at ? (
                   <span className="flex items-center gap-1">
                     <FileText className="w-3 h-3" />
@@ -297,8 +293,8 @@ export default function RoadmapGeneratorPage() {
 
               {/* Generate button if generating */}
               {generatingId === bp.id && (
-                <div className="mt-3 pt-3 border-t border-slate-100">
-                  <div className="flex items-center justify-center gap-2 text-sm text-gold">
+                <div className="mt-3 pt-3 border-t border-border/50">
+                  <div className="flex items-center justify-center gap-2 text-sm text-primary">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Generating PDF...
                   </div>
@@ -327,10 +323,10 @@ export default function RoadmapGeneratorPage() {
           Back
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-serif font-medium text-foreground">
             {viewMode === 'edit' ? 'Edit Roadmap' : 'New Roadmap'}
           </h1>
-          <p className="text-slate-500">
+          <p className="text-muted-foreground">
             {viewMode === 'edit'
               ? `Editing roadmap for ${editingProfile?.broker_name}`
               : 'Create a strategic growth roadmap for an agent'}
@@ -352,17 +348,9 @@ export default function RoadmapGeneratorPage() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F7]">
-      <Navigation />
-
-      <main className="flex-1 pt-28 pb-12">
-        <div className="container-narrow px-6 md:px-12 lg:px-20 max-w-5xl mx-auto">
-        {viewMode === 'list' && renderListView()}
-        {(viewMode === 'new' || viewMode === 'edit') && renderFormView()}
-        </div>
-      </main>
-
-      <Footer />
+    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+      {viewMode === 'list' && renderListView()}
+      {(viewMode === 'new' || viewMode === 'edit') && renderFormView()}
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -384,6 +372,6 @@ export default function RoadmapGeneratorPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminLayout>
   );
 }

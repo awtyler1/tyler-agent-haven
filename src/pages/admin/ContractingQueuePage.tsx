@@ -1,40 +1,24 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { formatDistanceToNow, format } from 'date-fns';
 import {
   Search,
-  Clock,
   CheckCircle2,
-  AlertCircle,
   Send,
-  Users,
   Eye,
-  Mail,
   FileText,
-  MoreHorizontal,
   X,
   ExternalLink,
   Loader2,
-  PartyPopper
+  PartyPopper,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
-import Navigation from '@/components/Navigation';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Tooltip,
   TooltipContent,
@@ -49,17 +33,17 @@ import { logActivity, ActivityAction, EntityType } from '@/utils/activityLogger'
 
 // Types
 type QueueStatus = 'needs_action' | 'in_progress' | 'sent_to_pinnacle' | 'completed';
-type FilterStatus = QueueStatus | 'all';
 
 interface QueueAgent {
   id: string;
   user_id: string;
-  profile_id: string | null;  // Profile ID for linking to agent profile page
+  profile_id: string | null;
   full_legal_name: string | null;
   npn_number: string | null;
   resident_state: string | null;
   queue_status: QueueStatus;
   submitted_at: string | null;
+  sent_to_pinnacle_at: string | null;
   email_address: string | null;
   phone_mobile: string | null;
   requested_carriers: string[];
@@ -80,12 +64,10 @@ const DOCUMENT_LABELS: Record<string, string> = {
   background_explanation: 'Background Documentation',
 };
 
-// Helper to get document label, including non-resident licenses
 const getDocumentLabel = (key: string): string | null => {
   if (DOCUMENT_LABELS[key]) {
     return DOCUMENT_LABELS[key];
   }
-  // Handle non-resident license pattern: non_resident_license_XX
   if (key.startsWith('non_resident_license_')) {
     const stateCode = key.replace('non_resident_license_', '');
     const stateName = US_STATES.find(s => s.code === stateCode)?.name || stateCode;
@@ -94,7 +76,6 @@ const getDocumentLabel = (key: string): string | null => {
   return null;
 };
 
-// Names must match RTS import names exactly to avoid duplicates on My Carriers page
 const AVAILABLE_CARRIERS = [
   { code: 'aetna', name: 'Aetna' },
   { code: 'humana', name: 'Humana' },
@@ -110,52 +91,6 @@ const AVAILABLE_CARRIERS = [
 
 const KY_CARRIER_CODES = ['aetna', 'anthem', 'devoted', 'humana', 'uhc', 'wellcare', 'essence'];
 
-const STATUS_CONFIG: Record<QueueStatus, { label: string; color: string; bgColor: string }> = {
-  needs_action: { label: 'Needs Action', color: 'text-red-700', bgColor: 'bg-red-50 border-red-200' },
-  in_progress: { label: 'In Progress', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200' },
-  sent_to_pinnacle: { label: 'Sent to Pinnacle', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200' },
-  completed: { label: 'Completed', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200' },
-};
-
-// Stat Card Component
-function StatCard({
-  label,
-  count,
-  icon: Icon,
-  color,
-  isActive,
-  onClick,
-}: {
-  label: string;
-  count: number;
-  icon: typeof Clock;
-  color: string;
-  isActive?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all min-w-[140px]",
-        isActive
-          ? "bg-slate-900 border-slate-900 text-white"
-          : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-sm"
-      )}
-    >
-      <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : color)} />
-      <div className="text-left">
-        <p className={cn("text-xl font-semibold leading-none", isActive ? "text-white" : "text-slate-900")}>
-          {count}
-        </p>
-        <p className={cn("text-xs mt-0.5", isActive ? "text-slate-300" : "text-slate-500")}>
-          {label}
-        </p>
-      </div>
-    </button>
-  );
-}
-
 // Document Preview Modal Component
 function DocumentPreview({
   url,
@@ -170,14 +105,10 @@ function DocumentPreview({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-
-      {/* Modal */}
       <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-in zoom-in-95 fade-in duration-200">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-          <h3 className="font-medium text-slate-900">{label}</h3>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <h3 className="font-medium text-foreground">{label}</h3>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -193,9 +124,7 @@ function DocumentPreview({
             </Button>
           </div>
         </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-auto bg-slate-100 min-h-[400px]">
+        <div className="flex-1 overflow-auto bg-muted min-h-[400px]">
           {isImage ? (
             <div className="flex items-center justify-center p-4 h-full">
               <img
@@ -221,15 +150,15 @@ function DocumentPreview({
 function DetailPanel({
   agent,
   onClose,
-  onStatusChange,
   onCarriersChange,
   onSendToPinnacle,
+  onMarkComplete,
 }: {
   agent: QueueAgent;
   onClose: () => void;
-  onStatusChange: (agentId: string, status: QueueStatus) => void;
   onCarriersChange: (agentId: string, carriers: string[]) => void;
   onSendToPinnacle: (agent: QueueAgent) => void;
+  onMarkComplete: (agentId: string) => void;
 }) {
   const [loadingDoc, setLoadingDoc] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<{ url: string; label: string } | null>(null);
@@ -244,7 +173,7 @@ function DetailPanel({
     try {
       const { data, error } = await supabase.storage
         .from('contracting-documents')
-        .createSignedUrl(path, 300); // URL valid for 5 minutes
+        .createSignedUrl(path, 300);
 
       if (error) throw error;
       if (!data?.signedUrl) throw new Error('Failed to create signed URL');
@@ -268,17 +197,17 @@ function DetailPanel({
     onCarriersChange(agent.id, newCarriers);
   };
 
-  const canSendToPinnacle = agent.queue_status === 'needs_action' || agent.queue_status === 'in_progress';
+  const isCompleted = agent.queue_status === 'completed' || agent.queue_status === 'sent_to_pinnacle';
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[400px] bg-white shadow-xl border-l border-slate-200 z-50 flex flex-col animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-y-0 right-0 w-[400px] bg-white shadow-xl border-l border-border z-50 flex flex-col animate-in slide-in-from-right duration-200">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-slate-200 flex items-start justify-between gap-3">
+      <div className="px-4 py-3 border-b border-border flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h2 className="font-semibold text-slate-900 truncate">
+          <h2 className="font-semibold text-foreground truncate">
             {agent.full_legal_name || 'Unnamed Agent'}
           </h2>
-          <p className="text-xs text-slate-500 truncate">
+          <p className="text-xs text-muted-foreground truncate">
             NPN: {agent.npn_number || 'N/A'} · {agent.resident_state || 'N/A'}
           </p>
         </div>
@@ -287,36 +216,26 @@ function DetailPanel({
         </Button>
       </div>
 
-      {/* Status & Contact */}
-      <div className="px-4 py-3 border-b border-slate-200 space-y-2">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-slate-500 w-14">Status</span>
-          <Select
-            value={agent.queue_status}
-            onValueChange={(value) => onStatusChange(agent.id, value as QueueStatus)}
-          >
-            <SelectTrigger className="h-8 flex-1 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(STATUS_CONFIG).map(([value, config]) => (
-                <SelectItem key={value} value={value} className="text-xs">
-                  {config.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Contact Info */}
+      <div className="px-4 py-3 border-b border-border space-y-2">
         {agent.email_address && (
           <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-slate-500 w-14">Email</span>
-            <span className="text-xs text-slate-700 truncate">{agent.email_address}</span>
+            <span className="text-xs font-medium text-muted-foreground w-14">Email</span>
+            <span className="text-xs text-foreground truncate">{agent.email_address}</span>
           </div>
         )}
         {agent.phone_mobile && (
           <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-slate-500 w-14">Phone</span>
-            <span className="text-xs text-slate-700">{agent.phone_mobile}</span>
+            <span className="text-xs font-medium text-muted-foreground w-14">Phone</span>
+            <span className="text-xs text-foreground">{agent.phone_mobile}</span>
+          </div>
+        )}
+        {agent.submitted_at && (
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-medium text-muted-foreground w-14">Submitted</span>
+            <span className="text-xs text-foreground">
+              {format(new Date(agent.submitted_at), 'MMM d, yyyy')}
+            </span>
           </div>
         )}
       </div>
@@ -324,8 +243,8 @@ function DetailPanel({
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Documents */}
-        <div className="px-4 py-3 border-b border-slate-200">
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+        <div className="px-4 py-3 border-b border-border">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
             Documents ({docEntries.length})
           </h3>
           {docEntries.length > 0 ? (
@@ -336,14 +255,14 @@ function DetailPanel({
                     <button
                       onClick={() => handleViewDocument(docType, path)}
                       disabled={loadingDoc === docType}
-                      className="flex flex-col items-center gap-0.5 p-2 rounded border border-slate-200 hover:border-amber-400 hover:bg-amber-50 transition-colors group disabled:opacity-50"
+                      className="flex flex-col items-center gap-0.5 p-2 rounded border border-border hover:border-primary hover:bg-primary/5 transition-colors group disabled:opacity-50"
                     >
                       {loadingDoc === docType ? (
-                        <Loader2 className="h-4 w-4 text-amber-500 animate-spin" />
+                        <Loader2 className="h-4 w-4 text-primary animate-spin" />
                       ) : (
-                        <FileText className="h-4 w-4 text-slate-400 group-hover:text-amber-600" />
+                        <FileText className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
                       )}
-                      <span className="text-[10px] text-slate-500 text-center leading-tight">
+                      <span className="text-[10px] text-muted-foreground text-center leading-tight">
                         {getDocumentLabel(docType)?.split(' ')[0]}
                       </span>
                     </button>
@@ -353,61 +272,97 @@ function DetailPanel({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-400 italic">No documents uploaded</p>
+            <p className="text-xs text-muted-foreground italic">No documents uploaded</p>
           )}
         </div>
 
-        {/* Carriers */}
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-              Carriers
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 text-xs px-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-              onClick={() => onCarriersChange(agent.id, KY_CARRIER_CODES)}
-            >
-              KY Default
-            </Button>
+        {/* Carriers - only show for non-completed */}
+        {!isCompleted && (
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Carriers to Request
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs px-2 text-primary hover:text-primary/90 hover:bg-primary/10"
+                onClick={() => onCarriersChange(agent.id, KY_CARRIER_CODES)}
+              >
+                KY Default
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+              {AVAILABLE_CARRIERS.map((carrier) => (
+                <label key={carrier.code} className="flex items-center gap-2 py-1 cursor-pointer group">
+                  <Checkbox
+                    checked={agent.requested_carriers.includes(carrier.code)}
+                    onCheckedChange={(checked) => handleCarrierToggle(carrier.code, checked as boolean)}
+                    className="h-3.5 w-3.5"
+                  />
+                  <span className="text-sm text-foreground group-hover:text-primary">
+                    {carrier.name}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-            {AVAILABLE_CARRIERS.map((carrier) => (
-              <label key={carrier.code} className="flex items-center gap-2 py-1 cursor-pointer group">
-                <Checkbox
-                  checked={agent.requested_carriers.includes(carrier.code)}
-                  onCheckedChange={(checked) => handleCarrierToggle(carrier.code, checked as boolean)}
-                  className="h-3.5 w-3.5"
-                />
-                <span className="text-sm text-slate-700 group-hover:text-amber-600">
-                  {carrier.name}
-                </span>
-              </label>
-            ))}
+        )}
+
+        {/* Show sent info for completed */}
+        {isCompleted && agent.sent_to_pinnacle_at && (
+          <div className="px-4 py-3">
+            <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+              <div className="flex items-center gap-2 text-green-700">
+                <CheckCircle2 className="h-4 w-4" />
+                <span className="text-sm font-medium">Sent to Pinnacle</span>
+              </div>
+              <p className="text-xs text-green-600 mt-1">
+                {format(new Date(agent.sent_to_pinnacle_at), 'MMMM d, yyyy \'at\' h:mm a')}
+              </p>
+              {agent.requested_carriers.length > 0 && (
+                <p className="text-xs text-green-600 mt-1">
+                  Carriers: {agent.requested_carriers.map(code =>
+                    AVAILABLE_CARRIERS.find(c => c.code === code)?.name || code
+                  ).join(', ')}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Actions */}
-      <div className="px-4 py-3 border-t border-slate-200 space-y-2">
-        <Button
-          className="w-full h-9 bg-amber-500 hover:bg-amber-600 text-white"
-          disabled={!canSendToPinnacle}
-          onClick={() => onSendToPinnacle(agent)}
-        >
-          <Send className="h-4 w-4 mr-2" />
-          Send to Pinnacle
-        </Button>
-        <Button
-          variant="outline"
-          className="w-full h-9 text-slate-600"
-          onClick={() => agent.profile_id && (window.location.href = `/admin/agents/${agent.profile_id}`)}
-          disabled={!agent.profile_id}
-        >
-          <ExternalLink className="h-4 w-4 mr-2" />
-          View Full Profile
-        </Button>
+      <div className="px-4 py-3 border-t border-border space-y-2">
+        {!isCompleted ? (
+          <>
+            <Button
+              className="w-full h-9"
+              onClick={() => onSendToPinnacle(agent)}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Send to Pinnacle
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full h-9"
+              onClick={() => onMarkComplete(agent.id)}
+            >
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Mark as Completed
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant="outline"
+            className="w-full h-9"
+            onClick={() => agent.profile_id && (window.location.href = `/admin/agents/${agent.profile_id}`)}
+            disabled={!agent.profile_id}
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            View Full Profile
+          </Button>
+        )}
       </div>
 
       {/* Document Preview Modal */}
@@ -422,13 +377,51 @@ function DetailPanel({
   );
 }
 
+// Agent Row Component
+function AgentRow({
+  agent,
+  onView,
+  showSentDate,
+}: {
+  agent: QueueAgent;
+  onView: () => void;
+  showSentDate?: boolean;
+}) {
+  return (
+    <div
+      className="flex items-center justify-between px-4 py-3 border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer"
+      onClick={onView}
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium text-foreground truncate">
+          {agent.full_legal_name || 'Unnamed Agent'}
+        </p>
+        {showSentDate && agent.sent_to_pinnacle_at ? (
+          <p className="text-xs text-muted-foreground">
+            Sent {format(new Date(agent.sent_to_pinnacle_at), 'MMM d, yyyy')}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground truncate">
+            {agent.email_address || 'No email'} · {agent.resident_state || 'N/A'}
+          </p>
+        )}
+      </div>
+      <Button variant="ghost" size="sm" className="h-8 ml-2" onClick={(e) => { e.stopPropagation(); onView(); }}>
+        <Eye className="h-4 w-4 mr-1.5" />
+        View
+      </Button>
+    </div>
+  );
+}
+
 // Main Component
 export default function ContractingQueuePage() {
+  const navigate = useNavigate();
   const [agents, setAgents] = useState<QueueAgent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<QueueAgent | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   // Modal state
   const [showPinnacleModal, setShowPinnacleModal] = useState(false);
@@ -440,7 +433,6 @@ export default function ContractingQueuePage() {
   // Fetch applications
   const fetchApplications = useCallback(async () => {
     try {
-      // Fetch contracting applications
       const { data, error } = await supabase
         .from('contracting_applications')
         .select(`
@@ -451,6 +443,7 @@ export default function ContractingQueuePage() {
           resident_state,
           queue_status,
           submitted_at,
+          sent_to_pinnacle_at,
           email_address,
           phone_mobile,
           requested_carriers,
@@ -462,14 +455,12 @@ export default function ContractingQueuePage() {
 
       if (error) throw error;
 
-      // Fetch profiles to get profile IDs from user IDs
       const userIds = (data || []).map(app => app.user_id).filter(Boolean);
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, user_id')
         .in('user_id', userIds);
 
-      // Create user_id -> profile_id lookup map
       const profileIdMap: Record<string, string> = {};
       (profiles || []).forEach(p => {
         if (p.user_id) profileIdMap[p.user_id] = p.id;
@@ -484,6 +475,7 @@ export default function ContractingQueuePage() {
         resident_state: app.resident_state,
         queue_status: (app.queue_status as QueueStatus) || 'needs_action',
         submitted_at: app.submitted_at,
+        sent_to_pinnacle_at: app.sent_to_pinnacle_at,
         email_address: app.email_address,
         phone_mobile: app.phone_mobile,
         requested_carriers: (app.requested_carriers as string[]) || [],
@@ -503,69 +495,47 @@ export default function ContractingQueuePage() {
     fetchApplications();
   }, [fetchApplications]);
 
-  // Stats
-  const stats = useMemo(() => {
-    return {
-      needsAction: agents.filter((a) => a.queue_status === 'needs_action').length,
-      inProgress: agents.filter((a) => a.queue_status === 'in_progress').length,
-      sentToPinnacle: agents.filter((a) => a.queue_status === 'sent_to_pinnacle').length,
-      completed: agents.filter((a) => a.queue_status === 'completed').length,
-      total: agents.length,
-    };
+  // Split agents into ready and completed
+  const { readyToSend, completed } = useMemo(() => {
+    const ready: QueueAgent[] = [];
+    const done: QueueAgent[] = [];
+
+    agents.forEach((agent) => {
+      // Completed = sent_to_pinnacle or completed status
+      if (agent.queue_status === 'completed' || agent.queue_status === 'sent_to_pinnacle') {
+        done.push(agent);
+      } else {
+        ready.push(agent);
+      }
+    });
+
+    return { readyToSend: ready, completed: done };
   }, [agents]);
 
-  // Filtered agents
-  const filteredAgents = useMemo(() => {
-    return agents.filter((agent) => {
-      // Status filter
-      if (filterStatus !== 'all' && agent.queue_status !== filterStatus) {
-        return false;
-      }
-      // Search filter
-      if (searchTerm.trim()) {
-        const search = searchTerm.toLowerCase();
-        const name = (agent.full_legal_name || '').toLowerCase();
-        const npn = (agent.npn_number || '').toLowerCase();
-        const email = (agent.email_address || '').toLowerCase();
-        return name.includes(search) || npn.includes(search) || email.includes(search);
-      }
-      return true;
+  // Filtered by search
+  const filteredReadyToSend = useMemo(() => {
+    if (!searchTerm.trim()) return readyToSend;
+    const search = searchTerm.toLowerCase();
+    return readyToSend.filter((agent) => {
+      const name = (agent.full_legal_name || '').toLowerCase();
+      const email = (agent.email_address || '').toLowerCase();
+      const npn = (agent.npn_number || '').toLowerCase();
+      return name.includes(search) || email.includes(search) || npn.includes(search);
     });
-  }, [agents, filterStatus, searchTerm]);
+  }, [readyToSend, searchTerm]);
+
+  const filteredCompleted = useMemo(() => {
+    if (!searchTerm.trim()) return completed;
+    const search = searchTerm.toLowerCase();
+    return completed.filter((agent) => {
+      const name = (agent.full_legal_name || '').toLowerCase();
+      const email = (agent.email_address || '').toLowerCase();
+      const npn = (agent.npn_number || '').toLowerCase();
+      return name.includes(search) || email.includes(search) || npn.includes(search);
+    });
+  }, [completed, searchTerm]);
 
   // Handlers
-  const handleStatusChange = async (agentId: string, newStatus: QueueStatus) => {
-    // Capture previous status for logging
-    const previousStatus = agents.find((a) => a.id === agentId)?.queue_status;
-
-    setAgents((prev) =>
-      prev.map((agent) =>
-        agent.id === agentId ? { ...agent, queue_status: newStatus } : agent
-      )
-    );
-    if (selectedAgent?.id === agentId) {
-      setSelectedAgent((prev) => (prev ? { ...prev, queue_status: newStatus } : null));
-    }
-
-    const { error } = await supabase
-      .from('contracting_applications')
-      .update({ queue_status: newStatus })
-      .eq('id', agentId);
-
-    if (error) {
-      toast.error('Failed to update status');
-      fetchApplications();
-    } else {
-      // Log the status change
-      await logActivity(
-        ActivityAction.QUEUE_STATUS_CHANGED,
-        EntityType.CONTRACTING_APPLICATION,
-        agentId,
-        { previous_status: previousStatus, new_status: newStatus }
-      );
-    }
-  };
-
   const handleCarriersChange = async (agentId: string, carriers: string[]) => {
     setAgents((prev) =>
       prev.map((agent) =>
@@ -583,6 +553,27 @@ export default function ContractingQueuePage() {
 
     if (error) {
       toast.error('Failed to update carriers');
+      fetchApplications();
+    }
+  };
+
+  const handleMarkComplete = async (agentId: string) => {
+    const { error } = await supabase
+      .from('contracting_applications')
+      .update({ queue_status: 'completed' })
+      .eq('id', agentId);
+
+    if (error) {
+      toast.error('Failed to update status');
+    } else {
+      toast.success('Marked as completed');
+      await logActivity(
+        ActivityAction.QUEUE_STATUS_CHANGED,
+        EntityType.CONTRACTING_APPLICATION,
+        agentId,
+        { new_status: 'completed' }
+      );
+      setSelectedAgent(null);
       fetchApplications();
     }
   };
@@ -679,7 +670,6 @@ export default function ContractingQueuePage() {
       } else {
         toast.success(`Contracting request sent for ${selectedAgent.full_legal_name}`);
 
-        // Log the Send to Pinnacle action
         await logActivity(
           ActivityAction.SENT_TO_PINNACLE,
           EntityType.CONTRACTING_APPLICATION,
@@ -691,9 +681,8 @@ export default function ContractingQueuePage() {
           }
         );
 
-        // Create carrier_statuses records so agent sees carriers on My Carriers page
+        // Create carrier_statuses records
         try {
-          // Fetch all carriers and filter case-insensitively (DB has mixed case)
           const { data: allCarriers, error: lookupError } = await supabase
             .from('carriers')
             .select('id, code');
@@ -703,10 +692,8 @@ export default function ContractingQueuePage() {
             modalCarriersLower.includes(c.code.toLowerCase())
           ) || [];
 
-          if (lookupError) {
-            console.error('Carrier lookup failed:', lookupError);
-          } else if (carrierRecords.length > 0) {
-            const { error: carrierStatusError } = await supabase
+          if (!lookupError && carrierRecords.length > 0) {
+            await supabase
               .from('carrier_statuses')
               .upsert(
                 carrierRecords.map(carrier => ({
@@ -716,10 +703,6 @@ export default function ContractingQueuePage() {
                 })),
                 { onConflict: 'user_id,carrier_id' }
               );
-
-            if (carrierStatusError) {
-              console.error('Failed to create carrier_statuses:', carrierStatusError);
-            }
           }
         } catch (carrierErr) {
           console.error('Error creating carrier_statuses:', carrierErr);
@@ -727,9 +710,7 @@ export default function ContractingQueuePage() {
       }
 
       fetchApplications();
-      setSelectedAgent((prev) =>
-        prev ? { ...prev, queue_status: 'sent_to_pinnacle', requested_carriers: modalCarriers } : null
-      );
+      setSelectedAgent(null);
 
       return { success: true };
     } catch (err) {
@@ -744,267 +725,113 @@ export default function ContractingQueuePage() {
     return carrier?.name || code;
   });
 
-  const handleStatClick = (status: FilterStatus) => {
-    setFilterStatus(filterStatus === status ? 'all' : status);
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navigation />
+    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+      {/* Header */}
+      <h1 className="text-2xl font-serif font-medium text-foreground">Contracting Queue</h1>
 
-      {/* Main Content - Compact Layout */}
-      <div className="pt-16">
-        {/* Header Row */}
-        <div className="px-6 py-3 bg-white border-b border-slate-200">
-          <div className="max-w-[1400px] mx-auto flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-slate-900">Contracting Hub</h1>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={fetchApplications}>
-              Refresh
-            </Button>
-          </div>
+      {/* Stat Cards */}
+      <div className="flex gap-4 mt-4 mb-6">
+        <div className="bg-white border border-border rounded-xl px-5 py-4 flex items-center gap-4">
+          <div className="text-3xl font-serif font-medium text-foreground">{readyToSend.length}</div>
+          <div className="text-sm text-muted-foreground">Ready to Send</div>
         </div>
-
-        {/* Stats Row */}
-        <div className="px-6 py-3 bg-white border-b border-slate-200">
-          <div className="max-w-[1400px] mx-auto flex items-center gap-3 overflow-x-auto">
-            <StatCard
-              label="Needs Action"
-              count={stats.needsAction}
-              icon={AlertCircle}
-              color="text-red-500"
-              isActive={filterStatus === 'needs_action'}
-              onClick={() => handleStatClick('needs_action')}
-            />
-            <StatCard
-              label="In Progress"
-              count={stats.inProgress}
-              icon={Clock}
-              color="text-amber-500"
-              isActive={filterStatus === 'in_progress'}
-              onClick={() => handleStatClick('in_progress')}
-            />
-            <StatCard
-              label="Sent to Pinnacle"
-              count={stats.sentToPinnacle}
-              icon={Send}
-              color="text-blue-500"
-              isActive={filterStatus === 'sent_to_pinnacle'}
-              onClick={() => handleStatClick('sent_to_pinnacle')}
-            />
-            <StatCard
-              label="Completed"
-              count={stats.completed}
-              icon={CheckCircle2}
-              color="text-emerald-500"
-              isActive={filterStatus === 'completed'}
-              onClick={() => handleStatClick('completed')}
-            />
-            <div className="h-8 w-px bg-slate-200 mx-1" />
-            <StatCard
-              label="Total"
-              count={stats.total}
-              icon={Users}
-              color="text-slate-500"
-              isActive={filterStatus === 'all'}
-              onClick={() => handleStatClick('all')}
-            />
-          </div>
-        </div>
-
-        {/* Search/Filter Row */}
-        <div className="px-6 py-2 bg-slate-50 border-b border-slate-200">
-          <div className="max-w-[1400px] mx-auto flex items-center gap-3">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search by name, NPN, or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 h-9 text-sm bg-white"
-              />
-            </div>
-            {filterStatus !== 'all' && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 text-xs text-slate-500"
-                onClick={() => setFilterStatus('all')}
-              >
-                Clear filter
-                <X className="h-3 w-3 ml-1" />
-              </Button>
-            )}
-            <span className="text-xs text-slate-500 ml-auto">
-              {filteredAgents.length} {filteredAgents.length === 1 ? 'agent' : 'agents'}
-            </span>
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="px-6 py-3">
-          <div className="max-w-[1400px] mx-auto bg-white rounded-lg border border-slate-200 overflow-hidden">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
-              </div>
-            ) : filteredAgents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                {agents.length === 0 ? (
-                  <>
-                    <PartyPopper className="h-10 w-10 text-emerald-400 mb-3" />
-                    <p className="text-sm font-medium text-slate-700">All caught up!</p>
-                    <p className="text-xs text-slate-500 mt-1">No pending applications.</p>
-                  </>
-                ) : (
-                  <>
-                    <Search className="h-10 w-10 text-slate-300 mb-3" />
-                    <p className="text-sm font-medium text-slate-700">No matches found</p>
-                    <p className="text-xs text-slate-500 mt-1">Try adjusting your search or filter.</p>
-                  </>
-                )}
-              </div>
-            ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
-                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2">Agent</th>
-                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2">NPN</th>
-                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2">State</th>
-                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2">Status</th>
-                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2">Submitted</th>
-                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2">Docs</th>
-                    <th className="text-right text-xs font-medium text-slate-500 px-4 py-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAgents.map((agent) => {
-                    const status = STATUS_CONFIG[agent.queue_status] || STATUS_CONFIG.needs_action;
-                    const docCount = Object.values(agent.uploaded_documents || {}).filter(Boolean).length;
-
-                    return (
-                      <tr
-                        key={agent.id}
-                        className={cn(
-                          "border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer",
-                          selectedAgent?.id === agent.id && "bg-amber-50"
-                        )}
-                        onClick={() => setSelectedAgent(agent)}
-                      >
-                        <td className="px-4 py-2">
-                          <div>
-                            <p className="text-sm font-medium text-slate-900 truncate max-w-[200px]">
-                              {agent.full_legal_name || 'Unnamed'}
-                            </p>
-                            <p className="text-xs text-slate-500 truncate max-w-[200px]">
-                              {agent.email_address || 'No email'}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-2">
-                          <span className="text-sm text-slate-700 font-mono">
-                            {agent.npn_number || '—'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2">
-                          <span className="text-sm text-slate-700">
-                            {agent.resident_state || '—'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2">
-                          <Badge
-                            variant="outline"
-                            className={cn("text-xs px-2 py-0.5 font-medium border", status.bgColor, status.color)}
-                          >
-                            {status.label}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-2">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="text-xs text-slate-500 cursor-help">
-                                {agent.submitted_at
-                                  ? formatDistanceToNow(new Date(agent.submitted_at), { addSuffix: true })
-                                  : '—'}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {agent.submitted_at
-                                ? format(new Date(agent.submitted_at), 'MMM d, yyyy h:mm a')
-                                : 'Not submitted'}
-                            </TooltipContent>
-                          </Tooltip>
-                        </td>
-                        <td className="px-4 py-2">
-                          <span className={cn(
-                            "text-xs font-medium",
-                            docCount > 0 ? "text-emerald-600" : "text-slate-400"
-                          )}>
-                            {docCount}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2">
-                          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7"
-                                  onClick={() => setSelectedAgent(agent)}
-                                >
-                                  <Eye className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>View Details</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7"
-                                  disabled={agent.queue_status !== 'needs_action' && agent.queue_status !== 'in_progress'}
-                                  onClick={() => {
-                                    setSelectedAgent(agent);
-                                    handleSendToPinnacle(agent);
-                                  }}
-                                >
-                                  <Send className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Send to Pinnacle</TooltipContent>
-                            </Tooltip>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-7 w-7">
-                                  <MoreHorizontal className="h-3.5 w-3.5" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => agent.profile_id && (window.location.href = `/admin/agents/${agent.profile_id}`)}
-                                  disabled={!agent.profile_id}
-                                >
-                                  <ExternalLink className="h-3.5 w-3.5 mr-2" />
-                                  View Full Profile
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleStatusChange(agent.id, 'completed')}>
-                                  <CheckCircle2 className="h-3.5 w-3.5 mr-2" />
-                                  Mark Complete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
+        <div className="bg-white border border-border rounded-xl px-5 py-4 flex items-center gap-4">
+          <div className="text-3xl font-serif font-medium text-green-600">{completed.length}</div>
+          <div className="text-sm text-muted-foreground">Completed</div>
         </div>
       </div>
+
+      {/* Search */}
+      {agents.length > 0 && (
+        <div className="relative max-w-sm mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, NPN, or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-9 text-sm"
+          />
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : agents.length === 0 ? (
+        <div className="bg-white rounded-xl border border-border p-12 text-center">
+          <PartyPopper className="h-12 w-12 text-green-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-1">All caught up!</h3>
+          <p className="text-sm text-muted-foreground">No pending contracting applications.</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Ready to Send Section */}
+          <div>
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              Ready to Send ({filteredReadyToSend.length})
+            </h2>
+            <div className="bg-white rounded-xl border border-border overflow-hidden">
+              {filteredReadyToSend.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  {searchTerm ? (
+                    <p className="text-sm text-muted-foreground">No matches found</p>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-8 w-8 text-green-400 mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">All applications have been sent!</p>
+                    </>
+                  )}
+                </div>
+              ) : (
+                filteredReadyToSend.map((agent) => (
+                  <AgentRow
+                    key={agent.id}
+                    agent={agent}
+                    onView={() => setSelectedAgent(agent)}
+                  />
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Completed Section */}
+          {completed.length > 0 && (
+            <div>
+              <button
+                onClick={() => setShowCompleted(!showCompleted)}
+                className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 hover:text-foreground transition-colors"
+              >
+                {showCompleted ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+                Completed ({filteredCompleted.length})
+              </button>
+              {showCompleted && (
+                <div className="bg-white rounded-xl border border-border overflow-hidden">
+                  {filteredCompleted.length === 0 ? (
+                    <div className="px-4 py-8 text-center">
+                      <p className="text-sm text-muted-foreground">No matches found</p>
+                    </div>
+                  ) : (
+                    filteredCompleted.map((agent) => (
+                      <AgentRow
+                        key={agent.id}
+                        agent={agent}
+                        onView={() => setSelectedAgent(agent)}
+                        showSentDate
+                      />
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Detail Panel */}
       {selectedAgent && (
@@ -1016,9 +843,9 @@ export default function ContractingQueuePage() {
           <DetailPanel
             agent={selectedAgent}
             onClose={() => setSelectedAgent(null)}
-            onStatusChange={handleStatusChange}
             onCarriersChange={handleCarriersChange}
             onSendToPinnacle={handleSendToPinnacle}
+            onMarkComplete={handleMarkComplete}
           />
         </>
       )}
@@ -1034,6 +861,6 @@ export default function ContractingQueuePage() {
         documents={modalDocuments}
         onSend={handleModalSend}
       />
-    </div>
+    </AdminLayout>
   );
 }

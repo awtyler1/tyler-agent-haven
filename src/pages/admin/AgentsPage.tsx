@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { UserPlus, Loader2, ArrowLeft } from 'lucide-react';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { UserPlus, Loader2 } from 'lucide-react';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AllAgentsTab } from '@/components/admin/AllAgentsTab';
 import { TeamsTab } from '@/components/admin/TeamsTab';
 
@@ -51,79 +50,62 @@ export default function AgentsPage() {
   // Loading state (only show page-level loading for auth)
   if (authLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-        <Navigation />
-        <main className="flex-1 pt-28 pb-12 flex items-center justify-center">
+      <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+        <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center">
-            <Loader2 className="h-8 w-8 animate-spin text-gold mb-3" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
             <p className="text-sm text-muted-foreground">Loading...</p>
           </div>
-        </main>
-        <Footer />
-      </div>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
+    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-serif font-medium text-foreground">Agents</h1>
+        {canAddAgents && (
+          <Link to="/admin/agents/new">
+            <Button>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add Agent
+            </Button>
+          </Link>
+        )}
+      </div>
 
-      <main className="flex-1 pt-28 pb-12">
-        <div className="container-narrow px-6 md:px-12 lg:px-20">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-6">
-            <Link to="/admin">
-              <Button variant="ghost" size="icon" className="hover:bg-gold/10">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div className="flex-1">
-              <h1 className="heading-section">Agents</h1>
-            </div>
-            {canAddAgents && (
-              <Link to="/admin/agents/new">
-                <Button className="bg-gold hover:bg-gold/90 text-white">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Add Agent
-                </Button>
-              </Link>
-            )}
-          </div>
+      {/* Tab Bar */}
+      <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit mb-6">
+        <button
+          onClick={() => handleTabChange('all')}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            currentTab === 'all'
+              ? 'bg-white text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          All Agents
+        </button>
+        <button
+          onClick={() => handleTabChange('teams')}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            currentTab === 'teams'
+              ? 'bg-white text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Teams
+        </button>
+      </div>
 
-          {/* Tab Bar */}
-          <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit mb-6">
-            <button
-              onClick={() => handleTabChange('all')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                currentTab === 'all'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              All Agents
-            </button>
-            <button
-              onClick={() => handleTabChange('teams')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                currentTab === 'teams'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Teams
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          {currentTab === 'all' ? (
-            <AllAgentsTab initialManagerFilter={selectedManager} />
-          ) : (
-            <TeamsTab onSelectTeam={handleTeamSelect} />
-          )}
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+      {/* Tab Content */}
+      {currentTab === 'all' ? (
+        <AllAgentsTab initialManagerFilter={selectedManager} />
+      ) : (
+        <TeamsTab onSelectTeam={handleTeamSelect} />
+      )}
+    </AdminLayout>
   );
 }

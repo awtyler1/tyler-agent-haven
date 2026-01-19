@@ -65,6 +65,7 @@ Resident State: ${agentState || 'N/A'}
 All required documents are attached.
 
 Thank you,
+Caroline Horn
 Tyler Insurance Group`;
 }
 
@@ -172,7 +173,7 @@ export function SendToPinnacleModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isSending && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl">
         {/* Subtle overlay when sending */}
         {(isSending || isSuccess) && (
           <div className="absolute inset-0 bg-background/50 z-10 rounded-lg" />
@@ -182,91 +183,96 @@ export function SendToPinnacleModal({
           <DialogTitle>Send to Pinnacle</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
-          {/* To Field */}
-          <div className="space-y-1.5">
-            <Label htmlFor="to">To</Label>
-            <Input
-              id="to"
-              type="email"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-            />
-          </div>
+        {/* Two-column layout */}
+        <div className="grid grid-cols-2 gap-6 py-2">
+          {/* Left Column: To, Subject, Carriers, Attachments */}
+          <div className="space-y-4">
+            {/* To Field */}
+            <div className="space-y-1.5">
+              <Label htmlFor="to">To</Label>
+              <Input
+                id="to"
+                type="email"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+              />
+            </div>
 
-          {/* Subject Field */}
-          <div className="space-y-1.5">
-            <Label htmlFor="subject">Subject</Label>
-            <Input
-              id="subject"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-            />
-          </div>
+            {/* Subject Field */}
+            <div className="space-y-1.5">
+              <Label htmlFor="subject">Subject</Label>
+              <Input
+                id="subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+              />
+            </div>
 
-          {/* Carriers Summary */}
-          <div className="space-y-1.5">
-            <Label>Carriers</Label>
-            <div className="flex flex-wrap gap-1.5">
-              {selectedCarriers.length === 0 ? (
-                <span className="text-sm text-muted-foreground">No carriers selected</span>
+            {/* Carriers Summary */}
+            <div className="space-y-1.5">
+              <Label>Carriers</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedCarriers.length === 0 ? (
+                  <span className="text-sm text-muted-foreground">No carriers selected</span>
+                ) : (
+                  selectedCarriers.map((carrier) => (
+                    <Badge key={carrier} variant="secondary">
+                      {carrier}
+                    </Badge>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Attachments */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Paperclip className="h-4 w-4" />
+                Attachments
+              </Label>
+              {documents.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No documents available</p>
               ) : (
-                selectedCarriers.map((carrier) => (
-                  <Badge key={carrier} variant="secondary">
-                    {carrier}
-                  </Badge>
-                ))
+                <div className="border rounded-md p-3 space-y-2 bg-muted/30 max-h-[200px] overflow-y-auto">
+                  {documents.map((doc) => (
+                    <label
+                      key={doc.type}
+                      className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded"
+                    >
+                      <Checkbox
+                        checked={selectedDocs.includes(doc.type)}
+                        onCheckedChange={(checked) => handleDocToggle(doc.type, !!checked)}
+                      />
+                      <span>{doc.label}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+              {selectedDocs.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {selectedDocs.length} document{selectedDocs.length !== 1 ? 's' : ''} will be attached
+                </p>
               )}
             </div>
           </div>
 
-          {/* Body */}
+          {/* Right Column: Message */}
           <div className="space-y-1.5">
             <Label htmlFor="body">Message</Label>
             <Textarea
               id="body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              rows={10}
-              className="font-mono text-sm"
+              rows={14}
+              className="font-mono text-sm h-full min-h-[340px]"
             />
           </div>
+        </div>
 
-          {/* Attachments */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Paperclip className="h-4 w-4" />
-              Attachments
-            </Label>
-            {documents.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No documents available</p>
-            ) : (
-              <div className="border rounded-md p-3 space-y-2 bg-muted/30">
-                {documents.map((doc) => (
-                  <label
-                    key={doc.type}
-                    className="flex items-center gap-2 text-sm cursor-pointer"
-                  >
-                    <Checkbox
-                      checked={selectedDocs.includes(doc.type)}
-                      onCheckedChange={(checked) => handleDocToggle(doc.type, !!checked)}
-                    />
-                    <span>{doc.label}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-            {selectedDocs.length > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {selectedDocs.length} document{selectedDocs.length !== 1 ? 's' : ''} will be attached
-              </p>
-            )}
-          </div>
-
-          {/* Confirmation Summary */}
-          <div className="border rounded-lg p-4 bg-slate-50 space-y-3">
-            <p className="text-sm font-medium text-slate-700">Confirm Send Details</p>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+        {/* Confirmation Summary - spans full width */}
+        <div className="border rounded-lg p-4 bg-slate-50 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6 text-sm">
               <div>
                 <span className="text-muted-foreground">Agent:</span>
                 <span className="ml-2 font-medium">{agentName}</span>
@@ -277,26 +283,26 @@ export function SendToPinnacleModal({
               </div>
               <div>
                 <span className="text-muted-foreground">Recipient:</span>
-                <span className="ml-2 font-medium truncate">{to}</span>
+                <span className="ml-2 font-medium">{to}</span>
               </div>
               <div>
                 <span className="text-muted-foreground">Documents:</span>
                 <span className="ml-2 font-medium">{selectedDocs.length} attached</span>
               </div>
             </div>
-
-            {/* Confirmation Checkbox */}
-            <label className="flex items-start gap-3 pt-2 border-t cursor-pointer">
-              <Checkbox
-                checked={isConfirmed}
-                onCheckedChange={(checked) => setIsConfirmed(!!checked)}
-                className="mt-0.5"
-              />
-              <span className="text-sm text-slate-700">
-                I have reviewed this application and confirm it is ready to submit to Pinnacle.
-              </span>
-            </label>
           </div>
+
+          {/* Confirmation Checkbox */}
+          <label className="flex items-start gap-3 pt-2 border-t cursor-pointer">
+            <Checkbox
+              checked={isConfirmed}
+              onCheckedChange={(checked) => setIsConfirmed(!!checked)}
+              className="mt-0.5"
+            />
+            <span className="text-sm text-slate-700">
+              I have reviewed this application and confirm it is ready to submit to Pinnacle.
+            </span>
+          </label>
         </div>
 
         <DialogFooter className="relative z-20">

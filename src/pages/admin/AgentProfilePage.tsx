@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
-  ArrowLeft,
   Mail,
   User,
   Shield,
@@ -49,8 +48,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AgentDocumentsCard } from '@/components/admin/AgentDocumentsCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useSendEmail } from '@/hooks/useSendEmail';
@@ -150,12 +148,23 @@ interface LocationState {
   managerId?: string | null;
 }
 
-export default function AgentProfilePage() {
-  const { profileId } = useParams<{ profileId: string }>();
+interface AgentProfilePageProps {
+  /** Optional profile ID for self-view mode (from /my-profile route) */
+  selfViewProfileId?: string;
+}
+
+export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePageProps = {}) {
+  const { profileId: urlProfileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as LocationState | null;
-  const { isAdmin, isSuperAdmin } = useAuth();
+  const { profile: currentUserProfile, isAdmin, isSuperAdmin } = useAuth();
+
+  // Use selfViewProfileId if provided (from /my-profile), otherwise use URL param
+  const profileId = selfViewProfileId || urlProfileId;
+
+  // Determine if this is a self-view (viewing own profile)
+  const isSelfView = !!selfViewProfileId || currentUserProfile?.id === profileId;
 
   const [profile, setProfile] = useState<AgentProfile | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -398,8 +407,8 @@ export default function AgentProfilePage() {
     }
   }, [isEditingEmail]);
 
-  // Permission check for inline editing
-  const canEdit = isAdmin();
+  // Permission check for inline editing - only admins can edit, even on own profile
+  const canEdit = isAdmin() && !isSelfView;
 
   // Contracting notes handlers
   const handleNotesClick = () => {
@@ -1194,40 +1203,52 @@ Tyler Insurance Group`;
     }
   };
 
+  // Determine back navigation
+  const handleBackNavigation = () => {
+    if (isSelfView) {
+      navigate('/');
+      return;
+    }
+    if (locationState?.from) {
+      navigate(locationState.from, {
+        state: { managerId: locationState.managerId }
+      });
+    } else {
+      navigate('/admin/agents');
+    }
+  };
+
+  const backLabel = isSelfView ? 'Dashboard' : 'Agents';
+
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-        <Navigation />
+      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
         <div className="flex items-center justify-center py-24">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-gold" />
             <p className="text-sm text-muted-foreground">Loading agent profile...</p>
           </div>
         </div>
-        <Footer />
-      </div>
+      </AdminLayout>
     );
   }
 
   // Error state
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-        <Navigation />
+      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
         <div className="flex items-center justify-center py-24">
           <div className="text-center">
             <h2 className="text-lg font-semibold text-foreground mb-2">
               {error || 'Agent not found'}
             </h2>
             <Button variant="outline" onClick={() => navigate('/admin/agents')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Agents
             </Button>
           </div>
         </div>
-        <Footer />
-      </div>
+      </AdminLayout>
     );
   }
 
@@ -1271,34 +1292,11 @@ Tyler Insurance Group`;
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-
-      <main className="flex-1 pt-28 pb-12">
-        <div className="container-narrow px-6 md:px-12 lg:px-20 max-w-5xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                // If we have location state with a "from" path, navigate there
-                // Otherwise fall back to browser history
-                if (locationState?.from) {
-                  navigate(locationState.from, {
-                    state: { managerId: locationState.managerId }
-                  });
-                } else {
-                  navigate(-1);
-                }
-              }}
-              className="mb-4 hover:bg-gold/10"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-
-            <div className="flex items-start justify-between">
+    <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-3">
                   <h1 className="heading-section">{profile.full_name || 'Unnamed Agent'}</h1>
@@ -1720,7 +1718,7 @@ Tyler Insurance Group`;
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
-                      {manager && (
+                      {isAdmin() && manager && (
                         <Link to={`/admin/agents/${manager.id}`}>
                           <Button variant="ghost" size="sm">
                             View
@@ -1738,19 +1736,33 @@ Tyler Insurance Group`;
                     ) : (
                       <div className="space-y-1">
                         {directReports.map((report) => (
-                          <Link
-                            key={report.id}
-                            to={`/admin/agents/${report.id}`}
-                            className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors group"
-                          >
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm font-medium group-hover:text-gold transition-colors">
-                                {report.full_name || report.email || 'Unnamed'}
-                              </span>
+                          isAdmin() ? (
+                            <Link
+                              key={report.id}
+                              to={`/admin/agents/${report.id}`}
+                              className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+                            >
+                              <div className="flex items-center gap-2">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm font-medium group-hover:text-gold transition-colors">
+                                  {report.full_name || report.email || 'Unnamed'}
+                                </span>
+                              </div>
+                              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-gold transition-colors" />
+                            </Link>
+                          ) : (
+                            <div
+                              key={report.id}
+                              className="flex items-center p-2 rounded-lg"
+                            >
+                              <div className="flex items-center gap-2">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm font-medium">
+                                  {report.full_name || report.email || 'Unnamed'}
+                                </span>
+                              </div>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-gold transition-colors" />
-                          </Link>
+                          )
                         ))}
                       </div>
                     )}
@@ -1860,9 +1872,9 @@ Tyler Insurance Group`;
               )}
             </div>
 
-            {/* Right side - View User Details */}
+            {/* Right side - View User Details (admin only) */}
             <div className="flex items-center gap-3">
-              {profile.user_id && (
+              {isAdmin() && profile.user_id && (
                 <Link to={`/admin/users/${profile.user_id}`}>
                   <Button variant="outline">
                     View Full User Details
@@ -1872,9 +1884,6 @@ Tyler Insurance Group`;
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
 
       {/* Carrier Request Modal */}
       <Dialog open={isCarrierRequestOpen} onOpenChange={(open) => !open && handleCloseCarrierRequest()}>
@@ -2404,6 +2413,6 @@ Tyler Insurance Group`;
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminLayout>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, UserPlus, Users, Info } from 'lucide-react';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { Loader2, UserPlus, Users, Info } from 'lucide-react';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 
 interface PotentialManager {
   id: string; // profile id
@@ -147,23 +146,12 @@ export default function NewAgentPage() {
     : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-
-      <main className="flex-1 pt-28 pb-12">
-        <div className="max-w-xl mx-auto px-6">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <Link to="/admin/agents">
-              <Button variant="ghost" size="icon" className="hover:bg-gold/10">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="heading-section">Add Agent</h1>
-              <p className="text-sm text-muted-foreground">Create a new agent account</p>
-            </div>
-          </div>
+    <AdminLayout showBackButton backLabel="Agents" onBack={() => navigate('/admin/agents')} maxWidth="narrow">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-serif font-medium text-foreground">Add Agent</h1>
+        <p className="text-sm text-muted-foreground">Create a new agent account</p>
+      </div>
 
           {/* Form Card */}
           <div className="bg-white border border-[#E5E2DB] rounded-xl p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
@@ -326,10 +314,6 @@ export default function NewAgentPage() {
               </div>
             </form>
           </div>
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+    </AdminLayout>
   );
 }

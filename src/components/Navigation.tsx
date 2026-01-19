@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, Shield, LogIn, LogOut } from "lucide-react";
-import { AgentProfileDropdown } from "./AgentProfileDropdown";
+import { UserAvatarDropdown } from "./UserAvatarDropdown";
+import { DarkModeToggle } from "./DarkModeToggle";
 import tylerLogo from "@/assets/tyler-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { logActivity, ActivityAction } from "@/utils/activityLogger";
 
 const navLinks = [
@@ -151,12 +151,9 @@ const Navigation = () => {
               </Link>
             )}
 
-            {/* Dark Mode Toggle */}
-            <DarkModeToggle />
-
-            {/* Profile Dropdown - For authenticated users */}
+            {/* Profile Dropdown - For authenticated users (includes dark mode toggle) */}
             {isAuthenticated ? (
-              <AgentProfileDropdown />
+              <UserAvatarDropdown />
             ) : (
               <Link
                 to="/auth"

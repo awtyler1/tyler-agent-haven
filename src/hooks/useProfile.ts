@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 export type OnboardingStatus = 
   | 'CONTRACTING_REQUIRED'
@@ -29,6 +30,9 @@ export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  // Prevent multiple deactivation sign-out attempts
+  const isSigningOutRef = useRef(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -79,6 +83,25 @@ export function useProfile() {
         .single();
 
       if (error) throw error;
+
+      // Check if account is deactivated
+      if (data && data.is_active === false && !isSigningOutRef.current) {
+        isSigningOutRef.current = true;
+        console.log('Account deactivated, signing out...');
+
+        // Sign out the user
+        await supabase.auth.signOut();
+
+        // Show toast message
+        toast.error('Your account has been deactivated. Please contact support.', {
+          duration: 6000,
+        });
+
+        // Redirect to login page
+        window.location.href = '/auth';
+        return;
+      }
+
       setProfile(data as Profile);
     } catch (err) {
       setError(err as Error);

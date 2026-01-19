@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { AdminLayout } from '@/components/layout/AdminLayout';
 
 interface FieldInfo {
   name: string;
@@ -28,6 +28,7 @@ interface ExtractResult {
 }
 
 export default function PdfFieldExtractorPage() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ExtractResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -91,13 +92,13 @@ export default function PdfFieldExtractorPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navigation />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">PDF Field Extractor</h1>
-        <p className="text-muted-foreground mb-6">
+    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+      <div className="mb-6">
+        <h1 className="text-2xl font-serif font-medium text-foreground">PDF Field Extractor</h1>
+        <p className="text-muted-foreground">
           Upload a fillable PDF to extract all form field names for mapping.
         </p>
+      </div>
 
         <Card className="mb-6">
           <CardHeader>
@@ -194,8 +195,6 @@ export default function PdfFieldExtractorPage() {
             </Card>
           </>
         )}
-      </main>
-      <Footer />
-    </div>
+    </AdminLayout>
   );
 }
