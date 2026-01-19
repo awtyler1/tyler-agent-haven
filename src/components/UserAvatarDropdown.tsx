@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { User, FileText, Shield, Moon, LogOut, Loader2 } from 'lucide-react';
+import { User, FileText, Shield, Settings, Moon, LogOut, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
@@ -105,6 +105,13 @@ export function UserAvatarDropdown() {
             >
               <Shield className="w-4 h-4 mr-2" />
               Admin Dashboard
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigate('/admin/settings')}
+              className="cursor-pointer hover:bg-primary/10"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
             </DropdownMenuItem>
           </>
         )}

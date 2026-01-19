@@ -143,10 +143,20 @@ export default function SetPasswordPage() {
       setIsSuccess(true);
       toast.success('Password set successfully!');
 
-      // Redirect directly to contracting page for new agents
-      // Using full page redirect to ensure auth state is fully reloaded
-      setTimeout(() => {
-        window.location.href = '/contracting';
+      // Route based on onboarding status
+      // APPOINTED agents go to dashboard, CONTRACTING_REQUIRED go to contracting
+      setTimeout(async () => {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_status')
+          .eq('user_id', user.id)
+          .single();
+
+        if (profile?.onboarding_status === 'CONTRACTING_REQUIRED') {
+          window.location.href = '/contracting';
+        } else {
+          window.location.href = '/';
+        }
       }, 1500);
     } catch (err: any) {
       console.error('Error setting password:', err);
@@ -204,14 +214,14 @@ export default function SetPasswordPage() {
           </CardHeader>
           <CardContent className="pb-16 px-11">
             <Button
-              onClick={() => window.location.href = '/contracting'}
+              onClick={() => window.location.href = '/'}
               className="w-full h-[54px] text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
               style={{
                 background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',
                 boxShadow: '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)'
               }}
             >
-              Continue to Contracting
+              Continue
             </Button>
           </CardContent>
         </Card>

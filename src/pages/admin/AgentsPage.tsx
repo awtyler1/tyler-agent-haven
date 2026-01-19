@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { UserPlus, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AllAgentsTab } from '@/components/admin/AllAgentsTab';
 import { TeamsTab } from '@/components/admin/TeamsTab';
@@ -45,8 +44,6 @@ export default function AgentsPage() {
     setCurrentTab(tab);
   };
 
-  const canAddAgents = isAdmin();
-
   // Loading state (only show page-level loading for auth)
   if (authLoading) {
     return (
@@ -63,41 +60,30 @@ export default function AgentsPage() {
 
   return (
     <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-serif font-medium text-foreground">Agents</h1>
-        {canAddAgents && (
-          <Link to="/admin/agents/new">
-            <Button>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Agent
-            </Button>
-          </Link>
-        )}
-      </div>
-
       {/* Tab Bar */}
-      <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit mb-6">
-        <button
-          onClick={() => handleTabChange('all')}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-            currentTab === 'all'
-              ? 'bg-white text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          All Agents
-        </button>
-        <button
-          onClick={() => handleTabChange('teams')}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-            currentTab === 'teams'
-              ? 'bg-white text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Teams
-        </button>
+      <div className="mb-6">
+        <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit">
+          <button
+            onClick={() => handleTabChange('all')}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              currentTab === 'all'
+                ? 'bg-white text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            All Agents
+          </button>
+          <button
+            onClick={() => handleTabChange('teams')}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              currentTab === 'teams'
+                ? 'bg-white text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Teams
+          </button>
+        </div>
       </div>
 
       {/* Tab Content */}

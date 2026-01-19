@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,9 +20,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, Loader2, X, Phone, Mail, Building2 } from 'lucide-react';
+import { Search, Loader2, X, Phone, Mail, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 type AgentStatus = 'imported' | 'invited' | 'active' | 'all';
+
+const AGENTS_PER_PAGE = 25;
 
 interface AgentProfile {
   id: string;
@@ -81,6 +84,36 @@ function formatDate(dateString: string | null): string {
   });
 }
 
+// Generate page numbers with ellipsis
+function getPageNumbers(currentPage: number, totalPages: number): (number | 'ellipsis')[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const pages: (number | 'ellipsis')[] = [];
+
+  if (currentPage <= 4) {
+    // Near start: [1] [2] [3] [4] [5] ... [last]
+    for (let i = 1; i <= 5; i++) pages.push(i);
+    pages.push('ellipsis');
+    pages.push(totalPages);
+  } else if (currentPage >= totalPages - 3) {
+    // Near end: [1] ... [last-4] [last-3] [last-2] [last-1] [last]
+    pages.push(1);
+    pages.push('ellipsis');
+    for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+  } else {
+    // Middle: [1] ... [curr-1] [curr] [curr+1] ... [last]
+    pages.push(1);
+    pages.push('ellipsis');
+    for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+    pages.push('ellipsis');
+    pages.push(totalPages);
+  }
+
+  return pages;
+}
+
 interface AllAgentsTabProps {
   initialManagerFilter?: string;
 }
@@ -96,6 +129,8 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
   const [stateFilter, setStateFilter] = useState<string>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedAgent, setSelectedAgent] = useState<AgentProfile | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sendingLinks, setSendingLinks] = useState(false);
 
   useEffect(() => {
     fetchAgents();
@@ -186,14 +221,6 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     }
   };
 
-  // Calculate stats
-  const stats = useMemo(() => {
-    const imported = agents.filter((a) => getAgentStatus(a) === 'imported').length;
-    const invited = agents.filter((a) => getAgentStatus(a) === 'invited').length;
-    const active = agents.filter((a) => getAgentStatus(a) === 'active').length;
-    return { imported, invited, active, total: agents.length };
-  }, [agents]);
-
   // Get unique managers (managers) for filter
   const uniqueManagers = useMemo((): ManagerInfo[] => {
     return Array.from(managerMap.entries())
@@ -210,9 +237,9 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     return Array.from(states).sort();
   }, [agents]);
 
-  // Filter agents
+  // Filter agents and reset page when filters change
   const filteredAgents = useMemo(() => {
-    return agents.filter((agent) => {
+    const filtered = agents.filter((agent) => {
       // Status filter
       if (statusFilter !== 'all' && getAgentStatus(agent) !== statusFilter) {
         return false;
@@ -244,15 +271,46 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
 
       return true;
     });
+
+    return filtered;
   }, [agents, statusFilter, managerFilter, stateFilter, searchQuery]);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, managerFilter, stateFilter, searchQuery]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredAgents.length / AGENTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * AGENTS_PER_PAGE;
+  const endIndex = Math.min(startIndex + AGENTS_PER_PAGE, filteredAgents.length);
+  const paginatedAgents = filteredAgents.slice(startIndex, endIndex);
+  const pageNumbers = getPageNumbers(currentPage, totalPages);
+
+  // Check if all agents on current page are selected
+  const currentPageIds = paginatedAgents.map((a) => a.id);
+  const allCurrentPageSelected = currentPageIds.length > 0 && currentPageIds.every((id) => selectedIds.has(id));
+  const someCurrentPageSelected = currentPageIds.some((id) => selectedIds.has(id));
+
   // Selection handlers
-  const toggleSelectAll = () => {
-    if (selectedIds.size === filteredAgents.length) {
-      setSelectedIds(new Set());
+  const toggleSelectAllOnPage = () => {
+    const newSelected = new Set(selectedIds);
+    if (allCurrentPageSelected) {
+      // Deselect all on current page
+      currentPageIds.forEach((id) => newSelected.delete(id));
     } else {
-      setSelectedIds(new Set(filteredAgents.map((a) => a.id)));
+      // Select all on current page
+      currentPageIds.forEach((id) => newSelected.add(id));
     }
+    setSelectedIds(newSelected);
+  };
+
+  const selectAllAgents = () => {
+    setSelectedIds(new Set(filteredAgents.map((a) => a.id)));
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
   };
 
   const toggleSelect = (id: string) => {
@@ -279,9 +337,58 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     }
   };
 
+  // Send setup link to one or more agents
+  const sendSetupLinks = async (profileIds: string[]) => {
+    if (profileIds.length === 0) return;
+
+    setSendingLinks(true);
+    let successCount = 0;
+    let errorCount = 0;
+    const errors: string[] = [];
+
+    for (const profileId of profileIds) {
+      try {
+        const { data, error } = await supabase.functions.invoke('send-setup-link', {
+          body: { profileId }
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (data?.error) {
+          throw new Error(data.error);
+        }
+
+        successCount++;
+      } catch (err) {
+        errorCount++;
+        const agent = agents.find(a => a.id === profileId);
+        const name = agent?.full_name || 'Unknown';
+        errors.push(`${name}: ${err instanceof Error ? err.message : 'Failed'}`);
+        console.error(`Failed to send setup link to ${profileId}:`, err);
+      }
+    }
+
+    setSendingLinks(false);
+
+    // Show results
+    if (successCount > 0 && errorCount === 0) {
+      toast.success(`Setup link${successCount > 1 ? 's' : ''} sent to ${successCount} agent${successCount > 1 ? 's' : ''}`);
+    } else if (successCount > 0 && errorCount > 0) {
+      toast.warning(`Sent ${successCount}, failed ${errorCount}. Check console for details.`);
+    } else {
+      toast.error(`Failed to send setup links: ${errors[0]}`);
+    }
+
+    // Clear selection and refresh data
+    setSelectedIds(new Set());
+    fetchAgents();
+  };
+
   const handleSendSetupLinks = () => {
-    console.log('Send setup links to:', Array.from(selectedIds));
-    // TODO: Implement bulk send
+    const ids = Array.from(selectedIds);
+    sendSetupLinks(ids);
   };
 
   const handleAssignManager = () => {
@@ -304,13 +411,13 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-[calc(100vh-180px)]">
       {/* Search + Filters Row */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-shrink-0 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Search by name, email, NPN..."
+            placeholder={`Search ${agents.length} agents...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 h-10 border-gray-300"
@@ -356,163 +463,257 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
         </Select>
       </div>
 
-      {/* Stats Line */}
-      <div className="flex items-center gap-3 text-sm text-gray-500">
-        <span>{stats.total} agents</span>
-        <span className="text-gray-300">·</span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="w-2 h-2 bg-gray-300 rounded-full" />
-          {stats.imported} imported
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="w-2 h-2 bg-yellow-400 rounded-full" />
-          {stats.invited} invited
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="w-2 h-2 bg-green-500 rounded-full" />
-          {stats.active} active
-        </span>
-      </div>
+      {/* Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex-shrink-0 mb-4 bg-primary/10 border border-primary/20 rounded-lg p-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-foreground">
+                {selectedIds.size} agent{selectedIds.size > 1 ? 's' : ''} selected
+              </span>
+              <button
+                onClick={clearSelection}
+                className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <X className="w-3.5 h-3.5" />
+                Clear
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-white"
+                onClick={handleAssignManager}
+              >
+                Assign Manager...
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSendSetupLinks}
+                disabled={sendingLinks}
+              >
+                {sendingLinks ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  'Send Setup Links'
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content: Table + Quick View Panel */}
-      <div className="flex gap-4">
-        {/* Table */}
-        <div className="flex-1 border border-gray-200 rounded-lg overflow-hidden bg-white">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50 hover:bg-gray-50">
-                <TableHead className="w-10 px-3 py-3">
-                  <Checkbox
-                    checked={selectedIds.size === filteredAgents.length && filteredAgents.length > 0}
-                    onCheckedChange={toggleSelectAll}
-                  />
-                </TableHead>
-                <TableHead className="px-3 py-3 font-medium text-gray-600">Name</TableHead>
-                <TableHead className="px-3 py-3 font-medium text-gray-600">Phone</TableHead>
-                <TableHead className="px-3 py-3 font-medium text-gray-600">Email</TableHead>
-                <TableHead className="px-3 py-3 font-medium text-gray-600">Manager</TableHead>
-                <TableHead className="w-16 px-3 py-3 text-center font-medium text-gray-600">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAgents.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                    No agents found
-                  </TableCell>
+      <div className="flex-1 min-h-0 flex gap-4">
+        {/* Table Container */}
+        <div className="flex-1 min-h-0 flex flex-col border border-border rounded-lg bg-white overflow-hidden">
+          {/* Select all banner */}
+          {allCurrentPageSelected && selectedIds.size < filteredAgents.length && (
+            <div className="flex-shrink-0 px-4 py-2 bg-muted/50 border-b border-border text-sm">
+              All {paginatedAgents.length} agents on this page are selected.{' '}
+              <button
+                onClick={selectAllAgents}
+                className="text-primary hover:underline font-medium"
+              >
+                Select all {filteredAgents.length} agents
+              </button>
+            </div>
+          )}
+
+          {/* Scrollable Table Area */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <Table>
+              <TableHeader className="sticky top-0 z-10">
+                <TableRow className="bg-muted hover:bg-muted">
+                  <TableHead className="w-10 px-3 py-3 bg-muted">
+                    <Checkbox
+                      checked={allCurrentPageSelected}
+                      ref={(el) => {
+                        if (el) {
+                          (el as unknown as HTMLInputElement).indeterminate = someCurrentPageSelected && !allCurrentPageSelected;
+                        }
+                      }}
+                      onCheckedChange={toggleSelectAllOnPage}
+                    />
+                  </TableHead>
+                  <TableHead className="px-3 py-3 font-medium text-muted-foreground bg-muted">Name</TableHead>
+                  <TableHead className="px-3 py-3 font-medium text-muted-foreground bg-muted">Phone</TableHead>
+                  <TableHead className="px-3 py-3 font-medium text-muted-foreground bg-muted">Email</TableHead>
+                  <TableHead className="px-3 py-3 font-medium text-muted-foreground bg-muted">Manager</TableHead>
+                  <TableHead className="w-16 px-3 py-3 text-center font-medium text-muted-foreground bg-muted">Status</TableHead>
                 </TableRow>
-              ) : (
-                filteredAgents.map((agent) => (
-                  <TableRow
-                    key={agent.id}
-                    className={`cursor-pointer hover:bg-gray-50 ${
-                      selectedAgent?.id === agent.id ? 'bg-blue-50' : ''
-                    } ${selectedIds.has(agent.id) ? 'bg-blue-50' : ''}`}
-                    onClick={() => handleRowClick(agent)}
-                  >
-                    <TableCell className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selectedIds.has(agent.id)}
-                        onCheckedChange={() => toggleSelect(agent.id)}
-                      />
-                    </TableCell>
-                    <TableCell className="px-3 py-3 font-medium text-gray-900">
-                      {agent.full_name || '—'}
-                    </TableCell>
-                    <TableCell className="px-3 py-3 text-gray-600">
-                      {agent.phone || '—'}
-                    </TableCell>
-                    <TableCell className="px-3 py-3 text-gray-600">
-                      {agent.email || '—'}
-                    </TableCell>
-                    <TableCell className="px-3 py-3 text-gray-600">
-                      {getManagerName(agent.manager_id) || (
-                        <span className="inline-flex items-center gap-1.5 text-gray-400 italic">
-                          <Building2 className="w-3.5 h-3.5" />
-                          Direct to TIG
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="px-3 py-3 text-center">
-                      <StatusDot status={getAgentStatus(agent)} />
+              </TableHeader>
+              <TableBody>
+                {paginatedAgents.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No agents found
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-          {/* Table Footer */}
-          <div className="px-4 py-3 border-t border-gray-200 bg-gray-50 text-sm text-gray-500">
-            Showing {filteredAgents.length} of {agents.length} agents
+                ) : (
+                  paginatedAgents.map((agent) => (
+                    <TableRow
+                      key={agent.id}
+                      className={`cursor-pointer hover:bg-muted/50 ${
+                        selectedAgent?.id === agent.id ? 'bg-primary/5' : ''
+                      } ${selectedIds.has(agent.id) ? 'bg-primary/5' : ''}`}
+                      onClick={() => handleRowClick(agent)}
+                    >
+                      <TableCell className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedIds.has(agent.id)}
+                          onCheckedChange={() => toggleSelect(agent.id)}
+                        />
+                      </TableCell>
+                      <TableCell className="px-3 py-3 font-medium text-foreground">
+                        {agent.full_name || '—'}
+                      </TableCell>
+                      <TableCell className="px-3 py-3 text-muted-foreground">
+                        {agent.phone || '—'}
+                      </TableCell>
+                      <TableCell className="px-3 py-3 text-muted-foreground">
+                        {agent.email || '—'}
+                      </TableCell>
+                      <TableCell className="px-3 py-3 text-muted-foreground">
+                        {getManagerName(agent.manager_id) || (
+                          <span className="inline-flex items-center gap-1.5 text-muted-foreground/60 italic">
+                            <Building2 className="w-3.5 h-3.5" />
+                            Direct to TIG
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-3 py-3 text-center">
+                        <StatusDot status={getAgentStatus(agent)} />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination Footer - Anchored at bottom */}
+          <div className="flex-shrink-0 px-4 py-3 border-t border-border bg-muted/50 flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Showing {filteredAgents.length === 0 ? 0 : startIndex + 1}–{endIndex} of {filteredAgents.length} agents
+            </span>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="h-8 px-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="sr-only">Previous</span>
+                </Button>
+
+                {pageNumbers.map((page, idx) =>
+                  page === 'ellipsis' ? (
+                    <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
+                      ...
+                    </span>
+                  ) : (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className="h-8 w-8 p-0"
+                    >
+                      {page}
+                    </Button>
+                  )
+                )}
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="h-8 px-2"
+                >
+                  <span className="sr-only">Next</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Quick View Panel */}
         {selectedAgent && (
-          <div className="w-80 border border-gray-200 rounded-lg bg-gray-50 flex-shrink-0">
+          <div className="w-80 flex-shrink-0 flex flex-col border border-border rounded-lg bg-muted/30 overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 bg-white rounded-t-lg flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">{selectedAgent.full_name || 'Unnamed'}</h3>
+            <div className="flex-shrink-0 p-4 border-b border-border bg-white flex items-center justify-between">
+              <h3 className="font-semibold text-foreground">{selectedAgent.full_name || 'Unnamed'}</h3>
               <button
                 onClick={closeQuickView}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Body */}
-            <div className="p-4 space-y-4">
+            {/* Scrollable Body */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
               {/* Contact Info */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <Phone className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-900">{selectedAgent.phone || '—'}</span>
+                  <Phone className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-foreground">{selectedAgent.phone || '—'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-900">{selectedAgent.email || '—'}</span>
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-foreground">{selectedAgent.email || '—'}</span>
                 </div>
               </div>
 
               {/* Details */}
-              <div className="border-t border-gray-200 pt-4 space-y-3">
+              <div className="border-t border-border pt-4 space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">NPN</span>
-                  <span className="text-gray-900 font-medium">{selectedAgent.npn || '—'}</span>
+                  <span className="text-muted-foreground">NPN</span>
+                  <span className="text-foreground font-medium">{selectedAgent.npn || '—'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">State</span>
-                  <span className="text-gray-900">{selectedAgent.resident_state || '—'}</span>
+                  <span className="text-muted-foreground">State</span>
+                  <span className="text-foreground">{selectedAgent.resident_state || '—'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Manager</span>
+                  <span className="text-muted-foreground">Manager</span>
                   {getManagerName(selectedAgent.manager_id) ? (
-                    <span className="text-gray-900">{getManagerName(selectedAgent.manager_id)}</span>
+                    <span className="text-foreground">{getManagerName(selectedAgent.manager_id)}</span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-gray-400 italic">
+                    <span className="inline-flex items-center gap-1 text-muted-foreground/60 italic">
                       <Building2 className="w-3 h-3" />
                       Direct to TIG
                     </span>
                   )}
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Status</span>
+                  <span className="text-muted-foreground">Status</span>
                   <span className="inline-flex items-center gap-1.5">
                     <StatusDot status={getAgentStatus(selectedAgent)} />
-                    <span className="text-gray-900 capitalize">{getAgentStatus(selectedAgent)}</span>
+                    <span className="text-foreground capitalize">{getAgentStatus(selectedAgent)}</span>
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Created</span>
-                  <span className="text-gray-900">{formatDate(selectedAgent.created_at)}</span>
+                  <span className="text-muted-foreground">Created</span>
+                  <span className="text-foreground">{formatDate(selectedAgent.created_at)}</span>
                 </div>
               </div>
 
               {/* Quick Actions */}
-              <div className="border-t border-gray-200 pt-4 space-y-2">
+              <div className="border-t border-border pt-4 space-y-2">
                 <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full"
                   onClick={handleViewFullProfile}
                 >
                   View Full Profile
@@ -527,41 +728,23 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => console.log('Send setup link for:', selectedAgent.id)}
+                  onClick={() => sendSetupLinks([selectedAgent.id])}
+                  disabled={sendingLinks}
                 >
-                  Send Setup Link
+                  {sendingLinks ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Setup Link'
+                  )}
                 </Button>
               </div>
             </div>
           </div>
         )}
       </div>
-
-      {/* Bulk Action Bar */}
-      {selectedIds.size > 0 && (
-        <div className="border-t border-gray-200 bg-blue-50 p-4 rounded-lg -mx-0">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-900">
-              {selectedIds.size} agent{selectedIds.size > 1 ? 's' : ''} selected
-            </span>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="bg-white"
-                onClick={handleAssignManager}
-              >
-                Assign Manager...
-              </Button>
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={handleSendSetupLinks}
-              >
-                Send Setup Links
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
