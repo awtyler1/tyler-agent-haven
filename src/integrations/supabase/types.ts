@@ -323,7 +323,7 @@ export type Database = {
           link_resend_requested_at: string | null
           profile_id: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           carrier_id: string
@@ -338,7 +338,7 @@ export type Database = {
           link_resend_requested_at?: string | null
           profile_id?: string | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           carrier_id?: string
@@ -353,7 +353,7 @@ export type Database = {
           link_resend_requested_at?: string | null
           profile_id?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1043,6 +1043,7 @@ export type Database = {
           created_at: string | null
           file_name: string
           id: string
+          profiles_created: number
           uploaded_by: string
         }
         Insert: {
@@ -1052,6 +1053,7 @@ export type Database = {
           created_at?: string | null
           file_name: string
           id?: string
+          profiles_created?: number
           uploaded_by: string
         }
         Update: {
@@ -1061,6 +1063,7 @@ export type Database = {
           created_at?: string | null
           file_name?: string
           id?: string
+          profiles_created?: number
           uploaded_by?: string
         }
         Relationships: [

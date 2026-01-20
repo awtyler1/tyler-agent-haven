@@ -5,6 +5,7 @@ import type { TablesInsert } from '@/integrations/supabase/types';
 export interface RTSImportResult {
   matched: number;
   skipped: number;
+  profiles_created: number;
   certifications_imported: number;
   carrier_statuses_updated: number;
   errors: string[];
@@ -21,6 +22,46 @@ interface NPNProfileMap {
 
 interface CarrierNameMap {
   [normalizedName: string]: string; // carrier name/alias -> carrier_id
+}
+
+// Business name indicators - used to prefer human names over business names
+const BUSINESS_NAME_PATTERNS = [
+  /\bllc\b/i,
+  /\binc\b/i,
+  /\bagency\b/i,
+  /\binsurance\b/i,
+  /\bservices\b/i,
+  /\bgroup\b/i,
+  /\bcorp\b/i,
+  /\bcompany\b/i,
+];
+
+/**
+ * Check if a name looks like a business name rather than a person's name
+ */
+function isBusinessName(name: string): boolean {
+  if (!name) return true;
+  return BUSINESS_NAME_PATTERNS.some(pattern => pattern.test(name));
+}
+
+/**
+ * Select the best name from a list of names for the same NPN
+ * Prefers human names over business names
+ */
+function selectBestName(names: string[]): string {
+  if (names.length === 0) return 'Unknown Agent';
+  if (names.length === 1) return names[0];
+
+  // Filter to human names (non-business)
+  const humanNames = names.filter(name => !isBusinessName(name));
+
+  // If we found human names, return the first one
+  if (humanNames.length > 0) {
+    return humanNames[0];
+  }
+
+  // Fall back to first name in list
+  return names[0];
 }
 
 /**
@@ -107,8 +148,103 @@ async function buildCarrierNameMap(): Promise<CarrierNameMap> {
 }
 
 /**
+ * Pre-process RTS rows to build NPN -> best name mapping
+ * Handles duplicate NPN rows by selecting human names over business names
+ */
+function buildNPNNameMap(dataRows: unknown[][]): Map<string, string> {
+  const npnNames = new Map<string, string[]>();
+
+  for (const row of dataRows) {
+    const npnRaw = row[3];
+    const nameRaw = row[0];
+
+    if (!npnRaw) continue;
+
+    const npn = String(npnRaw).replace(/\D/g, '');
+    if (!npn) continue;
+
+    const name = nameRaw ? String(nameRaw).trim() : '';
+    if (!name) continue;
+
+    // Collect all names for this NPN
+    const existing = npnNames.get(npn) || [];
+    if (!existing.includes(name)) {
+      existing.push(name);
+    }
+    npnNames.set(npn, existing);
+  }
+
+  // Select best name for each NPN
+  const bestNames = new Map<string, string>();
+  for (const [npn, names] of npnNames) {
+    bestNames.set(npn, selectBestName(names));
+  }
+
+  return bestNames;
+}
+
+/**
+ * Create stub profiles for NPNs not found in the system
+ * Returns count of profiles created and updates the npnMap in place
+ */
+async function createMissingProfiles(
+  unmatchedNPNs: Set<string>,
+  npnNameMap: Map<string, string>,
+  npnMap: NPNProfileMap,
+  result: RTSImportResult
+): Promise<number> {
+  if (unmatchedNPNs.size === 0) return 0;
+
+  let profilesCreated = 0;
+  const profilesToCreate: TablesInsert<'profiles'>[] = [];
+
+  for (const npn of unmatchedNPNs) {
+    const fullName = npnNameMap.get(npn) || 'Unknown Agent';
+    profilesToCreate.push({
+      npn,
+      full_name: fullName,
+      email: null,
+      manager_id: null,
+      onboarding_status: 'CONTRACTING_REQUIRED',
+      is_active: true,
+    });
+  }
+
+  // Process in batches of 500
+  const batchSize = 500;
+  for (let i = 0; i < profilesToCreate.length; i += batchSize) {
+    const batch = profilesToCreate.slice(i, i + batchSize);
+
+    const { data: createdProfiles, error } = await supabase
+      .from('profiles')
+      .insert(batch)
+      .select('id, npn');
+
+    if (error) {
+      console.error('Profile creation failed:', JSON.stringify(error, null, 2));
+      result.errors.push(`Profile creation error: ${error.message}`);
+      continue;
+    }
+
+    // Update npnMap with newly created profiles
+    for (const profile of createdProfiles || []) {
+      if (profile.npn) {
+        const normalizedNPN = profile.npn.replace(/\D/g, '');
+        npnMap[normalizedNPN] = {
+          profileId: profile.id,
+          userId: null, // New profiles don't have auth users
+        };
+        profilesCreated++;
+      }
+    }
+  }
+
+  return profilesCreated;
+}
+
+/**
  * Import RTS certifications from Pinnacle Excel spreadsheet
- * Updates both agent_certifications and carrier_statuses tables
+ * Creates profiles for unmatched NPNs, then updates certifications and carrier statuses
  */
 export async function importRTSCertifications(options: RTSImportOptions): Promise<RTSImportResult> {
   const { file, uploadedByProfileId } = options;
@@ -116,6 +252,7 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
   const result: RTSImportResult = {
     matched: 0,
     skipped: 0,
+    profiles_created: 0,
     certifications_imported: 0,
     carrier_statuses_updated: 0,
     errors: [],
@@ -145,7 +282,7 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
 
   // First row is headers
   const headers = rawData[0] as string[];
-  const dataRows = rawData.slice(1);
+  const dataRows = rawData.slice(1) as unknown[][];
 
   // Build lookup maps
   const npnMap = await buildNPNProfileMap();
@@ -164,39 +301,75 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
     throw new Error('No valid certification columns found in headers');
   }
 
-  // Process each data row
-  const certificationsToUpsert: TablesInsert<'agent_certifications'>[] = [];
+  // ========================================
+  // PHASE 1: Identify unmatched NPNs and build name map
+  // ========================================
+  const npnNameMap = buildNPNNameMap(dataRows);
+  const unmatchedNPNs = new Set<string>();
 
-  // Track carrier statuses to update: Map<"profileId:carrierId", { profileId, userId, carrierId }>
+  for (const row of dataRows) {
+    const npnRaw = row[3];
+    if (!npnRaw) continue;
+
+    const npn = String(npnRaw).replace(/\D/g, '');
+    if (!npn) continue;
+
+    // Check if this NPN exists in our system
+    if (!npnMap[npn]) {
+      unmatchedNPNs.add(npn);
+    }
+  }
+
+  // ========================================
+  // PHASE 2: Create profiles for unmatched NPNs
+  // ========================================
+  if (unmatchedNPNs.size > 0) {
+    result.profiles_created = await createMissingProfiles(
+      unmatchedNPNs,
+      npnNameMap,
+      npnMap,
+      result
+    );
+  }
+
+  // ========================================
+  // PHASE 3: Process certifications (now all NPNs should have profiles)
+  // ========================================
+  const certificationsToUpsert: TablesInsert<'agent_certifications'>[] = [];
   const carrierStatusesToUpdate = new Map<string, { profileId: string; userId: string | null; carrierId: string }>();
+  const processedNPNs = new Set<string>();
 
   for (let rowIndex = 0; rowIndex < dataRows.length; rowIndex++) {
-    const row = dataRows[rowIndex] as unknown[];
+    const row = dataRows[rowIndex];
 
     try {
       // Column D (index 3) is NPN
       const npnRaw = row[3];
       if (!npnRaw) {
-        result.skipped++;
-        continue;
+        continue; // Skip rows without NPN (don't count as skipped since no NPN to match)
       }
 
       // Normalize NPN
       const npn = String(npnRaw).replace(/\D/g, '');
       if (!npn) {
-        result.skipped++;
         continue;
       }
 
       // Look up profile
       const profileData = npnMap[npn];
       if (!profileData) {
+        // This shouldn't happen after profile creation, but handle gracefully
         result.skipped++;
         continue;
       }
 
       const { profileId, userId } = profileData;
-      result.matched++;
+
+      // Count unique NPNs as matched (avoid double-counting duplicate rows)
+      if (!processedNPNs.has(npn)) {
+        processedNPNs.add(npn);
+        result.matched++;
+      }
 
       // Process each certification column
       for (const col of certColumns) {
@@ -230,7 +403,9 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
     }
   }
 
-  // Batch upsert certifications
+  // ========================================
+  // PHASE 4: Batch upsert certifications
+  // ========================================
   if (certificationsToUpsert.length > 0) {
     // Dedupe certifications by composite key (RTS report may have duplicate rows)
     const certMap = new Map<string, (typeof certificationsToUpsert)[0]>();
@@ -263,7 +438,9 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
     }
   }
 
-  // Batch upsert carrier_statuses for RTS agents
+  // ========================================
+  // PHASE 5: Batch upsert carrier_statuses for RTS agents
+  // ========================================
   if (carrierStatusesToUpdate.size > 0) {
     const statusUpdates = Array.from(carrierStatusesToUpdate.values()).map(({ profileId, userId, carrierId }) => ({
       profile_id: profileId,
@@ -303,12 +480,15 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
     }
   }
 
-  // Log the import
+  // ========================================
+  // PHASE 6: Log the import
+  // ========================================
   await supabase.from('rts_import_logs').insert({
     uploaded_by: uploadedByProfileId,
     file_name: file.name,
     agents_matched: result.matched,
     agents_skipped: result.skipped,
+    profiles_created: result.profiles_created,
     certifications_imported: result.certifications_imported,
   });
 

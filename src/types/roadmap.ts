@@ -1,5 +1,5 @@
-// src/types/roadmap.ts
-// V6 - Added referral metrics and season context
+// src/types/growthPlan.ts (formerly roadmap.ts)
+// V7 - Existing book income factored into projections
 
 export interface BrokerProfile {
   id?: string;
@@ -89,6 +89,7 @@ export interface ActivityTargets {
 
 export interface YearProjection {
   year: number;
+  book_size: number;           // End of year book size (V7)
   new_clients: number;
   renewal_clients: number;
   new_income: number;
@@ -97,14 +98,34 @@ export interface YearProjection {
 }
 
 export interface Economics {
+  // Display values (75/25 split for the breakdown box)
   t65_monthly: number;
   plan_change_monthly: number;
   monthly_new_income: number;
   annual_new_income: number;
+
+  // Projection values (conservative $347 baseline)
+  projection_monthly: number;
+  annual_projection: number;
+
+  // Existing book value (V7)
+  existing_book_size: number;
+  existing_book_year1_renewals: number;
+
+  // 5-year projection
   years: YearProjection[];
+
+  // Cumulative and comparison values
+  cumulative_5_year: number;
+  year_5_renewal: number;
+  estimated_book_value: number;
+  crossover_year: number;
+
+  // AEP context
+  aep_note: string;
 }
 
-export interface RoadmapGenerationResult {
+export interface GrowthPlanResult {
   success: boolean;
   filename?: string;
   pdf?: string; // base64
@@ -115,6 +136,9 @@ export interface RoadmapGenerationResult {
   economics?: Economics;
   review_date?: string;
 }
+
+// Backward compatibility alias
+export type RoadmapGenerationResult = GrowthPlanResult;
 
 // Default values for new broker profile
 export const DEFAULT_BROKER_PROFILE: Omit<BrokerProfile, 'broker_name' | 'manager_name'> = {

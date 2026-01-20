@@ -38,8 +38,8 @@ verify_jwt = false
 # Internal auth: validates user session before generating PDF
 verify_jwt = false
 
-[functions.generate-roadmap-pdf]
-# Roadmap PDF generation - disable gateway JWT due to ECC key issue
+[functions.generate-growth-plan-pdf]
+# Growth Plan PDF generation - disable gateway JWT due to ECC key issue
 verify_jwt = false
 
 # =============================================================================

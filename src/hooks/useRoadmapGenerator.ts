@@ -1,5 +1,5 @@
-// src/hooks/useRoadmapGenerator.ts
-// V5 - Updated for goal-driven roadmaps with resource assignments
+// src/hooks/useGrowthPlanGenerator.ts (formerly useRoadmapGenerator.ts)
+// V6 - Renamed from Roadmap to Growth Plan
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,7 +24,7 @@ export function useRoadmapGenerator() {
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('generate-roadmap-pdf', {
+      const { data, error: fnError } = await supabase.functions.invoke('generate-growth-plan-pdf', {
         body: {
           profile: {
             broker_name: profile.broker_name,
@@ -44,13 +44,13 @@ export function useRoadmapGenerator() {
       }
 
       if (!data.success) {
-        throw new Error(data.error || 'Failed to generate roadmap');
+        throw new Error(data.error || 'Failed to generate growth plan');
       }
 
-      toast.success('Roadmap generated successfully');
+      toast.success('Growth plan generated successfully');
       return data as RoadmapGenerationResult;
     } catch (err: any) {
-      const message = err.message || 'Failed to generate roadmap';
+      const message = err.message || 'Failed to generate growth plan';
       setError(message);
       toast.error(message);
       return { success: false, error: message };
@@ -197,7 +197,7 @@ export function useRoadmapGenerator() {
         created_by: row.created_by,
       }));
     } catch (err: any) {
-      const message = err.message || 'Failed to fetch roadmaps';
+      const message = err.message || 'Failed to fetch growth plans';
       setError(message);
       toast.error(message);
       return [];

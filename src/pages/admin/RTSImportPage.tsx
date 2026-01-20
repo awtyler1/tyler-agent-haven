@@ -25,6 +25,7 @@ export default function RTSImportPage() {
   const [loadingLastImport, setLoadingLastImport] = useState(true);
   const [importResult, setImportResult] = useState<{
     agentsMatched: number;
+    profilesCreated: number;
     certificationsImported: number;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -91,8 +92,9 @@ export default function RTSImportPage() {
       });
       fetchLastImport();
       setImportResult({
-        agentsMatched: result.agentsMatched,
-        certificationsImported: result.certificationsImported,
+        agentsMatched: result.matched,
+        profilesCreated: result.profiles_created,
+        certificationsImported: result.certifications_imported,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed');
@@ -166,7 +168,8 @@ export default function RTSImportPage() {
               </div>
               <p className="text-lg font-medium text-green-800 mb-1">Import Complete</p>
               <p className="text-sm text-green-700">
-                {importResult.agentsMatched} agents · {importResult.certificationsImported} carriers synced
+                {importResult.agentsMatched} agents synced
+                {importResult.profilesCreated > 0 && ` · ${importResult.profilesCreated} new profiles created`}
               </p>
             </div>
             <Button

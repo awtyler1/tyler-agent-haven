@@ -1,7 +1,13 @@
 /**
- * Generate Roadmap PDF Edge Function - V5
+ * Generate Growth Plan PDF Edge Function - V7
  *
- * Generates a 7-page Strategic Growth Roadmap PDF.
+ * Generates a 7-page Strategic Growth Plan PDF.
+ * V7 Changes:
+ * - Existing book income factored into Year 1+ projections
+ * - "Your Starting Position" section on Page 3 (conditional)
+ * - Book size column in 5-year trajectory table
+ * - Redesigned economics page flow
+ *
  * Professional. Grounded. No hype.
  */
 
@@ -72,7 +78,7 @@ interface ActivityTargets {
   lead_star_leads: number;
   lead_star_expected: number;
 
-  // Referral specific metrics (NEW)
+  // Referral specific metrics
   referral_weekly_asks: number;
   referral_expected_names: number;
   referral_expected_monthly_sales: number;
@@ -88,13 +94,14 @@ interface ActivityTargets {
   math_attempts_needed: number;
   buffer_percentage: number;
 
-  // Season context (NEW)
+  // Season context
   season: 'oep' | 'aep';
   season_note: string;
 }
 
 interface YearProjection {
   year: number;
+  book_size: number;         // End of year book size (V7)
   new_clients: number;
   renewal_clients: number;
   new_income: number;
@@ -103,11 +110,31 @@ interface YearProjection {
 }
 
 interface Economics {
+  // Display values (75/25 split for the breakdown box)
   t65_monthly: number;
   plan_change_monthly: number;
-  monthly_new_income: number;
-  annual_new_income: number;
+  monthly_new_income: number;      // Realistic blended amount for display
+  annual_new_income: number;       // Existing field - keep for display
+
+  // Projection values (conservative $347 baseline)
+  projection_monthly: number;      // $347 x goal
+  annual_projection: number;       // projection_monthly x 12
+
+  // Existing book value (V7)
+  existing_book_size: number;
+  existing_book_year1_renewals: number;  // What the existing book generates in Year 1
+
+  // 5-year projection
   years: YearProjection[];
+
+  // Cumulative and comparison values
+  cumulative_5_year: number;       // Total earned over 5 years
+  year_5_renewal: number;          // Renewal income in year 5
+  estimated_book_value: number;    // ~2x annual renewals
+  crossover_year: number;          // Year when renewals > $50K (or 0 if never)
+
+  // AEP context
+  aep_note: string;
 }
 
 // ============================================================================
@@ -140,6 +167,8 @@ const LIGHT_GRAY = rgb(0.91, 0.91, 0.91);
 const TIER2_BG = rgb(0.96, 0.96, 0.96);  // #F5F5F5 - subtle background for Tier 2 channels
 const SCRIPT_BG = rgb(0.996, 0.976, 0.906);  // #FEF9E7 - light gold/cream for script boxes
 const WHITE = rgb(1, 1, 1);
+const GREEN_LIGHT = rgb(0.90, 0.96, 0.90);  // Light green for "Stay" column
+const RED_LIGHT = rgb(0.96, 0.90, 0.90);    // Light red for "Quit" column
 
 // Page dimensions
 const PAGE_WIDTH = 612;
@@ -232,7 +261,7 @@ function buildChannels(profile: BrokerProfile): GrowthChannel[] {
       const expectedNames = Math.round(asks * REFERRAL.YIELD_RATE * 10) / 10;
       weeklyTarget = `${asks} asks -> ~${expectedNames} names/wk`;
       description = `Referral machine (${referralEligibleBook} eligible) -> ~${monthlyExpectedSales} sales/mo potential`;
-      setup = 'At your book size, referrals should be your #1 source. Prioritize these calls.';
+      setup = 'At your book size, referrals are #1. Prioritize these calls.';
     }
 
     channels.push({
@@ -489,7 +518,7 @@ function calculateActivity(profile: BrokerProfile): ActivityTargets {
   const weeklyReferralAsks = Math.max(3, Math.min(weeklyAsksFromBookForActivity + weeklyFromNewSales, REFERRAL.MAX_WEEKLY_ASKS));
 
   // ============================================
-  // REFERRAL-SPECIFIC METRICS (NEW)
+  // REFERRAL-SPECIFIC METRICS
   // ============================================
   const referralEligibleBook = Math.floor(book * REFERRAL.TENURE_ELIGIBLE_PERCENT);
   const annualAsksFromBook = referralEligibleBook * REFERRAL.ASKS_PER_CLIENT_PER_YEAR;
@@ -525,7 +554,7 @@ function calculateActivity(profile: BrokerProfile): ActivityTargets {
     lead_star_leads: profile.lead_star_leads,
     lead_star_expected: leadStarExpected,
 
-    // Referral specific (NEW)
+    // Referral specific
     referral_weekly_asks: totalReferralAsks,
     referral_expected_names: referralExpectedNames,
     referral_expected_monthly_sales: referralExpectedMonthlySales,
@@ -541,50 +570,97 @@ function calculateActivity(profile: BrokerProfile): ActivityTargets {
     math_attempts_needed: attemptsNeeded,
     buffer_percentage: bufferPercentage,
 
-    // Season context (NEW)
+    // Season context
     season: 'oep',
     season_note: 'These targets are calibrated for OEP (Jan-Sep). AEP requires a different playbook.',
   };
 }
 
-function calculateEconomics(monthlyGoal: number): Economics {
-  const t65Monthly = Math.floor(monthlyGoal / 2);
+/**
+ * Calculates economics with existing book factored into projections.
+ * V7 - Existing clients generate renewals starting Year 1.
+ */
+function calculateEconomics(monthlyGoal: number, bookSize: number = 0): Economics {
+  // 75/25 split: 75% plan changes, 25% T65 (matches field reality)
+  const t65Monthly = Math.floor(monthlyGoal * 0.25);
   const planChangeMonthly = monthlyGoal - t65Monthly;
 
+  // Blended income for display (realistic mix)
   const monthlyNewIncome = (t65Monthly * COMMISSION.T65) + (planChangeMonthly * COMMISSION.PLAN_CHANGE);
   const annualNewIncome = monthlyNewIncome * 12;
-  const annualClients = monthlyGoal * 12;
+
+  // Conservative projection: use $347 for all new clients
+  const projectionMonthly = monthlyGoal * COMMISSION.PLAN_CHANGE; // $347 per client
+  const annualProjection = projectionMonthly * 12;
+
+  const annualNewClients = monthlyGoal * 12;
+
+  // V7: Existing book generates renewals starting Year 1
+  const existingBookYear1Renewals = Math.round(bookSize * COMMISSION.RETENTION_RATE * COMMISSION.RENEWAL_ANNUAL);
 
   const years: YearProjection[] = [];
-  let totalClients = 0;
+  let previousYearEndBook = bookSize;  // Start with existing book
 
   for (let year = 1; year <= 5; year++) {
-    const renewalClients = year === 1 ? 0 : Math.round(totalClients * COMMISSION.RETENTION_RATE);
-    const newClients = annualClients;
-    totalClients = renewalClients + newClients;
+    // Retained clients from previous year's ending book
+    const retainedClients = Math.round(previousYearEndBook * COMMISSION.RETENTION_RATE);
 
-    const newIncome = annualNewIncome;
-    const renewalIncome = Math.round(renewalClients * COMMISSION.RENEWAL_ANNUAL);
+    // New clients this year
+    const newClients = annualNewClients;
+
+    // End of year book size
+    const endOfYearBook = retainedClients + newClients;
+
+    // Income calculations (conservative $347 baseline)
+    const newIncome = annualProjection;
+    const renewalIncome = Math.round(retainedClients * COMMISSION.RENEWAL_ANNUAL);
     const totalIncome = newIncome + renewalIncome;
 
     years.push({
       year,
+      book_size: endOfYearBook,
       new_clients: newClients,
-      renewal_clients: renewalClients,
+      renewal_clients: retainedClients,
       new_income: newIncome,
       renewal_income: renewalIncome,
       total_income: totalIncome,
     });
 
-    totalClients = newClients + renewalClients;
+    // Set up for next year
+    previousYearEndBook = endOfYearBook;
   }
+
+  // Calculate cumulative earnings
+  const cumulative5Year = years.reduce((sum, year) => sum + year.total_income, 0);
+  const year5Renewal = years[4].renewal_income;
+  const estimatedBookValue = Math.floor(year5Renewal * 2);
+
+  // Find crossover year where renewals > $50K
+  let crossoverYear = 0;
+  for (const year of years) {
+    if (year.renewal_income >= 50000 && crossoverYear === 0) {
+      crossoverYear = year.year;
+    }
+  }
+
+  // AEP note
+  const aepNote = "This plan covers OEP (January-September). During AEP (Oct 15-Dec 7), production typically increases to 50-60 clients in that 7-week window.";
 
   return {
     t65_monthly: t65Monthly,
     plan_change_monthly: planChangeMonthly,
     monthly_new_income: monthlyNewIncome,
     annual_new_income: annualNewIncome,
+    projection_monthly: projectionMonthly,
+    annual_projection: annualProjection,
+    existing_book_size: bookSize,
+    existing_book_year1_renewals: existingBookYear1Renewals,
     years,
+    cumulative_5_year: cumulative5Year,
+    year_5_renewal: year5Renewal,
+    estimated_book_value: estimatedBookValue,
+    crossover_year: crossoverYear,
+    aep_note: aepNote,
   };
 }
 
@@ -607,7 +683,7 @@ function drawHeader(
   });
 
   // Title
-  page.drawText('STRATEGIC GROWTH ROADMAP', {
+  page.drawText('STRATEGIC GROWTH PLAN', {
     x: MARGIN,
     y: PAGE_HEIGHT - 45,
     size: 14,
@@ -810,7 +886,7 @@ async function generatePdf(
 
     // Title
     const titleX = showLogo && logoImage ? margin + 40 : margin;
-    drawText(page, "STRATEGIC GROWTH ROADMAP", titleX, height - 30, 13, helveticaBold, CHARCOAL);
+    drawText(page, "STRATEGIC GROWTH PLAN", titleX, height - 30, 13, helveticaBold, CHARCOAL);
 
     // Page subtitle
     drawText(page, pageTitle, titleX, height - 42, 8, helvetica, GOLD);
@@ -862,7 +938,7 @@ async function generatePdf(
 
   // Goal text
   drawText(page, "Medicare enrollments per month", margin + 58, y - 25, 11, helveticaBold, CHARCOAL);
-  drawText(page, `${economics.t65_monthly} T65 + ${economics.plan_change_monthly} Plan Changes (50/50 target mix)`, margin + 58, y - 38, 8, helvetica, DARK_GRAY);
+  drawText(page, `${economics.t65_monthly} T65 + ${economics.plan_change_monthly} Plan Changes (75/25 mix)`, margin + 58, y - 38, 8, helvetica, DARK_GRAY);
 
   // Review date (right side)
   drawTextRight(page, `30-day review: ${reviewDateStr}`, width - margin - 11, y - 25, 8, helvetica, MEDIUM_GRAY);
@@ -1034,121 +1110,174 @@ async function generatePdf(
   }
 
   // ============================================
-  // PAGE 3: THE ECONOMICS
+  // PAGE 3: THE ECONOMICS (V7 - Redesigned)
   // ============================================
   page = pdfDoc.addPage([width, height]);
   drawHeader(page, "What You're Building");
   drawFooter(page, 3);
 
   y = height - 83;
-  drawText(page, "THE ECONOMICS", margin, y, 10, helveticaBold, CHARCOAL);
-  y -= 13;
-  drawText(page, "You're not just selling policies. You're building an asset.", margin, y, 9, helvetica, DARK_GRAY);
-  y -= 22;
+
+  // ----------------------------------------
+  // SECTION 1: YOUR STARTING POSITION (V7 - Conditional)
+  // ----------------------------------------
+  if (economics.existing_book_size > 0) {
+    drawText(page, "YOUR STARTING POSITION", margin, y, 10, helveticaBold, CHARCOAL);
+    y -= 14;
+
+    const startBoxH = 36;
+    drawRect(page, margin, y - startBoxH, contentWidth, startBoxH, GREEN_LIGHT, GOLD);
+
+    // Big number - existing book
+    drawText(page, `${economics.existing_book_size}`, margin + 12, y - 24, 20, helveticaBold, GOLD);
+
+    // Description
+    drawText(page, "clients already in your book", margin + 50, y - 14, 9, helveticaBold, CHARCOAL);
+    drawText(page, `Already generating ~${economics.existing_book_year1_renewals.toLocaleString()}/year in renewal income`, margin + 50, y - 26, 8, helvetica, DARK_GRAY);
+
+    // Validation message (right side)
+    drawTextRight(page, "You're not starting from zero.", width - margin - 10, y - 20, 8, helveticaBold, GOLD);
+
+    y -= startBoxH + 16;
+  }
+
+  // ----------------------------------------
+  // SECTION 2: WHAT YOU'RE ADDING
+  // ----------------------------------------
+  drawText(page, "WHAT YOU'RE ADDING", margin, y, 10, helveticaBold, CHARCOAL);
+  y -= 14;
 
   // Monthly breakdown
-  drawText(page, `Your ${profile.monthly_goal} plans/month breaks down to:`, margin, y, 9, helveticaBold, CHARCOAL);
-  y -= 16;
+  drawText(page, `Your ${profile.monthly_goal} plans/month breaks down to:`, margin, y, 9, helvetica, DARK_GRAY);
+  y -= 14;
 
   // T65 vs Plan Change boxes
   const econBoxW = 180;
-  const econBoxH = 43;
+  const econBoxH = 40;
 
   // T65 box
   drawRect(page, margin, y - econBoxH, econBoxW, econBoxH, GOLD_LIGHT, GOLD);
-  drawText(page, "T65 (New to Medicare)", margin + 9, y - 13, 9, helveticaBold, CHARCOAL);
-  drawText(page, `${economics.t65_monthly}`, margin + 9, y - 32, 18, helveticaBold, GOLD);
-  drawText(page, `x $694 = $${(economics.t65_monthly * 694).toLocaleString()}`, margin + 36, y - 30, 9, helvetica, DARK_GRAY);
+  drawText(page, "T65 (New to Medicare)", margin + 9, y - 12, 8, helveticaBold, CHARCOAL);
+  drawText(page, `${economics.t65_monthly}`, margin + 9, y - 30, 16, helveticaBold, GOLD);
+  drawText(page, `x $694 = ${(economics.t65_monthly * 694).toLocaleString()}`, margin + 32, y - 28, 8, helvetica, DARK_GRAY);
 
   // Plan Change box
   drawRect(page, margin + econBoxW + 14, y - econBoxH, econBoxW, econBoxH, WHITE, LIGHT_GRAY);
-  drawText(page, "Plan Changes", margin + econBoxW + 23, y - 13, 9, helveticaBold, CHARCOAL);
-  drawText(page, `${economics.plan_change_monthly}`, margin + econBoxW + 23, y - 32, 18, helveticaBold, CHARCOAL);
-  drawText(page, `x $347 = $${(economics.plan_change_monthly * 347).toLocaleString()}`, margin + econBoxW + 50, y - 30, 9, helvetica, DARK_GRAY);
+  drawText(page, "Plan Changes", margin + econBoxW + 23, y - 12, 8, helveticaBold, CHARCOAL);
+  drawText(page, `${economics.plan_change_monthly}`, margin + econBoxW + 23, y - 30, 16, helveticaBold, CHARCOAL);
+  drawText(page, `x $347 = ${(economics.plan_change_monthly * 347).toLocaleString()}`, margin + econBoxW + 46, y - 28, 8, helvetica, DARK_GRAY);
 
   // Monthly/Annual totals (right side)
-  drawTextRight(page, `Monthly: $${economics.monthly_new_income.toLocaleString()}`, width - margin, y - 18, 10, helveticaBold, GOLD);
-  drawTextRight(page, `Year 1: $${economics.annual_new_income.toLocaleString()}`, width - margin, y - 32, 12, helveticaBold, CHARCOAL);
+  drawTextRight(page, `Monthly: ${economics.monthly_new_income.toLocaleString()}`, width - margin, y - 16, 9, helveticaBold, GOLD);
+  drawTextRight(page, `Year 1 New: ${economics.annual_new_income.toLocaleString()}`, width - margin, y - 30, 10, helveticaBold, CHARCOAL);
 
-  y -= econBoxH + 20;
+  y -= econBoxH + 16;
 
-  // 5-Year Projection
-  drawText(page, "5-YEAR WEALTH TRAJECTORY (85% retention)", margin, y, 9, helveticaBold, CHARCOAL);
-  y -= 16;
-
-  // Table header
-  drawRect(page, margin, y - 14, contentWidth, 14, GOLD);
-  const yrColX = [margin + 7, margin + 50, margin + 115, margin + 185, margin + 270, margin + 365];
-  const yrHeaders = ["Year", "New Clients", "Renewals", "New Income", "Renewal Income", "Total"];
-  for (let i = 0; i < yrHeaders.length; i++) {
-    drawText(page, yrHeaders[i], yrColX[i], y - 10, 7, helveticaBold, WHITE);
-  }
+  // ----------------------------------------
+  // SECTION 3: 5-YEAR TRAJECTORY (V7 - With Book Size Column)
+  // ----------------------------------------
+  drawText(page, "YOUR 5-YEAR TRAJECTORY", margin, y, 10, helveticaBold, CHARCOAL);
+  drawText(page, "(85% retention)", margin + 142, y, 8, helvetica, MEDIUM_GRAY);
   y -= 14;
 
-  // Table rows (compact for 5 years)
+  // Table header - V7: Added Book Size column
+  drawRect(page, margin, y - 13, contentWidth, 13, GOLD);
+  const yrColX = [margin + 7, margin + 48, margin + 105, margin + 170, margin + 255, margin + 355];
+  const yrHeaders = ["Year", "Book Size", "New Income", "Renewal Income", "Total"];
+  drawText(page, yrHeaders[0], yrColX[0], y - 9, 7, helveticaBold, WHITE);
+  drawText(page, yrHeaders[1], yrColX[1], y - 9, 7, helveticaBold, WHITE);
+  drawText(page, yrHeaders[2], yrColX[2], y - 9, 7, helveticaBold, WHITE);
+  drawText(page, yrHeaders[3], yrColX[3], y - 9, 7, helveticaBold, WHITE);
+  drawText(page, yrHeaders[4], yrColX[4], y - 9, 7, helveticaBold, WHITE);
+  y -= 13;
+
+  // Table rows
   for (const yr of economics.years) {
-    const rowH = 16;
+    const rowH = 14;
     drawRect(page, margin, y - rowH, contentWidth, rowH, WHITE);
     drawLine(page, margin, y - rowH, width - margin, y - rowH, LIGHT_GRAY, 0.5);
 
-    drawText(page, `Year ${yr.year}`, yrColX[0], y - 11, 8, helveticaBold, CHARCOAL);
-    drawText(page, `${yr.new_clients}`, yrColX[1], y - 11, 8, helvetica, DARK_GRAY);
-    drawText(page, `${yr.renewal_clients}`, yrColX[2], y - 11, 8, helvetica, DARK_GRAY);
-    drawText(page, `$${yr.new_income.toLocaleString()}`, yrColX[3], y - 11, 8, helvetica, DARK_GRAY);
-    drawText(page, `$${yr.renewal_income.toLocaleString()}`, yrColX[4], y - 11, 8, helvetica, DARK_GRAY);
-    drawText(page, `$${yr.total_income.toLocaleString()}`, yrColX[5], y - 11, 8, helveticaBold, GOLD);
+    drawText(page, `Year ${yr.year}`, yrColX[0], y - 10, 7, helveticaBold, CHARCOAL);
+    drawText(page, `${yr.book_size} clients`, yrColX[1], y - 10, 7, helvetica, DARK_GRAY);
+    drawText(page, `${yr.new_income.toLocaleString()}`, yrColX[2], y - 10, 7, helvetica, DARK_GRAY);
+    drawText(page, `${yr.renewal_income.toLocaleString()}`, yrColX[3], y - 10, 7, helvetica, DARK_GRAY);
+    drawText(page, `${yr.total_income.toLocaleString()}`, yrColX[4], y - 10, 7, helveticaBold, GOLD);
 
     y -= rowH;
   }
 
-  y -= 16;
-
-  // Income Growth Visualization
-  drawText(page, "INCOME GROWTH TRAJECTORY", margin, y, 9, helveticaBold, CHARCOAL);
+  // Footnote
+  y -= 13;
+  drawText(page, "*Projection uses conservative $347/client baseline. Actual income will be higher when writing T65 clients.", margin, y, 7, helveticaOblique, MEDIUM_GRAY);
   y -= 14;
 
-  const maxIncome = economics.years[4].total_income;
-  const barMaxWidth = contentWidth - 100;  // Leave room for labels
+  // ----------------------------------------
+  // SECTION 4: STAY VS QUIT (V7 - High Contrast)
+  // ----------------------------------------
+  drawText(page, "IF YOU STAY VS IF YOU QUIT", margin, y, 10, helveticaBold, CHARCOAL);
+  y -= 12;
 
-  for (const yr of economics.years) {
-    const barH = 12;
-    const barWidth = Math.round((yr.total_income / maxIncome) * barMaxWidth);
+  const compTableH = 62;
+  const halfWidth = (contentWidth - 10) / 2;
 
-    // Year label
-    drawText(page, `Year ${yr.year}:`, margin, y - 9, 8, helvetica, DARK_GRAY);
+  // "If You Quit" column (left) - Red tint
+  drawRect(page, margin, y - compTableH, halfWidth, compTableH, RED_LIGHT, MEDIUM_GRAY);
+  drawText(page, "X  If You Quit After Year 1", margin + 8, y - 11, 8, helveticaBold, MEDIUM_GRAY);
+  drawText(page, `${economics.years[0].total_income.toLocaleString()} earned`, margin + 8, y - 25, 8, helvetica, DARK_GRAY);
+  drawText(page, "$0 ongoing renewal income", margin + 8, y - 37, 8, helvetica, DARK_GRAY);
+  drawText(page, "Start over somewhere else", margin + 8, y - 49, 8, helvetica, DARK_GRAY);
 
-    // Income bar
-    drawRect(page, margin + 45, y - barH + 1, barWidth, barH - 2, GOLD);
+  // "If You Stay" column (right) - Green tint with gold border
+  drawRect(page, margin + halfWidth + 10, y - compTableH, halfWidth, compTableH, GREEN_LIGHT, GOLD);
+  drawText(page, "If You Stay 5 Years", margin + halfWidth + 18, y - 11, 8, helveticaBold, GOLD);
+  drawText(page, `${economics.cumulative_5_year.toLocaleString()} total earned`, margin + halfWidth + 18, y - 25, 8, helveticaBold, CHARCOAL);
+  drawText(page, `${economics.year_5_renewal.toLocaleString()}/year in passive renewals`, margin + halfWidth + 18, y - 37, 8, helvetica, DARK_GRAY);
+  drawText(page, `Book worth ${economics.estimated_book_value.toLocaleString()}+ if sold`, margin + halfWidth + 18, y - 49, 8, helvetica, DARK_GRAY);
 
-    // Income amount at end of bar
-    drawText(page, `$${yr.total_income.toLocaleString()}`, margin + 50 + barWidth, y - 9, 8, helveticaBold, CHARCOAL);
+  y -= compTableH + 12;
 
-    y -= barH + 3;
+  // ----------------------------------------
+  // SECTION 5: WHAT THIS MEANS (Crossover Year)
+  // ----------------------------------------
+  const yr5 = economics.years[4];
+  const calloutH = 58;
+
+  drawRect(page, margin, y - calloutH, contentWidth, calloutH, GOLD_LIGHT, GOLD);
+  drawText(page, "WHAT THIS MEANS FOR YOU", margin + 9, y - 12, 9, helveticaBold, CHARCOAL);
+
+  // Dynamic crossover message
+  if (economics.crossover_year > 0) {
+    const crossoverIncome = economics.years[economics.crossover_year - 1].renewal_income;
+    drawText(page, `By Year ${economics.crossover_year}, your renewal income alone (${crossoverIncome.toLocaleString()}) could cover your living expenses.`, margin + 9, y - 25, 8, helvetica, DARK_GRAY);
+  } else {
+    drawText(page, `By Year 5, your renewal income alone (${yr5.renewal_income.toLocaleString()}) could cover your living expenses.`, margin + 9, y - 25, 8, helvetica, DARK_GRAY);
   }
+
+  drawText(page, "New sales become wealth-building, not survival.", margin + 9, y - 37, 8, helvetica, DARK_GRAY);
+  drawText(page, "This is how you build a business, not just a job.", margin + 9, y - 49, 8, helveticaBold, GOLD);
+
+  y -= calloutH + 8;
+
+  // Comparison insight
+  const higherGoal = profile.monthly_goal + 2;
+  const higherEcon = calculateEconomics(higherGoal, profile.book_size);
+  const higherYear5 = higherEcon.years[4].total_income;
+  drawText(page, `If you increased to ${higherGoal} plans/month, Year 5 total would be ${higherYear5.toLocaleString()}`, margin, y, 7, helveticaOblique, MEDIUM_GRAY);
 
   y -= 12;
 
-  // Emotional Payoff Callout Box
-  const yr5 = economics.years[4];
-  const calloutH = 52;
-  drawRect(page, margin, y - calloutH, contentWidth, calloutH, GOLD_LIGHT, GOLD);
-  drawText(page, "WHAT THIS MEANS FOR YOU", margin + 9, y - 13, 9, helveticaBold, CHARCOAL);
-  drawText(page, `By Year 5, your renewal income alone ($${yr5.renewal_income.toLocaleString()}) could cover your living expenses.`, margin + 9, y - 26, 8, helvetica, DARK_GRAY);
-  drawText(page, "New sales become wealth-building, not survival.", margin + 9, y - 37, 8, helvetica, DARK_GRAY);
-  drawText(page, "This is how you build a business, not just a job.", margin + 9, y - 48, 8, helveticaBold, GOLD);
-
-  y -= calloutH + 12;
-
-  // Comparison Insight
-  const higherGoal = profile.monthly_goal + 2;
-  const higherEcon = calculateEconomics(higherGoal);
-  const higherYear5 = higherEcon.years[4].total_income;
-  drawText(page, `If you increased to ${higherGoal} plans/month, Year 5 total would be $${higherYear5.toLocaleString()}`, margin, y, 8, helveticaOblique, MEDIUM_GRAY);
+  // Disclaimer
+  drawText(page, "* Commissions shown are illustrative. Actual amounts may vary by carrier and timing.", margin, y, 7, helveticaOblique, MEDIUM_GRAY);
 
   y -= 14;
 
-  // Disclaimer
-  drawText(page, "* Commissions shown are illustrative. Actual amounts may vary by carrier and timing.", margin, y, 7, helveticaOblique, MEDIUM_GRAY);
+  // ----------------------------------------
+  // SECTION 6: AEP NOTE
+  // ----------------------------------------
+  const aepBoxH = 34;
+  drawRect(page, margin, y - aepBoxH, contentWidth, aepBoxH, WHITE, MEDIUM_GRAY);
+  drawText(page, "ABOUT THIS PLAN", margin + 9, y - 11, 8, helveticaBold, CHARCOAL);
+  drawText(page, economics.aep_note, margin + 9, y - 24, 7, helvetica, DARK_GRAY);
 
   // ============================================
   // PAGE 4: THE MINDSET
@@ -1388,7 +1517,7 @@ async function generatePdf(
 
   // COMMON MISTAKES (with checkboxes)
   drawText(page, "COMMON MISTAKES", margin, y, 10, helveticaBold, CHARCOAL);
-  drawText(page, "(Check any you're doing)", margin + 100, y, 8, helveticaOblique, MEDIUM_GRAY);
+  drawText(page, "(Check any you're doing)", margin + 108, y, 8, helveticaOblique, MEDIUM_GRAY);
   y -= 14;
 
   const mistakes = [
@@ -1416,7 +1545,7 @@ async function generatePdf(
 
   // Goal and Actual
   drawText(page, `Goal: _______ sales`, margin + 9, y - 13, 9, helvetica, DARK_GRAY);
-  drawText(page, `(Monthly target: ${profile.monthly_goal})`, margin + 90, y - 13, 8, helveticaOblique, MEDIUM_GRAY);
+  drawText(page, `(Monthly target: ${profile.monthly_goal})`, margin + 98, y - 13, 8, helveticaOblique, MEDIUM_GRAY);
   drawText(page, "Actual: _______ sales", margin + 260, y - 13, 9, helvetica, DARK_GRAY);
 
   // Reflection fields
@@ -1583,8 +1712,8 @@ serve(async (req) => {
     // Calculate activity targets
     const activity = calculateActivity(profile);
 
-    // Calculate economics
-    const economics = calculateEconomics(profile.monthly_goal);
+    // V7: Calculate economics with existing book factored in
+    const economics = calculateEconomics(profile.monthly_goal, profile.book_size);
 
     // Calculate review date (30 days from now)
     const reviewDate = new Date();
@@ -1601,7 +1730,7 @@ serve(async (req) => {
     // Generate filename
     const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
     const safeName = profile.broker_name.replace(/[^a-zA-Z0-9]/g, '_');
-    const filename = `Roadmap_${safeName}_${dateStr}.pdf`;
+    const filename = `GrowthPlan_${safeName}_${dateStr}.pdf`;
 
     // Convert to base64 safely
     let binary = '';
@@ -1618,7 +1747,7 @@ serve(async (req) => {
 
         if (supabaseUrl && supabaseServiceKey) {
           const supabase = createClient(supabaseUrl, supabaseServiceKey);
-          const storagePath = `roadmaps/${profile.id}/${filename}`;
+          const storagePath = `growth-plans/${profile.id}/${filename}`;
 
           await supabase.storage
             .from('contracting-documents')
@@ -1647,10 +1776,10 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error("Error generating roadmap:", error);
+    console.error("Error generating growth plan:", error);
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : "Failed to generate roadmap"
+        error: error instanceof Error ? error.message : "Failed to generate growth plan"
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
