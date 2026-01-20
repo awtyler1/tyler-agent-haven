@@ -69,19 +69,29 @@ function StatusDot({ status }: { status: AgentStatus }) {
     all: 'bg-blue-500',
   };
 
-  const titles = {
-    imported: 'Imported',
-    invited: 'Invited',
-    active: 'Active',
+  const labels = {
+    imported: 'Not Invited',
+    invited: 'Setup Link Sent',
+    active: 'Account Active',
     all: 'All',
   };
 
   return (
     <span
       className={`w-2.5 h-2.5 rounded-full inline-block ${colors[status]}`}
-      title={titles[status]}
+      title={labels[status]}
     />
   );
+}
+
+function getStatusLabel(status: AgentStatus): string {
+  const labels = {
+    imported: 'Not Invited',
+    invited: 'Setup Link Sent',
+    active: 'Account Active',
+    all: 'All',
+  };
+  return labels[status];
 }
 
 function formatDate(dateString: string | null): string {
@@ -712,7 +722,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                   <span className="text-muted-foreground">Status</span>
                   <span className="inline-flex items-center gap-1.5">
                     <StatusDot status={getAgentStatus(selectedAgent)} />
-                    <span className="text-foreground capitalize">{getAgentStatus(selectedAgent)}</span>
+                    <span className="text-foreground">{getStatusLabel(getAgentStatus(selectedAgent))}</span>
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
