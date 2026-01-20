@@ -39,6 +39,7 @@ interface AgentProfile {
   manager_id: string | null;
   created_at: string | null;
   resident_state: string | null;
+  password_created_at: string | null;
 }
 
 interface ManagerInfo {
@@ -47,8 +48,16 @@ interface ManagerInfo {
 }
 
 function getAgentStatus(agent: AgentProfile): AgentStatus {
-  if (agent.user_id !== null) return 'active';
-  if (agent.invited_at !== null || agent.setup_link_sent_at !== null) return 'invited';
+  // Active = has user_id AND has set their password
+  if (agent.user_id !== null && agent.password_created_at !== null) return 'active';
+
+  // Invited = has user_id but hasn't set password yet (link sent)
+  if (agent.user_id !== null) return 'invited';
+
+  // Also invited if setup link sent but user not created yet (edge case)
+  if (agent.setup_link_sent_at !== null) return 'invited';
+
+  // Imported = no user_id, no setup link sent
   return 'imported';
 }
 
@@ -157,7 +166,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
       // Fetch all active profiles
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, user_id, full_name, email, phone, state, npn, setup_link_sent_at, is_active, manager_id, created_at')
+        .select('id, user_id, full_name, email, phone, state, npn, setup_link_sent_at, is_active, manager_id, created_at, password_created_at')
         .eq('is_active', true)
         .order('full_name', { ascending: true });
 
@@ -179,6 +188,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
         is_active: boolean;
         manager_id: string | null;
         created_at: string | null;
+        password_created_at: string | null;
       }>).filter((p) => !p.user_id || !adminUserIds.has(p.user_id));
 
       // Build manager map (id -> name)
@@ -211,6 +221,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
         manager_id: row.manager_id,
         created_at: row.created_at,
         resident_state: row.state,
+        password_created_at: row.password_created_at,
       }));
 
       setAgents(agentList);
