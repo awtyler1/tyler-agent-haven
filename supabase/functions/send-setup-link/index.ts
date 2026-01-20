@@ -106,60 +106,46 @@ serve(async (req: Request): Promise<Response> => {
     const setupLink = linkData.properties.action_link;
     const firstName = profile.full_name?.split(' ')[0] || 'there';
 
-    // Email template for imported/existing agents (not new contracting agents)
     const emailHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
-        <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; padding: 40px;">
           <tr>
-            <td align="center">
-              <table width="600" border="0" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <td>
+              <p style="font-size: 17px; line-height: 1.6; color: #333; margin: 0 0 16px 0;">Hi ${firstName},</p>
+
+              <p style="font-size: 17px; line-height: 1.6; color: #333; margin: 0 0 16px 0;">We've been working on something to make your life easier. A single place to run your Medicare business.</p>
+
+              <p style="font-size: 17px; line-height: 1.6; color: #333; margin: 0 0 24px 0;">Your account is ready. Just set your password to get in.</p>
+
+              <table cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0;">
                 <tr>
-                  <td style="padding: 40px;">
-                    <p style="font-size: 18px; line-height: 1.6; color: #333333; margin: 0 0 24px 0;">
-                      Hi ${firstName},
-                    </p>
-
-                    <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-                      We've been working on something to make your life easier — a single place to see your carrier appointments, track your certifications, and reach the team when you need us.
-                    </p>
-
-                    <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-                      Your account is ready. Just set your password to get in.
-                    </p>
-
-                    <table border="0" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
-                      <tr>
-                        <td style="background-color: #A38529; border-radius: 6px;">
-                          <a href="${setupLink}" style="display: inline-block; padding: 14px 28px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: 600;">
-                            Set Your Password
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-
-                    <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 24px 0;">
-                      Questions? Just reply to this email.
-                    </p>
-
-                    <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0;">
-                      <strong>The Tyler Insurance Group Team</strong><br>
-                      <a href="mailto:caroline@tylerinsurancegroup.com" style="color: #A38529; text-decoration: none;">caroline@tylerinsurancegroup.com</a>
-                    </p>
+                  <td style="background-color: #A38529; border-radius: 6px;">
+                    <a href="${setupLink}" style="display: inline-block; padding: 14px 28px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: 600;">Set Your Password</a>
                   </td>
                 </tr>
               </table>
+
+              <p style="font-size: 17px; line-height: 1.6; color: #333; margin: 0 0 24px 0;">Questions? Just reply to this email.</p>
+
+              <p style="font-size: 17px; line-height: 1.6; color: #555; margin: 0;">— The TIG Team</p>
             </td>
           </tr>
         </table>
-      </body>
-      </html>
-    `;
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
 
     // Send the setup email
     const emailResponse = await fetch("https://api.resend.com/emails", {
