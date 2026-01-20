@@ -9,7 +9,10 @@ import {
   User,
   Loader2,
   RefreshCw,
+  Download,
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { toast } from 'sonner';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -217,6 +220,40 @@ export default function ActivityLogPage() {
     fetchLogs();
   }, [fetchLogs]);
 
+  // Export function
+  const handleExport = () => {
+    if (!filteredLogs || filteredLogs.length === 0) {
+      toast.error('No data to export');
+      return;
+    }
+
+    // Format data for export
+    const exportData = filteredLogs.map(log => ({
+      'Date': format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss'),
+      'User': log.user_name || 'Unknown',
+      'Email': log.user_email || '',
+      'Action': ACTION_LABELS[log.action_type] || log.action_type,
+      'Entity Type': log.entity_type || '',
+      'Entity ID': log.entity_id || '',
+      'Details': log.metadata ? JSON.stringify(log.metadata) : '',
+    }));
+
+    // Create workbook
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Activity Log');
+
+    // Auto-fit columns
+    const colWidths = Object.keys(exportData[0] || {}).map(key => ({
+      wch: Math.max(key.length, 15)
+    }));
+    ws['!cols'] = colWidths;
+
+    // Download
+    XLSX.writeFile(wb, `activity-log-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    toast.success('Activity log exported');
+  };
+
   // Filter logs by search query (user name or email)
   const filteredLogs = logs.filter((log) => {
     if (!searchQuery) return true;
@@ -230,105 +267,114 @@ export default function ActivityLogPage() {
 
   return (
     <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')} maxWidth="wide">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Activity className="h-5 w-5 text-primary" />
-          </div>
+      <div className="flex flex-col h-[calc(100vh-120px)]">
+        {/* Header - fixed */}
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-serif font-medium text-foreground">Activity Log</h1>
-            <p className="text-sm text-muted-foreground">Audit trail of system events</p>
+            <p className="text-sm text-muted-foreground">User activity and audit trail</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchLogs}
+              disabled={loading}
+              className="gap-2"
+            >
+              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+              Refresh
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              disabled={loading || filteredLogs.length === 0}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchLogs}
-          disabled={loading}
-          className="gap-2"
-        >
-          <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
-          Refresh
-        </Button>
-      </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by user or action..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by user or action..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select value={actionFilter} onValueChange={setActionFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter by action" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Actions</SelectItem>
+              {actionTypes.map((action) => (
+                <SelectItem key={action} value={action}>
+                  {ACTION_LABELS[action] || action}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={actionFilter} onValueChange={setActionFilter}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filter by action" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Actions</SelectItem>
-            {actionTypes.map((action) => (
-              <SelectItem key={action} value={action}>
-                {ACTION_LABELS[action] || action}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-border overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            <span className="ml-2 text-muted-foreground">Loading activity logs...</span>
-          </div>
-        ) : filteredLogs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-            <Activity className="h-8 w-8 mb-2 opacity-40" />
-            <p className="text-sm">No activity logs found</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Timestamp
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Action
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Entity Type
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Details
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLogs.map((log) => (
-                  <LogRow key={log.id} log={log} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Table container - scrollable */}
+        <div className="flex-1 bg-white border border-border rounded-lg overflow-hidden min-h-0">
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-muted-foreground">Loading activity logs...</span>
+            </div>
+          ) : filteredLogs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+              <Activity className="h-8 w-8 mb-2 opacity-40" />
+              <p className="text-sm">No activity logs found</p>
+            </div>
+          ) : (
+            <div className="overflow-y-auto h-full">
+              <table className="w-full">
+                <thead className="bg-muted/50 sticky top-0 z-10">
+                  <tr className="border-b border-border">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Timestamp
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Action
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Entity Type
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLogs.map((log) => (
+                    <LogRow key={log.id} log={log} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Count footer */}
+        {!loading && filteredLogs.length > 0 && (
+          <p className="text-xs text-muted-foreground mt-2 text-right">
+            Showing {filteredLogs.length} of {logs.length} entries
+          </p>
         )}
       </div>
-
-      {/* Count footer */}
-      {!loading && filteredLogs.length > 0 && (
-        <p className="text-xs text-muted-foreground mt-3 text-right">
-          Showing {filteredLogs.length} of {logs.length} entries
-        </p>
-      )}
     </AdminLayout>
   );
 }

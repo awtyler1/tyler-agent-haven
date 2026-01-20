@@ -24,7 +24,7 @@ serve(async (req) => {
     if (!clientId || !clientSecret || !tenantId || !supabaseUrl || !supabaseServiceKey) {
       console.error("Missing required environment variables for OAuth");
       return Response.redirect(
-        `${frontendUrl}/admin/settings?error=${encodeURIComponent("Server configuration error")}`,
+        `${frontendUrl}/admin?error=${encodeURIComponent("Server configuration error")}`,
         302
       );
     }
@@ -39,7 +39,7 @@ serve(async (req) => {
     if (error) {
       console.error("Microsoft OAuth error:", error, errorDescription);
       return Response.redirect(
-        `${frontendUrl}/admin/settings?error=${encodeURIComponent(errorDescription || error)}`,
+        `${frontendUrl}/admin?error=${encodeURIComponent(errorDescription || error)}`,
         302
       );
     }
@@ -47,7 +47,7 @@ serve(async (req) => {
     if (!code || !state) {
       console.error("Missing code or state");
       return Response.redirect(
-        `${frontendUrl}/admin/settings?error=${encodeURIComponent("Missing authorization code")}`,
+        `${frontendUrl}/admin?error=${encodeURIComponent("Missing authorization code")}`,
         302
       );
     }
@@ -59,7 +59,7 @@ serve(async (req) => {
     } catch (e) {
       console.error("Invalid state:", e);
       return Response.redirect(
-        `${frontendUrl}/admin/settings?error=${encodeURIComponent("Invalid state parameter")}`,
+        `${frontendUrl}/admin?error=${encodeURIComponent("Invalid state parameter")}`,
         302
       );
     }
@@ -69,7 +69,7 @@ serve(async (req) => {
     // Check state isn't too old (10 minutes max)
     if (Date.now() - timestamp > 10 * 60 * 1000) {
       return Response.redirect(
-        `${frontendUrl}/admin/settings?error=${encodeURIComponent("Authorization expired, please try again")}`,
+        `${frontendUrl}/admin?error=${encodeURIComponent("Authorization expired, please try again")}`,
         302
       );
     }
@@ -99,7 +99,7 @@ serve(async (req) => {
       const errorData = await tokenResponse.text();
       console.error("Token exchange failed:", errorData);
       return Response.redirect(
-        `${frontendUrl}/admin/settings?error=${encodeURIComponent("Failed to get access token")}`,
+        `${frontendUrl}/admin?error=${encodeURIComponent("Failed to get access token")}`,
         302
       );
     }
@@ -143,14 +143,14 @@ serve(async (req) => {
     if (upsertError) {
       console.error("Failed to store OAuth tokens");
       return Response.redirect(
-        `${frontendUrl}/admin/settings?error=${encodeURIComponent("Failed to save authorization")}`,
+        `${frontendUrl}/admin?error=${encodeURIComponent("Failed to save authorization")}`,
         302
       );
     }
 
     // Redirect back to frontend with success
     return Response.redirect(
-      `${frontendUrl}/admin/settings?outlook_connected=true`,
+      `${frontendUrl}/admin?outlook_connected=true`,
       302
     );
 
@@ -158,7 +158,7 @@ serve(async (req) => {
     console.error("OAuth callback error:", error);
     const frontendUrl = Deno.env.get("FRONTEND_URL") || "https://tyler-agent-haven.vercel.app";
     return Response.redirect(
-      `${frontendUrl}/admin/settings?error=${encodeURIComponent("An unexpected error occurred")}`,
+      `${frontendUrl}/admin?error=${encodeURIComponent("An unexpected error occurred")}`,
       302
     );
   }

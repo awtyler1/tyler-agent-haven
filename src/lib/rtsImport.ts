@@ -16,7 +16,7 @@ export interface RTSImportOptions {
 }
 
 interface NPNProfileMap {
-  [npn: string]: { profileId: string; userId: string };
+  [npn: string]: { profileId: string; userId: string | null };
 }
 
 interface CarrierNameMap {
@@ -45,45 +45,30 @@ function parseColumnHeader(header: string): { carrier: string; product: string }
 
 /**
  * Build a lookup map of NPN -> { profileId, userId }
+ * Queries profiles table directly by npn column
  */
 async function buildNPNProfileMap(): Promise<NPNProfileMap> {
-  // Get all contracting applications with NPNs
-  const { data: applications, error: appError } = await supabase
-    .from('contracting_applications')
-    .select('npn_number, user_id')
-    .not('npn_number', 'is', null);
-
-  if (appError) {
-    throw new Error(`Failed to fetch contracting applications: ${appError.message}`);
-  }
-
-  // Get all profiles
+  // Get all profiles with NPNs
   const { data: profiles, error: profileError } = await supabase
     .from('profiles')
-    .select('id, user_id');
+    .select('id, user_id, npn')
+    .not('npn', 'is', null);
 
   if (profileError) {
     throw new Error(`Failed to fetch profiles: ${profileError.message}`);
   }
 
-  // Build user_id -> { profileId, userId } map
-  const userToProfile: Record<string, { profileId: string; userId: string }> = {};
-  for (const profile of profiles || []) {
-    userToProfile[profile.user_id] = {
-      profileId: profile.id,
-      userId: profile.user_id,
-    };
-  }
-
   // Build NPN -> { profileId, userId } map
   const map: NPNProfileMap = {};
-  for (const app of applications || []) {
-    if (app.npn_number && app.user_id) {
-      const profileData = userToProfile[app.user_id];
-      if (profileData) {
-        // Normalize NPN - remove any non-numeric characters
-        const normalizedNPN = app.npn_number.replace(/\D/g, '');
-        map[normalizedNPN] = profileData;
+  for (const profile of profiles || []) {
+    if (profile.npn) {
+      // Normalize NPN - remove any non-numeric characters
+      const normalizedNPN = profile.npn.replace(/\D/g, '');
+      if (normalizedNPN) {
+        map[normalizedNPN] = {
+          profileId: profile.id,
+          userId: profile.user_id, // May be null for imported agents
+        };
       }
     }
   }
@@ -182,8 +167,8 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
   // Process each data row
   const certificationsToUpsert: TablesInsert<'agent_certifications'>[] = [];
 
-  // Track carrier statuses to update: Map<"userId:carrierId", { userId, carrierId }>
-  const carrierStatusesToUpdate = new Map<string, { userId: string; carrierId: string }>();
+  // Track carrier statuses to update: Map<"profileId:carrierId", { profileId, userId, carrierId }>
+  const carrierStatusesToUpdate = new Map<string, { profileId: string; userId: string | null; carrierId: string }>();
 
   for (let rowIndex = 0; rowIndex < dataRows.length; rowIndex++) {
     const row = dataRows[rowIndex] as unknown[];
@@ -231,9 +216,9 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
           if (year === currentCertYear) {
             const carrierId = carrierNameMap[col.carrier.toLowerCase()];
             if (carrierId) {
-              const key = `${userId}:${carrierId}`;
+              const key = `${profileId}:${carrierId}`;
               if (!carrierStatusesToUpdate.has(key)) {
-                carrierStatusesToUpdate.set(key, { userId, carrierId });
+                carrierStatusesToUpdate.set(key, { profileId, userId, carrierId });
               }
             }
           }
@@ -247,10 +232,21 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
 
   // Batch upsert certifications
   if (certificationsToUpsert.length > 0) {
+    // Dedupe certifications by composite key (RTS report may have duplicate rows)
+    const certMap = new Map<string, (typeof certificationsToUpsert)[0]>();
+    for (const cert of certificationsToUpsert) {
+      const key = `${cert.profile_id}:${cert.carrier_name}:${cert.product_type}`;
+      // Keep first occurrence (or could use last - doesn't matter for same data)
+      if (!certMap.has(key)) {
+        certMap.set(key, cert);
+      }
+    }
+    const dedupedCerts = Array.from(certMap.values());
+
     // Process in batches of 500 to avoid hitting limits
     const batchSize = 500;
-    for (let i = 0; i < certificationsToUpsert.length; i += batchSize) {
-      const batch = certificationsToUpsert.slice(i, i + batchSize);
+    for (let i = 0; i < dedupedCerts.length; i += batchSize) {
+      const batch = dedupedCerts.slice(i, i + batchSize);
 
       const { error } = await supabase
         .from('agent_certifications')
@@ -269,22 +265,33 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
 
   // Batch upsert carrier_statuses for RTS agents
   if (carrierStatusesToUpdate.size > 0) {
-    const statusUpdates = Array.from(carrierStatusesToUpdate.values()).map(({ userId, carrierId }) => ({
-      user_id: userId,
+    const statusUpdates = Array.from(carrierStatusesToUpdate.values()).map(({ profileId, userId, carrierId }) => ({
+      profile_id: profileId,
+      user_id: userId,  // May be null for imported agents
       carrier_id: carrierId,
       contracting_status: 'contracted' as const,
       contracted_at: new Date().toISOString(),
     }));
 
+    // Dedupe carrier statuses by composite key (safety check)
+    const statusMap = new Map<string, (typeof statusUpdates)[0]>();
+    for (const status of statusUpdates) {
+      const key = `${status.profile_id}:${status.carrier_id}`;
+      if (!statusMap.has(key)) {
+        statusMap.set(key, status);
+      }
+    }
+    const dedupedStatuses = Array.from(statusMap.values());
+
     // Process in batches
     const batchSize = 500;
-    for (let i = 0; i < statusUpdates.length; i += batchSize) {
-      const batch = statusUpdates.slice(i, i + batchSize);
+    for (let i = 0; i < dedupedStatuses.length; i += batchSize) {
+      const batch = dedupedStatuses.slice(i, i + batchSize);
 
       const { error } = await supabase
         .from('carrier_statuses')
         .upsert(batch, {
-          onConflict: 'user_id,carrier_id',
+          onConflict: 'profile_id,carrier_id',
           ignoreDuplicates: false,
         });
 

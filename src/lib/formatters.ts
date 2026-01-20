@@ -25,24 +25,31 @@ export function formatSSN(value: string): string {
 }
 
 /**
- * Format phone as (XXX) XXX-XXXX
+ * Format phone as (XXX) XXX-XXXX for display
+ * Handles null/undefined gracefully
  */
-export const formatPhone = (value: string): string => {
+export function formatPhone(value: string | null | undefined): string {
+  if (!value) return '';
+
   // Remove all non-digits
   const digits = value.replace(/\D/g, '');
-  
-  // Limit to 10 digits
-  const limited = digits.slice(0, 10);
-  
-  // Format
-  if (limited.length <= 3) {
-    return limited;
-  } else if (limited.length <= 6) {
-    return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
-  } else {
-    return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6)}`;
+
+  // Format 10-digit US numbers
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
   }
-};
+
+  // Return original if not 10 digits (might be international or malformed)
+  return value;
+}
+
+/**
+ * Strip phone to digits only (for storage/comparison)
+ */
+export function normalizePhone(phone: string | null | undefined): string {
+  if (!phone) return '';
+  return phone.replace(/\D/g, '');
+}
 
 /**
  * Format routing number - just limit to 9 digits

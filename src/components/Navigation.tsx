@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Shield, LogIn, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Menu, X, ChevronDown, LogIn, LogOut } from "lucide-react";
 import { UserAvatarDropdown } from "./UserAvatarDropdown";
 import { DarkModeToggle } from "./DarkModeToggle";
 import tylerLogo from "@/assets/tyler-logo.png";
@@ -18,8 +18,7 @@ const navLinks = [
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-  const { canAccessAdmin, isAuthenticated, isAgent, isContractingRequired } = useAuth();
-  const navigate = useNavigate();
+  const { isAuthenticated, isAgent, isContractingRequired } = useAuth();
 
   // Hide navigation for agents who need to complete contracting
   const showFullNavigation = !isAgent() || !isContractingRequired;
@@ -140,17 +139,6 @@ const Navigation = () => {
               </div>
             ))}
             
-            {/* Admin Link - Only for admins */}
-            {canAccessAdmin() && (
-              <Link
-                to="/admin"
-                className="text-[13px] font-medium text-primary hover:text-gold transition-smooth tracking-wide flex items-center gap-1.5 whitespace-nowrap"
-              >
-                <Shield size={14} />
-                Admin
-              </Link>
-            )}
-
             {/* Profile Dropdown - For authenticated users (includes dark mode toggle) */}
             {isAuthenticated ? (
               <UserAvatarDropdown />
@@ -250,18 +238,6 @@ const Navigation = () => {
                 </div>
               ))}
               
-              {/* Admin Link - Only for admins */}
-              {canAccessAdmin() && (
-                <Link
-                  to="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="text-base font-medium text-primary hover:text-gold transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
-                >
-                  <Shield size={16} />
-                  Admin
-                </Link>
-              )}
-
               {/* Dark Mode Toggle */}
               <div className="py-2">
                 <DarkModeToggle />

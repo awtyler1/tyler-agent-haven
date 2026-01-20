@@ -1,35 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileSpreadsheet, Loader2, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
-import { format } from 'date-fns';
+import { Upload, Loader2, Check } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { importRTSCertifications, RTSImportResult } from '@/lib/rtsImport';
+import { importRTSCertifications } from '@/lib/rtsImport';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
 import { cn } from '@/lib/utils';
 
 interface LastImport {
   id: string;
-  file_name: string;
   agents_matched: number;
-  agents_skipped: number;
   certifications_imported: number;
   created_at: string;
-  uploader_name: string | null;
 }
 
 export default function RTSImportPage() {
   const navigate = useNavigate();
   const { profile } = useProfile();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<RTSImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [dragActive, setDragActive] = useState(false);
   const [lastImport, setLastImport] = useState<LastImport | null>(null);
   const [loadingLastImport, setLoadingLastImport] = useState(true);
+  const [importResult, setImportResult] = useState<{
+    agentsMatched: number;
+    certificationsImported: number;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch last import on mount
@@ -37,20 +34,20 @@ export default function RTSImportPage() {
     fetchLastImport();
   }, []);
 
+  // Auto-reset success state after 8 seconds
+  useEffect(() => {
+    if (importResult) {
+      const timer = setTimeout(() => setImportResult(null), 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [importResult]);
+
   const fetchLastImport = async () => {
     setLoadingLastImport(true);
     try {
       const { data, error: fetchError } = await supabase
         .from('rts_import_logs')
-        .select(`
-          id,
-          file_name,
-          agents_matched,
-          agents_skipped,
-          certifications_imported,
-          created_at,
-          profiles!inner(full_name)
-        `)
+        .select('id, agents_matched, certifications_imported, created_at')
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -60,12 +57,9 @@ export default function RTSImportPage() {
       if (data) {
         setLastImport({
           id: data.id,
-          file_name: data.file_name,
           agents_matched: data.agents_matched,
-          agents_skipped: data.agents_skipped,
           certifications_imported: data.certifications_imported,
           created_at: data.created_at || '',
-          uploader_name: (data.profiles as { full_name: string | null })?.full_name,
         });
       }
     } catch (err) {
@@ -76,278 +70,202 @@ export default function RTSImportPage() {
   };
 
   const handleFileSelect = (file: File) => {
-    if (file.name.endsWith('.xlsx')) {
-      setSelectedFile(file);
-      setResult(null);
-      setError(null);
-    } else {
+    if (!file.name.endsWith('.xlsx')) {
       setError('Please select an Excel file (.xlsx)');
+      return;
+    }
+    setError(null);
+    handleImport(file);
+  };
+
+  const handleImport = async (file: File) => {
+    if (!profile?.id) return;
+
+    setImporting(true);
+    setError(null);
+
+    try {
+      const result = await importRTSCertifications({
+        file,
+        uploadedByProfileId: profile.id,
+      });
+      fetchLastImport();
+      setImportResult({
+        agentsMatched: result.agentsMatched,
+        certificationsImported: result.certificationsImported,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Import failed');
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragActive(false);
-
     const file = e.dataTransfer.files?.[0];
     if (file) {
       handleFileSelect(file);
     }
   };
 
-  const handleImport = async () => {
-    if (!selectedFile || !profile?.id) return;
-
-    setImporting(true);
-    setError(null);
-    setResult(null);
-
-    try {
-      const importResult = await importRTSCertifications({
-        file: selectedFile,
-        uploadedByProfileId: profile.id,
-      });
-      setResult(importResult);
-      // Refresh last import after successful import
-      fetchLastImport();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Import failed');
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  const handleReset = () => {
-    setSelectedFile(null);
-    setResult(null);
-    setError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
   const formatNumber = (n: number) => n.toLocaleString();
+
+  // Staleness logic
+  const getDaysSinceSync = (lastSyncDate: string): number => {
+    return differenceInDays(new Date(), new Date(lastSyncDate));
+  };
+
+  const isStale = (days: number): boolean => days >= 5;
 
   return (
     <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')} maxWidth="narrow">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-          <FileSpreadsheet className="h-5 w-5 text-blue-600" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-serif font-medium text-foreground">RTS Certification Import</h1>
-          <p className="text-sm text-muted-foreground">Import agent certifications from Pinnacle RTS reports</p>
-        </div>
-      </div>
+      <div
+        className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]"
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        {/* Title */}
+        <h1 className="text-2xl font-serif font-medium text-foreground mb-10">RTS Import</h1>
 
-      {/* Last Import Info */}
-      {!loadingLastImport && lastImport && (
-        <Card className="mb-6 bg-muted/50 border-border">
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Last import:</span>
-              <span className="text-foreground">{lastImport.file_name}</span>
-              <span className="text-muted-foreground">·</span>
-              <span>{format(new Date(lastImport.created_at), 'MMM d, yyyy')}</span>
-              {lastImport.uploader_name && (
-                <>
-                  <span className="text-muted-foreground">by</span>
-                  <span>{lastImport.uploader_name}</span>
-                </>
-              )}
-            </div>
-            <div className="mt-2 flex gap-4 text-sm">
-              <span className="text-green-700">
-                <span className="font-semibold">{formatNumber(lastImport.agents_matched)}</span> agents matched
-              </span>
-              <span className="text-muted-foreground">
-                <span className="font-semibold">{formatNumber(lastImport.agents_skipped)}</span> skipped
-              </span>
-              <span className="text-green-700">
-                <span className="font-semibold">{formatNumber(lastImport.certifications_imported)}</span> certifications
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        {/* Calendar Widget */}
+        {lastImport && !loadingLastImport && (
+          <>
+            <CalendarWidget lastSync={lastImport.created_at} />
+            <p className="text-muted-foreground mt-6 mb-10">
+              {formatNumber(lastImport.agents_matched)} agents synced
+            </p>
+          </>
+        )}
 
-      {/* Instructions */}
-      <Card className="mb-6">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Instructions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Upload the Pinnacle RTS report (.xlsx) to update agent certification statuses.
-            Agents are matched by NPN - only registered agents will be updated.
-          </p>
-          <ul className="mt-3 text-sm text-muted-foreground list-disc list-inside space-y-1">
-            <li>File must be an Excel file (.xlsx) with a sheet named "Certs"</li>
-            <li>Column D should contain the agent NPN</li>
-            <li>Certification columns should be in format "Carrier: Product" (e.g., "Aetna: MA")</li>
-          </ul>
-        </CardContent>
-      </Card>
+        {/* Loading state for calendar */}
+        {loadingLastImport && (
+          <div className="w-36 h-44 bg-muted/50 rounded-2xl animate-pulse mb-10" />
+        )}
 
-      {/* Upload Area */}
-      <Card className="mb-6">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Upload File</CardTitle>
-          <CardDescription>Select or drag and drop your RTS report</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Dropzone */}
-          <div
-            className={cn(
-              "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
-              dragActive
-                ? "border-primary bg-primary/5"
-                : selectedFile
-                ? "border-primary/50 bg-primary/5"
-                : "border-border hover:border-primary/30"
-            )}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx"
-              onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
-              className="hidden"
-              id="file-upload"
-            />
+        {/* No imports yet */}
+        {!loadingLastImport && !lastImport && (
+          <p className="text-muted-foreground mb-10">No imports yet</p>
+        )}
 
-            {selectedFile ? (
-              <div className="flex flex-col items-center">
-                <FileSpreadsheet className="h-10 w-10 text-primary mb-3" />
-                <p className="text-sm font-medium text-foreground">{selectedFile.name}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {(selectedFile.size / 1024).toFixed(1)} KB
-                </p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-3 text-muted-foreground"
-                  onClick={handleReset}
-                >
-                  Choose different file
-                </Button>
+        {/* Upload Button / Success State */}
+        {importResult ? (
+          <div className="w-full max-w-xs text-center">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Check className="w-6 h-6 text-green-600" />
               </div>
-            ) : (
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium text-primary">Click to upload</span> or drag and drop
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">Excel files only (.xlsx)</p>
-              </label>
-            )}
-          </div>
-
-          {/* Import Button */}
-          <div className="mt-4 flex justify-end">
+              <p className="text-lg font-medium text-green-800 mb-1">Import Complete</p>
+              <p className="text-sm text-green-700">
+                {importResult.agentsMatched} agents · {importResult.certificationsImported} carriers synced
+              </p>
+            </div>
             <Button
-              onClick={handleImport}
-              disabled={!selectedFile || importing || !profile?.id}
-              className="gap-2"
+              variant="ghost"
+              onClick={() => setImportResult(null)}
+              className="mt-4 text-muted-foreground"
+            >
+              Upload Another
+            </Button>
+          </div>
+        ) : (
+          <div className="w-full max-w-xs">
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={importing}
+              className="w-full py-6 bg-gold hover:bg-gold/90 text-white rounded-xl font-medium text-base gap-2"
             >
               {importing ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   Importing...
                 </>
               ) : (
                 <>
-                  <Upload className="h-4 w-4" />
-                  Import Certifications
+                  <Upload className="w-5 h-5" />
+                  Upload New Report
                 </>
               )}
             </Button>
+            <p className="text-center text-xs text-muted-foreground mt-3">
+              Drop .xlsx or click to browse
+            </p>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFileSelect(file);
+              }}
+              className="hidden"
+            />
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {/* Error Display */}
-      {error && (
-        <Card className="mb-6 border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-red-900">Import Failed</p>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Results Display */}
-      {result && (
-        <Card className="border-green-200 bg-green-50">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              <CardTitle className="text-base text-green-900">Import Complete</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <p className="text-2xl font-bold text-green-700">{formatNumber(result.matched)}</p>
-                <p className="text-sm text-muted-foreground">Agents matched</p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <p className="text-2xl font-bold text-muted-foreground">{formatNumber(result.skipped)}</p>
-                <p className="text-sm text-muted-foreground">Skipped</p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <p className="text-2xl font-bold text-green-700">{formatNumber(result.certifications_imported)}</p>
-                <p className="text-sm text-muted-foreground">Certifications</p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <p className="text-2xl font-bold text-green-700">{formatNumber(result.carrier_statuses_updated)}</p>
-                <p className="text-sm text-muted-foreground">Contracted</p>
-              </div>
-            </div>
-
-            {result.errors.length > 0 && (
-              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-sm font-medium text-amber-900 mb-2">
-                  {result.errors.length} warning(s):
-                </p>
-                <ul className="text-xs text-amber-800 space-y-1 max-h-32 overflow-y-auto">
-                  {result.errors.map((err, i) => (
-                    <li key={i}>{err}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="mt-4 flex justify-end">
-              <Button variant="outline" size="sm" onClick={handleReset}>
-                Import Another File
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        {/* Error display */}
+        {error && (
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl text-center max-w-xs">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+      </div>
     </AdminLayout>
+  );
+}
+
+// Calendar widget component
+function CalendarWidget({ lastSync }: { lastSync: string }) {
+  const syncDate = new Date(lastSync);
+  const daysSince = differenceInDays(new Date(), syncDate);
+  const stale = daysSince >= 5;
+
+  return (
+    <div
+      className={cn(
+        'bg-white border-2 rounded-2xl overflow-hidden shadow-sm w-36',
+        stale ? 'border-amber-300' : 'border-border'
+      )}
+    >
+      {/* Header */}
+      <div
+        className={cn(
+          'text-white text-center py-2',
+          stale ? 'bg-amber-500' : 'bg-gold'
+        )}
+      >
+        <p className="text-xs font-medium uppercase tracking-wide">Last Sync</p>
+      </div>
+
+      {/* Date */}
+      <div className="p-4 text-center">
+        <p className="text-sm text-muted-foreground uppercase">
+          {format(syncDate, 'MMM')}
+        </p>
+        <p className="text-5xl font-bold text-foreground">
+          {format(syncDate, 'd')}
+        </p>
+        <p
+          className={cn(
+            'text-xs mt-1',
+            stale ? 'text-amber-600' : 'text-muted-foreground'
+          )}
+        >
+          {daysSince === 0
+            ? format(syncDate, 'h:mm a')
+            : `${daysSince} day${daysSince !== 1 ? 's' : ''} ago`}
+        </p>
+      </div>
+    </div>
   );
 }

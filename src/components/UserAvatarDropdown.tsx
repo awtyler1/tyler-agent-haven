@@ -1,11 +1,13 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, FileText, Shield, Settings, Moon, LogOut, Loader2 } from 'lucide-react';
+import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, Home } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { Switch } from '@/components/ui/switch';
+import { CreateAdminDialog } from '@/components/admin/CreateAdminDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +26,50 @@ const ROLE_BADGE_STYLES: Record<string, { label: string; className: string }> = 
 
 export function UserAvatarDropdown() {
   const navigate = useNavigate();
-  const { profile, primaryRole, loading, canAccessAdmin } = useAuth();
+  const { profile, primaryRole, loading, canAccessAdmin, isSuperAdmin, isAdmin } = useAuth();
   const { isDark, toggle: toggleDarkMode } = useDarkMode();
+
+  // Outlook connection state
+  const [outlookConnected, setOutlookConnected] = useState<boolean | null>(null);
+  const [outlookLoading, setOutlookLoading] = useState(false);
+
+  // Create admin dialog state
+  const [createAdminOpen, setCreateAdminOpen] = useState(false);
+
+  // Check Outlook connection status for admins
+  useEffect(() => {
+    async function checkOutlook() {
+      if (!profile?.user_id) return;
+      const { data } = await supabase
+        .from('microsoft_oauth_tokens')
+        .select('id')
+        .eq('user_id', profile.user_id)
+        .maybeSingle();
+      setOutlookConnected(!!data);
+    }
+    if (isAdmin()) checkOutlook();
+  }, [profile?.user_id, isAdmin]);
+
+  const handleOutlookConnect = async () => {
+    setOutlookLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('You must be logged in to connect Outlook');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('microsoft-oauth-start');
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.authUrl) {
+        window.location.href = data.authUrl;
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to start OAuth');
+      setOutlookLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     await logActivity(ActivityAction.LOGOUT);
@@ -61,6 +105,7 @@ export function UserAvatarDropdown() {
   }
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2">
@@ -80,6 +125,15 @@ export function UserAvatarDropdown() {
         <DropdownMenuSeparator />
 
         {/* Navigation Items */}
+        {(isAdmin() || isSuperAdmin()) && (
+          <DropdownMenuItem
+            onClick={() => navigate('/')}
+            className="cursor-pointer hover:bg-primary/10"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            My Dashboard
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           onClick={() => navigate('/my-profile')}
           className="cursor-pointer hover:bg-primary/10"
@@ -106,12 +160,56 @@ export function UserAvatarDropdown() {
               <Shield className="w-4 h-4 mr-2" />
               Admin Dashboard
             </DropdownMenuItem>
+          </>
+        )}
+
+        {/* Outlook Integration - for all admins */}
+        {isAdmin() && (
+          <>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => navigate('/admin/settings')}
+              onClick={handleOutlookConnect}
+              disabled={outlookLoading}
               className="cursor-pointer hover:bg-primary/10"
             >
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
+              {outlookLoading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Mail className="w-4 h-4 mr-2" />
+              )}
+              {outlookConnected ? (
+                <>Outlook <span className="ml-auto text-green-600 text-xs">Connected ✓</span></>
+              ) : (
+                <>Connect Outlook</>
+              )}
+            </DropdownMenuItem>
+          </>
+        )}
+
+        {/* Super Admin Only Items */}
+        {isSuperAdmin() && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => setCreateAdminOpen(true)}
+              className="cursor-pointer hover:bg-primary/10"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Create Admin
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigate('/admin/activity-log')}
+              className="cursor-pointer hover:bg-primary/10"
+            >
+              <Activity className="w-4 h-4 mr-2" />
+              Activity Log
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigate('/admin/labs')}
+              className="cursor-pointer hover:bg-primary/10"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Labs
             </DropdownMenuItem>
           </>
         )}
@@ -142,5 +240,12 @@ export function UserAvatarDropdown() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    {/* Create Admin Dialog - rendered outside dropdown */}
+    <CreateAdminDialog
+      open={createAdminOpen}
+      onOpenChange={setCreateAdminOpen}
+    />
+    </>
   );
 }

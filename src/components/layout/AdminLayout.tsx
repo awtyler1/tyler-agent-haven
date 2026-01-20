@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { Button } from '@/components/ui/button';
@@ -50,7 +50,7 @@ export function AdminLayout({
       {/* Minimal Header */}
       <header className="bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-          {/* Left: Back button (optional) + Logo */}
+          {/* Left: Back button (optional) */}
           <div className="flex items-center gap-3">
             {showBackButton && (
               <Button
@@ -63,12 +63,6 @@ export function AdminLayout({
                 {backLabel}
               </Button>
             )}
-            <Link to="/admin" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-gradient-to-b from-[hsl(43,56%,45%)] to-[hsl(43,56%,38%)] rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-xs">TIG</span>
-              </div>
-              <span className="font-semibold text-foreground text-sm">Admin</span>
-            </Link>
           </div>
 
           {/* Right: Avatar Dropdown */}

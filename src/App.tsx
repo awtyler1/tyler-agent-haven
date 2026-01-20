@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
-import { AgentChatWidget } from "./components/AgentChatWidget";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Public pages
@@ -44,19 +43,14 @@ import MyProfilePage from "./pages/MyProfilePage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AgentsPage from "./pages/admin/AgentsPage";
 import UserDetailPage from "./pages/admin/UserDetailPage";
-import PlatformMapPage from "./pages/admin/PlatformMapPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
-import PdfFieldExtractorPage from "./pages/admin/PdfFieldExtractorPage";
-import PdfFieldMapperPage from "./pages/admin/PdfFieldMapperPage";
 import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
-import PdfFieldAuditPage from "./pages/admin/PdfFieldAuditPage";
-import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import LabsPage from "./pages/admin/LabsPage";
 import HierarchyManagementPage from "./pages/admin/HierarchyManagementPage";
 import ActivityLogPage from "./pages/admin/ActivityLogPage";
 import RTSImportPage from "./pages/admin/RTSImportPage";
 import RoadmapGeneratorPage from "./pages/admin/RoadmapGeneratorPage";
 import AgentProfilePage from "./pages/admin/AgentProfilePage";
-import TeamDetailPage from "./pages/admin/TeamDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -75,16 +69,6 @@ function RecoveryRedirectHandler() {
   }, [navigate, location]);
 
   return null;
-}
-
-// Conditionally show chat widget (hide during contracting flow and auth pages)
-function ConditionalChatWidget() {
-  const location = useLocation();
-  const hiddenPaths = ['/contracting', '/auth'];
-  const shouldHide = hiddenPaths.some(path => location.pathname.startsWith(path));
-  
-  if (shouldHide) return null;
-  return <AgentChatWidget />;
 }
 
 // =============================================================================
@@ -158,22 +142,6 @@ const App = () => (
               }
             />
             <Route
-              path="/admin/platform-map"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <PlatformMapPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route 
-              path="/admin/pdf-extractor" 
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <PdfFieldExtractorPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route
               path="/admin/agents" 
               element={
                 <ProtectedRoute requireAdmin>
@@ -186,14 +154,6 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <NewAgentPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/agents/team/:profileId"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <TeamDetailPage />
                 </ProtectedRoute>
               }
             />
@@ -214,36 +174,12 @@ const App = () => (
               } 
             />
             <Route 
-              path="/admin/pdf-mapper" 
-              element={
-                <ProtectedRoute requireAdmin>
-                  <PdfFieldMapperPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/pdf-audit" 
-              element={
-                <ProtectedRoute requireAdmin>
-                  <PdfFieldAuditPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
               path="/admin/hierarchy" 
               element={
                 <ProtectedRoute requireAdmin>
                   <HierarchyManagementPage />
                 </ProtectedRoute>
               } 
-            />
-            <Route
-              path="/admin/settings"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <AdminSettingsPage />
-                </ProtectedRoute>
-              }
             />
             <Route
               path="/admin/activity-log"
@@ -269,6 +205,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/labs"
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <LabsPage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
@@ -291,7 +235,6 @@ const App = () => (
             <Route path="/about" element={<ProtectedRoute><AboutPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <ConditionalChatWidget />
         </BrowserRouter>
       </TooltipProvider>
     </FeatureFlagsProvider>

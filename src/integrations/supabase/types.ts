@@ -1,4 +1,3 @@
-Initialising login role...
 export type Json =
   | string
   | number
@@ -12,31 +11,6 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
-  }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
   }
   public: {
     Tables: {
@@ -113,6 +87,66 @@ export type Database = {
           {
             foreignKeyName: "agent_certifications_profile_id_fkey"
             columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_documents: {
+        Row: {
+          category: string
+          created_at: string | null
+          document_type: string
+          expires_at: string | null
+          file_name: string
+          file_path: string
+          id: string
+          label: string | null
+          notes: string | null
+          profile_id: string
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          document_type: string
+          expires_at?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          label?: string | null
+          notes?: string | null
+          profile_id: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          document_type?: string
+          expires_at?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          label?: string | null
+          notes?: string | null
+          profile_id?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_documents_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -287,6 +321,7 @@ export type Database = {
           id: string
           issue_description: string | null
           link_resend_requested_at: string | null
+          profile_id: string | null
           updated_at: string | null
           user_id: string
         }
@@ -301,6 +336,7 @@ export type Database = {
           id?: string
           issue_description?: string | null
           link_resend_requested_at?: string | null
+          profile_id?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -315,6 +351,7 @@ export type Database = {
           id?: string
           issue_description?: string | null
           link_resend_requested_at?: string | null
+          profile_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -324,6 +361,13 @@ export type Database = {
             columns: ["carrier_id"]
             isOneToOne: false
             referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carrier_statuses_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -922,6 +966,7 @@ export type Database = {
           manager_id: string | null
           npn: string | null
           onboarding_status: Database["public"]["Enums"]["onboarding_status"]
+          ownership_group: string | null
           password_created_at: string | null
           phone: string | null
           setup_link_sent_at: string | null
@@ -950,6 +995,7 @@ export type Database = {
           manager_id?: string | null
           npn?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
+          ownership_group?: string | null
           password_created_at?: string | null
           phone?: string | null
           setup_link_sent_at?: string | null
@@ -978,6 +1024,7 @@ export type Database = {
           manager_id?: string | null
           npn?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
+          ownership_group?: string | null
           password_created_at?: string | null
           phone?: string | null
           setup_link_sent_at?: string | null
@@ -1258,9 +1305,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: [

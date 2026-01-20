@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { formatPhone } from '@/lib/formatters';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +22,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, Loader2, X, Phone, Mail, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Loader2, X, Phone, Mail, Building2, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { AssignManagerModal } from './AssignManagerModal';
 
 type AgentStatus = 'imported' | 'invited' | 'active' | 'all';
 
@@ -40,6 +43,7 @@ interface AgentProfile {
   created_at: string | null;
   resident_state: string | null;
   password_created_at: string | null;
+  ownership_group: string | null;
 }
 
 interface ManagerInfo {
@@ -63,10 +67,10 @@ function getAgentStatus(agent: AgentProfile): AgentStatus {
 
 function StatusDot({ status }: { status: AgentStatus }) {
   const colors = {
-    imported: 'bg-gray-300',
+    imported: 'bg-muted-foreground/40',
     invited: 'bg-yellow-400',
     active: 'bg-green-500',
-    all: 'bg-blue-500',
+    all: 'bg-primary',
   };
 
   const labels = {
@@ -151,6 +155,13 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sendingLinks, setSendingLinks] = useState(false);
 
+  // Assign Manager modal state
+  const [assignManagerOpen, setAssignManagerOpen] = useState(false);
+  const [assignManagerAgentIds, setAssignManagerAgentIds] = useState<string[]>([]);
+  const [assignManagerAgentName, setAssignManagerAgentName] = useState<string | undefined>();
+  const [assignManagerCurrentId, setAssignManagerCurrentId] = useState<string | null | undefined>();
+  const [assignManagerCurrentOwnership, setAssignManagerCurrentOwnership] = useState<string | null | undefined>();
+
   useEffect(() => {
     fetchAgents();
   }, []);
@@ -176,7 +187,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
       // Fetch all active profiles
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, user_id, full_name, email, phone, state, npn, setup_link_sent_at, is_active, manager_id, created_at, password_created_at')
+        .select('id, user_id, full_name, email, phone, state, npn, setup_link_sent_at, is_active, manager_id, created_at, password_created_at, ownership_group')
         .eq('is_active', true)
         .order('full_name', { ascending: true });
 
@@ -199,6 +210,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
         manager_id: string | null;
         created_at: string | null;
         password_created_at: string | null;
+        ownership_group: string | null;
       }>).filter((p) => !p.user_id || !adminUserIds.has(p.user_id));
 
       // Build manager map (id -> name)
@@ -232,6 +244,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
         created_at: row.created_at,
         resident_state: row.state,
         password_created_at: row.password_created_at,
+        ownership_group: row.ownership_group,
       }));
 
       setAgents(agentList);
@@ -266,12 +279,16 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
         return false;
       }
 
-      // Manager filter - now uses manager_id
-      if (managerFilter === 'no-manager' && agent.manager_id !== null) {
-        return false;
-      }
-      if (managerFilter !== 'all' && managerFilter !== 'no-manager' && agent.manager_id !== managerFilter) {
-        return false;
+      // Manager/ownership filter
+      if (managerFilter === 'a_and_a') {
+        // A&A team: ownership_group = 'a_and_a'
+        if (agent.ownership_group !== 'a_and_a') return false;
+      } else if (managerFilter === 'no-manager') {
+        // Direct to TIG: no manager AND no ownership_group
+        if (agent.manager_id !== null || agent.ownership_group !== null) return false;
+      } else if (managerFilter !== 'all') {
+        // Specific manager
+        if (agent.manager_id !== managerFilter) return false;
       }
 
       // State filter
@@ -413,8 +430,50 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
   };
 
   const handleAssignManager = () => {
-    console.log('Assign manager to:', Array.from(selectedIds));
-    // TODO: Implement bulk assign
+    const ids = Array.from(selectedIds);
+    setAssignManagerAgentIds(ids);
+    setAssignManagerAgentName(undefined); // Bulk - no single name
+    setAssignManagerCurrentId(undefined); // Bulk - mixed managers
+    setAssignManagerOpen(true);
+  };
+
+  const handleAssignManagerSuccess = () => {
+    setSelectedIds(new Set());
+    setSelectedAgent(null);
+    fetchAgents();
+  };
+
+  // Export filtered agents to Excel
+  const handleExport = () => {
+    // Build export data
+    const exportData = filteredAgents.map((agent) => ({
+      'Full Name': agent.full_name || '',
+      'Email': agent.email || '',
+      'Phone': formatPhone(agent.phone),
+      'NPN': agent.npn || '',
+      'State': agent.resident_state || '',
+      'Manager': agent.manager_id ? managerMap.get(agent.manager_id) || 'Unknown' : 'Direct to TIG',
+      'Ownership Group': agent.ownership_group === 'a_and_a' ? 'A&A' : '',
+      'Status': getStatusLabel(getAgentStatus(agent)),
+    }));
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Auto-fit column widths based on content
+    const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+      wch: Math.max(
+        key.length,
+        ...exportData.map((row) => String(row[key as keyof typeof row] || '').length)
+      ) + 2, // padding
+    }));
+    worksheet['!cols'] = columnWidths;
+
+    // Create workbook and download
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Agents');
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    XLSX.writeFile(workbook, `tig-agents-export-${date}.xlsx`);
   };
 
   // Helper to get manager name from ID
@@ -436,16 +495,16 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
       {/* Search + Filters Row */}
       <div className="flex gap-3 flex-shrink-0 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
           <Input
             placeholder={`Search ${agents.length} agents...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-10 border-gray-300"
+            className="pl-10 h-10 border-border"
           />
         </div>
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as AgentStatus | 'all')}>
-          <SelectTrigger className="w-[130px] h-10 border-gray-300">
+          <SelectTrigger className="w-[130px] h-10 border-border">
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
           <SelectContent>
@@ -456,11 +515,12 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
           </SelectContent>
         </Select>
         <Select value={managerFilter} onValueChange={setManagerFilter}>
-          <SelectTrigger className="w-[180px] h-10 border-gray-300">
+          <SelectTrigger className="w-[180px] h-10 border-border">
             <SelectValue placeholder="All Managers" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Managers</SelectItem>
+            <SelectItem value="a_and_a">A&A</SelectItem>
             {uniqueManagers.map((manager) => (
               <SelectItem key={manager.id} value={manager.id}>
                 {manager.name}
@@ -470,7 +530,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
           </SelectContent>
         </Select>
         <Select value={stateFilter} onValueChange={setStateFilter}>
-          <SelectTrigger className="w-[120px] h-10 border-gray-300">
+          <SelectTrigger className="w-[120px] h-10 border-border">
             <SelectValue placeholder="All States" />
           </SelectTrigger>
           <SelectContent>
@@ -482,6 +542,16 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
             ))}
           </SelectContent>
         </Select>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-10 gap-2"
+          onClick={handleExport}
+          disabled={filteredAgents.length === 0}
+        >
+          <Download className="h-4 w-4" />
+          Export
+        </Button>
       </div>
 
       {/* Bulk Action Bar */}
@@ -507,7 +577,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 className="bg-white"
                 onClick={handleAssignManager}
               >
-                Assign Manager...
+                Assign / Change Manager...
               </Button>
               <Button
                 size="sm"
@@ -593,8 +663,8 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                       <TableCell className="px-3 py-3 font-medium text-foreground">
                         {agent.full_name || '—'}
                       </TableCell>
-                      <TableCell className="px-3 py-3 text-muted-foreground">
-                        {agent.phone || '—'}
+                      <TableCell className="px-3 py-3 text-muted-foreground whitespace-nowrap">
+                        {formatPhone(agent.phone) || '—'}
                       </TableCell>
                       <TableCell className="px-3 py-3 text-muted-foreground">
                         {agent.email || '—'}
@@ -689,7 +759,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-foreground">{selectedAgent.phone || '—'}</span>
+                  <span className="text-foreground whitespace-nowrap">{formatPhone(selectedAgent.phone) || '—'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="w-4 h-4 text-muted-foreground" />
@@ -718,6 +788,14 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                     </span>
                   )}
                 </div>
+                {selectedAgent.ownership_group === 'a_and_a' && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Team</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold/10 text-gold text-xs font-medium">
+                      A&A
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Status</span>
                   <span className="inline-flex items-center gap-1.5">
@@ -742,9 +820,15 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => console.log('Assign manager for:', selectedAgent.id)}
+                  onClick={() => {
+                    setAssignManagerAgentIds([selectedAgent.id]);
+                    setAssignManagerAgentName(selectedAgent.full_name || undefined);
+                    setAssignManagerCurrentId(selectedAgent.manager_id);
+                    setAssignManagerCurrentOwnership(selectedAgent.ownership_group);
+                    setAssignManagerOpen(true);
+                  }}
                 >
-                  Assign Manager
+                  Assign / Change Manager
                 </Button>
                 <Button
                   variant="outline"
@@ -766,6 +850,17 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
           </div>
         )}
       </div>
+
+      {/* Assign Manager Modal */}
+      <AssignManagerModal
+        open={assignManagerOpen}
+        onOpenChange={setAssignManagerOpen}
+        agentIds={assignManagerAgentIds}
+        agentName={assignManagerAgentName}
+        currentManagerId={assignManagerCurrentId}
+        currentOwnershipGroup={assignManagerCurrentOwnership}
+        onSuccess={handleAssignManagerSuccess}
+      />
     </div>
   );
 }

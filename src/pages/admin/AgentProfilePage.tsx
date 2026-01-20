@@ -4,19 +4,12 @@ import { format } from 'date-fns';
 import {
   Mail,
   User,
-  Shield,
-  Clock,
   CheckCircle2,
-  Circle,
   Loader2,
-  FileText,
   Users,
   Building2,
   CreditCard,
-  GitBranch,
   Hash,
-  Award,
-  ChevronRight,
   AlertCircle,
   Pencil,
   Plus,
@@ -26,10 +19,10 @@ import {
   UserMinus,
   UserPlus,
   Send,
+  MoreVertical,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -42,14 +35,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { AgentDocumentsCard } from '@/components/admin/AgentDocumentsCard';
+import { AgentDocumentsSection } from '@/components/admin/AgentDocumentsSection';
+import { AssignManagerModal } from '@/components/admin/AssignManagerModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useSendEmail } from '@/hooks/useSendEmail';
 import { toast } from 'sonner';
@@ -61,6 +55,7 @@ interface AgentProfile {
   full_name: string | null;
   npn: string | null;
   manager_id: string | null;
+  ownership_group: string | null;
   onboarding_status: string;
   is_active: boolean;
   is_test: boolean | null;
@@ -189,17 +184,7 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
   const { sendEmail } = useSendEmail();
 
   // Hierarchy assignment modal state
-  interface AgentOption {
-    id: string;
-    full_name: string | null;
-    manager_id: string | null;
-  }
   const [isHierarchyModalOpen, setIsHierarchyModalOpen] = useState(false);
-  const [allAgents, setAllAgents] = useState<AgentOption[]>([]);
-  const [hierarchySearch, setHierarchySearch] = useState('');
-  const [selectedManagerId, setSelectedManagerId] = useState<string | null>(null);
-  const [hierarchySaveStatus, setHierarchySaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [hierarchyError, setHierarchyError] = useState<string | null>(null);
 
   // Deactivate/Reactivate modal state
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
@@ -251,6 +236,12 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
 
   const CURRENT_AHIP_YEAR = 2026;
 
+  // Helper to get initials from a name
+  const getInitials = (name: string | null): string => {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   useEffect(() => {
     async function fetchAgentData() {
       if (!profileId) {
@@ -301,39 +292,36 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
           setManager(managerData || null);
         }
 
-        // Fetch carrier statuses if user_id exists
-        if (profileData.user_id) {
-          // Fetch carrier statuses (without join - FK not defined in PostgREST)
-          const { data: statusData, error: statusError } = await supabase
-            .from('carrier_statuses')
-            .select('id, carrier_id, contracting_status, contracting_submitted_at, contracted_at')
-            .eq('user_id', profileData.user_id)
-            .order('contracted_at', { ascending: false, nullsFirst: false });
+        // Fetch carrier statuses by profile_id (works for all agents, including imported)
+        const { data: statusData, error: statusError } = await supabase
+          .from('carrier_statuses')
+          .select('id, carrier_id, contracting_status, contracting_submitted_at, contracted_at')
+          .eq('profile_id', profileData.id)
+          .order('contracted_at', { ascending: false, nullsFirst: false });
 
-          if (statusError) {
-            console.error('Error fetching carrier statuses:', statusError);
-          } else if (statusData && statusData.length > 0) {
-            // Fetch carrier names for the carrier IDs we have
-            const carrierIds = statusData.map((s) => s.carrier_id);
-            const { data: carrierData } = await supabase
-              .from('carriers')
-              .select('id, name')
-              .in('id', carrierIds);
+        if (statusError) {
+          console.error('Error fetching carrier statuses:', statusError);
+        } else if (statusData && statusData.length > 0) {
+          // Fetch carrier names for the carrier IDs we have
+          const carrierIds = statusData.map((s) => s.carrier_id);
+          const { data: carrierData } = await supabase
+            .from('carriers')
+            .select('id, name')
+            .in('id', carrierIds);
 
-            // Build carrier name map
-            const carrierMap = new Map(carrierData?.map((c) => [c.id, c.name]) || []);
+          // Build carrier name map
+          const carrierMap = new Map(carrierData?.map((c) => [c.id, c.name]) || []);
 
-            // Combine the data
-            const mappedStatuses: CarrierStatus[] = statusData.map((s) => ({
-              id: s.id,
-              carrier_id: s.carrier_id,
-              carrier_name: carrierMap.get(s.carrier_id) || 'Unknown Carrier',
-              contracting_status: s.contracting_status as CarrierStatus['contracting_status'],
-              contracting_submitted_at: s.contracting_submitted_at,
-              contracted_at: s.contracted_at,
-            }));
-            setCarrierStatuses(mappedStatuses);
-          }
+          // Combine the data
+          const mappedStatuses: CarrierStatus[] = statusData.map((s) => ({
+            id: s.id,
+            carrier_id: s.carrier_id,
+            carrier_name: carrierMap.get(s.carrier_id) || 'Unknown Carrier',
+            contracting_status: s.contracting_status as CarrierStatus['contracting_status'],
+            contracting_submitted_at: s.contracting_submitted_at,
+            contracted_at: s.contracted_at,
+          }));
+          setCarrierStatuses(mappedStatuses);
         }
 
         // Fetch direct reports (profiles where manager_id = this profile's id)
@@ -822,48 +810,47 @@ Tyler Insurance Group`;
     }
 
     // Create carrier_statuses records for each selected carrier
-    if (profile.user_id) {
-      const newStatuses = selectedCarriersForRequest.map((carrierId) => ({
-        user_id: profile.user_id!,
-        carrier_id: carrierId,
-        contracting_status: 'in_progress' as const,
-        contracting_submitted_at: new Date().toISOString(),
-      }));
+    const newStatuses = selectedCarriersForRequest.map((carrierId) => ({
+      profile_id: profile.id,
+      user_id: profile.user_id || null,
+      carrier_id: carrierId,
+      contracting_status: 'in_progress' as const,
+      contracting_submitted_at: new Date().toISOString(),
+    }));
 
-      const { error: insertError } = await supabase
+    const { error: insertError } = await supabase
+      .from('carrier_statuses')
+      .insert(newStatuses);
+
+    if (insertError) {
+      console.warn('Email sent but failed to create carrier_statuses:', insertError);
+      // Don't fail - email was already sent
+    } else {
+      // Refresh carrier statuses to show new "In Progress" carriers
+      const { data: statusData } = await supabase
         .from('carrier_statuses')
-        .insert(newStatuses);
+        .select('id, carrier_id, contracting_status, contracting_submitted_at, contracted_at')
+        .eq('profile_id', profile.id)
+        .order('contracted_at', { ascending: false, nullsFirst: false });
 
-      if (insertError) {
-        console.warn('Email sent but failed to create carrier_statuses:', insertError);
-        // Don't fail - email was already sent
-      } else {
-        // Refresh carrier statuses to show new "In Progress" carriers
-        const { data: statusData } = await supabase
-          .from('carrier_statuses')
-          .select('id, carrier_id, contracting_status, contracting_submitted_at, contracted_at')
-          .eq('user_id', profile.user_id)
-          .order('contracted_at', { ascending: false, nullsFirst: false });
+      if (statusData && statusData.length > 0) {
+        const carrierIds = statusData.map((s) => s.carrier_id);
+        const { data: carrierData } = await supabase
+          .from('carriers')
+          .select('id, name')
+          .in('id', carrierIds);
 
-        if (statusData && statusData.length > 0) {
-          const carrierIds = statusData.map((s) => s.carrier_id);
-          const { data: carrierData } = await supabase
-            .from('carriers')
-            .select('id, name')
-            .in('id', carrierIds);
+        const carrierMap = new Map(carrierData?.map((c) => [c.id, c.name]) || []);
 
-          const carrierMap = new Map(carrierData?.map((c) => [c.id, c.name]) || []);
-
-          const mappedStatuses: CarrierStatus[] = statusData.map((s) => ({
-            id: s.id,
-            carrier_id: s.carrier_id,
-            carrier_name: carrierMap.get(s.carrier_id) || 'Unknown Carrier',
-            contracting_status: s.contracting_status as CarrierStatus['contracting_status'],
-            contracting_submitted_at: s.contracting_submitted_at,
-            contracted_at: s.contracted_at,
-          }));
-          setCarrierStatuses(mappedStatuses);
-        }
+        const mappedStatuses: CarrierStatus[] = statusData.map((s) => ({
+          id: s.id,
+          carrier_id: s.carrier_id,
+          carrier_name: carrierMap.get(s.carrier_id) || 'Unknown Carrier',
+          contracting_status: s.contracting_status as CarrierStatus['contracting_status'],
+          contracting_submitted_at: s.contracting_submitted_at,
+          contracted_at: s.contracted_at,
+        }));
+        setCarrierStatuses(mappedStatuses);
       }
     }
 
@@ -895,128 +882,34 @@ Tyler Insurance Group`;
   };
 
   // Hierarchy modal handlers
-  const handleOpenHierarchyModal = async () => {
+  const handleOpenHierarchyModal = () => {
     setIsHierarchyModalOpen(true);
-    setHierarchySearch('');
-    setSelectedManagerId(profile?.manager_id || null);
-    setHierarchySaveStatus('idle');
-    setHierarchyError(null);
+  };
 
-    // Fetch all active agents
-    const { data: agentsData, error: agentsError } = await supabase
+  const handleHierarchySuccess = async () => {
+    // Refresh profile and manager data after assignment
+    if (!profileId) return;
+
+    const { data: updatedProfile } = await supabase
       .from('profiles')
-      .select('id, full_name, manager_id')
-      .eq('is_active', true)
-      .order('full_name');
+      .select('*')
+      .eq('id', profileId)
+      .single();
 
-    if (agentsError) {
-      console.error('Error fetching agents:', agentsError);
-      setHierarchyError('Failed to load agents');
-      return;
-    }
+    if (updatedProfile) {
+      setProfile(updatedProfile);
 
-    setAllAgents(agentsData || []);
-  };
-
-  const handleCloseHierarchyModal = () => {
-    if (hierarchySaveStatus === 'saving') return;
-    setIsHierarchyModalOpen(false);
-  };
-
-  // Get manager name for display in list
-  const getManagerDisplayName = (managerId: string | null): string => {
-    if (!managerId) return 'Direct to TIG';
-    const mgr = allAgents.find((a) => a.id === managerId);
-    return mgr?.full_name || 'Unknown';
-  };
-
-  // Check if assigning newManagerId would create a circular reference
-  const wouldCreateCycle = (newManagerId: string | null): boolean => {
-    if (!newManagerId || !profile) return false;
-
-    // Walk up the chain from the new manager to see if we hit the current agent
-    const visited = new Set<string>();
-    let currentId: string | null = newManagerId;
-
-    while (currentId) {
-      if (currentId === profile.id) {
-        return true; // Found the current agent in the hierarchy - cycle!
-      }
-      if (visited.has(currentId)) {
-        break; // Already visited, prevent infinite loop
-      }
-      visited.add(currentId);
-
-      const agent = allAgents.find((a) => a.id === currentId);
-      currentId = agent?.manager_id || null;
-    }
-
-    return false;
-  };
-
-  // Filter agents for the list (exclude current agent and direct reports)
-  const filteredAgents = allAgents.filter((agent) => {
-    // Exclude self
-    if (agent.id === profile?.id) return false;
-    // Exclude anyone who directly reports to this agent (simple cycle prevention)
-    if (agent.manager_id === profile?.id) return false;
-    // Apply search filter
-    if (hierarchySearch) {
-      const search = hierarchySearch.toLowerCase();
-      return agent.full_name?.toLowerCase().includes(search);
-    }
-    return true;
-  });
-
-  const handleSaveHierarchy = async () => {
-    if (!profile) return;
-
-    // Check for circular reference
-    if (wouldCreateCycle(selectedManagerId)) {
-      setHierarchyError('Cannot assign: this would create a circular reporting structure');
-      return;
-    }
-
-    setHierarchySaveStatus('saving');
-    setHierarchyError(null);
-
-    const originalManagerId = profile.manager_id;
-
-    // Optimistic update
-    setProfile({ ...profile, manager_id: selectedManagerId });
-
-    // Update manager display
-    if (selectedManagerId) {
-      const newMgr = allAgents.find((a) => a.id === selectedManagerId);
-      setManager(newMgr ? { id: newMgr.id, full_name: newMgr.full_name, email: null } : null);
-    } else {
-      setManager(null);
-    }
-
-    try {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ manager_id: selectedManagerId })
-        .eq('id', profile.id);
-
-      if (updateError) throw updateError;
-
-      setHierarchySaveStatus('saved');
-      // Show success briefly before closing
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setIsHierarchyModalOpen(false);
-    } catch (err: any) {
-      // Revert on error
-      setProfile({ ...profile, manager_id: originalManagerId });
-      // Revert manager display
-      if (originalManagerId) {
-        const oldMgr = allAgents.find((a) => a.id === originalManagerId);
-        setManager(oldMgr ? { id: oldMgr.id, full_name: oldMgr.full_name, email: null } : null);
+      // Update manager display
+      if (updatedProfile.manager_id) {
+        const { data: managerData } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .eq('id', updatedProfile.manager_id)
+          .single();
+        setManager(managerData || null);
       } else {
         setManager(null);
       }
-      setHierarchySaveStatus('error');
-      setHierarchyError(err.message || 'Failed to update manager');
     }
   };
 
@@ -1223,7 +1116,7 @@ Tyler Insurance Group`;
   // Loading state
   if (loading) {
     return (
-      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
+      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation} >
         <div className="flex items-center justify-center py-24">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-gold" />
@@ -1237,7 +1130,7 @@ Tyler Insurance Group`;
   // Error state
   if (error || !profile) {
     return (
-      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
+      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation} >
         <div className="flex items-center justify-center py-24">
           <div className="text-center">
             <h2 className="text-lg font-semibold text-foreground mb-2">
@@ -1252,83 +1145,166 @@ Tyler Insurance Group`;
     );
   }
 
-  const roleInfo = ROLE_LABELS[role || ''] || { label: role || 'Unknown', className: 'bg-gray-100 text-gray-700' };
   const statusInfo = ONBOARDING_STATUS_LABELS[profile.onboarding_status] || {
     label: profile.onboarding_status,
     className: 'bg-gray-100 text-gray-700',
   };
 
-  const timelineEvents = [
-    {
-      label: 'Account Created',
-      date: profile.created_at,
-      completed: true,
-      icon: User,
-    },
-    {
-      label: 'Setup Link Sent',
-      date: profile.setup_link_sent_at,
-      completed: !!profile.setup_link_sent_at,
-      icon: Mail,
-    },
-    {
-      label: 'Password Created',
-      date: profile.password_created_at,
-      completed: !!profile.password_created_at,
-      icon: Shield,
-    },
-    {
-      label: 'First Login',
-      date: profile.first_login_at,
-      completed: !!profile.first_login_at,
-      icon: CheckCircle2,
-    },
-    {
-      label: 'Appointed',
-      date: profile.appointed_at,
-      completed: !!profile.appointed_at,
-      icon: FileText,
-    },
-  ];
-
   return (
-    <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
+    <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation} >
       <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="heading-section">{profile.full_name || 'Unnamed Agent'}</h1>
-                  {!profile.is_active && (
-                    <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-red-100 text-red-700">
-                      Inactive
-                    </span>
-                  )}
-                  {profile.is_test && (
-                    <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
-                      Test
-                    </span>
-                  )}
-                </div>
+        {/* ═══════════════════════════════════════════════════════════════
+            AGENT HEADER BAND
+            ═══════════════════════════════════════════════════════════════ */}
+        <div className="bg-white border border-border rounded-lg p-4 mb-4">
+          <div className="flex items-start gap-4">
+            {/* Avatar */}
+            <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-semibold flex-shrink-0">
+              {getInitials(profile.full_name)}
+            </div>
 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-muted-foreground">
-                  {profile.email && (
-                    <span className="flex items-center gap-1.5">
-                      <Mail className="h-4 w-4" />
-                      {profile.email}
-                    </span>
-                  )}
-                  {profile.npn && (
-                    <span className="flex items-center gap-1.5">
-                      <Hash className="h-4 w-4" />
-                      NPN: {profile.npn}
-                    </span>
-                  )}
-                </div>
+            {/* Main Info */}
+            <div className="flex-1 min-w-0">
+              {/* Name Row - Inline Editable */}
+              <div className="flex items-center gap-3 mb-1 flex-wrap">
+                {isEditingName ? (
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    value={draftName}
+                    onChange={(e) => {
+                      setDraftName(e.target.value);
+                      setNameError(null);
+                    }}
+                    onKeyDown={handleNameKeyDown}
+                    onBlur={handleNameBlur}
+                    className="text-xl font-serif font-medium px-2 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
+                    placeholder="Full name"
+                  />
+                ) : (
+                  <h1
+                    onClick={handleNameClick}
+                    className={`text-xl font-serif font-medium text-foreground ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors inline-flex items-center' : ''}`}
+                    title={canEdit ? 'Click to edit' : undefined}
+                  >
+                    {profile.full_name || 'Unnamed Agent'}
+                    {canEdit && (
+                      <Pencil className="h-3.5 w-3.5 ml-2 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </h1>
+                )}
+                {nameSaveStatus === 'saved' && (
+                  <span className="text-xs text-green-600 animate-fade-in">Saved ✓</span>
+                )}
+                {nameSaveStatus === 'saving' && (
+                  <span className="text-xs text-muted-foreground">Saving...</span>
+                )}
+                {nameSaveStatus === 'error' && nameError && !isEditingName && (
+                  <span className="text-xs text-red-600">{nameError}</span>
+                )}
 
-                {/* Reports To */}
-                <div className="flex items-center gap-2 mt-3 text-sm">
+                {/* Status Badges */}
+                {!profile.is_active && (
+                  <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-red-100 text-red-700">
+                    Inactive
+                  </span>
+                )}
+                {profile.is_test && (
+                  <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
+                    Test
+                  </span>
+                )}
+                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusInfo.className}`}>
+                  {statusInfo.label}
+                </span>
+              </div>
+
+              {/* Contact Row */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                {/* NPN - Inline Editable */}
+                {isEditingNpn ? (
+                  <div className="flex items-center gap-1.5">
+                    <Hash className="h-4 w-4" />
+                    <input
+                      ref={npnInputRef}
+                      type="text"
+                      value={draftNpn}
+                      onChange={(e) => {
+                        setDraftNpn(e.target.value);
+                        setNpnValidationError(null);
+                      }}
+                      onKeyDown={handleNpnKeyDown}
+                      onBlur={handleNpnBlur}
+                      className="w-20 text-sm px-1.5 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
+                      placeholder="12345678"
+                      maxLength={8}
+                    />
+                    {npnValidationError && (
+                      <span className="text-xs text-red-600">{npnValidationError}</span>
+                    )}
+                  </div>
+                ) : (
+                  <span
+                    onClick={handleNpnClick}
+                    className={`flex items-center gap-1.5 ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors' : ''}`}
+                    title={canEdit ? 'Click to edit' : undefined}
+                  >
+                    <Hash className="h-4 w-4" />
+                    NPN: {profile.npn || '—'}
+                    {canEdit && (
+                      <Pencil className="h-3 w-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </span>
+                )}
+                {npnSaveStatus === 'saved' && (
+                  <span className="text-xs text-green-600 animate-fade-in">Saved ✓</span>
+                )}
+
+                <span className="text-muted-foreground/30">·</span>
+
+                {/* Email - Inline Editable */}
+                {isEditingEmail ? (
+                  <div className="flex items-center gap-1.5">
+                    <Mail className="h-4 w-4" />
+                    <input
+                      ref={emailInputRef}
+                      type="email"
+                      value={draftEmail}
+                      onChange={(e) => {
+                        setDraftEmail(e.target.value);
+                        setEmailValidationError(null);
+                      }}
+                      onKeyDown={handleEmailKeyDown}
+                      onBlur={handleEmailBlur}
+                      className="w-48 text-sm px-1.5 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
+                      placeholder="email@example.com"
+                    />
+                    {emailValidationError && (
+                      <span className="text-xs text-red-600">{emailValidationError}</span>
+                    )}
+                  </div>
+                ) : (
+                  <span
+                    onClick={handleEmailClick}
+                    className={`flex items-center gap-1.5 ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors' : ''}`}
+                    title={canEdit ? 'Click to edit' : undefined}
+                  >
+                    <Mail className="h-4 w-4" />
+                    {profile.email || '—'}
+                    {canEdit && (
+                      <Pencil className="h-3 w-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </span>
+                )}
+                {emailSaveStatus === 'saved' && (
+                  <span className="text-xs text-green-600 animate-fade-in">Saved ✓</span>
+                )}
+              </div>
+
+              {/* Manager Row + Compliance Indicators */}
+              <div className="flex items-center gap-4 mt-2 text-sm flex-wrap">
+                {/* Manager Info */}
+                <div className="flex items-center gap-2">
                   {manager ? (
                     <>
                       <Users className="h-4 w-4 text-muted-foreground" />
@@ -1339,551 +1315,268 @@ Tyler Insurance Group`;
                       >
                         {manager.full_name || manager.email || 'Unknown'}
                       </Link>
+                      {canEdit && (
+                        <button
+                          onClick={handleOpenHierarchyModal}
+                          className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                          title="Change manager"
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </button>
+                      )}
                     </>
                   ) : (
                     <>
                       <Building2 className="h-4 w-4 text-blue-600" />
                       <span className="text-muted-foreground">Reports to:</span>
                       <span className="font-medium text-blue-600">TIG (Direct)</span>
+                      {canEdit && (
+                        <button
+                          onClick={handleOpenHierarchyModal}
+                          className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                          title="Change manager"
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
-              </div>
 
-              {/* Badges */}
-              <div className="flex flex-col items-end gap-2">
-                <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${roleInfo.className}`}>
-                  {roleInfo.label}
-                </span>
-                <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${statusInfo.className}`}>
-                  {statusInfo.label}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Cards Grid */}
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Profile Information Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Profile Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Full Name</p>
-                    {isEditingName ? (
-                      <div>
-                        <input
-                          ref={nameInputRef}
-                          type="text"
-                          value={draftName}
-                          onChange={(e) => {
-                            setDraftName(e.target.value);
-                            setNameError(null);
-                          }}
-                          onKeyDown={handleNameKeyDown}
-                          onBlur={handleNameBlur}
-                          className="w-full text-sm font-medium px-2 py-1 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
-                          placeholder="Full name"
-                        />
-                        {nameError && (
-                          <p className="text-xs text-red-600 mt-1">{nameError}</p>
-                        )}
-                      </div>
-                    ) : (
-                      <div
-                        onClick={handleNameClick}
-                        className={canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors' : ''}
-                        title={canEdit ? 'Click to edit' : undefined}
-                      >
-                        <p className="font-medium inline-flex items-center">
-                          {profile.full_name || '—'}
-                          {canEdit && (
-                            <Pencil className="h-3.5 w-3.5 ml-1.5 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          )}
-                        </p>
-                      </div>
-                    )}
-                    {nameSaveStatus === 'saved' && (
-                      <p className="text-xs text-green-600 mt-0.5 animate-fade-in">Saved ✓</p>
-                    )}
-                    {nameSaveStatus === 'saving' && (
-                      <p className="text-xs text-muted-foreground mt-0.5">Saving...</p>
-                    )}
-                    {nameSaveStatus === 'error' && nameError && !isEditingName && (
-                      <p className="text-xs text-red-600 mt-0.5">{nameError}</p>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Email</p>
-                    {isEditingEmail ? (
-                      <div>
-                        <input
-                          ref={emailInputRef}
-                          type="email"
-                          value={draftEmail}
-                          onChange={(e) => {
-                            setDraftEmail(e.target.value);
-                            setEmailValidationError(null);
-                          }}
-                          onKeyDown={handleEmailKeyDown}
-                          onBlur={handleEmailBlur}
-                          className="w-full text-sm font-medium px-2 py-1 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
-                          placeholder="email@example.com"
-                        />
-                        {emailValidationError && (
-                          <p className="text-xs text-red-600 mt-1">{emailValidationError}</p>
-                        )}
-                      </div>
-                    ) : (
-                      <div
-                        onClick={handleEmailClick}
-                        className={canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors' : ''}
-                        title={canEdit ? 'Click to edit' : undefined}
-                      >
-                        <p className="font-medium inline-flex items-center">
-                          {profile.email || '—'}
-                          {canEdit && (
-                            <Pencil className="h-3.5 w-3.5 ml-1.5 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          )}
-                        </p>
-                      </div>
-                    )}
-                    {emailSaveStatus === 'saved' && (
-                      <p className="text-xs text-green-600 mt-0.5 animate-fade-in">Saved ✓</p>
-                    )}
-                    {emailSaveStatus === 'saving' && (
-                      <p className="text-xs text-muted-foreground mt-0.5">Saving...</p>
-                    )}
-                    {emailSaveStatus === 'error' && emailError && (
-                      <p className="text-xs text-red-600 mt-0.5">{emailError}</p>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">NPN</p>
-                    {isEditingNpn ? (
-                      <div>
-                        <input
-                          ref={npnInputRef}
-                          type="text"
-                          value={draftNpn}
-                          onChange={(e) => {
-                            setDraftNpn(e.target.value);
-                            setNpnValidationError(null);
-                          }}
-                          onKeyDown={handleNpnKeyDown}
-                          onBlur={handleNpnBlur}
-                          className="w-24 text-sm font-medium px-2 py-1 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
-                          placeholder="12345678"
-                          maxLength={8}
-                        />
-                        {npnValidationError && (
-                          <p className="text-xs text-red-600 mt-1">{npnValidationError}</p>
-                        )}
-                      </div>
-                    ) : (
-                      <div
-                        onClick={handleNpnClick}
-                        className={canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors' : ''}
-                        title={canEdit ? 'Click to edit' : undefined}
-                      >
-                        <p className="font-medium inline-flex items-center">
-                          {profile.npn || '—'}
-                          {canEdit && (
-                            <Pencil className="h-3.5 w-3.5 ml-1.5 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          )}
-                        </p>
-                      </div>
-                    )}
-                    {npnSaveStatus === 'saved' && (
-                      <p className="text-xs text-green-600 mt-0.5 animate-fade-in">Saved ✓</p>
-                    )}
-                    {npnSaveStatus === 'saving' && (
-                      <p className="text-xs text-muted-foreground mt-0.5">Saving...</p>
-                    )}
-                    {npnSaveStatus === 'error' && npnError && (
-                      <p className="text-xs text-red-600 mt-0.5">{npnError}</p>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">AHIP Certification</p>
-                    {profile.ahip_cert_year ? (
-                      <div>
-                        <p className="font-medium text-green-700 flex items-center gap-1">
-                          <Award className="h-4 w-4" />
-                          AHIP {profile.ahip_cert_year} <CheckCircle2 className="h-3.5 w-3.5" />
-                        </p>
-                        {profile.ahip_cert_uploaded_at && (
-                          <p className="text-xs text-muted-foreground">
-                            Uploaded {format(new Date(profile.ahip_cert_uploaded_at), 'MMM d, yyyy')}
-                          </p>
-                        )}
-                      </div>
-                    ) : hasInferredAhip ? (
-                      <div>
-                        <p className="font-medium text-green-700 flex items-center gap-1">
-                          <Award className="h-4 w-4" />
-                          AHIP {CURRENT_AHIP_YEAR} <CheckCircle2 className="h-3.5 w-3.5" />
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Via carrier certifications
-                        </p>
-                      </div>
-                    ) : (
-                      <p className="font-medium text-amber-600 flex items-center gap-1">
-                        <AlertCircle className="h-4 w-4" />
-                        AHIP Required
-                      </p>
-                    )}
-                  </div>
-                </div>
-                {/* Contracting Notes - Inline Editable */}
-                <div className="pt-3 border-t">
-                  <p className="text-muted-foreground text-sm mb-1">Contracting Notes</p>
-                  {isEditingNotes ? (
-                    <div>
-                      <textarea
-                        ref={notesTextareaRef}
-                        value={draftNotes}
-                        onChange={(e) => setDraftNotes(e.target.value)}
-                        onKeyDown={handleNotesKeyDown}
-                        onBlur={handleNotesBlur}
-                        className="w-full min-h-[80px] text-sm p-2 rounded-md border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold resize-y"
-                        placeholder="Add contracting notes..."
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+Enter</kbd> to save, <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Esc</kbd> to cancel
-                      </p>
-                    </div>
-                  ) : (
-                    <div
-                      onClick={handleNotesClick}
-                      className={canEdit ? 'group relative cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors' : ''}
-                      title={canEdit ? 'Click to edit' : undefined}
+                {/* Team Count Link (if manager) */}
+                {directReports.length > 0 && (
+                  <>
+                    <span className="text-muted-foreground/30">·</span>
+                    <Link
+                      to={`/admin/agents?manager=${profileId}`}
+                      className="text-gold hover:underline font-medium"
                     >
-                      {canEdit && (
-                        <Pencil className="h-3.5 w-3.5 absolute top-1 right-1 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      )}
-                      {profile.contracting_notes ? (
-                        <p className="text-sm whitespace-pre-wrap">{profile.contracting_notes}</p>
-                      ) : (
-                        <p className="text-sm text-muted-foreground/60 italic">
-                          {canEdit ? 'No notes — click to add' : 'No notes'}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  {/* Save status indicator */}
-                  {notesSaveStatus === 'saved' && (
-                    <p className="text-xs text-green-600 mt-1 animate-fade-in">Saved ✓</p>
-                  )}
-                  {notesSaveStatus === 'saving' && (
-                    <p className="text-xs text-muted-foreground mt-1">Saving...</p>
-                  )}
-                  {notesSaveStatus === 'error' && notesError && (
-                    <p className="text-xs text-red-600 mt-1">{notesError}</p>
-                  )}
-                </div>
-
-                {/* Role - Only show if user_id exists and canEdit */}
-                {canEdit && profile.user_id && (
-                  <div className="pt-3 border-t">
-                    <Label className="text-muted-foreground text-sm">Role</Label>
-                    {updatingRole ? (
-                      <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span className="text-sm">Updating...</span>
-                      </div>
-                    ) : (
-                      <Select
-                        value={role || 'independent_agent'}
-                        onValueChange={(value) => handleRoleChange(value as AppRole)}
-                      >
-                        <SelectTrigger className="w-full mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(isSuperAdmin() ? ALL_ROLES : ADMIN_ASSIGNABLE_ROLES).map((r) => (
-                            <SelectItem key={r} value={r}>
-                              {ROLE_DROPDOWN_LABELS[r]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
+                      {directReports.length} agents →
+                    </Link>
+                  </>
                 )}
-              </CardContent>
-            </Card>
 
-            {/* Carrier Statuses Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Carrier Statuses
-                  <div className="flex items-center gap-2 ml-auto">
-                    {carrierStatuses.length > 0 && (
-                      <span className="text-xs font-normal text-muted-foreground">
-                        {carrierStatuses.filter(s => s.contracting_status === 'contracted').length} / {carrierStatuses.length} contracted
-                      </span>
-                    )}
-                    {canEdit && profile.user_id && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleOpenCarrierRequest}
-                        className="h-7 text-xs gap-1"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        Request Carrier
-                      </Button>
-                    )}
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {carrierStatuses.length === 0 ? (
-                  <div className="text-sm text-muted-foreground text-center py-6">
-                    <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                    <p>No carrier statuses yet</p>
-                  </div>
+                {/* Compliance Indicators */}
+                <span className="text-muted-foreground/30">·</span>
+                {profile.ahip_cert_year || hasInferredAhip ? (
+                  <span className="text-green-600 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    AHIP {profile.ahip_cert_year || CURRENT_AHIP_YEAR}
+                  </span>
                 ) : (
-                  <div className="space-y-2">
-                    {carrierStatuses.map((status) => {
-                      const config = CARRIER_STATUS_CONFIG[status.contracting_status] || CARRIER_STATUS_CONFIG.not_started;
-                      return (
-                        <div
-                          key={status.id}
-                          className="flex items-center justify-between p-3 rounded-lg border bg-muted/20"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="font-medium text-sm">{status.carrier_name}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${config.className}`}>
-                              {config.label}
-                            </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground text-right">
-                            {status.contracted_at ? (
-                              <span>Contracted {format(new Date(status.contracted_at), 'MMM d, yyyy')}</span>
-                            ) : status.contracting_submitted_at ? (
-                              <span>Submitted {format(new Date(status.contracting_submitted_at), 'MMM d, yyyy')}</span>
-                            ) : null}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <span className="text-amber-600 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    AHIP Required
+                  </span>
                 )}
-              </CardContent>
-            </Card>
-
-            {/* Hierarchy Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <GitBranch className="h-5 w-5" />
-                  Hierarchy
-                  {directReports.length > 0 && (
-                    <span className="text-xs font-normal text-muted-foreground ml-auto">
-                      {directReports.length} direct report{directReports.length !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {/* Reports To */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border">
-                    <div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                        Reports To
-                        {canEdit && (
-                          <button
-                            onClick={handleOpenHierarchyModal}
-                            className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                            title="Change manager"
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </button>
-                        )}
-                      </p>
-                      <p className="font-medium">
-                        {manager?.full_name || 'TIG (Direct)'}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {isAdmin() && manager && (
-                        <Link to={`/admin/agents/${manager.id}`}>
-                          <Button variant="ghost" size="sm">
-                            View
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Direct Reports */}
-                  <div className="pt-2">
-                    <p className="text-sm text-muted-foreground mb-2">Direct Reports</p>
-                    {directReports.length === 0 ? (
-                      <p className="text-sm text-muted-foreground/60 italic">No direct reports</p>
-                    ) : (
-                      <div className="space-y-1">
-                        {directReports.map((report) => (
-                          isAdmin() ? (
-                            <Link
-                              key={report.id}
-                              to={`/admin/agents/${report.id}`}
-                              className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors group"
-                            >
-                              <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm font-medium group-hover:text-gold transition-colors">
-                                  {report.full_name || report.email || 'Unnamed'}
-                                </span>
-                              </div>
-                              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-gold transition-colors" />
-                            </Link>
-                          ) : (
-                            <div
-                              key={report.id}
-                              className="flex items-center p-2 rounded-lg"
-                            >
-                              <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm font-medium">
-                                  {report.full_name || report.email || 'Unnamed'}
-                                </span>
-                              </div>
-                            </div>
-                          )
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Activity Timeline Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Activity Timeline
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {timelineEvents.map((event, index) => {
-                    const Icon = event.icon;
-                    return (
-                      <div key={index} className="flex items-start gap-3">
-                        <div
-                          className={`mt-0.5 ${
-                            event.completed ? 'text-green-600' : 'text-muted-foreground/40'
-                          }`}
-                        >
-                          {event.completed ? (
-                            <CheckCircle2 className="h-5 w-5" />
-                          ) : (
-                            <Circle className="h-5 w-5" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p
-                            className={`font-medium ${
-                              event.completed ? '' : 'text-muted-foreground/60'
-                            }`}
-                          >
-                            {event.label}
-                          </p>
-                          {event.date ? (
-                            <p className="text-sm text-muted-foreground">
-                              {format(new Date(event.date), "MMM d, yyyy 'at' h:mm a")}
-                            </p>
-                          ) : (
-                            <p className="text-sm text-muted-foreground/50 italic">Not yet</p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Agent Documents - Only show if user_id exists */}
-          {profile.user_id && (
-            <div className="mt-6">
-              <AgentDocumentsCard userId={profile.user_id} />
+                <span className="text-muted-foreground/30">·</span>
+                <span className="text-green-600 font-medium flex items-center gap-1">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  E&O
+                </span>
+                <span className="text-muted-foreground/30">·</span>
+                <span className="text-green-600 font-medium flex items-center gap-1">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Licensed
+                </span>
+              </div>
             </div>
-          )}
 
-          {/* Quick Actions */}
-          <div className="mt-6 flex items-center justify-between">
-            {/* Left side - Send Setup Link, Deactivate/Reactivate */}
-            <div className="flex items-center gap-3">
-              {/* Send Setup Link - only if user_id exists, canEdit, and password not yet set */}
+            {/* Actions */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Primary Action Button */}
               {canEdit && profile.user_id && !profile.password_created_at && (
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={handleSendSetupLink}
                   disabled={sendingSetupLink}
-                  className="gap-2"
+                  className="gap-1.5"
                 >
                   {sendingSetupLink ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Send className="h-4 w-4" />
                   )}
-                  {profile.setup_link_sent_at ? 'Resend Setup Link' : 'Send Setup Link'}
+                  {profile.setup_link_sent_at ? 'Resend Link' : 'Send Setup Link'}
                 </Button>
               )}
 
-              {/* Deactivate/Reactivate */}
+              {/* More Actions Dropdown */}
               {canEdit && (
-                profile.is_active ? (
-                  <Button
-                    variant="outline"
-                    onClick={handleOpenDeactivateModal}
-                    className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 gap-2"
-                  >
-                    <UserMinus className="h-4 w-4" />
-                    Deactivate Agent
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={handleOpenDeactivateModal}
-                    className="text-green-600 border-green-200 hover:bg-green-50 hover:border-green-300 gap-2"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    Reactivate Agent
-                  </Button>
-                )
-              )}
-            </div>
-
-            {/* Right side - View User Details (admin only) */}
-            <div className="flex items-center gap-3">
-              {isAdmin() && profile.user_id && (
-                <Link to={`/admin/users/${profile.user_id}`}>
-                  <Button variant="outline">
-                    View Full User Details
-                  </Button>
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-9 w-9 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleOpenCarrierRequest}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Request Carrier
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleOpenHierarchyModal}>
+                      <Users className="h-4 w-4 mr-2" />
+                      Change Manager
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {profile.is_active ? (
+                      <DropdownMenuItem
+                        onClick={handleOpenDeactivateModal}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <UserMinus className="h-4 w-4 mr-2" />
+                        Deactivate Agent
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={handleOpenDeactivateModal}
+                        className="text-green-600 focus:text-green-600"
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Reactivate Agent
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           </div>
         </div>
+
+        {/* ═══════════════════════════════════════════════════════════════
+            ROW 1: CARRIERS + DOCUMENTS (always both)
+            ═══════════════════════════════════════════════════════════════ */}
+        <div className="grid gap-4 md:grid-cols-2 mb-4">
+          {/* LEFT: Carrier Statuses Card */}
+          <div className="bg-white border border-border rounded-lg p-4 flex flex-col">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-foreground flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-muted-foreground" />
+                Carrier Statuses
+              </h2>
+              {carrierStatuses.length > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {carrierStatuses.filter(s => s.contracting_status === 'contracted').length}/{carrierStatuses.length} contracted
+                </span>
+              )}
+            </div>
+
+            {carrierStatuses.length === 0 ? (
+              <div className="text-sm text-muted-foreground text-center py-8 flex-1 flex flex-col items-center justify-center">
+                <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                <p>No carrier statuses yet</p>
+                {canEdit && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleOpenCarrierRequest}
+                    className="mt-3 gap-1.5"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Request Carrier
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2 max-h-48 overflow-y-auto flex-1">
+                  {carrierStatuses.map((status) => {
+                    const config = CARRIER_STATUS_CONFIG[status.contracting_status] || CARRIER_STATUS_CONFIG.not_started;
+                    return (
+                      <div
+                        key={status.id}
+                        className="flex items-center justify-between p-2.5 rounded-lg border bg-muted/20"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm">{status.carrier_name}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${config.className}`}>
+                            {config.label}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {status.contracted_at ? (
+                            <span>{format(new Date(status.contracted_at), 'MMM d, yyyy')}</span>
+                          ) : status.contracting_submitted_at ? (
+                            <span>{format(new Date(status.contracting_submitted_at), 'MMM d')}</span>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {canEdit && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleOpenCarrierRequest}
+                    className="w-full mt-3 text-muted-foreground hover:text-foreground gap-1.5 border-t pt-3"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Request Carrier
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* RIGHT: Documents (always visible) */}
+          <AgentDocumentsSection
+            profileId={profile.id}
+            canUpload={isAdmin() || isSelfView}
+            isAdmin={isAdmin()}
+          />
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════
+            NOTES (full width)
+            ═══════════════════════════════════════════════════════════════ */}
+        <div className="bg-white border border-border rounded-lg p-4">
+          <h2 className="font-semibold text-foreground mb-2">Notes</h2>
+          {isEditingNotes ? (
+            <div>
+              <textarea
+                ref={notesTextareaRef}
+                value={draftNotes}
+                onChange={(e) => setDraftNotes(e.target.value)}
+                onKeyDown={handleNotesKeyDown}
+                onBlur={handleNotesBlur}
+                className="w-full min-h-[80px] text-sm p-2 rounded-md border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold resize-y"
+                placeholder="Add contracting notes..."
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+Enter</kbd> to save, <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Esc</kbd> to cancel
+              </p>
+            </div>
+          ) : (
+            <div
+              onClick={handleNotesClick}
+              className={canEdit ? 'group relative cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors' : ''}
+              title={canEdit ? 'Click to edit' : undefined}
+            >
+              {canEdit && (
+                <Pencil className="h-3.5 w-3.5 absolute top-1 right-1 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+              )}
+              {profile.contracting_notes ? (
+                <p className="text-sm whitespace-pre-wrap">{profile.contracting_notes}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground/60 italic">
+                  {canEdit ? 'No notes — click to add' : 'No notes'}
+                </p>
+              )}
+            </div>
+          )}
+          {notesSaveStatus === 'saved' && (
+            <p className="text-xs text-green-600 mt-1 animate-fade-in">Saved ✓</p>
+          )}
+          {notesSaveStatus === 'saving' && (
+            <p className="text-xs text-muted-foreground mt-1">Saving...</p>
+          )}
+          {notesSaveStatus === 'error' && notesError && (
+            <p className="text-xs text-red-600 mt-1">{notesError}</p>
+          )}
+        </div>
+      </div>
 
       {/* Carrier Request Modal */}
       <Dialog open={isCarrierRequestOpen} onOpenChange={(open) => !open && handleCloseCarrierRequest()}>
@@ -2036,130 +1729,15 @@ Tyler Insurance Group`;
       </Dialog>
 
       {/* Hierarchy Assignment Modal */}
-      <Dialog open={isHierarchyModalOpen} onOpenChange={(open) => !open && handleCloseHierarchyModal()}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Change Reports To</DialogTitle>
-            <p className="text-sm text-muted-foreground">
-              Select who {profile?.full_name || 'this agent'} reports to
-            </p>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            {hierarchyError && (
-              <div className="p-3 rounded-md bg-red-50 border border-red-200">
-                <p className="text-sm text-red-700">{hierarchyError}</p>
-              </div>
-            )}
-
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search agents..."
-                value={hierarchySearch}
-                onChange={(e) => setHierarchySearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-
-            {/* Agent List */}
-            <div className="border rounded-md max-h-[400px] overflow-y-auto">
-              {/* TIG (Direct) Option */}
-              <button
-                onClick={() => setSelectedManagerId(null)}
-                className={`w-full text-left p-3 border-b hover:bg-muted/50 transition-colors flex items-center justify-between ${
-                  selectedManagerId === null ? 'bg-gold/10 border-l-2 border-l-gold' : ''
-                }`}
-              >
-                <div>
-                  <p className="font-medium flex items-center gap-2">
-                    TIG (Direct)
-                    {profile?.manager_id === null && (
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                        current
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Reports directly to Tyler Insurance Group</p>
-                </div>
-                {selectedManagerId === null && (
-                  <Check className="h-4 w-4 text-gold" />
-                )}
-              </button>
-
-              {/* Agent Options */}
-              {filteredAgents.length === 0 ? (
-                <div className="p-4 text-center text-sm text-muted-foreground">
-                  {hierarchySearch ? 'No agents match your search' : 'No agents available'}
-                </div>
-              ) : (
-                filteredAgents.map((agent) => {
-                  const isSelected = selectedManagerId === agent.id;
-                  const isCurrent = profile?.manager_id === agent.id;
-                  const managerDisplay = getManagerDisplayName(agent.manager_id);
-
-                  return (
-                    <button
-                      key={agent.id}
-                      onClick={() => setSelectedManagerId(agent.id)}
-                      className={`w-full text-left p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors flex items-center justify-between ${
-                        isSelected ? 'bg-gold/10 border-l-2 border-l-gold' : ''
-                      }`}
-                    >
-                      <div>
-                        <p className="font-medium flex items-center gap-2">
-                          {agent.full_name || 'Unnamed Agent'}
-                          {isCurrent && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                              current
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          under {managerDisplay}
-                        </p>
-                      </div>
-                      {isSelected && (
-                        <Check className="h-4 w-4 text-gold" />
-                      )}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={handleCloseHierarchyModal}
-              disabled={hierarchySaveStatus === 'saving'}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSaveHierarchy}
-              disabled={hierarchySaveStatus === 'saving' || hierarchySaveStatus === 'saved'}
-              className={`gap-2 min-w-[80px] ${hierarchySaveStatus === 'saved' ? 'bg-green-600 hover:bg-green-600' : ''}`}
-            >
-              {hierarchySaveStatus === 'saving' ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : hierarchySaveStatus === 'saved' ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  Saved!
-                </>
-              ) : (
-                'Save'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AssignManagerModal
+        open={isHierarchyModalOpen}
+        onOpenChange={setIsHierarchyModalOpen}
+        agentIds={profile ? [profile.id] : []}
+        agentName={profile?.full_name || undefined}
+        currentManagerId={profile?.manager_id}
+        currentOwnershipGroup={profile?.ownership_group}
+        onSuccess={handleHierarchySuccess}
+      />
 
       {/* Deactivate/Reactivate Modal */}
       <Dialog open={isDeactivateModalOpen} onOpenChange={(open) => !open && handleCloseDeactivateModal()}>

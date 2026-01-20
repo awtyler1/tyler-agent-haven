@@ -108,6 +108,52 @@ export default function SetPasswordPage() {
   // Memoized password validation
   const passwordValidation = useMemo(() => validatePassword(password), [password]);
 
+  // Role-based redirect logic - used by both auto-redirect and Continue button
+  const handleRedirect = async () => {
+    try {
+      // Re-fetch user to ensure we have fresh data
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = '/auth';
+        return;
+      }
+
+      // Check if user has admin role
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      if (rolesError) {
+        console.error('Error fetching roles:', rolesError);
+      }
+
+      const isAdmin = roles?.some(r => r.role === 'admin' || r.role === 'super_admin');
+
+      if (isAdmin) {
+        // Admins go to admin dashboard
+        window.location.href = '/admin';
+        return;
+      }
+
+      // For non-admins, check onboarding status
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_status')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile?.onboarding_status === 'CONTRACTING_REQUIRED') {
+        window.location.href = '/contracting';
+      } else {
+        window.location.href = '/';
+      }
+    } catch (err) {
+      console.error('Error during redirect:', err);
+      window.location.href = '/';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -143,20 +189,9 @@ export default function SetPasswordPage() {
       setIsSuccess(true);
       toast.success('Password set successfully!');
 
-      // Route based on onboarding status
-      // APPOINTED agents go to dashboard, CONTRACTING_REQUIRED go to contracting
-      setTimeout(async () => {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarding_status')
-          .eq('user_id', user.id)
-          .single();
-
-        if (profile?.onboarding_status === 'CONTRACTING_REQUIRED') {
-          window.location.href = '/contracting';
-        } else {
-          window.location.href = '/';
-        }
+      // Auto-redirect after delay
+      setTimeout(() => {
+        handleRedirect();
       }, 1500);
     } catch (err: any) {
       console.error('Error setting password:', err);
@@ -214,7 +249,7 @@ export default function SetPasswordPage() {
           </CardHeader>
           <CardContent className="pb-16 px-11">
             <Button
-              onClick={() => window.location.href = '/'}
+              onClick={handleRedirect}
               className="w-full h-[54px] text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
               style={{
                 background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',

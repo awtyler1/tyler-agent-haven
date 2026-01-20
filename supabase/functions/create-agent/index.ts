@@ -5,8 +5,8 @@ import { createSupabaseAdmin, requireAdmin } from "../_shared/auth.ts";
 interface CreateAgentRequest {
   email: string;
   fullName: string;
-  managerId?: string | null;  // profile.id of the manager (null = direct to TIG)
-  isExistingAgent: boolean;
+  managerId?: string | null;  // profile.id of the manager (null = direct to TIG or A&A)
+  ownershipGroup?: string | null;  // 'a_and_a' for A&A team, null otherwise
   sendSetupEmail?: boolean;
   isTest?: boolean;
 }
@@ -47,8 +47,8 @@ serve(async (req: Request): Promise<Response> => {
     const {
       email,
       fullName,
-      managerId = null,  // null means direct to TIG (no upline)
-      isExistingAgent,
+      managerId = null,  // null means direct to TIG or A&A
+      ownershipGroup = null,  // 'a_and_a' for A&A team
       sendSetupEmail = true,
       isTest = false
     } = requestBody;
@@ -57,7 +57,8 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Email and full name are required");
     }
 
-    console.log(`Creating agent: ${email}, managerId: ${managerId || 'direct-to-TIG'}, existing: ${isExistingAgent}, isTest: ${isTest}`);
+    const ownershipLabel = ownershipGroup === 'a_and_a' ? 'A&A' : (managerId ? 'manager' : 'direct-to-TIG');
+    console.log(`Creating agent: ${email}, managerId: ${managerId || 'null'}, ownership: ${ownershipLabel}, isTest: ${isTest}`);
 
     // Generate a random password (user won't know this - they'll set their own)
     const tempPassword = crypto.randomUUID();
@@ -76,11 +77,12 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`User created: ${newUser.user.id} (${email})`);
 
-    // Determine onboarding status based on agent type
-    const onboardingStatus = isExistingAgent ? 'APPOINTED' : 'CONTRACTING_REQUIRED';
+    // All new agents require contracting
+    const onboardingStatus = 'CONTRACTING_REQUIRED';
 
     // Insert a new profile row for the newly created user
-    // manager_id is the profile.id of the upline manager (null = direct to TIG)
+    // manager_id is the profile.id of the upline manager (null = direct to TIG or A&A)
+    // ownership_group is 'a_and_a' for A&A team members
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
       .insert({
@@ -88,6 +90,7 @@ serve(async (req: Request): Promise<Response> => {
         email: email,
         full_name: fullName,
         manager_id: managerId,
+        ownership_group: ownershipGroup,
         onboarding_status: onboardingStatus,
         is_active: true,
         is_test: isTest || false,
@@ -98,7 +101,7 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error(`Failed to insert profile: ${profileError.message}`);
     }
 
-    console.log(`Profile inserted with manager_id: ${managerId || 'null (direct to TIG)'}, status: ${onboardingStatus}`);
+    console.log(`Profile inserted with manager_id: ${managerId || 'null'}, ownership_group: ${ownershipGroup || 'null'}, status: ${onboardingStatus}`);
 
     // Assign the agent role
     const agentRole = 'independent_agent';
@@ -134,65 +137,41 @@ serve(async (req: Request): Promise<Response> => {
 
       const firstName = fullName.split(' ')[0] || 'there';
 
-      // Different email content based on agent type
-      const emailContent = isExistingAgent 
-        ? `
-          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-            Your Tyler Insurance Group agent account is ready.
-          </p>
-          
-          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 10px 0;">
-            <strong>Start here:</strong>
-          </p>
-          
-          <table border="0" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
-            <tr>
-              <td style="background-color: #A38529; border-radius: 6px;">
-                <a href="${setupLink}" style="display: inline-block; padding: 14px 28px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: 600;">
-                  Set Your Password
-                </a>
-              </td>
-            </tr>
-          </table>
-          
-          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-            Once you set your password, you'll have full access to the agent portal where you can access carrier resources, training materials, and more.
-          </p>
-        `
-        : `
-          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-            Your account is set up and ready for activation.
-          </p>
+      // Email content for new agents requiring contracting
+      const emailContent = `
+        <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+          Your account is set up and ready for activation.
+        </p>
 
-          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 10px 0;">
-            <strong>Start here:</strong>
-          </p>
+        <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 10px 0;">
+          <strong>Start here:</strong>
+        </p>
 
-          <table border="0" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
-            <tr>
-              <td style="background-color: #A38529; border-radius: 6px;">
-                <a href="${setupLink}" style="display: inline-block; padding: 14px 28px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: 600;">
-                  Activate Your Account
-                </a>
-              </td>
-            </tr>
-          </table>
+        <table border="0" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
+          <tr>
+            <td style="background-color: #A38529; border-radius: 6px;">
+              <a href="${setupLink}" style="display: inline-block; padding: 14px 28px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: 600;">
+                Activate Your Account
+              </a>
+            </td>
+          </tr>
+        </table>
 
-          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-            When you sign in, you'll be guided through our contracting wizard. It takes about 15–20 minutes and covers:
-          </p>
+        <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+          When you sign in, you'll be guided through our contracting wizard. It takes about 15–20 minutes and covers:
+        </p>
 
-          <ul style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 20px 0; padding-left: 20px;">
-            <li>Personal and licensing information</li>
-            <li>Carrier selections</li>
-            <li>Banking details for commission deposits</li>
-            <li>Digital signatures</li>
-          </ul>
+        <ul style="font-size: 16px; line-height: 1.8; color: #333333; margin: 0 0 20px 0; padding-left: 20px;">
+          <li>Personal and licensing information</li>
+          <li>Carrier selections</li>
+          <li>Banking details for commission deposits</li>
+          <li>Digital signatures</li>
+        </ul>
 
-          <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
-            Once complete, your contracting packet is automatically generated and sent to our team. We'll handle the carrier appointments from there.
-          </p>
-        `;
+        <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 0 0 20px 0;">
+          Once complete, your contracting packet is automatically generated and sent to our team. We'll handle the carrier appointments from there.
+        </p>
+      `;
 
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -203,7 +182,7 @@ serve(async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           from: "Caroline Horn <caroline@tylerinsurancegroup.com>",
           to: [email],
-          subject: isExistingAgent ? "Your Agent Account Is Ready" : "Welcome to Tyler Insurance Group",
+          subject: "Welcome to Tyler Insurance Group",
           html: `
             <!DOCTYPE html>
             <html>
@@ -265,19 +244,18 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         userId: newUser.user.id,
         emailSent,
-        isExistingAgent,
         isTest,
-        message: emailSent 
-          ? `Agent created and setup email sent` 
-          : `Agent created successfully` 
+        message: emailSent
+          ? `Agent created and setup email sent`
+          : `Agent created successfully`
       }),
-      { 
-        status: 200, 
-        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } 
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) }
       }
     );
   } catch (error: unknown) {

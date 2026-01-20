@@ -1,67 +1,112 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Users, Info } from 'lucide-react';
+import { Loader2, UserPlus, Users, Search, Check } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 
-interface PotentialManager {
-  id: string; // profile id
+interface AgentOption {
+  id: string;
   full_name: string | null;
-  email: string | null;
+  manager_id: string | null;
 }
 
-// Special value for "no manager" option
-const NO_MANAGER = '__none__';
+// Quick pick manager names (same as AssignManagerModal)
+const QUICK_PICK_NAMES = [
+  'Eric Price',
+  'Traci O\'Brien',
+  'Jay Eldridge',
+  'Andrew Horn',
+];
 
 export default function NewAgentPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [potentialManagers, setPotentialManagers] = useState<PotentialManager[]>([]);
-  const [loadingManagers, setLoadingManagers] = useState(true);
+  const [allAgents, setAllAgents] = useState<AgentOption[]>([]);
+  const [loadingAgents, setLoadingAgents] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    managerId: NO_MANAGER, // NULL means direct to TIG
-    agentType: 'new' as 'new' | 'existing',
-    sendSetupEmail: true,
-  });
+  // Form state
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+
+  // Manager selection state (same pattern as AssignManagerModal)
+  // undefined = nothing selected, null = Direct to TIG, string = specific manager
+  const [selectedManagerId, setSelectedManagerId] = useState<string | null | undefined>(undefined);
+  const [isAandA, setIsAandA] = useState(false);
+
+  const hasManagerSelection = isAandA || selectedManagerId !== undefined;
 
   useEffect(() => {
-    fetchPotentialManagers();
+    fetchAgents();
   }, []);
 
-  const fetchPotentialManagers = async () => {
-    setLoadingManagers(true);
+  const fetchAgents = async () => {
+    setLoadingAgents(true);
     try {
-      // Fetch all active, non-test profiles as potential managers
-      const { data: profilesData, error: profilesError } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name, manager_id')
         .eq('is_active', true)
-        .or('is_test.is.null,is_test.eq.false')
         .order('full_name');
 
-      if (profilesError) throw profilesError;
-
-      setPotentialManagers(profilesData || []);
+      if (error) throw error;
+      setAllAgents(data || []);
     } catch (err) {
-      console.error('Error fetching potential managers:', err);
+      console.error('Error fetching agents:', err);
       toast.error('Failed to load manager options');
     } finally {
-      setLoadingManagers(false);
+      setLoadingAgents(false);
     }
+  };
+
+  // Build quick picks from the agents list
+  const quickPicks = useMemo(() => {
+    const picks: Array<{ id: string; name: string }> = [];
+
+    QUICK_PICK_NAMES.forEach((name) => {
+      const agent = allAgents.find(
+        (a) => a.full_name?.toLowerCase() === name.toLowerCase()
+      );
+      if (agent) {
+        picks.push({ id: agent.id, name: agent.full_name || name });
+      }
+    });
+
+    return picks;
+  }, [allAgents]);
+
+  // Filter agents for the list
+  const filteredAgents = useMemo(() => {
+    if (!searchQuery) return allAgents;
+    const search = searchQuery.toLowerCase();
+    return allAgents.filter((agent) =>
+      agent.full_name?.toLowerCase().includes(search)
+    );
+  }, [allAgents, searchQuery]);
+
+  // Get manager name for display
+  const getManagerDisplayName = (managerId: string | null): string => {
+    if (!managerId) return 'Direct to TIG';
+    const mgr = allAgents.find((a) => a.id === managerId);
+    return mgr?.full_name || 'Unknown';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!fullName.trim() || !email.trim()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!hasManagerSelection) {
+      toast.error('Please select a manager assignment');
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -80,18 +125,16 @@ export default function NewAgentPage() {
         .in('role', ['super_admin', 'admin']);
 
       if (!userRoles || userRoles.length === 0) {
-        throw new Error('You do not have admin permissions. Please contact a system administrator.');
+        throw new Error('You do not have admin permissions.');
       }
 
-      // Convert NO_MANAGER to null for the actual value
-      const managerId = formData.managerId === NO_MANAGER ? null : formData.managerId;
-
+      // Build request body based on selection
       const requestBody = {
-        email: formData.email,
-        fullName: formData.fullName,
-        managerId: managerId,
-        isExistingAgent: formData.agentType === 'existing',
-        sendSetupEmail: formData.sendSetupEmail,
+        email: email.trim(),
+        fullName: fullName.trim(),
+        managerId: isAandA ? null : selectedManagerId,
+        ownershipGroup: isAandA ? 'a_and_a' : null,
+        sendSetupEmail: true,
       };
 
       // Invoke the edge function
@@ -116,8 +159,7 @@ export default function NewAgentPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        const errorMessage = data?.error || data?.message || data?.details || `Request failed with status ${response.status}`;
-        console.error('Create agent failed:', errorMessage);
+        const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
         throw new Error(errorMessage);
       }
 
@@ -125,195 +167,193 @@ export default function NewAgentPage() {
         throw new Error(data.error || 'Failed to create agent');
       }
 
-      const message = formData.agentType === 'existing'
-        ? 'Existing agent added successfully!'
-        : 'New agent created! They will receive a welcome email with setup instructions.';
-
-      toast.success(message);
-      navigate('/admin/agents');
+      toast.success('Agent created! They will receive a welcome email with setup instructions.');
+      navigate('/admin');
     } catch (err: any) {
       console.error('Error creating agent:', err);
-      const errorMessage = err?.message || err?.error || 'Failed to create agent';
+      const errorMessage = err?.message || 'Failed to create agent';
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Get manager name for display
-  const selectedManagerName = formData.managerId !== NO_MANAGER
-    ? potentialManagers.find(u => u.id === formData.managerId)?.full_name || 'Unknown'
-    : null;
-
   return (
-    <AdminLayout showBackButton backLabel="Agents" onBack={() => navigate('/admin/agents')} maxWidth="narrow">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-serif font-medium text-foreground">Add Agent</h1>
-        <p className="text-sm text-muted-foreground">Create a new agent account</p>
+    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')} maxWidth="narrow">
+      {/* Compact Header */}
+      <div className="mb-4">
+        <h1 className="text-xl font-serif font-medium text-foreground">Start Agent Contracting</h1>
+        <p className="text-sm text-muted-foreground">Add a new agent to begin the contracting process</p>
       </div>
 
-          {/* Form Card */}
-          <div className="bg-white border border-[#E5E2DB] rounded-xl p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]">
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
-              <div className="w-12 h-12 rounded-full bg-gold/8 flex items-center justify-center">
-                <Users className="w-5 h-5 text-gold" />
+      {/* Form Card */}
+      <div className="bg-white border border-border rounded-lg p-4">
+        {/* Card Header - Compact */}
+        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
+          <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
+            <Users className="w-4 h-4 text-gold" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-foreground text-sm">Agent Information</h2>
+            <p className="text-xs text-muted-foreground">Enter details and assign manager</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Name + Email - Two columns on md+ */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
+              <Input
+                id="fullName"
+                placeholder="John Smith"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="border-border focus:border-gold"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="agent@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="border-border focus:border-gold"
+              />
+            </div>
+          </div>
+
+          {/* Manager Selection - Compact */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Reports To *</Label>
+
+            {/* Quick Picks - Single row */}
+            {!loadingAgents && (
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => { setSelectedManagerId(null); setIsAandA(false); }}
+                  className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                    selectedManagerId === null && !isAandA
+                      ? 'bg-gold/10 border-gold text-gold font-medium'
+                      : 'border-border hover:border-muted-foreground/50 text-foreground'
+                  }`}
+                >
+                  Direct to TIG
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setIsAandA(true); setSelectedManagerId(undefined); }}
+                  className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                    isAandA
+                      ? 'bg-gold/10 border-gold text-gold font-medium'
+                      : 'border-border hover:border-muted-foreground/50 text-foreground'
+                  }`}
+                >
+                  A&A
+                </button>
+                {quickPicks.map((pick) => {
+                  const isSelected = selectedManagerId === pick.id && !isAandA;
+                  return (
+                    <button
+                      type="button"
+                      key={pick.id}
+                      onClick={() => { setSelectedManagerId(pick.id); setIsAandA(false); }}
+                      className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                        isSelected
+                          ? 'bg-gold/10 border-gold text-gold font-medium'
+                          : 'border-border hover:border-muted-foreground/50 text-foreground'
+                      }`}
+                    >
+                      {pick.name}
+                    </button>
+                  );
+                })}
               </div>
-              <div>
-                <h2 className="font-semibold text-foreground">Agent Information</h2>
-                <p className="text-xs text-muted-foreground">
-                  Enter the agent's details and assign their manager
-                </p>
+            )}
+
+            {/* Search + Agent List - Compact */}
+            <div className="space-y-1.5">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search all agents..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-9 text-sm border-border focus:border-gold"
+                />
+              </div>
+
+              <div className="border border-border rounded-md max-h-[140px] overflow-y-auto">
+                {loadingAgents ? (
+                  <div className="p-3 flex items-center justify-center">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                ) : filteredAgents.length === 0 ? (
+                  <div className="p-3 text-center text-xs text-muted-foreground">
+                    {searchQuery ? 'No agents match your search' : 'No agents available'}
+                  </div>
+                ) : (
+                  filteredAgents.map((agent) => {
+                    const isSelected = selectedManagerId === agent.id && !isAandA;
+                    const managerDisplay = getManagerDisplayName(agent.manager_id);
+
+                    return (
+                      <button
+                        type="button"
+                        key={agent.id}
+                        onClick={() => { setSelectedManagerId(agent.id); setIsAandA(false); }}
+                        className={`w-full text-left px-2.5 py-2 border-b last:border-b-0 hover:bg-muted/50 transition-colors flex items-center justify-between ${
+                          isSelected ? 'bg-gold/10 border-l-2 border-l-gold' : ''
+                        }`}
+                      >
+                        <div>
+                          <p className="font-medium text-xs">{agent.full_name || 'Unnamed Agent'}</p>
+                          <p className="text-[10px] text-muted-foreground">under {managerDisplay}</p>
+                        </div>
+                        {isSelected && <Check className="h-3.5 w-3.5 text-gold" />}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Full Name */}
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
-                <Input
-                  id="fullName"
-                  placeholder="John Smith"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-                  required
-                  className="border-[#E5E2DB] focus:border-gold"
-                />
-              </div>
-
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="agent@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  required
-                  className="border-[#E5E2DB] focus:border-gold"
-                />
-              </div>
-
-              {/* Reports To (Manager Assignment) */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Reports To</Label>
-                <Select
-                  value={formData.managerId}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, managerId: value }))}
-                  disabled={loadingManagers}
-                >
-                  <SelectTrigger className="border-[#E5E2DB]">
-                    <SelectValue placeholder={loadingManagers ? "Loading..." : "Select manager"} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
-                    <SelectItem value={NO_MANAGER}>
-                      <span className="text-muted-foreground">None (Direct to TIG)</span>
-                    </SelectItem>
-                    {potentialManagers.map((manager) => (
-                      <SelectItem key={manager.id} value={manager.id}>
-                        <div className="flex flex-col">
-                          <span>{manager.full_name || 'Unnamed'}</span>
-                          {manager.email && (
-                            <span className="text-xs text-muted-foreground">{manager.email}</span>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  {selectedManagerName
-                    ? `This agent will report to ${selectedManagerName}`
-                    : 'This agent will report directly to TIG (no manager)'}
-                </p>
-              </div>
-
-              {/* Agent Type */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">Agent Type *</Label>
-                <RadioGroup
-                  value={formData.agentType}
-                  onValueChange={(value: 'new' | 'existing') => setFormData(prev => ({ ...prev, agentType: value }))}
-                  className="space-y-3"
-                >
-                  <div className="flex items-start gap-3 p-3 rounded-lg border border-[#E5E2DB] hover:border-gold/30 transition-colors">
-                    <RadioGroupItem value="new" id="new" className="mt-0.5" />
-                    <div className="flex-1">
-                      <Label htmlFor="new" className="font-medium cursor-pointer">New Agent</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Must complete contracting wizard before accessing the platform
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 rounded-lg border border-[#E5E2DB] hover:border-gold/30 transition-colors">
-                    <RadioGroupItem value="existing" id="existing" className="mt-0.5" />
-                    <div className="flex-1">
-                      <Label htmlFor="existing" className="font-medium cursor-pointer">Existing Agent</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Already contracted - skips wizard and gets immediate platform access
-                      </p>
-                    </div>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Send Setup Email */}
-              <div className="flex items-start gap-3 p-3 rounded-lg border border-[#E5E2DB]">
-                <Checkbox
-                  id="sendSetupEmail"
-                  checked={formData.sendSetupEmail}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, sendSetupEmail: checked as boolean }))}
-                  className="mt-0.5"
-                />
-                <div className="flex-1">
-                  <Label htmlFor="sendSetupEmail" className="font-medium cursor-pointer">Send setup email</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Agent will receive an email with instructions to set their password and access the platform
-                  </p>
-                </div>
-              </div>
-
-              {/* Info Box for Existing Agents */}
-              {formData.agentType === 'existing' && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
-                  <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-blue-700">
-                    Existing agents will have immediate access to the platform and will not appear in the contracting queue.
-                  </p>
-                </div>
-              )}
-
-              {/* Submit Buttons */}
-              <div className="flex gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/admin/agents')}
-                  className="border-[#E5E2DB]"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 bg-gold hover:bg-gold/90 text-white"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      {formData.agentType === 'existing' ? 'Add Existing Agent' : 'Create Agent'}
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
           </div>
+
+          {/* Submit Buttons - Compact */}
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/admin')}
+              className="border-border"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !hasManagerSelection}
+              className="flex-1 bg-gold hover:bg-gold/90 text-white"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Start Contracting
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
     </AdminLayout>
   );
 }

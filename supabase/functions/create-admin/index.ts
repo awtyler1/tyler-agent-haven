@@ -50,17 +50,37 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // Update profile - admins are always APPOINTED (no contracting needed)
-    const { error: profileError } = await supabaseAdmin
+    // The handle_new_user trigger creates a profile with CONTRACTING_REQUIRED,
+    // so we need to update it to APPOINTED with the correct full_name
+    const { data: updatedProfile, error: profileError } = await supabaseAdmin
       .from("profiles")
       .update({
         full_name: fullName,
         email: email,
         onboarding_status: 'APPOINTED',
       })
-      .eq("user_id", newUser.user.id);
+      .eq("user_id", newUser.user.id)
+      .select()
+      .single();
 
     if (profileError) {
-      console.error("Failed to update admin profile");
+      console.error("Failed to update admin profile:", profileError.message);
+      // Try upsert as fallback if update failed (profile might not exist yet due to timing)
+      const { error: upsertError } = await supabaseAdmin
+        .from("profiles")
+        .upsert({
+          user_id: newUser.user.id,
+          full_name: fullName,
+          email: email,
+          onboarding_status: 'APPOINTED',
+        }, { onConflict: 'user_id' });
+
+      if (upsertError) {
+        console.error("Failed to upsert admin profile:", upsertError.message);
+        throw new Error(`Failed to create profile: ${upsertError.message}`);
+      }
+    } else {
+      console.log("Admin profile updated successfully:", updatedProfile?.id);
     }
 
     // Assign the role
@@ -112,35 +132,32 @@ serve(async (req: Request): Promise<Response> => {
             <body style="margin: 0; padding: 0; background-color: #f8f7f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
               <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
                 <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                  <div style="text-align: center; margin-bottom: 32px;">
-                    <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto 16px;">
-                      <tr>
-                        <td align="center" valign="middle" style="width: 60px; height: 60px; background-color: #D4A855; border-radius: 50%; text-align: center; vertical-align: middle;">
-                          <span style="color: white; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif;">TIG</span>
-                        </td>
-                      </tr>
-                    </table>
-                    <h1 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: 600;">Hi ${firstName},</h1>
+                  <div style="text-align: center; margin-bottom: 24px;">
+                    <img src="https://mgczpsrtkdkkjzmztpyd.supabase.co/storage/v1/object/public/Assets/Sheild%20Logo.PNG"
+                         alt="Tyler Insurance Group"
+                         width="60"
+                         style="display: block; margin: 0 auto;" />
                   </div>
-                  
+
+                  <h1 style="margin: 0 0 24px; color: #1a1a1a; font-size: 24px; font-weight: 600; text-align: center;">Hi ${firstName},</h1>
+
                   <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">Your Tyler Insurance Group admin account is ready.</p>
-                  
+
                   <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">Click below to set your password:</p>
-                  
+
                   <div style="text-align: center; margin: 32px 0;">
-                    <a href="${setupLink}" style="display: inline-block; background: linear-gradient(135deg, #a38529 0%, #c9a832 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                    <a href="${setupLink}" style="display: inline-block; background-color: #9a7b4f; color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 500; font-size: 16px;">
                       Set Your Password
                     </a>
                   </div>
-                  
-                  <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">Once you set your password, you'll have access to the admin dashboard where you can manage agents and oversee operations.</p>
-                  
+
+                  <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">Once you're in, you'll be able to manage agents, track contracting, and keep everything running smoothly.</p>
+
                   <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">If you have any questions, just reply to this email.</p>
-                  
-                  <div style="border-top: 1px solid #e5e2db; padding-top: 24px; margin-top: 32px;">
-                    <p style="color: #1a1a1a; font-size: 16px; font-weight: 600; margin: 0;">Austin</p>
-                    <p style="color: #6b6b6b; font-size: 14px; margin: 4px 0 0;">Tyler Insurance Group</p>
-                  </div>
+
+                  <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;" />
+
+                  <p style="color: #1a1a1a; font-size: 16px; margin: 0;"><strong>Austin</strong><br/>Tyler Insurance Group</p>
                 </div>
               </div>
             </body>
