@@ -32,26 +32,36 @@ CREATE TABLE IF NOT EXISTS agent_documents (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add constraint to validate category values
-ALTER TABLE agent_documents ADD CONSTRAINT agent_documents_category_check
-  CHECK (category IN ('contracting', 'compliance', 'license', 'banking', 'other'));
+-- Add constraints (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'agent_documents_category_check'
+  ) THEN
+    ALTER TABLE agent_documents ADD CONSTRAINT agent_documents_category_check
+      CHECK (category IN ('contracting', 'compliance', 'license', 'banking', 'other'));
+  END IF;
 
--- Add constraint to validate document_type values
-ALTER TABLE agent_documents ADD CONSTRAINT agent_documents_document_type_check
-  CHECK (document_type IN (
-    -- Contracting category
-    'contracting_packet',
-    -- Compliance category
-    'eo_certificate', 'ahip_certificate', 'aml_certificate', 'ce_certificate', 'ltc_certificate',
-    -- License category
-    'resident_license', 'non_resident_license',
-    -- Banking category
-    'voided_check', 'direct_deposit_form',
-    -- ID category (under 'other' for now)
-    'government_id',
-    -- Generic
-    'other'
-  ));
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'agent_documents_document_type_check'
+  ) THEN
+    ALTER TABLE agent_documents ADD CONSTRAINT agent_documents_document_type_check
+      CHECK (document_type IN (
+        -- Contracting category
+        'contracting_packet',
+        -- Compliance category
+        'eo_certificate', 'ahip_certificate', 'aml_certificate', 'ce_certificate', 'ltc_certificate',
+        -- License category
+        'resident_license', 'non_resident_license',
+        -- Banking category
+        'voided_check', 'direct_deposit_form',
+        -- ID category (under 'other' for now)
+        'government_id',
+        -- Generic
+        'other'
+      ));
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Step 2: Create indexes for performance
@@ -67,6 +77,12 @@ CREATE INDEX IF NOT EXISTS idx_agent_documents_expires_at ON agent_documents(exp
 -- ============================================================================
 
 ALTER TABLE agent_documents ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies first for idempotency
+DROP POLICY IF EXISTS "Admins can manage all agent documents" ON agent_documents;
+DROP POLICY IF EXISTS "Agents can view own documents" ON agent_documents;
+DROP POLICY IF EXISTS "Agents can insert own documents" ON agent_documents;
+DROP POLICY IF EXISTS "Agents can delete own documents" ON agent_documents;
 
 -- Admins can do everything
 CREATE POLICY "Admins can manage all agent documents"
@@ -128,6 +144,12 @@ DROP POLICY IF EXISTS "Users can upload own AHIP certs" ON storage.objects;
 DROP POLICY IF EXISTS "Users can view own AHIP certs" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update own AHIP certs" ON storage.objects;
 DROP POLICY IF EXISTS "Admins can view all agent documents" ON storage.objects;
+
+-- Drop new policies too for idempotency
+DROP POLICY IF EXISTS "Admins full access to agent documents" ON storage.objects;
+DROP POLICY IF EXISTS "Agents can upload own agent documents" ON storage.objects;
+DROP POLICY IF EXISTS "Agents can view own agent documents" ON storage.objects;
+DROP POLICY IF EXISTS "Agents can delete own agent documents" ON storage.objects;
 
 -- Admins can do everything with agent documents
 CREATE POLICY "Admins full access to agent documents"
