@@ -1,11 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { FileText, Sparkles } from 'lucide-react';
+import { FileText, Sparkles, Users } from 'lucide-react';
 
 export default function LabsPage() {
   const navigate = useNavigate();
 
   const features = [
+    {
+      name: 'Book of Business',
+      description: 'Upload carrier reports and track your client portfolio',
+      icon: Users,
+      path: '/book-of-business',
+      status: 'In Development',
+    },
     {
       name: 'Business Roadmap Generator',
       description: 'Create personalized business plans for agents',

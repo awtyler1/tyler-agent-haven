@@ -345,7 +345,6 @@ export function useContractingPdf() {
             }
             
             // Success on retry
-            toast.success('Contracting packet generated successfully');
             return {
               success: true,
               filename: retryData.filename,
@@ -389,7 +388,6 @@ export function useContractingPdf() {
         return { success: false, error: errorMsg };
       }
 
-      toast.success('Contracting packet generated successfully');
       return {
         success: true,
         filename: data.filename,

@@ -30,6 +30,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { US_STATES } from '@/types/contracting';
 import { logActivity, ActivityAction, EntityType } from '@/utils/activityLogger';
+import { DocumentPreview } from '@/components/ui/DocumentPreview';
 
 // Types
 type QueueStatus = 'needs_action' | 'in_progress' | 'sent_to_pinnacle' | 'completed';
@@ -90,61 +91,6 @@ const AVAILABLE_CARRIERS = [
 ];
 
 const KY_CARRIER_CODES = ['aetna', 'anthem', 'devoted', 'humana', 'uhc', 'wellcare', 'essence'];
-
-// Document Preview Modal Component
-function DocumentPreview({
-  url,
-  label,
-  onClose,
-}: {
-  url: string;
-  label: string;
-  onClose: () => void;
-}) {
-  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url.split('?')[0]);
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-in zoom-in-95 fade-in duration-200">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h3 className="font-medium text-foreground">{label}</h3>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 text-xs"
-              onClick={() => window.open(url, '_blank')}
-            >
-              <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              Open in Tab
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        <div className="flex-1 overflow-auto bg-muted min-h-[400px]">
-          {isImage ? (
-            <div className="flex items-center justify-center p-4 h-full">
-              <img
-                src={url}
-                alt={label}
-                className="max-w-full max-h-[70vh] object-contain rounded shadow-lg"
-              />
-            </div>
-          ) : (
-            <iframe
-              src={url}
-              title={label}
-              className="w-full h-[70vh] border-0"
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Detail Panel Component
 function DetailPanel({
@@ -366,13 +312,12 @@ function DetailPanel({
       </div>
 
       {/* Document Preview Modal */}
-      {previewDoc && (
-        <DocumentPreview
-          url={previewDoc.url}
-          label={previewDoc.label}
-          onClose={() => setPreviewDoc(null)}
-        />
-      )}
+      <DocumentPreview
+        url={previewDoc?.url || ''}
+        label={previewDoc?.label || ''}
+        isOpen={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+      />
     </div>
   );
 }

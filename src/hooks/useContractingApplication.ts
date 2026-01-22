@@ -379,7 +379,6 @@ export function useContractingApplication() {
         application.id
       );
 
-      toast.success('Application submitted successfully!');
       return true;
     } catch (error: unknown) {
       console.error('Error submitting:', error);
@@ -391,7 +390,7 @@ export function useContractingApplication() {
   }, [application, user?.id, generatePdf]);
 
   // Upload document
-  const uploadDocument = useCallback(async (file: File, documentType: string) => {
+  const uploadDocument = useCallback(async (file: File, documentType: string, expiresAt?: string) => {
     if (!user?.id || !application?.id) return null;
 
     const { data: profile } = await supabase
@@ -426,6 +425,7 @@ export function useContractingApplication() {
           file_path: fileName,
           file_name: file.name,
           uploaded_by: profile.id,
+          expires_at: expiresAt || null,
         });
 
       if (dbError) {

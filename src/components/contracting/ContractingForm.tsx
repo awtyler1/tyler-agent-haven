@@ -299,15 +299,18 @@ export function ContractingForm() {
       return result;
     };
 
-    // Run validation and block if invalid
-    const result = validateForm(appToValidate, sectionStatuses, []);
-    if (!result.isFormValid) {
-      toast.error('Please complete all required fields before submitting');
-      // Scroll to first error section with smooth animation
-      if (result.firstErrorSection) {
-        scrollToSection(result.firstErrorSection);
+    // Run validation and block if invalid (bypassed in dev with ?skip-validation=true)
+    const skipValidation = import.meta.env.DEV && new URLSearchParams(window.location.search).get('skip-validation') === 'true';
+    if (!skipValidation) {
+      const result = validateForm(appToValidate, sectionStatuses, []);
+      if (!result.isFormValid) {
+        toast.error('Please complete all required fields before submitting');
+        // Scroll to first error section with smooth animation
+        if (result.firstErrorSection) {
+          scrollToSection(result.firstErrorSection);
+        }
+        return;
       }
-      return;
     }
 
     // Clear validation state and proceed with submission
@@ -441,6 +444,11 @@ export function ContractingForm() {
 
   // Check if current step has all required fields completed
   const isStepComplete = (step: number): boolean => {
+    // Dev-only validation bypass: ?skip-validation=true
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('skip-validation') === 'true') {
+      return true;
+    }
+
     const docs = (application.uploaded_documents || {}) as Record<string, string>;
 
     switch (step) {

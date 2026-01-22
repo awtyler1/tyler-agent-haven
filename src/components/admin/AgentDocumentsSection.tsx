@@ -19,8 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   CheckCircle2,
-  Circle,
-  Download,
+  Eye,
   Plus,
   Loader2,
   Upload,
@@ -30,6 +29,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, differenceInDays } from 'date-fns';
+import { DocumentPreview } from '@/components/ui/DocumentPreview';
 
 // Document slot definitions
 const DOCUMENT_SLOTS = [
@@ -84,6 +84,7 @@ export function AgentDocumentsSection({
   const [selectedSlot, setSelectedSlot] = useState<DocumentSlot | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<{ url: string; label: string } | null>(null);
 
   // Upload modal state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -297,7 +298,7 @@ export function AgentDocumentsSection({
   };
 
   // Handle download/view
-  const handleDownload = async (doc: AgentDocument) => {
+  const handleDownload = async (doc: AgentDocument, label: string) => {
     setDownloadingId(doc.id);
     try {
       const { data, error } = await supabase.storage
@@ -307,7 +308,7 @@ export function AgentDocumentsSection({
       if (error) throw error;
 
       if (data?.signedUrl) {
-        window.open(data.signedUrl, '_blank');
+        setPreviewDoc({ url: data.signedUrl, label });
       }
     } catch (err: any) {
       toast.error(`Failed to open document: ${err.message}`);
@@ -346,11 +347,11 @@ export function AgentDocumentsSection({
 
   if (loading) {
     return (
-      <div className="bg-white border border-border rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="font-medium text-foreground">Documents</h2>
+      <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden">
+        <div className="px-5 py-4">
+          <h2 className="font-semibold text-foreground">Documents</h2>
         </div>
-        <div className="flex items-center justify-center py-12">
+        <div className="flex items-center justify-center py-12 border-t border-border/50">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       </div>
@@ -359,51 +360,49 @@ export function AgentDocumentsSection({
 
   return (
     <>
-      <div className="bg-white border border-border rounded-xl overflow-hidden flex flex-col">
+      <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="font-medium text-foreground">Documents</h2>
-          <span className="text-sm text-muted-foreground">{filled}/{total}</span>
+        <div className="px-5 py-4">
+          <h2 className="font-semibold text-foreground">Documents</h2>
         </div>
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto max-h-72">
           {/* Document slots */}
-          <div className="divide-y divide-border">
+          <div className="border-t border-border/50">
           {DOCUMENT_SLOTS.map((slot) => {
             if (slot.allowMultiple) {
               // Render multiple documents for this slot type
               const docs = getDocumentsForMultipleSlot(slot);
               return (
                 <div key={slot.documentType}>
-                  {docs.map((doc) => (
-                    <DocumentRow
-                      key={doc.id}
-                      label={`${slot.label} (${doc.label || 'Unknown'})`}
-                      document={doc}
-                      canDelete={isAdmin}
-                      isDownloading={downloadingId === doc.id}
-                      onDownload={() => handleDownload(doc)}
-                      onDelete={() => handleDelete(doc)}
-                      isExpiringSoon={isExpiringSoon(doc.expires_at)}
-                      isExpired={isExpired(doc.expires_at)}
-                    />
-                  ))}
+                  {docs.map((doc) => {
+                    const docLabel = `${slot.label} (${doc.label || 'Unknown'})`;
+                    return (
+                      <DocumentRow
+                        key={doc.id}
+                        label={docLabel}
+                        document={doc}
+                        canDelete={isAdmin}
+                        isDownloading={downloadingId === doc.id}
+                        onDownload={() => handleDownload(doc, docLabel)}
+                        onDelete={() => handleDelete(doc)}
+                        isExpiringSoon={isExpiringSoon(doc.expires_at)}
+                        isExpired={isExpired(doc.expires_at)}
+                      />
+                    );
+                  })}
                   {/* Always show add row for multiple slots */}
                   {canUpload && (
-                    <div className="flex items-center justify-between px-6 py-3 hover:bg-muted/30">
+                    <div
+                      className="px-5 py-3 flex items-center justify-between hover:bg-muted/30 transition-colors border-t border-border/30 first:border-t-0 group cursor-pointer"
+                      onClick={() => handleSlotUpload(slot)}
+                    >
                       <div className="flex items-center gap-3">
-                        <Circle className="w-4 h-4 text-muted-foreground/40" />
+                        <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/20" />
                         <span className="text-sm text-muted-foreground">{slot.label}</span>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => handleSlotUpload(slot)}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
+                      <Plus className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
                     </div>
                   )}
                 </div>
@@ -419,7 +418,7 @@ export function AgentDocumentsSection({
                 document={doc}
                 canDelete={isAdmin}
                 isDownloading={doc ? downloadingId === doc.id : false}
-                onDownload={doc ? () => handleDownload(doc) : undefined}
+                onDownload={doc ? () => handleDownload(doc, slot.label) : undefined}
                 onDelete={doc ? () => handleDelete(doc) : undefined}
                 onUpload={!doc && canUpload ? () => handleSlotUpload(slot) : undefined}
                 isExpiringSoon={doc ? isExpiringSoon(doc.expires_at) : false}
@@ -432,28 +431,31 @@ export function AgentDocumentsSection({
         {/* Other documents section - admin only */}
         {isAdmin && (otherDocs.length > 0 || true) && (
           <>
-            <div className="px-6 py-3 bg-muted/30 border-t border-border">
+            <div className="px-5 py-3 bg-muted/30 border-t border-border/50">
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Other Documents
+                Other
               </span>
             </div>
-            <div className="divide-y divide-border">
+            <div className="border-t border-border/50">
               {otherDocs.length > 0 ? (
-                otherDocs.map((doc) => (
-                  <DocumentRow
-                    key={doc.id}
-                    label={doc.label || doc.file_name}
-                    document={doc}
-                    canDelete={isAdmin}
-                    isDownloading={downloadingId === doc.id}
-                    onDownload={() => handleDownload(doc)}
-                    onDelete={() => handleDelete(doc)}
-                    isExpiringSoon={false}
-                    isExpired={false}
-                  />
-                ))
+                otherDocs.map((doc) => {
+                  const docLabel = doc.label || doc.file_name;
+                  return (
+                    <DocumentRow
+                      key={doc.id}
+                      label={docLabel}
+                      document={doc}
+                      canDelete={isAdmin}
+                      isDownloading={downloadingId === doc.id}
+                      onDownload={() => handleDownload(doc, docLabel)}
+                      onDelete={() => handleDelete(doc)}
+                      isExpiringSoon={false}
+                      isExpired={false}
+                    />
+                  );
+                })
               ) : (
-                <div className="px-6 py-3 text-sm text-muted-foreground">
+                <div className="px-5 py-3 text-sm text-muted-foreground">
                   No other documents
                 </div>
               )}
@@ -464,22 +466,24 @@ export function AgentDocumentsSection({
 
         {/* Drop zone */}
         {canUpload && (
-          <div
-            ref={dropZoneRef}
-            className={`px-6 py-4 border-t border-dashed border-border transition-colors cursor-pointer ${
-              isDragging ? 'border-gold bg-gold/5' : 'hover:border-gold hover:bg-muted/30'
-            }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={() => {
-              resetUploadForm();
-              setUploadModalOpen(true);
-            }}
-          >
-            <p className="text-sm text-muted-foreground text-center">
-              <span className="text-gold font-medium">Upload</span> or drag file here
-            </p>
+          <div className="px-4 pb-4 pt-2">
+            <div
+              ref={dropZoneRef}
+              className={`border-2 border-dashed rounded-lg py-3 text-center transition-colors cursor-pointer ${
+                isDragging ? 'border-primary bg-primary/5' : 'border-border bg-muted/20 hover:border-primary/50'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => {
+                resetUploadForm();
+                setUploadModalOpen(true);
+              }}
+            >
+              <p className="text-sm text-muted-foreground">
+                Drop file or <span className="text-primary font-medium hover:text-primary/80">browse</span>
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -636,6 +640,14 @@ export function AgentDocumentsSection({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Document Preview Modal */}
+      <DocumentPreview
+        url={previewDoc?.url || ''}
+        label={previewDoc?.label || ''}
+        isOpen={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+      />
     </>
   );
 }
@@ -664,8 +676,19 @@ function DocumentRow({
   onDelete,
   onUpload,
 }: DocumentRowProps) {
+  const handleClick = () => {
+    if (document && onDownload) {
+      onDownload();
+    } else if (!document && onUpload) {
+      onUpload();
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between px-6 py-3 hover:bg-muted/30 group">
+    <div
+      className="px-5 py-3 flex items-center justify-between hover:bg-muted/30 transition-colors border-t border-border/30 first:border-t-0 group cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="flex items-center gap-3 min-w-0">
         {document ? (
           isExpired ? (
@@ -676,16 +699,16 @@ function DocumentRow({
             <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
           )
         ) : (
-          <Circle className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
+          <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/20 flex-shrink-0" />
         )}
         <div className="min-w-0">
           <span className={`text-sm truncate block ${document ? 'text-foreground' : 'text-muted-foreground'}`}>
             {label}
           </span>
           {document?.expires_at && (
-            <span className={`text-xs ${isExpired ? 'text-red-500' : isExpiringSoon ? 'text-amber-500' : 'text-muted-foreground'}`}>
-              {isExpired ? 'Expired' : 'Expires'} {format(new Date(document.expires_at), 'MMM d, yyyy')}
-            </span>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Exp. {format(new Date(document.expires_at), 'MMM d, yyyy')}
+            </p>
           )}
         </div>
       </div>
@@ -693,39 +716,25 @@ function DocumentRow({
       <div className="flex items-center gap-1">
         {document ? (
           <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={onDownload}
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4" />
-              )}
-            </Button>
+            {isDownloading ? (
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            ) : (
+              <Eye className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
+            )}
             {canDelete && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-600 hover:bg-red-50"
-                onClick={onDelete}
+              <button
+                className="ml-1 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-600 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete?.();
+                }}
               >
                 <X className="w-4 h-4" />
-              </Button>
+              </button>
             )}
           </>
         ) : onUpload ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={onUpload}
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
+          <Plus className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
         ) : null}
       </div>
     </div>

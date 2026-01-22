@@ -38,6 +38,7 @@ import TrainingPage from "./pages/TrainingPage";
 // Agent-specific pages
 import ContractingPage from "./pages/ContractingPage";
 import MyProfilePage from "./pages/MyProfilePage";
+import BookOfBusinessPage from "./pages/BookOfBusinessPage";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -218,6 +219,7 @@ const App = () => (
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
             <Route path="/my-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
+            <Route path="/book-of-business" element={<ProtectedRoute><BookOfBusinessPage /></ProtectedRoute>} />
             <Route path="/industry-updates" element={<ProtectedRoute><IndustryUpdatesPage /></ProtectedRoute>} />
             {/* Training Library */}
             <Route path="/training" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />

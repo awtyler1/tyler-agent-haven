@@ -1,12 +1,22 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
 import { Upload, CheckCircle2, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DocumentsSectionProps {
   application: ContractingApplication;
-  onUpload: (file: File, documentType: string) => Promise<string | null>;
+  onUpload: (file: File, documentType: string, expiresAt?: string) => Promise<string | null>;
   onRemove: (documentType: string) => void;
   disabled?: boolean;
   fieldErrors?: Record<string, string>;
@@ -19,7 +29,7 @@ interface DocumentCardProps {
   documentType: string;
   isUploaded: boolean;
   isRequired?: boolean;
-  onUpload: (file: File, documentType: string) => Promise<string | null>;
+  onUpload: (file: File, documentType: string, expiresAt?: string) => Promise<string | null>;
   onRemove: (documentType: string) => void;
   hasError?: boolean;
 }
@@ -35,13 +45,37 @@ function DocumentCard({
 }: DocumentCardProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [showExpirationDialog, setShowExpirationDialog] = useState(false);
+  const [expirationDate, setExpirationDate] = useState('');
+
+  const needsExpiration = ['insurance_license', 'eo_certificate'].includes(documentType) ||
+                          documentType.startsWith('non_resident_license');
 
   const handleFileSelect = async (file: File) => {
+    if (needsExpiration) {
+      setPendingFile(file);
+      setShowExpirationDialog(true);
+    } else {
+      setIsUploading(true);
+      try {
+        await onUpload(file, documentType);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const handleConfirmUpload = async () => {
+    if (!pendingFile || isUploading) return;
+    setShowExpirationDialog(false);
     setIsUploading(true);
     try {
-      await onUpload(file, documentType);
+      await onUpload(pendingFile, documentType, expirationDate || undefined);
     } finally {
       setIsUploading(false);
+      setPendingFile(null);
+      setExpirationDate('');
     }
   };
 
@@ -156,6 +190,45 @@ function DocumentCard({
           Required
         </span>
       )}
+
+      <Dialog open={showExpirationDialog} onOpenChange={(open) => {
+        if (!open) {
+          setPendingFile(null);
+          setExpirationDate('');
+        }
+        setShowExpirationDialog(open);
+      }}>
+        <DialogContent className="sm:max-w-sm" onClick={(e) => e.stopPropagation()}>
+          <DialogHeader>
+            <DialogTitle>Expiration Date</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Label className="text-sm font-medium">When does this {label.toLowerCase()} expire?</Label>
+            <Input
+              type="date"
+              className="mt-2"
+              value={expirationDate}
+              onChange={(e) => setExpirationDate(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowExpirationDialog(false);
+              setPendingFile(null);
+              setExpirationDate('');
+            }}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-gold hover:bg-gold/90 text-white disabled:opacity-50"
+              onClick={handleConfirmUpload}
+              disabled={!expirationDate}
+            >
+              Upload
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -188,8 +261,8 @@ export function DocumentsSection({
   const allRequiredComplete = completedRequired === totalRequired;
 
   // Handle upload with error clearing
-  const handleUpload = async (file: File, documentType: string) => {
-    const result = await onUpload(file, documentType);
+  const handleUpload = async (file: File, documentType: string, expiresAt?: string) => {
+    const result = await onUpload(file, documentType, expiresAt);
     if (result && onClearError) {
       onClearError(documentType);
     }

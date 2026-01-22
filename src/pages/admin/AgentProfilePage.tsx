@@ -20,6 +20,7 @@ import {
   UserPlus,
   Send,
   MoreVertical,
+  FileText,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -1156,290 +1157,281 @@ Tyler Insurance Group`;
         {/* ═══════════════════════════════════════════════════════════════
             AGENT HEADER BAND
             ═══════════════════════════════════════════════════════════════ */}
-        <div className="bg-white border border-border rounded-lg p-4 mb-4">
-          <div className="flex items-start gap-4">
-            {/* Avatar */}
-            <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-semibold flex-shrink-0">
-              {getInitials(profile.full_name)}
-            </div>
-
-            {/* Main Info */}
-            <div className="flex-1 min-w-0">
-              {/* Name Row - Inline Editable */}
-              <div className="flex items-center gap-3 mb-1 flex-wrap">
-                {isEditingName ? (
-                  <input
-                    ref={nameInputRef}
-                    type="text"
-                    value={draftName}
-                    onChange={(e) => {
-                      setDraftName(e.target.value);
-                      setNameError(null);
-                    }}
-                    onKeyDown={handleNameKeyDown}
-                    onBlur={handleNameBlur}
-                    className="text-xl font-serif font-medium px-2 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
-                    placeholder="Full name"
-                  />
-                ) : (
-                  <h1
-                    onClick={handleNameClick}
-                    className={`text-xl font-serif font-medium text-foreground ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors inline-flex items-center' : ''}`}
-                    title={canEdit ? 'Click to edit' : undefined}
-                  >
-                    {profile.full_name || 'Unnamed Agent'}
-                    {canEdit && (
-                      <Pencil className="h-3.5 w-3.5 ml-2 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    )}
-                  </h1>
-                )}
-                {nameSaveStatus === 'saved' && (
-                  <span className="text-xs text-green-600 animate-fade-in">Saved ✓</span>
-                )}
-                {nameSaveStatus === 'saving' && (
-                  <span className="text-xs text-muted-foreground">Saving...</span>
-                )}
-                {nameSaveStatus === 'error' && nameError && !isEditingName && (
-                  <span className="text-xs text-red-600">{nameError}</span>
-                )}
-
-                {/* Status Badges */}
-                {!profile.is_active && (
-                  <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-red-100 text-red-700">
-                    Inactive
-                  </span>
-                )}
-                {profile.is_test && (
-                  <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
-                    Test
-                  </span>
-                )}
-                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusInfo.className}`}>
-                  {statusInfo.label}
-                </span>
+        <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden mb-4">
+          {/* Main Content */}
+          <div className="p-6">
+            <div className="flex items-start gap-4">
+              {/* Avatar */}
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand/80 to-brand text-white shadow-sm flex items-center justify-center text-lg font-semibold flex-shrink-0">
+                {getInitials(profile.full_name)}
               </div>
 
-              {/* Contact Row */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                {/* NPN - Inline Editable */}
-                {isEditingNpn ? (
-                  <div className="flex items-center gap-1.5">
-                    <Hash className="h-4 w-4" />
+              {/* Main Info */}
+              <div className="flex-1 min-w-0">
+                {/* Name Row - Inline Editable */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  {isEditingName ? (
                     <input
-                      ref={npnInputRef}
+                      ref={nameInputRef}
                       type="text"
-                      value={draftNpn}
+                      value={draftName}
                       onChange={(e) => {
-                        setDraftNpn(e.target.value);
-                        setNpnValidationError(null);
+                        setDraftName(e.target.value);
+                        setNameError(null);
                       }}
-                      onKeyDown={handleNpnKeyDown}
-                      onBlur={handleNpnBlur}
-                      className="w-20 text-sm px-1.5 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
-                      placeholder="12345678"
-                      maxLength={8}
+                      onKeyDown={handleNameKeyDown}
+                      onBlur={handleNameBlur}
+                      className="text-xl font-serif font-medium px-2 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-brand/50 focus:border-brand"
+                      placeholder="Full name"
                     />
-                    {npnValidationError && (
-                      <span className="text-xs text-red-600">{npnValidationError}</span>
-                    )}
-                  </div>
-                ) : (
-                  <span
-                    onClick={handleNpnClick}
-                    className={`flex items-center gap-1.5 ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors' : ''}`}
-                    title={canEdit ? 'Click to edit' : undefined}
-                  >
-                    <Hash className="h-4 w-4" />
-                    NPN: {profile.npn || '—'}
-                    {canEdit && (
-                      <Pencil className="h-3 w-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    )}
-                  </span>
-                )}
-                {npnSaveStatus === 'saved' && (
-                  <span className="text-xs text-green-600 animate-fade-in">Saved ✓</span>
-                )}
-
-                <span className="text-muted-foreground/30">·</span>
-
-                {/* Email - Inline Editable */}
-                {isEditingEmail ? (
-                  <div className="flex items-center gap-1.5">
-                    <Mail className="h-4 w-4" />
-                    <input
-                      ref={emailInputRef}
-                      type="email"
-                      value={draftEmail}
-                      onChange={(e) => {
-                        setDraftEmail(e.target.value);
-                        setEmailValidationError(null);
-                      }}
-                      onKeyDown={handleEmailKeyDown}
-                      onBlur={handleEmailBlur}
-                      className="w-48 text-sm px-1.5 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold"
-                      placeholder="email@example.com"
-                    />
-                    {emailValidationError && (
-                      <span className="text-xs text-red-600">{emailValidationError}</span>
-                    )}
-                  </div>
-                ) : (
-                  <span
-                    onClick={handleEmailClick}
-                    className={`flex items-center gap-1.5 ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors' : ''}`}
-                    title={canEdit ? 'Click to edit' : undefined}
-                  >
-                    <Mail className="h-4 w-4" />
-                    {profile.email || '—'}
-                    {canEdit && (
-                      <Pencil className="h-3 w-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    )}
-                  </span>
-                )}
-                {emailSaveStatus === 'saved' && (
-                  <span className="text-xs text-green-600 animate-fade-in">Saved ✓</span>
-                )}
-              </div>
-
-              {/* Manager Row + Compliance Indicators */}
-              <div className="flex items-center gap-4 mt-2 text-sm flex-wrap">
-                {/* Manager Info */}
-                <div className="flex items-center gap-2">
-                  {manager ? (
-                    <>
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">Reports to:</span>
-                      <Link
-                        to={`/admin/agents/${manager.id}`}
-                        className="text-gold hover:underline font-medium"
-                      >
-                        {manager.full_name || manager.email || 'Unknown'}
-                      </Link>
-                      {canEdit && (
-                        <button
-                          onClick={handleOpenHierarchyModal}
-                          className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                          title="Change manager"
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </button>
-                      )}
-                    </>
                   ) : (
-                    <>
-                      <Building2 className="h-4 w-4 text-blue-600" />
-                      <span className="text-muted-foreground">Reports to:</span>
-                      <span className="font-medium text-blue-600">TIG (Direct)</span>
+                    <h1
+                      onClick={handleNameClick}
+                      className={`text-xl font-serif font-medium text-foreground ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors inline-flex items-center' : ''}`}
+                      title={canEdit ? 'Click to edit' : undefined}
+                    >
+                      {profile.full_name || 'Unnamed Agent'}
                       {canEdit && (
-                        <button
-                          onClick={handleOpenHierarchyModal}
-                          className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                          title="Change manager"
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </button>
+                        <Pencil className="h-3.5 w-3.5 ml-2 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
                       )}
-                    </>
+                    </h1>
+                  )}
+                  {nameSaveStatus === 'saved' && (
+                    <span className="text-xs text-green-600 animate-fade-in">Saved ✓</span>
+                  )}
+                  {nameSaveStatus === 'saving' && (
+                    <span className="text-xs text-muted-foreground">Saving...</span>
+                  )}
+                  {nameSaveStatus === 'error' && nameError && !isEditingName && (
+                    <span className="text-xs text-red-600">{nameError}</span>
+                  )}
+
+                  {/* Status Badges */}
+                  {!profile.is_active && (
+                    <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-red-100 text-red-700">
+                      Inactive
+                    </span>
+                  )}
+                  {profile.is_test && (
+                    <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-purple-100 text-purple-700">
+                      Test
+                    </span>
+                  )}
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusInfo.className}`}>
+                    {statusInfo.label}
+                  </span>
+                </div>
+
+                {/* Email Row - Inline Editable */}
+                <div className="mt-1">
+                  {isEditingEmail ? (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        ref={emailInputRef}
+                        type="email"
+                        value={draftEmail}
+                        onChange={(e) => {
+                          setDraftEmail(e.target.value);
+                          setEmailValidationError(null);
+                        }}
+                        onKeyDown={handleEmailKeyDown}
+                        onBlur={handleEmailBlur}
+                        className="w-64 text-sm px-1.5 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-brand/50 focus:border-brand"
+                        placeholder="email@example.com"
+                      />
+                      {emailValidationError && (
+                        <span className="text-xs text-red-600">{emailValidationError}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <p
+                      onClick={handleEmailClick}
+                      className={`text-sm text-muted-foreground ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors inline-flex items-center' : ''}`}
+                      title={canEdit ? 'Click to edit' : undefined}
+                    >
+                      {profile.email || '—'}
+                      {canEdit && (
+                        <Pencil className="h-3 w-3 ml-1.5 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      )}
+                    </p>
+                  )}
+                  {emailSaveStatus === 'saved' && (
+                    <span className="text-xs text-green-600 animate-fade-in ml-2">Saved ✓</span>
                   )}
                 </div>
 
-                {/* Team Count Link (if manager) */}
-                {directReports.length > 0 && (
-                  <>
-                    <span className="text-muted-foreground/30">·</span>
+                {/* Meta Row */}
+                <div className="flex items-center gap-6 mt-5 text-sm">
+                  {/* NPN - Inline Editable */}
+                  {isEditingNpn ? (
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <span className="text-muted-foreground/60 text-xs">#</span>
+                      <input
+                        ref={npnInputRef}
+                        type="text"
+                        value={draftNpn}
+                        onChange={(e) => {
+                          setDraftNpn(e.target.value);
+                          setNpnValidationError(null);
+                        }}
+                        onKeyDown={handleNpnKeyDown}
+                        onBlur={handleNpnBlur}
+                        className="w-24 text-sm px-1.5 py-0.5 rounded border border-border bg-background focus:outline-none focus:ring-1 focus:ring-brand/50 focus:border-brand"
+                        placeholder="12345678"
+                        maxLength={8}
+                      />
+                      {npnValidationError && (
+                        <span className="text-xs text-red-600">{npnValidationError}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <div
+                      onClick={handleNpnClick}
+                      className={`flex items-center gap-1.5 text-muted-foreground/60 ${canEdit ? 'group cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors' : ''}`}
+                      title={canEdit ? 'Click to edit' : undefined}
+                    >
+                      <span className="text-xs">#</span>
+                      <span>{profile.npn || '—'}</span>
+                      {canEdit && (
+                        <Pencil className="h-3 w-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      )}
+                    </div>
+                  )}
+                  {npnSaveStatus === 'saved' && (
+                    <span className="text-xs text-green-600 animate-fade-in">Saved ✓</span>
+                  )}
+
+                  {/* Manager Link */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground/60">→</span>
+                    {manager ? (
+                      <>
+                        <Link
+                          to={`/admin/agents/${manager.id}`}
+                          className="text-primary hover:underline font-medium"
+                        >
+                          {manager.full_name || manager.email || 'Unknown'}
+                        </Link>
+                        {canEdit && (
+                          <button
+                            onClick={handleOpenHierarchyModal}
+                            className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                            title="Change manager"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-primary font-medium">TIG (Direct)</span>
+                        {canEdit && (
+                          <button
+                            onClick={handleOpenHierarchyModal}
+                            className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                            title="Change manager"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  {/* Team Count Link (if manager) */}
+                  {directReports.length > 0 && (
                     <Link
                       to={`/admin/agents?manager=${profileId}`}
-                      className="text-gold hover:underline font-medium"
+                      className="text-primary hover:underline font-medium"
                     >
-                      {directReports.length} agents →
+                      {directReports.length} agents
                     </Link>
-                  </>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Primary Action Button */}
+                {canEdit && profile.user_id && !profile.password_created_at && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSendSetupLink}
+                    disabled={sendingSetupLink}
+                    className="gap-1.5"
+                  >
+                    {sendingSetupLink ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                    {profile.setup_link_sent_at ? 'Resend Link' : 'Send Setup Link'}
+                  </Button>
                 )}
 
-                {/* Compliance Indicators */}
-                <span className="text-muted-foreground/30">·</span>
-                {profile.ahip_cert_year || hasInferredAhip ? (
-                  <span className="text-green-600 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    AHIP {profile.ahip_cert_year || CURRENT_AHIP_YEAR}
-                  </span>
-                ) : (
-                  <span className="text-amber-600 font-medium flex items-center gap-1">
-                    <AlertCircle className="h-3.5 w-3.5" />
-                    AHIP Required
-                  </span>
+                {/* More Actions Dropdown */}
+                {canEdit && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-9 w-9 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleOpenCarrierRequest}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Request Carrier
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleOpenHierarchyModal}>
+                        <Users className="h-4 w-4 mr-2" />
+                        Change Manager
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {profile.is_active ? (
+                        <DropdownMenuItem
+                          onClick={handleOpenDeactivateModal}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <UserMinus className="h-4 w-4 mr-2" />
+                          Deactivate Agent
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={handleOpenDeactivateModal}
+                          className="text-green-600 focus:text-green-600"
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Reactivate Agent
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
-                <span className="text-muted-foreground/30">·</span>
-                <span className="text-green-600 font-medium flex items-center gap-1">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  E&O
-                </span>
-                <span className="text-muted-foreground/30">·</span>
-                <span className="text-green-600 font-medium flex items-center gap-1">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Licensed
-                </span>
               </div>
             </div>
+          </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Primary Action Button */}
-              {canEdit && profile.user_id && !profile.password_created_at && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSendSetupLink}
-                  disabled={sendingSetupLink}
-                  className="gap-1.5"
-                >
-                  {sendingSetupLink ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                  {profile.setup_link_sent_at ? 'Resend Link' : 'Send Setup Link'}
-                </Button>
+          {/* Compliance Footer Strip */}
+          <div className="border-t border-border/50 px-6 py-3 flex items-center gap-5">
+            {/* AHIP */}
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              {profile.ahip_cert_year || hasInferredAhip ? (
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-amber-500" />
               )}
-
-              {/* More Actions Dropdown */}
-              {canEdit && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-9 w-9 p-0">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleOpenCarrierRequest}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Request Carrier
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleOpenHierarchyModal}>
-                      <Users className="h-4 w-4 mr-2" />
-                      Change Manager
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    {profile.is_active ? (
-                      <DropdownMenuItem
-                        onClick={handleOpenDeactivateModal}
-                        className="text-red-600 focus:text-red-600"
-                      >
-                        <UserMinus className="h-4 w-4 mr-2" />
-                        Deactivate Agent
-                      </DropdownMenuItem>
-                    ) : (
-                      <DropdownMenuItem
-                        onClick={handleOpenDeactivateModal}
-                        className="text-green-600 focus:text-green-600"
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Reactivate Agent
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+              <span>{profile.ahip_cert_year || hasInferredAhip ? `AHIP ${profile.ahip_cert_year || CURRENT_AHIP_YEAR}` : 'AHIP Required'}</span>
+            </div>
+            {/* E&O */}
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <span>E&O</span>
+            </div>
+            {/* Licensed */}
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <span>Licensed</span>
             </div>
           </div>
         </div>
@@ -1449,72 +1441,84 @@ Tyler Insurance Group`;
             ═══════════════════════════════════════════════════════════════ */}
         <div className="grid gap-4 md:grid-cols-2 mb-4">
           {/* LEFT: Carrier Statuses Card */}
-          <div className="bg-white border border-border rounded-lg p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-foreground flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-muted-foreground" />
-                Carrier Statuses
-              </h2>
+          <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col">
+            <div className="px-5 py-4 flex items-center justify-between">
+              <h2 className="font-semibold text-foreground">Carriers</h2>
               {carrierStatuses.length > 0 && (
                 <span className="text-xs text-muted-foreground">
-                  {carrierStatuses.filter(s => s.contracting_status === 'contracted').length}/{carrierStatuses.length} contracted
+                  {carrierStatuses.filter(s => s.contracting_status === 'contracted').length} of {carrierStatuses.length}
                 </span>
               )}
             </div>
 
             {carrierStatuses.length === 0 ? (
-              <div className="text-sm text-muted-foreground text-center py-8 flex-1 flex flex-col items-center justify-center">
-                <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                <p>No carrier statuses yet</p>
-                {canEdit && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleOpenCarrierRequest}
-                    className="mt-3 gap-1.5"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Request Carrier
-                  </Button>
+              <div className="px-5 py-12 text-center border-t border-border/50 flex-1 flex flex-col items-center justify-center">
+                {profile.onboarding_status === 'CONTRACTING_SUBMITTED' ? (
+                  <>
+                    <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                    <p className="text-sm font-medium">All set. We're getting you contracted with your carriers.</p>
+                    <p className="text-sm text-muted-foreground mt-1">This usually takes 3–4 business days.</p>
+                  </>
+                ) : profile.onboarding_status === 'CONTRACTING_REQUIRED' ? (
+                  <>
+                    <FileText className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm font-medium">Ready when you are.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Complete contracting to start selling.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="mt-3"
+                    >
+                      <Link to="/contracting">Get Started</Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">No carrier appointments yet</p>
+                    {canEdit && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleOpenCarrierRequest}
+                        className="mt-3 gap-1.5"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        Request Carrier
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             ) : (
               <>
-                <div className="space-y-2 max-h-48 overflow-y-auto flex-1">
-                  {carrierStatuses.map((status) => {
-                    const config = CARRIER_STATUS_CONFIG[status.contracting_status] || CARRIER_STATUS_CONFIG.not_started;
-                    return (
-                      <div
-                        key={status.id}
-                        className="flex items-center justify-between p-2.5 rounded-lg border bg-muted/20"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">{status.carrier_name}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${config.className}`}>
-                            {config.label}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {status.contracted_at ? (
-                            <span>{format(new Date(status.contracted_at), 'MMM d, yyyy')}</span>
-                          ) : status.contracting_submitted_at ? (
-                            <span>{format(new Date(status.contracting_submitted_at), 'MMM d')}</span>
-                          ) : null}
-                        </div>
+                <div className="border-t border-border/50 flex-1 max-h-48 overflow-y-auto">
+                  {carrierStatuses.map((status) => (
+                    <div
+                      key={status.id}
+                      className="px-5 py-3 flex items-center justify-between hover:bg-muted/30 transition-colors border-t border-border/30 first:border-t-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full ${
+                          status.contracting_status === 'contracted' ? 'bg-green-500' :
+                          status.contracting_status === 'in_progress' ? 'bg-amber-500' :
+                          status.contracting_status === 'issue' ? 'bg-red-500' : 'bg-gray-300'
+                        }`} />
+                        <span className="text-sm text-foreground">{status.carrier_name}</span>
                       </div>
-                    );
-                  })}
+                      <span className="text-xs text-muted-foreground">
+                        {status.contracted_at ? format(new Date(status.contracted_at), 'MMM d') :
+                         status.contracting_submitted_at ? format(new Date(status.contracting_submitted_at), 'MMM d') : null}
+                      </span>
+                    </div>
+                  ))}
                 </div>
                 {canEdit && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleOpenCarrierRequest}
-                    className="w-full mt-3 text-muted-foreground hover:text-foreground gap-1.5 border-t pt-3"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Request Carrier
-                  </Button>
+                  <div className="px-5 py-3 border-t border-border/50 hover:bg-muted/20 transition-colors">
+                    <button onClick={handleOpenCarrierRequest} className="text-sm text-primary font-medium hover:text-primary/80 transition-colors">
+                      Request carrier
+                    </button>
+                  </div>
                 )}
               </>
             )}
@@ -1531,17 +1535,19 @@ Tyler Insurance Group`;
         {/* ═══════════════════════════════════════════════════════════════
             NOTES (full width)
             ═══════════════════════════════════════════════════════════════ */}
-        <div className="bg-white border border-border rounded-lg p-4">
-          <h2 className="font-semibold text-foreground mb-2">Notes</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden">
+          <div className="px-5 py-4">
+            <h2 className="font-semibold text-foreground">Notes</h2>
+          </div>
           {isEditingNotes ? (
-            <div>
+            <div className="px-5 pb-5 border-t border-border/50">
               <textarea
                 ref={notesTextareaRef}
                 value={draftNotes}
                 onChange={(e) => setDraftNotes(e.target.value)}
                 onKeyDown={handleNotesKeyDown}
                 onBlur={handleNotesBlur}
-                className="w-full min-h-[80px] text-sm p-2 rounded-md border border-border bg-background focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold resize-y"
+                className="w-full min-h-[80px] text-sm p-2 rounded-md border border-border bg-background focus:outline-none focus:ring-1 focus:ring-brand/50 focus:border-brand resize-y mt-4"
                 placeholder="Add contracting notes..."
               />
               <p className="text-xs text-muted-foreground mt-1">
@@ -1549,31 +1555,31 @@ Tyler Insurance Group`;
               </p>
             </div>
           ) : (
-            <div
-              onClick={handleNotesClick}
-              className={canEdit ? 'group relative cursor-pointer hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors' : ''}
-              title={canEdit ? 'Click to edit' : undefined}
-            >
-              {canEdit && (
-                <Pencil className="h-3.5 w-3.5 absolute top-1 right-1 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="px-5 pb-5">
+              <div
+                onClick={handleNotesClick}
+                className={canEdit ? 'group relative cursor-pointer hover:bg-muted/20 rounded-md p-2 -m-2 transition-colors' : ''}
+                title={canEdit ? 'Click to edit' : undefined}
+              >
+                {canEdit && (
+                  <Pencil className="h-3.5 w-3.5 absolute top-2 right-2 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+                {profile.contracting_notes ? (
+                  <p className="text-sm whitespace-pre-wrap">{profile.contracting_notes}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No notes yet</p>
+                )}
+              </div>
+              {notesSaveStatus === 'saved' && (
+                <p className="text-xs text-green-600 mt-2 animate-fade-in">Saved ✓</p>
               )}
-              {profile.contracting_notes ? (
-                <p className="text-sm whitespace-pre-wrap">{profile.contracting_notes}</p>
-              ) : (
-                <p className="text-sm text-muted-foreground/60 italic">
-                  {canEdit ? 'No notes — click to add' : 'No notes'}
-                </p>
+              {notesSaveStatus === 'saving' && (
+                <p className="text-xs text-muted-foreground mt-2">Saving...</p>
+              )}
+              {notesSaveStatus === 'error' && notesError && (
+                <p className="text-xs text-red-600 mt-2">{notesError}</p>
               )}
             </div>
-          )}
-          {notesSaveStatus === 'saved' && (
-            <p className="text-xs text-green-600 mt-1 animate-fade-in">Saved ✓</p>
-          )}
-          {notesSaveStatus === 'saving' && (
-            <p className="text-xs text-muted-foreground mt-1">Saving...</p>
-          )}
-          {notesSaveStatus === 'error' && notesError && (
-            <p className="text-xs text-red-600 mt-1">{notesError}</p>
           )}
         </div>
       </div>
