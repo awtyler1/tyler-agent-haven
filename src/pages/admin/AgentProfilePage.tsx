@@ -43,8 +43,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-// TODO: Rebuild AgentDocumentsSection component
-// import { AgentDocumentsSection } from '@/components/admin/AgentDocumentsSection';
+import { AgentDocumentsSection } from '@/components/admin/AgentDocumentsSection';
 import { AssignManagerModal } from '@/components/admin/AssignManagerModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useSendEmail } from '@/hooks/useSendEmail';
@@ -1526,17 +1525,11 @@ Tyler Insurance Group`;
           </div>
 
           {/* RIGHT: Documents (always visible) */}
-          {/* TODO: Rebuild AgentDocumentsSection component
           <AgentDocumentsSection
             profileId={profile.id}
             canUpload={isAdmin() || isSelfView}
             isAdmin={isAdmin()}
           />
-          */}
-          <div className="bg-white border border-border rounded-lg p-4">
-            <h2 className="font-semibold text-foreground mb-2">Documents</h2>
-            <p className="text-sm text-muted-foreground">Document management coming soon.</p>
-          </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════

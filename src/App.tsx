@@ -36,6 +36,7 @@ import TrainingPage from "./pages/TrainingPage";
 import ContractingPage from "./pages/ContractingPage";
 import MyProfilePage from "./pages/MyProfilePage";
 import BookOfBusinessPage from "./pages/BookOfBusinessPage";
+import Index from "./pages/Index";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -204,8 +205,8 @@ const App = () => (
               }
             />
 
-            <Route path="/" element={<ProtectedRoute><BookOfBusinessPage /></ProtectedRoute>} />
-            <Route path="/book-of-business" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/book-of-business" element={<ProtectedRoute><BookOfBusinessPage /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
             <Route path="/my-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
