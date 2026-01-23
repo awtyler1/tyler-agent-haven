@@ -46,7 +46,7 @@ import UserDetailPage from "./pages/admin/UserDetailPage";
 import NewAgentPage from "./pages/admin/NewAgentPage";
 import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
 import LabsPage from "./pages/admin/LabsPage";
-import HierarchyManagementPage from "./pages/admin/HierarchyManagementPage";
+// REMOVED: HierarchyManagementPage - using manager_id approach instead
 import ActivityLogPage from "./pages/admin/ActivityLogPage";
 import RTSImportPage from "./pages/admin/RTSImportPage";
 import RoadmapGeneratorPage from "./pages/admin/RoadmapGeneratorPage";
@@ -170,14 +170,6 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <ContractingQueuePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/hierarchy" 
-              element={
-                <ProtectedRoute requireAdmin>
-                  <HierarchyManagementPage />
                 </ProtectedRoute>
               } 
             />
