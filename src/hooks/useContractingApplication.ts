@@ -127,6 +127,29 @@ const toDbFormat = (data: Partial<ContractingApplication>): DbContractingUpdate 
   return result;
 };
 
+// Map wizard document types to agent_documents table format
+function mapDocumentType(wizardType: string): { category: string; documentType: string; label: string | null } {
+  // Handle non-resident licenses: "non_resident_license_TX" -> type: "non_resident_license", label: "TX"
+  if (wizardType.startsWith('non_resident_license_')) {
+    const stateCode = wizardType.replace('non_resident_license_', '');
+    return { category: 'license', documentType: 'non_resident_license', label: stateCode };
+  }
+
+  const mappings: Record<string, { category: string; documentType: string }> = {
+    'insurance_license': { category: 'license', documentType: 'resident_license' },
+    'eo_certificate': { category: 'compliance', documentType: 'eo_certificate' },
+    'voided_check': { category: 'banking', documentType: 'voided_check' },
+    'contracting_packet': { category: 'contracting', documentType: 'contracting_packet' },
+  };
+
+  const mapped = mappings[wizardType];
+  if (mapped) {
+    return { ...mapped, label: null };
+  }
+
+  return { category: 'other', documentType: wizardType, label: null };
+}
+
 export function useContractingApplication() {
   const { user } = useAuth();
   const { generatePdf, generating: generatingPdf } = useContractingPdf();
@@ -356,7 +379,6 @@ export function useContractingApplication() {
         application.id
       );
 
-      toast.success('Application submitted successfully!');
       return true;
     } catch (error: unknown) {
       console.error('Error submitting:', error);
@@ -368,27 +390,57 @@ export function useContractingApplication() {
   }, [application, user?.id, generatePdf]);
 
   // Upload document
-  const uploadDocument = useCallback(async (file: File, documentType: string) => {
+  const uploadDocument = useCallback(async (file: File, documentType: string, expiresAt?: string) => {
     if (!user?.id || !application?.id) return null;
 
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile) {
+      toast.error('Profile not found');
+      return null;
+    }
+
     try {
-      const fileName = `${user.id}/${documentType}/${Date.now()}_${file.name}`;
-      
+      const mapped = mapDocumentType(documentType);
+      const fileName = `${profile.id}/${mapped.category}/${Date.now()}_${file.name}`;
+
       const { error: uploadError } = await supabase.storage
-        .from('contracting-documents')
+        .from('agent-documents')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      // Update uploaded_documents in application
+      // Insert into agent_documents table
+      const { error: dbError } = await supabase
+        .from('agent_documents')
+        .insert({
+          profile_id: profile.id,
+          category: mapped.category,
+          document_type: mapped.documentType,
+          label: mapped.label,
+          file_path: fileName,
+          file_name: file.name,
+          uploaded_by: profile.id,
+          expires_at: expiresAt || null,
+        });
+
+      if (dbError) {
+        console.error('Error creating document record:', dbError);
+        // Don't throw - file is already uploaded, just log the error
+      }
+
+      // Keep JSONB update for backwards compatibility
       const updatedDocs = {
         ...application.uploaded_documents,
         [documentType]: fileName,
       };
-
       await updateField('uploaded_documents', updatedDocs);
 
-      toast.success(`${documentType} uploaded successfully`);
+      toast.success(`${mapped.documentType} uploaded successfully`);
       return fileName;
     } catch (error: unknown) {
       console.error('Error uploading:', error);

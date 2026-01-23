@@ -1047,6 +1047,18 @@ serve(async (req) => {
           throw new Error('User ID is required to save PDF to storage');
         }
 
+        // Look up profile_id from user_id
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('id')
+          .eq('user_id', application.user_id)
+          .single();
+
+        if (profileError || !profile) {
+          console.error('Profile lookup failed:', profileError);
+          // Don't fail the whole submission - just log and continue with old behavior
+        }
+
         // Convert base64 to Uint8Array
         const binaryString = atob(base64);
         const bytes = new Uint8Array(binaryString.length);
@@ -1056,11 +1068,13 @@ serve(async (req) => {
 
         // Create storage path
         const timestamp = Date.now();
-        const storagePath = `${application.user_id}/contracting_packet/${timestamp}_contracting_packet.pdf`;
+        const storagePath = profile
+          ? `${profile.id}/contracting/${timestamp}_contracting_packet.pdf`
+          : `${application.user_id}/contracting_packet/${timestamp}_contracting_packet.pdf`;  // fallback if profile lookup failed
 
         // Upload to storage
         const { error: uploadError } = await supabaseClient.storage
-          .from('contracting-documents')
+          .from('agent-documents')
           .upload(storagePath, bytes, {
             contentType: 'application/pdf',
             upsert: true
@@ -1069,6 +1083,26 @@ serve(async (req) => {
         if (uploadError) {
           console.error('Error uploading PDF to storage:', uploadError);
         } else {
+          // Insert into agent_documents table
+          if (profile) {
+            const { error: docError } = await supabaseClient
+              .from('agent_documents')
+              .insert({
+                profile_id: profile.id,
+                category: 'contracting',
+                document_type: 'contracting_packet',
+                label: null,
+                file_path: storagePath,
+                file_name: 'contracting_packet.pdf',
+                uploaded_by: profile.id,
+              });
+
+            if (docError) {
+              console.error('Failed to insert agent_documents record:', docError);
+              // Don't fail - file is already uploaded
+            }
+          }
+
           // FETCH current documents from database instead of using client data
           const { data: currentApp } = await supabaseClient
             .from('contracting_applications')

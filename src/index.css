@@ -21,9 +21,13 @@
     --popover: 0 0% 100%;
     --popover-foreground: 30 10% 15%;
 
-    /* Gold accent from the logo */
-    --primary: 43 56% 41%;
+    /* Primary blue for actions */
+    --primary: 217 91% 50%;
     --primary-foreground: 0 0% 100%;
+
+    /* Brand gold from the logo */
+    --brand: 43 56% 41%;
+    --brand-foreground: 0 0% 100%;
 
     --secondary: 40 20% 96%;
     --secondary-foreground: 30 10% 15%;
@@ -31,7 +35,7 @@
     --muted: 40 15% 95%;
     --muted-foreground: 30 8% 35%;
 
-    --accent: 43 56% 41%;
+    --accent: 217 91% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -39,7 +43,7 @@
 
     --border: 40 20% 90%;
     --input: 40 20% 90%;
-    --ring: 43 56% 41%;
+    --ring: 217 91% 50%;
 
     --radius: 0.5rem;
 
@@ -79,17 +83,19 @@
     --card-foreground: 40 20% 96%;
     --popover: 30 10% 10%;
     --popover-foreground: 40 20% 96%;
-    --primary: 43 50% 50%;
-    --primary-foreground: 30 10% 8%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --brand: 43 50% 50%;
+    --brand-foreground: 30 10% 8%;
     --secondary: 30 10% 15%;
     --secondary-foreground: 40 20% 96%;
     --muted: 30 10% 15%;
     --muted-foreground: 40 15% 60%;
-    --accent: 43 50% 50%;
-    --accent-foreground: 30 10% 8%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
     --border: 30 10% 20%;
     --input: 30 10% 20%;
-    --ring: 43 50% 50%;
+    --ring: 217 91% 60%;
     --gold: 43 50% 50%;
     --gold-light: 43 40% 30%;
     --gold-dark: 43 60% 40%;

@@ -362,7 +362,7 @@ const CertificationsPage = () => {
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(150, 150, 150);
-    doc.text("Tyler Insurance Group • Licensed Agent Platform", pageWidth / 2, footerY + 6, { align: 'center' });
+    doc.text("Agent Platform", pageWidth / 2, footerY + 6, { align: 'center' });
 
     // Save the PDF
     doc.save(`Certification_Checklist_${selectedYear}_${selectedState.replace(/\s+/g, '_')}.pdf`);

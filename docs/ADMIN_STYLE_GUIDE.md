@@ -1,4 +1,4 @@
-# Admin Pages Style Guide
+
 
 This documents the existing patterns across admin pages to ensure consistency.
 
@@ -224,7 +224,7 @@ This is defined in `AdminLayout` and applied via `min-h-screen`.
 <Label className="text-sm font-medium">Field Label *</Label>
 ```
 
-### Select Dropdowns
+### Select Dropdowns# Admin Pages Style Guide
 ```tsx
 <Select value={value} onValueChange={setValue}>
   <SelectTrigger className="w-[180px] h-10 border-border">

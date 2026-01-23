@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown, LogIn, LogOut } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User, FileText, Award, Shield } from "lucide-react";
 import { UserAvatarDropdown } from "./UserAvatarDropdown";
 import { DarkModeToggle } from "./DarkModeToggle";
 import tylerLogo from "@/assets/tyler-logo.png";
@@ -11,14 +11,11 @@ import { logActivity, ActivityAction } from "@/utils/activityLogger";
 
 const navLinks = [
   { name: "Dashboard", href: "/" },
-  { name: "Tools", href: "/agent-tools" },
-  { name: "Training", href: "/training" },
 ];
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
-  const { isAuthenticated, isAgent, isContractingRequired } = useAuth();
+  const { isAuthenticated, isAgent, isContractingRequired, canAccessAdmin } = useAuth();
 
   // Hide navigation for agents who need to complete contracting
   const showFullNavigation = !isAgent() || !isContractingRequired;
@@ -52,7 +49,7 @@ const Navigation = () => {
           <Link to="/" className="flex items-center">
             <img 
               src={tylerLogo} 
-              alt="Tyler Insurance Group" 
+              alt="Logo" 
               className="h-14 w-auto"
             />
           </Link>
@@ -60,85 +57,16 @@ const Navigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-6">
             {showFullNavigation && navLinks.map((link) => (
-              <div 
-                key={link.name} 
-                className="relative group"
-                onMouseEnter={() => (('submenu' in link && link.submenu) || ('sections' in link && link.sections)) && setOpenSubmenu(link.name)}
-                onMouseLeave={() => setOpenSubmenu(null)}
+              <Link
+                key={link.name}
+                to={link.href}
+                onClick={() => window.scrollTo(0, 0)}
+                className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide whitespace-nowrap"
               >
-                <Link
-                  to={link.href}
-                  onClick={() => window.scrollTo(0, 0)}
-                  className="text-[13px] font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide flex items-center gap-1 whitespace-nowrap"
-                >
-                  {link.name}
-                  {(('submenu' in link && link.submenu) || ('sections' in link && link.sections)) && <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />}
-                </Link>
-                
-                {'submenu' in link && link.submenu && openSubmenu === link.name && Array.isArray(link.submenu) && (
-                  <div className="absolute top-full left-0 pt-2 w-56 animate-fade-in">
-                    <div className="bg-background border border-border rounded-lg shadow-elevated py-2">
-                      {(link.submenu as Array<{name: string; href: string; external?: boolean}>).map((subitem) => (
-                        'external' in subitem && subitem.external ? (
-                          <a
-                            key={subitem.name}
-                            href={subitem.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
-                          >
-                            {subitem.name}
-                          </a>
-                        ) : (
-                          <Link
-                            key={subitem.name}
-                            to={subitem.href}
-                            className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
-                          >
-                            {subitem.name}
-                          </Link>
-                        )
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {'sections' in link && link.sections && openSubmenu === link.name && Array.isArray(link.sections) && (
-                  <div className="absolute top-full left-0 pt-2 w-64 animate-fade-in">
-                    <div className="bg-background border border-border rounded-lg shadow-elevated py-2">
-                      {link.sections.map((section, sectionIndex) => (
-                        <div key={section.title}>
-                          {sectionIndex > 0 && <div className="border-t border-border my-2" />}
-                          <p className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-gold">{section.title}</p>
-                          {section.items.map((item) => (
-                            item.external ? (
-                              <a
-                                key={item.name}
-                                href={item.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
-                              >
-                                {item.name}
-                              </a>
-                            ) : (
-                              <Link
-                                key={item.name}
-                                to={item.href}
-                                className="block px-4 py-2 text-sm text-muted-foreground hover:text-gold hover:bg-muted transition-smooth"
-                              >
-                                {item.name}
-                              </Link>
-                            )
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                {link.name}
+              </Link>
             ))}
-            
+
             {/* Profile Dropdown - For authenticated users (includes dark mode toggle) */}
             {isAuthenticated ? (
               <UserAvatarDropdown />
@@ -166,79 +94,62 @@ const Navigation = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="lg:hidden py-6 border-t border-border animate-fade-in">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
+              {/* Nav Links */}
               {showFullNavigation && navLinks.map((link) => (
-                <div key={link.name}>
-                  <Link
-                    to={link.href}
-                    onClick={() => !('submenu' in link && link.submenu) && setIsOpen(false)}
-                    className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide uppercase py-2 block"
-                  >
-                    {link.name}
-                  </Link>
-                  {'submenu' in link && link.submenu && Array.isArray(link.submenu) && (
-                    <div className="pl-4 border-l border-border ml-2">
-                      {(link.submenu as Array<{name: string; href: string; external?: boolean}>).map((subitem) => (
-                        'external' in subitem && subitem.external ? (
-                          <a
-                            key={subitem.name}
-                            href={subitem.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setIsOpen(false)}
-                            className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
-                          >
-                            {subitem.name}
-                          </a>
-                        ) : (
-                          <Link
-                            key={subitem.name}
-                            to={subitem.href}
-                            onClick={() => setIsOpen(false)}
-                            className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
-                          >
-                            {subitem.name}
-                          </Link>
-                        )
-                      ))}
-                    </div>
-                  )}
-                  {'sections' in link && link.sections && Array.isArray(link.sections) && (
-                    <div className="pl-4 border-l border-border ml-2">
-                      {link.sections.map((section) => (
-                        <div key={section.title} className="mt-2">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-gold py-1">{section.title}</p>
-                          {section.items.map((item) => (
-                            item.external ? (
-                              <a
-                                key={item.name}
-                                href={item.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => setIsOpen(false)}
-                                className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
-                              >
-                                {item.name}
-                              </a>
-                            ) : (
-                              <Link
-                                key={item.name}
-                                to={item.href}
-                                onClick={() => setIsOpen(false)}
-                                className="text-sm text-muted-foreground hover:text-gold transition-smooth py-1.5 block"
-                              >
-                                {item.name}
-                              </Link>
-                            )
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide py-2 block"
+                >
+                  {link.name}
+                </Link>
               ))}
-              
+
+              {/* Authenticated User Menu Items */}
+              {isAuthenticated && showFullNavigation && (
+                <>
+                  <div className="h-px bg-border my-2" />
+                  <Link
+                    to="/my-profile"
+                    onClick={() => setIsOpen(false)}
+                    className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth py-2 flex items-center gap-2"
+                  >
+                    <User size={16} />
+                    My Profile
+                  </Link>
+                  <Link
+                    to="/contracting-hub"
+                    onClick={() => setIsOpen(false)}
+                    className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth py-2 flex items-center gap-2"
+                  >
+                    <FileText size={16} />
+                    Carrier Status
+                  </Link>
+                  <Link
+                    to="/my-certifications"
+                    onClick={() => setIsOpen(false)}
+                    className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth py-2 flex items-center gap-2"
+                  >
+                    <Award size={16} />
+                    My Certifications
+                  </Link>
+                  {canAccessAdmin() && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setIsOpen(false)}
+                      className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth py-2 flex items-center gap-2"
+                    >
+                      <Shield size={16} />
+                      Admin Dashboard
+                    </Link>
+                  )}
+                </>
+              )}
+
               {/* Dark Mode Toggle */}
+              <div className="h-px bg-border my-2" />
               <div className="py-2">
                 <DarkModeToggle />
               </div>
@@ -250,7 +161,7 @@ const Navigation = () => {
                     handleLogout();
                     setIsOpen(false);
                   }}
-                  className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
+                  className="text-base font-medium text-destructive hover:text-destructive/80 transition-smooth py-2 flex items-center gap-2"
                 >
                   <LogOut size={16} />
                   Log Out
@@ -259,7 +170,7 @@ const Navigation = () => {
                 <Link
                   to="/auth"
                   onClick={() => setIsOpen(false)}
-                  className="text-base font-medium text-primary hover:text-gold transition-smooth tracking-wide uppercase py-2 flex items-center gap-2"
+                  className="text-base font-medium text-primary hover:text-gold transition-smooth py-2 flex items-center gap-2"
                 >
                   <LogIn size={16} />
                   Log In

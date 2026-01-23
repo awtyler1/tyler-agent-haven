@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, Home } from 'lucide-react';
+import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
@@ -125,15 +125,6 @@ export function UserAvatarDropdown() {
         <DropdownMenuSeparator />
 
         {/* Navigation Items */}
-        {(isAdmin() || isSuperAdmin()) && (
-          <DropdownMenuItem
-            onClick={() => navigate('/')}
-            className="cursor-pointer hover:bg-primary/10"
-          >
-            <Home className="w-4 h-4 mr-2" />
-            My Dashboard
-          </DropdownMenuItem>
-        )}
         <DropdownMenuItem
           onClick={() => navigate('/my-profile')}
           className="cursor-pointer hover:bg-primary/10"
@@ -146,7 +137,14 @@ export function UserAvatarDropdown() {
           className="cursor-pointer hover:bg-primary/10"
         >
           <FileText className="w-4 h-4 mr-2" />
-          My Carrier Status
+          Carrier Status
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => navigate('/my-certifications')}
+          className="cursor-pointer hover:bg-primary/10"
+        >
+          <Award className="w-4 h-4 mr-2" />
+          My Certifications
         </DropdownMenuItem>
 
         {/* Admin Dashboard - only if user has admin access */}

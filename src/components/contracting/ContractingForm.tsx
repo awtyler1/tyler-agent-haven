@@ -299,15 +299,18 @@ export function ContractingForm() {
       return result;
     };
 
-    // Run validation and block if invalid
-    const result = validateForm(appToValidate, sectionStatuses, []);
-    if (!result.isFormValid) {
-      toast.error('Please complete all required fields before submitting');
-      // Scroll to first error section with smooth animation
-      if (result.firstErrorSection) {
-        scrollToSection(result.firstErrorSection);
+    // Run validation and block if invalid (bypassed in dev with ?skip-validation=true)
+    const skipValidation = import.meta.env.DEV && new URLSearchParams(window.location.search).get('skip-validation') === 'true';
+    if (!skipValidation) {
+      const result = validateForm(appToValidate, sectionStatuses, []);
+      if (!result.isFormValid) {
+        toast.error('Please complete all required fields before submitting');
+        // Scroll to first error section with smooth animation
+        if (result.firstErrorSection) {
+          scrollToSection(result.firstErrorSection);
+        }
+        return;
       }
-      return;
     }
 
     // Clear validation state and proceed with submission
@@ -358,7 +361,7 @@ export function ContractingForm() {
         >
           <div className="space-y-6 p-10">
             <div className="relative pb-6">
-              <img src={tylerLogo} alt="Tyler Insurance Group" className="h-14 mx-auto opacity-80" />
+              <img src={tylerLogo} alt="Logo" className="h-14 mx-auto opacity-80" />
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-slate-200" />
             </div>
             <div className="mx-auto w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center">
@@ -441,6 +444,11 @@ export function ContractingForm() {
 
   // Check if current step has all required fields completed
   const isStepComplete = (step: number): boolean => {
+    // Dev-only validation bypass: ?skip-validation=true
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('skip-validation') === 'true') {
+      return true;
+    }
+
     const docs = (application.uploaded_documents || {}) as Record<string, string>;
 
     switch (step) {
