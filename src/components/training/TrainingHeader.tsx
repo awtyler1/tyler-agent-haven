@@ -12,7 +12,7 @@ export function TrainingHeader() {
         <Link to="/" className="flex items-center">
           <img
             src={tylerLogo}
-            alt="Tyler Insurance Group"
+            alt="Logo"
             className="h-8 w-auto"
           />
         </Link>

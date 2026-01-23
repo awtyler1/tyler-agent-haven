@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { SyncCarrierCard } from './SyncCarrierCard';
 import { SyncReveal } from './SyncReveal';
 import { SyncMilestone } from './SyncMilestone';
+import Navigation from '@/components/Navigation';
 import {
   initializeSync,
   getCarrierUploadStatus,
@@ -160,8 +161,11 @@ export function SyncFlow({ profileId, onComplete }: SyncFlowProps) {
   // Loading state
   if (phase === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white">
+        <Navigation />
+        <div className="flex items-center justify-center pt-32">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
       </div>
     );
   }
@@ -206,8 +210,9 @@ export function SyncFlow({ profileId, onComplete }: SyncFlowProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white flex flex-col">
+      <Navigation />
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 py-12 pt-24">
         <div className="max-w-xl w-full">
           {/* Header */}
           <div className="text-center mb-10">

@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
         >
           <CardHeader className="text-center space-y-8 pt-14 pb-2">
             <div className="relative pb-6">
-              <img src={tylerLogo} alt="Tyler Insurance Group" className="h-[60px] mx-auto" />
+              <img src={tylerLogo} alt="Logo" className="h-[60px] mx-auto" />
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
             </div>
             <div className="flex justify-center">
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
       >
         <CardHeader className="text-center space-y-8 pt-14 pb-2">
           <div className="relative pb-6">
-            <img src={tylerLogo} alt="Tyler Insurance Group" className="h-[60px] mx-auto" />
+            <img src={tylerLogo} alt="Logo" className="h-[60px] mx-auto" />
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
           </div>
           <div className="flex justify-center">

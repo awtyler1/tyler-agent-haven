@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Loader2, Mail, Phone, CheckCircle2, Send } from 'lucide-react';
+import { Loader2, Mail, CheckCircle2, Send } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.png';
 import { formatPhoneNumber } from '@/lib/formatters';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
@@ -161,7 +161,7 @@ export default function AuthPage() {
       >
         <CardHeader className="text-center space-y-8 pt-14 pb-2">
           <div className="relative pb-6">
-            <img src={tylerLogo} alt="Tyler Insurance Group" className="h-[60px] mx-auto" />
+            <img src={tylerLogo} alt="Logo" className="h-[60px] mx-auto" />
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
           </div>
           <div className="space-y-3">
@@ -329,19 +329,9 @@ export default function AuthPage() {
                       )}
                     </Button>
                     
-                    {/* Direct contact fallback */}
+                    {/* Help text */}
                     <div className="pt-4 border-t text-center">
-                      <p className="text-xs text-muted-foreground mb-2">Or reach us directly:</p>
-                      <div className="flex justify-center gap-4 text-xs">
-                        <a href="tel:8596196672" className="flex items-center gap-1 text-primary hover:underline">
-                          <Phone className="h-3 w-3" />
-                          Austin
-                        </a>
-                        <a href="tel:2107225597" className="flex items-center gap-1 text-primary hover:underline">
-                          <Phone className="h-3 w-3" />
-                          Andrew
-                        </a>
-                      </div>
+                      <p className="text-xs text-muted-foreground">Need help? Contact your administrator.</p>
                     </div>
                   </form>
                 )}

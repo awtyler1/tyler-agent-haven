@@ -361,7 +361,7 @@ export function ContractingForm() {
         >
           <div className="space-y-6 p-10">
             <div className="relative pb-6">
-              <img src={tylerLogo} alt="Tyler Insurance Group" className="h-14 mx-auto opacity-80" />
+              <img src={tylerLogo} alt="Logo" className="h-14 mx-auto opacity-80" />
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-slate-200" />
             </div>
             <div className="mx-auto w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center">

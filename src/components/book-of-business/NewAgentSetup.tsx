@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { addAgentCarriers } from '@/lib/sync';
+import Navigation from '@/components/Navigation';
 
 interface NewAgentSetupProps {
   profileId: string;
@@ -132,8 +133,11 @@ export function NewAgentSetup({ profileId, onComplete }: NewAgentSetupProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white">
+        <Navigation />
+        <div className="flex items-center justify-center pt-32">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
       </div>
     );
   }
@@ -142,7 +146,8 @@ export function NewAgentSetup({ profileId, onComplete }: NewAgentSetupProps) {
   if (carriers.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white flex flex-col">
-        <div className="flex-1 flex items-center justify-center px-4">
+        <Navigation />
+        <div className="flex-1 flex items-center justify-center px-4 pt-20">
           <div className="max-w-md w-full text-center">
             <div className="w-16 h-16 rounded-2xl bg-amber-100 mx-auto mb-6 flex items-center justify-center">
               <AlertCircle className="w-8 h-8 text-amber-600" />
@@ -185,8 +190,9 @@ export function NewAgentSetup({ profileId, onComplete }: NewAgentSetupProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-white flex flex-col">
+      <Navigation />
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
+      <div className="flex-1 flex items-center justify-center px-4 py-8 pt-24">
         <div className={cn('w-full text-center', carriers.length > 6 ? 'max-w-3xl' : 'max-w-lg')}>
           {/* Headline */}
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">

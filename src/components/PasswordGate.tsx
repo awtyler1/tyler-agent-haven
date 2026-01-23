@@ -80,7 +80,7 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
           <div className="mb-8">
             <img
               src={tylerLogo}
-              alt="Tyler Insurance Group"
+              alt="Logo"
               className="h-28 md:h-32 mx-auto"
             />
           </div>
@@ -108,7 +108,7 @@ const PasswordGate = ({ children }: PasswordGateProps) => {
 
             {/* Security note */}
             <p className="text-xs text-muted-foreground -mt-2">
-              Secure access for licensed Tyler Insurance Group agents.
+              Secure access for licensed agents.
             </p>
 
             {error && (

@@ -4,12 +4,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Public pages
-import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import SetPasswordPage from "./pages/auth/SetPasswordPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
@@ -23,8 +22,6 @@ import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
 import CompliancePage from "./pages/CompliancePage";
 import CarrierResourcesPage from "./pages/CarrierResourcesPage";
 import AgentToolsPage from "./pages/AgentToolsPage";
-import ContactPage from "./pages/ContactPage";
-import AboutPage from "./pages/AboutPage";
 import ContractingHubPage from "./pages/ContractingHubPage";
 import CertificationsPage from "./pages/CertificationsPage";
 import MyCertificationsPage from "./pages/MyCertificationsPage";
@@ -215,11 +212,11 @@ const App = () => (
               }
             />
 
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/" element={<ProtectedRoute><BookOfBusinessPage /></ProtectedRoute>} />
+            <Route path="/book-of-business" element={<Navigate to="/" replace />} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
             <Route path="/my-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
-            <Route path="/book-of-business" element={<ProtectedRoute><BookOfBusinessPage /></ProtectedRoute>} />
             <Route path="/industry-updates" element={<ProtectedRoute><IndustryUpdatesPage /></ProtectedRoute>} />
             {/* Training Library */}
             <Route path="/training" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />
@@ -233,8 +230,6 @@ const App = () => (
             <Route path="/forms-library" element={<ProtectedRoute><FormsLibraryPage /></ProtectedRoute>} />
             <Route path="/carrier-portals" element={<ProtectedRoute><CarrierPortalsPage /></ProtectedRoute>} />
             <Route path="/admin/documents" element={<ProtectedRoute requireAdmin><DocumentManagementPage /></ProtectedRoute>} />
-            <Route path="/contact" element={<ProtectedRoute><ContactPage /></ProtectedRoute>} />
-            <Route path="/about" element={<ProtectedRoute><AboutPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
