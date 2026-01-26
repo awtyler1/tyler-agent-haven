@@ -2,7 +2,7 @@
 
 **One-liner:** Operating system for Medicare agents — onboarding, certifications, resources, and production tracking.
 
-**Last Updated:** January 25, 2026
+**Last Updated:** January 26, 2026
 
 ---
 
@@ -155,7 +155,13 @@ const { carriers, loading } = useAgentCarriers();
 - Microsoft OAuth tokens stored unencrypted
 - Industry Updates page is placeholder
 - Some carrier data is Kentucky-specific
-- Large bundle size (~2.3MB, needs code splitting)
+
+## Recent Optimizations (Jan 26, 2026)
+
+- **Auth waterfall fix:** useAuth now fetches profile, roles, downline in parallel
+- **Dynamic xlsx imports:** Saves ~425KB from initial bundle (loads on-demand)
+- **Logo optimization:** tyler-logo.png (769KB) → tyler-logo.webp (17KB)
+- **Pre-launch audit fixes:** Navigation, error handling, number formatting
 
 ---
 
