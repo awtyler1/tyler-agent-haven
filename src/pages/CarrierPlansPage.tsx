@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { FileText, ExternalLink, ChevronLeft, Calendar, MapPin } from "lucide-react";
+import { carriers } from "@/data/carriersData";
+import { useProfile } from "@/hooks/useProfile";
+import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
 import {
   Accordion,
   AccordionContent,
@@ -16,169 +16,248 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { carriers } from "@/data/carriersData";
+import { ArrowLeft, Download, ExternalLink, FileText } from "lucide-react";
 
-const CarrierPlansPage = () => {
-  const [searchParams] = useSearchParams();
-  const carrierParam = searchParams.get('carrier');
-  const [selectedCarrier, setSelectedCarrier] = useState<string>(
-    carrierParam && carriers.find(c => c.id === carrierParam) ? carrierParam : carriers[0].id
-  );
-  const [selectedYear, setSelectedYear] = useState<string>("2026");
-  const [selectedState, setSelectedState] = useState<string>("Kentucky");
-  
-  const activeCarrier = carriers.find(c => c.id === selectedCarrier);
+// State code to full name mapping
+const stateNameMap: Record<string, string> = {
+  KY: "Kentucky",
+  TN: "Tennessee",
+  OH: "Ohio",
+  IN: "Indiana",
+  WV: "West Virginia",
+  VA: "Virginia",
+  GA: "Georgia",
+};
 
+const stateCodeMap: Record<string, string> = {
+  Kentucky: "KY",
+  Tennessee: "TN",
+  Ohio: "OH",
+  Indiana: "IN",
+  "West Virginia": "WV",
+  Virginia: "VA",
+  Georgia: "GA",
+};
+
+export default function CarrierPlansPage() {
+  const { profile } = useProfile();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read carrier and state from URL params
+  const carrierParam = searchParams.get("carrier") || "aetna";
+  const stateParam = searchParams.get("state") || "KY";
+
+  const [selectedCarrier, setSelectedCarrier] = useState(carrierParam);
+  const [selectedYear, setSelectedYear] = useState("2026");
+  const [selectedState, setSelectedState] = useState(stateNameMap[stateParam] || "Kentucky");
+  const [expandedAccordion, setExpandedAccordion] = useState<string>("");
+
+  // Sync URL params to state on mount and when params change
   useEffect(() => {
-    if (carrierParam && carriers.find(c => c.id === carrierParam)) {
-      setSelectedCarrier(carrierParam);
+    const carrier = searchParams.get("carrier");
+    const state = searchParams.get("state");
+
+    if (carrier && carriers.find((c) => c.id === carrier)) {
+      setSelectedCarrier(carrier);
     }
-  }, [carrierParam]);
+    if (state && stateNameMap[state]) {
+      setSelectedState(stateNameMap[state]);
+    }
+  }, [searchParams]);
 
-  const availableStates = activeCarrier?.summaryOfBenefits 
-    ? Object.keys(activeCarrier.summaryOfBenefits)
-    : [];
+  // Update URL when carrier changes
+  const handleCarrierChange = (carrierId: string) => {
+    setSelectedCarrier(carrierId);
+    setSearchParams({
+      carrier: carrierId,
+      state: stateCodeMap[selectedState] || "KY"
+    });
+  };
 
-  const hasPlansForState = selectedState && activeCarrier?.summaryOfBenefits?.[selectedState];
+  // Update URL when state changes
+  const handleStateChange = (stateName: string) => {
+    setSelectedState(stateName);
+    setSearchParams({
+      carrier: selectedCarrier,
+      state: stateCodeMap[stateName] || "KY"
+    });
+  };
+
+  const currentCarrier = carriers.find((c) => c.id === selectedCarrier) || carriers[0];
+  const summaryData = currentCarrier?.summaryOfBenefits?.[selectedState] || {};
+  const planTypes = Object.keys(summaryData);
+
+  // Count plans per type
+  const getPlanCount = (type: string) => summaryData[type]?.length || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-      <main>
-        {/* Header with Filters */}
-        <section className="px-6 md:px-12 lg:px-20 pt-24 md:pt-28 pb-4 bg-cream border-b border-border">
-          <div className="container-narrow">
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
+      {/* Header - matches Index.tsx and CarrierResourcesPage.tsx */}
+      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
+        <div className="max-w-6xl mx-auto flex items-center justify-between py-3">
+          <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
+            </Link>
+            <span className="text-[#e8e4dd]">|</span>
+            <span className="text-sm text-[#5c5552]">Agent Portal</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-[#5c5552] hidden sm:block">{profile?.full_name || 'Agent'}</span>
+            <UserAvatarDropdown />
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 px-6 py-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header Row */}
+          <div className="mb-4">
             <Link
               to="/carrier-resources"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition-smooth mb-4"
+              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
             >
-              <ChevronLeft size={16} />
+              <ArrowLeft className="w-4 h-4" />
               Back to Carrier Resources
             </Link>
-            
-            {/* Carrier Selection Grid */}
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
-              {carriers.map((carrier) => (
-                <button
-                  key={carrier.id}
-                  onClick={() => setSelectedCarrier(carrier.id)}
-                  className={`flex flex-col items-center gap-1.5 p-2.5 rounded-lg border transition-all ${
-                    selectedCarrier === carrier.id
-                      ? "border-gold bg-white shadow-md"
-                      : "border-border bg-white/50 hover:bg-white hover:border-gold/50"
-                  }`}
-                >
-                  <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
-                    <img 
-                      src={carrier.logo} 
-                      alt={`${carrier.name} logo`} 
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-medium text-center leading-tight ${
-                    selectedCarrier === carrier.id ? "text-gold" : "text-muted-foreground"
-                  }`}>
-                    {carrier.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            {/* Year and State Filters */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Calendar size={14} className="text-gold" />
-                  Plan Year
-                </label>
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-serif font-semibold text-[#292524]">
+                Plan Documents
+              </h1>
+              <div className="flex items-center gap-3">
+                {/* Year Selector */}
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="bg-white border-border">
+                  <SelectTrigger className="h-8 w-[100px] text-sm text-[#292524] border-[#e8e4dd] rounded-lg bg-white focus:ring-1 focus:ring-blue-200">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2026">2026</SelectItem>
-                    <SelectItem value="2027" disabled>2027</SelectItem>
+                  <SelectContent className="bg-white z-50 rounded-lg border-[#e8e4dd]">
+                    <SelectItem value="2026" className="text-sm">2026</SelectItem>
+                    <SelectItem value="2027" disabled className="text-sm">2027</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="flex-1">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <MapPin size={14} className="text-gold" />
-                  State
-                </label>
-                <Select value={selectedState} onValueChange={setSelectedState}>
-                  <SelectTrigger className="bg-white border-border">
+
+                {/* State Selector */}
+                <Select value={selectedState} onValueChange={handleStateChange}>
+                  <SelectTrigger className="h-8 w-[140px] text-sm text-[#292524] border-[#e8e4dd] rounded-lg bg-white focus:ring-1 focus:ring-blue-200">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Georgia" disabled>Georgia (Coming Soon)</SelectItem>
-                    <SelectItem value="Indiana" disabled>Indiana (Coming Soon)</SelectItem>
-                    <SelectItem value="Kentucky">Kentucky</SelectItem>
-                    <SelectItem value="Ohio" disabled>Ohio (Coming Soon)</SelectItem>
-                    <SelectItem value="Tennessee" disabled>Tennessee (Coming Soon)</SelectItem>
-                    <SelectItem value="Virginia" disabled>Virginia (Coming Soon)</SelectItem>
-                    <SelectItem value="West Virginia" disabled>West Virginia (Coming Soon)</SelectItem>
+                  <SelectContent className="bg-white z-50 rounded-lg border-[#e8e4dd]">
+                    <SelectItem value="Kentucky" className="text-sm">Kentucky</SelectItem>
+                    <SelectItem value="Tennessee" disabled className="text-sm">Tennessee (Coming Soon)</SelectItem>
+                    <SelectItem value="Ohio" disabled className="text-sm">Ohio (Coming Soon)</SelectItem>
+                    <SelectItem value="Indiana" disabled className="text-sm">Indiana (Coming Soon)</SelectItem>
+                    <SelectItem value="West Virginia" disabled className="text-sm">West Virginia (Coming Soon)</SelectItem>
+                    <SelectItem value="Virginia" disabled className="text-sm">Virginia (Coming Soon)</SelectItem>
+                    <SelectItem value="Georgia" disabled className="text-sm">Georgia (Coming Soon)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
-        </section>
 
-        {/* Plan Documents */}
-        {activeCarrier && (
-          <section className="px-6 md:px-12 lg:px-20 py-8">
-            <div className="container-narrow">
-              {hasPlansForState ? (
-                <div className="border border-border rounded-lg p-6 md:p-8">
-                  <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
-                    <div className="w-16 h-16 rounded-lg bg-white border border-border flex items-center justify-center p-2">
-                      <img 
-                        src={activeCarrier.logo} 
-                        alt={`${activeCarrier.name} logo`} 
-                        className="w-full h-full object-contain"
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-12 gap-4 items-start">
+            {/* Left: Carrier Sidebar */}
+            <div className="col-span-3">
+              <div className="bg-white border border-[#e8e4dd] rounded-xl overflow-hidden">
+                {carriers.map((carrier) => (
+                  <button
+                    key={carrier.id}
+                    onClick={() => handleCarrierChange(carrier.id)}
+                    className={`w-full px-3 py-3 text-left text-sm flex items-center gap-3 border-b border-[#e8e4dd] last:border-0 transition-all ${
+                      selectedCarrier === carrier.id
+                        ? "bg-blue-600 text-white"
+                        : "hover:bg-gray-50 text-[#292524]"
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        selectedCarrier === carrier.id ? "bg-white/20 p-1" : ""
+                      }`}
+                    >
+                      <img
+                        src={carrier.logo}
+                        alt={carrier.name}
+                        className="max-w-full max-h-full object-contain"
                       />
                     </div>
-                    <div>
-                      <h2 className="heading-section">{activeCarrier.name}</h2>
-                      <p className="text-sm text-muted-foreground">{selectedYear} Plans - {selectedState}</p>
-                    </div>
-                  </div>
+                    <span
+                      className={`font-medium ${
+                        selectedCarrier === carrier.id ? "text-white" : "text-[#292524]"
+                      }`}
+                    >
+                      {carrier.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                  <Accordion type="multiple" className="space-y-2">
-                    {Object.entries(activeCarrier.summaryOfBenefits[selectedState] as Record<string, any[]>).map(([marketName, plans]) => (
-                      <AccordionItem 
-                        key={marketName} 
-                        value={marketName}
-                        className="border border-border rounded-lg px-4 data-[state=open]:bg-cream/30"
+            {/* Right: Plan Documents */}
+            <div className="col-span-9">
+              <div className="bg-white border border-[#e8e4dd] rounded-xl p-5">
+                {/* Carrier Header */}
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-[#e8e4dd]">
+                  <div className="w-10 h-10 rounded-lg bg-white border border-[#e8e4dd] flex items-center justify-center overflow-hidden p-1">
+                    <img
+                      src={currentCarrier.logo}
+                      alt={currentCarrier.name}
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-[#292524]">{currentCarrier.name}</h2>
+                    <p className="text-xs text-[#5c5552]">
+                      {selectedYear} Plans &bull; {selectedState}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Plan Type Accordions */}
+                {planTypes.length > 0 ? (
+                  <Accordion
+                    type="single"
+                    collapsible
+                    value={expandedAccordion}
+                    onValueChange={setExpandedAccordion}
+                    className="space-y-2"
+                  >
+                    {planTypes.map((planType) => (
+                      <AccordionItem
+                        key={planType}
+                        value={planType}
+                        className="border border-[#e8e4dd] rounded-xl overflow-hidden"
                       >
-                        <AccordionTrigger className="hover:no-underline py-4">
-                          <span className="text-sm font-medium text-foreground">
-                            {marketName}
-                          </span>
+                        <AccordionTrigger className="px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors hover:no-underline [&[data-state=open]]:bg-gray-100">
+                          <div className="flex items-center gap-3">
+                            <span className="font-semibold text-[#292524]">{planType}</span>
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                              {getPlanCount(planType)} plans
+                            </span>
+                          </div>
                         </AccordionTrigger>
-                        <AccordionContent className="pb-4 pt-2">
-                          <div className="space-y-4">
-                            {plans.map((plan: any, planIndex: number) => (
-                              <div 
-                                key={planIndex}
-                                className="pl-4 border-l-2 border-gold/20"
-                              >
-                                <div className="mb-2">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <h4 className="text-sm font-semibold text-foreground">
-                                      {plan.planName}
-                                    </h4>
-                                    {plan.nonCommissionable && (
-                                      <span className="px-2 py-0.5 text-xs font-medium bg-red-50 text-red-700 border border-red-200 rounded">
-                                        NON-COMMISSIONABLE
-                                      </span>
-                                    )}
-                                    {plan.labels && plan.labels.map((label: any, labelIndex: number) => (
-                                      <span 
-                                        key={labelIndex}
-                                        className={`px-2 py-0.5 text-xs font-medium rounded ${
-                                          label.type === 'location' 
+                        <AccordionContent className="px-4 pb-4 pt-3 border-t border-[#e8e4dd]">
+                          <div className="space-y-3">
+                            {summaryData[planType]?.map((plan: any, idx: number) => (
+                              <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+                                <div className="flex items-start justify-between mb-2">
+                                  <p className="font-medium text-sm text-[#292524]">
+                                    {plan.planName}
+                                  </p>
+                                  {plan.nonCommissionable && (
+                                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded flex-shrink-0 ml-2">
+                                      Non-Comm
+                                    </span>
+                                  )}
+                                </div>
+                                {/* Labels if any */}
+                                {plan.labels && plan.labels.length > 0 && (
+                                  <div className="flex flex-wrap gap-1.5 mb-2">
+                                    {plan.labels.map((label: any, labelIdx: number) => (
+                                      <span
+                                        key={labelIdx}
+                                        className={`text-xs px-2 py-0.5 rounded ${
+                                          label.type === 'location'
                                             ? 'bg-blue-50 text-blue-700 border border-blue-200'
                                             : label.type === 'eligibility'
                                             ? 'bg-purple-50 text-purple-700 border border-purple-200'
@@ -193,22 +272,22 @@ const CarrierPlansPage = () => {
                                       </span>
                                     ))}
                                   </div>
-                                </div>
+                                )}
                                 <div className="flex flex-wrap gap-2">
-                                  {plan.documents.map((doc: any, docIndex: number) => (
+                                  {plan.documents?.map((doc: any, docIdx: number) => (
                                     <a
-                                      key={docIndex}
+                                      key={docIdx}
                                       href={doc.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-white border border-border rounded hover:border-gold hover:text-gold transition-smooth"
+                                      className="text-xs bg-white border border-[#e8e4dd] hover:border-blue-300 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-blue-600 transition-all flex items-center gap-1.5"
                                     >
                                       {doc.isExternal ? (
-                                        <ExternalLink size={12} className="text-gold" />
+                                        <ExternalLink className="w-3 h-3" />
                                       ) : (
-                                        <FileText size={12} className="text-gold" />
+                                        <Download className="w-3 h-3" />
                                       )}
-                                      <span>{doc.type}</span>
+                                      {doc.type}
                                     </a>
                                   ))}
                                 </div>
@@ -219,25 +298,26 @@ const CarrierPlansPage = () => {
                       </AccordionItem>
                     ))}
                   </Accordion>
-                </div>
-              ) : (
-                <div className="border border-border rounded-lg p-12 text-center">
-                  <MapPin size={48} className="mx-auto mb-4 text-muted-foreground/30" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Plans Coming Soon for {selectedState}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {activeCarrier.name} plans for {selectedState} will be added shortly. Please check back soon or select Kentucky to view available plans.
-                  </p>
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 text-[#e8e4dd] mx-auto mb-3" />
+                    <p className="text-sm text-[#5c5552]">
+                      No plan documents available for {currentCarrier.name} in {selectedState}.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </section>
-        )}
+          </div>
+        </div>
       </main>
-      <Footer />
+
+      {/* Footer */}
+      <footer className="py-3 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
+        <p className="text-xs text-[#5c5552]/50">
+          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
+        </p>
+      </footer>
     </div>
   );
-};
-
-export default CarrierPlansPage;
+}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, LogIn, LogOut, User, FileText, Award, Shield } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User, FileText, Shield } from "lucide-react";
 import { UserAvatarDropdown } from "./UserAvatarDropdown";
 import { DarkModeToggle } from "./DarkModeToggle";
 import tylerLogo from "@/assets/tyler-logo.png";
@@ -126,14 +126,6 @@ const Navigation = () => {
                   >
                     <FileText size={16} />
                     Carrier Status
-                  </Link>
-                  <Link
-                    to="/my-certifications"
-                    onClick={() => setIsOpen(false)}
-                    className="text-base font-medium text-muted-foreground hover:text-gold transition-smooth py-2 flex items-center gap-2"
-                  >
-                    <Award size={16} />
-                    My Certifications
                   </Link>
                   {canAccessAdmin() && (
                     <Link

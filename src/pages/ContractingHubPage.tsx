@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
 import {
   CheckCircle2,
   FileText,
@@ -14,10 +13,12 @@ import {
   Lock,
   ChevronDown,
   AlertTriangle,
-  MapPin
+  MapPin,
+  ArrowLeft,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useProfile, Profile } from '@/hooks/useProfile';
+import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { carriers as carriersData } from '@/data/carriersData';
 
 // Short product labels
@@ -376,10 +377,10 @@ const ContractingHubPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-          <p className="text-sm text-slate-500">Loading your contracting data...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-[#5c5552]" />
+          <p className="text-sm text-[#5c5552]">Loading your contracting data...</p>
         </div>
       </div>
     );
@@ -388,258 +389,292 @@ const ContractingHubPage = () => {
   const hasUpload = profile?.ahip_cert_year === currentCertYear && profile?.ahip_cert_file_path;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <Navigation />
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
+      {/* Header */}
+      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
+        <div className="max-w-5xl mx-auto flex items-center justify-between py-3">
+          <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
+            </Link>
+            <span className="text-[#e8e4dd]">|</span>
+            <span className="text-sm text-[#5c5552]">Agent Portal</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-[#5c5552] hidden sm:block">{profile?.full_name || 'Agent'}</span>
+            <UserAvatarDropdown />
+          </div>
+        </div>
+      </header>
 
-      <main className="max-w-6xl mx-auto px-6 pt-24 pb-8">
-        {/* Horizontal Header Bar */}
-        <div className="bg-slate-50 border border-slate-300 border-l-4 border-l-amber-600 rounded-lg py-3 px-4 mb-4">
-          <div className="flex items-center justify-between gap-6">
-            {/* Progress Section - ~50% */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-2xl font-bold text-slate-900">{readyCount}</span>
-                <span className="text-sm text-slate-500">of {carrierRows.length} Ready to Sell</span>
-              </div>
-              <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
-                <div
-                  className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                  style={{ width: `${carrierRows.length > 0 ? (readyCount / carrierRows.length) * 100 : 0}%` }}
-                />
-              </div>
-              <div className="flex gap-3 text-xs">
-                {needCertCount > 0 && (
-                  <span className="text-amber-600">{needCertCount} need cert</span>
-                )}
-                {pendingCount > 0 && (
-                  <span className="text-blue-600">{pendingCount} pending</span>
-                )}
-                {needCertCount === 0 && pendingCount === 0 && readyCount === carrierRows.length && carrierRows.length > 0 && (
-                  <span className="text-emerald-600">All ready!</span>
-                )}
-              </div>
-            </div>
+      <main className="flex-1 px-6 py-4">
+        <div className="max-w-5xl mx-auto">
+          {/* Back link + Title */}
+          <div className="mb-4">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </Link>
+            <h1 className="text-2xl font-serif font-semibold text-[#292524]">
+              Contracting Hub
+            </h1>
+          </div>
 
-            {/* Divider */}
-            <div className="w-px h-12 bg-slate-200" />
-
-            {/* AHIP Section - ~30% */}
-            <div className="flex-shrink-0">
-              {ahipComplete ? (
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    <span className="text-sm font-medium text-slate-900">AHIP {currentCertYear}</span>
-                  </div>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="text-xs text-slate-500 hover:text-slate-700 mt-0.5"
-                  >
-                    {uploading ? 'Uploading...' : hasUpload ? 'Replace certificate' : 'Upload certificate'}
-                  </button>
+          {/* Progress Card */}
+          <div className="bg-white border border-[#e8e4dd] rounded-xl py-3 px-4 mb-4">
+            <div className="flex items-center justify-between gap-6">
+              {/* Progress Section - ~50% */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-2xl font-bold text-[#292524]">{readyCount}</span>
+                  <span className="text-sm text-[#5c5552]">of {carrierRows.length} Ready to Sell</span>
                 </div>
-              ) : (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 -my-1">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <AlertTriangle className="h-4 w-4 text-amber-600" />
-                    <span className="text-sm font-semibold text-amber-900">AHIP {currentCertYear} Required</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <a
-                      href="https://www.ahipmedicaretraining.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors"
-                    >
-                      Start AHIP
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
+                <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden mb-1">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    style={{ width: `${carrierRows.length > 0 ? (readyCount / carrierRows.length) * 100 : 0}%` }}
+                  />
+                </div>
+                <div className="flex gap-3 text-xs">
+                  {needCertCount > 0 && (
+                    <span className="text-amber-600">{needCertCount} need cert</span>
+                  )}
+                  {pendingCount > 0 && (
+                    <span className="text-blue-600">{pendingCount} pending</span>
+                  )}
+                  {needCertCount === 0 && pendingCount === 0 && readyCount === carrierRows.length && carrierRows.length > 0 && (
+                    <span className="text-emerald-600">All ready!</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="w-px h-12 bg-[#e8e4dd]" />
+
+              {/* AHIP Section - ~30% */}
+              <div className="flex-shrink-0">
+                {ahipComplete ? (
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      <span className="text-sm font-medium text-[#292524]">AHIP {currentCertYear}</span>
+                    </div>
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium border border-amber-300 text-amber-700 rounded hover:bg-amber-100 transition-colors"
+                      className="text-xs text-[#5c5552] hover:text-blue-600 mt-0.5"
                     >
-                      {uploading ? (
-                        <>
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="h-3 w-3" />
-                          Upload
-                        </>
-                      )}
+                      {uploading ? 'Uploading...' : hasUpload ? 'Replace certificate' : 'Upload certificate'}
                     </button>
                   </div>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 -my-1">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      <span className="text-sm font-semibold text-amber-900">AHIP {currentCertYear} Required</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href="https://www.ahipmedicaretraining.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors"
+                      >
+                        Start AHIP
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium border border-amber-300 text-amber-700 rounded hover:bg-amber-100 transition-colors"
+                      >
+                        {uploading ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-3 w-3" />
+                            Upload
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-            {/* Divider */}
-            <div className="w-px h-12 bg-slate-200" />
+              {/* Divider */}
+              <div className="w-px h-12 bg-[#e8e4dd]" />
 
-            {/* Resources Dropdown - ~20% */}
-            <div className="relative flex-shrink-0" ref={resourcesRef}>
-              <button
-                onClick={() => setResourcesOpen(!resourcesOpen)}
-                className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                <FileText className="h-4 w-4" />
-                <span>Resources</span>
-                <ChevronDown className={`h-3 w-3 transition-transform ${resourcesOpen ? 'rotate-180' : ''}`} />
-              </button>
+              {/* Resources Dropdown - ~20% */}
+              <div className="relative flex-shrink-0" ref={resourcesRef}>
+                <button
+                  onClick={() => setResourcesOpen(!resourcesOpen)}
+                  className="flex items-center gap-1.5 text-sm text-[#5c5552] hover:text-[#292524] transition-colors"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Resources</span>
+                  <ChevronDown className={`h-3 w-3 transition-transform ${resourcesOpen ? 'rotate-180' : ''}`} />
+                </button>
 
-              {resourcesOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-50">
-                  <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span>2026 Recertification Guide</span>
-                    <Download className="h-4 w-4 text-slate-400" />
-                  </button>
-                  <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span>Carrier Portal Logins</span>
-                    <Download className="h-4 w-4 text-slate-400" />
-                  </button>
-                </div>
-              )}
+                {resourcesOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-[#e8e4dd] rounded-lg shadow-lg py-1 z-50">
+                    <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-[#292524] hover:bg-stone-50 transition-colors">
+                      <span>2026 Recertification Guide</span>
+                      <Download className="h-4 w-4 text-[#5c5552]" />
+                    </button>
+                    <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-[#292524] hover:bg-stone-50 transition-colors">
+                      <span>Carrier Portal Logins</span>
+                      <Download className="h-4 w-4 text-[#5c5552]" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* License Bar */}
-        {(licenseData.residentState || licenseData.nonResidentStates.length > 0) && (
-          <div className="bg-white border border-slate-300 rounded-lg py-2 px-4 mt-2 mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <MapPin className="h-4 w-4 text-slate-400" />
-              <span>
-                <span className="text-slate-500">Licensed:</span>{' '}
-                {licenseData.residentState && (
-                  <span className="font-medium text-slate-900">
-                    {licenseData.residentState}
-                    <span className="text-slate-400 font-normal"> (Resident)</span>
-                  </span>
-                )}
-                {licenseData.nonResidentStates.length > 0 && (
-                  <>
-                    {licenseData.residentState && <span className="text-slate-300 mx-1.5">•</span>}
-                    <span className="text-slate-700">
-                      {licenseData.nonResidentStates.join(' • ')}
+          {/* License Bar */}
+          {(licenseData.residentState || licenseData.nonResidentStates.length > 0) && (
+            <div className="bg-white border border-[#e8e4dd] rounded-xl py-2 px-4 mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-[#5c5552]">
+                <MapPin className="h-4 w-4 text-[#5c5552]" />
+                <span>
+                  <span className="text-[#5c5552]">Licensed:</span>{' '}
+                  {licenseData.residentState && (
+                    <span className="font-medium text-[#292524]">
+                      {licenseData.residentState}
+                      <span className="text-[#5c5552] font-normal"> (Resident)</span>
                     </span>
-                  </>
-                )}
-              </span>
-            </div>
-            <a
-              href="mailto:caroline@tylerinsurancegroup.com?subject=License%20Request"
-              className="text-xs text-slate-500 hover:text-slate-700"
-            >
-              + Request License
-            </a>
-          </div>
-        )}
-
-        {/* Hidden file input for AHIP upload */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="hidden"
-          accept=".pdf,.png,.jpg,.jpeg"
-          onChange={handleAHIPUpload}
-        />
-
-        {/* Carrier Table */}
-        <div className="bg-white border border-slate-300 rounded-lg overflow-hidden">
-          {!ahipComplete ? (
-            <div className="p-6 text-center">
-              <Lock className="h-5 w-5 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm text-slate-500">Complete AHIP first to view carrier status</p>
-            </div>
-          ) : carrierRows.length === 0 ? (
-            <div className="p-6 text-center">
-              <Building2 className="h-5 w-5 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm text-slate-500">No carriers found. Contact your manager to get started.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Carrier</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Products</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Contracting</th>
-                    <th className="text-center text-xs font-semibold text-slate-500 uppercase tracking-wide px-2 py-3 w-16">2026</th>
-                    <th className="text-center text-xs font-semibold text-slate-500 uppercase tracking-wide px-2 py-3 w-16">2027</th>
-                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {carrierRows.map(row => (
-                    <tr key={row.carrierName} className="hover:bg-slate-50">
-                      <td className="px-4 py-3">
-                        <span className="font-medium text-slate-900">{row.carrierName}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-slate-500">{row.products.join(', ') || '—'}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        {row.contractingStatus === 'rts' ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
-                            Contracted
-                          </span>
-                        ) : row.contractingStatus === 'in_progress' ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
-                            Pending
-                          </span>
-                        ) : (
-                          <span className="text-sm text-slate-400">—</span>
-                        )}
-                      </td>
-                      <td className="px-2 py-3 text-center">
-                        {row.hasCertFor2026 ? (
-                          <CheckCircle2 className="h-5 w-5 text-emerald-600 mx-auto" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-slate-300 mx-auto" />
-                        )}
-                      </td>
-                      <td className="px-2 py-3 text-center">
-                        {row.hasCertFor2027 ? (
-                          <CheckCircle2 className="h-5 w-5 text-emerald-600 mx-auto" />
-                        ) : (
-                          <span className="text-xs text-slate-400">Coming</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        {row.contractingStatus === 'rts' && row.hasCertForYear ? (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                        ) : row.contractingStatus === 'rts' && !row.hasCertForYear ? (
-                          <a
-                            href={row.certGuideUrl || '#'}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-sm font-medium text-amber-600 hover:text-amber-700"
-                          >
-                            Certification Guide
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        ) : row.contractingStatus === 'in_progress' ? (
-                          <span className="text-sm text-blue-600">Awaiting approval</span>
-                        ) : (
-                          <button className="text-sm text-slate-500 hover:text-slate-700 underline">
-                            Request Contracting
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                  )}
+                  {licenseData.nonResidentStates.length > 0 && (
+                    <>
+                      {licenseData.residentState && <span className="text-[#e8e4dd] mx-1.5">•</span>}
+                      <span className="text-[#292524]">
+                        {licenseData.nonResidentStates.join(' • ')}
+                      </span>
+                    </>
+                  )}
+                </span>
+              </div>
+              <a
+                href="mailto:caroline@tylerinsurancegroup.com?subject=License%20Request"
+                className="text-xs text-blue-600 hover:text-blue-700"
+              >
+                + Request License
+              </a>
             </div>
           )}
+
+          {/* Hidden file input for AHIP upload */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".pdf,.png,.jpg,.jpeg"
+            onChange={handleAHIPUpload}
+          />
+
+          {/* Carrier Table */}
+          <div className="bg-white border border-[#e8e4dd] rounded-xl overflow-hidden">
+            {!ahipComplete ? (
+              <div className="p-6 text-center">
+                <Lock className="h-5 w-5 text-[#5c5552] mx-auto mb-2" />
+                <p className="text-sm text-[#5c5552]">Complete AHIP first to view carrier status</p>
+              </div>
+            ) : carrierRows.length === 0 ? (
+              <div className="p-6 text-center">
+                <Building2 className="h-5 w-5 text-[#5c5552] mx-auto mb-2" />
+                <p className="text-sm text-[#5c5552]">No carriers found. Contact your manager to get started.</p>
+              </div>
+            ) : (
+              <div className="max-h-[400px] overflow-y-auto">
+                <table className="w-full">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="border-b border-[#e8e4dd] bg-white">
+                      <th className="text-left text-xs font-medium text-[#5c5552] uppercase tracking-wider px-4 py-3 bg-white w-[280px]">Carrier</th>
+                      <th className="text-left text-xs font-medium text-[#5c5552] uppercase tracking-wider px-4 py-3 bg-white">Products</th>
+                      <th className="text-center text-xs font-medium text-[#5c5552] uppercase tracking-wider px-2 py-3 bg-white w-[100px]">Contracted</th>
+                      <th className="text-center text-xs font-medium text-[#5c5552] uppercase tracking-wider px-2 py-3 bg-white w-[80px]">2026</th>
+                      <th className="text-center text-xs font-medium text-[#5c5552] uppercase tracking-wider px-2 py-3 bg-white w-[80px]">2027</th>
+                      <th className="text-center text-xs font-medium text-[#5c5552] uppercase tracking-wider px-4 py-3 bg-white w-[140px]">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e8e4dd]">
+                    {carrierRows.map(row => (
+                      <tr key={row.carrierName} className="hover:bg-stone-50">
+                        <td className="px-4 py-3 w-[280px]">
+                          <span className="font-medium text-[#292524]">{row.carrierName}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-sm text-[#5c5552]">{row.products.join(', ') || '—'}</span>
+                        </td>
+                        <td className="px-2 py-3 text-center w-[100px]">
+                          {row.contractingStatus === 'rts' ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-500 mx-auto" />
+                          ) : row.contractingStatus === 'in_progress' ? (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                              Pending
+                            </span>
+                          ) : (
+                            <Circle className="h-5 w-5 text-stone-300 mx-auto" />
+                          )}
+                        </td>
+                        <td className="px-2 py-3 text-center w-[80px]">
+                          {row.hasCertFor2026 ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-500 mx-auto" />
+                          ) : (
+                            <Circle className="h-5 w-5 text-stone-300 mx-auto" />
+                          )}
+                        </td>
+                        <td className="px-2 py-3 text-center w-[80px]">
+                          {row.hasCertFor2027 ? (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-500 mx-auto" />
+                          ) : (
+                            <span className="text-xs text-[#5c5552]">Coming</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-center w-[140px]">
+                          {row.contractingStatus === 'rts' && row.hasCertForYear ? (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500 mx-auto" />
+                          ) : row.contractingStatus === 'rts' && !row.hasCertForYear ? (
+                            <a
+                              href={row.certGuideUrl || '#'}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
+                            >
+                              Certification Guide
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ) : row.contractingStatus === 'in_progress' ? (
+                            <span className="text-sm text-blue-600">Awaiting approval</span>
+                          ) : (
+                            <button className="text-sm text-blue-600 hover:text-blue-700 underline">
+                              Request Contracting
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </main>
 
-      <Footer />
+      {/* Footer */}
+      <footer className="py-8 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
+        <p className="text-xs text-[#5c5552]/50">
+          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
+        </p>
+      </footer>
     </div>
   );
 };

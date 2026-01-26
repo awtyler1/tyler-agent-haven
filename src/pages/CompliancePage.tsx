@@ -1,9 +1,9 @@
 import { useState } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { Shield, FileText, Download, ExternalLink, ChevronRight, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Shield, FileText, Download, ExternalLink, ChevronRight, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
 
 const sections = [
   { id: "rules", title: "Compliance Rules", icon: Shield },
@@ -204,25 +204,39 @@ const CompliancePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-      <main>
-        {/* Hero */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
-          <div className="container-narrow">
-            <h1 className="heading-display mb-4">Compliance Center</h1>
-            <p className="text-body max-w-2xl">
-              Protect yourself and your business. Know the rules. No interpretation. Just facts.
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-10 border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="text-lg font-semibold text-[#292524]">TIG</span>
+            </Link>
+            <span className="text-[#e8e4dd]">|</span>
+            <span className="text-sm text-[#5c5552]">Agent Portal</span>
           </div>
-        </section>
+          <UserAvatarDropdown />
+        </div>
+      </header>
+
+      <main className="flex-1">
+        {/* Back Link + Title */}
+        <div className="max-w-5xl mx-auto px-6 py-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Link>
+          <h1 className="font-serif text-2xl font-semibold text-[#292524]">Compliance</h1>
+        </div>
 
         {/* Content */}
-        <section className="section-padding">
-          <div className="container-narrow">
-            <div className="grid lg:grid-cols-[280px_1fr] gap-8">
-              {/* Sidebar */}
-              <div className="lg:sticky lg:top-28 lg:self-start">
+        <section className="max-w-5xl mx-auto px-6 pb-8">
+          <div className="grid lg:grid-cols-[280px_1fr] gap-8">
+            {/* Sidebar */}
+            <div className="lg:sticky lg:top-20 lg:self-start">
                 <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">Sections</h3>
                 <nav className="space-y-1">
                   {sections.map((section) => (
@@ -242,15 +256,20 @@ const CompliancePage = () => {
                 </nav>
               </div>
 
-              {/* Main Content */}
-              <div className="card-premium animate-fade-in" key={activeSection}>
-                {renderContent()}
-              </div>
+            {/* Main Content */}
+            <div className="card-premium animate-fade-in" key={activeSection}>
+              {renderContent()}
             </div>
           </div>
         </section>
       </main>
-      <Footer />
+
+      {/* Footer */}
+      <footer className="py-8 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
+        <p className="text-xs text-[#5c5552]/50">
+          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
+        </p>
+      </footer>
 
       {/* PDF Preview Modal */}
       <Dialog open={!!previewDoc} onOpenChange={() => setPreviewDoc(null)}>

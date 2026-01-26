@@ -28,7 +28,8 @@
       "Bash(del \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\decode_pdf.cjs\")",
       "Bash(del \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\test_roadmap_response.json\")",
       "Bash(ls:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git stash:*)"
     ]
   }
 }

@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { FileText, ExternalLink, Phone, Mail, ArrowRight, Loader2 } from "lucide-react";
+import { ExternalLink, ArrowRight, ArrowLeft, Loader2, Download } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
+import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
 import { useCarrierDirectory, useSupportedCarriers } from "@/hooks/useCarrierDirectory";
-import type { CarrierWithResources } from "@/types/carrierDirectory";
 import {
   Select,
   SelectContent,
@@ -25,6 +24,7 @@ const STATES = [
 ];
 
 const CarrierResourcesPage = () => {
+  const { profile } = useProfile();
   const [selectedCarrierCode, setSelectedCarrierCode] = useState<string>('aetna');
   const [selectedStateCode, setSelectedStateCode] = useState<string>('KY');
 
@@ -41,219 +41,234 @@ const CarrierResourcesPage = () => {
     activeCarrier.documents.length > 0
   );
 
-  // Get display name for selected state
+  // Get display names
   const selectedStateName = STATES.find(s => s.code === selectedStateCode)?.name || selectedStateCode;
+  const selectedCarrierName = supportedCarriers.find(c => c.code === selectedCarrierCode)?.name || selectedCarrierCode;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-      <main>
-        {/* State Selector */}
-        <section className="px-6 md:px-12 lg:px-20 pt-20 md:pt-24 pb-2">
-          <div className="container-narrow">
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-sm text-muted-foreground font-medium">State:</span>
-              <Select value={selectedStateCode} onValueChange={setSelectedStateCode}>
-                <SelectTrigger className="w-[180px] h-8 text-sm border-[#D4CFC4] bg-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-50">
-                  {STATES.map((state) => (
-                    <SelectItem key={state.code} value={state.code} className="text-sm">
-                      {state.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
+      {/* Header */}
+      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
+        <div className="max-w-6xl mx-auto flex items-center justify-between py-3">
+          <div className="flex items-center gap-2">
+            <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
+            <span className="text-[#e8e4dd]">|</span>
+            <span className="text-sm text-[#5c5552]">Agent Portal</span>
           </div>
-        </section>
 
-        {/* Carrier Selection Grid */}
-        <section className="px-6 md:px-12 lg:px-20 pb-3 bg-cream border-b border-border">
-          <div className="container-narrow">
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-              {supportedCarriers.map((carrier) => (
-                <button
-                  key={carrier.code}
-                  onClick={() => setSelectedCarrierCode(carrier.code)}
-                  className={`flex flex-col items-center gap-1.5 p-2.5 rounded-lg border transition-all ${
-                    selectedCarrierCode === carrier.code
-                      ? "border-gold bg-white shadow-md"
-                      : "border-border bg-white/50 hover:bg-white hover:border-gold/50"
-                  }`}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-[#5c5552] hidden sm:block">{profile?.full_name || 'Agent'}</span>
+            <UserAvatarDropdown />
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 px-6 py-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-4">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </Link>
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-serif font-semibold text-[#292524]">
+                Carrier Resources
+              </h1>
+              <div className="flex items-center gap-3">
+                {/* State selector */}
+                <Select value={selectedStateCode} onValueChange={setSelectedStateCode}>
+                  <SelectTrigger className="h-8 w-[140px] text-sm text-[#292524] border-[#e8e4dd] rounded-lg bg-white focus:ring-1 focus:ring-blue-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-50 rounded-lg border-[#e8e4dd]">
+                    {STATES.map(state => (
+                      <SelectItem key={state.code} value={state.code} className="text-sm">
+                        {state.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {/* Plan Documents button */}
+                <Link
+                  to={`/carrier-resources/plans?carrier=${selectedCarrierCode}&state=${selectedStateCode}`}
+                  className="bg-blue-600 text-white text-sm font-medium py-1.5 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                 >
-                  <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
-                    <img
-                      src={carrier.logo}
-                      alt={`${carrier.name} logo`}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-medium text-center leading-tight ${
-                    selectedCarrierCode === carrier.code ? "text-gold" : "text-muted-foreground"
-                  }`}>
-                    {carrier.name}
-                  </span>
-                </button>
-              ))}
+                  Plan Documents
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
           </div>
-        </section>
 
-        {/* Selected Carrier Details */}
-        <section className="px-6 md:px-12 lg:px-20 py-4">
-          <div className="container-narrow">
-            {loading ? (
-              <div className="border border-border rounded-lg p-6 flex items-center justify-center bg-white">
-                <Loader2 className="w-6 h-6 animate-spin text-gold" />
-                <span className="ml-2 text-sm text-muted-foreground">Loading carrier resources...</span>
-              </div>
-            ) : error ? (
-              <div className="border border-red-200 rounded-lg p-6 text-center bg-red-50">
-                <p className="text-sm text-red-600">Failed to load carrier resources. Please try again.</p>
-              </div>
-            ) : !hasData ? (
-              <div className="border border-border rounded-lg p-6 text-center animate-fade-in bg-white">
-                <p className="text-sm text-muted-foreground mb-1">
-                  Carrier information for {supportedCarriers.find(c => c.code === selectedCarrierCode)?.name || selectedCarrierCode} in {selectedStateName} is not available yet.
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Check back soon or select a different state.
-                </p>
-              </div>
-            ) : activeCarrier && (
-              <div className="border border-border rounded-lg p-4 md:p-5 animate-fade-in">
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
-                  <div className="w-12 h-12 rounded-lg bg-white border border-border flex items-center justify-center p-2">
-                    <img
-                      src={supportedCarriers.find(c => c.code === selectedCarrierCode)?.logo}
-                      alt={`${activeCarrier.name} logo`}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-foreground">{activeCarrier.name}</h2>
-                    <p className="text-xs text-muted-foreground">{selectedStateName}</p>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-5">
-                  {/* Contacts */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Contacts</h4>
-                    <div className="space-y-3">
-                      {activeCarrier.contacts.length > 0 ? (
-                        activeCarrier.contacts.map((contact) => (
-                          <div key={contact.id} className="space-y-0.5">
-                            <p className="text-sm font-medium text-foreground leading-tight">{contact.name}</p>
-                            {contact.title && (
-                              <p className="text-xs text-muted-foreground leading-tight">
-                                {contact.title}{contact.region ? ` – ${contact.region}` : ''}
-                              </p>
-                            )}
-                            {!contact.title && contact.region && (
-                              <p className="text-xs text-muted-foreground leading-tight">{contact.region}</p>
-                            )}
-                            <div className="flex flex-col gap-0.5 mt-1">
-                              {contact.phone && (
-                                <a
-                                  href={`tel:${contact.phone}`}
-                                  className="flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth"
-                                >
-                                  <Phone size={12} className="text-gold" />
-                                  <span>{contact.phone}</span>
-                                </a>
-                              )}
-                              {contact.email && (
-                                <a
-                                  href={`mailto:${contact.email}`}
-                                  className="flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth"
-                                >
-                                  <Mail size={12} className="text-gold" />
-                                  <span>{contact.email}</span>
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-xs text-muted-foreground">No contacts available</p>
-                      )}
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-12 gap-4 items-start">
+            {/* Left: Carrier Sidebar (3 cols) */}
+            <div className="col-span-3">
+              <div className="bg-white border border-[#e8e4dd] rounded-xl overflow-hidden">
+                {supportedCarriers.map((carrier) => (
+                  <button
+                    key={carrier.code}
+                    onClick={() => setSelectedCarrierCode(carrier.code)}
+                    className={`w-full px-3 py-3 text-left text-sm flex items-center gap-3 border-b border-[#e8e4dd] last:border-0 transition-all ${
+                      selectedCarrierCode === carrier.code
+                        ? 'bg-blue-600 text-white'
+                        : 'hover:bg-gray-50 text-[#292524]'
+                    }`}
+                  >
+                    {/* Logo container */}
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                      selectedCarrierCode === carrier.code
+                        ? 'bg-white/20 p-1'
+                        : ''
+                    }`}>
+                      <img
+                        src={carrier.logo}
+                        alt={carrier.name}
+                        className="max-w-full max-h-full object-contain"
+                      />
                     </div>
+                    <span className={`font-medium ${
+                      selectedCarrierCode === carrier.code ? 'text-white' : 'text-[#292524]'
+                    }`}>
+                      {carrier.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Stacked Content Sections (9 cols) */}
+            <div className="col-span-9 space-y-3">
+              {/* Loading State */}
+              {loading && (
+                <div className="bg-white border border-[#e8e4dd] rounded-xl p-6 flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  <span className="ml-2 text-sm text-[#5c5552]">Loading...</span>
+                </div>
+              )}
+
+              {/* Error State */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+                  <p className="text-sm text-red-600">Failed to load. Please try again.</p>
+                </div>
+              )}
+
+              {/* No Data State */}
+              {!loading && !error && !hasData && (
+                <div className="bg-white border border-[#e8e4dd] rounded-xl p-6 text-center">
+                  <p className="text-sm text-[#5c5552]">
+                    No data available for {selectedCarrierName} in {selectedStateName} yet.
+                  </p>
+                </div>
+              )}
+
+              {/* Content when data exists */}
+              {!loading && !error && hasData && activeCarrier && (
+                <>
+                  {/* CONTACTS CARD */}
+                  <div className="bg-white border border-[#e8e4dd] rounded-xl p-5">
+                    <h3 className="text-xs font-medium text-[#5c5552] uppercase tracking-wider mb-4">Contacts</h3>
+                    {activeCarrier.contacts.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-4">
+                        {activeCarrier.contacts.map((contact) => (
+                          <div key={contact.id} className="text-sm">
+                            <p className="font-medium text-[#292524]">{contact.name}</p>
+                            {contact.title && (
+                              <p className="text-xs text-[#5c5552]">{contact.title}</p>
+                            )}
+                            {contact.region && (
+                              <p className="text-xs text-[#5c5552] mb-1">{contact.region}</p>
+                            )}
+                            {!contact.title && !contact.region && (
+                              <p className="text-xs text-[#5c5552] mb-1">&nbsp;</p>
+                            )}
+                            {contact.phone && (
+                              <a href={`tel:${contact.phone}`} className="text-xs text-blue-600 hover:underline block">
+                                {contact.phone}
+                              </a>
+                            )}
+                            {contact.email && (
+                              <a href={`mailto:${contact.email}`} className="text-xs text-blue-600 hover:underline block truncate">
+                                {contact.email}
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-[#5c5552] italic">No contacts available for this carrier.</p>
+                    )}
                   </div>
 
-                  {/* Quick Links */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Quick Links</h4>
-                    <div className="space-y-2">
-                      {activeCarrier.links.length > 0 ? (
-                        activeCarrier.links.map((link) => (
-                          <div key={link.id}>
+                  {/* PORTALS + DOWNLOADS ROW */}
+                  <div className="grid grid-cols-2 gap-3 items-stretch">
+                    {/* Portals & Links */}
+                    <div className="bg-white border border-[#e8e4dd] rounded-xl p-4 flex flex-col">
+                      <h3 className="text-xs font-medium text-[#5c5552] uppercase tracking-wider mb-3">Portals & Links</h3>
+                      <div className="space-y-2 flex-1">
+                        {activeCarrier.links.length > 0 ? (
+                          activeCarrier.links.map((link) => (
                             <a
+                              key={link.id}
                               href={link.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth"
+                              className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-all group"
                             >
-                              <ExternalLink size={12} className="text-gold flex-shrink-0" />
-                              <span>{link.name}</span>
+                              <div>
+                                <span className="text-sm text-[#292524] group-hover:text-blue-600 transition-colors">{link.name}</span>
+                                {link.description && <span className="text-xs text-[#5c5552] ml-2">({link.description})</span>}
+                              </div>
+                              <ExternalLink className="w-4 h-4 text-blue-600 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
                             </a>
-                            {link.description && (
-                              <p className="text-xs text-muted-foreground ml-[18px] mt-0.5">{link.description}</p>
-                            )}
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-xs text-muted-foreground">No links available</p>
-                      )}
+                          ))
+                        ) : (
+                          <p className="text-sm text-[#5c5552] italic">No links available for this carrier.</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Downloads */}
+                    <div className="bg-white border border-[#e8e4dd] rounded-xl p-4 flex flex-col">
+                      <h3 className="text-xs font-medium text-[#5c5552] uppercase tracking-wider mb-3">Quick Downloads</h3>
+                      <div className="space-y-2 flex-1">
+                        {activeCarrier.documents.length > 0 ? (
+                          activeCarrier.documents.map((doc) => (
+                            <a
+                              key={doc.id}
+                              href={doc.file_path}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-all group"
+                            >
+                              <span className="text-sm text-[#292524] group-hover:text-blue-600 transition-colors truncate pr-2">{doc.name}</span>
+                              <Download className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                            </a>
+                          ))
+                        ) : (
+                          <p className="text-sm text-[#5c5552] italic">No downloads available for this carrier.</p>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  {/* Downloads */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider mb-3">Downloads</h4>
-                    <div className="space-y-2">
-                      {activeCarrier.documents.length > 0 ? (
-                        activeCarrier.documents.map((doc) => (
-                          <a
-                            key={doc.id}
-                            href={doc.file_path}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 text-xs text-foreground hover:text-gold transition-smooth"
-                          >
-                            <FileText size={12} className="text-gold" />
-                            <span>{doc.name}</span>
-                          </a>
-                        ))
-                      ) : (
-                        <p className="text-xs text-muted-foreground">No downloads available</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Plan Documents Button */}
-                <div className="pt-4 border-t border-border">
-                  <Link
-                    to={`/carrier-resources/plans?carrier=${selectedCarrierCode}&state=${selectedStateCode}`}
-                    className="flex items-center justify-center gap-2.5 w-full px-5 py-3 bg-gold rounded-lg text-white text-sm font-semibold hover:bg-gold/90 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <FileText size={18} />
-                    <span>View Plan Documents</span>
-                    <ArrowRight size={18} />
-                  </Link>
-                  <p className="text-[11px] text-muted-foreground text-center mt-2">
-                    Access SOB, EOC, ANOC, and formulary documents for all {activeCarrier.name} plans in {selectedStateName}
-                  </p>
-                </div>
-              </div>
-            )}
+                </>
+              )}
+            </div>
           </div>
-        </section>
+        </div>
       </main>
-      <Footer />
+
+      {/* Footer */}
+      <footer className="py-3 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
+        <p className="text-xs text-[#5c5552]/50">
+          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
+        </p>
+      </footer>
     </div>
   );
 };

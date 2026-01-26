@@ -23,8 +23,6 @@ import CompliancePage from "./pages/CompliancePage";
 import CarrierResourcesPage from "./pages/CarrierResourcesPage";
 import AgentToolsPage from "./pages/AgentToolsPage";
 import ContractingHubPage from "./pages/ContractingHubPage";
-import CertificationsPage from "./pages/CertificationsPage";
-import MyCertificationsPage from "./pages/MyCertificationsPage";
 import FormsLibraryPage from "./pages/FormsLibraryPage";
 import CarrierPortalsPage from "./pages/CarrierPortalsPage";
 import CarrierPlansPage from "./pages/CarrierPlansPage";
@@ -218,8 +216,6 @@ const App = () => (
             <Route path="/carrier-resources" element={<ProtectedRoute><CarrierResourcesPage /></ProtectedRoute>} />
             <Route path="/carrier-resources/plans" element={<ProtectedRoute><CarrierPlansPage /></ProtectedRoute>} />
             <Route path="/agent-tools" element={<ProtectedRoute><AgentToolsPage /></ProtectedRoute>} />
-            <Route path="/certifications" element={<ProtectedRoute><CertificationsPage /></ProtectedRoute>} />
-            <Route path="/my-certifications" element={<ProtectedRoute><MyCertificationsPage /></ProtectedRoute>} />
             <Route path="/forms-library" element={<ProtectedRoute><FormsLibraryPage /></ProtectedRoute>} />
             <Route path="/carrier-portals" element={<ProtectedRoute><CarrierPortalsPage /></ProtectedRoute>} />
             <Route path="/admin/documents" element={<ProtectedRoute requireAdmin><DocumentManagementPage /></ProtectedRoute>} />

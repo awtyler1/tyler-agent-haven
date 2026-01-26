@@ -66,11 +66,11 @@ const StartHerePage = () => {
                   AHIP + Carrier certifications if new to Medicare.
                 </p>
                 <Link
-                  to="/certifications"
+                  to="/contracting-hub"
                   onClick={() => window.scrollTo(0, 0)}
                   className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-gold rounded-lg text-sm font-medium text-white hover:bg-gold/90 transition-all duration-150"
                 >
-                  Go to Certifications
+                  Go to Contracting Hub
                 </Link>
               </div>
 

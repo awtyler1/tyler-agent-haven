@@ -1,20 +1,12 @@
 import { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 type MaxWidth = 'narrow' | 'default' | 'wide';
 
 interface AdminLayoutProps {
   children: ReactNode;
-  /** Show back button in header */
-  showBackButton?: boolean;
-  /** Custom back handler (default: navigate(-1)) */
-  onBack?: () => void;
-  /** Back button label */
-  backLabel?: string;
   /** Content max width: narrow (3xl), default (6xl), wide (7xl) */
   maxWidth?: MaxWidth;
   /** Additional className for main content area */
@@ -29,40 +21,20 @@ const MAX_WIDTH_CLASSES: Record<MaxWidth, string> = {
 
 export function AdminLayout({
   children,
-  showBackButton = false,
-  onBack,
-  backLabel = 'Back',
   maxWidth = 'default',
   className,
 }: AdminLayoutProps) {
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      navigate(-1);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      {/* Minimal Header */}
-      <header className="bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
+      {/* Header */}
+      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-          {/* Left: Back button (optional) */}
-          <div className="flex items-center gap-3">
-            {showBackButton && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBack}
-                className="gap-1.5 text-muted-foreground hover:text-foreground hover:bg-primary/10"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                {backLabel}
-              </Button>
-            )}
+          {/* Left: TIG | Agent Portal */}
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-[#292524]">TIG</span>
+            <span className="text-[#5c5552]">|</span>
+            <span className="text-sm text-[#5c5552]">Agent Portal</span>
           </div>
 
           {/* Right: Avatar Dropdown */}
@@ -70,10 +42,23 @@ export function AdminLayout({
         </div>
       </header>
 
+      {/* Back Link */}
+      <div className="max-w-5xl mx-auto px-6 pt-6">
+        <a href="/" className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </a>
+      </div>
+
       {/* Page Content */}
       <main className={cn('mx-auto px-6 py-8', MAX_WIDTH_CLASSES[maxWidth], className)}>
         {children}
       </main>
+
+      {/* Footer */}
+      <footer className="py-8 text-center">
+        <p className="text-xs text-[#5c5552]/50">Powered by Tyler Insurance Group</p>
+      </footer>
     </div>
   );
 }

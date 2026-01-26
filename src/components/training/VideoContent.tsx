@@ -14,50 +14,50 @@ export function VideoContent({ video }: VideoContentProps) {
   const currentIndex = allVideos.findIndex(v => v.id === video.id) + 1;
 
   return (
-    <div className="flex-1 min-w-0 overflow-y-auto bg-[#FAFAF8]">
-      <div className="max-w-4xl mx-auto px-6 py-10">
+    <div>
+      {/* Day Label */}
+      <p className="text-sm text-blue-600 font-medium mb-2">Day {currentIndex}</p>
 
-        {/* Video Title - Above player */}
-        <div className="mb-6">
-          <p className="text-sm text-[#b8860b] font-medium mb-1">Day {currentIndex}</p>
-          <h1 className="text-2xl font-semibold text-slate-900">{video.title}</h1>
-        </div>
+      {/* Title */}
+      <h1 className="font-serif text-2xl font-semibold text-[#292524] mb-6">
+        {video.title}
+      </h1>
 
-        {/* Video Player - Contained */}
-        <div className="mb-8">
-          <VideoPlayer
-            vimeoId={video.vimeoId}
-            vimeoHash={video.vimeoHash}
-            startTime={video.startTime}
-          />
-        </div>
-
-        {/* Description */}
-        <p className="text-slate-600 mb-8">{video.description}</p>
-
-        {/* Next Video CTA */}
-        {nextVideo && (
-          <button
-            onClick={() => navigate(`/training/${nextVideo.id}`)}
-            className="group flex items-center justify-between w-full p-4 bg-white rounded-xl border border-slate-200 hover:border-[#b8860b]/30 hover:shadow-md transition-all"
-          >
-            <div>
-              <p className="text-xs text-slate-500 mb-1">Up Next</p>
-              <p className="font-medium text-slate-900 group-hover:text-[#b8860b] transition-colors">
-                Day {allVideos.findIndex(v => v.id === nextVideo.id) + 1}: {nextVideo.title}
-              </p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#b8860b] transition-colors" />
-          </button>
-        )}
-
-        {!nextVideo && (
-          <p className="text-center text-slate-500">
-            You've completed all training videos.
-          </p>
-        )}
-
+      {/* Video Player */}
+      <div className="bg-white border border-[#e8e4dd] rounded-xl overflow-hidden mb-6">
+        <VideoPlayer
+          vimeoId={video.vimeoId}
+          vimeoHash={video.vimeoHash}
+          startTime={video.startTime}
+        />
       </div>
+
+      {/* Description */}
+      <p className="text-[#5c5552] mb-6">{video.description}</p>
+
+      {/* Next Video CTA */}
+      {nextVideo && (
+        <button
+          onClick={() => navigate(`/training/${nextVideo.id}`)}
+          className="group flex items-center justify-between w-full p-4 bg-white border border-[#e8e4dd] rounded-xl hover:bg-stone-50 transition-colors"
+        >
+          <div>
+            <p className="text-xs text-[#5c5552] uppercase tracking-wider mb-1">Up Next</p>
+            <p className="font-medium text-[#292524]">
+              Day {allVideos.findIndex(v => v.id === nextVideo.id) + 1}: {nextVideo.title}
+            </p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-blue-600" />
+        </button>
+      )}
+
+      {!nextVideo && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+          <p className="text-emerald-700 font-medium">
+            🎉 You've completed all training videos!
+          </p>
+        </div>
+      )}
     </div>
   );
 }

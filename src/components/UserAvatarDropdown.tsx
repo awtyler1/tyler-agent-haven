@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, Award } from 'lucide-react';
+import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
@@ -108,7 +108,7 @@ export function UserAvatarDropdown() {
     <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2">
+        <button className="w-9 h-9 rounded-full bg-[#b8860b] text-white flex items-center justify-center text-sm font-medium hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#b8860b]/20 focus:ring-offset-2">
           {userInitials}
         </button>
       </DropdownMenuTrigger>
@@ -124,7 +124,10 @@ export function UserAvatarDropdown() {
 
         <DropdownMenuSeparator />
 
-        {/* Navigation Items */}
+        {/* Agent Section */}
+        <div className="px-2 py-1.5">
+          <span className="text-xs font-medium text-[#5c5552] uppercase tracking-wider">Agent</span>
+        </div>
         <DropdownMenuItem
           onClick={() => navigate('/my-profile')}
           className="cursor-pointer hover:bg-primary/10"
@@ -137,57 +140,62 @@ export function UserAvatarDropdown() {
           className="cursor-pointer hover:bg-primary/10"
         >
           <FileText className="w-4 h-4 mr-2" />
-          Carrier Status
+          Certifications
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => navigate('/my-certifications')}
-          className="cursor-pointer hover:bg-primary/10"
+          onClick={() => window.open('https://fmo.kizen.com/login', '_blank')}
+          className="cursor-pointer hover:bg-primary/10 flex items-center justify-between"
         >
-          <Award className="w-4 h-4 mr-2" />
-          My Certifications
+          <span className="flex items-center">
+            BOSS CRM
+          </span>
+          <ExternalLink className="w-3 h-3 text-[#5c5552]" />
         </DropdownMenuItem>
 
-        {/* Admin Dashboard - only if user has admin access */}
-        {canAccessAdmin() && (
+        {/* Admin Section - only show if user has any admin access */}
+        {(canAccessAdmin() || isAdmin() || isSuperAdmin()) && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => navigate('/admin')}
-              className="cursor-pointer hover:bg-primary/10"
-            >
-              <Shield className="w-4 h-4 mr-2" />
-              Admin Dashboard
-            </DropdownMenuItem>
+            <div className="px-2 py-1.5">
+              <span className="text-xs font-medium text-[#5c5552] uppercase tracking-wider">Admin</span>
+            </div>
           </>
+        )}
+
+        {/* Admin Dashboard */}
+        {canAccessAdmin() && (
+          <DropdownMenuItem
+            onClick={() => navigate('/admin')}
+            className="cursor-pointer hover:bg-primary/10"
+          >
+            <Shield className="w-4 h-4 mr-2" />
+            Admin Dashboard
+          </DropdownMenuItem>
         )}
 
         {/* Outlook Integration - for all admins */}
         {isAdmin() && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleOutlookConnect}
-              disabled={outlookLoading}
-              className="cursor-pointer hover:bg-primary/10"
-            >
-              {outlookLoading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Mail className="w-4 h-4 mr-2" />
-              )}
-              {outlookConnected ? (
-                <>Outlook <span className="ml-auto text-green-600 text-xs">Connected ✓</span></>
-              ) : (
-                <>Connect Outlook</>
-              )}
-            </DropdownMenuItem>
-          </>
+          <DropdownMenuItem
+            onClick={handleOutlookConnect}
+            disabled={outlookLoading}
+            className="cursor-pointer hover:bg-primary/10"
+          >
+            {outlookLoading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Mail className="w-4 h-4 mr-2" />
+            )}
+            {outlookConnected ? (
+              <>Outlook <span className="ml-auto text-green-600 text-xs">Connected ✓</span></>
+            ) : (
+              <>Connect Outlook</>
+            )}
+          </DropdownMenuItem>
         )}
 
         {/* Super Admin Only Items */}
         {isSuperAdmin() && (
           <>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => setCreateAdminOpen(true)}
               className="cursor-pointer hover:bg-primary/10"
@@ -212,7 +220,7 @@ export function UserAvatarDropdown() {
           </>
         )}
 
-        {/* Dark Mode Toggle */}
+        {/* Settings Section */}
         <DropdownMenuSeparator />
         <div className="flex items-center justify-between px-2 py-1.5">
           <div className="flex items-center">

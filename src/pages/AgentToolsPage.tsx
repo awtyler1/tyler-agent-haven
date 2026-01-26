@@ -1,219 +1,115 @@
-import { useState } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { ExternalLink, FileText, FolderOpen } from "lucide-react";
-import { Link } from "react-router-dom";
-import { carriers } from "@/data/carriersData";
-import connect4Logo from "@/assets/connect4insurance-logo.png";
-import sunfireLogo from "@/assets/sunfire-logo.png";
-import bossCrmLogo from "@/assets/boss-crm-logo.png";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-type State = "Kentucky" | "Tennessee" | "Ohio" | "Indiana" | "West Virginia" | "Georgia" | "Virginia";
-
-const states: State[] = ["Kentucky", "Tennessee", "Ohio", "Indiana", "West Virginia", "Georgia", "Virginia"];
-
-const coreTools = [
-  {
-    name: "Connect4Insurance",
-    subtitle: "Quoting & E-apps",
-    url: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login",
-    logo: connect4Logo,
-  },
-  {
-    name: "Sunfire",
-    subtitle: "Quoting & Enrollment",
-    url: "https://www.sunfirematrix.com/app/agent/pfs",
-    logo: sunfireLogo,
-  },
-  {
-    name: "BOSS CRM",
-    subtitle: "Lead Management",
-    url: "https://fmo.kizen.com/login",
-    logo: bossCrmLogo,
-  },
-];
+import { Link } from 'react-router-dom';
+import { ExternalLink, ArrowLeft } from 'lucide-react';
+import { useProfile } from '@/hooks/useProfile';
+import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
+import connect4Logo from '@/assets/connect4insurance-logo.png';
+import sunfireLogo from '@/assets/sunfire-logo.png';
 
 const AgentToolsPage = () => {
-  const [selectedState, setSelectedState] = useState<State>("Kentucky");
-
-  // Get carrier portals with state-specific URLs
-  const carrierPortals = carriers.map(carrier => {
-    const stateData = carrier.stateData[selectedState];
-    
-    // Try to find a portal-specific link first, otherwise use the first link
-    const brokerPortalLink = stateData?.links.find(link => 
-      link.name.toLowerCase().includes('portal') || 
-      link.name.toLowerCase().includes('agent portal') ||
-      link.name.toLowerCase().includes('broker portal') ||
-      link.name.toLowerCase().includes('vantage')
-    ) || stateData?.links[0]; // Fallback to first link if no portal-specific link found
-    
-    return {
-      name: carrier.name,
-      logo: carrier.logo,
-      url: brokerPortalLink?.url || "#",
-      hasUrl: !!brokerPortalLink?.url
-    };
-  });
+  const { profile } = useProfile();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-      <main>
-        {/* Hero */}
-        <section className="pt-32 pb-6 md:pt-36 md:pb-8 px-6 md:px-12 lg:px-20">
-          <div className="container-narrow text-center">
-            <h1 className="heading-display mb-3">Agent Tools</h1>
-            <p className="text-lg md:text-xl text-foreground font-medium max-w-3xl mx-auto">
-              Your command center for quoting, applications, CRM, and essential platforms.
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
+      {/* Header */}
+      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
+        <div className="max-w-5xl mx-auto flex items-center justify-between py-4">
+          <div className="flex items-center gap-2">
+            <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
+            <span className="text-[#e8e4dd]">|</span>
+            <span className="text-sm text-[#5c5552]">Agent Portal</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-[#5c5552] hidden sm:block">{profile?.full_name || 'Agent'}</span>
+            <UserAvatarDropdown />
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 px-6 py-6">
+        <div className="max-w-5xl mx-auto">
+          {/* Back Link */}
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm text-[#5c5552] hover:text-blue-600 transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Link>
+
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl lg:text-3xl font-serif font-semibold text-[#292524] mb-1">
+              Quote Tools
+            </h1>
+            <p className="text-sm text-[#5c5552] leading-relaxed">
+              Plan comparisons, drug lookups, and enrollment platforms.
             </p>
           </div>
-        </section>
 
-        {/* State Selector */}
-        <section className="pb-3 px-6 md:px-12 lg:px-20">
-          <div className="container-narrow">
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-sm text-muted-foreground font-medium">State:</span>
-              <Select value={selectedState} onValueChange={(value) => setSelectedState(value as State)}>
-                <SelectTrigger className="w-[180px] h-8 text-sm border-[#D4CFC4] bg-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-50">
-                  {states.map((state) => (
-                    <SelectItem key={state} value={state} className="text-sm">
-                      {state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </section>
-
-        {/* Carrier Portals - Row 1 */}
-        <section className="pb-1.5 px-6 md:px-12 lg:px-20">
-          <div className="container-narrow">
-            <h2 className="text-center text-sm font-medium text-foreground/70 mb-3">Carrier Portals</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 min-h-[140px]">
-              {carrierPortals.map((carrier) => 
-                carrier.hasUrl ? (
-                  <a
-                    key={carrier.name}
-                    href={carrier.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group bg-white border border-[#D4CFC4] rounded-lg p-2.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[3px] transition-all duration-140 ease-in-out min-h-[140px]"
-                  >
-                    <div className="w-[76px] h-[76px] mb-1.5 flex items-center justify-center flex-shrink-0">
-                      <img 
-                        src={carrier.logo} 
-                        alt={carrier.name} 
-                        className="max-w-[76px] max-h-[76px] w-auto h-auto object-contain"
-                        style={{ filter: 'brightness(0.98) contrast(1.02)' }}
-                      />
-                    </div>
-                    <p className="text-[11px] font-medium text-foreground mb-0.5 leading-tight">{carrier.name}</p>
-                    <p className="text-[9px] text-gold/70 mb-1 leading-tight">Portal Login →</p>
-                    <ExternalLink className="w-2.5 h-2.5 text-gold opacity-0 group-hover:opacity-100 transition-opacity mt-auto" />
-                  </a>
-                ) : (
-                  <div
-                    key={carrier.name}
-                    className="bg-white/60 border border-[#D4CFC4] rounded-lg p-2.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] opacity-50 cursor-not-allowed min-h-[140px]"
-                  >
-                    <div className="w-[76px] h-[76px] mb-1.5 flex items-center justify-center flex-shrink-0">
-                      <img 
-                        src={carrier.logo} 
-                        alt={carrier.name} 
-                        className="max-w-[76px] max-h-[76px] w-auto h-auto object-contain grayscale"
-                        style={{ filter: 'brightness(0.98) contrast(1.02) grayscale(100%)' }}
-                      />
-                    </div>
-                    <p className="text-[11px] font-medium text-foreground/60 mb-0.5 leading-tight">{carrier.name}</p>
-                    <p className="text-[9px] text-red-600/70 mb-1 leading-tight">Not Available</p>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Core Tools - Row 2 */}
-        <section className="pb-1.5 px-6 md:px-12 lg:px-20">
-          <div className="container-narrow">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-              {coreTools.map((tool) => (
-                <a
-                  key={tool.name}
-                  href={tool.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group bg-white border border-[#D4CFC4] rounded-lg p-3.5 flex flex-col items-center text-center shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_8px_26px_-4px_rgba(0,0,0,0.16)] hover:-translate-y-[3px] transition-all duration-140 ease-in-out"
-                >
-                  <div className="w-[76px] h-[76px] mb-2 flex items-center justify-center">
-                    <img 
-                      src={tool.logo} 
-                      alt={tool.name} 
-                      className="max-w-[76px] max-h-[76px] w-auto h-auto object-contain"
-                      style={{ filter: 'brightness(0.96) contrast(1.04)' }}
-                    />
-                  </div>
-                  <h3 className="text-sm font-semibold mb-0.5">{tool.name}</h3>
-                  <p className="text-xs text-muted-foreground mb-1.5">{tool.subtitle}</p>
-                  <ExternalLink className="w-3.5 h-3.5 text-gold opacity-60 group-hover:opacity-100 transition-opacity" />
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Carrier Resources - Full Width Bar */}
-        <section className="pb-1.5 px-6 md:px-12 lg:px-20">
-          <div className="container-narrow">
-            <Link
-              to="/carrier-resources"
-              onClick={() => window.scrollTo(0, 0)}
-              className="group bg-white border border-[#D4CFC4] rounded-lg p-3 flex items-center gap-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.14)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out"
+          {/* Tools Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* SunFire */}
+            <a
+              href="https://www.sunfirematrix.com/app/agent/pfs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white border border-[#e8e4dd] hover:border-orange-300 hover:shadow-lg rounded-xl overflow-hidden transition-all group"
             >
-              <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
-                <FileText className="w-5 h-5 text-gold" />
+              <div className="h-1.5 bg-gradient-to-r from-orange-400 to-orange-500"></div>
+              <div className="p-6">
+                <div className="w-14 h-14 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                  <img
+                    src={sunfireLogo}
+                    alt="SunFire"
+                    className="w-10 h-10 object-contain"
+                  />
+                </div>
+                <div className="font-serif text-lg font-semibold text-[#292524] group-hover:text-orange-600 mb-1">
+                  SunFire
+                </div>
+                <div className="text-sm text-[#5c5552] mb-4">Quoting & Enrollment</div>
+                <div className="flex items-center gap-1 text-sm font-medium text-orange-600">
+                  Launch <ExternalLink className="w-4 h-4" />
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold mb-0">Carrier Resources</h3>
-                <p className="text-xs text-muted-foreground">Contacts, Quick Links, Downloads, and Plan Documents</p>
-              </div>
-            </Link>
-          </div>
-        </section>
+            </a>
 
-        {/* Forms Library - Full Width Bar */}
-        <section className="pb-6 px-6 md:px-12 lg:px-20">
-          <div className="container-narrow">
-            <Link
-              to="/forms-library"
-              onClick={() => window.scrollTo(0, 0)}
-              className="group bg-white border border-[#D4CFC4] rounded-lg p-3 flex items-center gap-4 shadow-[0_3px_14px_-2px_rgba(0,0,0,0.10)] hover:bg-white/[1.02] hover:border-[#BAB5A6] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.14)] hover:-translate-y-[2px] transition-all duration-140 ease-in-out"
+            {/* Connect4Insurance */}
+            <a
+              href="https://pinnacle7.destinationrx.com/PC/Agent/Account/Login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white border border-[#e8e4dd] hover:border-blue-300 hover:shadow-lg rounded-xl overflow-hidden transition-all group"
             >
-              <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-gold/8 flex items-center justify-center group-hover:bg-gold/17 transition-colors">
-                <FolderOpen className="w-5 h-5 text-gold" />
+              <div className="h-1.5 bg-gradient-to-r from-blue-400 to-blue-500"></div>
+              <div className="p-6">
+                <div className="w-14 h-14 bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                  <img
+                    src={connect4Logo}
+                    alt="Connect4Insurance"
+                    className="w-10 h-10 object-contain"
+                  />
+                </div>
+                <div className="font-serif text-lg font-semibold text-[#292524] group-hover:text-blue-600 mb-1">
+                  Connect4Insurance
+                </div>
+                <div className="text-sm text-[#5c5552] mb-4">Quoting & E-Apps</div>
+                <div className="flex items-center gap-1 text-sm font-medium text-blue-600">
+                  Launch <ExternalLink className="w-4 h-4" />
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold mb-0">Forms Library</h3>
-                <p className="text-xs text-muted-foreground">SOA Forms, CMS Forms, HIPAA Forms, and Essential Client Documents</p>
-              </div>
-            </Link>
+            </a>
           </div>
-        </section>
+        </div>
       </main>
-      <Footer />
+
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 py-3 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
+        <p className="text-xs text-[#5c5552]/50">
+          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
+        </p>
+      </footer>
     </div>
   );
 };
