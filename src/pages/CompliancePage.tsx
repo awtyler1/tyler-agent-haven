@@ -4,6 +4,7 @@ import { Shield, FileText, Download, ExternalLink, ChevronRight, ArrowLeft } fro
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
+import { useNavigationContext } from "@/hooks/useNavigationContext";
 
 const sections = [
   { id: "rules", title: "Compliance Rules", icon: Shield },
@@ -67,6 +68,7 @@ const cmsLinks = [
 ];
 
 const CompliancePage = () => {
+  const { homePath } = useNavigationContext();
   const [activeSection, setActiveSection] = useState(sections.length > 0 ? sections[0].id : '');
   const [previewDoc, setPreviewDoc] = useState<{ name: string; url: string } | null>(null);
 
@@ -209,7 +211,7 @@ const CompliancePage = () => {
       <header className="sticky top-0 z-10 border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={homePath} className="flex items-center gap-2">
               <span className="text-lg font-semibold text-[#292524]">TIG</span>
             </Link>
             <span className="text-[#e8e4dd]">|</span>
@@ -223,7 +225,7 @@ const CompliancePage = () => {
         {/* Back Link + Title */}
         <div className="max-w-5xl mx-auto px-6 py-6">
           <Link
-            to="/"
+            to={homePath}
             className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
           >
             <ArrowLeft className="w-4 h-4" />

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { Card } from '@/components/ui/card';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import {
@@ -12,7 +13,6 @@ import {
   Upload,
   Loader2,
 } from 'lucide-react';
-import tylerLogo from '@/assets/tyler-logo.webp';
 
 interface DashboardStats {
   totalAgents: number;
@@ -30,6 +30,7 @@ interface SearchResult {
 
 export default function AdminDashboard() {
   const { profile } = useAuth();
+  const { homePath, isDualRole, viewMode, toggleMode } = useNavigationContext();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
     totalAgents: 0,
@@ -195,19 +196,37 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      {/* Header */}
-      <header className="border-b border-border bg-background/95 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/admin" className="flex items-center">
-            <img src={tylerLogo} alt="Tyler Insurance Group" className="h-12 w-auto" />
-          </Link>
-
+      {/* Header - matches AdminLayout */}
+      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+          {/* Left: TIG | Agent Portal - links to current mode's dashboard */}
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:block">
-              {profile?.full_name}
-            </span>
-            <UserAvatarDropdown />
+            <Link to={homePath} className="flex items-center gap-2">
+              <span className="text-lg font-semibold text-[#292524]">TIG</span>
+              <span className="text-[#5c5552]">|</span>
+              <span className="text-sm text-[#5c5552]">Agent Portal</span>
+            </Link>
+            {/* Mode indicator for dual-role users - clickable to toggle */}
+            {isDualRole && (
+              <button
+                onClick={toggleMode}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer hover:opacity-80 ${
+                  viewMode === 'admin'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-green-100 text-green-700'
+                }`}
+                title={`Click to switch to ${viewMode === 'admin' ? 'Agent' : 'Admin'} View`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  viewMode === 'admin' ? 'bg-purple-500' : 'bg-green-500'
+                }`} />
+                {viewMode === 'admin' ? 'Admin View' : 'Agent View'}
+              </button>
+            )}
           </div>
+
+          {/* Right: Avatar Dropdown */}
+          <UserAvatarDropdown />
         </div>
       </header>
 

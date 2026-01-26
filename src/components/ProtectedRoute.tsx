@@ -1,7 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -27,6 +29,26 @@ export function ProtectedRoute({
     isAgent,
     isContractingRequired,
   } = useAuth();
+  const { isDualRole, viewMode } = useNavigationContext();
+
+  // Track if we've shown the toast to avoid repeated toasts on re-renders
+  const hasShownToastRef = useRef(false);
+
+  // Check if dual-role user is trying to access admin routes while in agent view mode
+  const isAdminRouteBlockedByViewMode = !loading && isAuthenticated &&
+    (requireAdmin || requireSuperAdmin) && isDualRole && viewMode === 'agent';
+
+  // Show toast once when blocked by view mode (must be before any returns per React rules)
+  useEffect(() => {
+    if (isAdminRouteBlockedByViewMode && !hasShownToastRef.current) {
+      hasShownToastRef.current = true;
+      toast.info('Switch to Admin View to access admin features');
+    }
+    // Reset toast flag when conditions change
+    if (!isAdminRouteBlockedByViewMode) {
+      hasShownToastRef.current = false;
+    }
+  }, [isAdminRouteBlockedByViewMode]);
 
   // Show loading state while checking auth
   if (loading) {
@@ -43,6 +65,11 @@ export function ProtectedRoute({
   // Not authenticated - redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // Block admin routes for dual-role users in agent view mode
+  if (isAdminRouteBlockedByViewMode) {
+    return <Navigate to="/" replace />;
   }
 
   // Check super admin access

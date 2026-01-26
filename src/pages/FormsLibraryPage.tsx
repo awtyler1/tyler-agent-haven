@@ -14,6 +14,7 @@ import {
 import { useProfile } from '@/hooks/useProfile';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { useForms } from '@/hooks/useForms';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 
 // External links that don't change often (CMS, SSA, etc.)
 interface ExternalLinkItem {
@@ -131,6 +132,7 @@ interface DisplayForm {
 
 export default function FormsLibraryPage() {
   const { profile } = useProfile();
+  const { homePath } = useNavigationContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('compliance');
   const { forms: dbForms, loading, error } = useForms();
@@ -204,7 +206,7 @@ export default function FormsLibraryPage() {
       <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between py-3">
           <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={homePath} className="flex items-center gap-2">
               <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
             </Link>
             <span className="text-[#e8e4dd]">|</span>
@@ -222,7 +224,7 @@ export default function FormsLibraryPage() {
           {/* Back link + Title + Search row */}
           <div className="mb-4">
             <Link
-              to="/"
+              to={homePath}
               className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
             >
               <ArrowLeft className="w-4 h-4" />

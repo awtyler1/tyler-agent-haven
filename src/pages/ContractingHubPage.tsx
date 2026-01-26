@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { useProfile, Profile } from '@/hooks/useProfile';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { carriers as carriersData } from '@/data/carriersData';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 
 // Short product labels
 const PRODUCT_SHORT: Record<string, string> = {
@@ -85,6 +86,7 @@ interface CarrierRow {
 
 const ContractingHubPage = () => {
   const { profile, refetch: refetchProfile } = useProfile();
+  const { homePath } = useNavigationContext();
 
   // AHIP upload state
   const [uploading, setUploading] = useState(false);
@@ -394,7 +396,7 @@ const ContractingHubPage = () => {
       <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="max-w-5xl mx-auto flex items-center justify-between py-3">
           <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={homePath} className="flex items-center gap-2">
               <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
             </Link>
             <span className="text-[#e8e4dd]">|</span>
@@ -412,7 +414,7 @@ const ContractingHubPage = () => {
           {/* Back link + Title */}
           <div className="mb-4">
             <Link
-              to="/"
+              to={homePath}
               className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
             >
               <ArrowLeft className="w-4 h-4" />

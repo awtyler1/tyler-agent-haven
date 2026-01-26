@@ -4,6 +4,7 @@ import { carriers as allCarriersData } from "@/data/carriersData";
 import { useProfile } from "@/hooks/useProfile";
 import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
 import { useAgentCarriers } from "@/hooks/useCarrierDirectory";
+import { useNavigationContext } from "@/hooks/useNavigationContext";
 import {
   Accordion,
   AccordionContent,
@@ -32,6 +33,7 @@ export default function CarrierPlansPage() {
   const { profile } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
   const { carriers: agentCarriers, loading: carriersLoading } = useAgentCarriers();
+  const { homePath } = useNavigationContext();
 
   // Read carrier and state from URL params
   const carrierParam = searchParams.get("carrier") || "";
@@ -93,7 +95,7 @@ export default function CarrierPlansPage() {
       <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between py-3">
           <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={homePath} className="flex items-center gap-2">
               <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
             </Link>
             <span className="text-[#e8e4dd]">|</span>

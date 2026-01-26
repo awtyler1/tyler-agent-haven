@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import {
   Loader2,
@@ -20,6 +21,7 @@ import connect4Logo from '@/assets/connect4insurance-logo.png';
 
 export default function Index() {
   const { profile, loading } = useProfile();
+  const { isDualRole, viewMode, toggleMode } = useNavigationContext();
   const [alertDismissed, setAlertDismissed] = useState(false);
 
   if (loading) {
@@ -42,10 +44,29 @@ export default function Index() {
       {/* Header */}
       <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="max-w-5xl mx-auto flex items-center justify-between py-4">
-          <div className="flex items-center gap-2">
-            <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
-            <span className="text-[#e8e4dd]">|</span>
-            <span className="text-sm text-[#5c5552]">Agent Portal</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
+              <span className="text-[#e8e4dd]">|</span>
+              <span className="text-sm text-[#5c5552]">Agent Portal</span>
+            </div>
+            {/* Mode indicator for dual-role users - clickable to toggle */}
+            {isDualRole && (
+              <button
+                onClick={toggleMode}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer hover:opacity-80 ${
+                  viewMode === 'admin'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-green-100 text-green-700'
+                }`}
+                title={`Click to switch to ${viewMode === 'admin' ? 'Agent' : 'Admin'} View`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  viewMode === 'admin' ? 'bg-purple-500' : 'bg-green-500'
+                }`} />
+                {viewMode === 'admin' ? 'Admin View' : 'Agent View'}
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-3">

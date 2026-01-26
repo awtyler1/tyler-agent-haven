@@ -35,7 +35,7 @@ export function AdminLayout({
   backLabel = 'Dashboard',
   onBack,
 }: AdminLayoutProps) {
-  const { homePath, isDualRole, viewMode, backToDashboard } = useNavigationContext();
+  const { homePath, isDualRole, viewMode, toggleMode, backToDashboard } = useNavigationContext();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
@@ -49,18 +49,22 @@ export function AdminLayout({
               <span className="text-[#5c5552]">|</span>
               <span className="text-sm text-[#5c5552]">Agent Portal</span>
             </Link>
-            {/* Mode indicator for dual-role users */}
+            {/* Mode indicator for dual-role users - clickable to toggle */}
             {isDualRole && (
-              <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
-                viewMode === 'admin'
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'bg-green-100 text-green-700'
-              }`}>
+              <button
+                onClick={toggleMode}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer hover:opacity-80 ${
+                  viewMode === 'admin'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-green-100 text-green-700'
+                }`}
+                title={`Click to switch to ${viewMode === 'admin' ? 'Agent' : 'Admin'} View`}
+              >
                 <span className={`w-1.5 h-1.5 rounded-full ${
                   viewMode === 'admin' ? 'bg-purple-500' : 'bg-green-500'
                 }`} />
                 {viewMode === 'admin' ? 'Admin View' : 'Agent View'}
-              </div>
+              </button>
             )}
           </div>
 

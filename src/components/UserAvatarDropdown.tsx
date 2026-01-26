@@ -98,6 +98,9 @@ export function UserAvatarDropdown() {
   const roleBadge = ROLE_BADGE_STYLES[primaryRole || ''] || { label: 'User', className: 'bg-gray-100 text-gray-600' };
   const userInitials = getInitials(profile?.full_name || null);
 
+  // Show admin items only when in admin mode OR when user is not dual-role (single-role admins always see admin items)
+  const showAdminItems = viewMode === 'admin' || !isDualRole;
+
   if (loading) {
     return (
       <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
@@ -191,8 +194,8 @@ export function UserAvatarDropdown() {
           <ExternalLink className="w-3 h-3 text-[#5c5552]" />
         </DropdownMenuItem>
 
-        {/* Admin Section - only show if user has any admin access */}
-        {(canAccessAdmin() || isAdmin() || isSuperAdmin()) && (
+        {/* Admin Section - only show if user has admin access AND is in admin mode (or not dual-role) */}
+        {showAdminItems && (canAccessAdmin() || isAdmin() || isSuperAdmin()) && (
           <>
             <DropdownMenuSeparator />
             <div className="px-2 py-1.5">
@@ -202,7 +205,7 @@ export function UserAvatarDropdown() {
         )}
 
         {/* Admin Dashboard */}
-        {canAccessAdmin() && (
+        {showAdminItems && canAccessAdmin() && (
           <DropdownMenuItem
             onClick={() => navigate('/admin')}
             className="cursor-pointer hover:bg-primary/10"
@@ -213,7 +216,7 @@ export function UserAvatarDropdown() {
         )}
 
         {/* Outlook Integration - for all admins */}
-        {isAdmin() && (
+        {showAdminItems && isAdmin() && (
           <DropdownMenuItem
             onClick={handleOutlookConnect}
             disabled={outlookLoading}
@@ -233,7 +236,7 @@ export function UserAvatarDropdown() {
         )}
 
         {/* Super Admin Only Items */}
-        {isSuperAdmin() && (
+        {showAdminItems && isSuperAdmin() && (
           <>
             <DropdownMenuItem
               onClick={() => setCreateAdminOpen(true)}
