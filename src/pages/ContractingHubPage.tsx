@@ -117,15 +117,24 @@ const ContractingHubPage = () => {
     nonResidentStates: string[];
   }>({ residentState: null, nonResidentStates: [] });
 
-  // Close resources dropdown when clicking outside
+  // Close resources dropdown when clicking outside or pressing ESC
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (resourcesRef.current && !resourcesRef.current.contains(event.target as Node)) {
         setResourcesOpen(false);
       }
     }
+    function handleEscapeKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setResourcesOpen(false);
+      }
+    }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
   }, []);
 
   // Fetch carrier name map

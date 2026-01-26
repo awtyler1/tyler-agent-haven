@@ -7,7 +7,6 @@ import {
   Loader2,
   FileText,
   Building2,
-  Shield,
   GraduationCap,
   User,
   X,
@@ -76,7 +75,7 @@ export default function Index() {
         </div>
       </header>
 
-      <main className="pt-6 pb-14 px-6">
+      <main className="pt-6 pb-8 px-6">
         <div className="max-w-5xl mx-auto">
           {/* Welcome Header */}
           <div className="mb-3">
@@ -106,10 +105,10 @@ export default function Index() {
               </div>
               <button
                 onClick={() => setAlertDismissed(true)}
-                className="text-amber-600 hover:text-amber-800 transition-colors p-0.5"
+                className="text-amber-600 hover:text-amber-800 transition-colors p-1.5 -m-1 rounded hover:bg-amber-100"
                 aria-label="Dismiss alert"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -224,7 +223,7 @@ export default function Index() {
             <h2 className="text-xs font-medium text-[#292524] uppercase tracking-wider mb-2">
               Your Business
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {/* Certifications Card */}
               <Link
                 to="/contracting-hub"
@@ -232,7 +231,7 @@ export default function Index() {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                    <ClipboardList className="w-4 h-4 text-emerald-600" />
+                    <ClipboardList className="w-4 h-4 text-emerald-600" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm text-[#292524] group-hover:text-blue-600 transition-colors">
@@ -244,28 +243,6 @@ export default function Index() {
                   </div>
                 </div>
               </Link>
-
-              {/* Compliance Card - Coming Soon */}
-              <div
-                className="relative bg-white border border-[#e8e4dd] rounded-xl px-4 py-3 opacity-60 cursor-default"
-              >
-                <span className="absolute top-2 right-2 text-xs bg-stone-200 text-[#5c5552] px-2 py-0.5 rounded-full">
-                  Coming Soon
-                </span>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm text-[#292524]">
-                      Compliance
-                    </h3>
-                    <p className="text-xs text-[#5c5552]">
-                      CMS guidelines
-                    </p>
-                  </div>
-                </div>
-              </div>
 
               {/* Training Card */}
               <Link
@@ -312,9 +289,9 @@ export default function Index() {
       </main>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 py-3 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
-        <p className="text-xs text-[#5c5552]/50">
-          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
+      <footer className="py-4 text-center">
+        <p className="text-xs text-[#5c5552]/60">
+          Powered by <span className="text-[#5c5552]/80">Tyler Insurance Group</span>
         </p>
       </footer>
     </div>

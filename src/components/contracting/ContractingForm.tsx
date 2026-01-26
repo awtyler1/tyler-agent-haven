@@ -147,11 +147,11 @@ export function ContractingForm() {
     }
   }, [application?.section_acknowledgments]);
 
-  // Show saved indicator
+  // Show saved indicator (extended to 4s for better visibility)
   useEffect(() => {
     if (lastSaved) {
       setShowSaved(true);
-      const timer = setTimeout(() => setShowSaved(false), 2000);
+      const timer = setTimeout(() => setShowSaved(false), 4000);
       return () => clearTimeout(timer);
     }
   }, [lastSaved]);

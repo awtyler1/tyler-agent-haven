@@ -1,6 +1,16 @@
 # Documentation Index
 
-**Last Updated:** January 25, 2026
+**Last Updated:** January 26, 2026
+
+---
+
+## Getting Started
+
+| File | Description |
+|------|-------------|
+| `DEVELOPER_ONBOARDING.md` | **New developer guide** — environment setup, codebase tour, first tasks |
+| `/CLAUDE.md` | Project context for AI assistants |
+| `/README.md` | Quick start commands |
 
 ---
 
@@ -17,6 +27,7 @@
 ### Design & UI
 | File | Description | Updated |
 |------|-------------|---------|
+| `UX_AUDIT_COMPREHENSIVE.md` | **Full UX audit** — Apple/Google standards evaluation | Jan 26, 2026 |
 | `ADMIN_STYLE_GUIDE.md` | Admin dashboard component patterns | Jan 21, 2026 |
 | `DESIGN_AUDIT.md` | Design system tokens and typography | Jan 19, 2026 |
 
@@ -88,3 +99,4 @@ Planning documents for implemented features:
 | `/CLAUDE.md` | **Primary project context** — start here |
 | `/DESIGN_SYSTEM.md` | UI patterns and design tokens |
 | `/README.md` | Quick start for developers |
+| `DEVELOPER_ONBOARDING.md` | Comprehensive new developer guide |
