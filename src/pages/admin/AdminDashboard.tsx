@@ -12,7 +12,7 @@ import {
   Upload,
   Loader2,
 } from 'lucide-react';
-import tylerLogo from '@/assets/tyler-logo.png';
+import tylerLogo from '@/assets/tyler-logo.webp';
 
 interface DashboardStats {
   totalAgents: number;
@@ -198,7 +198,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
+          <Link to="/admin" className="flex items-center">
             <img src={tylerLogo} alt="Tyler Insurance Group" className="h-12 w-auto" />
           </Link>
 
@@ -300,7 +300,7 @@ export default function AdminDashboard() {
             '...'
           ) : (
             <>
-              {stats.totalAgents} agents
+              {stats.totalAgents.toLocaleString()} agents
               {pendingCount > 0 && (
                 <>
                   {' · '}

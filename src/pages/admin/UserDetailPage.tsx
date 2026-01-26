@@ -137,7 +137,7 @@ export default function UserDetailPage() {
       } catch (err: any) {
         console.error('Error fetching user:', err);
         toast.error('Failed to load user');
-        navigate('/admin/super');
+        navigate('/admin');
       } finally {
         setLoading(false);
       }
@@ -335,7 +335,7 @@ export default function UserDetailPage() {
 
   if (loading) {
     return (
-      <AdminLayout showBackButton backLabel="Back" onBack={() => navigate(-1)}>
+      <AdminLayout showBackButton backLabel="Back" onBack={() => navigate('/admin/agents')}>
         <div className="flex items-center justify-center py-24">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -350,7 +350,7 @@ export default function UserDetailPage() {
   const onboardingInfo = onboardingStatusLabels[user.onboarding_status] || { label: user.onboarding_status, variant: 'outline' as const };
 
   return (
-    <AdminLayout showBackButton backLabel="Back" onBack={() => navigate(-1)}>
+    <AdminLayout showBackButton backLabel="Back" onBack={() => navigate('/admin/agents')}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">

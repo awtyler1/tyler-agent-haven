@@ -336,8 +336,8 @@ export function UploadModal({ isOpen, onClose, onSuccess, profileId }: UploadMod
               <Button variant="ghost" onClick={onClose}>
                 Cancel
               </Button>
-              <Button onClick={handleUpload} disabled={!canUpload}>
-                Upload
+              <Button onClick={handleUpload} disabled={!canUpload || isProcessing}>
+                {isProcessing ? 'Uploading...' : 'Upload'}
               </Button>
             </div>
           </>

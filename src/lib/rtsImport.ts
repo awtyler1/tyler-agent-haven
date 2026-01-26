@@ -1,4 +1,3 @@
-import * as XLSX from 'xlsx';
 import { supabase } from '@/integrations/supabase/client';
 import type { TablesInsert } from '@/integrations/supabase/types';
 
@@ -263,6 +262,9 @@ export async function importRTSCertifications(options: RTSImportOptions): Promis
   // Jan-Sept: current year
   const now = new Date();
   const currentCertYear = now.getMonth() >= 9 ? now.getFullYear() + 1 : now.getFullYear();
+
+  // Dynamic import - XLSX is only loaded when import is triggered
+  const XLSX = await import('xlsx');
 
   // Read Excel file
   const arrayBuffer = await file.arrayBuffer();

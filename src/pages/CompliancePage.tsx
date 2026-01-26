@@ -67,7 +67,7 @@ const cmsLinks = [
 ];
 
 const CompliancePage = () => {
-  const [activeSection, setActiveSection] = useState(sections[0].id);
+  const [activeSection, setActiveSection] = useState(sections.length > 0 ? sections[0].id : '');
   const [previewDoc, setPreviewDoc] = useState<{ name: string; url: string } | null>(null);
 
   const renderContent = () => {

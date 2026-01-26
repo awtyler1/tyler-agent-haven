@@ -70,7 +70,7 @@ export function SyncReveal({
               className="text-7xl font-bold text-gray-900 tracking-tight mb-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
               style={{ textShadow: isGrowth ? '0 0 80px rgba(34, 197, 94, 0.2)' : undefined }}
             >
-              {totalClients}
+              {totalClients.toLocaleString()}
             </p>
 
             {/* Growth Pill */}
@@ -125,7 +125,7 @@ export function SyncReveal({
                             {item.carrier.charAt(0)}
                           </span>
                         </div>
-                        <p className="text-lg font-semibold text-gray-900">{item.count}</p>
+                        <p className="text-lg font-semibold text-gray-900">{item.count.toLocaleString()}</p>
                         <p className="text-xs text-gray-400">{item.carrier}</p>
                       </div>
                     );

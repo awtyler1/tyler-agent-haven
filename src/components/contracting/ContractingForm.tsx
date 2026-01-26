@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { Loader2, LogOut, Check, Lock, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import tylerLogo from '@/assets/tyler-logo.png';
+import tylerLogo from '@/assets/tyler-logo.webp';
 import { LEGAL_QUESTIONS, type Address, ContractingApplication } from '@/types/contracting';
 import { cn } from '@/lib/utils';
 

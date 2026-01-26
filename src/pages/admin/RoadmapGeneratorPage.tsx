@@ -240,12 +240,12 @@ export default function RoadmapGeneratorPage() {
                 <div className="bg-muted/50 rounded-lg p-2 text-center">
                   <Target className="w-4 h-4 text-primary mx-auto mb-1" />
                   <p className="text-xs text-muted-foreground">Goal</p>
-                  <p className="font-semibold">{bp.monthly_goal}/mo</p>
+                  <p className="font-semibold">{bp.monthly_goal || 0}/mo</p>
                 </div>
                 <div className="bg-muted/50 rounded-lg p-2 text-center">
                   <Users className="w-4 h-4 text-primary mx-auto mb-1" />
                   <p className="text-xs text-muted-foreground">Book</p>
-                  <p className="font-semibold">{bp.book_size}</p>
+                  <p className="font-semibold">{bp.book_size || 0}</p>
                 </div>
                 <div className="bg-muted/50 rounded-lg p-2 text-center">
                   <Sparkles className="w-4 h-4 text-primary mx-auto mb-1" />

@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Loader2, Mail, CheckCircle2, Send } from 'lucide-react';
-import tylerLogo from '@/assets/tyler-logo.png';
+import tylerLogo from '@/assets/tyler-logo.webp';
 import { formatPhoneNumber } from '@/lib/formatters';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
 

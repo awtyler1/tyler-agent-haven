@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2, Eye, EyeOff, CheckCircle, KeyRound, Check, X } from 'lucide-react';
-import tylerLogo from '@/assets/tyler-logo.png';
+import tylerLogo from '@/assets/tyler-logo.webp';
 
 // Password validation helper
 const validatePassword = (password: string): {

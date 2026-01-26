@@ -11,7 +11,6 @@ import {
   RefreshCw,
   Download,
 } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Input } from '@/components/ui/input';
@@ -220,12 +219,15 @@ export default function ActivityLogPage() {
     fetchLogs();
   }, [fetchLogs]);
 
-  // Export function
-  const handleExport = () => {
+  // Export function - uses dynamic import to reduce bundle size
+  const handleExport = async () => {
     if (!filteredLogs || filteredLogs.length === 0) {
       toast.error('No data to export');
       return;
     }
+
+    // Dynamic import - XLSX is only loaded when export is clicked
+    const XLSX = await import('xlsx');
 
     // Format data for export
     const exportData = filteredLogs.map(log => ({

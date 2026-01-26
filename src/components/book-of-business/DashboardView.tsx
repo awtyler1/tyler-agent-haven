@@ -163,9 +163,12 @@ export function DashboardView({ profileId, refreshKey, onUploadClick }: Dashboar
         const activity: RecentActivity[] = recentPolicies.map((p) => {
           const client = p.clients as { first_name: string; last_name: string } | null;
           const carrier = p.carriers as { name: string } | null;
+          const clientName = client
+            ? `${client.first_name || ''} ${client.last_name || ''}`.trim() || 'Unknown'
+            : 'Unknown';
           return {
             id: p.id,
-            clientName: client ? `${client.first_name} ${client.last_name}` : 'Unknown',
+            clientName,
             carrierName: carrier?.name || 'Unknown',
             planName: p.plan_name || '',
             status: p.status as 'active' | 'termed',
@@ -212,7 +215,7 @@ export function DashboardView({ profileId, refreshKey, onUploadClick }: Dashboar
             className="text-8xl font-bold text-gray-900 dark:text-foreground tracking-tight"
             style={{ textShadow: '0 0 80px rgba(34, 197, 94, 0.15)' }}
           >
-            {totalClients}
+            {totalClients.toLocaleString()}
           </span>
           <span className="text-3xl text-gray-300 dark:text-muted-foreground font-light">clients</span>
         </div>
@@ -231,11 +234,11 @@ export function DashboardView({ profileId, refreshKey, onUploadClick }: Dashboar
       <div className="px-8 py-8 border-t border-gray-100 dark:border-border">
         <div className="flex justify-center gap-16">
           <div className="text-center">
-            <p className="text-4xl font-semibold text-gray-900 dark:text-foreground">{activeMA}</p>
+            <p className="text-4xl font-semibold text-gray-900 dark:text-foreground">{activeMA.toLocaleString()}</p>
             <p className="text-sm text-gray-400 mt-1">Active MA</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-semibold text-gray-900 dark:text-foreground">{activePDP}</p>
+            <p className="text-4xl font-semibold text-gray-900 dark:text-foreground">{activePDP.toLocaleString()}</p>
             <p className="text-sm text-gray-400 mt-1">Active PDP</p>
           </div>
           <div className="text-center">

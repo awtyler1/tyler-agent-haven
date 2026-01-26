@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as XLSX from 'xlsx';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatPhone } from '@/lib/formatters';
@@ -443,8 +442,11 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     fetchAgents();
   };
 
-  // Export filtered agents to Excel
-  const handleExport = () => {
+  // Export filtered agents to Excel - uses dynamic import to reduce bundle size
+  const handleExport = async () => {
+    // Dynamic import - XLSX is only loaded when export is clicked
+    const XLSX = await import('xlsx');
+
     // Build export data
     const exportData = filteredAgents.map((agent) => ({
       'Full Name': agent.full_name || '',

@@ -5,6 +5,7 @@ import { SyncCarrierCard } from './SyncCarrierCard';
 import { SyncReveal } from './SyncReveal';
 import { SyncMilestone } from './SyncMilestone';
 import Navigation from '@/components/Navigation';
+import { toast } from 'sonner';
 import {
   initializeSync,
   getCarrierUploadStatus,
@@ -139,6 +140,7 @@ export function SyncFlow({ profileId, onComplete }: SyncFlowProps) {
       }
     } catch (error) {
       console.error('Upload failed:', error);
+      toast.error('Upload failed. Please try again.');
       // Reset to pending on error
       setCarrierUploads((prev) =>
         prev.map((u) =>

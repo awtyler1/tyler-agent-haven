@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X, LogIn, LogOut, User, FileText, Shield } from "lucide-react";
 import { UserAvatarDropdown } from "./UserAvatarDropdown";
 import { DarkModeToggle } from "./DarkModeToggle";
-import tylerLogo from "@/assets/tyler-logo.png";
+import tylerLogo from "@/assets/tyler-logo.webp";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";

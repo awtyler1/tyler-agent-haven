@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
-import tylerLogo from '@/assets/tyler-logo.png';
+import tylerLogo from '@/assets/tyler-logo.webp';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');

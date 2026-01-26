@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { ContractingApplication, US_STATES } from '@/types/contracting';
 import { Upload, CheckCircle2, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface DocumentsSectionProps {
   application: ContractingApplication;
@@ -60,6 +61,9 @@ function DocumentCard({
       setIsUploading(true);
       try {
         await onUpload(file, documentType);
+      } catch (err) {
+        console.error('Upload failed:', err);
+        toast.error('Upload failed. Please try again.');
       } finally {
         setIsUploading(false);
       }
@@ -222,9 +226,9 @@ function DocumentCard({
             <Button
               className="bg-gold hover:bg-gold/90 text-white disabled:opacity-50"
               onClick={handleConfirmUpload}
-              disabled={!expirationDate}
+              disabled={!expirationDate || isUploading}
             >
-              Upload
+              {isUploading ? 'Uploading...' : 'Upload'}
             </Button>
           </DialogFooter>
         </DialogContent>
