@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { carriers } from "@/data/carriersData";
+import { carriers as allCarriersData } from "@/data/carriersData";
 import { useProfile } from "@/hooks/useProfile";
 import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
+import { useAgentCarriers } from "@/hooks/useCarrierDirectory";
 import {
   Accordion,
   AccordionContent,
@@ -16,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Download, ExternalLink, FileText } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 
 // State code to full name mapping
 const stateNameMap: Record<string, string> = {
@@ -42,15 +43,32 @@ const stateCodeMap: Record<string, string> = {
 export default function CarrierPlansPage() {
   const { profile } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { carriers: agentCarriers, loading: carriersLoading } = useAgentCarriers();
 
   // Read carrier and state from URL params
-  const carrierParam = searchParams.get("carrier") || "aetna";
+  const carrierParam = searchParams.get("carrier") || "";
   const stateParam = searchParams.get("state") || "KY";
 
   const [selectedCarrier, setSelectedCarrier] = useState(carrierParam);
   const [selectedYear, setSelectedYear] = useState("2026");
   const [selectedState, setSelectedState] = useState(stateNameMap[stateParam] || "Kentucky");
   const [expandedAccordion, setExpandedAccordion] = useState<string>("");
+
+  // Filter carriersData to only agent's carriers
+  const carriers = allCarriersData.filter(c =>
+    agentCarriers.some(ac => ac.code === c.id)
+  );
+
+  // Set default carrier to first in filtered list once loaded
+  useEffect(() => {
+    if (!carriersLoading && carriers.length > 0 && !selectedCarrier) {
+      setSelectedCarrier(carriers[0].id);
+      setSearchParams({
+        carrier: carriers[0].id,
+        state: stateCodeMap[selectedState] || "KY"
+      });
+    }
+  }, [carriersLoading, carriers, selectedCarrier]);
 
   // Sync URL params to state on mount and when params change
   useEffect(() => {
@@ -63,7 +81,7 @@ export default function CarrierPlansPage() {
     if (state && stateNameMap[state]) {
       setSelectedState(stateNameMap[state]);
     }
-  }, [searchParams]);
+  }, [searchParams, carriers]);
 
   // Update URL when carrier changes
   const handleCarrierChange = (carrierId: string) => {
@@ -160,36 +178,46 @@ export default function CarrierPlansPage() {
             {/* Left: Carrier Sidebar */}
             <div className="col-span-3">
               <div className="bg-white border border-[#e8e4dd] rounded-xl overflow-hidden">
-                {carriers.map((carrier) => (
-                  <button
-                    key={carrier.id}
-                    onClick={() => handleCarrierChange(carrier.id)}
-                    className={`w-full px-3 py-3 text-left text-sm flex items-center gap-3 border-b border-[#e8e4dd] last:border-0 transition-all ${
-                      selectedCarrier === carrier.id
-                        ? "bg-blue-600 text-white"
-                        : "hover:bg-gray-50 text-[#292524]"
-                    }`}
-                  >
-                    <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        selectedCarrier === carrier.id ? "bg-white/20 p-1" : ""
+                {carriersLoading ? (
+                  <div className="p-4 flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  </div>
+                ) : carriers.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-[#5c5552]">
+                    No carriers available
+                  </div>
+                ) : (
+                  carriers.map((carrier) => (
+                    <button
+                      key={carrier.id}
+                      onClick={() => handleCarrierChange(carrier.id)}
+                      className={`w-full px-3 py-3 text-left text-sm flex items-center gap-3 border-b border-[#e8e4dd] last:border-0 transition-all ${
+                        selectedCarrier === carrier.id
+                          ? "bg-blue-600 text-white"
+                          : "hover:bg-gray-50 text-[#292524]"
                       }`}
                     >
-                      <img
-                        src={carrier.logo}
-                        alt={carrier.name}
-                        className="max-w-full max-h-full object-contain"
-                      />
-                    </div>
-                    <span
-                      className={`font-medium ${
-                        selectedCarrier === carrier.id ? "text-white" : "text-[#292524]"
-                      }`}
-                    >
-                      {carrier.name}
-                    </span>
-                  </button>
-                ))}
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          selectedCarrier === carrier.id ? "bg-white/20 p-1" : ""
+                        }`}
+                      >
+                        <img
+                          src={carrier.logo}
+                          alt={carrier.name}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
+                      <span
+                        className={`font-medium ${
+                          selectedCarrier === carrier.id ? "text-white" : "text-[#292524]"
+                        }`}
+                      >
+                        {carrier.name}
+                      </span>
+                    </button>
+                  ))
+                )}
               </div>
             </div>
 

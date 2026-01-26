@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useProfile } from '@/hooks/useProfile';
 import type {
   Carrier,
   CarrierContact,
@@ -134,4 +135,69 @@ export function useSupportedCarriers() {
   ];
 
   return carriers;
+}
+
+// All carriers with RTS name mapping
+const ALL_CARRIERS = [
+  { code: 'aetna', name: 'Aetna', logo: aetnaLogo, rtsName: 'Aetna' },
+  { code: 'anthem', name: 'Anthem', logo: anthemLogo, rtsName: 'Anthem' },
+  { code: 'devoted', name: 'Devoted', logo: devotedLogo, rtsName: 'Devoted Health' },
+  { code: 'humana', name: 'Humana', logo: humanaLogo, rtsName: 'Humana' },
+  { code: 'uhc', name: 'United Healthcare', logo: uhcLogo, rtsName: 'UHC' },
+  { code: 'wellcare', name: 'Wellcare', logo: wellcareLogo, rtsName: 'Wellcare' },
+];
+
+/**
+ * Get carriers the current agent is certified with (from RTS data in agent_certifications).
+ * Falls back to all carriers if agent has no certifications or on error.
+ */
+export function useAgentCarriers() {
+  const { profile } = useProfile();
+  const [carriers, setCarriers] = useState<Array<{ code: string; name: string; logo: string }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAgentCarriers = async () => {
+      if (!profile?.id) {
+        // No profile yet - show all carriers as fallback
+        setCarriers(ALL_CARRIERS.map(({ code, name, logo }) => ({ code, name, logo })));
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('agent_certifications')
+          .select('carrier_name')
+          .eq('profile_id', profile.id);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          // No certifications - show all carriers
+          setCarriers(ALL_CARRIERS.map(({ code, name, logo }) => ({ code, name, logo })));
+        } else {
+          // Filter to only carriers agent is certified with
+          const agentCarrierNames = new Set(data.map(d => d.carrier_name));
+
+          const filtered = ALL_CARRIERS
+            .filter(c => agentCarrierNames.has(c.rtsName))
+            .map(({ code, name, logo }) => ({ code, name, logo }));
+
+          // If no matches found, fall back to all carriers
+          setCarriers(filtered.length > 0 ? filtered : ALL_CARRIERS.map(({ code, name, logo }) => ({ code, name, logo })));
+        }
+      } catch (err) {
+        console.error('Error fetching agent carriers:', err);
+        // On error, show all carriers
+        setCarriers(ALL_CARRIERS.map(({ code, name, logo }) => ({ code, name, logo })));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgentCarriers();
+  }, [profile?.id]);
+
+  return { carriers, loading };
 }

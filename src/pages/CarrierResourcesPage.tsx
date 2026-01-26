@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ExternalLink, ArrowRight, ArrowLeft, Loader2, Download } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
-import { useCarrierDirectory, useSupportedCarriers } from "@/hooks/useCarrierDirectory";
+import { useCarrierDirectory, useAgentCarriers } from "@/hooks/useCarrierDirectory";
 import {
   Select,
   SelectContent,
@@ -25,11 +25,18 @@ const STATES = [
 
 const CarrierResourcesPage = () => {
   const { profile } = useProfile();
-  const [selectedCarrierCode, setSelectedCarrierCode] = useState<string>('aetna');
+  const [selectedCarrierCode, setSelectedCarrierCode] = useState<string>('');
   const [selectedStateCode, setSelectedStateCode] = useState<string>('KY');
 
-  const supportedCarriers = useSupportedCarriers();
+  const { carriers: supportedCarriers, loading: carriersLoading } = useAgentCarriers();
   const { carriers, loading, error } = useCarrierDirectory(selectedStateCode);
+
+  // Set default carrier to first in list once loaded
+  useEffect(() => {
+    if (!carriersLoading && supportedCarriers.length > 0 && !selectedCarrierCode) {
+      setSelectedCarrierCode(supportedCarriers[0].code);
+    }
+  }, [carriersLoading, supportedCarriers, selectedCarrierCode]);
 
   // Find the active carrier from the fetched data
   const activeCarrier = carriers.find(c => c.code === selectedCarrierCode);
@@ -144,7 +151,7 @@ const CarrierResourcesPage = () => {
             {/* Right: Stacked Content Sections (9 cols) */}
             <div className="col-span-9 space-y-3">
               {/* Loading State */}
-              {loading && (
+              {(loading || carriersLoading) && (
                 <div className="bg-white border border-[#e8e4dd] rounded-xl p-6 flex items-center justify-center">
                   <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
                   <span className="ml-2 text-sm text-[#5c5552]">Loading...</span>
@@ -159,7 +166,7 @@ const CarrierResourcesPage = () => {
               )}
 
               {/* No Data State */}
-              {!loading && !error && !hasData && (
+              {!loading && !carriersLoading && !error && !hasData && selectedCarrierCode && (
                 <div className="bg-white border border-[#e8e4dd] rounded-xl p-6 text-center">
                   <p className="text-sm text-[#5c5552]">
                     No data available for {selectedCarrierName} in {selectedStateName} yet.
@@ -168,7 +175,7 @@ const CarrierResourcesPage = () => {
               )}
 
               {/* Content when data exists */}
-              {!loading && !error && hasData && activeCarrier && (
+              {!loading && !carriersLoading && !error && hasData && activeCarrier && (
                 <>
                   {/* CONTACTS CARD */}
                   <div className="bg-white border border-[#e8e4dd] rounded-xl p-5">
