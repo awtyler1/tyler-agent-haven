@@ -1,73 +1,62 @@
-# Welcome to your Lovable project
+# Agent Platform
 
-## Project info
+Medicare agent onboarding and management platform.
 
-**URL**: https://lovable.dev/projects/e3163160-e434-4e00-96ab-edefa558e591
+## Quick Start
 
-## How can I edit this code?
+```bash
+# Install dependencies
+npm install
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/e3163160-e434-4e00-96ab-edefa558e591) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
 ```
 
-**Edit a file directly in GitHub**
+## Tech Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Frontend:** React 18 + TypeScript + Vite
+- **Styling:** TailwindCSS + Shadcn/ui
+- **Backend:** Supabase (PostgreSQL, Auth, Edge Functions, Storage)
+- **Monitoring:** Sentry
 
-**Use GitHub Codespaces**
+## Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+├── pages/           # Route components
+├── components/      # UI components by feature
+├── hooks/           # Custom React hooks
+├── lib/             # Business logic utilities
+└── integrations/    # Supabase client
 
-## What technologies are used for this project?
+supabase/
+├── functions/       # Edge functions (Deno)
+└── migrations/      # Database migrations
 
-This project is built with:
+docs/                # Documentation
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Documentation
 
-## How can I deploy this project?
+| File | Description |
+|------|-------------|
+| `CLAUDE.md` | Project context for AI assistants |
+| `DESIGN_SYSTEM.md` | UI patterns and design tokens |
+| `docs/ARCHITECTURE.md` | Full architecture documentation |
+| `docs/CODEBASE_SUMMARY.md` | Feature inventory and quick stats |
 
-Simply open [Lovable](https://lovable.dev/projects/e3163160-e434-4e00-96ab-edefa558e591) and click on Share -> Publish.
+## Deployment
 
-## Can I connect a custom domain to my Lovable project?
+- **Production:** Auto-deploys to Vercel on push to `main`
+- **Edge Functions:** `npm run deploy:functions`
 
-Yes, you can!
+## Environment
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Requires Supabase project with:
+- PostgreSQL database with schema from migrations
+- Auth configured for email/password
+- Storage buckets for documents
+- Edge functions deployed

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import * as Sentry from "@sentry/react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,46 +8,53 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
-// Public pages
+// Loading fallback for lazy-loaded routes
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="animate-pulse text-slate-400">Loading...</div>
+  </div>
+);
+
+// ============================================================================
+// ROUTE-BASED CODE SPLITTING
+// Pages are lazy-loaded to reduce initial bundle size.
+// Critical paths (Auth, Index) are loaded eagerly for fast initial render.
+// ============================================================================
+
+// Eager load: Critical path pages (auth flow)
 import AuthPage from "./pages/AuthPage";
 import SetPasswordPage from "./pages/auth/SetPasswordPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
-import StartHerePage from "./pages/StartHerePage";
-import IndustryUpdatesPage from "./pages/IndustryUpdatesPage";
-// MVP: Training pages removed (placeholder content)
-// import SalesTrainingPage from "./pages/SalesTrainingPage";
-// import SalesTrainingModulePage from "./pages/SalesTrainingModulePage";
-// import TrainingLibraryPage from "./pages/TrainingLibraryPage";
-// import MedicareFundamentalsPage from "./pages/MedicareFundamentalsPage";
-import CompliancePage from "./pages/CompliancePage";
-import CarrierResourcesPage from "./pages/CarrierResourcesPage";
-import AgentToolsPage from "./pages/AgentToolsPage";
-import ContractingHubPage from "./pages/ContractingHubPage";
-import FormsLibraryPage from "./pages/FormsLibraryPage";
-import CarrierPortalsPage from "./pages/CarrierPortalsPage";
-import CarrierPlansPage from "./pages/CarrierPlansPage";
-import DocumentManagementPage from "./pages/DocumentManagementPage";
-import NotFound from "./pages/NotFound";
-import TrainingPage from "./pages/TrainingPage";
-
-// Agent-specific pages
-import ContractingPage from "./pages/ContractingPage";
-import MyProfilePage from "./pages/MyProfilePage";
-import BookOfBusinessPage from "./pages/BookOfBusinessPage";
 import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
 
-// Admin pages
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AgentsPage from "./pages/admin/AgentsPage";
-import UserDetailPage from "./pages/admin/UserDetailPage";
-import NewAgentPage from "./pages/admin/NewAgentPage";
-import ContractingQueuePage from "./pages/admin/ContractingQueuePage";
-import LabsPage from "./pages/admin/LabsPage";
-// REMOVED: HierarchyManagementPage - using manager_id approach instead
-import ActivityLogPage from "./pages/admin/ActivityLogPage";
-import RTSImportPage from "./pages/admin/RTSImportPage";
-import RoadmapGeneratorPage from "./pages/admin/RoadmapGeneratorPage";
-import AgentProfilePage from "./pages/admin/AgentProfilePage";
+// Lazy load: Agent pages (loaded after auth)
+const StartHerePage = lazy(() => import("./pages/StartHerePage"));
+const IndustryUpdatesPage = lazy(() => import("./pages/IndustryUpdatesPage"));
+const CompliancePage = lazy(() => import("./pages/CompliancePage"));
+const CarrierResourcesPage = lazy(() => import("./pages/CarrierResourcesPage"));
+const AgentToolsPage = lazy(() => import("./pages/AgentToolsPage"));
+const ContractingHubPage = lazy(() => import("./pages/ContractingHubPage"));
+const FormsLibraryPage = lazy(() => import("./pages/FormsLibraryPage"));
+const CarrierPortalsPage = lazy(() => import("./pages/CarrierPortalsPage"));
+const CarrierPlansPage = lazy(() => import("./pages/CarrierPlansPage"));
+const DocumentManagementPage = lazy(() => import("./pages/DocumentManagementPage"));
+const TrainingPage = lazy(() => import("./pages/TrainingPage"));
+const ContractingPage = lazy(() => import("./pages/ContractingPage"));
+const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
+const BookOfBusinessPage = lazy(() => import("./pages/BookOfBusinessPage"));
+
+// Lazy load: Admin pages (only loaded by admins)
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AgentsPage = lazy(() => import("./pages/admin/AgentsPage"));
+const UserDetailPage = lazy(() => import("./pages/admin/UserDetailPage"));
+const NewAgentPage = lazy(() => import("./pages/admin/NewAgentPage"));
+const ContractingQueuePage = lazy(() => import("./pages/admin/ContractingQueuePage"));
+const LabsPage = lazy(() => import("./pages/admin/LabsPage"));
+const ActivityLogPage = lazy(() => import("./pages/admin/ActivityLogPage"));
+const RTSImportPage = lazy(() => import("./pages/admin/RTSImportPage"));
+const RoadmapGeneratorPage = lazy(() => import("./pages/admin/RoadmapGeneratorPage"));
+const AgentProfilePage = lazy(() => import("./pages/admin/AgentProfilePage"));
 
 const queryClient = new QueryClient();
 
@@ -105,6 +112,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
           <RecoveryRedirectHandler />
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Auth */}
             <Route path="/auth" element={<AuthPage />} />
@@ -221,6 +229,7 @@ const App = () => (
             <Route path="/admin/documents" element={<ProtectedRoute requireAdmin><DocumentManagementPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </FeatureFlagsProvider>

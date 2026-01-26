@@ -1097,10 +1097,12 @@ Tyler Insurance Group`;
     }
   };
 
-  // Determine back navigation
+  // Determine back navigation - role-aware for self-view
   const handleBackNavigation = () => {
     if (isSelfView) {
-      navigate('/');
+      // If admin viewing their own profile via /my-profile, go back to admin dashboard
+      // Otherwise (agent), go to agent dashboard
+      navigate(isAdmin() ? '/admin' : '/');
       return;
     }
     if (locationState?.from) {

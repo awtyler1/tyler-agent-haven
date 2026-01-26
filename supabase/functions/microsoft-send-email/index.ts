@@ -9,6 +9,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
 import { getErrorMessage } from "../_shared/auth.ts";
+import { encryptToken, decryptToken } from "../_shared/crypto.ts";
 
 interface Attachment {
   name: string;
@@ -127,7 +128,7 @@ serve(async (req) => {
       );
     }
 
-    let accessToken = tokenData.access_token_encrypted; // TODO: Decrypt
+    let accessToken = await decryptToken(tokenData.access_token_encrypted);
 
     // Check if token is expired or about to expire (within 5 minutes)
     const expiresAt = new Date(tokenData.expires_at);
@@ -135,27 +136,33 @@ serve(async (req) => {
     const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
 
     if (expiresAt <= fiveMinutesFromNow) {
-      const newTokens = await refreshAccessToken(tokenData.refresh_token_encrypted);
-      
+      // Decrypt refresh token for token refresh
+      const refreshToken = await decryptToken(tokenData.refresh_token_encrypted);
+      const newTokens = await refreshAccessToken(refreshToken);
+
       if (!newTokens) {
         return new Response(
-          JSON.stringify({ 
-            error: "Token refresh failed", 
+          JSON.stringify({
+            error: "Token refresh failed",
             code: "TOKEN_REFRESH_FAILED",
-            message: "Please reconnect your Outlook account" 
+            message: "Please reconnect your Outlook account"
           }),
           { status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
         );
       }
 
+      // Encrypt new tokens before storing
+      const encryptedAccessToken = await encryptToken(newTokens.access_token);
+      const encryptedRefreshToken = await encryptToken(newTokens.refresh_token);
+
       // Update tokens in database
       const newExpiresAt = new Date(Date.now() + newTokens.expires_in * 1000).toISOString();
-      
+
       await supabaseAdmin
         .from("microsoft_oauth_tokens")
         .update({
-          access_token_encrypted: newTokens.access_token,
-          refresh_token_encrypted: newTokens.refresh_token,
+          access_token_encrypted: encryptedAccessToken,
+          refresh_token_encrypted: encryptedRefreshToken,
           expires_at: newExpiresAt,
           updated_at: new Date().toISOString(),
         })

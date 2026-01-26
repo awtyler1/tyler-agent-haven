@@ -144,10 +144,12 @@
 | `docs/CARRIER_HUB_ANALYSIS.md` | Contracting hub feature analysis |
 | `docs/AGENTS_PAGE_REDESIGN.md` | Agent roster redesign plan |
 | `docs/AGENT_IMPORT_*.md` | Agent import workflow documentation |
-| `docs/DEBRANDING_AUDIT.md` | TIG branding removal checklist |
+| `docs/BRANDING_WORKFLOW_AUDIT.md` | TIG branding + workflow audit |
+| `docs/ARCHITECTURE.md` | Full C4 architecture documentation |
 | `docs/rts-import-flow-analysis.md` | RTS import process documentation |
 | `docs/document-storage-analysis.md` | Document storage architecture |
-| `README.md` | Basic Lovable project setup guide |
+| `README.md` | Project quick start |
+| `docs/INDEX.md` | Documentation index and guide |
 
 ---
 
@@ -227,4 +229,4 @@
 | Edge Functions | 21 |
 | Database Tables | 21+ |
 | Migrations | 67 |
-| Doc Files | 23 |
+| Doc Files | 22 |

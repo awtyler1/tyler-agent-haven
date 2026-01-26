@@ -8,6 +8,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { encryptToken } from "../_shared/crypto.ts";
 
 serve(async (req) => {
   // Get frontend URL first (needed for error redirects)
@@ -125,13 +126,17 @@ serve(async (req) => {
     // Calculate expiration time
     const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
 
+    // Encrypt tokens before storage
+    const encryptedAccessToken = await encryptToken(tokens.access_token);
+    const encryptedRefreshToken = await encryptToken(tokens.refresh_token);
+
     // Upsert tokens (insert or update if exists)
     const { error: upsertError } = await supabaseAdmin
       .from("microsoft_oauth_tokens")
       .upsert({
         user_id: userId,
-        access_token_encrypted: tokens.access_token, // TODO: Add encryption
-        refresh_token_encrypted: tokens.refresh_token, // TODO: Add encryption
+        access_token_encrypted: encryptedAccessToken,
+        refresh_token_encrypted: encryptedRefreshToken,
         expires_at: expiresAt,
         scope: tokens.scope,
         microsoft_email: microsoftEmail,
