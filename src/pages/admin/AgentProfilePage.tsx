@@ -46,6 +46,7 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AgentDocumentsSection } from '@/components/admin/AgentDocumentsSection';
 import { AssignManagerModal } from '@/components/admin/AssignManagerModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { useSendEmail } from '@/hooks/useSendEmail';
 import { toast } from 'sonner';
 
@@ -155,6 +156,7 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
   const location = useLocation();
   const locationState = location.state as LocationState | null;
   const { profile: currentUserProfile, isAdmin, isSuperAdmin } = useAuth();
+  const { homePath } = useNavigationContext();
 
   // Use selfViewProfileId if provided (from /my-profile), otherwise use URL param
   const profileId = selfViewProfileId || urlProfileId;
@@ -1097,12 +1099,11 @@ Tyler Insurance Group`;
     }
   };
 
-  // Determine back navigation - role-aware for self-view
+  // Determine back navigation - respects view mode for self-view
   const handleBackNavigation = () => {
     if (isSelfView) {
-      // If admin viewing their own profile via /my-profile, go back to admin dashboard
-      // Otherwise (agent), go to agent dashboard
-      navigate(isAdmin() ? '/admin' : '/');
+      // Go to the user's current view mode dashboard (agent or admin)
+      navigate(homePath);
       return;
     }
     if (locationState?.from) {
