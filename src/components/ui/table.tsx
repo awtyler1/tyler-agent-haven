@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
     <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
+      <table ref={ref} className={cn("w-full caption-bottom text-sm dark:text-[#EBEBF5]", className)} {...props} />
     </div>
   ),
 );
@@ -34,7 +34,13 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
   ({ className, ...props }, ref) => (
     <tr
       ref={ref}
-      className={cn("border-b transition-colors data-[state=selected]:bg-muted hover:bg-muted/50", className)}
+      className={cn(
+        "border-b transition-colors data-[state=selected]:bg-muted hover:bg-muted/50",
+        // Dark mode - Apple elevated row
+        "dark:border-[#38383A] dark:bg-[#1C1C1E]",
+        "dark:hover:bg-[#2C2C2E] dark:data-[state=selected]:bg-[#2C2C2E]",
+        className,
+      )}
       {...props}
     />
   ),
@@ -47,6 +53,8 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
       ref={ref}
       className={cn(
         "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+        // Dark mode - Apple header styling
+        "dark:bg-[#2C2C2E] dark:text-white",
         className,
       )}
       {...props}

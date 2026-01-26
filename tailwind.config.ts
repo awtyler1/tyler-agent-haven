@@ -72,6 +72,23 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        /* Apple HIG Dark Mode System Colors */
+        apple: {
+          blue: "#0A84FF",
+          green: "#30D158",
+          yellow: "#FFD60A",
+          orange: "#FF9F0A",
+          red: "#FF453A",
+          pink: "#FF375F",
+          purple: "#BF5AF2",
+          cyan: "#64D2FF",
+          gray: "#8E8E93",
+          "gray-2": "#636366",
+          "gray-3": "#48484A",
+          "gray-4": "#3A3A3C",
+          "gray-5": "#2C2C2E",
+          "gray-6": "#1C1C1E",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

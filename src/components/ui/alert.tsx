@@ -8,8 +8,35 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground",
-        destructive: "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+        default: [
+          "bg-background text-foreground",
+          // Dark mode - Apple card surface
+          "dark:bg-[#1C1C1E] dark:text-white dark:border-[#38383A]",
+        ].join(" "),
+        destructive: [
+          "border-destructive/50 text-destructive [&>svg]:text-destructive",
+          // Dark mode - Apple red
+          "dark:bg-[#FF453A]/10 dark:border-[#FF453A]/30 dark:text-[#FF453A]",
+          "dark:[&>svg]:text-[#FF453A]",
+        ].join(" "),
+        success: [
+          "border-green-200 bg-green-50 text-green-700 [&>svg]:text-green-600",
+          // Dark mode - Apple green
+          "dark:bg-[#30D158]/10 dark:border-[#30D158]/30 dark:text-[#30D158]",
+          "dark:[&>svg]:text-[#30D158]",
+        ].join(" "),
+        warning: [
+          "border-amber-200 bg-amber-50 text-amber-700 [&>svg]:text-amber-600",
+          // Dark mode - Apple yellow
+          "dark:bg-[#FFD60A]/10 dark:border-[#FFD60A]/30 dark:text-[#FFD60A]",
+          "dark:[&>svg]:text-[#FFD60A]",
+        ].join(" "),
+        info: [
+          "border-blue-200 bg-blue-50 text-blue-700 [&>svg]:text-blue-600",
+          // Dark mode - Apple blue
+          "dark:bg-[#0A84FF]/10 dark:border-[#0A84FF]/30 dark:text-[#0A84FF]",
+          "dark:[&>svg]:text-[#0A84FF]",
+        ].join(" "),
       },
     },
     defaultVariants: {

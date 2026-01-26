@@ -9,12 +9,43 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-b from-[hsl(43,56%,45%)] to-[hsl(43,56%,38%)] text-primary-foreground shadow-[0_2px_8px_-2px_rgba(163,133,41,0.4)] hover:shadow-[0_4px_12px_-2px_rgba(163,133,41,0.5)] hover:from-[hsl(43,56%,42%)] hover:to-[hsl(43,56%,35%)]",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        default: [
+          // Light mode - gold gradient
+          "bg-gradient-to-b from-[hsl(43,56%,45%)] to-[hsl(43,56%,38%)] text-primary-foreground",
+          "shadow-[0_2px_8px_-2px_rgba(163,133,41,0.4)]",
+          "hover:shadow-[0_4px_12px_-2px_rgba(163,133,41,0.5)] hover:from-[hsl(43,56%,42%)] hover:to-[hsl(43,56%,35%)]",
+          // Dark mode - vibrant gold
+          "dark:from-[#FFD60A] dark:to-[#E6C200] dark:text-black",
+          "dark:shadow-[0_2px_8px_-2px_rgba(255,214,10,0.3)]",
+          "dark:hover:from-[#FFDF33] dark:hover:to-[#FFD60A]",
+          "dark:hover:shadow-[0_4px_12px_-2px_rgba(255,214,10,0.4)]",
+        ].join(" "),
+        destructive: [
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          // Dark mode - Apple red
+          "dark:bg-[#FF453A] dark:text-white dark:hover:bg-[#FF6961]",
+        ].join(" "),
+        outline: [
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          // Dark mode - subtle border with elevated hover
+          "dark:border-[#38383A] dark:bg-transparent dark:text-[#EBEBF5]",
+          "dark:hover:bg-[#2C2C2E] dark:hover:border-[#48484A]",
+        ].join(" "),
+        secondary: [
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          // Dark mode - elevated surface
+          "dark:bg-[#2C2C2E] dark:text-[#EBEBF5] dark:hover:bg-[#3A3A3C]",
+        ].join(" "),
+        ghost: [
+          "hover:bg-accent hover:text-accent-foreground",
+          // Dark mode - subtle hover
+          "dark:hover:bg-[#2C2C2E] dark:hover:text-white",
+        ].join(" "),
+        link: [
+          "text-primary underline-offset-4 hover:underline",
+          // Dark mode - Apple blue
+          "dark:text-[#0A84FF] dark:hover:text-[#409CFF]",
+        ].join(" "),
       },
       size: {
         default: "h-10 px-4 py-2",
