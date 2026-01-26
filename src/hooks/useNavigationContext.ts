@@ -9,13 +9,13 @@ import { useViewMode, ViewMode } from '@/contexts/ViewModeContext';
  */
 export function useNavigationContext() {
   const navigate = useNavigate();
-  const { isAdmin, isAgent, canAccessAdmin } = useAuth();
+  const { isAdmin, isAgent, isSuperAdmin, canAccessAdmin } = useAuth();
   const { viewMode, setViewMode, toggleViewMode } = useViewMode();
 
-  // User has both admin and agent roles
+  // Show switcher for: super_admin OR (admin + agent dual-role)
   const isDualRole = useMemo(() => {
-    return canAccessAdmin() && isAgent();
-  }, [canAccessAdmin, isAgent]);
+    return isSuperAdmin() || (canAccessAdmin() && isAgent());
+  }, [isSuperAdmin, canAccessAdmin, isAgent]);
 
   // Current mode (for single-role users, always their role)
   const effectiveMode: ViewMode = useMemo(() => {
