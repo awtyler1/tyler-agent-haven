@@ -4,23 +4,10 @@ import { ExternalLink, ArrowRight, ArrowLeft, Loader2, Download } from "lucide-r
 import { useProfile } from "@/hooks/useProfile";
 import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
 import { useCarrierDirectory, useAgentCarriers } from "@/hooks/useCarrierDirectory";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-// State codes and display names
+// State codes and display names - MVP: Kentucky only
 const STATES = [
   { code: 'KY', name: 'Kentucky' },
-  { code: 'TN', name: 'Tennessee' },
-  { code: 'OH', name: 'Ohio' },
-  { code: 'IN', name: 'Indiana' },
-  { code: 'WV', name: 'West Virginia' },
-  { code: 'GA', name: 'Georgia' },
-  { code: 'VA', name: 'Virginia' },
 ];
 
 const CarrierResourcesPage = () => {
@@ -86,19 +73,6 @@ const CarrierResourcesPage = () => {
                 Carrier Resources
               </h1>
               <div className="flex items-center gap-3">
-                {/* State selector */}
-                <Select value={selectedStateCode} onValueChange={setSelectedStateCode}>
-                  <SelectTrigger className="h-8 w-[140px] text-sm text-[#292524] border-[#e8e4dd] rounded-lg bg-white focus:ring-1 focus:ring-blue-200">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50 rounded-lg border-[#e8e4dd]">
-                    {STATES.map(state => (
-                      <SelectItem key={state.code} value={state.code} className="text-sm">
-                        {state.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 {/* Plan Documents button */}
                 <Link
                   to={`/carrier-resources/plans?carrier=${selectedCarrierCode}&state=${selectedStateCode}`}

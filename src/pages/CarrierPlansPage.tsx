@@ -19,25 +19,13 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 
-// State code to full name mapping
+// State code to full name mapping - MVP: Kentucky only
 const stateNameMap: Record<string, string> = {
   KY: "Kentucky",
-  TN: "Tennessee",
-  OH: "Ohio",
-  IN: "Indiana",
-  WV: "West Virginia",
-  VA: "Virginia",
-  GA: "Georgia",
 };
 
 const stateCodeMap: Record<string, string> = {
   Kentucky: "KY",
-  Tennessee: "TN",
-  Ohio: "OH",
-  Indiana: "IN",
-  "West Virginia": "WV",
-  Virginia: "VA",
-  Georgia: "GA",
 };
 
 export default function CarrierPlansPage() {
@@ -92,15 +80,6 @@ export default function CarrierPlansPage() {
     });
   };
 
-  // Update URL when state changes
-  const handleStateChange = (stateName: string) => {
-    setSelectedState(stateName);
-    setSearchParams({
-      carrier: selectedCarrier,
-      state: stateCodeMap[stateName] || "KY"
-    });
-  };
-
   const currentCarrier = carriers.find((c) => c.id === selectedCarrier) || carriers[0];
   const summaryData = currentCarrier?.summaryOfBenefits?.[selectedState] || {};
   const planTypes = Object.keys(summaryData);
@@ -151,22 +130,6 @@ export default function CarrierPlansPage() {
                   <SelectContent className="bg-white z-50 rounded-lg border-[#e8e4dd]">
                     <SelectItem value="2026" className="text-sm">2026</SelectItem>
                     <SelectItem value="2027" disabled className="text-sm">2027</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {/* State Selector */}
-                <Select value={selectedState} onValueChange={handleStateChange}>
-                  <SelectTrigger className="h-8 w-[140px] text-sm text-[#292524] border-[#e8e4dd] rounded-lg bg-white focus:ring-1 focus:ring-blue-200">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50 rounded-lg border-[#e8e4dd]">
-                    <SelectItem value="Kentucky" className="text-sm">Kentucky</SelectItem>
-                    <SelectItem value="Tennessee" disabled className="text-sm">Tennessee (Coming Soon)</SelectItem>
-                    <SelectItem value="Ohio" disabled className="text-sm">Ohio (Coming Soon)</SelectItem>
-                    <SelectItem value="Indiana" disabled className="text-sm">Indiana (Coming Soon)</SelectItem>
-                    <SelectItem value="West Virginia" disabled className="text-sm">West Virginia (Coming Soon)</SelectItem>
-                    <SelectItem value="Virginia" disabled className="text-sm">Virginia (Coming Soon)</SelectItem>
-                    <SelectItem value="Georgia" disabled className="text-sm">Georgia (Coming Soon)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
