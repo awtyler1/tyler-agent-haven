@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
+import { ViewModeProvider } from "./contexts/ViewModeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Loading fallback for lazy-loaded routes
@@ -111,6 +112,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+          <ViewModeProvider>
           <RecoveryRedirectHandler />
           <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -230,6 +232,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
+          </ViewModeProvider>
         </BrowserRouter>
       </TooltipProvider>
     </FeatureFlagsProvider>

@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { cn } from '@/lib/utils';
 
 type MaxWidth = 'narrow' | 'default' | 'wide';
@@ -34,18 +35,34 @@ export function AdminLayout({
   backLabel = 'Dashboard',
   onBack,
 }: AdminLayoutProps) {
+  const { homePath, isDualRole, viewMode, backToDashboard } = useNavigationContext();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       {/* Header */}
       <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-          {/* Left: TIG | Agent Portal - links to admin dashboard */}
-          <Link to="/admin" className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-[#292524]">TIG</span>
-            <span className="text-[#5c5552]">|</span>
-            <span className="text-sm text-[#5c5552]">Agent Portal</span>
-          </Link>
+          {/* Left: TIG | Agent Portal - links to current mode's dashboard */}
+          <div className="flex items-center gap-3">
+            <Link to={homePath} className="flex items-center gap-2">
+              <span className="text-lg font-semibold text-[#292524]">TIG</span>
+              <span className="text-[#5c5552]">|</span>
+              <span className="text-sm text-[#5c5552]">Agent Portal</span>
+            </Link>
+            {/* Mode indicator for dual-role users */}
+            {isDualRole && (
+              <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                viewMode === 'admin'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'bg-green-100 text-green-700'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  viewMode === 'admin' ? 'bg-purple-500' : 'bg-green-500'
+                }`} />
+                {viewMode === 'admin' ? 'Admin View' : 'Agent View'}
+              </div>
+            )}
+          </div>
 
           {/* Right: Avatar Dropdown */}
           <UserAvatarDropdown />
@@ -65,7 +82,7 @@ export function AdminLayout({
             </button>
           ) : (
             <Link
-              to="/admin"
+              to={homePath}
               className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
             >
               <ArrowLeft className="w-4 h-4" />

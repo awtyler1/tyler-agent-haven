@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, ExternalLink } from 'lucide-react';
+import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, ExternalLink, ArrowLeftRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { Switch } from '@/components/ui/switch';
 import { CreateAdminDialog } from '@/components/admin/CreateAdminDialog';
 import {
@@ -28,6 +29,7 @@ export function UserAvatarDropdown() {
   const navigate = useNavigate();
   const { profile, primaryRole, loading, canAccessAdmin, isSuperAdmin, isAdmin } = useAuth();
   const { isDark, toggle: toggleDarkMode } = useDarkMode();
+  const { isDualRole, viewMode, switchMode } = useNavigationContext();
 
   // Outlook connection state
   const [outlookConnected, setOutlookConnected] = useState<boolean | null>(null);
@@ -123,6 +125,43 @@ export function UserAvatarDropdown() {
         </div>
 
         <DropdownMenuSeparator />
+
+        {/* View Mode Switcher - only for dual-role users */}
+        {isDualRole && (
+          <>
+            <div className="px-3 py-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ArrowLeftRight className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">View Mode</span>
+                </div>
+                <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+                  <button
+                    onClick={() => switchMode('agent')}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                      viewMode === 'agent'
+                        ? 'bg-white text-green-700 shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Agent
+                  </button>
+                  <button
+                    onClick={() => switchMode('admin')}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                      viewMode === 'admin'
+                        ? 'bg-white text-purple-700 shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Admin
+                  </button>
+                </div>
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+          </>
+        )}
 
         {/* Agent Section */}
         <div className="px-2 py-1.5">

@@ -5,6 +5,7 @@ import { UserAvatarDropdown } from "./UserAvatarDropdown";
 import { DarkModeToggle } from "./DarkModeToggle";
 import tylerLogo from "@/assets/tyler-logo.webp";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigationContext } from "@/hooks/useNavigationContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logActivity, ActivityAction } from "@/utils/activityLogger";
@@ -16,6 +17,7 @@ const navLinks = [
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, isAgent, isContractingRequired, canAccessAdmin } = useAuth();
+  const { homePath, isDualRole, viewMode } = useNavigationContext();
 
   // Hide navigation for agents who need to complete contracting
   const showFullNavigation = !isAgent() || !isContractingRequired;
@@ -45,14 +47,29 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container-narrow mx-auto px-6 md:px-12">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img 
-              src={tylerLogo} 
-              alt="Logo" 
-              className="h-14 w-auto"
-            />
-          </Link>
+          {/* Logo + Mode Indicator */}
+          <div className="flex items-center gap-3">
+            <Link to={homePath} className="flex items-center">
+              <img
+                src={tylerLogo}
+                alt="Logo"
+                className="h-14 w-auto"
+              />
+            </Link>
+            {/* Mode indicator for dual-role users */}
+            {isDualRole && isAuthenticated && (
+              <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                viewMode === 'admin'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'bg-green-100 text-green-700'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  viewMode === 'admin' ? 'bg-purple-500' : 'bg-green-500'
+                }`} />
+                {viewMode === 'admin' ? 'Admin View' : 'Agent View'}
+              </div>
+            )}
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-6">
