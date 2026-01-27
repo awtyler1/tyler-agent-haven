@@ -56,6 +56,7 @@ const ActivityLogPage = lazy(() => import("./pages/admin/ActivityLogPage"));
 const RTSImportPage = lazy(() => import("./pages/admin/RTSImportPage"));
 const RoadmapGeneratorPage = lazy(() => import("./pages/admin/RoadmapGeneratorPage"));
 const AgentProfilePage = lazy(() => import("./pages/admin/AgentProfilePage"));
+const PdfBuilderPage = lazy(() => import("./pages/admin/PdfBuilderPage"));
 
 const queryClient = new QueryClient();
 
@@ -209,6 +210,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireSuperAdmin>
                   <LabsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/pdf-builder"
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <PdfBuilderPage />
                 </ProtectedRoute>
               }
             />

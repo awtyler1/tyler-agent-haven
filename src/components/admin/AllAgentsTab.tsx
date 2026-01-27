@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, Loader2, X, Phone, Mail, Building2, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { Search, Loader2, X, Phone, Mail, Building2, ChevronLeft, ChevronRight, Download, Copy, Check } from 'lucide-react';
 import { AssignManagerModal } from './AssignManagerModal';
 
 type AgentStatus = 'imported' | 'invited' | 'active' | 'all';
@@ -153,6 +153,8 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
   const [selectedAgent, setSelectedAgent] = useState<AgentProfile | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [sendingLinks, setSendingLinks] = useState(false);
+  const [copyingLink, setCopyingLink] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Assign Manager modal state
   const [assignManagerOpen, setAssignManagerOpen] = useState(false);
@@ -426,6 +428,35 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
   const handleSendSetupLinks = () => {
     const ids = Array.from(selectedIds);
     sendSetupLinks(ids);
+  };
+
+  // Copy invite link for a single agent
+  const handleCopyInviteLink = async (profileId: string) => {
+    setCopyingLink(true);
+    setLinkCopied(false);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('get-invite-link', {
+        body: { profileId },
+      });
+
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(result.inviteLink);
+      setLinkCopied(true);
+      toast.success('Invite link copied to clipboard');
+
+      // Refresh agents to show updated status
+      fetchAgents();
+
+      // Reset the copied state after 3 seconds
+      setTimeout(() => setLinkCopied(false), 3000);
+    } catch (err: any) {
+      toast.error(`Failed to generate invite link: ${err.message}`);
+    } finally {
+      setCopyingLink(false);
+    }
   };
 
   const handleAssignManager = () => {
@@ -814,6 +845,29 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
               {/* Quick Actions */}
               <div className="border-t border-border pt-4 space-y-2">
                 <Button
+                  className="w-full"
+                  onClick={() => handleCopyInviteLink(selectedAgent.id)}
+                  disabled={copyingLink}
+                >
+                  {copyingLink ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : linkCopied ? (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Link Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy Invite Link
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
                   className="w-full"
                   onClick={handleViewFullProfile}
                 >

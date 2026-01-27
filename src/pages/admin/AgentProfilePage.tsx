@@ -400,10 +400,11 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
 
   // Permission check for inline editing - only admins can edit, even on own profile
   const canEdit = isAdmin() && !isSelfView;
+  const canEditNotes = isAdmin() || isSelfView; // Agents can edit their own notes
 
   // Contracting notes handlers
   const handleNotesClick = () => {
-    if (!canEdit) return;
+    if (!canEditNotes) return;
     setDraftNotes(profile?.contracting_notes || '');
     setIsEditingNotes(true);
     setNotesSaveStatus('idle');
@@ -1440,11 +1441,11 @@ Tyler Insurance Group`;
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════
-            ROW 1: CARRIERS + DOCUMENTS (always both)
+            ROW 1: CARRIERS + DOCUMENTS + NOTES (3 columns)
             ═══════════════════════════════════════════════════════════════ */}
-        <div className="grid gap-4 md:grid-cols-2 mb-4">
+        <div className="grid gap-4 md:grid-cols-3">
           {/* LEFT: Carrier Statuses Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col">
+          <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col h-[348px]">
             <div className="px-5 py-4 flex items-center justify-between">
               <h2 className="font-semibold text-foreground">Carriers</h2>
               {carrierStatuses.length > 0 && (
@@ -1495,7 +1496,7 @@ Tyler Insurance Group`;
               </div>
             ) : (
               <>
-                <div className="border-t border-border/50 flex-1 max-h-48 overflow-y-auto">
+                <div className="border-t border-border/50 flex-1 min-h-0 overflow-y-auto">
                   {carrierStatuses.map((status) => (
                     <div
                       key={status.id}
@@ -1509,9 +1510,9 @@ Tyler Insurance Group`;
                         }`} />
                         <span className="text-sm text-foreground">{status.carrier_name}</span>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {status.contracted_at ? format(new Date(status.contracted_at), 'MMM d') :
-                         status.contracting_submitted_at ? format(new Date(status.contracting_submitted_at), 'MMM d') : null}
+                      <span className="text-[11px] text-muted-foreground">
+                        {status.contracted_at ? `Updated ${format(new Date(status.contracted_at), 'MMM d')}` :
+                         status.contracting_submitted_at ? `Updated ${format(new Date(status.contracting_submitted_at), 'MMM d')}` : null}
                       </span>
                     </div>
                   ))}
@@ -1527,63 +1528,61 @@ Tyler Insurance Group`;
             )}
           </div>
 
-          {/* RIGHT: Documents (always visible) */}
+          {/* MIDDLE: Documents (always visible) */}
           <AgentDocumentsSection
             profileId={profile.id}
             canUpload={isAdmin() || isSelfView}
             isAdmin={isAdmin()}
           />
-        </div>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            NOTES (full width)
-            ═══════════════════════════════════════════════════════════════ */}
-        <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden">
-          <div className="px-5 py-4">
-            <h2 className="font-semibold text-foreground">Notes</h2>
-          </div>
-          {isEditingNotes ? (
-            <div className="px-5 pb-5 border-t border-border/50">
-              <textarea
-                ref={notesTextareaRef}
-                value={draftNotes}
-                onChange={(e) => setDraftNotes(e.target.value)}
-                onKeyDown={handleNotesKeyDown}
-                onBlur={handleNotesBlur}
-                className="w-full min-h-[80px] text-sm p-2 rounded-md border border-border bg-background focus:outline-none focus:ring-1 focus:ring-brand/50 focus:border-brand resize-y mt-4"
-                placeholder="Add contracting notes..."
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+Enter</kbd> to save, <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Esc</kbd> to cancel
-              </p>
+          {/* RIGHT: Notes */}
+          <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col h-[348px]">
+            <div className="px-5 py-4">
+              <h2 className="font-semibold text-foreground">Notes</h2>
             </div>
-          ) : (
-            <div className="px-5 pb-5">
-              <div
-                onClick={handleNotesClick}
-                className={canEdit ? 'group relative cursor-pointer hover:bg-muted/20 rounded-md p-2 -m-2 transition-colors' : ''}
-                title={canEdit ? 'Click to edit' : undefined}
-              >
-                {canEdit && (
-                  <Pencil className="h-3.5 w-3.5 absolute top-2 right-2 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+            {isEditingNotes ? (
+              <div className="px-5 pb-5 border-t border-border/50 flex-1">
+                <textarea
+                  ref={notesTextareaRef}
+                  value={draftNotes}
+                  onChange={(e) => setDraftNotes(e.target.value)}
+                  onKeyDown={handleNotesKeyDown}
+                  onBlur={handleNotesBlur}
+                  className="w-full min-h-[120px] text-sm p-2 rounded-md border border-border bg-background focus:outline-none focus:ring-1 focus:ring-brand/50 focus:border-brand resize-y mt-4"
+                  placeholder="Add contracting notes..."
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+Enter</kbd> to save, <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Esc</kbd> to cancel
+                </p>
+              </div>
+            ) : (
+              <div className="px-5 pb-5 border-t border-border/50 flex-1 overflow-y-auto">
+                <div
+                  onClick={handleNotesClick}
+                  className={canEditNotes ? 'group relative cursor-pointer hover:bg-muted/20 rounded-md p-2 -m-2 transition-colors mt-4' : 'mt-4'}
+                  title={canEditNotes ? 'Click to edit' : undefined}
+                >
+                  {canEditNotes && (
+                    <Pencil className="h-3.5 w-3.5 absolute top-2 right-2 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  )}
+                  {profile.contracting_notes ? (
+                    <p className="text-sm whitespace-pre-wrap">{profile.contracting_notes}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No notes yet</p>
+                  )}
+                </div>
+                {notesSaveStatus === 'saved' && (
+                  <p className="text-xs text-green-600 mt-2 animate-fade-in">Saved ✓</p>
                 )}
-                {profile.contracting_notes ? (
-                  <p className="text-sm whitespace-pre-wrap">{profile.contracting_notes}</p>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No notes yet</p>
+                {notesSaveStatus === 'saving' && (
+                  <p className="text-xs text-muted-foreground mt-2">Saving...</p>
+                )}
+                {notesSaveStatus === 'error' && notesError && (
+                  <p className="text-xs text-red-600 mt-2">{notesError}</p>
                 )}
               </div>
-              {notesSaveStatus === 'saved' && (
-                <p className="text-xs text-green-600 mt-2 animate-fade-in">Saved ✓</p>
-              )}
-              {notesSaveStatus === 'saving' && (
-                <p className="text-xs text-muted-foreground mt-2">Saving...</p>
-              )}
-              {notesSaveStatus === 'error' && notesError && (
-                <p className="text-xs text-red-600 mt-2">{notesError}</p>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

@@ -360,14 +360,14 @@ export function AgentDocumentsSection({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col">
+      <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col h-[348px]">
         {/* Header */}
         <div className="px-5 py-4">
           <h2 className="font-semibold text-foreground">Documents</h2>
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto max-h-72">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {/* Document slots */}
           <div className="border-t border-border/50">
           {DOCUMENT_SLOTS.map((slot) => {

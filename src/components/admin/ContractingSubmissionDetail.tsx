@@ -136,7 +136,7 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
 
   const handleViewDocument = async (docType: string, filePath: string) => {
     const { data } = await supabase.storage
-      .from('contracting-documents')
+      .from('agent-documents')
       .createSignedUrl(filePath, 300);
 
     if (data?.signedUrl) {

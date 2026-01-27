@@ -458,7 +458,7 @@ export function useContractingApplication() {
 
     try {
       const { error: deleteError } = await supabase.storage
-        .from('contracting-documents')
+        .from('agent-documents')
         .remove([filePath]);
 
       if (deleteError) throw deleteError;

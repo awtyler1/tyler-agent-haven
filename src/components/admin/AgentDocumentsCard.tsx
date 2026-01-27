@@ -65,7 +65,7 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
                 
                 // List files in the folder to get metadata
                 const { data: fileList } = await supabase.storage
-                  .from('contracting-documents')
+                  .from('agent-documents')
                   .list(folderPath);
                 
                 const fileInfo = fileList?.find(f => f.name === fileName);
@@ -108,7 +108,7 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
     setDownloadingDoc(docType);
     try {
       const { data, error } = await supabase.storage
-        .from('contracting-documents')
+        .from('agent-documents')
         .createSignedUrl(filePath, 300); // 5 min expiry
 
       if (error) throw error;
@@ -127,7 +127,7 @@ export function AgentDocumentsCard({ userId }: AgentDocumentsCardProps) {
     setDownloadingDoc(docType);
     try {
       const { data, error } = await supabase.storage
-        .from('contracting-documents')
+        .from('agent-documents')
         .download(filePath);
 
       if (error) throw error;

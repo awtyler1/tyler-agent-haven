@@ -37,6 +37,7 @@ export const ActivityAction = {
   CONTRACTING_STARTED: 'contracting_started',
   CONTRACTING_STEP_COMPLETED: 'contracting_step_completed',
   CONTRACTING_SUBMITTED: 'contracting_submitted',
+  CONTRACTING_DELETED: 'contracting_deleted',
 
   // Admin actions
   AGENT_APPROVED: 'agent_approved',

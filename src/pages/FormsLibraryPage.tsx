@@ -6,17 +6,17 @@ import {
   ExternalLink,
   ArrowLeft,
   FolderOpen,
-  ClipboardList,
   Building2,
-  HeartHandshake,
+  Eye,
   Download,
 } from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { useForms } from '@/hooks/useForms';
 import { useNavigationContext } from '@/hooks/useNavigationContext';
+import { DocumentPreview } from '@/components/ui/DocumentPreview';
 
-// External links that don't change often (CMS, SSA, etc.)
+// External links - will be populated with forms you provide
 interface ExternalLinkItem {
   id: string;
   name: string;
@@ -26,97 +26,47 @@ interface ExternalLinkItem {
   keywords?: string[];
 }
 
+// CMS and SSA forms
 const EXTERNAL_LINKS: ExternalLinkItem[] = [
-  // CMS Official Forms
+  // CMS Forms
+  {
+    id: 'cms-40b',
+    name: 'Request for Enrollment in Medicare Part B',
+    description: 'CMS-40B - Application to enroll in Medicare Part B during a Special Enrollment Period',
+    category: 'cms',
+    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms40b-e.pdf',
+    keywords: ['part b', 'enrollment', 'sep', '40b', 'special enrollment'],
+  },
   {
     id: 'cms-l564',
-    name: 'CMS-L564',
-    description: 'Employment verification for SEP eligibility',
+    name: 'Medicare Request for Employment Information',
+    description: 'CMS-L564 - Employer verification for Part B Special Enrollment Period eligibility',
     category: 'cms',
-    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms-l564.pdf',
-    keywords: ['sep', 'employer', 'group coverage'],
+    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms-l564e.pdf',
+    keywords: ['employment', 'employer', 'l564', 'verification', 'sep', 'group coverage'],
   },
   {
-    id: 'cms-1696',
-    name: 'CMS-1696',
-    description: 'Appointment of Representative form',
+    id: 'ssa-1020',
+    name: 'Extra Help - LIS Form',
+    description: 'SSA-1020 - Application for Extra Help with Medicare Prescription Drug Plan Costs (Low Income Subsidy)',
     category: 'cms',
-    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms1696.pdf',
-    keywords: ['representative', 'authorization', 'poa'],
-  },
-  {
-    id: 'cms-1490s',
-    name: 'CMS-1490S',
-    description: 'Patient request for medical payment',
-    category: 'cms',
-    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms1490s.pdf',
-    keywords: ['reimbursement', 'payment', 'claim'],
-  },
-  {
-    id: 'medicare-card',
-    name: 'Medicare Card Request',
-    description: 'Replacement card through Medicare.gov',
-    category: 'cms',
-    url: 'https://www.medicare.gov/basics/get-started-with-medicare/sign-up/get-your-medicare-card',
-    keywords: ['card', 'replacement', 'lost'],
-  },
-  // Client Assistance Programs
-  {
-    id: 'ssa-44',
-    name: 'SSA-44 (Extra Help)',
-    description: 'Low Income Subsidy application',
-    category: 'assistance',
-    url: 'https://www.ssa.gov/forms/ssa-44.pdf',
-    keywords: ['lis', 'low income', 'extra help', 'subsidy'],
-  },
-  {
-    id: 'msp-ky',
-    name: 'Medicare Savings (KY)',
-    description: 'QMB/SLMB/QI application for Kentucky',
-    category: 'assistance',
-    url: 'https://chfs.ky.gov/agencies/dcbs/dfs/mps/Pages/default.aspx',
-    keywords: ['msp', 'qmb', 'slmb', 'medicaid', 'kentucky'],
-  },
-  {
-    id: 'ship',
-    name: 'SHIP Referral',
-    description: 'Free Medicare counseling program',
-    category: 'assistance',
-    url: 'https://www.shiphelp.org/',
-    keywords: ['ship', 'counseling', 'assistance'],
-  },
-  {
-    id: 'liheap',
-    name: 'LIHEAP',
-    description: 'Utility assistance program',
-    category: 'assistance',
-    url: 'https://www.acf.hhs.gov/ocs/low-income-home-energy-assistance-program-liheap',
-    keywords: ['liheap', 'utility', 'energy'],
-  },
-  {
-    id: 'benefits',
-    name: 'BenefitsCheckUp',
-    description: 'NCOA benefits finder tool',
-    category: 'assistance',
-    url: 'https://www.benefitscheckup.org/',
-    keywords: ['benefits', 'ncoa', 'seniors'],
+    url: 'https://www.ssa.gov/forms/ssa-1020.pdf',
+    keywords: ['extra help', 'lis', 'low income subsidy', 'prescription', 'drug costs', '1020'],
   },
 ];
 
 // Category configuration with icons
-type CategoryKey = 'compliance' | 'client_intake' | 'cms' | 'assistance';
+type CategoryKey = 'client_intake' | 'cms';
 
 interface CategoryConfig {
   key: CategoryKey;
   label: string;
-  icon: typeof ClipboardList;
+  icon: typeof FolderOpen;
 }
 
 const CATEGORIES: CategoryConfig[] = [
-  { key: 'compliance', label: 'Compliance Forms', icon: ClipboardList },
   { key: 'client_intake', label: 'Client Intake', icon: FolderOpen },
   { key: 'cms', label: 'CMS Forms', icon: Building2 },
-  { key: 'assistance', label: 'Client Assistance', icon: HeartHandshake },
 ];
 
 // Unified form type for display
@@ -134,8 +84,9 @@ export default function FormsLibraryPage() {
   const { profile } = useProfile();
   const { homePath } = useNavigationContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('compliance');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('client_intake');
   const { forms: dbForms, loading, error } = useForms();
+  const [previewDoc, setPreviewDoc] = useState<{ url: string; name: string; downloadUrl: string } | null>(null);
 
   // Convert DB forms to display format and merge with external links
   const allForms = useMemo(() => {
@@ -199,6 +150,36 @@ export default function FormsLibraryPage() {
   }, [allForms, selectedCategory, searchQuery]);
 
   const currentCategory = CATEGORIES.find((c) => c.key === selectedCategory);
+
+  // Get preview URL - external PDFs and Word docs use Google Docs Viewer
+  const getPreviewUrl = (url: string, isExternal: boolean): string => {
+    const lowerUrl = url.toLowerCase();
+    // Use Google Docs Viewer for Word docs and external PDFs (government sites block iframes)
+    if (lowerUrl.endsWith('.doc') || lowerUrl.endsWith('.docx') || (isExternal && lowerUrl.endsWith('.pdf'))) {
+      return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+    }
+    return url;
+  };
+
+  // Check if a form can be previewed (PDF or Word doc)
+  const canPreview = (form: DisplayForm): boolean => {
+    const lowerUrl = form.url.toLowerCase();
+    return lowerUrl.endsWith('.pdf') || lowerUrl.endsWith('.doc') || lowerUrl.endsWith('.docx');
+  };
+
+  // Handle form click - preview if possible, otherwise open
+  const handleFormClick = (form: DisplayForm, e: React.MouseEvent) => {
+    e.preventDefault();
+    if (canPreview(form)) {
+      setPreviewDoc({
+        url: getPreviewUrl(form.url, form.isExternal),
+        name: form.name,
+        downloadUrl: form.url // Original URL for download
+      });
+    } else {
+      window.open(form.url, '_blank');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
@@ -320,25 +301,25 @@ export default function FormsLibraryPage() {
                 ) : (
                   <div className="divide-y divide-[#e8e4dd]">
                     {filteredForms.map((form) => {
-                      const isPdf = !form.isExternal || form.url.endsWith('.pdf');
+                      const isPreviewable = canPreview(form);
+                      const isWordDoc = form.url.toLowerCase().endsWith('.doc') || form.url.toLowerCase().endsWith('.docx');
+                      const isPdf = form.url.toLowerCase().endsWith('.pdf');
+                      const isLink = !isPdf && !isWordDoc;
                       return (
-                        <a
+                        <div
                           key={form.id}
-                          href={form.url}
-                          target={form.isExternal ? '_blank' : undefined}
-                          rel={form.isExternal ? 'noopener noreferrer' : undefined}
-                          className="px-5 py-4 flex items-center justify-between hover:bg-stone-50 transition-colors cursor-pointer group"
+                          className="px-5 py-4 flex items-center justify-between hover:bg-stone-50 transition-colors group"
                         >
                           <div className="flex items-center gap-3">
                             <div
                               className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                isPdf ? 'bg-red-50' : 'bg-blue-50'
+                                isPdf ? 'bg-red-50' : isWordDoc ? 'bg-blue-50' : 'bg-stone-50'
                               }`}
                             >
-                              {isPdf ? (
-                                <FileText className="w-5 h-5 text-red-600" />
+                              {isLink ? (
+                                <ExternalLink className="w-5 h-5 text-stone-600" />
                               ) : (
-                                <ExternalLink className="w-5 h-5 text-blue-600" />
+                                <FileText className={`w-5 h-5 ${isPdf ? 'text-red-600' : 'text-blue-600'}`} />
                               )}
                             </div>
                             <div>
@@ -350,29 +331,49 @@ export default function FormsLibraryPage() {
                                   className={`text-xs px-1.5 py-0.5 rounded ${
                                     isPdf
                                       ? 'bg-red-100 text-red-700'
-                                      : 'bg-blue-100 text-blue-700'
+                                      : isWordDoc
+                                      ? 'bg-blue-100 text-blue-700'
+                                      : 'bg-stone-100 text-stone-700'
                                   }`}
                                 >
-                                  {isPdf ? 'PDF' : 'Link'}
+                                  {isPdf ? 'PDF' : isWordDoc ? 'DOC' : 'Link'}
                                 </span>
                               </div>
                               <p className="text-xs text-[#5c5552]">{form.description}</p>
                             </div>
                           </div>
-                          <span className="text-sm text-blue-600 font-medium flex items-center gap-1">
-                            {isPdf ? (
+                          <div className="flex items-center gap-2">
+                            {isPreviewable ? (
                               <>
-                                <Download className="w-4 h-4" />
-                                Download
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    window.open(form.url, '_blank');
+                                  }}
+                                  className="text-sm text-[#5c5552] hover:text-[#292524] font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-stone-100 transition-colors"
+                                >
+                                  <Download className="w-4 h-4" />
+                                  Download
+                                </button>
+                                <button
+                                  onClick={(e) => handleFormClick(form, e)}
+                                  className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                                  title="Quick View"
+                                >
+                                  <Eye className="w-5 h-5" />
+                                </button>
                               </>
                             ) : (
-                              <>
+                              <button
+                                onClick={(e) => handleFormClick(form, e)}
+                                className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+                              >
                                 Open
                                 <ExternalLink className="w-4 h-4" />
-                              </>
+                              </button>
                             )}
-                          </span>
-                        </a>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -404,6 +405,15 @@ export default function FormsLibraryPage() {
           Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
         </p>
       </footer>
+
+      {/* Document Preview Modal */}
+      <DocumentPreview
+        url={previewDoc?.url || ''}
+        label={previewDoc?.name || ''}
+        isOpen={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+        downloadUrl={previewDoc?.downloadUrl}
+      />
     </div>
   );
 }

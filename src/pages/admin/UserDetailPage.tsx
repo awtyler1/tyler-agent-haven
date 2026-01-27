@@ -14,7 +14,9 @@ import {
   Power,
   Save,
   X,
-  Trash2
+  Trash2,
+  Copy,
+  Check
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useRole } from '@/hooks/useRole';
@@ -91,6 +93,8 @@ export default function UserDetailPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingLink, setSendingLink] = useState(false);
+  const [copyingLink, setCopyingLink] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [updatingRole, setUpdatingRole] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [togglingActive, setTogglingActive] = useState(false);
@@ -159,7 +163,7 @@ export default function UserDetailPage() {
     setSendingLink(true);
     try {
       const { data: result, error } = await supabase.functions.invoke('send-setup-link', {
-        body: { userId: user.user_id },
+        body: { profileId: user.id },
       });
 
       if (error) throw error;
@@ -172,7 +176,7 @@ export default function UserDetailPage() {
         .select('*')
         .eq('user_id', user.user_id)
         .single();
-      
+
       if (updatedProfile) {
         setUser(prev => prev ? { ...prev, ...updatedProfile } : null);
       }
@@ -180,6 +184,43 @@ export default function UserDetailPage() {
       toast.error(`Failed to send setup link: ${err.message}`);
     } finally {
       setSendingLink(false);
+    }
+  };
+
+  const handleCopyInviteLink = async () => {
+    if (!user) return;
+    setCopyingLink(true);
+    setLinkCopied(false);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('get-invite-link', {
+        body: { profileId: user.id },
+      });
+
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(result.inviteLink);
+      setLinkCopied(true);
+      toast.success('Invite link copied to clipboard');
+
+      // Refresh user data to show updated status
+      const { data: updatedProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.user_id)
+        .single();
+
+      if (updatedProfile) {
+        setUser(prev => prev ? { ...prev, ...updatedProfile } : null);
+      }
+
+      // Reset the copied state after 3 seconds
+      setTimeout(() => setLinkCopied(false), 3000);
+    } catch (err: any) {
+      toast.error(`Failed to generate invite link: ${err.message}`);
+    } finally {
+      setCopyingLink(false);
     }
   };
 
@@ -602,10 +643,25 @@ export default function UserDetailPage() {
                 </div>
               )}
 
-              {/* Send Setup Link */}
-              <div className="pt-2">
-                <Button 
-                  variant="outline" 
+              {/* Invite Actions */}
+              <div className="pt-2 space-y-2">
+                <Button
+                  variant="default"
+                  onClick={handleCopyInviteLink}
+                  disabled={copyingLink}
+                  className="w-full"
+                >
+                  {copyingLink ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : linkCopied ? (
+                    <Check className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Copy className="h-4 w-4 mr-2" />
+                  )}
+                  {linkCopied ? 'Link Copied!' : 'Copy Invite Link'}
+                </Button>
+                <Button
+                  variant="outline"
                   onClick={handleSendSetupLink}
                   disabled={sendingLink}
                   className="w-full"

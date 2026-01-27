@@ -14,6 +14,7 @@ import {
   PartyPopper,
   ChevronDown,
   ChevronRight,
+  Trash2,
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { SendToPinnacleModal, PinnacleDocument, SendToPinnacleData } from '@/components/contracting/SendToPinnacleModal';
 import { useSendEmail, fileUrlToBase64, EmailAttachment } from '@/hooks/useSendEmail';
 import { supabase } from '@/integrations/supabase/client';
@@ -99,12 +108,14 @@ function DetailPanel({
   onCarriersChange,
   onSendToPinnacle,
   onMarkComplete,
+  onDelete,
 }: {
   agent: QueueAgent;
   onClose: () => void;
   onCarriersChange: (agentId: string, carriers: string[]) => void;
   onSendToPinnacle: (agent: QueueAgent) => void;
   onMarkComplete: (agentId: string) => void;
+  onDelete: (agentId: string, agentName: string) => void;
 }) {
   const [loadingDoc, setLoadingDoc] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<{ url: string; label: string } | null>(null);
@@ -118,7 +129,7 @@ function DetailPanel({
     setLoadingDoc(docType);
     try {
       const { data, error } = await supabase.storage
-        .from('contracting-documents')
+        .from('agent-documents')
         .createSignedUrl(path, 300);
 
       if (error) throw error;
@@ -309,6 +320,14 @@ function DetailPanel({
             View Full Profile
           </Button>
         )}
+        <Button
+          variant="ghost"
+          className="w-full h-9 text-red-600 hover:text-red-700 hover:bg-red-50"
+          onClick={() => onDelete(agent.id, agent.full_legal_name || 'this application')}
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete Application
+        </Button>
       </div>
 
       {/* Document Preview Modal */}
@@ -372,6 +391,11 @@ export default function ContractingQueuePage() {
   const [showPinnacleModal, setShowPinnacleModal] = useState(false);
   const [modalCarriers, setModalCarriers] = useState<string[]>([]);
   const [modalDocuments, setModalDocuments] = useState<PinnacleDocument[]>([]);
+
+  // Delete confirmation modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { sendEmail } = useSendEmail();
 
@@ -505,7 +529,10 @@ export default function ContractingQueuePage() {
   const handleMarkComplete = async (agentId: string) => {
     const { error } = await supabase
       .from('contracting_applications')
-      .update({ queue_status: 'completed' })
+      .update({
+        queue_status: 'completed',
+        status: 'completed'  // Also update main status to reduce pending counter
+      })
       .eq('id', agentId);
 
     if (error) {
@@ -520,6 +547,49 @@ export default function ContractingQueuePage() {
       );
       setSelectedAgent(null);
       fetchApplications();
+    }
+  };
+
+  const handleDelete = (agentId: string, agentName: string) => {
+    setDeleteTarget({ id: agentId, name: agentName });
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+
+    try {
+      // Use Supabase's built-in function invocation (handles auth automatically)
+      const { data, error } = await supabase.functions.invoke('delete-contracting-application', {
+        body: { applicationId: deleteTarget.id },
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to delete application');
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Failed to delete application');
+      }
+
+      toast.success('Application deleted');
+      await logActivity(
+        ActivityAction.CONTRACTING_DELETED,
+        EntityType.CONTRACTING_APPLICATION,
+        deleteTarget.id,
+        { agent_name: deleteTarget.name }
+      );
+      setSelectedAgent(null);
+      fetchApplications();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete application');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -552,7 +622,7 @@ export default function ContractingQueuePage() {
       for (const doc of modalDocuments) {
         if (data.selectedDocuments.includes(doc.type) && doc.url) {
           const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-            .from('contracting-documents')
+            .from('agent-documents')
             .createSignedUrl(doc.url, 300);
 
           if (signedUrlError || !signedUrlData?.signedUrl) continue;
@@ -605,6 +675,7 @@ export default function ContractingQueuePage() {
         .from('contracting_applications')
         .update({
           queue_status: 'sent_to_pinnacle',
+          status: 'processing',  // Update main status to reduce pending counter
           sent_to_pinnacle_at: new Date().toISOString(),
           requested_carriers: modalCarriers,
         })
@@ -791,6 +862,7 @@ export default function ContractingQueuePage() {
             onCarriersChange={handleCarriersChange}
             onSendToPinnacle={handleSendToPinnacle}
             onMarkComplete={handleMarkComplete}
+            onDelete={handleDelete}
           />
         </>
       )}
@@ -806,6 +878,53 @@ export default function ContractingQueuePage() {
         documents={modalDocuments}
         onSend={handleModalSend}
       />
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={(open) => !open && setShowDeleteModal(false)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Delete Application</DialogTitle>
+            <DialogDescription className="pt-2">
+              Are you sure you want to permanently delete the application for{' '}
+              <span className="font-semibold text-foreground">"{deleteTarget?.name}"</span>?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              This action cannot be undone. All application data will be permanently removed.
+            </p>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeleteTarget(null);
+              }}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }

@@ -51,9 +51,8 @@ export function VideoSidebar({ currentVideoId, isMobileOpen, onMobileClose }: Vi
             {/* Videos */}
             {videos.map((video, videoIdx) => {
               const isActive = video.id === currentVideoId;
-              const globalIndex = allVideos.findIndex(v => v.id === video.id) + 1;
               // TODO: Replace with actual completion tracking
-              const isCompleted = globalIndex === 1;
+              const isCompleted = video.id === "1";
               const isLastInModule = videoIdx === videos.length - 1;
 
               return (
@@ -81,7 +80,7 @@ export function VideoSidebar({ currentVideoId, isMobileOpen, onMobileClose }: Vi
                       }`}
                     />
                   )}
-                  <span className="line-clamp-2">Day {globalIndex}: {video.title}</span>
+                  <span className="line-clamp-2">{video.title}</span>
                 </button>
               );
             })}

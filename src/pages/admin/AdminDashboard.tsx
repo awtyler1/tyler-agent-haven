@@ -94,11 +94,12 @@ export default function AdminDashboard() {
         });
       }
 
-      // Fetch pending contracting count
+      // Fetch pending contracting count (exclude completed and sent_to_pinnacle)
       const { count } = await supabase
         .from('contracting_applications')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'submitted')
+        .not('queue_status', 'in', '("completed","sent_to_pinnacle")')
         .or('is_test.is.null,is_test.eq.false');
 
       setPendingCount(count || 0);
