@@ -435,12 +435,20 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     setCopyingLink(true);
     setLinkCopied(false);
     try {
+      // Debug: Check session before calling function
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session before invoke:', session ? 'exists' : 'null', session?.access_token?.substring(0, 20) + '...');
+
       const { data: result, error } = await supabase.functions.invoke('get-invite-link', {
         body: { profileId },
       });
 
-      if (error) throw error;
+      console.log('Function response:', { result, error });
+
+      // Check for error in response data first (contains actual error message)
       if (result?.error) throw new Error(result.error);
+      // Then check for HTTP-level error
+      if (error) throw new Error(error.message || 'Failed to generate invite link');
 
       // Copy to clipboard
       await navigator.clipboard.writeText(result.inviteLink);

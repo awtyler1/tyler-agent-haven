@@ -7,7 +7,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
 import { ViewModeProvider } from "./contexts/ViewModeContext";
+import { UploadProvider } from "./contexts/UploadContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { GlobalUploadIndicator } from "./components/book-of-business/GlobalUploadIndicator";
 
 // Loading fallback for lazy-loaded routes
 const PageLoader = () => (
@@ -44,6 +46,7 @@ const TrainingPage = lazy(() => import("./pages/TrainingPage"));
 const ContractingPage = lazy(() => import("./pages/ContractingPage"));
 const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
 const BookOfBusinessPage = lazy(() => import("./pages/BookOfBusinessPage"));
+const T65ReviewPage = lazy(() => import("./pages/T65ReviewPage"));
 
 // Lazy load: Admin pages (only loaded by admins)
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -57,6 +60,8 @@ const RTSImportPage = lazy(() => import("./pages/admin/RTSImportPage"));
 const RoadmapGeneratorPage = lazy(() => import("./pages/admin/RoadmapGeneratorPage"));
 const AgentProfilePage = lazy(() => import("./pages/admin/AgentProfilePage"));
 const PdfBuilderPage = lazy(() => import("./pages/admin/PdfBuilderPage"));
+const AgentsBookPage = lazy(() => import("./pages/admin/AgentsBookPage"));
+const AgentBookDetailPage = lazy(() => import("./pages/admin/AgentBookDetailPage"));
 
 const queryClient = new QueryClient();
 
@@ -113,7 +118,9 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+          <UploadProvider>
           <ViewModeProvider>
+          <GlobalUploadIndicator />
           <RecoveryRedirectHandler />
           <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -221,9 +228,26 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/agents/book"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AgentsBookPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/agents/:agentId/book"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AgentBookDetailPage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/book-of-business" element={<ProtectedRoute><BookOfBusinessPage /></ProtectedRoute>} />
+            <Route path="/book-of-business/t65-review" element={<ProtectedRoute><T65ReviewPage /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
             <Route path="/my-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
@@ -242,6 +266,7 @@ const App = () => (
           </Routes>
           </Suspense>
           </ViewModeProvider>
+          </UploadProvider>
         </BrowserRouter>
       </TooltipProvider>
     </FeatureFlagsProvider>

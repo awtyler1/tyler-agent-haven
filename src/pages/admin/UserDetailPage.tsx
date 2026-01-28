@@ -196,8 +196,10 @@ export default function UserDetailPage() {
         body: { profileId: user.id },
       });
 
-      if (error) throw error;
+      // Check for error in response data first (contains actual error message)
       if (result?.error) throw new Error(result.error);
+      // Then check for HTTP-level error
+      if (error) throw new Error(error.message || 'Failed to generate invite link');
 
       // Copy to clipboard
       await navigator.clipboard.writeText(result.inviteLink);

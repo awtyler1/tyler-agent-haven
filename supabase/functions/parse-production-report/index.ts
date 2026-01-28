@@ -60,6 +60,33 @@ interface Stats {
 }
 
 // ============================================================================
+// PLAN TYPE DERIVATION
+// ============================================================================
+
+/**
+ * Derive plan_type from plan_name string.
+ * Used to categorize policies for commission calculations.
+ */
+function derivePlanType(planName: string | null): 'MA' | 'PDP' | 'MEDIGAP' | 'OTHER' {
+  if (!planName) return 'OTHER';
+  const name = planName.toLowerCase();
+
+  if (name.includes('pdp') || name.includes('part d') || name.includes('prescription')) {
+    return 'PDP';
+  }
+  if (name.includes('plan g') || name.includes('plan f') || name.includes('plan n') ||
+      name.includes('medigap') || name.includes('supplement') ||
+      name.includes('modernized') || name.includes('innovative')) {
+    return 'MEDIGAP';
+  }
+  if (name.includes('hmo') || name.includes('ppo') || name.includes('snp') ||
+      name.includes('ma ') || name.startsWith('ma ') || name.includes('medicare advantage')) {
+    return 'MA';
+  }
+  return 'OTHER';
+}
+
+// ============================================================================
 // CSV PARSING UTILITIES
 // ============================================================================
 
@@ -682,6 +709,7 @@ async function upsertPolicy(
 
   const policyData = {
     plan_name: row.plan_name,
+    plan_type: derivePlanType(row.plan_name),
     effective_date: row.effective_date,
     term_date: row.term_date,
     status: row.status,

@@ -70,22 +70,8 @@ export async function checkSyncStatus(profileId: string): Promise<SyncStatus> {
     return { required: false, isNew: true, notContracted: true };
   }
 
-  // Check if agent has selected carriers to track in book of business
-  const { data: agentCarriers, error: carriersError } = await supabase
-    .from('agent_carriers')
-    .select('id')
-    .eq('profile_id', profileId)
-    .limit(1);
-
-  if (carriersError) {
-    console.error('Error checking agent carriers:', carriersError);
-    throw carriersError;
-  }
-
-  // Has contracted carriers but hasn't selected which to track - show NewAgentSetup
-  if (!agentCarriers || agentCarriers.length === 0) {
-    return { required: false, isNew: true };
-  }
+  // Skip the agent_carriers check - we'll use contracted carriers directly
+  // and auto-populate agent_carriers on first sync
 
   const currentMonth = getCurrentMonthDate();
   const dayOfMonth = new Date().getDate();
@@ -175,11 +161,35 @@ export async function initializeSync(profileId: string): Promise<{
     throw createError;
   }
 
-  // Get agent's carriers
-  const { data: agentCarriers } = await supabase
+  // Get agent's carriers (or fall back to contracted carriers for new agents)
+  let { data: agentCarriers } = await supabase
     .from('agent_carriers')
     .select('carrier_id')
     .eq('profile_id', profileId);
+
+  // If no agent_carriers yet, use contracted carriers
+  if (!agentCarriers || agentCarriers.length === 0) {
+    const { data: contracted } = await supabase
+      .from('carrier_statuses')
+      .select('carrier_id')
+      .eq('profile_id', profileId)
+      .eq('contracting_status', 'contracted');
+
+    agentCarriers = contracted || [];
+
+    // Auto-populate agent_carriers for future syncs
+    if (agentCarriers.length > 0) {
+      await supabase
+        .from('agent_carriers')
+        .upsert(
+          agentCarriers.map((c) => ({
+            profile_id: profileId,
+            carrier_id: c.carrier_id,
+          })),
+          { onConflict: 'profile_id,carrier_id', ignoreDuplicates: true }
+        );
+    }
+  }
 
   // Create carrier upload placeholders with previous counts
   if (agentCarriers && agentCarriers.length > 0) {
@@ -268,20 +278,55 @@ export async function completeSyncUpload(
     throw updateError;
   }
 
-  // Get all carrier uploads to check completion status
-  const { data: allUploads } = await supabase
+  // Get all carrier uploads with carrier codes to check completion status
+  const supportedCodes = ['aetna', 'wellcare', 'humana', 'anthem'];
+
+  const { data: uploads } = await supabase
     .from('sync_carrier_uploads')
-    .select('client_count, uploaded_at')
+    .select('carrier_id, client_count, uploaded_at, carriers!inner(code)')
     .eq('sync_id', syncId);
 
-  const completedUploads = allUploads?.filter((u) => u.uploaded_at) || [];
-  const allComplete = completedUploads.length === allUploads?.length;
+  // Filter to only supported carriers
+  const supportedUploads = uploads?.filter(u =>
+    supportedCodes.includes((u.carriers as { code: string })?.code?.toLowerCase())
+  ) || [];
+
+  const completedUploads = supportedUploads.filter((u) => u.uploaded_at);
+  const allComplete = supportedUploads.length > 0 &&
+    completedUploads.length === supportedUploads.length;
   const runningTotal = completedUploads.reduce(
     (sum, u) => sum + (u.client_count || 0),
     0
   );
 
+  console.log('completeSyncUpload check:', {
+    totalUploads: uploads?.length,
+    supportedUploads: supportedUploads.length,
+    completedUploads: completedUploads.length,
+    allComplete,
+  });
+
   return { allComplete, runningTotal };
+}
+
+/**
+ * Clear a single carrier upload from a sync
+ */
+export async function clearCarrierUpload(syncId: string, carrierId: string): Promise<void> {
+  const { error } = await supabase
+    .from('sync_carrier_uploads')
+    .update({
+      client_count: null,
+      uploaded_at: null,
+      production_upload_id: null,
+    })
+    .eq('sync_id', syncId)
+    .eq('carrier_id', carrierId);
+
+  if (error) {
+    console.error('Error clearing carrier upload:', error);
+    throw error;
+  }
 }
 
 /**
@@ -318,6 +363,12 @@ export async function completeSync(
       total_clients: totalClients,
     })
     .eq('id', syncId);
+
+  // Update profile's last_sync_at timestamp
+  await supabase
+    .from('profiles')
+    .update({ last_sync_at: new Date().toISOString() })
+    .eq('id', profileId);
 
   // Check for milestone
   let achievedMilestone: number | null = null;
