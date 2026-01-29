@@ -552,10 +552,22 @@ export function getPreviousMonthName(): string {
 }
 
 /**
- * Get next sync date (5th of next month)
+ * Get next recommended sync date (7th of month when carrier reports are available)
+ * - Before the 7th: sync this month
+ * - On or after the 7th: sync next month
  */
 export function getNextSyncDate(): string {
   const now = new Date();
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 5);
-  return nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  const day = now.getDate();
+  const targetDay = 7;
+
+  if (day < targetDay) {
+    // Before 7th: sync this month
+    return new Date(now.getFullYear(), now.getMonth(), targetDay)
+      .toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  } else {
+    // On or after 7th: sync next month
+    return new Date(now.getFullYear(), now.getMonth() + 1, targetDay)
+      .toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  }
 }

@@ -27,16 +27,19 @@ export function useSyncPreferences(): UseSyncPreferencesReturn {
   useEffect(() => {
     async function fetchPreferences() {
       if (!profile?.id) {
-        setLoading(false);
+        // Don't set loading=false yet - we're still waiting for profile
+        // This prevents showing first-sync flow while profile loads
         return;
       }
 
       try {
         // Get most recent completed sync with its carrier uploads
+        // Order by month (always populated) instead of completed_at (can be null)
         const { data: lastSync, error: syncError } = await supabase
           .from('monthly_syncs')
           .select(`
             id,
+            month,
             completed_at,
             sync_carrier_uploads(
               carrier_id,
@@ -45,7 +48,7 @@ export function useSyncPreferences(): UseSyncPreferencesReturn {
           `)
           .eq('profile_id', profile.id)
           .eq('status', 'complete')
-          .order('completed_at', { ascending: false })
+          .order('month', { ascending: false })
           .limit(1)
           .maybeSingle();
 

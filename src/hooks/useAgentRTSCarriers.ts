@@ -34,7 +34,8 @@ export function useAgentRTSCarriers(): UseAgentRTSCarriersReturn {
   useEffect(() => {
     async function fetchRTSCarriers() {
       if (!profile?.id) {
-        setLoading(false);
+        // Don't set loading=false yet - we're still waiting for profile
+        // This prevents flash of all carriers before RTS data loads
         return;
       }
 

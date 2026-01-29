@@ -54,7 +54,7 @@ export const syncReminderEmail = (agentName: string, monthName: string, lastBook
         </div>
 
         <div style="text-align: center;">
-          <a href="https://www.tigagenthub.com/book-of-business" class="cta-button">Sync My Book</a>
+          <a href="https://www.tigagenthub.com/sync" class="cta-button">Sync My Book</a>
         </div>
 
         <p style="font-size: 14px; color: #78716c;">This usually takes less than 5 minutes. You'll need your latest carrier production reports - download them from each carrier portal.</p>
@@ -79,7 +79,7 @@ Your carrier reports for ${monthName} are now available. Sync your book to see:
 
 Last month you had ${lastBookSize.toLocaleString()} clients and $${lastEarnings.toLocaleString()} in earnings.
 
-Sync now: https://www.tigagenthub.com/book-of-business
+Sync now: https://www.tigagenthub.com/sync
 
 Best,
 The TIG Team
@@ -107,7 +107,7 @@ export const syncFollowUpEmail = (agentName: string, monthName: string, daysSinc
         <p>Sync now to see your current book size and earnings:</p>
 
         <div style="text-align: center;">
-          <a href="https://www.tigagenthub.com/book-of-business" class="cta-button">Sync My Book</a>
+          <a href="https://www.tigagenthub.com/sync" class="cta-button">Sync My Book</a>
         </div>
 
         <p>Takes less than 5 minutes.</p>
@@ -122,7 +122,7 @@ Hi ${agentName},
 
 Quick reminder - you haven't synced your ${monthName} carrier reports yet. Your data is ${daysSinceSync} days old.
 
-Sync now: https://www.tigagenthub.com/book-of-business
+Sync now: https://www.tigagenthub.com/sync
 
 Takes less than 5 minutes.
 

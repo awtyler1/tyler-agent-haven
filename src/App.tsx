@@ -45,7 +45,6 @@ const DocumentManagementPage = lazy(() => import("./pages/DocumentManagementPage
 const TrainingPage = lazy(() => import("./pages/TrainingPage"));
 const ContractingPage = lazy(() => import("./pages/ContractingPage"));
 const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
-const BookOfBusinessPage = lazy(() => import("./pages/BookOfBusinessPage"));
 const T65ReviewPage = lazy(() => import("./pages/T65ReviewPage"));
 const SyncFlow = lazy(() => import("./pages/SyncFlow"));
 
@@ -61,6 +60,7 @@ const RTSImportPage = lazy(() => import("./pages/admin/RTSImportPage"));
 const RoadmapGeneratorPage = lazy(() => import("./pages/admin/RoadmapGeneratorPage"));
 const AgentProfilePage = lazy(() => import("./pages/admin/AgentProfilePage"));
 const PdfBuilderPage = lazy(() => import("./pages/admin/PdfBuilderPage"));
+const PlanFinderPage = lazy(() => import("./pages/admin/PlanFinderPage"));
 const AgentsBookPage = lazy(() => import("./pages/admin/AgentsBookPage"));
 const AgentBookDetailPage = lazy(() => import("./pages/admin/AgentBookDetailPage"));
 
@@ -230,6 +230,14 @@ const App = () => (
               }
             />
             <Route
+              path="/admin/plan-finder"
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <PlanFinderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/agents/book"
               element={
                 <ProtectedRoute requireAdmin>
@@ -247,9 +255,8 @@ const App = () => (
             />
 
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/book-of-business" element={<ProtectedRoute><BookOfBusinessPage /></ProtectedRoute>} />
-            <Route path="/book-of-business/t65-review" element={<ProtectedRoute><T65ReviewPage /></ProtectedRoute>} />
             <Route path="/sync" element={<ProtectedRoute><SyncFlow /></ProtectedRoute>} />
+            <Route path="/t65-review" element={<ProtectedRoute><T65ReviewPage /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
             <Route path="/my-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />

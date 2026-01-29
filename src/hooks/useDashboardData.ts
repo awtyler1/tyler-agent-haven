@@ -122,7 +122,7 @@ export function useDashboardData(): UseDashboardDataReturn {
       // Get all completed syncs for history and calculations
       const { data: syncHistory, error: syncError } = await supabase
         .from('monthly_syncs')
-        .select('month, total_clients, previous_month_clients, created_at')
+        .select('month, total_clients, previous_month_clients, new_clients, created_at')
         .eq('profile_id', profileId)
         .eq('status', 'complete')
         .order('month', { ascending: true });
@@ -144,7 +144,8 @@ export function useDashboardData(): UseDashboardDataReturn {
         // Latest sync data
         const latest = syncHistory[syncHistory.length - 1];
         totalClients = latest.total_clients || 0;
-        newThisMonth = totalClients - (latest.previous_month_clients || 0);
+        // Use stored new_clients (based on effective_date) instead of delta calculation
+        newThisMonth = latest.new_clients || 0;
         lastSyncAt = latest.created_at;
 
         // Calculate growth streak (consecutive months of positive growth)

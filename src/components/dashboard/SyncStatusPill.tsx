@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import {
   CheckCircle2,
   RefreshCw,
-  Clock,
   Calendar,
   ChevronDown
 } from 'lucide-react';
+import { getNextSyncDate } from '@/lib/sync';
 
 interface SyncStatusPillProps {
   status: 'synced' | 'stale' | 'never';
@@ -69,19 +69,6 @@ export function SyncStatusPill({
   };
 
   const { dotColor, bgColor, borderColor, textColor, label } = getStatusConfig();
-
-  // Get next recommended sync date (7th of next month or this month if before 7th)
-  const getNextSyncDate = () => {
-    const now = new Date();
-    const currentDay = now.getDate();
-    const currentMonth = now.getMonth();
-
-    if (currentDay <= 7) {
-      return new Date(now.getFullYear(), currentMonth, 7).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-    } else {
-      return new Date(now.getFullYear(), currentMonth + 1, 7).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-    }
-  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -164,19 +151,6 @@ export function SyncStatusPill({
                 <p className="text-xs text-slate-500">Upload new carrier reports</p>
               </div>
             </Link>
-            {status !== 'never' && (
-              <Link
-                to="/book-of-business"
-                onClick={() => setIsOpen(false)}
-                className="w-full flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl transition-colors text-left"
-              >
-                <Clock className="w-5 h-5 text-slate-400" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-700">View Book</p>
-                  <p className="text-xs text-slate-500">See all clients & details</p>
-                </div>
-              </Link>
-            )}
           </div>
 
           {/* Next reminder */}

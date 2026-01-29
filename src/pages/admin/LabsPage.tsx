@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { FileText, Sparkles, Users, MessageSquare } from 'lucide-react';
+import { FileText, Sparkles, MessageSquare, Heart } from 'lucide-react';
 
 export default function LabsPage() {
   const navigate = useNavigate();
@@ -14,10 +14,10 @@ export default function LabsPage() {
       status: 'Active',
     },
     {
-      name: 'Book of Business',
-      description: 'Upload carrier reports and track your client portfolio',
-      icon: Users,
-      path: '/book-of-business',
+      name: 'Medicare Plan Finder',
+      description: 'Search and compare 2026 Kentucky Medicare Advantage plans',
+      icon: Heart,
+      path: '/admin/plan-finder',
       status: 'In Development',
     },
     {

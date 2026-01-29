@@ -37,6 +37,7 @@ import {
   getExpectedFileType,
   SupportedCarrier,
 } from '@/lib/carrier-detection';
+import { getNextSyncDate } from '@/lib/sync';
 
 // ============================================================
 // TYPES
@@ -60,6 +61,15 @@ interface CarrierMismatchInfo {
   expectedCarrier: string;
   detectedCarrier: string;
   fileName: string;
+}
+
+// Storage key for persisting sync progress
+const SYNC_STORAGE_KEY = 'tig-sync-progress';
+
+interface SyncProgress {
+  phase: SyncPhase;
+  selectedCarriers: string[];
+  uploadedCarriers: UploadedCarrier[];
 }
 
 // ============================================================
@@ -173,6 +183,46 @@ export default function SyncFlow() {
   const [detectionFailed, setDetectionFailed] = useState<{ carrier: string; fileName: string } | null>(null);
   const pendingFileRef = useRef<{ file: File; carrier: string } | null>(null);
   const hasInitializedRef = useRef(false);
+  const hasRestoredRef = useRef(false);
+
+  // ============================================================
+  // STATE PERSISTENCE
+  // ============================================================
+
+  // Save progress to sessionStorage
+  const saveProgress = useCallback((
+    currentPhase: SyncPhase,
+    selected: string[],
+    uploaded: UploadedCarrier[]
+  ) => {
+    // Only save meaningful progress (not loading/done states)
+    if (currentPhase === 'loading' || currentPhase === 'done') {
+      try {
+        sessionStorage.removeItem(SYNC_STORAGE_KEY);
+      } catch (e) {
+        // Ignore storage errors
+      }
+      return;
+    }
+
+    try {
+      const progress: SyncProgress = {
+        phase: currentPhase,
+        selectedCarriers: selected,
+        uploadedCarriers: uploaded,
+      };
+      sessionStorage.setItem(SYNC_STORAGE_KEY, JSON.stringify(progress));
+    } catch (e) {
+      // Storage quota exceeded or other error - fail silently
+    }
+  }, []);
+
+  // Save on state changes
+  useEffect(() => {
+    // Don't save during initial load or before restoration check
+    if (!hasInitializedRef.current) return;
+    saveProgress(phase, selectedCarriers, uploadedCarriers);
+  }, [phase, selectedCarriers, uploadedCarriers, saveProgress]);
 
   // Initialize phase based on loaded data (only once)
   useEffect(() => {
@@ -187,6 +237,36 @@ export default function SyncFlow() {
     }
     hasInitializedRef.current = true;
 
+    // Check for saved progress first
+    try {
+      const saved = sessionStorage.getItem(SYNC_STORAGE_KEY);
+      if (saved) {
+        const progress: SyncProgress = JSON.parse(saved);
+        // Only restore if we have meaningful progress
+        if (progress.uploadedCarriers.length > 0 || progress.selectedCarriers.length > 0) {
+          // Filter out carriers that no longer exist
+          const validSelected = progress.selectedCarriers.filter(id =>
+            CARRIERS.find(c => c.id === id)?.enabled
+          );
+          if (validSelected.length > 0) {
+            setSelectedCarriers(validSelected);
+            setUploadedCarriers(progress.uploadedCarriers);
+            setPhase(progress.phase);
+            hasRestoredRef.current = true;
+            return;
+          }
+        }
+        // Invalid or empty progress - clear it
+        sessionStorage.removeItem(SYNC_STORAGE_KEY);
+      }
+    } catch (e) {
+      // Invalid JSON or storage error - clear and continue
+      try {
+        sessionStorage.removeItem(SYNC_STORAGE_KEY);
+      } catch (_) {}
+    }
+
+    // No saved progress - use default initialization
     if (!isFirstSync && preferredCarriers.length > 0) {
       // Returning user - show confirm with last sync carriers
       const enabledPreferred = preferredCarriers.filter(id =>
@@ -697,6 +777,14 @@ export default function SyncFlow() {
 
       setFinalTotal(actualTotal);
       setFinalNewClients(actualNewClients);
+
+      // Clear saved progress on successful completion
+      try {
+        sessionStorage.removeItem(SYNC_STORAGE_KEY);
+      } catch (e) {
+        // Ignore storage errors
+      }
+
       setPhase('done');
     } catch (err) {
       console.error('Sync completion error:', err);
@@ -1055,10 +1143,7 @@ export default function SyncFlow() {
 
   // DONE PHASE
   if (phase === 'done') {
-    const nextSyncDate = new Date();
-    nextSyncDate.setMonth(nextSyncDate.getMonth() + 1);
-    nextSyncDate.setDate(7);
-    const nextSyncFormatted = nextSyncDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    const nextSyncFormatted = getNextSyncDate();
 
     return (
       <div className="min-h-screen bg-[#f9fafb] p-6 flex items-center justify-center">
@@ -1164,80 +1249,124 @@ interface CarrierUploadRowProps {
 }
 
 function CarrierUploadRow({ carrier, uploaded, isProcessing, onFileSelect, onReplace }: CarrierUploadRowProps) {
+  const [expanded, setExpanded] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onFileSelect(file);
-    }
+  const handleFile = (file: File) => {
+    onFileSelect(file);
+    setExpanded(false);
     // Reset input so same file can be re-selected
     if (inputRef.current) {
       inputRef.current.value = '';
     }
   };
 
-  return (
-    <div
-      className={`bg-white rounded-2xl border p-4 transition-all ${
-        uploaded ? 'border-emerald-200 bg-emerald-50' : 'border-slate-200'
-      }`}
-    >
-      <div className="flex items-center gap-4">
-        <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            uploaded ? 'bg-emerald-500' : ''
-          }`}
-          style={{ backgroundColor: uploaded ? undefined : `${carrier.color}20` }}
-        >
-          {uploaded ? (
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+  };
+
+  // Already uploaded state
+  if (uploaded) {
+    return (
+      <div className="bg-white rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500">
             <Check className="w-5 h-5 text-white" />
-          ) : (
-            <Building2 className="w-5 h-5" style={{ color: carrier.color }} />
-          )}
-        </div>
-        <div className="flex-1">
-          <p className="font-medium text-slate-800">{carrier.name}</p>
-          {uploaded ? (
-            <div>
-              <p className="text-sm text-emerald-600">{uploaded.clientCount.toLocaleString()} clients</p>
-              {uploaded.newClients > 0 && (
-                <p className="text-xs text-emerald-500">+{uploaded.newClients} new this month</p>
-              )}
-            </div>
-          ) : (
-            <a
-              href={carrier.portalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-            >
-              Open portal <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
-        </div>
-        {isProcessing ? (
-          <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-        ) : uploaded ? (
+          </div>
+          <div className="flex-1">
+            <p className="font-medium text-slate-800">{carrier.name}</p>
+            <p className="text-sm text-emerald-600">{uploaded.clientCount.toLocaleString()} clients</p>
+            {uploaded.newClients > 0 && (
+              <p className="text-xs text-emerald-500">+{uploaded.newClients} new this month</p>
+            )}
+          </div>
           <button
             onClick={onReplace}
             className="text-sm text-slate-500 hover:text-slate-700"
           >
             Replace
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Not uploaded - show expandable upload box
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 p-4">
+      {/* Header row - always visible */}
+      <div className="flex items-center gap-4">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center"
+          style={{ backgroundColor: `${carrier.color}20` }}
+        >
+          <Building2 className="w-5 h-5" style={{ color: carrier.color }} />
+        </div>
+        <div className="flex-1">
+          <p className="font-medium text-slate-800">{carrier.name}</p>
+          <a
+            href={carrier.portalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+          >
+            Open portal <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+        {isProcessing ? (
+          <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
         ) : (
-          <label className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl cursor-pointer transition-colors">
-            Upload
-            <input
-              ref={inputRef}
-              type="file"
-              accept=".csv,.xlsx,.xls"
-              className="hidden"
-              onChange={handleChange}
-            />
-          </label>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className={`px-4 py-2 text-sm font-medium rounded-xl transition-colors ${
+              expanded
+                ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {expanded ? 'Cancel' : 'Upload'}
+          </button>
         )}
       </div>
+
+      {/* Expandable drop zone */}
+      {expanded && (
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+          onClick={() => inputRef.current?.click()}
+          className={`mt-4 border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+            dragOver
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-slate-300 hover:border-slate-400'
+          }`}
+        >
+          <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+          <p className="text-sm font-medium text-slate-700">
+            Drop your {carrier.name} report here
+          </p>
+          <p className="text-xs text-slate-500 mt-1">
+            or click to browse (.csv, .xlsx)
+          </p>
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".csv,.xlsx,.xls"
+            onChange={handleChange}
+            className="hidden"
+          />
+        </div>
+      )}
     </div>
   );
 }

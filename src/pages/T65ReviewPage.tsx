@@ -154,11 +154,11 @@ export default function T65ReviewPage() {
       <div className="bg-white dark:bg-card border-b border-stone-200 dark:border-border px-6 py-4 pt-20">
         <div className="max-w-3xl mx-auto">
           <button
-            onClick={() => navigate('/book-of-business')}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-sm text-stone-600 dark:text-muted-foreground hover:text-stone-900 dark:hover:text-foreground mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Book of Business
+            Back to Dashboard
           </button>
           <h1 className="text-2xl font-bold text-stone-900 dark:text-foreground">Review T65 Enrollments</h1>
           <p className="text-stone-500 dark:text-muted-foreground mt-1">
