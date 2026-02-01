@@ -8,13 +8,13 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Star, ChevronDown, Printer, X } from 'lucide-react';
-import { type MAPlan } from '@/data/kentucky-plans-2026';
+import { type CmsPlan } from '@/types/cms';
 
 interface ComparisonCategory {
   name: string;
   items: {
     label: string;
-    getValue: (plan: MAPlan) => string | number | null;
+    getValue: (plan: CmsPlan) => string | number | null;
     format?: (value: any) => string;
     highlight?: 'low' | 'high' | 'zero';
   }[];
@@ -39,7 +39,7 @@ const COMPARISON_CATEGORIES: ComparisonCategory[] = [
       { label: 'Outpatient Surgery', getValue: (p) => p.benefits.outpatientCopay },
       { label: 'Emergency Room', getValue: (p) => p.benefits.emergencyCopay },
       { label: 'Urgent Care', getValue: (p) => p.benefits.urgentCareCopay },
-      { label: 'Telehealth', getValue: (p) => p.benefits.telehealth ?? 'Not covered', highlight: 'zero' },
+      { label: 'Telehealth', getValue: (p) => p.benefits.telehealthCopay ?? 'Not covered', highlight: 'zero' },
     ]
   },
   {
@@ -141,7 +141,7 @@ function getBestValueIndex(
 }
 
 interface PlanComparisonProps {
-  plans: MAPlan[];
+  plans: CmsPlan[];
   onRemovePlan?: (planId: string) => void;
 }
 
@@ -160,6 +160,9 @@ export function PlanComparison({ plans, onRemovePlan }: PlanComparisonProps) {
   const handlePrint = () => {
     window.print();
   };
+
+  // Helper to get display ID
+  const getDisplayId = (plan: CmsPlan) => `${plan.contractId}-${plan.planId}`;
 
   if (plans.length === 0) {
     return (
@@ -202,8 +205,8 @@ export function PlanComparison({ plans, onRemovePlan }: PlanComparisonProps) {
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="text-xs text-muted-foreground mb-0.5">{plan.organizationName}</div>
-                  <div className="font-semibold text-foreground truncate" title={plan.planName}>
-                    {plan.planName}
+                  <div className="font-semibold text-foreground truncate" title={plan.planName || getDisplayId(plan)}>
+                    {plan.planName || getDisplayId(plan)}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant={plan.planType === 'HMO' ? 'default' : 'secondary'} className="text-xs">
@@ -300,7 +303,7 @@ export function PlanComparison({ plans, onRemovePlan }: PlanComparisonProps) {
                                 </span>
                                 {isBest && item.highlight && (
                                   <span className="ml-2 text-xs text-green-600 dark:text-green-400">
-                                    ✓ Best
+                                    Best
                                   </span>
                                 )}
                               </div>

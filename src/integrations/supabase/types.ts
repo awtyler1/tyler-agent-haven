@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       activity_logs: {
@@ -49,6 +74,42 @@ export type Database = {
           {
             foreignKeyName: "activity_logs_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_carriers: {
+        Row: {
+          added_at: string | null
+          carrier_id: string
+          id: string
+          profile_id: string
+        }
+        Insert: {
+          added_at?: string | null
+          carrier_id: string
+          id?: string
+          profile_id: string
+        }
+        Update: {
+          added_at?: string | null
+          carrier_id?: string
+          id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_carriers_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_carriers_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -309,6 +370,159 @@ export type Database = {
         }
         Relationships: []
       }
+      carrier_contacts: {
+        Row: {
+          carrier_id: string
+          contact_type: string
+          created_at: string | null
+          email: string | null
+          id: string
+          is_primary: boolean | null
+          name: string
+          notes: string | null
+          phone: string | null
+          region: string | null
+          state_code: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          carrier_id: string
+          contact_type?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          region?: string | null
+          state_code?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          carrier_id?: string
+          contact_type?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          region?: string | null
+          state_code?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_contacts_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carrier_documents: {
+        Row: {
+          carrier_id: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          document_type: string
+          file_path: string
+          id: string
+          name: string
+          state_code: string | null
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          carrier_id: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          document_type?: string
+          file_path: string
+          id?: string
+          name: string
+          state_code?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          carrier_id?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          document_type?: string
+          file_path?: string
+          id?: string
+          name?: string
+          state_code?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_documents_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carrier_links: {
+        Row: {
+          carrier_id: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          link_type: string
+          name: string
+          state_code: string | null
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          carrier_id: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          link_type?: string
+          name: string
+          state_code?: string | null
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          carrier_id?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          link_type?: string
+          name?: string
+          state_code?: string | null
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_links_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carrier_statuses: {
         Row: {
           carrier_id: string
@@ -374,6 +588,7 @@ export type Database = {
       }
       carriers: {
         Row: {
+          cms_aliases: string[] | null
           code: string
           created_at: string
           display_name: string | null
@@ -389,6 +604,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cms_aliases?: string[] | null
           code: string
           created_at?: string
           display_name?: string | null
@@ -404,6 +620,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cms_aliases?: string[] | null
           code?: string
           created_at?: string
           display_name?: string | null
@@ -450,6 +667,318 @@ export type Database = {
           notes?: string | null
           opens_at?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          address: string | null
+          address_city: string | null
+          address_line1: string | null
+          address_state: string | null
+          address_zip: string | null
+          city: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          dob: string | null
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          medicare_number: string | null
+          middle_initial: string | null
+          phone: string | null
+          profile_id: string
+          state: string | null
+          updated_at: string | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          address_city?: string | null
+          address_line1?: string | null
+          address_state?: string | null
+          address_zip?: string | null
+          city?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          dob?: string | null
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          medicare_number?: string | null
+          middle_initial?: string | null
+          phone?: string | null
+          profile_id: string
+          state?: string | null
+          updated_at?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          address_city?: string | null
+          address_line1?: string | null
+          address_state?: string | null
+          address_zip?: string | null
+          city?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          dob?: string | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          medicare_number?: string | null
+          middle_initial?: string | null
+          phone?: string | null
+          profile_id?: string
+          state?: string | null
+          updated_at?: string | null
+          zip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cms_plans: {
+        Row: {
+          annual_deductible: number | null
+          carrier_id: string | null
+          cms_data_version: string | null
+          commission_notes: string | null
+          contract_id: string
+          created_at: string | null
+          dental_comprehensive: string | null
+          dental_max_coverage: number | null
+          dental_preventive: string | null
+          drug_deductible: number | null
+          drug_tier1: string | null
+          drug_tier2: string | null
+          drug_tier3: string | null
+          drug_tier4: string | null
+          drug_tier5: string | null
+          er_copay: string | null
+          fitness_benefit: string | null
+          hearing_aid_allowance: number | null
+          hearing_exam_copay: string | null
+          id: string
+          inpatient_copay: string | null
+          is_active: boolean | null
+          is_commissionable: boolean | null
+          marketing_name: string | null
+          meal_benefit: string | null
+          monthly_premium: number | null
+          moop_combined: number | null
+          moop_in_network: number | null
+          organization_name: string
+          otc_allowance: number | null
+          otc_frequency: string | null
+          outpatient_copay: string | null
+          pcp_copay: string | null
+          plan_id: string
+          plan_type: string
+          raw_benefits: Json | null
+          segment_id: string | null
+          snp_type: string | null
+          specialist_copay: string | null
+          star_rating: number | null
+          telehealth_copay: string | null
+          transportation_notes: string | null
+          transportation_trips: number | null
+          updated_at: string | null
+          urgent_care_copay: string | null
+          vision_allowance: number | null
+          vision_exam_copay: string | null
+          year: number
+        }
+        Insert: {
+          annual_deductible?: number | null
+          carrier_id?: string | null
+          cms_data_version?: string | null
+          commission_notes?: string | null
+          contract_id: string
+          created_at?: string | null
+          dental_comprehensive?: string | null
+          dental_max_coverage?: number | null
+          dental_preventive?: string | null
+          drug_deductible?: number | null
+          drug_tier1?: string | null
+          drug_tier2?: string | null
+          drug_tier3?: string | null
+          drug_tier4?: string | null
+          drug_tier5?: string | null
+          er_copay?: string | null
+          fitness_benefit?: string | null
+          hearing_aid_allowance?: number | null
+          hearing_exam_copay?: string | null
+          id?: string
+          inpatient_copay?: string | null
+          is_active?: boolean | null
+          is_commissionable?: boolean | null
+          marketing_name?: string | null
+          meal_benefit?: string | null
+          monthly_premium?: number | null
+          moop_combined?: number | null
+          moop_in_network?: number | null
+          organization_name: string
+          otc_allowance?: number | null
+          otc_frequency?: string | null
+          outpatient_copay?: string | null
+          pcp_copay?: string | null
+          plan_id: string
+          plan_type: string
+          raw_benefits?: Json | null
+          segment_id?: string | null
+          snp_type?: string | null
+          specialist_copay?: string | null
+          star_rating?: number | null
+          telehealth_copay?: string | null
+          transportation_notes?: string | null
+          transportation_trips?: number | null
+          updated_at?: string | null
+          urgent_care_copay?: string | null
+          vision_allowance?: number | null
+          vision_exam_copay?: string | null
+          year: number
+        }
+        Update: {
+          annual_deductible?: number | null
+          carrier_id?: string | null
+          cms_data_version?: string | null
+          commission_notes?: string | null
+          contract_id?: string
+          created_at?: string | null
+          dental_comprehensive?: string | null
+          dental_max_coverage?: number | null
+          dental_preventive?: string | null
+          drug_deductible?: number | null
+          drug_tier1?: string | null
+          drug_tier2?: string | null
+          drug_tier3?: string | null
+          drug_tier4?: string | null
+          drug_tier5?: string | null
+          er_copay?: string | null
+          fitness_benefit?: string | null
+          hearing_aid_allowance?: number | null
+          hearing_exam_copay?: string | null
+          id?: string
+          inpatient_copay?: string | null
+          is_active?: boolean | null
+          is_commissionable?: boolean | null
+          marketing_name?: string | null
+          meal_benefit?: string | null
+          monthly_premium?: number | null
+          moop_combined?: number | null
+          moop_in_network?: number | null
+          organization_name?: string
+          otc_allowance?: number | null
+          otc_frequency?: string | null
+          outpatient_copay?: string | null
+          pcp_copay?: string | null
+          plan_id?: string
+          plan_type?: string
+          raw_benefits?: Json | null
+          segment_id?: string | null
+          snp_type?: string | null
+          specialist_copay?: string | null
+          star_rating?: number | null
+          telehealth_copay?: string | null
+          transportation_notes?: string | null
+          transportation_trips?: number | null
+          updated_at?: string | null
+          urgent_care_copay?: string | null
+          vision_allowance?: number | null
+          vision_exam_copay?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_plans_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cms_service_areas: {
+        Row: {
+          cms_plan_id: string
+          contract_id: string
+          county_fips: string
+          county_name: string | null
+          created_at: string | null
+          id: string
+          plan_id: string
+          state_code: string
+          year: number
+        }
+        Insert: {
+          cms_plan_id: string
+          contract_id: string
+          county_fips: string
+          county_name?: string | null
+          created_at?: string | null
+          id?: string
+          plan_id: string
+          state_code: string
+          year: number
+        }
+        Update: {
+          cms_plan_id?: string
+          contract_id?: string
+          county_fips?: string
+          county_name?: string | null
+          created_at?: string | null
+          id?: string
+          plan_id?: string
+          state_code?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_service_areas_cms_plan_id_fkey"
+            columns: ["cms_plan_id"]
+            isOneToOne: false
+            referencedRelation: "cms_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commission_rates: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          plan_type: string
+          rate_type: string
+          region: string | null
+          year: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          plan_type: string
+          rate_type: string
+          region?: string | null
+          year: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          plan_type?: string
+          rate_type?: string
+          region?: string | null
+          year?: number
         }
         Relationships: []
       }
@@ -837,6 +1366,45 @@ export type Database = {
         }
         Relationships: []
       }
+      forms: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          file_path: string
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          file_path: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          file_path?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       hierarchy_entities: {
         Row: {
           created_at: string | null
@@ -903,6 +1471,251 @@ export type Database = {
         }
         Relationships: []
       }
+      milestones: {
+        Row: {
+          achieved_at: string | null
+          id: string
+          milestone_type: string
+          milestone_value: number
+          profile_id: string
+          sync_id: string | null
+        }
+        Insert: {
+          achieved_at?: string | null
+          id?: string
+          milestone_type: string
+          milestone_value: number
+          profile_id: string
+          sync_id?: string | null
+        }
+        Update: {
+          achieved_at?: string | null
+          id?: string
+          milestone_type?: string
+          milestone_value?: number
+          profile_id?: string
+          sync_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "milestones_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_syncs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monthly_syncs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          month: string
+          new_clients: number | null
+          previous_month_clients: number | null
+          profile_id: string
+          started_at: string | null
+          status: string
+          total_clients: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          month: string
+          new_clients?: number | null
+          previous_month_clients?: number | null
+          profile_id: string
+          started_at?: string | null
+          status?: string
+          total_clients?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          month?: string
+          new_clients?: number | null
+          previous_month_clients?: number | null
+          profile_id?: string
+          started_at?: string | null
+          status?: string
+          total_clients?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_syncs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_documents: {
+        Row: {
+          cms_plan_id: string
+          created_at: string | null
+          display_name: string | null
+          document_type: string
+          external_url: string | null
+          file_path: string | null
+          file_size_bytes: number | null
+          id: string
+          is_verified: boolean | null
+          updated_at: string | null
+          verified_at: string | null
+          verified_by: string | null
+          year: number
+        }
+        Insert: {
+          cms_plan_id: string
+          created_at?: string | null
+          display_name?: string | null
+          document_type: string
+          external_url?: string | null
+          file_path?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          is_verified?: boolean | null
+          updated_at?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          year: number
+        }
+        Update: {
+          cms_plan_id?: string
+          created_at?: string | null
+          display_name?: string | null
+          document_type?: string
+          external_url?: string | null
+          file_path?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          is_verified?: boolean | null
+          updated_at?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_documents_cms_plan_id_fkey"
+            columns: ["cms_plan_id"]
+            isOneToOne: false
+            referencedRelation: "cms_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_documents_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policies: {
+        Row: {
+          carrier_id: string
+          carrier_member_id: string | null
+          client_id: string
+          created_at: string | null
+          effective_date: string
+          id: string
+          is_t65: boolean | null
+          last_seen_at: string | null
+          last_seen_upload_id: string | null
+          plan_name: string
+          plan_type: string | null
+          profile_id: string | null
+          source_upload_id: string | null
+          status: string
+          term_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          carrier_id: string
+          carrier_member_id?: string | null
+          client_id: string
+          created_at?: string | null
+          effective_date: string
+          id?: string
+          is_t65?: boolean | null
+          last_seen_at?: string | null
+          last_seen_upload_id?: string | null
+          plan_name: string
+          plan_type?: string | null
+          profile_id?: string | null
+          source_upload_id?: string | null
+          status?: string
+          term_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          carrier_id?: string
+          carrier_member_id?: string | null
+          client_id?: string
+          created_at?: string | null
+          effective_date?: string
+          id?: string
+          is_t65?: boolean | null
+          last_seen_at?: string | null
+          last_seen_upload_id?: string | null
+          plan_name?: string
+          plan_type?: string | null
+          profile_id?: string | null
+          source_upload_id?: string | null
+          status?: string
+          term_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policies_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policies_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policies_last_seen_upload_id_fkey"
+            columns: ["last_seen_upload_id"]
+            isOneToOne: false
+            referencedRelation: "production_uploads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policies_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policies_source_upload_id_fkey"
+            columns: ["source_upload_id"]
+            isOneToOne: false
+            referencedRelation: "production_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       processing_jobs: {
         Row: {
           completed_at: string | null
@@ -945,6 +1758,69 @@ export type Database = {
         }
         Relationships: []
       }
+      production_uploads: {
+        Row: {
+          carrier_id: string
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          file_hash: string | null
+          file_name: string
+          id: string
+          profile_id: string
+          records_imported: number | null
+          records_skipped: number | null
+          records_total: number | null
+          records_updated: number | null
+          status: string
+        }
+        Insert: {
+          carrier_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          file_hash?: string | null
+          file_name: string
+          id?: string
+          profile_id: string
+          records_imported?: number | null
+          records_skipped?: number | null
+          records_total?: number | null
+          records_updated?: number | null
+          status?: string
+        }
+        Update: {
+          carrier_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          file_hash?: string | null
+          file_name?: string
+          id?: string
+          profile_id?: string
+          records_imported?: number | null
+          records_skipped?: number | null
+          records_total?: number | null
+          records_updated?: number | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_uploads_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_uploads_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           ahip_cert_file_path: string | null
@@ -963,6 +1839,7 @@ export type Database = {
           invited_at: string | null
           is_active: boolean
           is_test: boolean | null
+          last_sync_at: string | null
           manager_id: string | null
           npn: string | null
           onboarding_status: Database["public"]["Enums"]["onboarding_status"]
@@ -971,6 +1848,7 @@ export type Database = {
           phone: string | null
           setup_link_sent_at: string | null
           state: string | null
+          sync_reminder_sent_at: string | null
           team_reference: string | null
           updated_at: string
           user_id: string | null
@@ -992,6 +1870,7 @@ export type Database = {
           invited_at?: string | null
           is_active?: boolean
           is_test?: boolean | null
+          last_sync_at?: string | null
           manager_id?: string | null
           npn?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
@@ -1000,6 +1879,7 @@ export type Database = {
           phone?: string | null
           setup_link_sent_at?: string | null
           state?: string | null
+          sync_reminder_sent_at?: string | null
           team_reference?: string | null
           updated_at?: string
           user_id?: string | null
@@ -1021,6 +1901,7 @@ export type Database = {
           invited_at?: string | null
           is_active?: boolean
           is_test?: boolean | null
+          last_sync_at?: string | null
           manager_id?: string | null
           npn?: string | null
           onboarding_status?: Database["public"]["Enums"]["onboarding_status"]
@@ -1029,6 +1910,7 @@ export type Database = {
           phone?: string | null
           setup_link_sent_at?: string | null
           state?: string | null
+          sync_reminder_sent_at?: string | null
           team_reference?: string | null
           updated_at?: string
           user_id?: string | null
@@ -1106,6 +1988,88 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_carrier_uploads: {
+        Row: {
+          carrier_id: string
+          client_count: number | null
+          id: string
+          new_clients: number | null
+          previous_count: number | null
+          production_upload_id: string | null
+          sync_id: string
+          uploaded_at: string | null
+        }
+        Insert: {
+          carrier_id: string
+          client_count?: number | null
+          id?: string
+          new_clients?: number | null
+          previous_count?: number | null
+          production_upload_id?: string | null
+          sync_id: string
+          uploaded_at?: string | null
+        }
+        Update: {
+          carrier_id?: string
+          client_count?: number | null
+          id?: string
+          new_clients?: number | null
+          previous_count?: number | null
+          production_upload_id?: string | null
+          sync_id?: string
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_carrier_uploads_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sync_carrier_uploads_production_upload_id_fkey"
+            columns: ["production_upload_id"]
+            isOneToOne: false
+            referencedRelation: "production_uploads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sync_carrier_uploads_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_syncs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sync_history: {
+        Row: {
+          agent_id: string
+          clients_added: number | null
+          created_at: string | null
+          files_uploaded: number | null
+          id: string
+          synced_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          clients_added?: number | null
+          created_at?: string | null
+          files_uploaded?: number | null
+          id?: string
+          synced_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          clients_added?: number | null
+          created_at?: string | null
+          files_uploaded?: number | null
+          id?: string
+          synced_at?: string | null
+        }
+        Relationships: []
+      }
       system_config: {
         Row: {
           config_key: string
@@ -1157,6 +2121,10 @@ export type Database = {
     }
     Functions: {
       current_user_has_downline: { Args: never; Returns: boolean }
+      get_carrier_id_from_cms_org: {
+        Args: { org_name: string }
+        Returns: string
+      }
       get_my_profile_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
@@ -1171,6 +2139,8 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       app_role:
@@ -1308,6 +2278,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: [

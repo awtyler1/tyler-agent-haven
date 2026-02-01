@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -13,16 +14,51 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, MapPin, Star, Heart, ArrowRight, X } from 'lucide-react';
-import {
-  KENTUCKY_COUNTIES,
-  getPlansForCounty,
-  getCountyFromZip,
-  type MAPlan
-} from '@/data/kentucky-plans-2026';
+import { Search, MapPin, Star, Heart, ArrowRight, X, Loader2 } from 'lucide-react';
+import { usePlansByCounty, useCmsCounties, useFilteredPlans } from '@/hooks/useCmsPlans';
+import { type CmsPlan } from '@/types/cms';
 import { PlanComparison } from '@/components/medicare/PlanComparison';
+import { PlanDetailModal } from '@/components/medicare/PlanDetailModal';
 
-// Star rating display
+// ============================================================================
+// ZIP Code to County FIPS Lookup (Kentucky)
+// Uses correct FIPS codes (21XXX format)
+// ============================================================================
+const ZIP_TO_COUNTY: Record<string, { fips: string; name: string }> = {
+  // Louisville area (Jefferson County)
+  '400': { fips: '21111', name: 'Jefferson' },
+  '401': { fips: '21111', name: 'Jefferson' },
+  '402': { fips: '21111', name: 'Jefferson' },
+  // Lexington area (Fayette County)
+  '403': { fips: '21067', name: 'Fayette' },
+  '404': { fips: '21067', name: 'Fayette' },
+  '405': { fips: '21067', name: 'Fayette' },
+  // Northern KY - Covington/Newport (Kenton County)
+  '410': { fips: '21117', name: 'Kenton' },
+  '411': { fips: '21117', name: 'Kenton' },
+  // Bowling Green (Warren County)
+  '421': { fips: '21227', name: 'Warren' },
+  // Owensboro (Daviess County)
+  '423': { fips: '21059', name: 'Daviess' },
+  // Ashland (Boyd County)
+  '411': { fips: '21019', name: 'Boyd' },
+  '416': { fips: '21019', name: 'Boyd' },
+  // Paducah (McCracken County)
+  '420': { fips: '21145', name: 'McCracken' },
+  // Elizabethtown (Hardin County)
+  '427': { fips: '21093', name: 'Hardin' },
+  // Frankfort (Franklin County)
+  '406': { fips: '21073', name: 'Franklin' },
+};
+
+function getCountyFromZip(zipCode: string): { fips: string; name: string } | null {
+  const prefix = zipCode.slice(0, 3);
+  return ZIP_TO_COUNTY[prefix] || null;
+}
+
+// ============================================================================
+// Star Rating Component
+// ============================================================================
 const StarRating = ({ rating }: { rating: number | null }) => {
   if (!rating) return <span className="text-muted-foreground text-sm">Not rated</span>;
 
@@ -39,17 +75,24 @@ const StarRating = ({ rating }: { rating: number | null }) => {
   );
 };
 
-// Plan card component
+// ============================================================================
+// Plan Card Component
+// ============================================================================
 const PlanCard = ({
   plan,
   onCompare,
-  isInCompare
+  isInCompare,
+  onViewDetails,
 }: {
-  plan: MAPlan;
-  onCompare: (plan: MAPlan) => void;
+  plan: CmsPlan;
+  onCompare: (plan: CmsPlan) => void;
   isInCompare: boolean;
+  onViewDetails: (plan: CmsPlan) => void;
 }) => {
   const [expanded, setExpanded] = useState(false);
+
+  // Helper to get display ID
+  const displayId = `${plan.contractId}-${plan.planId}`;
 
   return (
     <Card className="overflow-hidden">
@@ -61,9 +104,9 @@ const PlanCard = ({
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-medium text-muted-foreground">{plan.organizationName}</span>
                 <span className="text-muted-foreground/50">•</span>
-                <span className="text-xs text-muted-foreground">{plan.id}</span>
+                <span className="text-xs text-muted-foreground">{displayId}</span>
               </div>
-              <h3 className="font-semibold text-foreground truncate">{plan.planName}</h3>
+              <h3 className="font-semibold text-foreground truncate">{plan.planName || displayId}</h3>
               <div className="flex items-center gap-3 mt-2">
                 <Badge variant={plan.planType === 'HMO' ? 'default' : 'secondary'} className="text-xs">
                   {plan.planType}
@@ -112,20 +155,20 @@ const PlanCard = ({
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">PCP Visit</span>
-              <span className="font-medium text-foreground">{plan.benefits.pcpCopay}</span>
+              <span className="font-medium text-foreground">{plan.benefits.pcpCopay || 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Specialist</span>
-              <span className="font-medium text-foreground">{plan.benefits.specialistCopay}</span>
+              <span className="font-medium text-foreground">{plan.benefits.specialistCopay || 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Emergency</span>
-              <span className="font-medium text-foreground">{plan.benefits.emergencyCopay}</span>
+              <span className="font-medium text-foreground">{plan.benefits.emergencyCopay || 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Inpatient</span>
-              <span className="font-medium text-foreground truncate max-w-[120px]" title={plan.benefits.inpatientCopay}>
-                {plan.benefits.inpatientCopay}
+              <span className="font-medium text-foreground truncate max-w-[120px]" title={plan.benefits.inpatientCopay || ''}>
+                {plan.benefits.inpatientCopay || 'N/A'}
               </span>
             </div>
           </div>
@@ -134,13 +177,13 @@ const PlanCard = ({
         {/* Extra Benefits Summary */}
         <div className="px-5 py-3 flex flex-wrap gap-2">
           {plan.benefits.dental && (
-            <Badge variant="outline" className="text-xs bg-background">✓ Dental</Badge>
+            <Badge variant="outline" className="text-xs bg-background">Dental</Badge>
           )}
           {plan.benefits.vision && (
-            <Badge variant="outline" className="text-xs bg-background">✓ Vision</Badge>
+            <Badge variant="outline" className="text-xs bg-background">Vision</Badge>
           )}
           {plan.benefits.hearing && (
-            <Badge variant="outline" className="text-xs bg-background">✓ Hearing</Badge>
+            <Badge variant="outline" className="text-xs bg-background">Hearing</Badge>
           )}
           {plan.benefits.otcAllowance && (
             <Badge variant="outline" className="text-xs bg-background">OTC ${plan.benefits.otcAllowance}/mo</Badge>
@@ -162,8 +205,13 @@ const PlanCard = ({
                     <div key={tier} className="text-center">
                       <div className="text-muted-foreground mb-1">{tier}</div>
                       <div className="font-medium">
-                        {[plan.benefits.drugTier1, plan.benefits.drugTier2, plan.benefits.drugTier3,
-                          plan.benefits.drugTier4, plan.benefits.drugTier5][i]}
+                        {[
+                          plan.benefits.drugTier1,
+                          plan.benefits.drugTier2,
+                          plan.benefits.drugTier3,
+                          plan.benefits.drugTier4,
+                          plan.benefits.drugTier5
+                        ][i] || 'N/A'}
                       </div>
                     </div>
                   ))}
@@ -176,7 +224,7 @@ const PlanCard = ({
                   <div>
                     <h4 className="text-sm font-medium text-foreground mb-1">Dental</h4>
                     <div className="text-sm text-muted-foreground">
-                      <div>Preventive: {plan.benefits.dental.preventive}</div>
+                      <div>Preventive: {plan.benefits.dental.preventive || 'Included'}</div>
                       {plan.benefits.dental.comprehensive && (
                         <div>Comprehensive: {plan.benefits.dental.comprehensive}</div>
                       )}
@@ -187,7 +235,7 @@ const PlanCard = ({
                   <div>
                     <h4 className="text-sm font-medium text-foreground mb-1">Vision</h4>
                     <div className="text-sm text-muted-foreground">
-                      <div>Exam: {plan.benefits.vision.examCopay}</div>
+                      <div>Exam: {plan.benefits.vision.examCopay || 'Included'}</div>
                       {plan.benefits.vision.eyewearAllowance && (
                         <div>Eyewear: ${plan.benefits.vision.eyewearAllowance}/year</div>
                       )}
@@ -198,7 +246,7 @@ const PlanCard = ({
                   <div>
                     <h4 className="text-sm font-medium text-foreground mb-1">Hearing</h4>
                     <div className="text-sm text-muted-foreground">
-                      <div>Exam: {plan.benefits.hearing.examCopay}</div>
+                      <div>Exam: {plan.benefits.hearing.examCopay || 'Included'}</div>
                       {plan.benefits.hearing.aidAllowance && (
                         <div>Aids: ${plan.benefits.hearing.aidAllowance}/year</div>
                       )}
@@ -218,9 +266,14 @@ const PlanCard = ({
 
         {/* Actions */}
         <div className="px-5 py-3 flex items-center justify-between border-t border-border">
-          <Button variant="link" className="px-0 text-gold" onClick={() => setExpanded(!expanded)}>
-            {expanded ? 'Show Less' : 'View Details'}
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="link" className="px-0 text-gold" onClick={() => setExpanded(!expanded)}>
+              {expanded ? 'Show Less' : 'Quick View'}
+            </Button>
+            <Button variant="link" className="px-0" onClick={() => onViewDetails(plan)}>
+              Full Details
+            </Button>
+          </div>
           <Button
             variant={isInCompare ? 'default' : 'outline'}
             size="sm"
@@ -234,52 +287,79 @@ const PlanCard = ({
   );
 };
 
+// ============================================================================
+// Loading Skeleton
+// ============================================================================
+const PlanCardSkeleton = () => (
+  <Card className="overflow-hidden">
+    <CardContent className="p-0">
+      <div className="px-5 py-4 border-b border-border">
+        <Skeleton className="h-4 w-32 mb-2" />
+        <Skeleton className="h-6 w-48 mb-2" />
+        <div className="flex gap-2">
+          <Skeleton className="h-5 w-12" />
+          <Skeleton className="h-5 w-16" />
+        </div>
+      </div>
+      <div className="px-5 py-4 grid grid-cols-3 gap-4 border-b border-border bg-muted/30">
+        <div><Skeleton className="h-4 w-16 mb-1" /><Skeleton className="h-5 w-12" /></div>
+        <div><Skeleton className="h-4 w-16 mb-1" /><Skeleton className="h-5 w-12" /></div>
+        <div><Skeleton className="h-4 w-16 mb-1" /><Skeleton className="h-5 w-12" /></div>
+      </div>
+      <div className="px-5 py-4">
+        <Skeleton className="h-4 w-full mb-2" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    </CardContent>
+  </Card>
+);
+
+// ============================================================================
+// Popular Counties (for quick selection)
+// ============================================================================
+const POPULAR_COUNTIES = [
+  { fips: '21111', name: 'Jefferson' },
+  { fips: '21067', name: 'Fayette' },
+  { fips: '21117', name: 'Kenton' },
+  { fips: '21227', name: 'Warren' },
+  { fips: '21059', name: 'Daviess' },
+  { fips: '21015', name: 'Boone' },
+];
+
+// ============================================================================
+// Main Component
+// ============================================================================
 export default function PlanFinderPage() {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState('');
-  const [selectedCounty, setSelectedCounty] = useState<{ code: string; name: string } | null>(null);
-  const [comparePlans, setComparePlans] = useState<MAPlan[]>([]);
+  const [selectedCounty, setSelectedCounty] = useState<{ fips: string; name: string } | null>(null);
+  const [comparePlans, setComparePlans] = useState<CmsPlan[]>([]);
   const [view, setView] = useState<'finder' | 'compare'>('finder');
+  const [detailPlan, setDetailPlan] = useState<CmsPlan | null>(null);
   const [filters, setFilters] = useState({
     planType: 'all',
-    premium: 'all',
+    premium: 'all' as 'all' | 'zero' | 'low',
     snpOnly: false,
   });
   const [sortBy, setSortBy] = useState<'premium' | 'moop' | 'rating'>('premium');
 
-  // Get plans for selected county
-  const plans = useMemo(() => {
-    if (!selectedCounty) return [];
-    return getPlansForCounty(selectedCounty.code);
-  }, [selectedCounty]);
+  // Load counties for dropdown/search
+  const { counties, isLoading: countiesLoading } = useCmsCounties('KY', 2026);
 
-  // Filter and sort plans
-  const filteredPlans = useMemo(() => {
-    let result = [...plans];
+  // Load plans for selected county
+  const { plans, isLoading: plansLoading, error } = usePlansByCounty(
+    selectedCounty ? 'KY' : null,
+    selectedCounty?.fips || null,
+    2026
+  );
 
-    if (filters.planType !== 'all') {
-      result = result.filter(p => p.planType === filters.planType);
-    }
-    if (filters.premium === 'zero') {
-      result = result.filter(p => p.premium === 0);
-    } else if (filters.premium === 'low') {
-      result = result.filter(p => p.premium <= 30);
-    }
-    if (filters.snpOnly) {
-      result = result.filter(p => p.snpType !== null);
-    }
-
-    result.sort((a, b) => {
-      switch (sortBy) {
-        case 'premium': return a.premium - b.premium;
-        case 'moop': return a.moop - b.moop;
-        case 'rating': return (b.starRating || 0) - (a.starRating || 0);
-        default: return 0;
-      }
-    });
-
-    return result;
-  }, [plans, filters, sortBy]);
+  // Client-side filtering and sorting
+  const filteredPlans = useFilteredPlans(plans, {
+    planType: filters.planType,
+    premiumFilter: filters.premium,
+    snpOnly: filters.snpOnly,
+    sortBy,
+  });
 
   // Handle search
   const handleSearch = () => {
@@ -287,27 +367,27 @@ export default function PlanFinderPage() {
     if (!input) return;
 
     if (/^\d{5}$/.test(input)) {
-      // Zip code lookup
+      // ZIP code lookup
       const county = getCountyFromZip(input);
       if (county) {
-        setSelectedCounty({ code: county.countyCode, name: county.countyName });
+        setSelectedCounty(county);
       } else {
         // Default to Jefferson County if ZIP not found
-        setSelectedCounty({ code: '18550', name: 'Jefferson' });
+        setSelectedCounty({ fips: '21111', name: 'Jefferson' });
       }
     } else {
       // County name search
-      const match = KENTUCKY_COUNTIES.find(c =>
+      const match = counties.find(c =>
         c.name.toLowerCase().includes(input)
       );
       if (match) {
-        setSelectedCounty({ code: match.code, name: match.name });
+        setSelectedCounty({ fips: match.fips, name: match.name });
       }
     }
   };
 
   // Handle compare
-  const handleCompare = (plan: MAPlan) => {
+  const handleCompare = (plan: CmsPlan) => {
     setComparePlans(prev => {
       if (prev.some(p => p.id === plan.id)) {
         return prev.filter(p => p.id !== plan.id);
@@ -362,20 +442,20 @@ export default function PlanFinderPage() {
                 className="pl-9"
               />
             </div>
-            <Button onClick={handleSearch}>
-              Search
+            <Button onClick={handleSearch} disabled={countiesLoading}>
+              {countiesLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search'}
             </Button>
           </div>
 
           {/* Quick County Select */}
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="text-sm text-muted-foreground mr-2 py-1">Popular:</span>
-            {KENTUCKY_COUNTIES.slice(0, 6).map(county => (
+            {POPULAR_COUNTIES.map(county => (
               <Button
-                key={county.code}
-                variant={selectedCounty?.code === county.code ? 'default' : 'outline'}
+                key={county.fips}
+                variant={selectedCounty?.fips === county.fips ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSelectedCounty({ code: county.code, name: county.name })}
+                onClick={() => setSelectedCounty(county)}
               >
                 {county.name}
               </Button>
@@ -391,7 +471,14 @@ export default function PlanFinderPage() {
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-gold" />
               <h2 className="text-lg font-semibold text-foreground">
-                {filteredPlans.length} Plans in {selectedCounty.name} County
+                {plansLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading plans...
+                  </span>
+                ) : (
+                  `${filteredPlans.length} Plans in ${selectedCounty.name} County`
+                )}
               </h2>
             </div>
 
@@ -404,10 +491,11 @@ export default function PlanFinderPage() {
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="HMO">HMO</SelectItem>
                   <SelectItem value="PPO">PPO</SelectItem>
+                  <SelectItem value="HMO-POS">HMO-POS</SelectItem>
                 </SelectContent>
               </Select>
 
-              <Select value={filters.premium} onValueChange={(v) => setFilters(f => ({ ...f, premium: v }))}>
+              <Select value={filters.premium} onValueChange={(v) => setFilters(f => ({ ...f, premium: v as typeof filters.premium }))}>
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Premium" />
                 </SelectTrigger>
@@ -442,19 +530,35 @@ export default function PlanFinderPage() {
             </div>
           </div>
 
-          {/* Plan Grid */}
-          <div className="grid gap-4 md:grid-cols-2">
-            {filteredPlans.map(plan => (
-              <PlanCard
-                key={plan.id}
-                plan={plan}
-                onCompare={handleCompare}
-                isInCompare={isInCompare(plan.id)}
-              />
-            ))}
-          </div>
+          {/* Error State */}
+          {error && (
+            <Card className="mb-4 border-red-200 bg-red-50">
+              <CardContent className="py-4 text-red-700">
+                Failed to load plans: {error.message}
+              </CardContent>
+            </Card>
+          )}
 
-          {filteredPlans.length === 0 && (
+          {/* Plan Grid */}
+          {plansLoading ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {[...Array(4)].map((_, i) => <PlanCardSkeleton key={i} />)}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {filteredPlans.map(plan => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  onCompare={handleCompare}
+                  isInCompare={isInCompare(plan.id)}
+                  onViewDetails={setDetailPlan}
+                />
+              ))}
+            </div>
+          )}
+
+          {!plansLoading && filteredPlans.length === 0 && (
             <Card>
               <CardContent className="py-12 text-center">
                 <p className="text-muted-foreground">No plans match your filters. Try adjusting your criteria.</p>
@@ -485,7 +589,7 @@ export default function PlanFinderPage() {
               <span className="text-sm font-medium text-foreground whitespace-nowrap">Compare:</span>
               {comparePlans.map(plan => (
                 <Badge key={plan.id} variant="secondary" className="flex items-center gap-2 py-1.5">
-                  <span className="truncate max-w-[150px]">{plan.planName}</span>
+                  <span className="truncate max-w-[150px]">{plan.planName || `${plan.contractId}-${plan.planId}`}</span>
                   <button onClick={() => handleCompare(plan)} className="hover:text-foreground">
                     <X className="w-3 h-3" />
                   </button>
@@ -502,6 +606,15 @@ export default function PlanFinderPage() {
 
       {/* Bottom padding when compare tray is visible */}
       {comparePlans.length > 0 && <div className="h-20" />}
+
+      {/* Plan Detail Modal */}
+      <PlanDetailModal
+        plan={detailPlan}
+        open={!!detailPlan}
+        onClose={() => setDetailPlan(null)}
+        onAddToCompare={handleCompare}
+        isInCompare={detailPlan ? isInCompare(detailPlan.id) : false}
+      />
     </AdminLayout>
   );
 }
