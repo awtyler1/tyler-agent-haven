@@ -70,7 +70,7 @@ export interface CmsPlanBenefits {
   } | null;
   hearing: {
     examCopay: string | null;
-    aidAllowance: number | null;
+    aidAllowance: string | null; // TEXT: "$2,000" or "$699 copay/aid"
   } | null;
   otcAllowance: number | null;
   fitness: string | null;

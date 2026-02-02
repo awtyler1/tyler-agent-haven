@@ -356,12 +356,8 @@ export function PlanDetailModal({
                   highlight={plan.benefits.hearing.examCopay === '$0'}
                 />
                 <BenefitRow
-                  label="Hearing Aid Allowance"
-                  value={
-                    plan.benefits.hearing.aidAllowance
-                      ? `$${plan.benefits.hearing.aidAllowance}/year`
-                      : null
-                  }
+                  label="Hearing Aid Benefit"
+                  value={plan.benefits.hearing.aidAllowance}
                 />
               </>
             ) : (

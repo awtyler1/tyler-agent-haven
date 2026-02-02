@@ -1,3 +1,4 @@
+Initialising login role...
 export type Json =
   | string
   | number
@@ -766,7 +767,7 @@ export type Database = {
           drug_tier5: string | null
           er_copay: string | null
           fitness_benefit: string | null
-          hearing_aid_allowance: number | null
+          hearing_aid_allowance: string | null
           hearing_exam_copay: string | null
           id: string
           inpatient_copay: string | null
@@ -816,7 +817,7 @@ export type Database = {
           drug_tier5?: string | null
           er_copay?: string | null
           fitness_benefit?: string | null
-          hearing_aid_allowance?: number | null
+          hearing_aid_allowance?: string | null
           hearing_exam_copay?: string | null
           id?: string
           inpatient_copay?: string | null
@@ -866,7 +867,7 @@ export type Database = {
           drug_tier5?: string | null
           er_copay?: string | null
           fitness_benefit?: string | null
-          hearing_aid_allowance?: number | null
+          hearing_aid_allowance?: string | null
           hearing_exam_copay?: string | null
           id?: string
           inpatient_copay?: string | null
