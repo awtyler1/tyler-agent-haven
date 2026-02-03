@@ -92,7 +92,8 @@ interface Economics {
   // Lead sources breakdown
   lead_sources: LeadSource[];
   total_expected_sales: number;
-  gap_or_buffer: number;    // Positive = buffer, negative = gap
+  gap_or_buffer: number;    // Positive = on track/buffer, negative = gap
+  community_weekly_target: number;  // Consistent target across all pages
 
   // T65/PC split for display
   t65_monthly: number;
@@ -233,11 +234,10 @@ function calculateLeadSources(profile: BrokerProfile): LeadSource[] {
     // No gap - still show Community as activity-based supplement
     sources.push({
       name: 'Community & Networking',
-      what_you_have: '5 conversations/wk (supplement)',
+      what_you_have: '5 conversations/wk',
       close_rate: CLOSE_RATES.COMMUNITY * 100,
       expected_sales: 2, // 5/wk × 4 weeks × 10% = 2
       is_variable: false,
-      label: 'Buffer',
     });
   }
 
@@ -251,7 +251,7 @@ function calculateLeadSources(profile: BrokerProfile): LeadSource[] {
 // BUSINESS LOGIC: CHANNEL BUILDING
 // ============================================================================
 
-function buildChannels(profile: BrokerProfile, leadSources: LeadSource[], gap: number): GrowthChannel[] {
+function buildChannels(profile: BrokerProfile, leadSources: LeadSource[], communityTarget: number): GrowthChannel[] {
   const channels: GrowthChannel[] = [];
   const book = profile.book_size;
 
@@ -324,11 +324,7 @@ function buildChannels(profile: BrokerProfile, leadSources: LeadSource[], gap: n
   }
 
   // Community & Networking (always show) - 10% close rate
-  // Calculate target based on gap (same formula as calculateLeadSources)
-  const salesGoal = profile.income_goal / COMMISSION.BLENDED_AVG;
-  const monthlyConvosNeeded = gap > 0 ? gap / CLOSE_RATES.COMMUNITY : 0;
-  const weeklyTargetCalc = Math.ceil(monthlyConvosNeeded / 4);
-  const communityTarget = gap > 0 ? Math.max(5, Math.min(20, weeklyTargetCalc)) : 5;
+  // Use the consistent target passed from economics
   const communityExpected = Math.round(communityTarget * 4 * CLOSE_RATES.COMMUNITY);
 
   channels.push({
@@ -354,7 +350,7 @@ function buildChannels(profile: BrokerProfile, leadSources: LeadSource[], gap: n
 // BUSINESS LOGIC: DAILY CHECKLIST
 // ============================================================================
 
-function buildDailyChecklist(profile: BrokerProfile, gap: number): DailyChecklist[] {
+function buildDailyChecklist(profile: BrokerProfile, communityTarget: number): DailyChecklist[] {
   const checklist: DailyChecklist[] = [];
 
   // Lead Star - inbound call availability (if assigned)
@@ -401,11 +397,8 @@ function buildDailyChecklist(profile: BrokerProfile, gap: number): DailyChecklis
   }
 
   // Community & Networking conversations (always show)
-  // Calculate target based on gap (same formula as calculateLeadSources)
-  const monthlyConvosNeeded = gap > 0 ? gap / CLOSE_RATES.COMMUNITY : 0;
-  const weeklyTargetCalc = Math.ceil(monthlyConvosNeeded / 4);
-  const communityTarget = gap > 0 ? Math.max(5, Math.min(20, weeklyTargetCalc)) : 5;
-  const atMaxCapacity = weeklyTargetCalc > 20;
+  // Use the same target from calculateLeadSources via economics
+  const atMaxCapacity = communityTarget >= 20;
 
   let communityDetail = 'Personal contacts, networking, professional partners';
   if (atMaxCapacity) {
@@ -438,6 +431,12 @@ function calculateEconomics(profile: BrokerProfile): Economics {
     .reduce((sum, s) => sum + s.expected_sales, 0);
 
   const gapOrBuffer = totalExpected - salesGoal;
+
+  // Extract community target from lead sources for consistency across all pages
+  const communitySource = leadSources.find(s => s.name === 'Community & Networking');
+  const communityWeeklyTarget = communitySource
+    ? parseInt(communitySource.what_you_have.match(/\d+/)?.[0] || '5')
+    : 5;
 
   // T65/PC split (25/75)
   const t65Monthly = Math.floor(salesGoal * 0.25);
@@ -485,6 +484,7 @@ function calculateEconomics(profile: BrokerProfile): Economics {
     lead_sources: leadSources,
     total_expected_sales: totalExpected,
     gap_or_buffer: gapOrBuffer,
+    community_weekly_target: communityWeeklyTarget,
     t65_monthly: t65Monthly,
     plan_change_monthly: planChangeMonthly,
     existing_book_size: profile.book_size,
@@ -690,7 +690,7 @@ async function generatePdf(
   const communitySource = economics.lead_sources.find(s => s.name === 'Community & Networking');
   const isAtMaxCapacity = communitySource?.label === 'At max capacity';
 
-  const summaryH = isAtMaxCapacity ? 44 : 34;
+  const summaryH = 34;  // All summary messages now fit in 2 lines
   const hasBuffer = economics.gap_or_buffer >= 0;
   const summaryBg = hasBuffer ? GREEN_LIGHT : (isAtMaxCapacity ? RED_LIGHT : ORANGE_LIGHT);
   const summaryBorder = hasBuffer ? rgb(0.65, 0.84, 0.65) : (isAtMaxCapacity ? rgb(1.0, 0.80, 0.80) : rgb(1.0, 0.76, 0.03));
@@ -698,20 +698,18 @@ async function generatePdf(
   drawRect(page, MARGIN, y - summaryH, CONTENT_WIDTH, summaryH, summaryBg, summaryBorder);
 
   if (hasBuffer) {
-    const bufferMsg = `Resources produce ~${economics.total_expected_sales} sales. Goal: ${economics.sales_goal}. +${economics.gap_or_buffer} buffer.`;
-    drawText(page, truncateText(bufferMsg, 75), MARGIN + 10, y - 14, 10, helveticaBold, CHARCOAL);
-    drawText(page, "You have margin. Keep building relationships.", MARGIN + 10, y - 27, 8, helvetica, DARK_GRAY);
+    const onTrackMsg = `Your lead sources can produce ~${economics.total_expected_sales} sales. Your goal is ${economics.sales_goal}.`;
+    drawText(page, truncateText(onTrackMsg, 75), MARGIN + 10, y - 14, 10, helveticaBold, CHARCOAL);
+    drawText(page, "You're on track.", MARGIN + 10, y - 27, 8, helveticaBold, GREEN_DARK);
   } else if (isAtMaxCapacity) {
     const gapAbs = Math.abs(economics.gap_or_buffer);
-    const gapMsg = `Resources produce ~${economics.total_expected_sales} sales. Goal: ${economics.sales_goal}. Gap: ${gapAbs}.`;
+    const gapMsg = `Your lead sources can produce ~${economics.total_expected_sales} sales. Your goal is ${economics.sales_goal}. Gap: ${gapAbs}.`;
     drawText(page, truncateText(gapMsg, 75), MARGIN + 10, y - 14, 10, helveticaBold, rgb(0.78, 0.16, 0.16));
-    drawText(page, "Community & Networking at max (20/wk). Consider:", MARGIN + 10, y - 27, 8, helveticaBold, DARK_GRAY);
-    drawText(page, "Talk to your manager about Lead Star or MIRA access.", MARGIN + 10, y - 40, 8, helvetica, DARK_GRAY);
+    drawText(page, "Community at max (20/wk). Talk to your manager about Lead Star or MIRA.", MARGIN + 10, y - 27, 8, helvetica, DARK_GRAY);
   } else {
-    const gapAbs = Math.abs(economics.gap_or_buffer);
-    const gapMsg = `Resources produce ~${economics.total_expected_sales} sales. Goal: ${economics.sales_goal}. Gap: ${gapAbs}.`;
+    const gapMsg = `Your lead sources can produce ~${economics.total_expected_sales} sales. Your goal is ${economics.sales_goal}.`;
     drawText(page, truncateText(gapMsg, 75), MARGIN + 10, y - 14, 10, helveticaBold, ORANGE_DARK);
-    drawText(page, "Build relationships to close this gap.", MARGIN + 10, y - 27, 8, helvetica, DARK_GRAY);
+    drawText(page, "Add more community conversations to close the gap.", MARGIN + 10, y - 27, 8, helvetica, DARK_GRAY);
   }
 
   y -= summaryH + 16;
@@ -1203,12 +1201,8 @@ async function generatePdf(
     trackerRows.push({ activity: "Client Care", target: `${contactsPerWeek}/week`, weeklyTarget: `/${contactsPerWeek}` });
   }
 
-  // Community Conversations (always) - same formula as calculateLeadSources
-  const trackerGap = Math.abs(Math.min(0, economics.gap_or_buffer));
-  const trackerConvosNeeded = trackerGap > 0 ? trackerGap / CLOSE_RATES.COMMUNITY : 0;
-  const trackerWeeklyCalc = Math.ceil(trackerConvosNeeded / 4);
-  const trackerCommunityTarget = trackerGap > 0 ? Math.max(5, Math.min(20, trackerWeeklyCalc)) : 5;
-  trackerRows.push({ activity: "Networking", target: `${trackerCommunityTarget}/week`, weeklyTarget: `/${trackerCommunityTarget}` });
+  // Community Conversations (always) - use consistent target from economics
+  trackerRows.push({ activity: "Networking", target: `${economics.community_weekly_target}/week`, weeklyTarget: `/${economics.community_weekly_target}` });
 
   trackerRows.push({ activity: "Appointments Set", target: "", weeklyTarget: "" });
   trackerRows.push({ activity: "Sales Closed", target: "", weeklyTarget: `/${Math.ceil(economics.sales_goal / 4)}` });
@@ -1579,12 +1573,11 @@ serve(async (req) => {
     // Calculate economics (includes lead sources)
     const economics = calculateEconomics(profile);
 
-    // Build channels (pass gap for Community & Networking target calculation)
-    const gap = Math.abs(Math.min(0, economics.gap_or_buffer));  // Convert to positive gap (0 if buffer)
-    const channels = buildChannels(profile, economics.lead_sources, gap);
+    // Build channels (pass consistent community target from economics)
+    const channels = buildChannels(profile, economics.lead_sources, economics.community_weekly_target);
 
-    // Build daily checklist (pass gap for Community & Networking target)
-    const checklist = buildDailyChecklist(profile, gap);
+    // Build daily checklist (pass consistent community target from economics)
+    const checklist = buildDailyChecklist(profile, economics.community_weekly_target);
 
     // Calculate review date
     const reviewDate = new Date();
