@@ -15,7 +15,8 @@ import {
   ArrowRight,
   Calendar,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  Search,
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { SyncStatusPill } from '@/components/dashboard/SyncStatusPill';
@@ -256,6 +257,13 @@ export default function Index() {
                 to="/carrier-resources"
               />
               <ActionButton
+                icon={Search}
+                label="Plan Finder"
+                desc="Search Medicare plans"
+                color="from-emerald-500 to-teal-600"
+                to="/plan-finder"
+              />
+              <ActionButton
                 icon={FileText}
                 label="Forms Library"
                 desc="SOA & enrollment"
@@ -268,7 +276,7 @@ export default function Index() {
                   label="Quick Quote"
                   desc="SunFire & C4M"
                   color="from-orange-500 to-orange-600"
-                  to="/carrier-resources"
+                  to="/agent-tools"
                 />
               )}
               <ActionButton

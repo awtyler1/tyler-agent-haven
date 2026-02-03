@@ -6,6 +6,18 @@
  * - `enabled: false` = Coming soon (visible to RTS agents but not selectable)
  */
 
+/**
+ * Official brand colors for carrier pills and UI accents
+ */
+export const CARRIER_BRAND_COLORS: Record<string, string> = {
+  aetna: '#7B2D8E',      // Purple
+  humana: '#4B9B4B',     // Green
+  uhc: '#002677',        // Navy
+  anthem: '#0072CE',     // Blue
+  wellcare: '#00A79D',   // Teal
+  devoted: '#F97316',    // Orange
+};
+
 export interface CarrierConfig {
   id: string;        // matches carriers.code in DB
   name: string;

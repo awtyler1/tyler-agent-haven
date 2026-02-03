@@ -60,7 +60,7 @@ const RTSImportPage = lazy(() => import("./pages/admin/RTSImportPage"));
 const RoadmapGeneratorPage = lazy(() => import("./pages/admin/RoadmapGeneratorPage"));
 const AgentProfilePage = lazy(() => import("./pages/admin/AgentProfilePage"));
 const PdfBuilderPage = lazy(() => import("./pages/admin/PdfBuilderPage"));
-const PlanFinderPage = lazy(() => import("./pages/admin/PlanFinderPage"));
+const PlanFinderPage = lazy(() => import("./pages/PlanFinderPage"));
 const AgentsBookPage = lazy(() => import("./pages/admin/AgentsBookPage"));
 const AgentBookDetailPage = lazy(() => import("./pages/admin/AgentBookDetailPage"));
 
@@ -230,9 +230,9 @@ const App = () => (
               }
             />
             <Route
-              path="/admin/plan-finder"
+              path="/plan-finder"
               element={
-                <ProtectedRoute requireSuperAdmin>
+                <ProtectedRoute>
                   <PlanFinderPage />
                 </ProtectedRoute>
               }
