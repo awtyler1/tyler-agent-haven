@@ -154,9 +154,15 @@ const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 // BUSINESS LOGIC: LEAD SOURCES CALCULATION
 // ============================================================================
 
-function calculateLeadSources(profile: BrokerProfile): LeadSource[] {
+interface LeadSourcesResult {
+  sources: LeadSource[];
+  communityWeeklyTarget: number;
+}
+
+function calculateLeadSources(profile: BrokerProfile): LeadSourcesResult {
   const sources: LeadSource[] = [];
   let totalExpected = 0;
+  let communityWeeklyTarget = 5; // default
 
   // Debug logging
   console.log("calculateLeadSources - lead_star_leads:", profile.lead_star_leads);
@@ -218,23 +224,24 @@ function calculateLeadSources(profile: BrokerProfile): LeadSource[] {
     const monthlyConvosNeeded = gap / CLOSE_RATES.COMMUNITY; // gap / 0.10
     const weeklyTarget = Math.ceil(monthlyConvosNeeded / 4);
     // Cap between 5-20 conversations/week (realistic bounds)
-    const communityTarget = Math.max(5, Math.min(20, weeklyTarget));
-    const expectedSales = Math.round(communityTarget * 4 * CLOSE_RATES.COMMUNITY);
+    communityWeeklyTarget = Math.max(5, Math.min(20, weeklyTarget));
+    const expectedSales = Math.round(communityWeeklyTarget * 4 * CLOSE_RATES.COMMUNITY);
 
     sources.push({
       name: 'Community & Networking',
-      what_you_have: `${communityTarget} conversations/wk`,
+      what_you_have: `${communityWeeklyTarget} conversations/wk`,
       close_rate: CLOSE_RATES.COMMUNITY * 100,
       expected_sales: expectedSales,
       is_variable: false,
-      label: communityTarget >= 20 ? 'At max capacity' : undefined,
+      label: communityWeeklyTarget >= 20 ? 'At max capacity' : undefined,
     });
     totalExpected += expectedSales;
   } else {
     // No gap - still show Community as activity-based supplement
+    communityWeeklyTarget = 5;
     sources.push({
       name: 'Community & Networking',
-      what_you_have: '5 conversations/wk',
+      what_you_have: `${communityWeeklyTarget} conversations/wk`,
       close_rate: CLOSE_RATES.COMMUNITY * 100,
       expected_sales: 2, // 5/wk × 4 weeks × 10% = 2
       is_variable: false,
@@ -243,8 +250,9 @@ function calculateLeadSources(profile: BrokerProfile): LeadSource[] {
 
   // Debug logging
   console.log("calculateLeadSources - sources created:", sources.map(s => s.name));
+  console.log("calculateLeadSources - communityWeeklyTarget:", communityWeeklyTarget);
 
-  return sources;
+  return { sources, communityWeeklyTarget };
 }
 
 // ============================================================================
@@ -424,19 +432,13 @@ function calculateEconomics(profile: BrokerProfile): Economics {
   const salesGoal = profile.monthly_goal;
   const annualIncome = incomeGoal * 12;
 
-  // Calculate lead sources
-  const leadSources = calculateLeadSources(profile);
+  // Calculate lead sources (returns both sources and communityWeeklyTarget)
+  const { sources: leadSources, communityWeeklyTarget } = calculateLeadSources(profile);
   const totalExpected = leadSources
     .filter(s => !s.is_variable)
     .reduce((sum, s) => sum + s.expected_sales, 0);
 
   const gapOrBuffer = totalExpected - salesGoal;
-
-  // Extract community target from lead sources for consistency across all pages
-  const communitySource = leadSources.find(s => s.name === 'Community & Networking');
-  const communityWeeklyTarget = communitySource
-    ? parseInt(communitySource.what_you_have.match(/\d+/)?.[0] || '5')
-    : 5;
 
   // T65/PC split (25/75)
   const t65Monthly = Math.floor(salesGoal * 0.25);
