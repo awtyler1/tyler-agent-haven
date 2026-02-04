@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
-import { createSupabaseAdmin, requireAdmin, isAuthError, getErrorStatus, getErrorMessage } from "../_shared/auth.ts";
+import { createSupabaseAdmin, requireAdmin, getAuthenticatedUser, isAuthError, getErrorStatus, getErrorMessage } from "../_shared/auth.ts";
 
 interface CreateAdminRequest {
   email: string;
@@ -23,15 +23,39 @@ serve(async (req: Request): Promise<Response> => {
     // Verify the requesting user is an admin
     await requireAdmin(req, supabaseAdmin);
 
-    const { 
-      email, 
-      fullName, 
+    const {
+      email,
+      fullName,
       role,
       sendSetupEmail = true
     }: CreateAdminRequest = await req.json();
 
     if (!email || !fullName || !role) {
       throw new Error("Email, full name, and role are required");
+    }
+
+    // CRITICAL: Permission escalation check
+    // Only super_admin can create super_admin accounts
+    if (role === 'super_admin') {
+      const requestingUser = await getAuthenticatedUser(req, supabaseAdmin);
+      const { data: callerRoles } = await supabaseAdmin
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', requestingUser.id);
+
+      const isSuperAdmin = callerRoles?.some(r => r.role === 'super_admin');
+
+      if (!isSuperAdmin) {
+        return new Response(
+          JSON.stringify({
+            error: 'Permission denied: Only super admins can create super admin accounts'
+          }),
+          {
+            status: 403,
+            headers: { "Content-Type": "application/json", ...getCorsHeaders(req) }
+          }
+        );
+      }
     }
 
     // Generate a random password

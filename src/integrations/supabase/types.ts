@@ -1,4 +1,3 @@
-Initialising login role...
 export type Json =
   | string
   | number
@@ -75,6 +74,48 @@ export type Database = {
           {
             foreignKeyName: "activity_logs_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_notes: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          id: string
+          profile_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          profile_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          profile_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notes_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_notes_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2126,6 +2167,7 @@ export type Database = {
         Args: { org_name: string }
         Returns: string
       }
+      get_current_profile_id: { Args: never; Returns: string }
       get_my_profile_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
@@ -2140,6 +2182,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_admin_user: { Args: never; Returns: boolean }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }

@@ -707,47 +707,53 @@ export default function ContractingQueuePage() {
         .eq('id', selectedAgent.id);
 
       if (updateError) {
-        toast.error('Email sent but failed to update status');
-      } else {
-        toast.success(`Contracting request sent for ${selectedAgent.full_legal_name}`);
+        // CRITICAL: Email was sent but status update failed - system is in inconsistent state
+        // Return failure so the user knows to manually fix the status
+        console.error('Status update failed after email sent:', updateError);
+        toast.error('Email sent but failed to update application status. Please manually mark this application as sent.');
+        fetchApplications();
+        setSelectedAgent(null);
+        return { success: false };
+      }
 
-        await logActivity(
-          ActivityAction.SENT_TO_PINNACLE,
-          EntityType.CONTRACTING_APPLICATION,
-          selectedAgent.id,
-          {
-            agent_name: selectedAgent.full_legal_name,
-            carriers: modalCarriers,
-            recipient: data.to,
-          }
-        );
+      toast.success(`Contracting request sent for ${selectedAgent.full_legal_name}`);
 
-        // Create carrier_statuses records
-        try {
-          const { data: allCarriers, error: lookupError } = await supabase
-            .from('carriers')
-            .select('id, code');
-
-          const modalCarriersLower = modalCarriers.map(c => c.toLowerCase());
-          const carrierRecords = allCarriers?.filter(c =>
-            modalCarriersLower.includes(c.code.toLowerCase())
-          ) || [];
-
-          if (!lookupError && carrierRecords.length > 0) {
-            await supabase
-              .from('carrier_statuses')
-              .upsert(
-                carrierRecords.map(carrier => ({
-                  user_id: selectedAgent.user_id,
-                  carrier_id: carrier.id,
-                  contracting_status: 'in_progress',
-                })),
-                { onConflict: 'user_id,carrier_id' }
-              );
-          }
-        } catch (carrierErr) {
-          console.error('Error creating carrier_statuses:', carrierErr);
+      await logActivity(
+        ActivityAction.SENT_TO_PINNACLE,
+        EntityType.CONTRACTING_APPLICATION,
+        selectedAgent.id,
+        {
+          agent_name: selectedAgent.full_legal_name,
+          carriers: modalCarriers,
+          recipient: data.to,
         }
+      );
+
+      // Create carrier_statuses records (non-critical, don't fail on error)
+      try {
+        const { data: allCarriers, error: lookupError } = await supabase
+          .from('carriers')
+          .select('id, code');
+
+        const modalCarriersLower = modalCarriers.map(c => c.toLowerCase());
+        const carrierRecords = allCarriers?.filter(c =>
+          modalCarriersLower.includes(c.code.toLowerCase())
+        ) || [];
+
+        if (!lookupError && carrierRecords.length > 0) {
+          await supabase
+            .from('carrier_statuses')
+            .upsert(
+              carrierRecords.map(carrier => ({
+                user_id: selectedAgent.user_id,
+                carrier_id: carrier.id,
+                contracting_status: 'in_progress',
+              })),
+              { onConflict: 'user_id,carrier_id' }
+            );
+        }
+      } catch (carrierErr) {
+        console.error('Error creating carrier_statuses:', carrierErr);
       }
 
       fetchApplications();

@@ -46,7 +46,13 @@
       "Bash(if not exist \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\scripts\" mkdir \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\scripts\")",
       "Bash(npx tsx:*)",
       "Bash(timeout:*)",
-      "Bash(del \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\scripts\\\\debug-dental-vision.ts\")"
+      "Bash(del \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\scripts\\\\debug-dental-vision.ts\")",
+      "Bash(git restore:*)",
+      "Bash(npx eslint:*)",
+      "Bash(netstat:*)",
+      "Bash(tasklist:*)",
+      "Bash(git clean:*)",
+      "Bash(del nul)"
     ]
   }
 }

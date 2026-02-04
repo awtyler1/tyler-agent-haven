@@ -76,40 +76,50 @@ export default function AgentsBookPage() {
 
   const fetchAgents = async () => {
     try {
-      // Fetch profiles with policy counts
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, state, last_sync_at')
-        .eq('is_active', true)
-        .order('full_name');
+      // Fetch profiles and all active policies in parallel (2 queries instead of 2N+1)
+      const [profilesResult, policiesResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, full_name, email, state, last_sync_at')
+          .eq('is_active', true)
+          .order('full_name'),
+        supabase
+          .from('policies')
+          .select('profile_id, effective_date')
+          .eq('status', 'active')
+      ]);
 
-      if (profilesError) throw profilesError;
+      if (profilesResult.error) throw profilesResult.error;
 
-      // For each profile, get policy counts
-      const agentsWithCounts = await Promise.all(
-        (profiles || []).map(async (profile) => {
-          // Total active policies
-          const { count: policyCount } = await supabase
-            .from('policies')
-            .select('*', { count: 'exact', head: true })
-            .eq('profile_id', profile.id)
-            .eq('status', 'active');
+      const profiles = profilesResult.data || [];
+      const policies = policiesResult.data || [];
 
-          // New this month
-          const { count: newCount } = await supabase
-            .from('policies')
-            .select('*', { count: 'exact', head: true })
-            .eq('profile_id', profile.id)
-            .eq('status', 'active')
-            .gte('effective_date', monthStart);
+      // Build policy counts map in a single pass (O(n) instead of O(n) DB calls)
+      const policyCounts = new Map<string, { total: number; newThisMonth: number }>();
 
-          return {
-            ...profile,
-            policy_count: policyCount || 0,
-            new_this_month: newCount || 0,
-          };
-        })
-      );
+      for (const policy of policies) {
+        if (!policy.profile_id) continue;
+
+        const existing = policyCounts.get(policy.profile_id) || { total: 0, newThisMonth: 0 };
+        existing.total += 1;
+
+        // Check if new this month
+        if (policy.effective_date && policy.effective_date >= monthStart) {
+          existing.newThisMonth += 1;
+        }
+
+        policyCounts.set(policy.profile_id, existing);
+      }
+
+      // Merge profiles with policy counts
+      const agentsWithCounts: AgentWithBook[] = profiles.map((profile) => {
+        const counts = policyCounts.get(profile.id) || { total: 0, newThisMonth: 0 };
+        return {
+          ...profile,
+          policy_count: counts.total,
+          new_this_month: counts.newThisMonth,
+        };
+      });
 
       // Filter out agents with no policies and no sync
       const activeAgents = agentsWithCounts.filter(

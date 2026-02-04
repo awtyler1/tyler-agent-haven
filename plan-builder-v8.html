@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Builder | TIG</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .header-left h1 {
+      color: #1B4F72;
+      font-size: 22px;
+    }
+
+    .header-left p {
+      color: #888;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .version-badge {
+      background: #9E7D2E;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-small:hover {
+      background: #e0e0e0;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 340px;
+      gap: 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      padding: 16px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9E7D2E;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #9E7D2E;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #9E7D2E;
+    }
+
+    .checkbox-group label {
+      font-size: 13px;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .presets {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .preset-btn {
+      padding: 6px 10px;
+      background: #f8f8f8;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      background: #e8e8e8;
+      border-color: #9E7D2E;
+    }
+
+    .preset-btn.active {
+      background: #9E7D2E;
+      color: white;
+      border-color: #9E7D2E;
+    }
+
+    .seminars-inline {
+      display: none;
+      margin-left: 16px;
+    }
+
+    .seminars-inline.show {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .seminars-inline input {
+      width: 50px;
+      padding: 4px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .seminars-inline span {
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* Income Goal - Primary Input */
+    .income-input-group {
+      background: linear-gradient(135deg, #9E7D2E 0%, #7A5F22 100%);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+      color: white;
+    }
+
+    .income-input-group label {
+      color: white;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .income-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .income-input-row .dollar {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .income-input-row input {
+      width: 120px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .income-input-row .per-month {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .income-calc {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.3);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .income-calc .sales-count {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .income-calc .annual {
+      opacity: 0.9;
+    }
+
+    /* Starting Position Highlight */
+    .existing-book-highlight {
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .existing-book-highlight.show {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .existing-book-highlight .label {
+      font-size: 10px;
+      color: #2e7d32;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .existing-book-highlight .value {
+      font-size: 13px;
+      color: #1b5e20;
+      font-weight: 700;
+    }
+
+    .existing-book-highlight .renewals {
+      font-size: 11px;
+      color: #388e3c;
+      text-align: right;
+    }
+
+    /* Action Card */
+    .action-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px 20px;
+      background: #1B4F72;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #163d5a;
+    }
+
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn.loading {
+      position: relative;
+      color: transparent;
+    }
+
+    .btn.loading::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      top: 50%;
+      left: 50%;
+      margin-left: -9px;
+      margin-top: -9px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .status {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: none;
+      text-align: center;
+    }
+
+    .status.success {
+      display: block;
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status.error {
+      display: block;
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .results {
+      margin-top: 12px;
+      flex: 1;
+    }
+
+    .results-section {
+      margin-bottom: 14px;
+    }
+
+    .results-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: #9E7D2E;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 12px;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-label {
+      color: #888;
+    }
+
+    .result-value {
+      font-weight: 600;
+      color: #1B4F72;
+    }
+
+    .result-value.gold {
+      color: #9E7D2E;
+    }
+
+    .result-value.green {
+      color: #28a745;
+    }
+
+    .result-value.orange {
+      color: #e65100;
+    }
+
+    /* Lead Sources Preview */
+    .lead-preview {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .lead-preview-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .lead-preview-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      padding: 3px 0;
+    }
+
+    .lead-preview-row .source {
+      color: #555;
+    }
+
+    .lead-preview-row .expected {
+      font-weight: 600;
+      color: #9E7D2E;
+    }
+
+    .lead-preview-row.total {
+      border-top: 1px solid #ddd;
+      margin-top: 6px;
+      padding-top: 6px;
+      font-weight: 600;
+    }
+
+    .lead-preview-row.total .source {
+      color: #333;
+    }
+
+    .gap-indicator {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .gap-indicator.good {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .gap-indicator.warning {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    /* Scheduled Events Preview (Seminars) */
+    .events-preview {
+      background: #f3e8ff;
+      border: 1px solid #d8b4fe;
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .events-preview.show {
+      display: block;
+    }
+
+    .events-preview-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: #7c3aed;
+      margin-bottom: 8px;
+    }
+
+    .events-preview-content {
+      font-size: 12px;
+      color: #5b21b6;
+    }
+
+    .events-preview-content strong {
+      font-weight: 600;
+    }
+
+    .events-preview-note {
+      font-size: 10px;
+      color: #8b5cf6;
+      font-style: italic;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <h1>Plan Builder <span class="version-badge">V8</span></h1>
+        <p>Backward Math Edition — Income → Sales → Lead Sources</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-small" onclick="resetForm()">Reset</button>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <!-- Column 1: Agent Info + Income Goal -->
+      <div class="card">
+        <div class="section-title">Agent Information</div>
+
+        <div class="presets">
+          <span style="font-size: 10px; color: #888; margin-right: 8px;">Presets:</span>
+          <button class="preset-btn" onclick="loadPreset('new')">New Agent</button>
+          <button class="preset-btn" onclick="loadPreset('growing')">Growing</button>
+          <button class="preset-btn" onclick="loadPreset('established')">Established</button>
+          <button class="preset-btn" onclick="loadPreset('top')">Top Producer</button>
+        </div>
+
+        <div class="form-group">
+          <label>Agent Name</label>
+          <input type="text" id="broker_name" placeholder="John Smith">
+        </div>
+
+        <div class="form-group">
+          <label>Manager Name</label>
+          <input type="text" id="manager_name" value="TIG Leadership">
+        </div>
+
+        <!-- Income Goal - Primary Input -->
+        <div class="income-input-group">
+          <label>Monthly Income Goal</label>
+          <div class="income-input-row">
+            <span class="dollar">$</span>
+            <input type="number" id="income_goal" value="3470" step="100" onchange="updateIncomeCalc()">
+            <span class="per-month">/month</span>
+          </div>
+          <div class="income-calc">
+            <span>= <span class="sales-count" id="calc_sales">8 sales</span>/month</span>
+            <span class="annual">$<span id="calc_annual">41,640</span>/year</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Current Book Size (clients)</label>
+          <input type="number" id="book_size" min="0" value="0" onchange="updateBookHighlight()">
+        </div>
+      </div>
+
+      <!-- Column 2: Assigned Resources -->
+      <div class="card">
+        <div class="section-title">Assigned Resources</div>
+
+        <div class="existing-book-highlight" id="existingBookHighlight">
+          <div>
+            <div class="label">Starting Position</div>
+            <div class="value" id="existingBookValue">75 clients</div>
+          </div>
+          <div class="renewals" id="existingRenewals">~$22,134/yr renewals</div>
+        </div>
+
+        <div class="form-group">
+          <label>Lead Star Inbound Calls (per month)</label>
+          <input type="number" id="lead_star_leads" min="0" value="0" onchange="updateLeadPreview()">
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <div class="checkbox-row">
+            <div class="checkbox-group">
+              <input type="checkbox" id="mira_access" onchange="updateLeadPreview()">
+              <label for="mira_access">MIRA Access</label>
+            </div>
+
+            <div class="checkbox-group">
+              <input type="checkbox" id="seminar_eligible" onchange="toggleSeminars()">
+              <label for="seminar_eligible">Seminar Eligible</label>
+            </div>
+
+            <div class="seminars-inline" id="seminars_inline">
+              <input type="number" id="seminars_planned" min="0" value="0" onchange="updateLeadPreview()">
+              <span>planned</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lead Sources Preview (Monthly) -->
+        <div class="lead-preview" id="leadPreview">
+          <div class="lead-preview-title">Expected Sales by Source (Monthly)</div>
+          <div id="leadPreviewRows">
+            <!-- Populated by JS -->
+          </div>
+          <div class="gap-indicator good" id="gapIndicator">
+            You have margin for error ✓
+          </div>
+        </div>
+
+        <!-- Scheduled Events Preview (Seminars) -->
+        <div class="events-preview" id="eventsPreview">
+          <div class="events-preview-title">Scheduled Events (One-time)</div>
+          <div class="events-preview-content" id="eventsContent">
+            <!-- Populated by JS -->
+          </div>
+          <div class="events-preview-note">Results come when events happen, not monthly</div>
+        </div>
+      </div>
+
+      <!-- Column 3: Generate & Results -->
+      <div class="card action-card">
+        <div class="section-title">Build Plan</div>
+
+        <button class="btn" id="generateBtn" onclick="generatePlan()">
+          Build Growth Plan
+        </button>
+
+        <div class="status" id="status"></div>
+
+        <div class="results" id="results">
+          <!-- Income Section -->
+          <div class="results-section">
+            <div class="results-section-title">Income Goal</div>
+            <div class="result-item">
+              <span class="result-label">Monthly</span>
+              <span class="result-value gold" id="result-monthly">-</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Sales Needed</span>
+              <span class="result-value" id="result-sales">-</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Annual</span>
+              <span class="result-value gold" id="result-annual">-</span>
+            </div>
+          </div>
+
+          <!-- Lead Sources Section -->
+          <div class="results-section">
+            <div class="results-section-title">Lead Sources</div>
+            <div class="result-item">
+              <span class="result-label">Total Expected</span>
+              <span class="result-value" id="result-expected">-</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Gap/Buffer</span>
+              <span class="result-value" id="result-gap">-</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Channels</span>
+              <span class="result-value" id="result-channels">-</span>
+            </div>
+          </div>
+
+          <!-- 5-Year Section -->
+          <div class="results-section">
+            <div class="results-section-title">5-Year Outlook</div>
+            <div class="result-item">
+              <span class="result-label">Year 1 Total</span>
+              <span class="result-value gold" id="result-year1">-</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Year 5 Total</span>
+              <span class="result-value gold" id="result-year5">-</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">5-Year Cumulative</span>
+              <span class="result-value green" id="result-cumulative">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://mgczpsrtkdkkjzmztpyd.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nY3pwc3J0a2Rra2p6bXp0cHlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1NDA2OTUsImV4cCI6MjA4MjExNjY5NX0.xYLadB9p9fwDGgJvKDwyQJa_iATqh840rbBJiwIPntw';
+
+    // Presets for different agent types
+    const presets = {
+      new: {
+        broker_name: 'New Agent',
+        manager_name: 'TIG Leadership',
+        income_goal: 1735,  // ~4 sales
+        book_size: 0,
+        lead_star_leads: 5,
+        seminar_eligible: false,
+        seminars_planned: 0,
+        mira_access: false
+      },
+      growing: {
+        broker_name: 'Growing Agent',
+        manager_name: 'TIG Leadership',
+        income_goal: 3470,  // ~8 sales
+        book_size: 40,
+        lead_star_leads: 12,
+        seminar_eligible: true,
+        seminars_planned: 1,
+        mira_access: true
+      },
+      established: {
+        broker_name: 'Established Agent',
+        manager_name: 'TIG Leadership',
+        income_goal: 4340,  // ~10 sales
+        book_size: 100,
+        lead_star_leads: 20,
+        seminar_eligible: true,
+        seminars_planned: 2,
+        mira_access: true
+      },
+      top: {
+        broker_name: 'Top Producer',
+        manager_name: 'TIG Leadership',
+        income_goal: 6510,  // ~15 sales
+        book_size: 250,
+        lead_star_leads: 40,
+        seminar_eligible: true,
+        seminars_planned: 4,
+        mira_access: true
+      }
+    };
+
+    function loadPreset(name) {
+      const p = presets[name];
+      if (!p) return;
+
+      document.getElementById('broker_name').value = p.broker_name;
+      document.getElementById('manager_name').value = p.manager_name;
+      document.getElementById('income_goal').value = p.income_goal;
+      document.getElementById('book_size').value = p.book_size;
+      document.getElementById('lead_star_leads').value = p.lead_star_leads;
+      document.getElementById('seminar_eligible').checked = p.seminar_eligible;
+      document.getElementById('seminars_planned').value = p.seminars_planned;
+      document.getElementById('mira_access').checked = p.mira_access;
+      document.getElementById('seminars_inline').className = p.seminar_eligible ? 'seminars-inline show' : 'seminars-inline';
+
+      updateIncomeCalc();
+      updateBookHighlight();
+      updateLeadPreview();
+      clearResults();
+
+      // Update active button
+      document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function toggleSeminars() {
+      const checked = document.getElementById('seminar_eligible').checked;
+      document.getElementById('seminars_inline').className = checked ? 'seminars-inline show' : 'seminars-inline';
+      updateLeadPreview();
+    }
+
+    function updateIncomeCalc() {
+      const income = parseInt(document.getElementById('income_goal').value) || 0;
+      const sales = Math.round(income / 434);  // Blended avg ~$434/sale
+      const annual = income * 12;
+
+      document.getElementById('calc_sales').textContent = sales + ' sales';
+      document.getElementById('calc_annual').textContent = annual.toLocaleString();
+
+      updateLeadPreview();
+    }
+
+    function updateBookHighlight() {
+      const bookSize = parseInt(document.getElementById('book_size').value) || 0;
+      const highlight = document.getElementById('existingBookHighlight');
+
+      if (bookSize > 0) {
+        const renewals = Math.round(bookSize * 0.85 * 347);
+        document.getElementById('existingBookValue').textContent = bookSize + ' clients';
+        document.getElementById('existingRenewals').textContent = '~$' + renewals.toLocaleString() + '/yr renewals';
+        highlight.className = 'existing-book-highlight show';
+      } else {
+        highlight.className = 'existing-book-highlight';
+      }
+
+      updateLeadPreview();
+    }
+
+    function updateLeadPreview() {
+      const income = parseInt(document.getElementById('income_goal').value) || 0;
+      const salesGoal = Math.round(income / 434);
+      const book = parseInt(document.getElementById('book_size').value) || 0;
+      const leads = parseInt(document.getElementById('lead_star_leads').value) || 0;
+      const seminars = document.getElementById('seminar_eligible').checked;
+      const seminarsPlanned = parseInt(document.getElementById('seminars_planned').value) || 0;
+      const mira = document.getElementById('mira_access').checked;
+
+      let rows = '';
+      let otherSourcesExpected = 0;  // Lead Star + Client Care + MIRA
+
+      // Lead Star (if assigned)
+      if (leads > 0) {
+        const expected = Math.round(leads * 0.15);
+        otherSourcesExpected += expected;
+        rows += `<div class="lead-preview-row">
+          <span class="source">Lead Star (${leads} calls/mo)</span>
+          <span class="expected">~${expected}</span>
+        </div>`;
+      }
+
+      // Client Care (if book > 0) - replaces referrals + touchpoints
+      if (book > 0) {
+        const eligibleBook = Math.floor(book * 0.80);
+        const monthlyNames = Math.max(1, Math.round((eligibleBook * 2 / 12) * 0.30));
+        const expected = Math.max(1, Math.round(monthlyNames * 0.50));
+        otherSourcesExpected += expected;
+        rows += `<div class="lead-preview-row">
+          <span class="source">Client Care (${book} book)</span>
+          <span class="expected">~${expected}</span>
+        </div>`;
+      }
+
+      // MIRA (if assigned)
+      if (mira) {
+        rows += `<div class="lead-preview-row">
+          <span class="source">MIRA Portal</span>
+          <span class="expected" style="color: #888;">Variable</span>
+        </div>`;
+      }
+
+      // Community & Networking - 10% close rate, gap-based calculation
+      const gap = Math.max(0, salesGoal - otherSourcesExpected);
+      const COMMUNITY_CLOSE_RATE = 0.10;
+      let communityTarget = 5;  // Default minimum
+      let communityExpected = 2;  // 5 convos/wk × 4 wks × 10% = 2
+      let communityLabel = '(5 convos/wk)';
+      let atMaxCapacity = false;
+
+      if (gap > 0) {
+        const monthlyConvosNeeded = gap / COMMUNITY_CLOSE_RATE;
+        const weeklyTargetCalc = Math.ceil(monthlyConvosNeeded / 4);
+        communityTarget = Math.max(5, Math.min(20, weeklyTargetCalc));
+        communityExpected = Math.round(communityTarget * 4 * COMMUNITY_CLOSE_RATE);
+        communityLabel = `(${communityTarget} convos/wk)`;
+        atMaxCapacity = weeklyTargetCalc > 20;
+      }
+
+      rows += `<div class="lead-preview-row">
+        <span class="source">Community & Networking ${communityLabel}</span>
+        <span class="expected"${atMaxCapacity ? ' style="color: #d32f2f;"' : ''}>~${communityExpected}${atMaxCapacity ? ' (MAX)' : ''}</span>
+      </div>`;
+
+      const totalExpected = otherSourcesExpected + communityExpected;
+
+      // Total
+      rows += `<div class="lead-preview-row total">
+        <span class="source">Total Expected (Monthly)</span>
+        <span class="expected">~${totalExpected}</span>
+      </div>`;
+
+      document.getElementById('leadPreviewRows').innerHTML = rows;
+
+      // Gap indicator - now accounts for Community & Networking contribution
+      const gapEl = document.getElementById('gapIndicator');
+      const finalGap = salesGoal - totalExpected;
+      if (atMaxCapacity && finalGap > 0) {
+        gapEl.className = 'gap-indicator warning';
+        gapEl.style.background = '#ffebee';
+        gapEl.style.color = '#c62828';
+        gapEl.textContent = `Gap: ${finalGap} - request Lead Star or MIRA access`;
+      } else if (finalGap <= 0) {
+        gapEl.className = 'gap-indicator good';
+        gapEl.style.background = '';
+        gapEl.style.color = '';
+        const buffer = Math.abs(finalGap);
+        gapEl.textContent = `Buffer: +${buffer} sales margin ✓`;
+      } else {
+        gapEl.className = 'gap-indicator warning';
+        gapEl.style.background = '';
+        gapEl.style.color = '';
+        gapEl.textContent = `Small gap: ${finalGap} - increase networking`;
+      }
+
+      // Scheduled Events (Seminars) - shown separately
+      const eventsPreview = document.getElementById('eventsPreview');
+      const eventsContent = document.getElementById('eventsContent');
+      if (seminars && seminarsPlanned > 0) {
+        const attendees = seminarsPlanned * 18;  // 18 attendees per seminar (industry avg)
+        const seminarSales = Math.round(attendees * 0.32);
+        eventsContent.innerHTML = `<strong>${seminarsPlanned} seminar${seminarsPlanned > 1 ? 's' : ''}</strong> → ~${attendees} attendees → <strong>~${seminarSales} sales</strong>`;
+        eventsPreview.className = 'events-preview show';
+      } else {
+        eventsPreview.className = 'events-preview';
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('broker_name').value = '';
+      document.getElementById('manager_name').value = 'TIG Leadership';
+      document.getElementById('income_goal').value = 3470;
+      document.getElementById('book_size').value = 0;
+      document.getElementById('lead_star_leads').value = 0;
+      document.getElementById('seminar_eligible').checked = false;
+      document.getElementById('seminars_planned').value = 0;
+      document.getElementById('mira_access').checked = false;
+      document.getElementById('seminars_inline').className = 'seminars-inline';
+
+      updateIncomeCalc();
+      updateBookHighlight();
+      updateLeadPreview();
+      clearResults();
+
+      document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function clearResults() {
+      document.getElementById('status').className = 'status';
+      document.getElementById('result-monthly').textContent = '-';
+      document.getElementById('result-sales').textContent = '-';
+      document.getElementById('result-annual').textContent = '-';
+      document.getElementById('result-expected').textContent = '-';
+      document.getElementById('result-gap').textContent = '-';
+      document.getElementById('result-channels').textContent = '-';
+      document.getElementById('result-year1').textContent = '-';
+      document.getElementById('result-year5').textContent = '-';
+      document.getElementById('result-cumulative').textContent = '-';
+    }
+
+    async function generatePlan() {
+      const btn = document.getElementById('generateBtn');
+      const status = document.getElementById('status');
+
+      const incomeGoal = parseInt(document.getElementById('income_goal').value) || 3470;
+      const salesGoal = Math.round(incomeGoal / 434);
+
+      const profile = {
+        broker_name: document.getElementById('broker_name').value || 'Agent',
+        manager_name: document.getElementById('manager_name').value || 'TIG Leadership',
+        income_goal: incomeGoal,
+        monthly_goal: salesGoal,  // Calculated from income
+        book_size: parseInt(document.getElementById('book_size').value) || 0,
+        lead_star_leads: parseInt(document.getElementById('lead_star_leads').value) || 0,
+        seminar_eligible: document.getElementById('seminar_eligible').checked,
+        seminars_planned: parseInt(document.getElementById('seminars_planned').value) || 0,
+        mira_access: document.getElementById('mira_access').checked
+      };
+
+      if (!profile.broker_name.trim()) {
+        status.textContent = 'Enter agent name';
+        status.className = 'status error';
+        return;
+      }
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+      status.className = 'status';
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-growth-plan-pdf-v8`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({ profile })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Failed to build plan');
+        }
+
+        // Download PDF
+        const byteCharacters = atob(data.pdf);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const blob = new Blob([new Uint8Array(byteNumbers)], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.filename || 'GrowthPlan.pdf';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+
+        status.textContent = 'Downloaded! (' + (data.size / 1024).toFixed(0) + ' KB)';
+        status.className = 'status success';
+
+        // Update results
+        if (data.economics) {
+          const econ = data.economics;
+
+          document.getElementById('result-monthly').textContent = '$' + econ.income_goal.toLocaleString();
+          document.getElementById('result-sales').textContent = econ.sales_goal + '/month';
+          document.getElementById('result-annual').textContent = '$' + (econ.income_goal * 12).toLocaleString();
+
+          document.getElementById('result-expected').textContent = '~' + econ.total_expected_sales;
+
+          const gap = econ.sales_goal - econ.total_expected_sales;
+          const gapEl = document.getElementById('result-gap');
+          if (gap <= 0) {
+            gapEl.textContent = '+' + Math.abs(gap) + ' buffer';
+            gapEl.className = 'result-value green';
+          } else {
+            gapEl.textContent = gap + ' from outreach';
+            gapEl.className = 'result-value orange';
+          }
+
+          if (econ.years && econ.years.length >= 5) {
+            document.getElementById('result-year1').textContent = '$' + econ.years[0].total_income.toLocaleString();
+            document.getElementById('result-year5').textContent = '$' + econ.years[4].total_income.toLocaleString();
+          }
+
+          document.getElementById('result-cumulative').textContent = '$' + econ.cumulative_5_year.toLocaleString();
+        }
+
+        if (data.channels) {
+          document.getElementById('result-channels').textContent = data.channels.filter(c => c.assigned).length;
+        }
+
+      } catch (error) {
+        status.textContent = error.message;
+        status.className = 'status error';
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    // Initialize on load
+    updateIncomeCalc();
+    updateBookHighlight();
+    updateLeadPreview();
+  </script>
+</body>
+</html>

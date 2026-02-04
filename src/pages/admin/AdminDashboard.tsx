@@ -63,46 +63,37 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      // Get all roles to identify admins (to exclude)
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
+      // Fetch all data in parallel
+      const [rolesResult, profilesResult, contractingResult] = await Promise.all([
+        supabase.from('user_roles').select('user_id, role'),
+        supabase.from('profiles')
+          .select('id, user_id')
+          .eq('is_active', true)
+          .or('is_test.is.null,is_test.eq.false'),
+        supabase.from('contracting_applications')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'submitted')
+          .not('queue_status', 'in', '("completed","sent_to_pinnacle")')
+          .or('is_test.is.null,is_test.eq.false')
+      ]);
 
-      // Create set of admin user_ids
+      // Process roles to identify admins
       const adminUserIds = new Set(
-        (roles || [])
+        (rolesResult.data || [])
           .filter(r => r.role === 'admin' || r.role === 'super_admin')
           .map(r => r.user_id)
       );
 
-      // Fetch all profiles (exclude test records)
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, user_id')
-        .eq('is_active', true)
-        .or('is_test.is.null,is_test.eq.false');
-
-      if (profiles) {
-        // Filter out admin users
-        const agents = profiles.filter(p => {
+      // Filter profiles to exclude admins
+      if (profilesResult.data) {
+        const agents = profilesResult.data.filter(p => {
           if (!p.user_id) return true;
           return !adminUserIds.has(p.user_id);
         });
-
-        setStats({
-          totalAgents: agents.length,
-        });
+        setStats({ totalAgents: agents.length });
       }
 
-      // Fetch pending contracting count (exclude completed and sent_to_pinnacle)
-      const { count } = await supabase
-        .from('contracting_applications')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'submitted')
-        .not('queue_status', 'in', '("completed","sent_to_pinnacle")')
-        .or('is_test.is.null,is_test.eq.false');
-
-      setPendingCount(count || 0);
+      setPendingCount(contractingResult.count || 0);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
