@@ -64,7 +64,17 @@ const PlanFinderPage = lazy(() => import("./pages/PlanFinderPage"));
 const AgentsBookPage = lazy(() => import("./pages/admin/AgentsBookPage"));
 const AgentBookDetailPage = lazy(() => import("./pages/admin/AgentBookDetailPage"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,      // Data stays fresh for 5 minutes
+      gcTime: 10 * 60 * 1000,        // Cache kept for 10 minutes
+      refetchOnWindowFocus: false,   // DON'T refetch when tab regains focus
+      refetchOnMount: 'always',      // But do fetch on first mount if no data
+      retry: 1,                      // Only retry once on failure
+    },
+  },
+});
 
 // Component to handle recovery token redirects
 function RecoveryRedirectHandler() {

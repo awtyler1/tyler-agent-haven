@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatPhone } from '@/lib/formatters';
@@ -145,13 +145,29 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
   const [loading, setLoading] = useState(true);
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [managerMap, setManagerMap] = useState<Map<string, string>>(new Map());
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<AgentStatus | 'all'>('all');
-  const [managerFilter, setManagerFilter] = useState<string>(initialManagerFilter || 'all');
-  const [stateFilter, setStateFilter] = useState<string>('all');
+
+  // URL state persistence
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('q') || '';
+  const statusFilter = (searchParams.get('status') as AgentStatus | 'all') || 'all';
+  const managerFilter = searchParams.get('manager') || initialManagerFilter || 'all';
+  const stateFilter = searchParams.get('state') || 'all';
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === '') next.delete(key);
+        else next.set(key, value);
+      });
+      return next;
+    }, { replace: true });
+  };
+
+  // Transient state (doesn't need URL persistence)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedAgent, setSelectedAgent] = useState<AgentProfile | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [sendingLinks, setSendingLinks] = useState(false);
   const [copyingLink, setCopyingLink] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -167,12 +183,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     fetchAgents();
   }, []);
 
-  // Update manager filter when initialManagerFilter prop changes
-  useEffect(() => {
-    if (initialManagerFilter !== undefined) {
-      setManagerFilter(initialManagerFilter);
-    }
-  }, [initialManagerFilter]);
+  // Note: managerFilter is now derived from URL with initialManagerFilter as fallback
 
   const fetchAgents = async () => {
     setLoading(true);
@@ -314,10 +325,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     return filtered;
   }, [agents, statusFilter, managerFilter, stateFilter, searchQuery]);
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [statusFilter, managerFilter, stateFilter, searchQuery]);
+  // Note: Page reset is now handled in updateParams when filters change
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredAgents.length / AGENTS_PER_PAGE);
@@ -536,11 +544,11 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
           <Input
             placeholder={`Search ${agents.length} agents...`}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => updateParams({ q: e.target.value || null, page: null })}
             className="pl-10 h-10 border-border"
           />
         </div>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as AgentStatus | 'all')}>
+        <Select value={statusFilter} onValueChange={(v) => updateParams({ status: v === 'all' ? null : v, page: null })}>
           <SelectTrigger className="w-[130px] h-10 border-border">
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
@@ -551,7 +559,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
             <SelectItem value="active">Active</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={managerFilter} onValueChange={setManagerFilter}>
+        <Select value={managerFilter} onValueChange={(v) => updateParams({ manager: v === 'all' ? null : v, page: null })}>
           <SelectTrigger className="w-[180px] h-10 border-border">
             <SelectValue placeholder="All Managers" />
           </SelectTrigger>
@@ -566,7 +574,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
             <SelectItem value="no-manager">Direct to TIG</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={stateFilter} onValueChange={setStateFilter}>
+        <Select value={stateFilter} onValueChange={(v) => updateParams({ state: v === 'all' ? null : v, page: null })}>
           <SelectTrigger className="w-[120px] h-10 border-border">
             <SelectValue placeholder="All States" />
           </SelectTrigger>
@@ -744,7 +752,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  onClick={() => updateParams({ page: currentPage > 2 ? String(currentPage - 1) : null })}
                   disabled={currentPage === 1}
                   className="h-8 px-2"
                 >
@@ -762,7 +770,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                       key={page}
                       variant={currentPage === page ? 'default' : 'ghost'}
                       size="sm"
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => updateParams({ page: page === 1 ? null : String(page) })}
                       className="h-8 w-8 p-0"
                     >
                       {page}
@@ -773,7 +781,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() => updateParams({ page: String(currentPage + 1) })}
                   disabled={currentPage === totalPages}
                   className="h-8 px-2"
                 >

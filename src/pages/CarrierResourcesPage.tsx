@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Phone, Mail, ExternalLink, Download, ArrowLeft, ChevronLeft } from 'lucide-react';
 import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { useCarrierDirectory, useAgentCarriers } from '@/hooks/useCarrierDirectory';
@@ -17,14 +17,16 @@ const CarrierResourcesPage = () => {
     agentCarriers.some(ac => ac.code === c.code)
   );
 
-  const [selectedCarrierCode, setSelectedCarrierCode] = useState<string>('');
+  // Persist selected carrier in URL for bookmarking and tab-switching
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedCarrierCode = searchParams.get('carrier') || '';
 
-  // Set initial carrier when data loads
+  // Set initial carrier when data loads (if not already in URL)
   useEffect(() => {
     if (availableCarriers.length > 0 && !selectedCarrierCode) {
-      setSelectedCarrierCode(availableCarriers[0].code);
+      setSearchParams({ carrier: availableCarriers[0].code }, { replace: true });
     }
-  }, [availableCarriers, selectedCarrierCode]);
+  }, [availableCarriers, selectedCarrierCode, setSearchParams]);
 
   const selectedCarrier = availableCarriers.find(c => c.code === selectedCarrierCode);
   const brandColor = CARRIER_BRAND_COLORS[selectedCarrierCode] || '#3B82F6';
@@ -70,7 +72,7 @@ const CarrierResourcesPage = () => {
               return (
                 <button
                   key={carrier.code}
-                  onClick={() => setSelectedCarrierCode(carrier.code)}
+                  onClick={() => setSearchParams({ carrier: carrier.code })}
                   style={isSelected ? { backgroundColor: color } : {}}
                   className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
                     isSelected

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,
   FileText,
@@ -83,9 +83,25 @@ interface DisplayForm {
 export default function FormsLibraryPage() {
   const { profile } = useProfile();
   const { homePath } = useNavigationContext();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('client_intake');
   const { forms: dbForms, loading, error } = useForms();
+
+  // URL state persistence
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('q') || '';
+  const selectedCategory = (searchParams.get('category') as CategoryKey) || 'client_intake';
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === '') next.delete(key);
+        else next.set(key, value);
+      });
+      return next;
+    }, { replace: true });
+  };
+
+  // Preview doc state (transient - doesn't need URL persistence)
   const [previewDoc, setPreviewDoc] = useState<{ url: string; name: string; downloadUrl: string } | null>(null);
 
   // Convert DB forms to display format and merge with external links
@@ -209,7 +225,7 @@ export default function FormsLibraryPage() {
                   type="text"
                   placeholder="Search forms..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => updateParams({ q: e.target.value || null })}
                   className="w-full pl-9 pr-4 py-2 text-sm border border-[#e8e4dd] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                 />
               </div>
@@ -227,7 +243,7 @@ export default function FormsLibraryPage() {
                   return (
                     <button
                       key={category.key}
-                      onClick={() => setSelectedCategory(category.key)}
+                      onClick={() => updateParams({ category: category.key, q: null })}
                       className={`w-full px-4 py-3 flex items-center justify-between text-left transition-colors border-b border-[#e8e4dd] last:border-0 ${
                         isSelected
                           ? 'bg-blue-600 text-white'

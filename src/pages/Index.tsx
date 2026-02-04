@@ -248,13 +248,7 @@ export default function Index() {
                 />
               )}
 
-              <ActionButton
-                icon={Building2}
-                label="Carrier Resources"
-                desc="Contacts & portals"
-                color="from-blue-500 to-blue-600"
-                to="/carrier-resources"
-              />
+              <CarrierResourcesHoverButton />
               <ActionButton
                 icon={Search}
                 label="Plan Finder"
@@ -450,6 +444,103 @@ function HoverActionButton({ icon: Icon, label, desc, color, links }: HoverActio
               <ExternalLink className="w-3 h-3 text-slate-300 group-hover/link:text-slate-400 ml-auto" />
             </a>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Carrier portal links with brand colors
+const CARRIER_PORTALS = [
+  { name: 'Aetna', url: 'https://www.aetna.com/producer_public/login.fcc', color: '#7B2D8E' },
+  { name: 'Anthem', url: 'https://brokerportal.anthem.com/apps/ptb/login', color: '#0072CE' },
+  { name: 'Devoted', url: 'https://agent.devoted.com/', color: '#F97316' },
+  { name: 'Humana', url: 'https://account.humana.com/', color: '#4B9B4B' },
+  { name: 'UHC', url: 'https://www.uhcagent.com', color: '#002677' },
+  { name: 'Wellcare', url: 'https://brokerportal.wellcare.com/login', color: '#00A79D' },
+];
+
+function CarrierResourcesHoverButton() {
+  const [isOpen, setIsOpen] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const navigate = useNavigate();
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => setIsOpen(false), 150);
+  };
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Main Button */}
+      <button
+        onClick={() => navigate('/carrier-resources')}
+        className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-200 text-left group"
+      >
+        <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+          <Building2 className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-white">Carrier Resources</p>
+          <p className="text-xs text-slate-500">Contacts & portals</p>
+        </div>
+        <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors duration-200" />
+      </button>
+
+      {/* Dropdown */}
+      <div
+        className={`absolute left-full top-0 ml-0 pl-3 z-50 transition-all duration-150 ${
+          isOpen
+            ? 'opacity-100 translate-x-0 pointer-events-auto'
+            : 'opacity-0 -translate-x-2 pointer-events-none'
+        }`}
+      >
+        {/* Arrow */}
+        <div className="absolute left-3 top-4 -ml-[6px] w-3 h-3 bg-white rotate-45 border-l border-b border-slate-200 shadow-sm" />
+
+        {/* Dropdown Content */}
+        <div className="bg-white rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60 overflow-hidden min-w-[220px]">
+          {/* Header */}
+          <div className="px-3 py-2 border-b border-slate-100">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Portal Quick Links</p>
+          </div>
+
+          {/* Portal Links */}
+          <div className="p-2">
+            {CARRIER_PORTALS.map((portal) => (
+              <a
+                key={portal.name}
+                href={portal.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-all duration-150 group/link"
+              >
+                <div
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ backgroundColor: portal.color }}
+                />
+                <span className="text-sm font-medium text-slate-700 group-hover/link:text-slate-900">{portal.name}</span>
+                <ExternalLink className="w-3 h-3 text-slate-300 group-hover/link:text-slate-400 ml-auto" />
+              </a>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <Link
+            to="/carrier-resources"
+            className="flex items-center justify-center gap-1.5 px-3 py-2.5 border-t border-slate-100 text-xs font-medium text-blue-600 hover:bg-blue-50 transition-colors"
+          >
+            View all resources
+            <ChevronRight className="w-3 h-3" />
+          </Link>
         </div>
       </div>
     </div>

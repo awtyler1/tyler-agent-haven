@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { formatDistanceToNow, format } from 'date-fns';
 import {
@@ -383,10 +383,34 @@ function AgentRow({
 export default function ContractingQueuePage() {
   const navigate = useNavigate();
   const [agents, setAgents] = useState<QueueAgent[]>([]);
-  const [selectedAgent, setSelectedAgent] = useState<QueueAgent | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [showCompleted, setShowCompleted] = useState(false);
+
+  // URL state persistence
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') || '';
+  const showCompleted = searchParams.get('completed') === 'true';
+  const selectedAgentId = searchParams.get('agent') || null;
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === '') next.delete(key);
+        else next.set(key, value);
+      });
+      return next;
+    }, { replace: true });
+  };
+
+  // Derive selectedAgent from agents list and URL param
+  const selectedAgent = useMemo(() => {
+    if (!selectedAgentId) return null;
+    return agents.find(a => a.id === selectedAgentId) || null;
+  }, [agents, selectedAgentId]);
+
+  const setSelectedAgent = (agent: QueueAgent | null) => {
+    updateParams({ agent: agent?.id || null });
+  };
 
   // Modal state
   const [showPinnacleModal, setShowPinnacleModal] = useState(false);
@@ -771,7 +795,7 @@ export default function ContractingQueuePage() {
           <Input
             placeholder="Search by name, NPN, or email..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => updateParams({ q: e.target.value || null })}
             className="pl-9 h-9 text-sm"
           />
         </div>
@@ -818,7 +842,7 @@ export default function ContractingQueuePage() {
           {completed.length > 0 && (
             <div>
               <button
-                onClick={() => setShowCompleted(!showCompleted)}
+                onClick={() => updateParams({ completed: showCompleted ? null : 'true' })}
                 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 hover:text-foreground transition-colors"
               >
                 {showCompleted ? (

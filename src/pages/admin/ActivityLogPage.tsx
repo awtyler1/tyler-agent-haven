@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
   Activity,
@@ -157,8 +157,22 @@ export default function ActivityLogPage() {
   const navigate = useNavigate();
   const [logs, setLogs] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [actionFilter, setActionFilter] = useState<string>('all');
+
+  // URL state persistence
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('q') || '';
+  const actionFilter = searchParams.get('action') || 'all';
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === '') next.delete(key);
+        else next.set(key, value);
+      });
+      return next;
+    }, { replace: true });
+  };
 
   // Get unique action types for filter dropdown
   const actionTypes = Object.values(ActivityAction);
@@ -307,11 +321,11 @@ export default function ActivityLogPage() {
             <Input
               placeholder="Search by user or action..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => updateParams({ q: e.target.value || null })}
               className="pl-9"
             />
           </div>
-          <Select value={actionFilter} onValueChange={setActionFilter}>
+          <Select value={actionFilter} onValueChange={(v) => updateParams({ action: v === 'all' ? null : v })}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Filter by action" />
             </SelectTrigger>

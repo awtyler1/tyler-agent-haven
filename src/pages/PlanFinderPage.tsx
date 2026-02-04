@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -277,24 +277,62 @@ const POPULAR_COUNTIES = [
 // ============================================================================
 export default function PlanFinderPage() {
   const { homePath } = useNavigationContext();
-  const [searchInput, setSearchInput] = useState('');
-  const [selectedCounty, setSelectedCounty] = useState<{ fips: string; name: string } | null>(null);
-  const [comparePlans, setComparePlans] = useState<CmsPlan[]>([]);
-  const [view, setView] = useState<'finder' | 'compare'>('finder');
+
+  // URL state persistence
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchInput = searchParams.get('q') || '';
+  const countyFips = searchParams.get('county') || '';
+  const view = (searchParams.get('view') as 'finder' | 'compare') || 'finder';
+  const compareIds = searchParams.get('compare')?.split(',').filter(Boolean) || [];
+  const sortBy = (searchParams.get('sort') as 'premium' | 'moop' | 'rating') || 'premium';
+
+  // Read filters from URL
+  const filters = {
+    planType: searchParams.get('planType') || 'all',
+    premium: (searchParams.get('premium') as 'all' | 'zero' | 'low') || 'all',
+    snpOnly: searchParams.get('snpOnly') === 'true',
+  };
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === '') next.delete(key);
+        else next.set(key, value);
+      });
+      return next;
+    }, { replace: true });
+  };
+
+  // Transient state (modal, doesn't need URL persistence)
   const [detailPlan, setDetailPlan] = useState<CmsPlan | null>(null);
-  const [filters, setFilters] = useState({
-    planType: 'all',
-    premium: 'all' as 'all' | 'zero' | 'low',
-    snpOnly: false,
-  });
-  const [sortBy, setSortBy] = useState<'premium' | 'moop' | 'rating'>('premium');
 
   const { counties, isLoading: countiesLoading } = useCmsCounties('KY', 2026);
+
+  // Derive selectedCounty from URL param
+  const selectedCounty = useMemo(() => {
+    if (!countyFips) return null;
+    // Check popular counties first
+    const popular = POPULAR_COUNTIES.find(c => c.fips === countyFips);
+    if (popular) return popular;
+    // Then check loaded counties
+    const fromList = counties.find(c => c.fips === countyFips);
+    if (fromList) return { fips: fromList.fips, name: fromList.name };
+    // Fallback - return with fips only
+    return { fips: countyFips, name: countyFips };
+  }, [countyFips, counties]);
+
   const { plans, isLoading: plansLoading, error } = usePlansByCounty(
-    selectedCounty ? 'KY' : null,
-    selectedCounty?.fips || null,
+    countyFips ? 'KY' : null,
+    countyFips || null,
     2026
   );
+
+  // Derive comparePlans from URL param and loaded plans
+  const comparePlans = useMemo(() => {
+    if (!plans || compareIds.length === 0) return [];
+    return plans.filter(p => compareIds.includes(p.id));
+  }, [plans, compareIds]);
 
   const filteredPlans = useFilteredPlans(plans, {
     planType: filters.planType,
@@ -310,29 +348,32 @@ export default function PlanFinderPage() {
     if (/^\d{5}$/.test(input)) {
       const county = getCountyFromZip(input);
       if (county) {
-        setSelectedCounty(county);
+        updateParams({ county: county.fips, view: 'finder' });
       } else {
-        setSelectedCounty({ fips: '21111', name: 'Jefferson' });
+        updateParams({ county: '21111', view: 'finder' }); // Default to Jefferson
       }
     } else {
       const match = counties.find(c => c.name.toLowerCase().includes(input));
       if (match) {
-        setSelectedCounty({ fips: match.fips, name: match.name });
+        updateParams({ county: match.fips, view: 'finder' });
       }
     }
   };
 
   const handleCompare = (plan: CmsPlan) => {
-    setComparePlans(prev => {
-      if (prev.some(p => p.id === plan.id)) {
-        return prev.filter(p => p.id !== plan.id);
-      }
-      if (prev.length >= 4) return prev;
-      return [...prev, plan];
-    });
+    const currentIds = compareIds;
+    let newIds: string[];
+    if (currentIds.includes(plan.id)) {
+      newIds = currentIds.filter(id => id !== plan.id);
+    } else if (currentIds.length >= 4) {
+      return; // Max 4 plans
+    } else {
+      newIds = [...currentIds, plan.id];
+    }
+    updateParams({ compare: newIds.length > 0 ? newIds.join(',') : null });
   };
 
-  const isInCompare = (planId: string) => comparePlans.some(p => p.id === planId);
+  const isInCompare = (planId: string) => compareIds.includes(planId);
 
   // Comparison view
   if (view === 'compare' && comparePlans.length > 0) {
@@ -341,7 +382,7 @@ export default function PlanFinderPage() {
         <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
           <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
             <button
-              onClick={() => setView('finder')}
+              onClick={() => updateParams({ view: 'finder' })}
               className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
@@ -354,9 +395,12 @@ export default function PlanFinderPage() {
           <PlanComparison
             plans={comparePlans}
             onRemovePlan={(id) => {
-              const updated = comparePlans.filter(p => p.id !== id);
-              if (updated.length === 0) setView('finder');
-              setComparePlans(updated);
+              const newIds = compareIds.filter(cid => cid !== id);
+              if (newIds.length === 0) {
+                updateParams({ view: 'finder', compare: null });
+              } else {
+                updateParams({ compare: newIds.join(',') });
+              }
             }}
           />
         </main>
@@ -395,7 +439,7 @@ export default function PlanFinderPage() {
                 <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
                 <Input
                   value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
+                  onChange={(e) => updateParams({ q: e.target.value || null })}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="Enter zip code or county name..."
                   className="pl-9"
@@ -413,7 +457,7 @@ export default function PlanFinderPage() {
                   key={county.fips}
                   variant={selectedCounty?.fips === county.fips ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setSelectedCounty(county)}
+                  onClick={() => updateParams({ county: county.fips })}
                 >
                   {county.name}
                 </Button>
@@ -441,7 +485,7 @@ export default function PlanFinderPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <Select value={filters.planType} onValueChange={(v) => setFilters(f => ({ ...f, planType: v }))}>
+                <Select value={filters.planType} onValueChange={(v) => updateParams({ planType: v === 'all' ? null : v })}>
                   <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="Plan Type" />
                   </SelectTrigger>
@@ -453,7 +497,7 @@ export default function PlanFinderPage() {
                   </SelectContent>
                 </Select>
 
-                <Select value={filters.premium} onValueChange={(v) => setFilters(f => ({ ...f, premium: v as typeof filters.premium }))}>
+                <Select value={filters.premium} onValueChange={(v) => updateParams({ premium: v === 'all' ? null : v })}>
                   <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="Premium" />
                   </SelectTrigger>
@@ -468,14 +512,14 @@ export default function PlanFinderPage() {
                   <Checkbox
                     id="snp"
                     checked={filters.snpOnly}
-                    onCheckedChange={(checked) => setFilters(f => ({ ...f, snpOnly: !!checked }))}
+                    onCheckedChange={(checked) => updateParams({ snpOnly: checked ? 'true' : null })}
                   />
                   <label htmlFor="snp" className="text-sm text-muted-foreground cursor-pointer">
                     SNP Only
                   </label>
                 </div>
 
-                <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+                <Select value={sortBy} onValueChange={(v) => updateParams({ sort: v === 'premium' ? null : v })}>
                   <SelectTrigger className="w-[150px]">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
@@ -551,7 +595,7 @@ export default function PlanFinderPage() {
                   </Badge>
                 ))}
               </div>
-              <Button onClick={() => setView('compare')} className="flex-shrink-0">
+              <Button onClick={() => updateParams({ view: 'compare' })} className="flex-shrink-0">
                 Compare Now
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

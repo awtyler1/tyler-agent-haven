@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, ChevronRight, Download, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminLayout } from '@/components/layout/AdminLayout';
@@ -49,8 +49,22 @@ export default function AgentsBookPage() {
   const navigate = useNavigate();
   const [agents, setAgents] = useState<AgentWithBook[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | SyncStatus>('all');
+
+  // URL state persistence
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('q') || '';
+  const statusFilter = (searchParams.get('status') as 'all' | SyncStatus) || 'all';
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === '') next.delete(key);
+        else next.set(key, value);
+      });
+      return next;
+    }, { replace: true });
+  };
 
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth();
@@ -211,14 +225,14 @@ export default function AgentsBookPage() {
                 type="text"
                 placeholder="Search agents..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => updateParams({ q: e.target.value || null })}
                 className="pl-9 pr-4 py-2 border border-stone-200 dark:border-[#38383A] rounded-xl text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-[#2C2C2E] dark:text-white dark:placeholder-stone-500"
               />
             </div>
 
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+              onChange={(e) => updateParams({ status: e.target.value === 'all' ? null : e.target.value })}
               className="px-3 py-2 border border-stone-200 dark:border-[#38383A] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-[#2C2C2E] dark:text-white"
             >
               <option value="all">All Agents</option>
