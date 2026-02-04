@@ -17,6 +17,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { PageLoader } from '@/components/ui/PageLoader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -741,8 +742,13 @@ export default function ContractingQueuePage() {
     return carrier?.name || code;
   });
 
+  // Show PageLoader while initially loading
+  if (isLoading) {
+    return <PageLoader message="Loading contracting queue..." />;
+  }
+
   return (
-    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+    <AdminLayout>
       {/* Header */}
       <h1 className="text-2xl font-serif font-medium text-foreground">Contracting Queue</h1>
 
@@ -771,11 +777,7 @@ export default function ContractingQueuePage() {
         </div>
       )}
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      ) : agents.length === 0 ? (
+      {agents.length === 0 ? (
         <div className="bg-white rounded-xl border border-border p-12 text-center">
           <PartyPopper className="h-12 w-12 text-green-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-1">All caught up!</h3>

@@ -130,7 +130,7 @@ export default function RTSImportPage() {
   const isStale = (days: number): boolean => days >= 5;
 
   return (
-    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')} maxWidth="narrow">
+    <AdminLayout maxWidth="narrow">
       <div
         className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]"
         onDragOver={handleDrag}

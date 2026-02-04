@@ -18,6 +18,7 @@ import {
   Copy,
   Check
 } from 'lucide-react';
+import { PageLoader } from '@/components/ui/PageLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { useRole } from '@/hooks/useRole';
 import { Button } from '@/components/ui/button';
@@ -377,13 +378,7 @@ export default function UserDetailPage() {
   ] : [];
 
   if (loading) {
-    return (
-      <AdminLayout showBackButton backLabel="Back" onBack={() => navigate('/admin/agents')}>
-        <div className="flex items-center justify-center py-24">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </AdminLayout>
-    );
+    return <PageLoader message="Loading user details..." />;
   }
 
   if (!user) {
@@ -393,7 +388,7 @@ export default function UserDetailPage() {
   const onboardingInfo = onboardingStatusLabels[user.onboarding_status] || { label: user.onboarding_status, variant: 'outline' as const };
 
   return (
-    <AdminLayout showBackButton backLabel="Back" onBack={() => navigate('/admin/agents')}>
+    <AdminLayout>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">

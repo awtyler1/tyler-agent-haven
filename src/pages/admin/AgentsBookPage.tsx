@@ -165,7 +165,7 @@ export default function AgentsBookPage() {
   };
 
   return (
-    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+    <AdminLayout>
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-stone-900 dark:text-white">Agent Book Tracking</h1>

@@ -197,36 +197,27 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      {/* Header - matches AdminLayout */}
-      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-          {/* Left: TIG | Agent Portal - links to current mode's dashboard */}
-          <div className="flex items-center gap-3">
-            <Link to={homePath} className="flex items-center gap-2">
-              <span className="text-lg font-semibold text-[#292524]">TIG</span>
-              <span className="text-[#5c5552]">|</span>
-              <span className="text-sm text-[#5c5552]">Agent Portal</span>
-            </Link>
-            {/* Mode indicator for dual-role users - clickable to toggle */}
+      {/* Header */}
+      <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
+          {/* Left: TIG Branding (this is home, no back button) */}
+          <div className="flex items-center gap-4">
+            <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
+            <span className="text-[#e8e4dd]">|</span>
+            <span className="text-sm text-[#5c5552]">Admin Dashboard</span>
+
+            {/* Mode toggle for dual-role users */}
             {isDualRole && (
               <button
                 onClick={toggleMode}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer hover:opacity-80 ${
-                  viewMode === 'admin'
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-green-100 text-green-700'
-                }`}
-                title={`Click to switch to ${viewMode === 'admin' ? 'Agent' : 'Admin'} View`}
+                className="ml-2 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${
-                  viewMode === 'admin' ? 'bg-purple-500' : 'bg-green-500'
-                }`} />
-                {viewMode === 'admin' ? 'Admin View' : 'Agent View'}
+                Switch to Agent View
               </button>
             )}
           </div>
 
-          {/* Right: Avatar Dropdown */}
+          {/* Right: Avatar */}
           <UserAvatarDropdown />
         </div>
       </header>

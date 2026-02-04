@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
 import AgentProfilePage from '@/pages/admin/AgentProfilePage';
+import { PageLoader } from '@/components/ui/PageLoader';
 
 /**
  * Wrapper that renders AgentProfilePage for the current user's own profile.
@@ -10,14 +10,7 @@ export default function MyProfilePage() {
   const { profile, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-gold" />
-          <p className="text-sm text-muted-foreground">Loading profile...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading profile..." />;
   }
 
   if (!profile?.id) {

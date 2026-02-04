@@ -523,13 +523,9 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     return managerMap.get(managerId) || null;
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-gold" />
-      </div>
-    );
-  }
+  // Don't show a separate spinner - let parent page handle initial loading
+  // Once auth completes and this component mounts, show content immediately
+  // with inline loading indicators if needed
 
   return (
     <div className="flex flex-col h-[calc(100vh-180px)]">
@@ -680,7 +676,16 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedAgents.length === 0 ? (
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-12">
+                      <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Loading agents...</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedAgents.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                       No agents found

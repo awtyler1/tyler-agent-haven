@@ -348,7 +348,7 @@ export default function RoadmapGeneratorPage() {
   );
 
   return (
-    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+    <AdminLayout>
       {viewMode === 'list' && renderListView()}
       {(viewMode === 'new' || viewMode === 'edit') && renderFormView()}
 

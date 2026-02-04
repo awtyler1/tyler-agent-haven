@@ -30,7 +30,7 @@ export default function LabsPage() {
   ];
 
   return (
-    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')}>
+    <AdminLayout>
       <div className="mb-8">
         <div className="flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-gold" />

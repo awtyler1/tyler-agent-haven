@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Info, Loader2 } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { PageLoader } from '@/components/ui/PageLoader';
 
 interface AgentProfile {
   id: string;
@@ -148,21 +149,12 @@ export default function AgentBookDetailPage() {
   const getCarrierColor = (name: string) => carrierColors[name] || carrierColors.default;
 
   if (isLoading) {
-    return (
-      <AdminLayout showBackButton backLabel="Agent Books" onBack={() => navigate('/admin/agents/book')}>
-        <div className="flex items-center justify-center py-20">
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-stone-400" />
-            <p className="text-stone-500 dark:text-stone-400">Loading agent data...</p>
-          </div>
-        </div>
-      </AdminLayout>
-    );
+    return <PageLoader message="Loading agent data..." />;
   }
 
   if (!agent) {
     return (
-      <AdminLayout showBackButton backLabel="Agent Books" onBack={() => navigate('/admin/agents/book')}>
+      <AdminLayout>
         <div className="flex items-center justify-center py-20">
           <p className="text-stone-500 dark:text-stone-400">Agent not found</p>
         </div>
@@ -171,7 +163,7 @@ export default function AgentBookDetailPage() {
   }
 
   return (
-    <AdminLayout maxWidth="narrow" showBackButton backLabel="Agent Books" onBack={() => navigate('/admin/agents/book')}>
+    <AdminLayout maxWidth="narrow">
       {/* Agent Header Card */}
       <div className="bg-white dark:bg-[#1C1C1E] rounded-3xl shadow-sm border border-stone-200 dark:border-[#38383A] p-6 mb-6">
         <div className="flex items-start justify-between">

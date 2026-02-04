@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { TrainingLayout } from "@/components/training/TrainingLayout";
 import { VideoSidebar, MobileMenuButton } from "@/components/training/VideoSidebar";
 import { VideoContent } from "@/components/training/VideoContent";
 import { getVideoById } from "@/data/trainingVideos";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 export default function TrainingPage() {
   const { videoId } = useParams<{ videoId: string }>();
@@ -27,14 +27,7 @@ export default function TrainingPage() {
   }, [video]);
 
   if (!video) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-[#5c5552]" />
-          <p className="text-sm text-[#5c5552]">Loading...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading training videos..." />;
   }
 
   return (

@@ -13,7 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, MapPin, Heart, ArrowRight, X, Loader2, ChevronLeft } from 'lucide-react';
+import { Search, MapPin, Heart, ArrowRight, X, Loader2, ArrowLeft } from 'lucide-react';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
+import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { usePlansByCounty, useCmsCounties, useFilteredPlans } from '@/hooks/useCmsPlans';
 import { type CmsPlan } from '@/types/cms';
 import { PlanComparison } from '@/components/medicare/PlanComparison';
@@ -274,6 +276,7 @@ const POPULAR_COUNTIES = [
 // Main Component
 // ============================================================================
 export default function PlanFinderPage() {
+  const { homePath } = useNavigationContext();
   const [searchInput, setSearchInput] = useState('');
   const [selectedCounty, setSelectedCounty] = useState<{ fips: string; name: string } | null>(null);
   const [comparePlans, setComparePlans] = useState<CmsPlan[]>([]);
@@ -334,19 +337,20 @@ export default function PlanFinderPage() {
   // Comparison view
   if (view === 'compare' && comparePlans.length > 0) {
     return (
-      <div className="min-h-screen bg-[#FBFBFD]">
-        <header className="pt-4 pb-2 px-8">
-          <div className="max-w-6xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+        <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
+          <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
             <button
               onClick={() => setView('finder')}
-              className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+              className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group"
             >
-              <ChevronLeft className="w-4 h-4" />
-              Back to Plans
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+              <span className="font-medium">Back to Plans</span>
             </button>
+            <UserAvatarDropdown />
           </div>
         </header>
-        <main className="max-w-6xl mx-auto px-8 pb-8">
+        <main className="max-w-5xl mx-auto px-6 pb-8 pt-6">
           <PlanComparison
             plans={comparePlans}
             onRemovePlan={(id) => {
@@ -361,18 +365,19 @@ export default function PlanFinderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBFBFD]">
+    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
       {/* Header */}
-      <header className="pt-4 pb-2 px-8">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1">
-            <ChevronLeft className="w-4 h-4" />
-            Dashboard
+      <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
+          <Link to={homePath} className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group">
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="font-medium">Dashboard</span>
           </Link>
+          <UserAvatarDropdown />
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-8 pb-8">
+      <main className="max-w-5xl mx-auto px-6 pb-8 pt-6">
         {/* Title */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-1">

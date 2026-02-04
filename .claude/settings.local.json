@@ -29,7 +29,24 @@
       "Bash(del \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\test_roadmap_response.json\")",
       "Bash(ls:*)",
       "Bash(done)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npm run lint)",
+      "Bash(findstr:*)",
+      "Bash(supabase functions logs:*)",
+      "Bash(npm run lint:*)",
+      "Bash(supabase functions:*)",
+      "Bash(dir:*)",
+      "Bash(unzip:*)",
+      "Bash(python extract_ky_plans.py:*)",
+      "Bash(python:*)",
+      "WebSearch",
+      "WebFetch(domain:www.cms.gov)",
+      "Bash(python3:*)",
+      "Bash(git log:*)",
+      "Bash(if not exist \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\scripts\" mkdir \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\scripts\")",
+      "Bash(npx tsx:*)",
+      "Bash(timeout:*)",
+      "Bash(del \"C:\\\\Users\\\\Austin Tyler\\\\tyler-agent-haven\\\\scripts\\\\debug-dental-vision.ts\")"
     ]
   }
 }

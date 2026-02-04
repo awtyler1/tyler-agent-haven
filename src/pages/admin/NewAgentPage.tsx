@@ -179,7 +179,7 @@ export default function NewAgentPage() {
   };
 
   return (
-    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')} maxWidth="narrow">
+    <AdminLayout maxWidth="narrow">
       {/* Compact Header */}
       <div className="mb-4">
         <h1 className="text-xl font-serif font-medium text-foreground">Start Agent Contracting</h1>

@@ -483,7 +483,7 @@ export default function PdfBuilderPage() {
   const hasMessages = messages.length > 0;
 
   return (
-    <AdminLayout showBackButton backLabel="Labs" onBack={() => navigate('/admin/labs')}>
+    <AdminLayout>
       <div className="h-[calc(100vh-140px)] flex bg-gray-50 -m-6 -mb-8">
         {/* Chat area */}
         <div className="flex-1 flex flex-col min-w-0">

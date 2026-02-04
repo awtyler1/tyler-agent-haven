@@ -268,7 +268,7 @@ export default function ActivityLogPage() {
   });
 
   return (
-    <AdminLayout showBackButton backLabel="Dashboard" onBack={() => navigate('/admin')} maxWidth="wide">
+    <AdminLayout maxWidth="wide">
       <div className="flex flex-col h-[calc(100vh-120px)]">
         {/* Header - fixed */}
         <div className="flex items-center justify-between mb-4">

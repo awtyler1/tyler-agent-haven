@@ -21,6 +21,7 @@ import { useProfile, Profile } from '@/hooks/useProfile';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { carriers as carriersData } from '@/data/carriersData';
 import { useNavigationContext } from '@/hooks/useNavigationContext';
+import { PageLoader } from '@/components/ui/PageLoader';
 
 // Short product labels
 const PRODUCT_SHORT: Record<string, string> = {
@@ -387,14 +388,7 @@ const ContractingHubPage = () => {
   const loading = dataLoading;
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-[#5c5552]" />
-          <p className="text-sm text-[#5c5552]">Loading your contracting data...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading your contracting data..." />;
   }
 
   const hasUpload = profile?.ahip_cert_year === currentCertYear && profile?.ahip_cert_file_path;
@@ -402,33 +396,20 @@ const ContractingHubPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
       {/* Header */}
-      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
-        <div className="max-w-5xl mx-auto flex items-center justify-between py-3">
-          <div className="flex items-center gap-2">
-            <Link to={homePath} className="flex items-center gap-2">
-              <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
-            </Link>
-            <span className="text-[#e8e4dd]">|</span>
-            <span className="text-sm text-[#5c5552]">Agent Portal</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-[#5c5552] hidden sm:block">{profile?.full_name || 'Agent'}</span>
-            <UserAvatarDropdown />
-          </div>
+      <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
+          <Link to={homePath} className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group">
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="font-medium">Dashboard</span>
+          </Link>
+          <UserAvatarDropdown />
         </div>
       </header>
 
-      <main className="flex-1 px-6 py-4">
+      <main className="flex-1 px-6 py-6">
         <div className="max-w-5xl mx-auto">
-          {/* Back link + Title */}
+          {/* Title */}
           <div className="mb-4">
-            <Link
-              to={homePath}
-              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
-            </Link>
             <h1 className="text-2xl font-serif font-semibold text-[#292524]">
               Contracting Hub
             </h1>

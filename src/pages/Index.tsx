@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -17,10 +17,13 @@ import {
   RefreshCw,
   AlertCircle,
   Search,
+  GraduationCap,
+  ExternalLink,
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { SyncStatusPill } from '@/components/dashboard/SyncStatusPill';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
+import { PageLoader } from '@/components/ui/PageLoader';
 
 // ============================================================
 // THE ONE - Beacon Dashboard
@@ -32,11 +35,7 @@ export default function Index() {
   const navigate = useNavigate();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (error || !data) {
@@ -271,12 +270,15 @@ export default function Index() {
                 to="/forms-library"
               />
               {!isStale && !isEmpty && (
-                <ActionButton
+                <HoverActionButton
                   icon={Zap}
                   label="Quick Quote"
                   desc="SunFire & C4M"
                   color="from-orange-500 to-orange-600"
-                  to="/agent-tools"
+                  links={[
+                    { name: 'SunFire', url: 'https://www.sunfirematrix.com/app/agent/pfs' },
+                    { name: 'Connecture (C4M)', url: 'https://pinnacle7.destinationrx.com/PC/Agent/Account/Login' },
+                  ]}
                 />
               )}
               <ActionButton
@@ -285,6 +287,13 @@ export default function Index() {
                 desc="Ready to sell"
                 color="from-emerald-500 to-emerald-600"
                 to="/contracting-hub"
+              />
+              <ActionButton
+                icon={GraduationCap}
+                label="Training Library"
+                desc="Videos & tutorials"
+                color="from-purple-500 to-violet-600"
+                to="/training"
               />
             </div>
           </div>
@@ -370,5 +379,79 @@ function ActionButton({ icon: Icon, label, desc, color, to, highlighted }: Actio
       </div>
       <ChevronRight className={`w-5 h-5 ${highlighted ? 'text-amber-400' : 'text-slate-600'} group-hover:translate-x-0.5 transition-all`} />
     </Link>
+  );
+}
+
+interface HoverActionButtonProps {
+  icon: React.ElementType;
+  label: string;
+  desc: string;
+  color: string;
+  links: { name: string; url: string; icon?: React.ElementType }[];
+}
+
+function HoverActionButton({ icon: Icon, label, desc, color, links }: HoverActionButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => setIsOpen(false), 150);
+  };
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Main Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-200 text-left group"
+      >
+        <div className={`w-11 h-11 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-lg`}>
+          <Icon className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-white">{label}</p>
+          <p className="text-xs text-slate-500">{desc}</p>
+        </div>
+        <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors duration-200" />
+      </button>
+
+      {/* Dropdown */}
+      <div
+        className={`absolute left-full top-0 ml-0 pl-3 z-50 transition-all duration-150 ${
+          isOpen
+            ? 'opacity-100 translate-x-0 pointer-events-auto'
+            : 'opacity-0 -translate-x-2 pointer-events-none'
+        }`}
+      >
+        {/* Arrow */}
+        <div className="absolute left-3 top-4 -ml-[6px] w-3 h-3 bg-white rotate-45 border-l border-b border-slate-200 shadow-sm" />
+
+        {/* Dropdown Content */}
+        <div className="bg-white rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60 p-2 min-w-[200px]">
+          {links.map((link, i) => (
+            <a
+              key={i}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-all duration-150 group/link"
+            >
+              {link.icon && <link.icon className="w-4 h-4 text-slate-400 group-hover/link:text-slate-600" />}
+              <span className="text-sm font-medium text-slate-700 group-hover/link:text-slate-900">{link.name}</span>
+              <ExternalLink className="w-3 h-3 text-slate-300 group-hover/link:text-slate-400 ml-auto" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

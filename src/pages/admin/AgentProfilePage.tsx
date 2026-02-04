@@ -22,6 +22,7 @@ import {
   MoreVertical,
   FileText,
 } from 'lucide-react';
+import { PageLoader } from '@/components/ui/PageLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
@@ -1100,42 +1101,15 @@ Tyler Insurance Group`;
     }
   };
 
-  // Determine back navigation - respects view mode for self-view
-  const handleBackNavigation = () => {
-    if (isSelfView) {
-      // Go to the user's current view mode dashboard (agent or admin)
-      navigate(homePath);
-      return;
-    }
-    if (locationState?.from) {
-      navigate(locationState.from, {
-        state: { managerId: locationState.managerId }
-      });
-    } else {
-      navigate('/admin/agents');
-    }
-  };
-
-  const backLabel = isSelfView ? 'Dashboard' : 'Agents';
-
   // Loading state
   if (loading) {
-    return (
-      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation} >
-        <div className="flex items-center justify-center py-24">
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-gold" />
-            <p className="text-sm text-muted-foreground">Loading agent profile...</p>
-          </div>
-        </div>
-      </AdminLayout>
-    );
+    return <PageLoader message="Loading agent profile..." />;
   }
 
   // Error state
   if (error || !profile) {
     return (
-      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation} >
+      <AdminLayout>
         <div className="flex items-center justify-center py-24">
           <div className="text-center">
             <h2 className="text-lg font-semibold text-foreground mb-2">
@@ -1156,7 +1130,7 @@ Tyler Insurance Group`;
   };
 
   return (
-    <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation} >
+    <AdminLayout>
       <div className="max-w-5xl mx-auto">
         {/* ═══════════════════════════════════════════════════════════════
             AGENT HEADER BAND
