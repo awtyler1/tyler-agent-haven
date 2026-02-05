@@ -129,7 +129,6 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
 
   // Permission checks
   const canEdit = isAdmin() && !isSelfView;
-  const canEditNotes = isAdmin() || isSelfView;
 
   // ─────────────────────────────────────────────────────────────
   // Data Fetching
@@ -271,13 +270,6 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
     const { error } = await supabase.from('profiles').update({ [field]: value }).eq('id', profile.id);
     if (error) throw error;
     setProfile({ ...profile, [field]: value });
-  };
-
-  const handleUpdateNotes = async (notes: string) => {
-    if (!profile) return;
-    const { error } = await supabase.from('profiles').update({ contracting_notes: notes || null }).eq('id', profile.id);
-    if (error) throw error;
-    setProfile({ ...profile, contracting_notes: notes || null });
   };
 
   const handleSendSetupLink = async () => {
@@ -434,11 +426,8 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
             profileId={profile.id}
             userId={profile.user_id}
             carrierStatuses={carrierStatuses}
-            contractingNotes={profile.contracting_notes || ''}
-            onUpdateNotes={handleUpdateNotes}
             onOpenCarrierRequestModal={() => setIsCarrierRequestOpen(true)}
             isAdmin={isAdmin()}
-            canEditNotes={canEditNotes}
           />
         )}
 
