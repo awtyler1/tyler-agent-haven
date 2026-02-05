@@ -158,14 +158,14 @@ function DetailPanel({
   const isCompleted = agent.queue_status === 'completed' || agent.queue_status === 'sent_to_pinnacle';
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[400px] bg-white shadow-xl border-l border-border z-50 flex flex-col animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-y-0 right-0 w-[400px] bg-white/90 backdrop-blur-sm shadow-xl border-l border-stone-200 z-50 flex flex-col animate-in slide-in-from-right duration-200">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-border flex items-start justify-between gap-3">
+      <div className="px-4 py-3 border-b border-stone-100 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h2 className="font-semibold text-foreground truncate">
             {agent.full_legal_name || 'Unnamed Agent'}
           </h2>
-          <p className="text-xs text-muted-foreground truncate">
+          <p className="text-xs text-stone-500 truncate">
             NPN: {agent.npn_number || 'N/A'} · {agent.resident_state || 'N/A'}
           </p>
         </div>
@@ -175,22 +175,22 @@ function DetailPanel({
       </div>
 
       {/* Contact Info */}
-      <div className="px-4 py-3 border-b border-border space-y-2">
+      <div className="px-4 py-3 border-b border-stone-100 space-y-2">
         {agent.email_address && (
           <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-muted-foreground w-14">Email</span>
+            <span className="text-xs font-medium text-stone-500 w-14">Email</span>
             <span className="text-xs text-foreground truncate">{agent.email_address}</span>
           </div>
         )}
         {agent.phone_mobile && (
           <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-muted-foreground w-14">Phone</span>
+            <span className="text-xs font-medium text-stone-500 w-14">Phone</span>
             <span className="text-xs text-foreground">{agent.phone_mobile}</span>
           </div>
         )}
         {agent.submitted_at && (
           <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-muted-foreground w-14">Submitted</span>
+            <span className="text-xs font-medium text-stone-500 w-14">Submitted</span>
             <span className="text-xs text-foreground">
               {format(new Date(agent.submitted_at), 'MMM d, yyyy')}
             </span>
@@ -201,8 +201,8 @@ function DetailPanel({
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Documents */}
-        <div className="px-4 py-3 border-b border-border">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+        <div className="px-4 py-3 border-b border-stone-100">
+          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
             Documents ({docEntries.length})
           </h3>
           {docEntries.length > 0 ? (
@@ -213,14 +213,14 @@ function DetailPanel({
                     <button
                       onClick={() => handleViewDocument(docType, path)}
                       disabled={loadingDoc === docType}
-                      className="flex flex-col items-center gap-0.5 p-2 rounded border border-border hover:border-primary hover:bg-primary/5 transition-colors group disabled:opacity-50"
+                      className="flex flex-col items-center gap-0.5 p-2 rounded border border-stone-200/50 hover:border-amber-300 hover:bg-amber-50/50 transition-colors group disabled:opacity-50"
                     >
                       {loadingDoc === docType ? (
-                        <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                        <Loader2 className="h-4 w-4 text-amber-600 animate-spin" />
                       ) : (
-                        <FileText className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                        <FileText className="h-4 w-4 text-stone-500 group-hover:text-amber-700" />
                       )}
-                      <span className="text-[10px] text-muted-foreground text-center leading-tight">
+                      <span className="text-[10px] text-stone-500 text-center leading-tight">
                         {getDocumentLabel(docType)?.split(' ')[0]}
                       </span>
                     </button>
@@ -230,7 +230,7 @@ function DetailPanel({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground italic">No documents uploaded</p>
+            <p className="text-xs text-stone-500 italic">No documents uploaded</p>
           )}
         </div>
 
@@ -238,13 +238,13 @@ function DetailPanel({
         {!isCompleted && (
           <div className="px-4 py-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide">
                 Carriers to Request
               </h3>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 text-xs px-2 text-primary hover:text-primary/90 hover:bg-primary/10"
+                className="h-6 text-xs px-2 text-amber-700 hover:text-amber-700 hover:bg-amber-50"
                 onClick={() => onCarriersChange(agent.id, KY_CARRIER_CODES)}
               >
                 KY Default
@@ -258,7 +258,7 @@ function DetailPanel({
                     onCheckedChange={(checked) => handleCarrierToggle(carrier.code, checked as boolean)}
                     className="h-3.5 w-3.5"
                   />
-                  <span className="text-sm text-foreground group-hover:text-primary">
+                  <span className="text-sm text-foreground group-hover:text-amber-700">
                     {carrier.name}
                   </span>
                 </label>
@@ -291,11 +291,11 @@ function DetailPanel({
       </div>
 
       {/* Actions */}
-      <div className="px-4 py-3 border-t border-border space-y-2">
+      <div className="px-4 py-3 border-t border-stone-100 space-y-2">
         {!isCompleted ? (
           <>
             <Button
-              className="w-full h-9"
+              className="w-full h-9 bg-stone-900 hover:bg-stone-800 text-white"
               onClick={() => onSendToPinnacle(agent)}
             >
               <Send className="h-4 w-4 mr-2" />
@@ -354,7 +354,7 @@ function AgentRow({
 }) {
   return (
     <div
-      className="flex items-center justify-between px-4 py-3 border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer"
+      className="flex items-center justify-between px-4 py-3 border-b border-stone-200/50 hover:bg-stone-50/50 transition-colors cursor-pointer"
       onClick={onView}
     >
       <div className="min-w-0 flex-1">
@@ -362,11 +362,11 @@ function AgentRow({
           {agent.full_legal_name || 'Unnamed Agent'}
         </p>
         {showSentDate && agent.sent_to_pinnacle_at ? (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-stone-500">
             Sent {format(new Date(agent.sent_to_pinnacle_at), 'MMM d, yyyy')}
           </p>
         ) : (
-          <p className="text-xs text-muted-foreground truncate">
+          <p className="text-xs text-stone-500 truncate">
             {agent.email_address || 'No email'} · {agent.resident_state || 'N/A'}
           </p>
         )}
@@ -784,20 +784,20 @@ export default function ContractingQueuePage() {
 
       {/* Stat Cards */}
       <div className="flex gap-4 mt-4 mb-6">
-        <div className="bg-white border border-border rounded-xl px-5 py-4 flex items-center gap-4">
+        <div className="bg-white border border-stone-200/50 rounded-xl px-5 py-4 flex items-center gap-4">
           <div className="text-3xl font-serif font-medium text-foreground">{readyToSend.length}</div>
-          <div className="text-sm text-muted-foreground">Ready to Send</div>
+          <div className="text-sm text-stone-500">Ready to Send</div>
         </div>
-        <div className="bg-white border border-border rounded-xl px-5 py-4 flex items-center gap-4">
+        <div className="bg-white border border-stone-200/50 rounded-xl px-5 py-4 flex items-center gap-4">
           <div className="text-3xl font-serif font-medium text-green-600">{completed.length}</div>
-          <div className="text-sm text-muted-foreground">Completed</div>
+          <div className="text-sm text-stone-500">Completed</div>
         </div>
       </div>
 
       {/* Search */}
       {agents.length > 0 && (
         <div className="relative max-w-sm mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-500" />
           <Input
             placeholder="Search by name, NPN, or email..."
             value={searchTerm}
@@ -808,27 +808,27 @@ export default function ContractingQueuePage() {
       )}
 
       {agents.length === 0 ? (
-        <div className="bg-white rounded-xl border border-border p-12 text-center">
+        <div className="bg-white rounded-xl border border-stone-200/50 p-12 text-center">
           <PartyPopper className="h-12 w-12 text-green-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-1">All caught up!</h3>
-          <p className="text-sm text-muted-foreground">No pending contracting applications.</p>
+          <p className="text-sm text-stone-500">No pending contracting applications.</p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* Ready to Send Section */}
           <div>
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+            <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">
               Ready to Send ({filteredReadyToSend.length})
             </h2>
-            <div className="bg-white rounded-xl border border-border overflow-hidden">
+            <div className="bg-white rounded-xl border border-stone-200/50 overflow-hidden">
               {filteredReadyToSend.length === 0 ? (
                 <div className="px-4 py-8 text-center">
                   {searchTerm ? (
-                    <p className="text-sm text-muted-foreground">No matches found</p>
+                    <p className="text-sm text-stone-500">No matches found</p>
                   ) : (
                     <>
                       <CheckCircle2 className="h-8 w-8 text-green-400 mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">All applications have been sent!</p>
+                      <p className="text-sm text-stone-500">All applications have been sent!</p>
                     </>
                   )}
                 </div>
@@ -849,7 +849,7 @@ export default function ContractingQueuePage() {
             <div>
               <button
                 onClick={() => updateParams({ completed: showCompleted ? null : 'true' })}
-                className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 hover:text-foreground transition-colors"
+                className="flex items-center gap-2 text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3 hover:text-foreground transition-colors"
               >
                 {showCompleted ? (
                   <ChevronDown className="h-4 w-4" />
@@ -859,10 +859,10 @@ export default function ContractingQueuePage() {
                 Completed ({filteredCompleted.length})
               </button>
               {showCompleted && (
-                <div className="bg-white rounded-xl border border-border overflow-hidden">
+                <div className="bg-white rounded-xl border border-stone-200/50 overflow-hidden">
                   {filteredCompleted.length === 0 ? (
                     <div className="px-4 py-8 text-center">
-                      <p className="text-sm text-muted-foreground">No matches found</p>
+                      <p className="text-sm text-stone-500">No matches found</p>
                     </div>
                   ) : (
                     filteredCompleted.map((agent) => (
@@ -922,7 +922,7 @@ export default function ContractingQueuePage() {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-stone-500">
               This action cannot be undone. All application data will be permanently removed.
             </p>
           </div>

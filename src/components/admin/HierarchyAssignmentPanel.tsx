@@ -100,8 +100,8 @@ export function HierarchyAssignmentPanel({
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-border bg-card p-4">
-        <div className="flex items-center gap-2 text-muted-foreground">
+      <div className="rounded-xl border border-stone-200/50 bg-white p-4">
+        <div className="flex items-center gap-2 text-stone-500">
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading manager options...
         </div>
@@ -110,14 +110,14 @@ export function HierarchyAssignmentPanel({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 space-y-4">
+    <div className="rounded-xl border border-stone-200/50 bg-white p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <Users className="h-4 w-4 text-stone-500" />
           <h4 className="font-medium text-foreground">Reports To</h4>
         </div>
         {saving && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1 text-xs text-stone-500">
             <Loader2 className="h-3 w-3 animate-spin" />
             Saving...
           </div>
@@ -135,14 +135,14 @@ export function HierarchyAssignmentPanel({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={NO_MANAGER}>
-              <span className="text-muted-foreground">None (Direct to TIG)</span>
+              <span className="text-stone-500">None (Direct to TIG)</span>
             </SelectItem>
             {potentialManagers.map((manager) => (
               <SelectItem key={manager.id} value={manager.id}>
                 <div className="flex flex-col">
                   <span>{manager.full_name || 'Unnamed'}</span>
                   {manager.email && (
-                    <span className="text-xs text-muted-foreground">{manager.email}</span>
+                    <span className="text-xs text-stone-500">{manager.email}</span>
                   )}
                 </div>
               </SelectItem>
@@ -152,8 +152,8 @@ export function HierarchyAssignmentPanel({
       </div>
 
       {/* Current Assignment Summary */}
-      <div className="pt-2 border-t border-border">
-        <p className="text-sm text-muted-foreground">
+      <div className="pt-2 border-t border-stone-100">
+        <p className="text-sm text-stone-500">
           <span className="font-medium">Current: </span>
           {currentManagerName ? (
             <>Reports to {currentManagerName}</>

@@ -187,9 +187,9 @@ export default function NewAgentPage() {
       </div>
 
       {/* Form Card */}
-      <div className="bg-white border border-border rounded-lg p-4">
+      <div className="bg-white border border-stone-200/50 rounded-xl px-5 py-4">
         {/* Card Header - Compact */}
-        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
+        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-stone-100">
           <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
             <Users className="w-4 h-4 text-gold" />
           </div>
@@ -210,7 +210,6 @@ export default function NewAgentPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="border-border focus:border-gold"
               />
             </div>
             <div className="space-y-1.5">
@@ -222,7 +221,6 @@ export default function NewAgentPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-border focus:border-gold"
               />
             </div>
           </div>
@@ -237,10 +235,10 @@ export default function NewAgentPage() {
                 <button
                   type="button"
                   onClick={() => { setSelectedManagerId(null); setIsAandA(false); }}
-                  className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
                     selectedManagerId === null && !isAandA
                       ? 'bg-gold/10 border-gold text-gold font-medium'
-                      : 'border-border hover:border-muted-foreground/50 text-foreground'
+                      : 'border-stone-200/50 hover:border-muted-foreground/50 text-foreground'
                   }`}
                 >
                   Direct to TIG
@@ -248,10 +246,10 @@ export default function NewAgentPage() {
                 <button
                   type="button"
                   onClick={() => { setIsAandA(true); setSelectedManagerId(undefined); }}
-                  className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
                     isAandA
                       ? 'bg-gold/10 border-gold text-gold font-medium'
-                      : 'border-border hover:border-muted-foreground/50 text-foreground'
+                      : 'border-stone-200/50 hover:border-muted-foreground/50 text-foreground'
                   }`}
                 >
                   A&A
@@ -263,10 +261,10 @@ export default function NewAgentPage() {
                       type="button"
                       key={pick.id}
                       onClick={() => { setSelectedManagerId(pick.id); setIsAandA(false); }}
-                      className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                      className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
                         isSelected
                           ? 'bg-gold/10 border-gold text-gold font-medium'
-                          : 'border-border hover:border-muted-foreground/50 text-foreground'
+                          : 'border-stone-200/50 hover:border-muted-foreground/50 text-foreground'
                       }`}
                     >
                       {pick.name}
@@ -284,11 +282,11 @@ export default function NewAgentPage() {
                   placeholder="Search all agents..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 h-9 text-sm border-border focus:border-gold"
+                  className="pl-9 h-10 text-sm"
                 />
               </div>
 
-              <div className="border border-border rounded-md max-h-[140px] overflow-y-auto">
+              <div className="border border-stone-200/50 rounded-xl max-h-[140px] overflow-y-auto">
                 {loadingAgents ? (
                   <div className="p-3 flex items-center justify-center">
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -307,7 +305,7 @@ export default function NewAgentPage() {
                         type="button"
                         key={agent.id}
                         onClick={() => { setSelectedManagerId(agent.id); setIsAandA(false); }}
-                        className={`w-full text-left px-2.5 py-2 border-b last:border-b-0 hover:bg-muted/50 transition-colors flex items-center justify-between ${
+                        className={`w-full text-left px-3 py-2.5 border-b border-stone-100 last:border-b-0 hover:bg-muted/50 transition-colors flex items-center justify-between ${
                           isSelected ? 'bg-gold/10 border-l-2 border-l-gold' : ''
                         }`}
                       >
@@ -330,7 +328,6 @@ export default function NewAgentPage() {
               type="button"
               variant="outline"
               onClick={() => navigate('/admin')}
-              className="border-border"
             >
               Cancel
             </Button>

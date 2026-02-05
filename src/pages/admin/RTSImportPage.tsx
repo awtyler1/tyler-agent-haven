@@ -162,8 +162,8 @@ export default function RTSImportPage() {
         {/* Upload Button / Success State */}
         {importResult ? (
           <div className="w-full max-w-xs text-center">
-            <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <div className="bg-green-50/50 border border-green-200/60 rounded-2xl p-6">
+              <div className="w-12 h-12 bg-green-100/60 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Check className="w-6 h-6 text-green-600" />
               </div>
               <p className="text-lg font-medium text-green-800 mb-1">Import Complete</p>
@@ -185,7 +185,7 @@ export default function RTSImportPage() {
             <Button
               onClick={() => fileInputRef.current?.click()}
               disabled={importing}
-              className="w-full py-6 bg-gold hover:bg-gold/90 text-white rounded-xl font-medium text-base gap-2"
+              className="w-full py-6 bg-gold hover:bg-gold/90 text-white rounded-2xl font-medium text-base gap-2"
             >
               {importing ? (
                 <>
@@ -218,7 +218,7 @@ export default function RTSImportPage() {
 
         {/* Error display */}
         {error && (
-          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl text-center max-w-xs">
+          <div className="mt-6 p-4 bg-red-50/50 border border-red-200/60 rounded-2xl text-center max-w-xs">
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
@@ -237,7 +237,7 @@ function CalendarWidget({ lastSync }: { lastSync: string }) {
     <div
       className={cn(
         'bg-white border-2 rounded-2xl overflow-hidden shadow-sm w-36',
-        stale ? 'border-amber-300' : 'border-border'
+        stale ? 'border-amber-300' : 'border-stone-200'
       )}
     >
       {/* Header */}
@@ -261,7 +261,7 @@ function CalendarWidget({ lastSync }: { lastSync: string }) {
         <p
           className={cn(
             'text-xs mt-1',
-            stale ? 'text-amber-600' : 'text-muted-foreground'
+            stale ? 'text-amber-500' : 'text-muted-foreground'
           )}
         >
           {daysSince === 0
