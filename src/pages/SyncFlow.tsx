@@ -9,6 +9,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Upload,
   Building2,
@@ -37,7 +38,7 @@ import {
   getExpectedFileType,
   SupportedCarrier,
 } from '@/lib/carrier-detection';
-import { getNextSyncDate } from '@/lib/sync';
+import { getNextSyncDate, checkAndAwardMilestones } from '@/lib/sync';
 
 // ============================================================
 // TYPES
@@ -54,6 +55,7 @@ interface UploadedCarrier {
   carrierId: string;
   clientCount: number;
   newClients: number;
+  termedClients: number;
   fileName: string;
 }
 
@@ -165,6 +167,7 @@ function excelDateToJSDate(serial: number): Date {
 
 export default function SyncFlow() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { profile } = useAuth();
   const { displayCarriers, comingSoonRTSCarriers, hasRTSData, loading: rtsLoading } = useAgentRTSCarriers();
   const { preferredCarriers, lastSyncDate, isFirstSync, loading: prefsLoading } = useSyncPreferences();
@@ -299,6 +302,111 @@ export default function SyncFlow() {
   // FILE UPLOAD & VALIDATION
   // ============================================================
 
+  const processUpload = useCallback(async (carrierId: string, file: File) => {
+    if (!profile?.id) {
+      setProcessingCarrier(null);
+      return;
+    }
+
+    setProcessingCarrier(carrierId);
+
+    try {
+      // Step 1: Client-side parse for instant counts
+      const fastCounts = await parseFileForClientCount(file, carrierId);
+
+      // Step 2: Show results immediately and clear spinner
+      setUploadedCarriers(prev => [
+        ...prev.filter(u => u.carrierId !== carrierId),
+        {
+          carrierId,
+          clientCount: fastCounts.total,
+          newClients: fastCounts.new,
+          termedClients: 0,
+          fileName: file.name,
+        },
+      ]);
+      setProcessingCarrier(null);
+
+      // Step 3: Background reconciliation — edge function + RPC for accurate counts
+      // Fires without blocking the UI; silently updates state when done
+      const profileId = profile.id;
+      (async () => {
+        try {
+          const base64Content = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const result = reader.result as string;
+              resolve(result.split(',')[1]);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          const { data, error: fnError } = await supabase.functions.invoke('parse-production-report', {
+            body: {
+              file: base64Content,
+              carrier_code: carrierId,
+              profile_id: profileId,
+            },
+          });
+
+          if (fnError || data?.error) {
+            console.error('Background edge function error:', fnError || data?.error);
+            return;
+          }
+
+          const { data: carrierRecord } = await supabase
+            .from('carriers')
+            .select('id')
+            .eq('code', carrierId)
+            .single();
+
+          const dbCarrierId = carrierRecord?.id;
+          if (!dbCarrierId) return;
+
+          const now = new Date();
+          const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+          const nextMonth = now.getMonth() === 11
+            ? `${now.getFullYear() + 1}-01-01`
+            : `${now.getFullYear()}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
+
+          const { data: stats, error: rpcError } = await supabase.rpc('get_carrier_book_stats', {
+            p_profile_id: profileId,
+            p_carrier_id: dbCarrierId,
+            p_month_start: monthStart,
+            p_month_end: nextMonth,
+          });
+
+          if (rpcError) {
+            console.error('Background RPC error:', rpcError);
+            return;
+          }
+
+          const bookStats = stats as { active_count: number; new_count: number; termed_count: number } | null;
+
+          // Silently update with accurate counts from the DB
+          setUploadedCarriers(prev =>
+            prev.map(u =>
+              u.carrierId === carrierId
+                ? {
+                    ...u,
+                    clientCount: bookStats?.active_count ?? u.clientCount,
+                    newClients: bookStats?.new_count ?? u.newClients,
+                    termedClients: bookStats?.termed_count ?? 0,
+                  }
+                : u
+            )
+          );
+        } catch (err) {
+          console.error('Background reconciliation error:', err);
+        }
+      })();
+    } catch (err) {
+      console.error('Upload processing error:', err);
+      setProcessingCarrier(null);
+    }
+  }, [profile?.id]);
+
   const handleFileSelect = useCallback(async (carrierId: string, file: File) => {
     setProcessingCarrier(carrierId);
     setMismatchInfo(null);
@@ -348,30 +456,7 @@ export default function SyncFlow() {
       console.error('File validation error:', err);
       setProcessingCarrier(null);
     }
-  }, []);
-
-  const processUpload = useCallback(async (carrierId: string, file: File) => {
-    setProcessingCarrier(carrierId);
-
-    try {
-      // Parse file to count clients and new clients
-      const result = await parseFileForClientCount(file, carrierId);
-
-      setUploadedCarriers(prev => [
-        ...prev.filter(u => u.carrierId !== carrierId),
-        {
-          carrierId,
-          clientCount: result.total,
-          newClients: result.new,
-          fileName: file.name,
-        },
-      ]);
-    } catch (err) {
-      console.error('Upload processing error:', err);
-    } finally {
-      setProcessingCarrier(null);
-    }
-  }, []);
+  }, [processUpload]);
 
   const confirmMismatchUpload = useCallback(() => {
     if (pendingFileRef.current) {
@@ -741,6 +826,7 @@ export default function SyncFlow() {
           carrier_id: carrierCodeToId.get(u.carrierId),
           client_count: u.clientCount,
           new_clients: u.newClients,
+          termed_clients: u.termedClients,
           uploaded_at: new Date().toISOString(),
         }))
         .filter(u => u.carrier_id); // Only include if we found the carrier
@@ -760,11 +846,13 @@ export default function SyncFlow() {
       // Recalculate totals from ALL carrier uploads for this sync (not just current session)
       const { data: allUploads } = await supabase
         .from('sync_carrier_uploads')
-        .select('client_count, new_clients')
+        .select('client_count, new_clients, termed_clients')
         .eq('sync_id', sync.id);
 
       const actualTotal = allUploads?.reduce((sum, u) => sum + (u.client_count || 0), 0) || 0;
       const actualNewClients = allUploads?.reduce((sum, u) => sum + (u.new_clients || 0), 0) || 0;
+      const actualTermedClients = allUploads?.reduce((sum, u) => sum + (u.termed_clients || 0), 0) || 0;
+      const actualNetChange = actualNewClients - actualTermedClients;
 
       // Update monthly_syncs with correct totals
       await supabase
@@ -772,11 +860,28 @@ export default function SyncFlow() {
         .update({
           total_clients: actualTotal,
           new_clients: actualNewClients,
+          termed_clients: actualTermedClients,
+          net_change: actualNetChange,
         })
         .eq('id', sync.id);
 
       setFinalTotal(actualTotal);
       setFinalNewClients(actualNewClients);
+
+      // Update profile's last_sync_at timestamp
+      await supabase
+        .from('profiles')
+        .update({ last_sync_at: new Date().toISOString() })
+        .eq('id', profile.id);
+
+      // Check and award milestones
+      await checkAndAwardMilestones(profile.id, actualTotal, sync.id);
+
+      // Invalidate dashboard + admin caches so fresh data loads immediately
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-agents-book'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-agent-book'] });
 
       // Clear saved progress on successful completion
       try {
@@ -800,6 +905,8 @@ export default function SyncFlow() {
   const canFinishUpload = uploadedCarriers.length > 0;
   const totalClients = uploadedCarriers.reduce((sum, u) => sum + u.clientCount, 0);
   const totalNewClients = uploadedCarriers.reduce((sum, u) => sum + u.newClients, 0);
+  const totalTermedClients = uploadedCarriers.reduce((sum, u) => sum + u.termedClients, 0);
+  const totalNetChange = totalNewClients - totalTermedClients;
 
   // Get carrier configs for selected carriers (only enabled)
   const selectedCarrierConfigs = getCarriersByIds(selectedCarriers).filter(c => c.enabled);
@@ -1154,11 +1261,21 @@ export default function SyncFlow() {
           <h1 className="text-3xl font-bold text-slate-800 mb-2">
             {getCurrentMonth()} synced!
           </h1>
-          <p className="text-xl text-slate-500 mb-2">{finalTotal.toLocaleString()} clients</p>
-          {finalNewClients > 0 && (
-            <p className="text-emerald-600 font-medium mb-2">
-              +{finalNewClients.toLocaleString()} new this month
-            </p>
+          <p className="text-xl text-slate-500 mb-2">{finalTotal.toLocaleString()} active clients</p>
+          {(totalNewClients > 0 || totalTermedClients > 0) && (
+            <div className="flex items-center justify-center gap-3 mb-2">
+              {totalNewClients > 0 && (
+                <span className="text-emerald-600 font-medium">+{totalNewClients} new</span>
+              )}
+              {totalTermedClients > 0 && (
+                <span className="text-amber-500 font-medium">-{totalTermedClients} termed</span>
+              )}
+              {totalNewClients > 0 || totalTermedClients > 0 ? (
+                <span className={`font-semibold ${totalNetChange > 0 ? 'text-emerald-600' : totalNetChange < 0 ? 'text-amber-600' : 'text-slate-500'}`}>
+                  (net {totalNetChange > 0 ? '+' : ''}{totalNetChange})
+                </span>
+              ) : null}
+            </div>
           )}
           <p className="text-slate-400 mb-8">from {uploadedCarriers.length} carriers</p>
 
@@ -1284,9 +1401,13 @@ function CarrierUploadRow({ carrier, uploaded, isProcessing, onFileSelect, onRep
           </div>
           <div className="flex-1">
             <p className="font-medium text-slate-800">{carrier.name}</p>
-            <p className="text-sm text-emerald-600">{uploaded.clientCount.toLocaleString()} clients</p>
-            {uploaded.newClients > 0 && (
-              <p className="text-xs text-emerald-500">+{uploaded.newClients} new this month</p>
+            <p className="text-sm text-emerald-600">{uploaded.clientCount.toLocaleString()} active clients</p>
+            {(uploaded.newClients > 0 || uploaded.termedClients > 0) && (
+              <p className="text-xs text-slate-500">
+                {uploaded.newClients > 0 && <span className="text-emerald-500">+{uploaded.newClients} new</span>}
+                {uploaded.newClients > 0 && uploaded.termedClients > 0 && ' · '}
+                {uploaded.termedClients > 0 && <span className="text-amber-500">-{uploaded.termedClients} termed</span>}
+              </p>
             )}
           </div>
           <button

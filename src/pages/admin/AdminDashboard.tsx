@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigationContext } from '@/hooks/useNavigationContext';
+import { useAdminDashboardData } from '@/hooks/useAdminDashboardData';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import {
   Search,
@@ -11,11 +12,8 @@ import {
   Plus,
   Upload,
   Loader2,
+  RefreshCw,
 } from 'lucide-react';
-
-interface DashboardStats {
-  totalAgents: number;
-}
 
 interface SearchResult {
   id: string;
@@ -38,11 +36,7 @@ export default function AdminDashboard() {
   const { profile } = useAuth();
   const { homePath, isDualRole, viewMode, toggleMode } = useNavigationContext();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalAgents: 0,
-  });
-  const [pendingCount, setPendingCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { stats, pendingCount, isLoading: loading, refetch } = useAdminDashboardData();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,10 +45,6 @@ export default function AdminDashboard() {
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -66,47 +56,6 @@ export default function AdminDashboard() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      // Fetch all data in parallel
-      const [rolesResult, profilesResult, contractingResult] = await Promise.all([
-        supabase.from('user_roles').select('user_id, role'),
-        supabase.from('profiles')
-          .select('id, user_id')
-          .eq('is_active', true)
-          .or('is_test.is.null,is_test.eq.false'),
-        supabase.from('contracting_applications')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'submitted')
-          .not('queue_status', 'in', '("completed","sent_to_pinnacle")')
-          .or('is_test.is.null,is_test.eq.false')
-      ]);
-
-      // Process roles to identify admins
-      const adminUserIds = new Set(
-        (rolesResult.data || [])
-          .filter(r => r.role === 'admin' || r.role === 'super_admin')
-          .map(r => r.user_id)
-      );
-
-      // Filter profiles to exclude admins
-      if (profilesResult.data) {
-        const agents = profilesResult.data.filter(p => {
-          if (!p.user_id) return true;
-          return !adminUserIds.has(p.user_id);
-        });
-        setStats({ totalAgents: agents.length });
-      }
-
-      setPendingCount(contractingResult.count || 0);
-
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Debounced search function
   const performSearch = useCallback(async (query: string) => {
@@ -226,8 +175,17 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Right: Avatar */}
-          <UserAvatarDropdown />
+          {/* Right: Refresh + Avatar */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => refetch()}
+              className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100/80 transition-colors"
+              title="Refresh data"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <UserAvatarDropdown />
+          </div>
         </div>
       </header>
 

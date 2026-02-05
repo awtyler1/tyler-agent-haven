@@ -1,20 +1,9 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, ChevronRight, Download, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Search, ChevronRight, Download, Loader2, RefreshCw } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { useAdminAgentsBook, type AgentWithBook } from '@/hooks/useAdminAgentsBook';
 
 type SyncStatus = 'current' | 'stale' | 'very-stale' | 'never';
-
-interface AgentWithBook {
-  id: string;
-  full_name: string | null;
-  email: string | null;
-  state: string | null;
-  last_sync_at: string | null;
-  policy_count: number;
-  new_this_month: number;
-}
 
 function getSyncStatus(lastSyncAt: string | null): SyncStatus {
   if (!lastSyncAt) return 'never';
@@ -47,8 +36,7 @@ function formatSyncDate(lastSyncAt: string | null): string {
 
 export default function AgentsBookPage() {
   const navigate = useNavigate();
-  const [agents, setAgents] = useState<AgentWithBook[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { agents, isLoading, refetch } = useAdminAgentsBook();
 
   // URL state persistence
   const [searchParams, setSearchParams] = useSearchParams();
@@ -64,74 +52,6 @@ export default function AgentsBookPage() {
       });
       return next;
     }, { replace: true });
-  };
-
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
-  const monthStart = new Date(currentYear, currentMonth, 1).toISOString();
-
-  useEffect(() => {
-    fetchAgents();
-  }, []);
-
-  const fetchAgents = async () => {
-    try {
-      // Fetch profiles and all active policies in parallel (2 queries instead of 2N+1)
-      const [profilesResult, policiesResult] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('id, full_name, email, state, last_sync_at')
-          .eq('is_active', true)
-          .order('full_name'),
-        supabase
-          .from('policies')
-          .select('profile_id, effective_date')
-          .eq('status', 'active')
-      ]);
-
-      if (profilesResult.error) throw profilesResult.error;
-
-      const profiles = profilesResult.data || [];
-      const policies = policiesResult.data || [];
-
-      // Build policy counts map in a single pass (O(n) instead of O(n) DB calls)
-      const policyCounts = new Map<string, { total: number; newThisMonth: number }>();
-
-      for (const policy of policies) {
-        if (!policy.profile_id) continue;
-
-        const existing = policyCounts.get(policy.profile_id) || { total: 0, newThisMonth: 0 };
-        existing.total += 1;
-
-        // Check if new this month
-        if (policy.effective_date && policy.effective_date >= monthStart) {
-          existing.newThisMonth += 1;
-        }
-
-        policyCounts.set(policy.profile_id, existing);
-      }
-
-      // Merge profiles with policy counts
-      const agentsWithCounts: AgentWithBook[] = profiles.map((profile) => {
-        const counts = policyCounts.get(profile.id) || { total: 0, newThisMonth: 0 };
-        return {
-          ...profile,
-          policy_count: counts.total,
-          new_this_month: counts.newThisMonth,
-        };
-      });
-
-      // Filter out agents with no policies and no sync
-      const activeAgents = agentsWithCounts.filter(
-        a => a.policy_count > 0 || a.last_sync_at
-      );
-
-      setAgents(activeAgents);
-    } catch (err) {
-      console.error('Error fetching agents:', err);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   // Filter agents
@@ -154,6 +74,8 @@ export default function AgentsBookPage() {
   const syncedThisMonth = agents.filter(a => getSyncStatus(a.last_sync_at) === 'current').length;
   const needsAttention = agents.filter(a => getSyncStatus(a.last_sync_at) !== 'current').length;
   const newThisMonth = agents.reduce((sum, a) => sum + a.new_this_month, 0);
+  const termedThisMonth = agents.reduce((sum, a) => sum + a.termed_this_month, 0);
+  const netChangeTotal = newThisMonth - termedThisMonth;
 
   const getInitials = (name: string | null) => {
     if (!name) return '??';
@@ -191,9 +113,18 @@ export default function AgentsBookPage() {
   return (
     <AdminLayout>
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-stone-900 dark:text-white">Agent Book Tracking</h1>
-        <p className="text-stone-500 dark:text-stone-400 mt-1">Monitor agent sync status and book sizes</p>
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-stone-900 dark:text-white">Agent Book Tracking</h1>
+          <p className="text-stone-500 dark:text-stone-400 mt-1">Monitor agent sync status and book sizes</p>
+        </div>
+        <button
+          onClick={() => refetch()}
+          className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-[#2C2C2E] dark:hover:text-stone-300 transition-colors"
+          title="Refresh data"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Summary Cards */}
@@ -207,7 +138,12 @@ export default function AgentsBookPage() {
         <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl p-5 shadow-sm border border-stone-200 dark:border-[#38383A]">
           <p className="text-sm text-stone-500 dark:text-stone-400 mb-1">Total Clients</p>
           <p className="text-3xl font-bold text-stone-900 dark:text-white">{totalClients.toLocaleString()}</p>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">+{newThisMonth} this month</p>
+          <p className={`text-xs mt-1 ${netChangeTotal > 0 ? 'text-emerald-600 dark:text-emerald-400' : netChangeTotal < 0 ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-stone-500'}`}>
+            net {netChangeTotal > 0 ? '+' : ''}{netChangeTotal} this month
+            {(newThisMonth > 0 || termedThisMonth > 0) && (
+              <span className="text-stone-400 dark:text-stone-500"> (+{newThisMonth} / -{termedThisMonth})</span>
+            )}
+          </p>
         </div>
 
         <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-5 shadow-sm border border-emerald-200 dark:border-emerald-800">
@@ -267,7 +203,7 @@ export default function AgentsBookPage() {
             <tr>
               <th className="text-left px-6 py-4 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">Agent</th>
               <th className="text-right px-6 py-4 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">Book Size</th>
-              <th className="text-right px-6 py-4 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">New (This Mo)</th>
+              <th className="text-right px-6 py-4 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">Net (This Mo)</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">Last Sync</th>
               <th className="text-left px-6 py-4 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wide">Status</th>
               <th className="px-6 py-4"></th>
@@ -323,8 +259,24 @@ export default function AgentsBookPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {agent.new_this_month > 0 ? (
-                        <p className="text-emerald-600 dark:text-emerald-400 font-medium">+{agent.new_this_month}</p>
+                      {agent.net_change !== 0 ? (
+                        <div>
+                          <p className={`font-medium ${agent.net_change > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                            {agent.net_change > 0 ? '+' : ''}{agent.net_change}
+                          </p>
+                          {(agent.new_this_month > 0 || agent.termed_this_month > 0) && (
+                            <p className="text-[10px] text-stone-400 dark:text-stone-500">
+                              +{agent.new_this_month} / -{agent.termed_this_month}
+                            </p>
+                          )}
+                        </div>
+                      ) : agent.new_this_month > 0 || agent.termed_this_month > 0 ? (
+                        <div>
+                          <p className="text-stone-500 dark:text-stone-400 font-medium">0</p>
+                          <p className="text-[10px] text-stone-400 dark:text-stone-500">
+                            +{agent.new_this_month} / -{agent.termed_this_month}
+                          </p>
+                        </div>
                       ) : (
                         <p className="text-stone-400 dark:text-stone-500">—</p>
                       )}

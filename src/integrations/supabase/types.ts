@@ -1561,11 +1561,13 @@ export type Database = {
           created_at: string | null
           id: string
           month: string
+          net_change: number | null
           new_clients: number | null
           previous_month_clients: number | null
           profile_id: string
           started_at: string | null
           status: string
+          termed_clients: number | null
           total_clients: number | null
         }
         Insert: {
@@ -1573,11 +1575,13 @@ export type Database = {
           created_at?: string | null
           id?: string
           month: string
+          net_change?: number | null
           new_clients?: number | null
           previous_month_clients?: number | null
           profile_id: string
           started_at?: string | null
           status?: string
+          termed_clients?: number | null
           total_clients?: number | null
         }
         Update: {
@@ -1585,11 +1589,13 @@ export type Database = {
           created_at?: string | null
           id?: string
           month?: string
+          net_change?: number | null
           new_clients?: number | null
           previous_month_clients?: number | null
           profile_id?: string
           started_at?: string | null
           status?: string
+          termed_clients?: number | null
           total_clients?: number | null
         }
         Relationships: [
@@ -2039,6 +2045,7 @@ export type Database = {
           previous_count: number | null
           production_upload_id: string | null
           sync_id: string
+          termed_clients: number | null
           uploaded_at: string | null
         }
         Insert: {
@@ -2049,6 +2056,7 @@ export type Database = {
           previous_count?: number | null
           production_upload_id?: string | null
           sync_id: string
+          termed_clients?: number | null
           uploaded_at?: string | null
         }
         Update: {
@@ -2059,6 +2067,7 @@ export type Database = {
           previous_count?: number | null
           production_upload_id?: string | null
           sync_id?: string
+          termed_clients?: number | null
           uploaded_at?: string | null
         }
         Relationships: [
@@ -2163,6 +2172,15 @@ export type Database = {
     }
     Functions: {
       current_user_has_downline: { Args: never; Returns: boolean }
+      get_carrier_book_stats: {
+        Args: {
+          p_profile_id: string
+          p_carrier_id: string
+          p_month_start: string
+          p_month_end: string
+        }
+        Returns: Json
+      }
       get_carrier_id_from_cms_org: {
         Args: { org_name: string }
         Returns: string
