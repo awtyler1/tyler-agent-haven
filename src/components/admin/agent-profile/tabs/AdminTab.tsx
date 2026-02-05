@@ -139,9 +139,7 @@ export const AdminTab: React.FC<AdminTabProps> = ({
             <p className="text-sm font-medium text-stone-900">{getRoleLabel(currentRole)}</p>
             <p className="text-xs text-stone-500 mt-1">{getRoleDescription(currentRole)}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={onChangeRole}>
-            Change Role
-          </Button>
+          {/* TODO: Role change modal - hidden until implemented */}
         </div>
       </div>
 

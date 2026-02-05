@@ -25,6 +25,7 @@ import {
 // Import modals
 import { CarrierRequestModal } from './modals/CarrierRequestModal';
 import { DeactivateModal } from './modals/DeactivateModal';
+import { DeleteAgentModal } from '@/components/admin/agent-profile/DeleteAgentModal';
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -124,6 +125,7 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
   const [isCarrierRequestOpen, setIsCarrierRequestOpen] = useState(false);
   const [isHierarchyModalOpen, setIsHierarchyModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Permission checks
   const canEdit = isAdmin() && !isSelfView;
@@ -452,9 +454,7 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
               /* TODO: Implement role change modal */
             }}
             onDeactivate={() => setIsDeactivateModalOpen(true)}
-            onDelete={() => {
-              /* TODO: Implement delete confirmation */
-            }}
+            onDelete={() => setIsDeleteModalOpen(true)}
           />
         )}
       </div>
@@ -489,6 +489,19 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
           if (!updatedProfile.is_active) setDirectReports([]);
         }}
       />
+
+      {profile.user_id && (
+        <DeleteAgentModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          agentName={profile.full_name || 'Unknown Agent'}
+          userId={profile.user_id}
+          onDeleted={() => {
+            toast.success('Agent deleted successfully');
+            navigate('/admin/agents');
+          }}
+        />
+      )}
     </AdminLayout>
   );
 }
