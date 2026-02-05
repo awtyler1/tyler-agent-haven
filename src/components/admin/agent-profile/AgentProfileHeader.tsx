@@ -35,6 +35,7 @@ interface AgentProfile {
   ahip_cert_year?: number | null;
   setup_link_sent_at?: string | null;
   password_created_at?: string | null;
+  ownership_group?: string | null;
 }
 
 interface ManagerInfo {
@@ -225,6 +226,7 @@ export const AgentProfileHeader: React.FC<AgentProfileHeaderProps> = ({
                   Test
                 </span>
               )}
+
             </div>
 
             {/* Email */}
@@ -299,7 +301,7 @@ export const AgentProfileHeader: React.FC<AgentProfileHeaderProps> = ({
               >
                 Manager:{' '}
                 <span className={canEdit ? 'text-blue-600 group-hover:underline' : 'text-stone-700'}>
-                  {manager?.full_name || 'None'}
+                  {manager?.full_name || (profile.ownership_group === 'a_and_a' ? 'A&A Team' : 'Direct to TIG')}
                 </span>
                 {canEdit && (
                   <Pencil className="w-3 h-3 inline ml-1 text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity" />

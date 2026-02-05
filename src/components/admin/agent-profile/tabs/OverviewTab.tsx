@@ -22,6 +22,7 @@ interface ManagerInfo {
 interface OverviewTabProps {
   profile: AgentProfile;
   manager: ManagerInfo | null;
+  ownershipGroup?: string | null;
   lastLogin?: string;
   hasAhip: boolean;
   hasEo: boolean;
@@ -33,6 +34,7 @@ interface OverviewTabProps {
 export const OverviewTab: React.FC<OverviewTabProps> = ({
   profile,
   manager,
+  ownershipGroup,
   lastLogin,
   hasAhip,
   hasEo,
@@ -85,7 +87,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
           <div className="flex justify-between">
             <span className="text-stone-500">Manager</span>
-            <span className="text-blue-600">{manager?.full_name || 'None'}</span>
+            {manager ? (
+              <span className="text-blue-600">{manager.full_name}</span>
+            ) : ownershipGroup === 'a_and_a' ? (
+              <span className="text-stone-700">A&A Team</span>
+            ) : (
+              <span className="text-stone-700">Direct to TIG</span>
+            )}
           </div>
         </div>
       </div>
@@ -106,7 +114,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
           <div className="flex justify-between">
             <span className="text-stone-500">Last Login</span>
-            <span className="text-stone-900">{lastLogin || '—'}</span>
+            {lastLogin ? (
+              <span className="text-stone-900">{formatDate(lastLogin)}</span>
+            ) : (
+              <span className="text-red-600">Never</span>
+            )}
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { AdminLayout } from '@/components/layout/AdminLayout';
@@ -112,6 +113,10 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
   const [carrierStatuses, setCarrierStatuses] = useState<CarrierStatus[]>([]);
   const [directReports, setDirectReports] = useState<DirectReport[]>([]);
   const [hasInferredAhip, setHasInferredAhip] = useState(false);
+  const [hasEo, setHasEo] = useState(false);
+  const [eoExpiration, setEoExpiration] = useState<string | undefined>(undefined);
+  const [isLicensed, setIsLicensed] = useState(false);
+  const [licensedStates, setLicensedStates] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -221,6 +226,29 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
 
           if (certData && certData.length > 0) setHasInferredAhip(true);
         }
+
+        // Fetch compliance documents (E&O and licenses)
+        const { data: complianceDocs } = await supabase
+          .from('agent_documents')
+          .select('document_type, label, expires_at')
+          .eq('profile_id', profileData.id)
+          .in('document_type', ['eo_certificate', 'resident_license', 'non_resident_license']);
+
+        const today = new Date();
+
+        // E&O check - find valid (non-expired) E&O certificate
+        const eoDocs = complianceDocs?.filter(d => d.document_type === 'eo_certificate') || [];
+        const validEo = eoDocs.find(d => !d.expires_at || new Date(d.expires_at) > today);
+        setHasEo(!!validEo);
+        setEoExpiration(validEo?.expires_at ? format(new Date(validEo.expires_at), 'MMM d, yyyy') : undefined);
+
+        // Licensing check - count valid (non-expired) licenses
+        const licenseDocs = complianceDocs?.filter(d =>
+          ['resident_license', 'non_resident_license'].includes(d.document_type) &&
+          (!d.expires_at || new Date(d.expires_at) > today)
+        ) || [];
+        setIsLicensed(licenseDocs.length > 0);
+        setLicensedStates(licenseDocs.length);
       } catch (err: any) {
         console.error('Error fetching agent data:', err);
         setError(err.message || 'Failed to load agent profile');
@@ -327,8 +355,6 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
   // ─────────────────────────────────────────────────────────────
 
   const hasAhip = !!(profile?.ahip_cert_year || hasInferredAhip);
-  const hasEo = true; // TODO: Implement E&O check
-  const isLicensed = true; // TODO: Implement licensing check
   const backLabel = isSelfView ? 'Dashboard' : 'Agents';
 
   // ─────────────────────────────────────────────────────────────
@@ -391,9 +417,13 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
           <OverviewTab
             profile={profile}
             manager={manager}
+            ownershipGroup={profile.ownership_group}
+            lastLogin={profile.first_login_at || undefined}
             hasAhip={hasAhip}
             hasEo={hasEo}
+            eoExpiration={eoExpiration}
             isLicensed={isLicensed}
+            licensedStates={licensedStates}
           />
         )}
 

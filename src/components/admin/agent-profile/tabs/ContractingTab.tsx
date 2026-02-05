@@ -237,14 +237,11 @@ const RequestHistoryItem: React.FC<RequestHistoryItemProps> = ({ request }) => {
 
   return (
     <div className="px-4 py-3 border-t border-stone-50 first:border-t-0">
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-sm font-medium text-stone-900">
-            {request.carriers_included?.join(', ') || 'Carrier request'}
-          </p>
-          <p className="text-xs text-stone-500 mt-1">Sent to {request.recipient_email}</p>
-        </div>
-        <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">Pending</span>
+      <div>
+        <p className="text-sm font-medium text-stone-900">
+          {request.carriers_included?.join(', ') || 'Carrier request'}
+        </p>
+        <p className="text-xs text-stone-500 mt-1">Sent to {request.recipient_email}</p>
       </div>
       <p className="text-xs text-stone-400 mt-2">
         {formatDate(request.sent_at)} by {request.sent_by_name || 'Unknown'}
