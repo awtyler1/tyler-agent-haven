@@ -209,7 +209,7 @@ export default function AdminDashboard() {
           {/* Left: Logo + Branding */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">T</span>
+              <span className="font-serif text-base font-bold text-white">T</span>
             </div>
             <span className="font-serif text-xl font-semibold text-stone-900">TIG</span>
             <span className="text-stone-300">|</span>
@@ -239,7 +239,7 @@ export default function AdminDashboard() {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
           <h1 className="font-serif text-3xl font-medium text-stone-900 mb-3">
-            {getGreeting()}, {profile?.full_name?.split(' ')[0] || 'there'}
+            {getGreeting()}{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}
           </h1>
 
           {/* Stats with dots */}
