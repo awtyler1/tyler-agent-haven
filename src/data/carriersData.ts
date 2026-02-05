@@ -786,7 +786,7 @@ export const carriers = [
           { name: "Kimberly Scott", role: "Regional Sales Director", region: "Central Region", email: "Kimberly.J.Scott@wellcare.com" },
         ],
         links: [
-          { name: "Broker Portal", url: "https://brokerportal.wellcare.com/login" },
+          { name: "Broker Portal", url: "https://www.wellcare.com/en/broker-resources/broker-resources" },
           { name: "Provider Search", url: "https://www.wellcare.com/en/Medicare/Find-A-Doctor" },
           { name: "Drug Search", url: "https://www.wellcare.com/en/Medicare/Prescription-Drug-Coverage" },
         ],

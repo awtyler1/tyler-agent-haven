@@ -457,7 +457,7 @@ const CARRIER_PORTALS = [
   { name: 'Devoted', url: 'https://agent.devoted.com/', color: '#F97316' },
   { name: 'Humana', url: 'https://account.humana.com/', color: '#4B9B4B' },
   { name: 'UHC', url: 'https://www.uhcagent.com', color: '#002677' },
-  { name: 'Wellcare', url: 'https://brokerportal.wellcare.com/login', color: '#00A79D' },
+  { name: 'Wellcare', url: 'https://www.wellcare.com/en/broker-resources/broker-resources', color: '#00A79D' },
 ];
 
 function CarrierResourcesHoverButton() {
