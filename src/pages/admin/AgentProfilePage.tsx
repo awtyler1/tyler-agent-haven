@@ -389,13 +389,7 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
         {/* Header */}
         <AgentProfileHeader
           profile={profile}
-          manager={manager}
-          teamSize={directReports.length}
-          hasAhip={hasAhip}
-          hasEo={hasEo}
-          isLicensed={isLicensed}
           onUpdateProfile={handleUpdateProfile}
-          onOpenManagerModal={() => setIsHierarchyModalOpen(true)}
           onSendSetupLink={handleSendSetupLink}
           onResetContracting={handleResetContracting}
           onOpenDeactivateModal={() => setIsDeactivateModalOpen(true)}
@@ -418,6 +412,10 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
             eoExpiration={eoExpiration}
             isLicensed={isLicensed}
             licensedStates={licensedStates}
+            onUpdateProfile={handleUpdateProfile}
+            onOpenManagerModal={() => setIsHierarchyModalOpen(true)}
+            isAdmin={isAdmin()}
+            isSelfView={isSelfView}
           />
         )}
 

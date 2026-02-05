@@ -1,5 +1,6 @@
 import React from 'react';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Pencil } from 'lucide-react';
+import { useInlineEdit } from '@/hooks/useInlineEdit';
 
 interface AgentProfile {
   id: string;
@@ -29,6 +30,10 @@ interface OverviewTabProps {
   eoExpiration?: string;
   isLicensed: boolean;
   licensedStates?: number;
+  onUpdateProfile: (field: string, value: string) => Promise<void>;
+  onOpenManagerModal: () => void;
+  isAdmin: boolean;
+  isSelfView: boolean;
 }
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -41,7 +46,36 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   eoExpiration,
   isLicensed,
   licensedStates = 0,
+  onUpdateProfile,
+  onOpenManagerModal,
+  isAdmin,
+  isSelfView,
 }) => {
+  const canEdit = isAdmin && !isSelfView;
+
+  const emailEdit = useInlineEdit<string>({
+    initialValue: profile.email || '',
+    onSave: async (value) => {
+      await onUpdateProfile('email', value);
+    },
+    validate: (value) => {
+      if (!value.trim()) return 'Email is required';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Invalid email format';
+      return null;
+    },
+  });
+
+  const npnEdit = useInlineEdit<string>({
+    initialValue: profile.npn || '',
+    onSave: async (value) => {
+      await onUpdateProfile('npn', value);
+    },
+    validate: (value) => {
+      if (value && !/^\d+$/.test(value)) return 'NPN must be numeric';
+      return null;
+    },
+  });
+
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -71,28 +105,97 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
     return colors[status] || 'text-stone-600';
   };
 
+  const managerDisplayName = manager?.full_name || (ownershipGroup === 'a_and_a' ? 'A&A Team' : 'Direct to TIG');
+
   return (
     <div className="grid grid-cols-2 gap-4">
       {/* Contact Information */}
       <div className="bg-white rounded-xl shadow-sm border border-stone-200/50 p-5">
         <h3 className="text-xs text-stone-500 uppercase tracking-wide font-medium mb-4">Contact Information</h3>
         <div className="space-y-3 text-sm">
-          <div className="flex justify-between">
+          {/* Email */}
+          <div className="flex justify-between items-center">
             <span className="text-stone-500">Email</span>
-            <span className="text-stone-900">{profile.email || '—'}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-stone-500">NPN</span>
-            <span className="text-stone-900 font-mono">{profile.npn || '—'}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-stone-500">Manager</span>
-            {manager ? (
-              <span className="text-blue-600">{manager.full_name}</span>
-            ) : ownershipGroup === 'a_and_a' ? (
-              <span className="text-stone-700">A&A Team</span>
+            {emailEdit.isEditing ? (
+              <input
+                ref={emailEdit.inputRef as React.RefObject<HTMLInputElement>}
+                type="email"
+                value={emailEdit.draftValue}
+                onChange={(e) => emailEdit.setDraft(e.target.value)}
+                onBlur={emailEdit.handlers.onBlur}
+                onKeyDown={emailEdit.handlers.onKeyDown}
+                className="text-sm px-2 py-0.5 border border-amber-300 rounded bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-right"
+              />
             ) : (
-              <span className="text-stone-700">Direct to TIG</span>
+              <span className="flex items-center gap-1">
+                {emailEdit.saveStatus === 'saved' && <span className="text-xs text-green-600">Saved</span>}
+                {emailEdit.error && <span className="text-xs text-red-600">{emailEdit.error}</span>}
+                <span
+                  onClick={canEdit ? emailEdit.startEdit : undefined}
+                  className={`text-stone-900 ${
+                    canEdit
+                      ? 'group cursor-pointer hover:bg-stone-100 rounded px-1 -mx-1 transition-colors inline-flex items-center gap-1'
+                      : ''
+                  }`}
+                >
+                  {profile.email || '—'}
+                  {canEdit && (
+                    <Pencil className="w-3 h-3 text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  )}
+                </span>
+              </span>
+            )}
+          </div>
+
+          {/* NPN */}
+          <div className="flex justify-between items-center">
+            <span className="text-stone-500">NPN</span>
+            {npnEdit.isEditing ? (
+              <input
+                ref={npnEdit.inputRef as React.RefObject<HTMLInputElement>}
+                type="text"
+                value={npnEdit.draftValue}
+                onChange={(e) => npnEdit.setDraft(e.target.value)}
+                onBlur={npnEdit.handlers.onBlur}
+                onKeyDown={npnEdit.handlers.onKeyDown}
+                className="text-sm font-mono px-2 py-0.5 border border-amber-300 rounded bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-right w-28"
+              />
+            ) : (
+              <span className="flex items-center gap-1">
+                {npnEdit.saveStatus === 'saved' && <span className="text-xs text-green-600">Saved</span>}
+                {npnEdit.error && <span className="text-xs text-red-600">{npnEdit.error}</span>}
+                <span
+                  onClick={canEdit ? npnEdit.startEdit : undefined}
+                  className={`text-stone-900 font-mono ${
+                    canEdit
+                      ? 'group cursor-pointer hover:bg-stone-100 rounded px-1 -mx-1 transition-colors inline-flex items-center gap-1'
+                      : ''
+                  }`}
+                >
+                  {profile.npn || '—'}
+                  {canEdit && (
+                    <Pencil className="w-3 h-3 text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  )}
+                </span>
+              </span>
+            )}
+          </div>
+
+          {/* Manager */}
+          <div className="flex justify-between items-center">
+            <span className="text-stone-500">Manager</span>
+            {canEdit ? (
+              <button
+                onClick={onOpenManagerModal}
+                className="group inline-flex items-center gap-1 text-blue-600 hover:underline transition-colors"
+              >
+                {managerDisplayName}
+                <Pencil className="w-3 h-3 text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            ) : (
+              <span className={manager ? 'text-blue-600' : 'text-stone-700'}>
+                {managerDisplayName}
+              </span>
             )}
           </div>
         </div>
