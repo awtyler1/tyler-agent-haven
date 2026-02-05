@@ -29,16 +29,12 @@ interface AgentProfile {
 
 interface AdminTabProps {
   profile: AgentProfile;
-  currentRole: string | null;
-  onChangeRole: () => void;
   onDeactivate: () => void;
   onDelete: () => void;
 }
 
 export const AdminTab: React.FC<AdminTabProps> = ({
   profile,
-  currentRole,
-  onChangeRole,
   onDeactivate,
   onDelete,
 }) => {
@@ -97,28 +93,6 @@ export const AdminTab: React.FC<AdminTabProps> = ({
     setNoteToDelete(null);
   };
 
-  const getRoleLabel = (role: string | null) => {
-    const labels: Record<string, string> = {
-      super_admin: 'Super Admin',
-      admin: 'Admin',
-      manager: 'Manager',
-      independent_agent: 'Independent Agent',
-      internal_tig_agent: 'Internal TIG Agent',
-    };
-    return labels[role || ''] || role || 'No Role';
-  };
-
-  const getRoleDescription = (role: string | null) => {
-    const descriptions: Record<string, string> = {
-      super_admin: 'Full system access including user management',
-      admin: 'Can manage agents and view all data',
-      manager: 'Can view and manage their team',
-      independent_agent: 'Standard agent permissions',
-      internal_tig_agent: 'Internal team member permissions',
-    };
-    return descriptions[role || ''] || 'No permissions assigned';
-  };
-
   const currentUserInitials =
     currentUserProfile?.full_name
       ?.split(' ')
@@ -129,20 +103,6 @@ export const AdminTab: React.FC<AdminTabProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Role Management */}
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200/50 p-5">
-        <h3 className="text-xs text-stone-500 uppercase tracking-wide font-medium mb-4">
-          Role & Permissions
-        </h3>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-stone-900">{getRoleLabel(currentRole)}</p>
-            <p className="text-xs text-stone-500 mt-1">{getRoleDescription(currentRole)}</p>
-          </div>
-          {/* TODO: Role change modal - hidden until implemented */}
-        </div>
-      </div>
-
       {/* Admin Notes */}
       <div className="bg-white rounded-xl shadow-sm border border-stone-200/50">
         <div className="px-4 py-3 border-b border-stone-100">

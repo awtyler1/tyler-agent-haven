@@ -436,10 +436,6 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
         {activeTab === 'admin' && isAdmin() && (
           <AdminTab
             profile={profile}
-            currentRole={role}
-            onChangeRole={() => {
-              /* TODO: Implement role change modal */
-            }}
             onDeactivate={() => setIsDeactivateModalOpen(true)}
             onDelete={() => setIsDeleteModalOpen(true)}
           />
