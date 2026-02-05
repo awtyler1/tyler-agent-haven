@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatPhone } from '@/lib/formatters';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -66,9 +65,9 @@ function getAgentStatus(agent: AgentProfile): AgentStatus {
 
 function StatusDot({ status }: { status: AgentStatus }) {
   const colors = {
-    imported: 'bg-muted-foreground/40',
-    invited: 'bg-yellow-400',
-    active: 'bg-green-500',
+    imported: 'bg-stone-300',
+    invited: 'bg-amber-400',
+    active: 'bg-emerald-500',
     all: 'bg-primary',
   };
 
@@ -539,17 +538,19 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
     <div className="flex flex-col h-[calc(100vh-180px)]">
       {/* Search + Filters Row */}
       <div className="flex gap-3 flex-shrink-0 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-          <Input
-            placeholder={`Search ${agents.length} agents...`}
-            value={searchQuery}
-            onChange={(e) => updateParams({ q: e.target.value || null, page: null })}
-            className="pl-10 h-10 border-border"
-          />
+        <div className="flex-1 bg-white/70 backdrop-blur-sm rounded-xl p-1 border border-white/80 shadow-sm">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <input
+              placeholder={`Search ${agents.length} agents...`}
+              value={searchQuery}
+              onChange={(e) => updateParams({ q: e.target.value || null, page: null })}
+              className="w-full h-9 pl-9 pr-3 text-sm bg-transparent rounded-lg focus:outline-none focus:bg-amber-50/30 transition-colors placeholder:text-stone-400"
+            />
+          </div>
         </div>
         <Select value={statusFilter} onValueChange={(v) => updateParams({ status: v === 'all' ? null : v, page: null })}>
-          <SelectTrigger className="w-[130px] h-10 border-border">
+          <SelectTrigger className="w-[130px] h-10 bg-white/70 backdrop-blur-sm border-stone-200/50 rounded-xl">
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
           <SelectContent>
@@ -560,7 +561,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
           </SelectContent>
         </Select>
         <Select value={managerFilter} onValueChange={(v) => updateParams({ manager: v === 'all' ? null : v, page: null })}>
-          <SelectTrigger className="w-[180px] h-10 border-border">
+          <SelectTrigger className="w-[180px] h-10 bg-white/70 backdrop-blur-sm border-stone-200/50 rounded-xl">
             <SelectValue placeholder="All Managers" />
           </SelectTrigger>
           <SelectContent>
@@ -575,7 +576,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
           </SelectContent>
         </Select>
         <Select value={stateFilter} onValueChange={(v) => updateParams({ state: v === 'all' ? null : v, page: null })}>
-          <SelectTrigger className="w-[120px] h-10 border-border">
+          <SelectTrigger className="w-[120px] h-10 bg-white/70 backdrop-blur-sm border-stone-200/50 rounded-xl">
             <SelectValue placeholder="All States" />
           </SelectTrigger>
           <SelectContent>
@@ -590,7 +591,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
         <Button
           variant="outline"
           size="sm"
-          className="h-10 gap-2"
+          className="h-10 gap-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100/80 border-stone-200/50 rounded-xl"
           onClick={handleExport}
           disabled={filteredAgents.length === 0}
         >
@@ -601,15 +602,15 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
 
       {/* Bulk Action Bar */}
       {selectedIds.size > 0 && (
-        <div className="flex-shrink-0 mb-4 bg-primary/10 border border-primary/20 rounded-lg p-3">
+        <div className="flex-shrink-0 mb-4 bg-amber-50/80 border border-amber-200/50 rounded-2xl p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-stone-700">
                 {selectedIds.size} agent{selectedIds.size > 1 ? 's' : ''} selected
               </span>
               <button
                 onClick={clearSelection}
-                className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+                className="text-sm text-stone-600 hover:text-stone-900 hover:bg-white/60 rounded-xl px-2 py-0.5 flex items-center gap-1 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
                 Clear
@@ -619,13 +620,14 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-white"
+                className="text-stone-600 hover:text-stone-900 hover:bg-white/60 border-stone-200/50 rounded-xl"
                 onClick={handleAssignManager}
               >
                 Assign / Change Manager...
               </Button>
               <Button
                 size="sm"
+                className="bg-stone-900 text-white hover:bg-stone-800 rounded-xl"
                 onClick={handleSendSetupLinks}
                 disabled={sendingLinks}
               >
@@ -646,10 +648,10 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
       {/* Main Content: Table + Quick View Panel */}
       <div className="flex-1 min-h-0 flex gap-4">
         {/* Table Container */}
-        <div className="flex-1 min-h-0 flex flex-col border border-border rounded-lg bg-white overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm overflow-hidden">
           {/* Select all banner */}
           {allCurrentPageSelected && selectedIds.size < filteredAgents.length && (
-            <div className="flex-shrink-0 px-4 py-2 bg-muted/50 border-b border-border text-sm">
+            <div className="flex-shrink-0 px-4 py-2 bg-stone-50/50 border-b border-stone-100 text-sm">
               All {paginatedAgents.length} agents on this page are selected.{' '}
               <button
                 onClick={selectAllAgents}
@@ -664,8 +666,8 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
           <div className="flex-1 min-h-0 overflow-y-auto">
             <Table>
               <TableHeader className="sticky top-0 z-10">
-                <TableRow className="bg-muted hover:bg-muted">
-                  <TableHead className="w-10 px-3 py-3 bg-muted">
+                <TableRow className="bg-stone-50/80 hover:bg-stone-50/80">
+                  <TableHead className="w-10 px-3 py-3 bg-stone-50/80">
                     <Checkbox
                       checked={allCurrentPageSelected}
                       ref={(el) => {
@@ -676,18 +678,18 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                       onCheckedChange={toggleSelectAllOnPage}
                     />
                   </TableHead>
-                  <TableHead className="px-3 py-3 font-medium text-muted-foreground bg-muted">Name</TableHead>
-                  <TableHead className="px-3 py-3 font-medium text-muted-foreground bg-muted">Phone</TableHead>
-                  <TableHead className="px-3 py-3 font-medium text-muted-foreground bg-muted">Email</TableHead>
-                  <TableHead className="px-3 py-3 font-medium text-muted-foreground bg-muted">Manager</TableHead>
-                  <TableHead className="w-16 px-3 py-3 text-center font-medium text-muted-foreground bg-muted">Status</TableHead>
+                  <TableHead className="px-3 py-3 text-stone-500 text-xs uppercase tracking-wider font-medium bg-stone-50/80">Name</TableHead>
+                  <TableHead className="px-3 py-3 text-stone-500 text-xs uppercase tracking-wider font-medium bg-stone-50/80">Phone</TableHead>
+                  <TableHead className="px-3 py-3 text-stone-500 text-xs uppercase tracking-wider font-medium bg-stone-50/80">Email</TableHead>
+                  <TableHead className="px-3 py-3 text-stone-500 text-xs uppercase tracking-wider font-medium bg-stone-50/80">Manager</TableHead>
+                  <TableHead className="w-16 px-3 py-3 text-center text-stone-500 text-xs uppercase tracking-wider font-medium bg-stone-50/80">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-12">
-                      <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <div className="flex items-center justify-center gap-2 text-stone-600">
                         <Loader2 className="h-5 w-5 animate-spin" />
                         <span>Loading agents...</span>
                       </div>
@@ -695,7 +697,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                   </TableRow>
                 ) : paginatedAgents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-8 text-stone-600">
                       No agents found
                     </TableCell>
                   </TableRow>
@@ -703,9 +705,9 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                   paginatedAgents.map((agent) => (
                     <TableRow
                       key={agent.id}
-                      className={`cursor-pointer hover:bg-muted/50 ${
-                        selectedAgent?.id === agent.id ? 'bg-primary/5' : ''
-                      } ${selectedIds.has(agent.id) ? 'bg-primary/5' : ''}`}
+                      className={`cursor-pointer hover:bg-amber-50/30 ${
+                        selectedAgent?.id === agent.id ? 'bg-amber-50/50' : ''
+                      } ${selectedIds.has(agent.id) ? 'bg-amber-50/50' : ''}`}
                       onClick={() => handleRowClick(agent)}
                     >
                       <TableCell className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
@@ -714,18 +716,18 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                           onCheckedChange={() => toggleSelect(agent.id)}
                         />
                       </TableCell>
-                      <TableCell className="px-3 py-3 font-medium text-foreground">
+                      <TableCell className="px-3 py-3 font-medium text-stone-900">
                         {agent.full_name || '—'}
                       </TableCell>
-                      <TableCell className="px-3 py-3 text-muted-foreground whitespace-nowrap">
+                      <TableCell className="px-3 py-3 text-stone-600 whitespace-nowrap">
                         {formatPhone(agent.phone) || '—'}
                       </TableCell>
-                      <TableCell className="px-3 py-3 text-muted-foreground">
+                      <TableCell className="px-3 py-3 text-stone-600">
                         {agent.email || '—'}
                       </TableCell>
-                      <TableCell className="px-3 py-3 text-muted-foreground">
+                      <TableCell className="px-3 py-3 text-stone-600">
                         {getManagerName(agent.manager_id) || (
-                          <span className="inline-flex items-center gap-1.5 text-muted-foreground/60 italic">
+                          <span className="inline-flex items-center gap-1.5 text-stone-400 italic">
                             <Building2 className="w-3.5 h-3.5" />
                             Direct to TIG
                           </span>
@@ -742,8 +744,8 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
           </div>
 
           {/* Pagination Footer - Anchored at bottom */}
-          <div className="flex-shrink-0 px-4 py-3 border-t border-border bg-muted/50 flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
+          <div className="flex-shrink-0 px-4 py-3 border-t border-stone-100 bg-stone-50/50 flex items-center justify-between">
+            <span className="text-sm text-stone-500">
               Showing {filteredAgents.length === 0 ? 0 : startIndex + 1}–{endIndex} of {filteredAgents.length} agents
             </span>
 
@@ -754,7 +756,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                   size="sm"
                   onClick={() => updateParams({ page: currentPage > 2 ? String(currentPage - 1) : null })}
                   disabled={currentPage === 1}
-                  className="h-8 px-2"
+                  className="h-8 px-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100/80 disabled:text-stone-300"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   <span className="sr-only">Previous</span>
@@ -762,16 +764,20 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
 
                 {pageNumbers.map((page, idx) =>
                   page === 'ellipsis' ? (
-                    <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
+                    <span key={`ellipsis-${idx}`} className="px-2 text-stone-400">
                       ...
                     </span>
                   ) : (
                     <Button
                       key={page}
-                      variant={currentPage === page ? 'default' : 'ghost'}
+                      variant="ghost"
                       size="sm"
                       onClick={() => updateParams({ page: page === 1 ? null : String(page) })}
-                      className="h-8 w-8 p-0"
+                      className={`h-8 w-8 p-0 ${
+                        currentPage === page
+                          ? 'bg-stone-900 text-white hover:bg-stone-800'
+                          : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/80'
+                      }`}
                     >
                       {page}
                     </Button>
@@ -783,7 +789,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                   size="sm"
                   onClick={() => updateParams({ page: String(currentPage + 1) })}
                   disabled={currentPage === totalPages}
-                  className="h-8 px-2"
+                  className="h-8 px-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100/80 disabled:text-stone-300"
                 >
                   <span className="sr-only">Next</span>
                   <ChevronRight className="h-4 w-4" />
@@ -795,13 +801,13 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
 
         {/* Quick View Panel */}
         {selectedAgent && (
-          <div className="w-80 flex-shrink-0 flex flex-col border border-border rounded-lg bg-muted/30 overflow-hidden">
+          <div className="w-80 flex-shrink-0 flex flex-col rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-lg overflow-hidden">
             {/* Header */}
-            <div className="flex-shrink-0 p-4 border-b border-border bg-white flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">{selectedAgent.full_name || 'Unnamed'}</h3>
+            <div className="flex-shrink-0 p-4 border-b border-stone-100 bg-white/90 backdrop-blur-sm rounded-t-2xl flex items-center justify-between">
+              <h3 className="font-semibold text-stone-900">{selectedAgent.full_name || 'Unnamed'}</h3>
               <button
                 onClick={closeQuickView}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-stone-400 hover:text-stone-600 hover:bg-stone-100/80 rounded-lg p-1"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -812,31 +818,31 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
               {/* Contact Info */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <Phone className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-foreground whitespace-nowrap">{formatPhone(selectedAgent.phone) || '—'}</span>
+                  <Phone className="w-4 h-4 text-stone-400" />
+                  <span className="text-stone-900 whitespace-nowrap">{formatPhone(selectedAgent.phone) || '—'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-foreground">{selectedAgent.email || '—'}</span>
+                  <Mail className="w-4 h-4 text-stone-400" />
+                  <span className="text-stone-900">{selectedAgent.email || '—'}</span>
                 </div>
               </div>
 
               {/* Details */}
-              <div className="border-t border-border pt-4 space-y-3">
+              <div className="border-t border-stone-100 pt-4 space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">NPN</span>
-                  <span className="text-foreground font-medium">{selectedAgent.npn || '—'}</span>
+                  <span className="text-stone-500">NPN</span>
+                  <span className="text-stone-900 font-medium">{selectedAgent.npn || '—'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">State</span>
-                  <span className="text-foreground">{selectedAgent.resident_state || '—'}</span>
+                  <span className="text-stone-500">State</span>
+                  <span className="text-stone-900">{selectedAgent.resident_state || '—'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Manager</span>
+                  <span className="text-stone-500">Manager</span>
                   {getManagerName(selectedAgent.manager_id) ? (
-                    <span className="text-foreground">{getManagerName(selectedAgent.manager_id)}</span>
+                    <span className="text-stone-900">{getManagerName(selectedAgent.manager_id)}</span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-muted-foreground/60 italic">
+                    <span className="inline-flex items-center gap-1 text-stone-400 italic">
                       <Building2 className="w-3 h-3" />
                       Direct to TIG
                     </span>
@@ -844,29 +850,29 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 </div>
                 {selectedAgent.ownership_group === 'a_and_a' && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Team</span>
+                    <span className="text-stone-500">Team</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold/10 text-gold text-xs font-medium">
                       A&A
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Status</span>
+                  <span className="text-stone-500">Status</span>
                   <span className="inline-flex items-center gap-1.5">
                     <StatusDot status={getAgentStatus(selectedAgent)} />
-                    <span className="text-foreground">{getStatusLabel(getAgentStatus(selectedAgent))}</span>
+                    <span className="text-stone-900">{getStatusLabel(getAgentStatus(selectedAgent))}</span>
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Created</span>
-                  <span className="text-foreground">{formatDate(selectedAgent.created_at)}</span>
+                  <span className="text-stone-500">Created</span>
+                  <span className="text-stone-700">{formatDate(selectedAgent.created_at)}</span>
                 </div>
               </div>
 
               {/* Quick Actions */}
-              <div className="border-t border-border pt-4 space-y-2">
+              <div className="border-t border-stone-100 pt-4 space-y-2">
                 <Button
-                  className="w-full"
+                  className="w-full bg-stone-900 text-white hover:bg-stone-800 rounded-xl"
                   onClick={() => handleCopyInviteLink(selectedAgent.id)}
                   disabled={copyingLink}
                 >
@@ -889,14 +895,14 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full text-stone-600 hover:text-stone-900 hover:bg-stone-100/80 border-stone-200/50 rounded-xl"
                   onClick={handleViewFullProfile}
                 >
                   View Full Profile
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full text-stone-600 hover:text-stone-900 hover:bg-stone-100/80 border-stone-200/50 rounded-xl"
                   onClick={() => {
                     setAssignManagerAgentIds([selectedAgent.id]);
                     setAssignManagerAgentName(selectedAgent.full_name || undefined);
@@ -909,7 +915,7 @@ export function AllAgentsTab({ initialManagerFilter }: AllAgentsTabProps = {}) {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full text-stone-600 hover:text-stone-900 hover:bg-stone-100/80 border-stone-200/50 rounded-xl"
                   onClick={() => sendSetupLinks([selectedAgent.id])}
                   disabled={sendingLinks}
                 >
