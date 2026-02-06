@@ -13,6 +13,8 @@ interface SyncStatusPillProps {
   lastSyncAt: string | null;
   totalClients?: number;
   newThisMonth?: number;
+  termedThisMonth?: number;
+  netChange?: number;
   carrierCount?: number;
 }
 
@@ -21,6 +23,8 @@ export function SyncStatusPill({
   lastSyncAt,
   totalClients = 0,
   newThisMonth = 0,
+  termedThisMonth = 0,
+  netChange = 0,
   carrierCount = 0
 }: SyncStatusPillProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -123,10 +127,15 @@ export function SyncStatusPill({
                   <p className="text-xs text-slate-500">Clients</p>
                 </div>
                 <div>
-                  <p className={`text-lg font-bold ${newThisMonth > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
-                    {newThisMonth > 0 ? `+${newThisMonth}` : '—'}
+                  <p className={`text-lg font-bold ${netChange > 0 ? 'text-emerald-600' : netChange < 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                    {netChange !== 0 ? `${netChange > 0 ? '+' : ''}${netChange}` : '—'}
                   </p>
-                  <p className="text-xs text-slate-500">This Month</p>
+                  <p className="text-xs text-slate-500">Net Change</p>
+                  {(newThisMonth > 0 || termedThisMonth > 0) && (
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      +{newThisMonth} / -{termedThisMonth}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <p className="text-lg font-bold text-slate-800">{carrierCount || '—'}</p>

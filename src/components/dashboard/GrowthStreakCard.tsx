@@ -4,6 +4,8 @@ import { cn } from '@/lib/utils';
 interface GrowthStreakCardProps {
   streak: number;
   newThisMonth: number;
+  termedThisMonth: number;
+  netChange: number;
   isCompact?: boolean;
 }
 
@@ -16,6 +18,8 @@ interface GrowthStreakCardProps {
 export function GrowthStreakCard({
   streak,
   newThisMonth,
+  termedThisMonth,
+  netChange,
   isCompact = false,
 }: GrowthStreakCardProps) {
   const showStreak = streak >= 2;
@@ -44,18 +48,26 @@ export function GrowthStreakCard({
   return (
     <div
       className={cn(
-        'bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl text-white shadow-lg shadow-blue-500/20',
+        'bg-gradient-to-br rounded-2xl text-white shadow-lg',
+        netChange > 0 ? 'from-blue-500 to-indigo-500 shadow-blue-500/20' :
+        netChange < 0 ? 'from-amber-500 to-orange-500 shadow-amber-500/20' :
+        'from-slate-500 to-slate-600 shadow-slate-500/20',
         isCompact ? 'p-4' : 'p-5'
       )}
     >
       <div className="flex items-center gap-2 mb-2">
-        <TrendingUp className="w-5 h-5" />
-        <span className="text-sm font-medium text-blue-100">This Month</span>
+        <TrendingUp className={cn('w-5 h-5', netChange < 0 && 'rotate-180')} />
+        <span className="text-sm font-medium opacity-80">This Month</span>
       </div>
       <p className={cn('font-bold', isCompact ? 'text-3xl' : 'text-4xl')}>
-        +{newThisMonth}
+        {netChange > 0 ? '+' : ''}{netChange}
       </p>
-      <p className="text-sm text-blue-100">new clients</p>
+      <p className="text-sm opacity-80">
+        net change
+        {(newThisMonth > 0 || termedThisMonth > 0) && (
+          <span className="opacity-60"> · +{newThisMonth} / -{termedThisMonth}</span>
+        )}
+      </p>
     </div>
   );
 }

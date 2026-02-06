@@ -61,7 +61,7 @@ export default function AuthPage() {
       if (data.user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('is_active')
+          .select('is_active, first_login_at')
           .eq('user_id', data.user.id)
           .single();
 
@@ -70,6 +70,14 @@ export default function AuthPage() {
           await supabase.auth.signOut();
           toast.error('Your account has been deactivated. Please contact support.');
           return;
+        }
+
+        // Set first_login_at for agents who haven't had it recorded yet
+        if (profile && !profile.first_login_at) {
+          await supabase
+            .from('profiles')
+            .update({ first_login_at: new Date().toISOString() })
+            .eq('user_id', data.user.id);
         }
       }
 

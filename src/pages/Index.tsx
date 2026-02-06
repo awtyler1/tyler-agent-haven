@@ -64,7 +64,7 @@ export default function Index() {
   const getGreeting = () => {
     if (isEmpty) return `Let's build your book, ${data.firstName}.`;
     if (data.growthStreak >= 3) return `You're on fire, ${data.firstName}.`;
-    if (data.newThisMonth > 0) return `Momentum building, ${data.firstName}.`;
+    if (data.netChange > 0) return `Momentum building, ${data.firstName}.`;
     return `Welcome back, ${data.firstName}.`;
   };
 
@@ -88,6 +88,8 @@ export default function Index() {
               lastSyncAt={data.lastSyncAt}
               totalClients={data.totalClients}
               newThisMonth={data.newThisMonth}
+              termedThisMonth={data.termedThisMonth}
+              netChange={data.netChange}
               carrierCount={data.carriers.length}
             />
             <UserAvatarDropdown />
@@ -146,10 +148,19 @@ export default function Index() {
               {/* Badges - Only show when not empty */}
               {!isEmpty && (
                 <div className="flex items-center gap-3 mb-3">
-                  {data.newThisMonth > 0 && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/25">
-                      <TrendingUp className="w-4 h-4" />
-                      <span className="font-bold">+{data.newThisMonth} this month</span>
+                  {(data.newThisMonth > 0 || data.termedThisMonth > 0) && (
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-white shadow-lg ${
+                      data.netChange > 0 ? 'bg-emerald-500 shadow-emerald-500/25' :
+                      data.netChange < 0 ? 'bg-amber-500 shadow-amber-500/25' :
+                      'bg-slate-500 shadow-slate-500/25'
+                    }`}>
+                      <TrendingUp className={`w-4 h-4 ${data.netChange < 0 ? 'rotate-180' : ''}`} />
+                      <span className="font-bold">
+                        net {data.netChange > 0 ? '+' : ''}{data.netChange} this month
+                      </span>
+                      <span className="text-sm opacity-75">
+                        (+{data.newThisMonth}{data.termedThisMonth > 0 ? ` / -${data.termedThisMonth}` : ''})
+                      </span>
                     </div>
                   )}
                   {data.growthStreak >= 2 && (
@@ -435,7 +446,7 @@ const CARRIER_PORTALS = [
   { name: 'Devoted', url: 'https://agent.devoted.com/', color: '#F97316' },
   { name: 'Humana', url: 'https://account.humana.com/', color: '#4B9B4B' },
   { name: 'UHC', url: 'https://www.uhcagent.com', color: '#002677' },
-  { name: 'Wellcare', url: 'https://brokerportal.wellcare.com/login', color: '#00A79D' },
+  { name: 'Wellcare', url: 'https://www.wellcare.com/en/broker-resources/broker-resources', color: '#00A79D' },
 ];
 
 function CarrierResourcesHoverButton() {

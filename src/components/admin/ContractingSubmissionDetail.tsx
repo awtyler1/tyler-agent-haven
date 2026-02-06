@@ -215,10 +215,10 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
               </span>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">{submission.email_address}</p>
+          <p className="text-sm text-stone-500">{submission.email_address}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-muted-foreground">Submitted</p>
+          <p className="text-xs text-stone-500">Submitted</p>
           <p className="text-sm font-medium">
             {submission.submitted_at 
               ? format(new Date(submission.submitted_at), 'MMM d, yyyy h:mm a')
@@ -230,15 +230,15 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
 
       {/* Quick Info */}
       <div className="flex flex-wrap gap-4 text-sm">
-        <div className="flex items-center gap-1.5 text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-stone-500">
           <User className="h-4 w-4" />
           <span>NPN: {submission.npn_number || 'N/A'}</span>
         </div>
-        <div className="flex items-center gap-1.5 text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-stone-500">
           <MapPin className="h-4 w-4" />
           <span>State: {submission.resident_state || 'N/A'}</span>
         </div>
-        <div className="flex items-center gap-1.5 text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-stone-500">
           <Calendar className="h-4 w-4" />
           <span>Created: {format(new Date(submission.created_at), 'MMM d, yyyy')}</span>
         </div>
@@ -258,13 +258,13 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
                   <button
                     key={docType}
                     onClick={() => handleViewDocument(docType, filePath)}
-                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                    className="flex items-center gap-2 p-2 rounded-xl hover:bg-stone-50/50 transition-colors text-left group"
                   >
-                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <FileText className="h-4 w-4 text-stone-500" />
                     <span className="text-sm truncate flex-1">
                       {getDocumentLabel(docType)}
                     </span>
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Eye className="h-3.5 w-3.5 text-stone-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
               </div>
@@ -282,13 +282,13 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
                   <button
                     key={docType}
                     onClick={() => handleViewDocument(docType, filePath)}
-                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors text-left group"
+                    className="flex items-center gap-2 p-2 rounded-xl hover:bg-stone-50/50 transition-colors text-left group"
                   >
-                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <FileText className="h-4 w-4 text-stone-500" />
                     <span className="text-sm truncate flex-1">
                       {getDocumentLabel(docType)}
                     </span>
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Eye className="h-3.5 w-3.5 text-stone-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
               </div>
@@ -299,8 +299,8 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
 
       {/* Hierarchy Assignment */}
       {profileLoading ? (
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="rounded-xl border border-stone-200/50 bg-white p-4">
+          <div className="flex items-center gap-2 text-stone-500">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading hierarchy...
           </div>
@@ -312,7 +312,7 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
           onSave={handleHierarchyRefresh}
         />
       ) : (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+        <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-4">
           <p className="text-sm text-destructive">
             Unable to load profile for hierarchy assignment.
           </p>
@@ -327,7 +327,7 @@ export function ContractingSubmissionDetail({ submission, onRefresh }: Contracti
 
       {/* Actions */}
       {submission.status !== 'approved' && submission.status !== 'rejected' && (
-        <div className="flex items-center gap-2 pt-4 border-t border-border">
+        <div className="flex items-center gap-2 pt-4 border-t border-stone-100">
           <Button
             variant="outline"
             size="sm"

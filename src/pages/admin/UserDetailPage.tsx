@@ -116,19 +116,16 @@ export default function UserDetailPage() {
       
       setLoading(true);
       try {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', userId)
-          .single();
+        // Fetch profile and role in parallel
+        const [profileResult, roleResult] = await Promise.all([
+          supabase.from('profiles').select('*').eq('user_id', userId).single(),
+          supabase.from('user_roles').select('role').eq('user_id', userId).maybeSingle()
+        ]);
 
-        if (profileError) throw profileError;
+        if (profileResult.error) throw profileResult.error;
 
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', userId)
-          .maybeSingle();
+        const profile = profileResult.data;
+        const roleData = roleResult.data;
 
         const userData = {
           ...profile,

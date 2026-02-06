@@ -1,116 +1,13 @@
-import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Info } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Info, RefreshCw } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { PageLoader } from '@/components/ui/PageLoader';
-
-interface AgentProfile {
-  id: string;
-  full_name: string | null;
-  email: string | null;
-  npn: string | null;
-  state: string | null;
-  last_sync_at: string | null;
-}
-
-interface CarrierBreakdown {
-  carrier_name: string;
-  client_count: number;
-  new_this_month: number;
-}
+import { useAdminAgentBook } from '@/hooks/useAdminAgentBook';
 
 export default function AgentBookDetailPage() {
   const { agentId } = useParams();
   const navigate = useNavigate();
-  const [agent, setAgent] = useState<AgentProfile | null>(null);
-  const [carrierBreakdown, setCarrierBreakdown] = useState<CarrierBreakdown[]>([]);
-  const [bookStats, setBookStats] = useState({ total: 0, ma: 0, pdp: 0, newThisMonth: 0 });
-  const [isLoading, setIsLoading] = useState(true);
-
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
-  const monthStart = new Date(currentYear, currentMonth, 1).toISOString();
-
-  useEffect(() => {
-    if (agentId) {
-      fetchAgentData();
-    }
-  }, [agentId]);
-
-  const fetchAgentData = async () => {
-    try {
-      // Fetch agent profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, npn, state, last_sync_at')
-        .eq('id', agentId)
-        .single();
-
-      if (profileError) throw profileError;
-      setAgent(profile);
-
-      // Fetch policies with carrier info
-      const { data: policies, error: policiesError } = await supabase
-        .from('policies')
-        .select(`
-          id,
-          plan_type,
-          effective_date,
-          carrier_id
-        `)
-        .eq('profile_id', agentId)
-        .eq('status', 'active');
-
-      if (policiesError) throw policiesError;
-
-      // Fetch carriers for mapping
-      const carrierIds = [...new Set((policies || []).map(p => p.carrier_id).filter(Boolean))];
-      const { data: carriers } = await supabase
-        .from('carriers')
-        .select('id, name')
-        .in('id', carrierIds.length > 0 ? carrierIds : ['00000000-0000-0000-0000-000000000000']);
-
-      const carrierMap = new Map((carriers || []).map(c => [c.id, c.name]));
-
-      // Calculate stats
-      const total = policies?.length || 0;
-      const ma = policies?.filter(p => p.plan_type === 'MA').length || 0;
-      const pdp = policies?.filter(p => p.plan_type === 'PDP').length || 0;
-      const newThisMonth = policies?.filter(p =>
-        p.effective_date && new Date(p.effective_date) >= new Date(monthStart)
-      ).length || 0;
-
-      setBookStats({ total, ma, pdp, newThisMonth });
-
-      // Calculate carrier breakdown
-      const carrierStats = new Map<string, { count: number; newThisMonth: number }>();
-      policies?.forEach(p => {
-        const carrierName = carrierMap.get(p.carrier_id) || 'Unknown';
-        const existing = carrierStats.get(carrierName) || { count: 0, newThisMonth: 0 };
-        existing.count++;
-        if (p.effective_date && new Date(p.effective_date) >= new Date(monthStart)) {
-          existing.newThisMonth++;
-        }
-        carrierStats.set(carrierName, existing);
-      });
-
-      const breakdown = Array.from(carrierStats.entries())
-        .map(([carrier_name, stats]) => ({
-          carrier_name,
-          client_count: stats.count,
-          new_this_month: stats.newThisMonth,
-        }))
-        .sort((a, b) => b.client_count - a.client_count);
-
-      setCarrierBreakdown(breakdown);
-
-    } catch (err) {
-      console.error('Error fetching agent data:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { agent, carrierBreakdown, bookStats, isLoading, refetch } = useAdminAgentBook(agentId);
 
   const getSyncStatus = () => {
     if (!agent?.last_sync_at) return { status: 'never', label: 'Never synced' };
@@ -192,9 +89,18 @@ export default function AgentBookDetailPage() {
               </div>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-stone-500 dark:text-stone-400">NPN</p>
-            <p className="font-mono text-stone-900 dark:text-white">{agent.npn || '—'}</p>
+          <div className="flex items-start gap-3">
+            <div className="text-right">
+              <p className="text-sm text-stone-500 dark:text-stone-400">NPN</p>
+              <p className="font-mono text-stone-900 dark:text-white">{agent.npn || '—'}</p>
+            </div>
+            <button
+              onClick={() => refetch()}
+              className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-[#2C2C2E] dark:hover:text-stone-300 transition-colors"
+              title="Refresh data"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -216,14 +122,24 @@ export default function AgentBookDetailPage() {
             </div>
             <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">{bookStats.ma} MA · {bookStats.pdp} PDP</p>
           </div>
-          {bookStats.newThisMonth > 0 && (
+          {(bookStats.newThisMonth > 0 || bookStats.termedThisMonth > 0) && (
             <div className="text-right">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full border border-emerald-100 dark:border-emerald-800">
-                <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd"/>
-                </svg>
-                <span className="text-emerald-700 dark:text-emerald-400 font-semibold text-sm">+{bookStats.newThisMonth} this month</span>
+              <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${
+                bookStats.netChange > 0 ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800' :
+                bookStats.netChange < 0 ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800' :
+                'bg-slate-50 dark:bg-slate-900/20 border-slate-200 dark:border-slate-700'
+              }`}>
+                <span className={`font-semibold text-sm ${
+                  bookStats.netChange > 0 ? 'text-emerald-700 dark:text-emerald-400' :
+                  bookStats.netChange < 0 ? 'text-amber-700 dark:text-amber-400' :
+                  'text-stone-600 dark:text-stone-400'
+                }`}>
+                  net {bookStats.netChange > 0 ? '+' : ''}{bookStats.netChange} this month
+                </span>
               </div>
+              <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">
+                +{bookStats.newThisMonth} new · -{bookStats.termedThisMonth} termed
+              </p>
             </div>
           )}
         </div>
@@ -255,8 +171,15 @@ export default function AgentBookDetailPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-stone-900 dark:text-white">{carrier.client_count} clients</p>
-                    {carrier.new_this_month > 0 && (
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400">+{carrier.new_this_month} this mo</p>
+                    {(carrier.new_this_month > 0 || carrier.termed_this_month > 0) && (
+                      <p className={`text-xs ${
+                        carrier.net_change > 0 ? 'text-emerald-600 dark:text-emerald-400' :
+                        carrier.net_change < 0 ? 'text-amber-600 dark:text-amber-400' :
+                        'text-stone-500 dark:text-stone-400'
+                      }`}>
+                        net {carrier.net_change > 0 ? '+' : ''}{carrier.net_change}
+                        <span className="text-stone-400 dark:text-stone-500"> (+{carrier.new_this_month} / -{carrier.termed_this_month})</span>
+                      </p>
                     )}
                   </div>
                 </div>

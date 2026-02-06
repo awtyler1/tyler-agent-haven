@@ -182,7 +182,7 @@ export default function SetPasswordPage() {
       if (user) {
         await supabase
           .from('profiles')
-          .update({ password_created_at: new Date().toISOString() })
+          .update({ password_created_at: new Date().toISOString(), first_login_at: new Date().toISOString() })
           .eq('user_id', user.id);
       }
 

@@ -360,16 +360,19 @@ export function AgentDocumentsSection({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col h-[348px]">
+      <div className="bg-white rounded-xl shadow-sm border border-border/50 overflow-hidden flex flex-col">
         {/* Header */}
         <div className="px-5 py-4">
           <h2 className="font-semibold text-foreground">Documents</h2>
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto min-h-0">
-          {/* Document slots */}
-          <div className="border-t border-border/50">
+        <div className="overflow-y-auto max-h-[600px]">
+          {/* Required documents */}
+          <div className="px-5 py-2 bg-stone-50 border-t border-border/50">
+            <span className="text-xs font-medium text-stone-500 uppercase tracking-wide">Required Documents</span>
+          </div>
+          <div>
           {DOCUMENT_SLOTS.map((slot) => {
             if (slot.allowMultiple) {
               // Render multiple documents for this slot type
@@ -429,14 +432,14 @@ export function AgentDocumentsSection({
         </div>
 
         {/* Other documents section - admin only */}
-        {isAdmin && (otherDocs.length > 0 || true) && (
+        {isAdmin && (
           <>
-            <div className="px-5 py-3 bg-muted/30 border-t border-border/50">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Other
+            <div className="px-5 py-2 bg-stone-50 border-t border-stone-200">
+              <span className="text-xs font-medium text-stone-500 uppercase tracking-wide">
+                Other Documents
               </span>
             </div>
-            <div className="border-t border-border/50">
+            <div>
               {otherDocs.length > 0 ? (
                 otherDocs.map((doc) => {
                   const docLabel = doc.label || doc.file_name;

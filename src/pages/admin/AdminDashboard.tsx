@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigationContext } from '@/hooks/useNavigationContext';
-import { Card } from '@/components/ui/card';
+import { useAdminDashboardData } from '@/hooks/useAdminDashboardData';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import {
   Search,
@@ -12,11 +12,8 @@ import {
   Plus,
   Upload,
   Loader2,
+  RefreshCw,
 } from 'lucide-react';
-
-interface DashboardStats {
-  totalAgents: number;
-}
 
 interface SearchResult {
   id: string;
@@ -28,15 +25,18 @@ interface SearchResult {
   manager_name?: string | null;
 }
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+};
+
 export default function AdminDashboard() {
   const { profile } = useAuth();
   const { homePath, isDualRole, viewMode, toggleMode } = useNavigationContext();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalAgents: 0,
-  });
-  const [pendingCount, setPendingCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { stats, pendingCount, isLoading: loading, refetch } = useAdminDashboardData();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,10 +45,6 @@ export default function AdminDashboard() {
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -60,56 +56,6 @@ export default function AdminDashboard() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      // Get all roles to identify admins (to exclude)
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      // Create set of admin user_ids
-      const adminUserIds = new Set(
-        (roles || [])
-          .filter(r => r.role === 'admin' || r.role === 'super_admin')
-          .map(r => r.user_id)
-      );
-
-      // Fetch all profiles (exclude test records)
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, user_id')
-        .eq('is_active', true)
-        .or('is_test.is.null,is_test.eq.false');
-
-      if (profiles) {
-        // Filter out admin users
-        const agents = profiles.filter(p => {
-          if (!p.user_id) return true;
-          return !adminUserIds.has(p.user_id);
-        });
-
-        setStats({
-          totalAgents: agents.length,
-        });
-      }
-
-      // Fetch pending contracting count (exclude completed and sent_to_pinnacle)
-      const { count } = await supabase
-        .from('contracting_applications')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'submitted')
-        .not('queue_status', 'in', '("completed","sent_to_pinnacle")')
-        .or('is_test.is.null,is_test.eq.false');
-
-      setPendingCount(count || 0);
-
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Debounced search function
   const performSearch = useCallback(async (query: string) => {
@@ -196,62 +142,107 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+    <div className="relative min-h-screen bg-gradient-to-br from-amber-50/80 via-orange-50/40 to-stone-100">
+      {/* Subtle texture overlay */}
+      <div
+        className="absolute inset-0 opacity-40 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.015) 1px, transparent 0)',
+          backgroundSize: '20px 20px'
+        }}
+      />
+
       {/* Header */}
-      <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
+      <header className="relative bg-white/60 backdrop-blur-xl border-b border-white/80 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
-          {/* Left: TIG Branding (this is home, no back button) */}
-          <div className="flex items-center gap-4">
-            <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
-            <span className="text-[#e8e4dd]">|</span>
-            <span className="text-sm text-[#5c5552]">Admin Dashboard</span>
+          {/* Left: Logo + Branding */}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25 flex items-center justify-center">
+              <span className="font-serif text-base font-bold text-white">T</span>
+            </div>
+            <span className="font-serif text-xl font-semibold text-stone-900">TIG</span>
+            <span className="text-stone-300">|</span>
+            <span className="text-sm text-stone-500">Admin</span>
 
             {/* Mode toggle for dual-role users */}
             {isDualRole && (
               <button
                 onClick={toggleMode}
-                className="ml-2 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                className="ml-2 px-3 py-1.5 text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100/80 rounded-lg transition-colors"
               >
                 Switch to Agent View
               </button>
             )}
           </div>
 
-          {/* Right: Avatar */}
-          <UserAvatarDropdown />
+          {/* Right: Refresh + Avatar */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => refetch()}
+              className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100/80 transition-colors"
+              title="Refresh data"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <UserAvatarDropdown />
+          </div>
         </div>
       </header>
 
       {/* Main Content - Centered */}
-      <main className="flex flex-col items-center px-6 py-12">
-        {/* Title Section */}
-        <h1 className="text-2xl font-serif font-medium text-foreground mb-2 text-center">
-          Find an Agent
-        </h1>
-        <p className="text-muted-foreground mb-6 text-center">
-          Search by name, NPN, or email
-        </p>
+      <main className="relative flex flex-col items-center px-6 py-12">
+        {/* Greeting Section */}
+        <div className="text-center mb-10">
+          <p className="text-amber-600/70 text-sm font-medium mb-2">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+          <h1 className="font-serif text-3xl font-medium text-stone-900 mb-3">
+            {getGreeting()}{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}
+          </h1>
 
-        {/* Search Input */}
-        <div className="relative w-full max-w-xl mb-4" ref={searchRef}>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
-              placeholder="Start typing..."
-              className="w-full h-12 pl-12 pr-4 text-base bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-gold transition-all"
-            />
-            {isSearching && (
-              <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground animate-spin" />
+          {/* Stats with dots */}
+          <div className="flex items-center justify-center gap-6 text-sm">
+            {loading ? (
+              <span className="text-stone-400">...</span>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-stone-500">{stats.totalAgents.toLocaleString()} agents</span>
+                </div>
+                {pendingCount > 0 && (
+                  <Link to="/admin/contracting" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    <span className="text-stone-500">{pendingCount} pending review</span>
+                  </Link>
+                )}
+              </>
             )}
+          </div>
+        </div>
+
+        {/* Search - Glass Card */}
+        <div className="w-full max-w-3xl mb-10" ref={searchRef}>
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-1.5 shadow-lg shadow-stone-200/40 border border-white/80">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
+                placeholder="Search agents by name, NPN, or email..."
+                className="w-full h-12 pl-12 pr-5 text-base bg-transparent rounded-xl focus:outline-none focus:bg-amber-50/50 transition-colors placeholder:text-stone-400"
+              />
+              {isSearching && (
+                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 animate-spin" />
+              )}
+            </div>
           </div>
 
           {/* Search Results Dropdown */}
           {showResults && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-lg shadow-lg overflow-hidden z-50">
+            <div className="absolute left-0 right-0 mx-6 mt-2 bg-white/95 backdrop-blur-sm border border-white/80 rounded-2xl shadow-xl overflow-hidden z-50" style={{ maxWidth: 'calc(48rem - 3rem)', marginLeft: 'auto', marginRight: 'auto' }}>
               {searchResults.length > 0 ? (
                 <>
                   <div className="max-h-80 overflow-y-auto">
@@ -265,16 +256,16 @@ export default function AdminDashboard() {
                             setShowResults(false);
                             setSearchQuery('');
                           }}
-                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-muted/50 transition-colors text-left border-b border-border last:border-0"
+                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-amber-50/50 transition-colors text-left border-b border-stone-100 last:border-0"
                         >
-                          <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium flex-shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-sm font-medium flex-shrink-0">
                             {getInitials(result.full_name)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">
+                            <p className="text-sm font-medium text-stone-900 truncate">
                               {result.full_name || 'No name'}
                             </p>
-                            <p className="text-xs text-muted-foreground truncate">
+                            <p className="text-xs text-stone-500 truncate">
                               {result.npn ? `NPN: ${result.npn}` : result.email}
                               {result.manager_name && ` · ${result.manager_name}`}
                             </p>
@@ -289,14 +280,14 @@ export default function AdminDashboard() {
                   <Link
                     to="/admin/agents"
                     onClick={() => setShowResults(false)}
-                    className="block px-4 py-3 text-sm text-primary font-medium hover:bg-muted/50 transition-colors border-t border-border text-center"
+                    className="block px-4 py-3 text-sm text-amber-600 font-medium hover:bg-amber-50/50 transition-colors border-t border-stone-100 text-center"
                   >
                     View all agents
                   </Link>
                 </>
               ) : (
                 <div className="px-4 py-8 text-center">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-stone-500">
                     {searchQuery.length >= 2 ? 'No agents found' : 'Type at least 2 characters'}
                   </p>
                 </div>
@@ -305,98 +296,66 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Whisper Stats Line */}
-        <p className="text-sm text-muted-foreground mb-10 text-center">
-          {loading ? (
-            '...'
-          ) : (
-            <>
-              {stats.totalAgents.toLocaleString()} agents
+        {/* Quick Actions Section */}
+        <div className="w-full max-w-3xl">
+          <p className="text-xs text-stone-400 uppercase tracking-wider font-medium mb-4 px-1">
+            Quick Actions
+          </p>
+
+          <div className="grid grid-cols-2 gap-4">
+            {/* All Agents */}
+            <div
+              onClick={() => navigate('/admin/agents')}
+              className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-white/60 shadow-sm shadow-stone-200/30 hover:shadow-xl hover:shadow-stone-200/40 hover:-translate-y-1 hover:bg-white transition-all duration-300 cursor-pointer"
+            >
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/25 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <ClipboardList className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="font-semibold text-stone-900 mb-1">All Agents</h3>
+              <p className="text-sm text-stone-500">View and manage roster</p>
+            </div>
+
+            {/* Contracting */}
+            <div
+              onClick={() => navigate('/admin/contracting')}
+              className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-white/60 shadow-sm shadow-stone-200/30 hover:shadow-xl hover:shadow-stone-200/40 hover:-translate-y-1 hover:bg-white transition-all duration-300 cursor-pointer"
+            >
               {pendingCount > 0 && (
-                <>
-                  {' · '}
-                  <Link
-                    to="/admin/contracting"
-                    className="text-gold hover:text-gold/80 hover:underline"
-                  >
-                    {pendingCount} pending review
-                  </Link>
-                </>
+                <span className="absolute top-4 right-4 w-5 h-5 flex items-center justify-center text-xs font-bold bg-red-500 text-white rounded-full shadow-md">
+                  {pendingCount}
+                </span>
               )}
-            </>
-          )}
-        </p>
-
-        {/* 2x2 Card Grid */}
-        <div className="grid grid-cols-2 gap-4 w-full max-w-xl">
-          {/* All Agents */}
-          <Card
-            className="group cursor-pointer bg-white border border-border rounded-lg hover:border-primary/30 hover:shadow-lg transition-all"
-            onClick={() => navigate('/admin/agents')}
-          >
-            <div className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <ClipboardList className="w-5 h-5 text-amber-600" />
-                </div>
-                <h3 className="font-semibold text-foreground">All Agents</h3>
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 shadow-lg shadow-blue-500/25 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <FileText className="w-5 h-5 text-white" />
               </div>
-              <p className="text-sm text-muted-foreground">View and manage roster</p>
+              <h3 className="font-semibold text-stone-900 mb-1">Contracting</h3>
+              <p className="text-sm text-stone-500">Review applications</p>
             </div>
-          </Card>
 
-          {/* Contracting */}
-          <Card
-            className="group cursor-pointer bg-white border border-border rounded-lg hover:border-primary/30 hover:shadow-lg transition-all relative"
-            onClick={() => navigate('/admin/contracting')}
-          >
-            {pendingCount > 0 && (
-              <span className="absolute top-3 right-3 px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full">
-                {pendingCount}
-              </span>
-            )}
-            <div className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                </div>
-                <h3 className="font-semibold text-foreground">Contracting</h3>
+            {/* New Agent */}
+            <div
+              onClick={() => navigate('/admin/agents/new')}
+              className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-white/60 shadow-sm shadow-stone-200/30 hover:shadow-xl hover:shadow-stone-200/40 hover:-translate-y-1 hover:bg-white transition-all duration-300 cursor-pointer"
+            >
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/25 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Plus className="w-5 h-5 text-white" />
               </div>
-              <p className="text-sm text-muted-foreground">Review applications</p>
+              <h3 className="font-semibold text-stone-900 mb-1">New Agent</h3>
+              <p className="text-sm text-stone-500">Start contracting</p>
             </div>
-          </Card>
 
-          {/* New Agent */}
-          <Card
-            className="group cursor-pointer bg-white border border-border rounded-lg hover:border-primary/30 hover:shadow-lg transition-all"
-            onClick={() => navigate('/admin/agents/new')}
-          >
-            <div className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
-                  <Plus className="w-5 h-5 text-gold" />
-                </div>
-                <h3 className="font-semibold text-foreground">New Agent</h3>
+            {/* RTS Import */}
+            <div
+              onClick={() => navigate('/admin/rts-import')}
+              className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-white/60 shadow-sm shadow-stone-200/30 hover:shadow-xl hover:shadow-stone-200/40 hover:-translate-y-1 hover:bg-white transition-all duration-300 cursor-pointer"
+            >
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 shadow-lg shadow-violet-500/25 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Upload className="w-5 h-5 text-white" />
               </div>
-              <p className="text-sm text-muted-foreground">Start contracting</p>
+              <h3 className="font-semibold text-stone-900 mb-1">RTS Import</h3>
+              <p className="text-sm text-stone-500">Upload carrier data</p>
             </div>
-          </Card>
-
-          {/* RTS Import */}
-          <Card
-            className="group cursor-pointer bg-white border border-border rounded-lg hover:border-primary/30 hover:shadow-lg transition-all"
-            onClick={() => navigate('/admin/rts-import')}
-          >
-            <div className="p-5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                  <Upload className="w-5 h-5 text-emerald-600" />
-                </div>
-                <h3 className="font-semibold text-foreground">RTS Import</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">Upload carrier data</p>
-            </div>
-          </Card>
+          </div>
         </div>
       </main>
     </div>

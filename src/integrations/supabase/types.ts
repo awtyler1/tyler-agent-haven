@@ -1,4 +1,3 @@
-Initialising login role...
 export type Json =
   | string
   | number
@@ -75,6 +74,48 @@ export type Database = {
           {
             foreignKeyName: "activity_logs_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_notes: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          id: string
+          profile_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          profile_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          profile_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notes_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_notes_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1520,11 +1561,13 @@ export type Database = {
           created_at: string | null
           id: string
           month: string
+          net_change: number | null
           new_clients: number | null
           previous_month_clients: number | null
           profile_id: string
           started_at: string | null
           status: string
+          termed_clients: number | null
           total_clients: number | null
         }
         Insert: {
@@ -1532,11 +1575,13 @@ export type Database = {
           created_at?: string | null
           id?: string
           month: string
+          net_change?: number | null
           new_clients?: number | null
           previous_month_clients?: number | null
           profile_id: string
           started_at?: string | null
           status?: string
+          termed_clients?: number | null
           total_clients?: number | null
         }
         Update: {
@@ -1544,11 +1589,13 @@ export type Database = {
           created_at?: string | null
           id?: string
           month?: string
+          net_change?: number | null
           new_clients?: number | null
           previous_month_clients?: number | null
           profile_id?: string
           started_at?: string | null
           status?: string
+          termed_clients?: number | null
           total_clients?: number | null
         }
         Relationships: [
@@ -1998,6 +2045,7 @@ export type Database = {
           previous_count: number | null
           production_upload_id: string | null
           sync_id: string
+          termed_clients: number | null
           uploaded_at: string | null
         }
         Insert: {
@@ -2008,6 +2056,7 @@ export type Database = {
           previous_count?: number | null
           production_upload_id?: string | null
           sync_id: string
+          termed_clients?: number | null
           uploaded_at?: string | null
         }
         Update: {
@@ -2018,6 +2067,7 @@ export type Database = {
           previous_count?: number | null
           production_upload_id?: string | null
           sync_id?: string
+          termed_clients?: number | null
           uploaded_at?: string | null
         }
         Relationships: [
@@ -2122,10 +2172,20 @@ export type Database = {
     }
     Functions: {
       current_user_has_downline: { Args: never; Returns: boolean }
+      get_carrier_book_stats: {
+        Args: {
+          p_profile_id: string
+          p_carrier_id: string
+          p_month_start: string
+          p_month_end: string
+        }
+        Returns: Json
+      }
       get_carrier_id_from_cms_org: {
         Args: { org_name: string }
         Returns: string
       }
+      get_current_profile_id: { Args: never; Returns: string }
       get_my_profile_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
@@ -2140,6 +2200,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_admin_user: { Args: never; Returns: boolean }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }

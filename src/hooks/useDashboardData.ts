@@ -69,6 +69,8 @@ export interface DashboardData {
   // Book metrics
   totalClients: number;
   newThisMonth: number;
+  termedThisMonth: number;
+  netChange: number;
   growthStreak: number;
   monthlyHistory: number[];
   carriers: CarrierData[];
@@ -106,7 +108,7 @@ async function fetchDashboardData(
     // Query 1: All completed syncs for history and calculations
     supabase
       .from('monthly_syncs')
-      .select('month, total_clients, previous_month_clients, new_clients, created_at')
+      .select('*')
       .eq('profile_id', profileId)
       .eq('status', 'complete')
       .order('month', { ascending: true }),
@@ -136,6 +138,8 @@ async function fetchDashboardData(
   // Calculate metrics from sync history
   let totalClients = 0;
   let newThisMonth = 0;
+  let termedThisMonth = 0;
+  let netChange = 0;
   let lastSyncAt: string | null = null;
   const monthlyHistory: number[] = [];
   let growthStreak = 0;
@@ -152,6 +156,8 @@ async function fetchDashboardData(
     totalClients = latest.total_clients || 0;
     // Use stored new_clients (based on effective_date) instead of delta calculation
     newThisMonth = latest.new_clients || 0;
+    termedThisMonth = latest.termed_clients || 0;
+    netChange = latest.net_change ?? (newThisMonth - termedThisMonth);
     lastSyncAt = latest.created_at;
 
     // Calculate growth streak (consecutive months of positive growth)
@@ -247,6 +253,8 @@ async function fetchDashboardData(
     initials,
     totalClients,
     newThisMonth,
+    termedThisMonth,
+    netChange,
     growthStreak,
     monthlyHistory,
     carriers,

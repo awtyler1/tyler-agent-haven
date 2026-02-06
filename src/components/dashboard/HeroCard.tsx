@@ -11,6 +11,8 @@ interface CarrierData {
 interface HeroCardProps {
   totalClients: number;
   newThisMonth: number;
+  termedThisMonth: number;
+  netChange: number;
   carriers: CarrierData[];
   monthlyHistory: number[];
   isCompact?: boolean;
@@ -28,11 +30,13 @@ interface HeroCardProps {
 export function HeroCard({
   totalClients,
   newThisMonth,
+  termedThisMonth,
+  netChange,
   carriers,
   monthlyHistory,
   isCompact = false,
 }: HeroCardProps) {
-  const hasGrowth = newThisMonth > 0;
+  const hasActivity = newThisMonth > 0 || termedThisMonth > 0;
   const isNewAgent = totalClients < 10;
 
   // Generate month labels for sparkline (last 6 months)
@@ -56,11 +60,27 @@ export function HeroCard({
     >
       {/* Growth Badge */}
       <div className="flex justify-center mb-3">
-        {hasGrowth ? (
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100">
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm font-semibold text-emerald-700">
-              +{newThisMonth} this month
+        {hasActivity ? (
+          <div className={cn(
+            'inline-flex items-center gap-2 px-4 py-2 rounded-full border',
+            netChange > 0 ? 'bg-emerald-50 border-emerald-100' :
+            netChange < 0 ? 'bg-amber-50 border-amber-100' :
+            'bg-slate-50 border-slate-200'
+          )}>
+            <TrendingUp className={cn('w-4 h-4',
+              netChange > 0 ? 'text-emerald-600' :
+              netChange < 0 ? 'text-amber-600 rotate-180' :
+              'text-slate-500'
+            )} />
+            <span className={cn('text-sm font-semibold',
+              netChange > 0 ? 'text-emerald-700' :
+              netChange < 0 ? 'text-amber-700' :
+              'text-slate-600'
+            )}>
+              net {netChange > 0 ? '+' : ''}{netChange} this month
+            </span>
+            <span className="text-xs text-slate-400">
+              (+{newThisMonth}{termedThisMonth > 0 ? ` / -${termedThisMonth}` : ''})
             </span>
           </div>
         ) : isNewAgent ? (

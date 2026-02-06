@@ -51,7 +51,7 @@ interface CarrierStatusPanelProps {
 }
 
 const STATUS_CONFIG: Record<ContractingStatus, { label: string; color: string; icon: typeof Circle }> = {
-  not_started: { label: 'Not Started', color: 'text-gray-400', icon: Circle },
+  not_started: { label: 'Not Started', color: 'text-stone-400', icon: Circle },
   in_progress: { label: 'In Progress', color: 'text-amber-500', icon: Clock },
   contracted: { label: 'Contracted', color: 'text-green-500', icon: CheckCircle },
   issue: { label: 'Issue', color: 'text-red-500', icon: AlertCircle },
@@ -230,9 +230,9 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
 
   if (loading) {
     return (
-      <div className="border border-border rounded-lg bg-card">
+      <div className="border border-stone-200/50 rounded-xl bg-white">
         <div className="p-3 flex items-center justify-center">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+          <div className="flex items-center gap-2 text-stone-500 text-sm">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading carriers...
           </div>
@@ -242,34 +242,34 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
   }
 
   return (
-    <div className="border border-border rounded-lg bg-card overflow-hidden">
-      <button onClick={() => setIsExpanded(!isExpanded)} className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors">
+    <div className="border border-stone-200/50 rounded-xl bg-white overflow-hidden">
+      <button onClick={() => setIsExpanded(!isExpanded)} className="w-full p-3 flex items-center justify-between hover:bg-stone-50/50 transition-colors">
         <div className="flex items-center gap-2">
-          {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          {isExpanded ? <ChevronDown className="h-4 w-4 text-stone-500" /> : <ChevronRight className="h-4 w-4 text-stone-500" />}
           <span className="font-medium text-sm">Carrier Contracting</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
           {statuses.length === 0 ? (
-            <span className="text-muted-foreground">No carriers</span>
+            <span className="text-stone-500">No carriers</span>
           ) : (
             <>
               {contractedCount > 0 && <span className="flex items-center gap-1 text-green-600"><CheckCircle className="h-3 w-3" />{contractedCount}</span>}
               {inProgressCount > 0 && <span className="flex items-center gap-1 text-amber-500"><Clock className="h-3 w-3" />{inProgressCount}</span>}
               {issueCount > 0 && <span className="flex items-center gap-1 text-red-500"><AlertCircle className="h-3 w-3" />{issueCount}</span>}
-              <span className="text-muted-foreground ml-1">{statuses.length} total</span>
+              <span className="text-stone-500 ml-1">{statuses.length} total</span>
             </>
           )}
         </div>
       </button>
 
       {isExpanded && (
-        <div className="border-t border-border">
+        <div className="border-t border-stone-100">
           {(statuses.length === 0 || hasChanges) && (
-            <div className="p-3 border-b border-border bg-muted/30">
+            <div className="p-3 border-b border-stone-100 bg-stone-50/50">
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <p className="text-xs font-medium text-foreground">Select carriers for this agent</p>
-                  {residentState && <p className="text-xs text-muted-foreground">({residentState} defaults pre-selected)</p>}
+                  {residentState && <p className="text-xs text-stone-500">({residentState} defaults pre-selected)</p>}
                 </div>
                 {hasChanges && (
                   <Button size="sm" onClick={handleInitializeStatuses} disabled={initializing} className="h-7 text-xs">
@@ -282,7 +282,7 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
                   <label key={carrier.id} className="flex items-center gap-1.5 text-xs cursor-pointer py-0.5">
                     <Checkbox checked={selectedCarriers.has(carrier.id)} onCheckedChange={() => handleToggleCarrier(carrier.id)} />
                     <span className="truncate">{carrier.name}</span>
-                    {defaultCarrierIds.has(carrier.id) && <span className="text-[10px] text-muted-foreground">(Default)</span>}
+                    {defaultCarrierIds.has(carrier.id) && <span className="text-[10px] text-stone-500">(Default)</span>}
                   </label>
                 ))}
               </div>
@@ -290,10 +290,10 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
           )}
 
           {statuses.length > 0 && (
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-stone-100">
               {!hasChanges && (
-                <div className="px-3 py-2 flex items-center justify-between bg-muted/20">
-                  <span className="text-xs text-muted-foreground">{statuses.length} carrier{statuses.length !== 1 ? 's' : ''} assigned</span>
+                <div className="px-3 py-2 flex items-center justify-between bg-stone-50/30">
+                  <span className="text-xs text-stone-500">{statuses.length} carrier{statuses.length !== 1 ? 's' : ''} assigned</span>
                   <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => { const first = carriers.find(c => !selectedCarriers.has(c.id)); if (first) { handleToggleCarrier(first.id); handleToggleCarrier(first.id); } }}>Edit Carriers</Button>
                 </div>
               )}
@@ -310,7 +310,7 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
                       <div className="flex items-center gap-2 min-w-0 flex-1">
                         <Icon className={cn("h-4 w-4 flex-shrink-0", config.color)} />
                         <span className="text-sm font-medium truncate">{status.carrier_name}</span>
-                        {status.contracting_link_url && <a href={status.contracting_link_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-muted-foreground hover:text-primary"><ExternalLink className="h-3 w-3" /></a>}
+                        {status.contracting_link_url && <a href={status.contracting_link_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-stone-500 hover:text-amber-700"><ExternalLink className="h-3 w-3" /></a>}
                       </div>
                       <Select value={status.contracting_status} onValueChange={(v) => handleStatusChange(status.id, v as ContractingStatus)} disabled={isUpdating}>
                         <SelectTrigger className="w-[130px] h-7 text-xs">{isUpdating ? <Loader2 className="h-3 w-3 animate-spin" /> : <SelectValue />}</SelectTrigger>
@@ -330,7 +330,7 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 pl-6 text-xs">
-                        {status.contracting_link_url ? <a href={status.contracting_link_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate max-w-[200px]"><LinkIcon className="h-3 w-3 inline mr-1" />{status.contracting_link_url}</a> : <span className="text-muted-foreground">No link</span>}
+                        {status.contracting_link_url ? <a href={status.contracting_link_url} target="_blank" rel="noopener noreferrer" className="text-amber-700 hover:underline truncate max-w-[200px]"><LinkIcon className="h-3 w-3 inline mr-1" />{status.contracting_link_url}</a> : <span className="text-stone-500">No link</span>}
                         <Button variant="ghost" size="sm" className="h-5 text-[10px] px-1.5" onClick={() => { setEditingLinkId(status.id); setLinkValue(status.contracting_link_url || ''); }}>{status.contracting_link_url ? 'Edit' : 'Add Link'}</Button>
                       </div>
                     )}
@@ -340,7 +340,7 @@ export function CarrierStatusPanel({ userId, residentState }: CarrierStatusPanel
             </div>
           )}
 
-          {statuses.length === 0 && selectedCarriers.size === 0 && <div className="p-4 text-center text-sm text-muted-foreground">No carriers assigned. Select carriers above to begin.</div>}
+          {statuses.length === 0 && selectedCarriers.size === 0 && <div className="p-4 text-center text-sm text-stone-500">No carriers assigned. Select carriers above to begin.</div>}
         </div>
       )}
     </div>

@@ -330,6 +330,50 @@ export async function clearCarrierUpload(syncId: string, carrierId: string): Pro
 }
 
 /**
+ * Check for newly crossed milestones and award them.
+ * Extracted so SyncFlow.tsx can call this without duplicating the
+ * monthly_syncs / profiles writes that completeSync also does.
+ */
+export async function checkAndAwardMilestones(
+  profileId: string,
+  totalClients: number,
+  syncId: string
+): Promise<{ achieved: number | null; next: number | null }> {
+  let achievedMilestone: number | null = null;
+  let nextMilestone: number | null = null;
+
+  for (const milestone of MILESTONES) {
+    if (totalClients >= milestone) {
+      // Check if this milestone was already achieved
+      const { data: existing } = await supabase
+        .from('milestones')
+        .select('id')
+        .eq('profile_id', profileId)
+        .eq('milestone_type', 'client_count')
+        .eq('milestone_value', milestone)
+        .single();
+
+      if (!existing) {
+        // New milestone achieved!
+        await supabase.from('milestones').insert({
+          profile_id: profileId,
+          milestone_type: 'client_count',
+          milestone_value: milestone,
+          sync_id: syncId,
+        });
+        achievedMilestone = milestone;
+      }
+    } else {
+      // This is the next milestone to reach
+      nextMilestone = milestone;
+      break;
+    }
+  }
+
+  return { achieved: achievedMilestone, next: nextMilestone };
+}
+
+/**
  * Finalize a sync and check for milestones
  */
 export async function completeSync(
@@ -370,37 +414,9 @@ export async function completeSync(
     .update({ last_sync_at: new Date().toISOString() })
     .eq('id', profileId);
 
-  // Check for milestone
-  let achievedMilestone: number | null = null;
-  let nextMilestone: number | null = null;
-
-  for (const milestone of MILESTONES) {
-    if (totalClients >= milestone) {
-      // Check if this milestone was already achieved
-      const { data: existing } = await supabase
-        .from('milestones')
-        .select('id')
-        .eq('profile_id', profileId)
-        .eq('milestone_type', 'client_count')
-        .eq('milestone_value', milestone)
-        .single();
-
-      if (!existing) {
-        // New milestone achieved!
-        await supabase.from('milestones').insert({
-          profile_id: profileId,
-          milestone_type: 'client_count',
-          milestone_value: milestone,
-          sync_id: syncId,
-        });
-        achievedMilestone = milestone;
-      }
-    } else {
-      // This is the next milestone to reach
-      nextMilestone = milestone;
-      break;
-    }
-  }
+  // Check for milestone (reuses extracted helper)
+  const { achieved: achievedMilestone, next: nextMilestone } =
+    await checkAndAwardMilestones(profileId, totalClients, syncId);
 
   return {
     totalClients,

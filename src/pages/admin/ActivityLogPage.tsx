@@ -224,6 +224,7 @@ export default function ActivityLogPage() {
       setLogs(transformedLogs);
     } catch (error) {
       console.error('Error fetching activity logs:', error);
+      toast.error('Failed to load activity logs');
     } finally {
       setLoading(false);
     }
