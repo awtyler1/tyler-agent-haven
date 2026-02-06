@@ -57,14 +57,49 @@ const GH = {
 
 const serif = 'Georgia, "Times New Roman", serif';
 
+// Carrier SVG icon marks (white on colored background)
+const AetnaIcon = () => (
+  <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+    <text x="0" y="12" fontFamily="Georgia, serif" fontSize="14" fontWeight="700" fill="white">Ae</text>
+  </svg>
+);
+const AnthemIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <rect x="6.5" y="1" width="5" height="16" rx="1.2" fill="white"/>
+    <rect x="1" y="6.5" width="16" height="5" rx="1.2" fill="white"/>
+  </svg>
+);
+const DevotedIcon = () => (
+  <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+    <path d="M10 17.5l-1.2-1.1C3.7 11.7 1 9.1 1 5.9 1 3.3 3.1 1.2 5.6 1.2c1.4 0 2.8.7 3.7 1.7L10 3.6l.7-.7c.9-1 2.3-1.7 3.7-1.7C16.9 1.2 19 3.3 19 5.9c0 3.2-2.7 5.8-7.8 10.5L10 17.5z" fill="white"/>
+  </svg>
+);
+const HumanaIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <rect x="1" y="1" width="4" height="14" rx="1" fill="white"/>
+    <rect x="11" y="1" width="4" height="14" rx="1" fill="white"/>
+    <rect x="5" y="6" width="6" height="4" rx="0.8" fill="white"/>
+  </svg>
+);
+const UHCIcon = () => (
+  <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
+    <path d="M8 1L1 4.2v4.6C1 13.4 4 17 8 17.5c4-.5 7-4.1 7-8.7V4.2L8 1z" fill="white" fillOpacity="0.95"/>
+  </svg>
+);
+const WellcareIcon = () => (
+  <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+    <path d="M1 1l3.5 12h1.5L9 5l3 8h1.5L17 1" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+  </svg>
+);
+
 // Carrier portal tiles
 const CARRIER_PORTALS = [
-  { name: 'Aetna', letter: 'A', url: 'https://www.aetna.com/producer_public/login.fcc', color: '#7B2D8E' },
-  { name: 'Anthem', letter: 'A', url: 'https://brokerportal.anthem.com/apps/ptb/login', color: '#0072CE' },
-  { name: 'Devoted', letter: 'D', url: 'https://agent.devoted.com/', color: '#F97316' },
-  { name: 'Humana', letter: 'H', url: 'https://account.humana.com/', color: '#4B9B4B' },
-  { name: 'UHC', letter: 'U', url: 'https://www.uhcagent.com', color: '#002677' },
-  { name: 'Wellcare', letter: 'W', url: 'https://www.wellcare.com/en/broker-resources/broker-resources', color: '#00A79D' },
+  { name: 'Aetna', letter: 'A', icon: <AetnaIcon />, url: 'https://www.aetna.com/producer_public/login.fcc', color: '#7B2D8E' },
+  { name: 'Anthem', letter: 'A', icon: <AnthemIcon />, url: 'https://brokerportal.anthem.com/apps/ptb/login', color: '#0072CE' },
+  { name: 'Devoted', letter: 'D', icon: <DevotedIcon />, url: 'https://agent.devoted.com/', color: '#F97316' },
+  { name: 'Humana', letter: 'H', icon: <HumanaIcon />, url: 'https://account.humana.com/', color: '#4B9B4B' },
+  { name: 'UHC', letter: 'U', icon: <UHCIcon />, url: 'https://www.uhcagent.com', color: '#002677' },
+  { name: 'Wellcare', letter: 'W', icon: <WellcareIcon />, url: 'https://www.wellcare.com/en/broker-resources/broker-resources', color: '#00A79D' },
 ];
 
 // Carrier bar colors inside the dark hero card
@@ -635,14 +670,11 @@ function PortalTile({ portal }: { portal: typeof CARRIER_PORTALS[number] }) {
           width: 38,
           height: 38,
           borderRadius: 10,
-          background: `linear-gradient(135deg, ${portal.color}25, ${portal.color}08)`,
-          border: `1px solid ${portal.color}20`,
-          boxShadow: `0 2px 8px ${portal.color}12`,
+          background: `linear-gradient(135deg, ${portal.color}, ${portal.color}cc)`,
+          boxShadow: `0 2px 10px ${portal.color}30`,
         }}
       >
-        <span className="font-bold" style={{ fontSize: 14, color: portal.color }}>
-          {portal.letter}
-        </span>
+        {portal.icon}
       </div>
       <span className="font-medium" style={{ fontSize: 11, color: GH.textSecondary }}>
         {portal.name}
