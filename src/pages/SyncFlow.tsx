@@ -39,6 +39,7 @@ import {
   SupportedCarrier,
 } from '@/lib/carrier-detection';
 import { getNextSyncDate, checkAndAwardMilestones } from '@/lib/sync';
+import { GH } from '@/config/golden-hour';
 
 // ============================================================
 // TYPES
@@ -926,8 +927,8 @@ export default function SyncFlow() {
   // LOADING
   if (phase === 'loading') {
     return (
-      <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: GH.pageBg }}>
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: GH.gold }} />
       </div>
     );
   }
@@ -935,26 +936,26 @@ export default function SyncFlow() {
   // SELECT CARRIERS (First sync or new agent)
   if (phase === 'select') {
     return (
-      <div className="min-h-screen bg-[#f9fafb] p-6">
+      <div className="min-h-screen p-6" style={{ background: GH.pageBg }}>
         <div className="max-w-lg mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => navigate('/')}
-              className="text-slate-500 hover:text-slate-700 text-sm"
+              className="text-sm" style={{ color: GH.textSecondary }}
             >
               Cancel
             </button>
           </div>
 
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Upload className="w-8 h-8 text-blue-600" />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(139,105,20,0.1)' }}>
+              <Upload className="w-8 h-8" style={{ color: GH.gold }} />
             </div>
-            <h1 className="text-2xl font-bold text-slate-800 mb-2">
+            <h1 className="text-2xl font-bold mb-2" style={{ color: GH.textPrimary }}>
               Which carriers do you want to sync?
             </h1>
-            <p className="text-slate-500">
+            <p style={{ color: GH.textSecondary }}>
               Select the carriers you have production reports for
             </p>
           </div>
@@ -974,7 +975,7 @@ export default function SyncFlow() {
           {/* Coming Soon Carriers (only show if agent has RTS data) */}
           {hasRTSData && comingSoonRTSCarriers.length > 0 && (
             <>
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-2 mt-6">
+              <p className="text-xs uppercase tracking-wide mb-2 mt-6" style={{ color: GH.textMuted }}>
                 Coming Soon
               </p>
               <div className="grid grid-cols-2 gap-3 mb-6">
@@ -987,7 +988,7 @@ export default function SyncFlow() {
 
           {/* Note for new agents without RTS */}
           {!hasRTSData && (
-            <p className="text-center text-sm text-slate-400 mb-6">
+            <p className="text-center text-sm mb-6" style={{ color: GH.textMuted }}>
               More carriers will appear once your certifications are processed
             </p>
           )}
@@ -996,7 +997,8 @@ export default function SyncFlow() {
           <button
             onClick={() => setPhase('upload')}
             disabled={selectedCarriers.length === 0}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-2xl transition-colors flex items-center justify-center gap-2"
+            className="w-full py-4 text-white font-semibold rounded-2xl transition-all flex items-center justify-center gap-2 hover:brightness-110 disabled:cursor-not-allowed"
+            style={{ background: selectedCarriers.length === 0 ? 'rgba(60,48,28,0.15)' : GH.goldGrad, boxShadow: selectedCarriers.length > 0 ? '0 2px 8px rgba(139,105,20,0.2)' : 'none' }}
           >
             Continue with {selectedCarriers.length} {selectedCarriers.length === 1 ? 'carrier' : 'carriers'}
             <ArrowRight className="w-5 h-5" />
@@ -1009,33 +1011,33 @@ export default function SyncFlow() {
   // CONFIRM (Returning user)
   if (phase === 'confirm') {
     return (
-      <div className="min-h-screen bg-[#f9fafb] p-6">
+      <div className="min-h-screen p-6" style={{ background: GH.pageBg }}>
         <div className="max-w-lg mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => navigate('/')}
-              className="text-slate-500 hover:text-slate-700 text-sm"
+              className="text-sm" style={{ color: GH.textSecondary }}
             >
               Cancel
             </button>
           </div>
 
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <RotateCcw className="w-8 h-8 text-blue-600" />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(139,105,20,0.1)' }}>
+              <RotateCcw className="w-8 h-8" style={{ color: GH.gold }} />
             </div>
-            <h1 className="text-2xl font-bold text-slate-800 mb-2">
+            <h1 className="text-2xl font-bold mb-2" style={{ color: GH.textPrimary }}>
               Sync your usual carriers?
             </h1>
-            <p className="text-slate-500">
+            <p style={{ color: GH.textSecondary }}>
               Upload new reports for the same carriers as last time
             </p>
           </div>
 
           {/* Last Sync Summary */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-4">
-            <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+          <div className="rounded-2xl p-5 mb-4" style={{ background: GH.glass, backdropFilter: `blur(${GH.glassBlur})`, WebkitBackdropFilter: `blur(${GH.glassBlur})`, border: `1px solid ${GH.glassBorder}`, boxShadow: GH.glassShadow }}>
+            <div className="flex items-center gap-2 text-sm mb-4" style={{ color: GH.textSecondary }}>
               <Clock className="w-4 h-4" />
               Last synced {formatDate(lastSyncDate)}
             </div>
@@ -1051,7 +1053,7 @@ export default function SyncFlow() {
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: carrier.color }}
                   />
-                  <span className="text-sm font-medium text-slate-700">{carrier.name}</span>
+                  <span className="text-sm font-medium" style={{ color: GH.textPrimary }}>{carrier.name}</span>
                 </div>
               ))}
             </div>
@@ -1060,7 +1062,8 @@ export default function SyncFlow() {
           {/* Primary Action */}
           <button
             onClick={() => setPhase('upload')}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl transition-colors flex items-center justify-center gap-2 mb-3"
+            className="w-full py-4 text-white font-semibold rounded-2xl transition-all flex items-center justify-center gap-2 mb-3 hover:brightness-110"
+            style={{ background: GH.goldGrad, boxShadow: '0 2px 8px rgba(139,105,20,0.2)' }}
           >
             Sync These {lastSyncCarrierConfigs.length} Carriers
             <ArrowRight className="w-5 h-5" />
@@ -1070,7 +1073,10 @@ export default function SyncFlow() {
           {(additionalRTSCarriers.length > 0 || comingSoonRTSCarriers.length > 0) && (
             <button
               onClick={() => setPhase('addMore')}
-              className="w-full py-4 border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-medium rounded-2xl transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 border-2 font-medium rounded-2xl transition-all flex items-center justify-center gap-2"
+              style={{ borderColor: GH.border, color: GH.textPrimary }}
+              onMouseEnter={e => { e.currentTarget.style.background = GH.tileHover; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
             >
               <Plus className="w-5 h-5" />
               Add More Carriers
@@ -1085,24 +1091,24 @@ export default function SyncFlow() {
   // ADD MORE CARRIERS
   if (phase === 'addMore') {
     return (
-      <div className="min-h-screen bg-[#f9fafb] p-6">
+      <div className="min-h-screen p-6" style={{ background: GH.pageBg }}>
         <div className="max-w-lg mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={() => setPhase('confirm')}
-              className="text-slate-500 hover:text-slate-700 flex items-center gap-1"
+              className="flex items-center gap-1" style={{ color: GH.textSecondary }}
             >
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
           </div>
 
-          <h1 className="text-xl font-bold text-slate-800 mb-2">Add more carriers</h1>
-          <p className="text-slate-500 mb-6">Select additional carriers to sync this month</p>
+          <h1 className="text-xl font-bold mb-2" style={{ color: GH.textPrimary }}>Add more carriers</h1>
+          <p className="mb-6" style={{ color: GH.textSecondary }}>Select additional carriers to sync this month</p>
 
           {/* Already Selected (from last sync) */}
           <div className="mb-6">
-            <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Your usual carriers</p>
+            <p className="text-xs uppercase tracking-wide mb-2" style={{ color: GH.textMuted }}>Your usual carriers</p>
             <div className="flex flex-wrap gap-2">
               {lastSyncCarrierConfigs.map(carrier => (
                 <div
@@ -1119,7 +1125,7 @@ export default function SyncFlow() {
           {/* Additional RTS Carriers */}
           {additionalRTSCarriers.length > 0 && (
             <div className="mb-6">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Also sync</p>
+              <p className="text-xs uppercase tracking-wide mb-2" style={{ color: GH.textMuted }}>Also sync</p>
               <div className="grid grid-cols-2 gap-3">
                 {additionalRTSCarriers.map(carrier => (
                   <CarrierSelectTile
@@ -1137,7 +1143,7 @@ export default function SyncFlow() {
           {/* Coming Soon */}
           {comingSoonRTSCarriers.length > 0 && (
             <div className="mb-6">
-              <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Coming soon</p>
+              <p className="text-xs uppercase tracking-wide mb-2" style={{ color: GH.textMuted }}>Coming soon</p>
               <div className="grid grid-cols-2 gap-3">
                 {comingSoonRTSCarriers.map(carrier => (
                   <CarrierComingSoonTile key={carrier.id} carrier={carrier} compact />
@@ -1156,7 +1162,8 @@ export default function SyncFlow() {
               setSelectedCarriers(prev => [...new Set([...enabledPreferred, ...prev])]);
               setPhase('upload');
             }}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl transition-colors"
+            className="w-full py-4 text-white font-semibold rounded-2xl transition-all hover:brightness-110"
+            style={{ background: GH.goldGrad, boxShadow: '0 2px 8px rgba(139,105,20,0.2)' }}
           >
             Continue with {lastSyncCarrierConfigs.length + selectedCarriers.filter(id => !preferredCarriers.includes(id)).length} carriers
           </button>
@@ -1168,25 +1175,25 @@ export default function SyncFlow() {
   // UPLOAD PHASE
   if (phase === 'upload') {
     return (
-      <div className="min-h-screen bg-[#f9fafb] p-6">
+      <div className="min-h-screen p-6" style={{ background: GH.pageBg }}>
         <div className="max-w-lg mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={() => setPhase(isFirstSync ? 'select' : 'confirm')}
-              className="text-slate-500 hover:text-slate-700 flex items-center gap-1"
+              className="flex items-center gap-1" style={{ color: GH.textSecondary }}
             >
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
-            <span className="text-sm text-slate-500">
+            <span className="text-sm" style={{ color: GH.textSecondary }}>
               {uploadedCarriers.length} of {selectedCarriers.length}
             </span>
           </div>
 
-          <h1 className="text-xl font-bold text-slate-800 mb-1">
+          <h1 className="text-xl font-bold mb-1" style={{ color: GH.textPrimary }}>
             Upload {getCurrentMonth()} reports
           </h1>
-          <p className="text-slate-500 mb-6">Drop in your production files</p>
+          <p className="mb-6" style={{ color: GH.textSecondary }}>Drop in your production files</p>
 
           {/* Upload List */}
           <div className="space-y-3 mb-6">
@@ -1211,7 +1218,8 @@ export default function SyncFlow() {
           <button
             onClick={handleCompleteSync}
             disabled={!canFinishUpload || isSubmitting}
-            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-2xl transition-colors flex items-center justify-center gap-2"
+            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:cursor-not-allowed text-white font-semibold rounded-2xl transition-colors flex items-center justify-center gap-2"
+            style={(!canFinishUpload || isSubmitting) ? { background: 'rgba(60,48,28,0.15)' } : undefined}
           >
             {isSubmitting ? (
               <>
@@ -1253,15 +1261,15 @@ export default function SyncFlow() {
     const nextSyncFormatted = getNextSyncDate();
 
     return (
-      <div className="min-h-screen bg-[#f9fafb] p-6 flex items-center justify-center">
+      <div className="min-h-screen p-6 flex items-center justify-center" style={{ background: GH.pageBg }}>
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Sparkles className="w-10 h-10 text-emerald-600" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">
+          <h1 className="text-3xl font-bold mb-2" style={{ color: GH.textPrimary }}>
             {getCurrentMonth()} synced!
           </h1>
-          <p className="text-xl text-slate-500 mb-2">{finalTotal.toLocaleString()} active clients</p>
+          <p className="text-xl mb-2" style={{ color: GH.textSecondary }}>{finalTotal.toLocaleString()} active clients</p>
           {(totalNewClients > 0 || totalTermedClients > 0) && (
             <div className="flex items-center justify-center gap-3 mb-2">
               {totalNewClients > 0 && (
@@ -1271,22 +1279,23 @@ export default function SyncFlow() {
                 <span className="text-amber-500 font-medium">-{totalTermedClients} termed</span>
               )}
               {totalNewClients > 0 || totalTermedClients > 0 ? (
-                <span className={`font-semibold ${totalNetChange > 0 ? 'text-emerald-600' : totalNetChange < 0 ? 'text-amber-600' : 'text-slate-500'}`}>
+                <span className="font-semibold" style={{ color: totalNetChange > 0 ? '#059669' : totalNetChange < 0 ? '#d97706' : GH.textSecondary }}>
                   (net {totalNetChange > 0 ? '+' : ''}{totalNetChange})
                 </span>
               ) : null}
             </div>
           )}
-          <p className="text-slate-400 mb-8">from {uploadedCarriers.length} carriers</p>
+          <p className="mb-8" style={{ color: GH.textMuted }}>from {uploadedCarriers.length} carriers</p>
 
           <button
             onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl transition-colors"
+            className="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold rounded-2xl transition-all hover:brightness-110"
+            style={{ background: GH.goldGrad, boxShadow: '0 2px 8px rgba(139,105,20,0.2)' }}
           >
             Go to Dashboard <ArrowRight className="w-5 h-5" />
           </button>
 
-          <p className="text-sm text-slate-400 mt-6">
+          <p className="text-sm mt-6" style={{ color: GH.textMuted }}>
             We'll remind you to sync again around {nextSyncFormatted}
           </p>
         </div>
@@ -1312,14 +1321,14 @@ function CarrierSelectTile({ carrier, selected, onToggle, compact }: CarrierSele
   return (
     <button
       onClick={onToggle}
-      className={`relative p-4 rounded-2xl border-2 transition-all text-left ${
-        selected
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-slate-200 bg-white hover:border-slate-300'
-      }`}
+      className="relative p-4 rounded-2xl border-2 transition-all text-left"
+      style={selected
+        ? { borderColor: GH.gold, background: 'rgba(139,105,20,0.06)' }
+        : { borderColor: GH.border, background: GH.glass }
+      }
     >
       {selected && (
-        <div className="absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+        <div className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: GH.goldGrad }}>
           <Check className="w-4 h-4 text-white" />
         </div>
       )}
@@ -1329,7 +1338,7 @@ function CarrierSelectTile({ carrier, selected, onToggle, compact }: CarrierSele
       >
         <Building2 className={`${compact ? 'w-4 h-4' : 'w-5 h-5'}`} style={{ color: carrier.color }} />
       </div>
-      <p className={`font-medium text-slate-800 ${compact ? 'text-sm' : ''}`}>{carrier.name}</p>
+      <p className={`font-medium ${compact ? 'text-sm' : ''}`} style={{ color: GH.textPrimary }}>{carrier.name}</p>
     </button>
   );
 }
@@ -1341,9 +1350,9 @@ interface CarrierComingSoonTileProps {
 
 function CarrierComingSoonTile({ carrier, compact }: CarrierComingSoonTileProps) {
   return (
-    <div className="relative p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed">
+    <div className="relative p-4 rounded-2xl border-2 opacity-60 cursor-not-allowed" style={{ borderColor: GH.border, background: GH.tileBg }}>
       <div className="absolute top-3 right-3">
-        <Lock className="w-4 h-4 text-slate-400" />
+        <Lock className="w-4 h-4" style={{ color: GH.textMuted }} />
       </div>
       <div
         className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl flex items-center justify-center mb-2`}
@@ -1351,8 +1360,8 @@ function CarrierComingSoonTile({ carrier, compact }: CarrierComingSoonTileProps)
       >
         <Building2 className={`${compact ? 'w-4 h-4' : 'w-5 h-5'}`} style={{ color: carrier.color }} />
       </div>
-      <p className={`font-medium text-slate-500 ${compact ? 'text-sm' : ''}`}>{carrier.name}</p>
-      {!compact && <p className="text-xs text-slate-400">Coming soon</p>}
+      <p className={`font-medium ${compact ? 'text-sm' : ''}`} style={{ color: GH.textSecondary }}>{carrier.name}</p>
+      {!compact && <p className="text-xs" style={{ color: GH.textMuted }}>Coming soon</p>}
     </div>
   );
 }
@@ -1400,10 +1409,10 @@ function CarrierUploadRow({ carrier, uploaded, isProcessing, onFileSelect, onRep
             <Check className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <p className="font-medium text-slate-800">{carrier.name}</p>
+            <p className="font-medium" style={{ color: GH.textPrimary }}>{carrier.name}</p>
             <p className="text-sm text-emerald-600">{uploaded.clientCount.toLocaleString()} active clients</p>
             {(uploaded.newClients > 0 || uploaded.termedClients > 0) && (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs" style={{ color: GH.textSecondary }}>
                 {uploaded.newClients > 0 && <span className="text-emerald-500">+{uploaded.newClients} new</span>}
                 {uploaded.newClients > 0 && uploaded.termedClients > 0 && ' · '}
                 {uploaded.termedClients > 0 && <span className="text-amber-500">-{uploaded.termedClients} termed</span>}
@@ -1412,7 +1421,7 @@ function CarrierUploadRow({ carrier, uploaded, isProcessing, onFileSelect, onRep
           </div>
           <button
             onClick={onReplace}
-            className="text-sm text-slate-500 hover:text-slate-700"
+            className="text-sm" style={{ color: GH.textSecondary }}
           >
             Replace
           </button>
@@ -1423,7 +1432,7 @@ function CarrierUploadRow({ carrier, uploaded, isProcessing, onFileSelect, onRep
 
   // Not uploaded - show expandable upload box
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-4">
+    <div className="rounded-2xl p-4" style={{ background: GH.glass, backdropFilter: `blur(${GH.glassBlur})`, WebkitBackdropFilter: `blur(${GH.glassBlur})`, border: `1px solid ${GH.glassBorder}`, boxShadow: GH.glassShadow }}>
       {/* Header row - always visible */}
       <div className="flex items-center gap-4">
         <div
@@ -1433,26 +1442,26 @@ function CarrierUploadRow({ carrier, uploaded, isProcessing, onFileSelect, onRep
           <Building2 className="w-5 h-5" style={{ color: carrier.color }} />
         </div>
         <div className="flex-1">
-          <p className="font-medium text-slate-800">{carrier.name}</p>
+          <p className="font-medium" style={{ color: GH.textPrimary }}>{carrier.name}</p>
           <a
             href={carrier.portalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+            className="text-sm hover:underline flex items-center gap-1" style={{ color: GH.gold }}
           >
             Open portal <ExternalLink className="w-3 h-3" />
           </a>
         </div>
         {isProcessing ? (
-          <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+          <Loader2 className="w-5 h-5 animate-spin" style={{ color: GH.gold }} />
         ) : (
           <button
             onClick={() => setExpanded(!expanded)}
-            className={`px-4 py-2 text-sm font-medium rounded-xl transition-colors ${
-              expanded
-                ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
+            className="px-4 py-2 text-sm font-medium rounded-xl transition-all"
+            style={expanded
+              ? { background: GH.tileBg, color: GH.textSecondary }
+              : { background: GH.goldGrad, color: 'white', boxShadow: '0 2px 8px rgba(139,105,20,0.2)' }
+            }
           >
             {expanded ? 'Cancel' : 'Upload'}
           </button>
@@ -1466,17 +1475,17 @@ function CarrierUploadRow({ carrier, uploaded, isProcessing, onFileSelect, onRep
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
-          className={`mt-4 border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
-            dragOver
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-slate-300 hover:border-slate-400'
-          }`}
+          className="mt-4 border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors"
+          style={dragOver
+            ? { borderColor: GH.gold, background: 'rgba(139,105,20,0.06)' }
+            : { borderColor: GH.textMuted }
+          }
         >
-          <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-          <p className="text-sm font-medium text-slate-700">
+          <Upload className="w-8 h-8 mx-auto mb-2" style={{ color: GH.textMuted }} />
+          <p className="text-sm font-medium" style={{ color: GH.textPrimary }}>
             Drop your {carrier.name} report here
           </p>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs mt-1" style={{ color: GH.textSecondary }}>
             or click to browse (.csv, .xlsx)
           </p>
           <input
@@ -1509,25 +1518,29 @@ function MismatchDialog({ expected, detected, fileName, onConfirm, onCancel }: M
             <AlertTriangle className="w-6 h-6 text-amber-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-800">Carrier mismatch</h3>
-            <p className="text-sm text-slate-500">{fileName}</p>
+            <h3 className="font-semibold" style={{ color: GH.textPrimary }}>Carrier mismatch</h3>
+            <p className="text-sm" style={{ color: GH.textSecondary }}>{fileName}</p>
           </div>
         </div>
 
-        <p className="text-slate-600 mb-6">
+        <p className="mb-6" style={{ color: GH.textSecondary }}>
           This file looks like it's from <strong>{detected}</strong>, but you're uploading to <strong>{expected}</strong>. Upload anyway?
         </p>
 
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 py-3 border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors"
+            className="flex-1 py-3 font-medium rounded-xl transition-colors"
+            style={{ border: `1px solid ${GH.border}`, color: GH.textPrimary }}
+            onMouseEnter={e => { e.currentTarget.style.background = GH.tileHover; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
+            className="flex-1 py-3 text-white font-medium rounded-xl transition-all hover:brightness-110"
+            style={{ background: GH.goldGrad, boxShadow: '0 2px 8px rgba(139,105,20,0.2)' }}
           >
             Upload Anyway
           </button>
@@ -1549,29 +1562,33 @@ function DetectionFailedDialog({ carrierName, fileName, onConfirm, onCancel }: D
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-6 max-w-md w-full">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
-            <AlertTriangle className="w-6 h-6 text-slate-600" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: GH.tileBg }}>
+            <AlertTriangle className="w-6 h-6" style={{ color: GH.textSecondary }} />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-800">Couldn't detect carrier</h3>
-            <p className="text-sm text-slate-500">{fileName}</p>
+            <h3 className="font-semibold" style={{ color: GH.textPrimary }}>Couldn't detect carrier</h3>
+            <p className="text-sm" style={{ color: GH.textSecondary }}>{fileName}</p>
           </div>
         </div>
 
-        <p className="text-slate-600 mb-6">
+        <p className="mb-6" style={{ color: GH.textSecondary }}>
           We couldn't automatically detect the carrier from this file. Is this a <strong>{carrierName}</strong> production report?
         </p>
 
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 py-3 border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors"
+            className="flex-1 py-3 font-medium rounded-xl transition-colors"
+            style={{ border: `1px solid ${GH.border}`, color: GH.textPrimary }}
+            onMouseEnter={e => { e.currentTarget.style.background = GH.tileHover; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
           >
             No, cancel
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
+            className="flex-1 py-3 text-white font-medium rounded-xl transition-all hover:brightness-110"
+            style={{ background: GH.goldGrad, boxShadow: '0 2px 8px rgba(139,105,20,0.2)' }}
           >
             Yes, upload
           </button>

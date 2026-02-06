@@ -7,6 +7,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { getNextSyncDate } from '@/lib/sync';
+import { GH } from '@/config/golden-hour';
 
 interface SyncStatusPillProps {
   status: 'synced' | 'stale' | 'never';
@@ -46,70 +47,104 @@ export function SyncStatusPill({
       case 'synced':
         return {
           dotColor: 'bg-emerald-400',
-          bgColor: 'bg-white/80 hover:bg-white',
-          borderColor: 'border-slate-200/80',
-          textColor: 'text-slate-500',
           label: lastSyncAt
             ? `Synced ${new Date(lastSyncAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-            : 'Synced'
+            : 'Synced',
+          pillStyle: {
+            background: GH.glass,
+            borderColor: GH.glassBorder,
+            color: GH.textSecondary,
+          } as React.CSSProperties,
         };
       case 'stale':
         return {
           dotColor: 'bg-amber-400',
-          bgColor: 'bg-amber-50 hover:bg-amber-100',
-          borderColor: 'border-amber-200',
-          textColor: 'text-amber-700',
-          label: 'Sync needed'
+          label: 'Sync needed',
+          pillStyle: {
+            background: undefined,
+            borderColor: undefined,
+            color: undefined,
+          } as React.CSSProperties,
+          pillClassName: 'bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700',
         };
       default:
         return {
-          dotColor: 'bg-blue-400 animate-pulse',
-          bgColor: 'bg-blue-50 hover:bg-blue-100',
-          borderColor: 'border-blue-200',
-          textColor: 'text-blue-600',
-          label: 'Sync to start'
+          dotColor: 'animate-pulse',
+          label: 'Sync to start',
+          pillStyle: {
+            background: 'rgba(139,105,20,0.08)',
+            borderColor: 'rgba(139,105,20,0.2)',
+            color: GH.gold,
+          } as React.CSSProperties,
+          dotStyle: { background: GH.gold } as React.CSSProperties,
         };
     }
   };
 
-  const { dotColor, bgColor, borderColor, textColor, label } = getStatusConfig();
+  const config = getStatusConfig();
+
+  // Dropdown icon box background per status
+  const iconBoxBg = status === 'synced'
+    ? 'rgba(16,185,129,0.1)'
+    : status === 'stale'
+      ? undefined
+      : `rgba(139,105,20,0.1)`;
 
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Pill Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 px-3 py-1.5 ${bgColor} backdrop-blur rounded-full border ${borderColor} transition-all cursor-pointer shadow-sm hover:shadow-md`}
+        className={`flex items-center gap-2 px-3 py-1.5 backdrop-blur rounded-full border transition-all cursor-pointer shadow-sm hover:shadow-md ${config.pillClassName || ''}`}
+        style={config.pillStyle}
       >
-        <div className={`w-2 h-2 ${dotColor} rounded-full`} />
-        <span className={`text-xs font-medium ${textColor}`}>
-          {label}
+        <div
+          className={`w-2 h-2 ${config.dotColor} rounded-full`}
+          style={config.dotStyle}
+        />
+        <span className="text-xs font-medium">
+          {config.label}
         </span>
-        <ChevronDown className={`w-3 h-3 ${textColor} opacity-60 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3 h-3 opacity-60 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div
+          className="absolute top-full right-0 mt-2 w-72 rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+          style={{
+            background: GH.glass,
+            backdropFilter: `blur(${GH.glassBlur})`,
+            WebkitBackdropFilter: `blur(${GH.glassBlur})`,
+            border: `1px solid ${GH.glassBorder}`,
+            boxShadow: '0 8px 40px rgba(60,48,28,0.12), 0 2px 12px rgba(60,48,28,0.06)',
+          }}
+        >
           {/* Status Header */}
-          <div className="p-4 border-b border-slate-100">
+          <div className="p-4" style={{ borderBottom: `1px solid ${GH.borderLight}` }}>
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                status === 'synced' ? 'bg-emerald-100' :
-                status === 'stale' ? 'bg-amber-100' : 'bg-blue-100'
-              }`}>
-                {status === 'synced' ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                ) : (
-                  <RefreshCw className={`w-5 h-5 ${status === 'stale' ? 'text-amber-500' : 'text-blue-500'}`} />
-                )}
-              </div>
+              {status === 'stale' ? (
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-100">
+                  <RefreshCw className="w-5 h-5 text-amber-500" />
+                </div>
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: iconBoxBg }}
+                >
+                  {status === 'synced' ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  ) : (
+                    <RefreshCw className="w-5 h-5" style={{ color: GH.gold }} />
+                  )}
+                </div>
+              )}
               <div>
-                <p className="font-medium text-slate-800">
+                <p className="font-medium" style={{ color: GH.textPrimary }}>
                   {status === 'synced' ? 'Book is current' :
                    status === 'stale' ? 'Sync recommended' : 'No data yet'}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm" style={{ color: GH.textSecondary }}>
                   {lastSyncAt
                     ? `Last synced ${new Date(lastSyncAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
                     : 'Never synced'}
@@ -120,26 +155,29 @@ export function SyncStatusPill({
 
           {/* Quick Stats - Only if has data */}
           {status !== 'never' && totalClients > 0 && (
-            <div className="p-4 bg-slate-50 border-b border-slate-100">
+            <div className="p-4" style={{ background: GH.tileBg, borderBottom: `1px solid ${GH.borderLight}` }}>
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-lg font-bold text-slate-800">{totalClients}</p>
-                  <p className="text-xs text-slate-500">Clients</p>
+                  <p className="text-lg font-bold" style={{ fontFamily: GH.serif, color: GH.textPrimary }}>{totalClients}</p>
+                  <p className="text-xs" style={{ color: GH.textMuted }}>Clients</p>
                 </div>
                 <div>
-                  <p className={`text-lg font-bold ${netChange > 0 ? 'text-emerald-600' : netChange < 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                  <p className="text-lg font-bold" style={{
+                    fontFamily: GH.serif,
+                    color: netChange > 0 ? '#059669' : netChange < 0 ? '#d97706' : GH.textMuted
+                  }}>
                     {netChange !== 0 ? `${netChange > 0 ? '+' : ''}${netChange}` : '—'}
                   </p>
-                  <p className="text-xs text-slate-500">Net Change</p>
+                  <p className="text-xs" style={{ color: GH.textMuted }}>Net Change</p>
                   {(newThisMonth > 0 || termedThisMonth > 0) && (
-                    <p className="text-[10px] text-slate-400 mt-0.5">
+                    <p className="text-[10px] mt-0.5" style={{ color: GH.textFaint }}>
                       +{newThisMonth} / -{termedThisMonth}
                     </p>
                   )}
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-slate-800">{carrierCount || '—'}</p>
-                  <p className="text-xs text-slate-500">Carriers</p>
+                  <p className="text-lg font-bold" style={{ fontFamily: GH.serif, color: GH.textPrimary }}>{carrierCount || '—'}</p>
+                  <p className="text-xs" style={{ color: GH.textMuted }}>Carriers</p>
                 </div>
               </div>
             </div>
@@ -150,21 +188,23 @@ export function SyncStatusPill({
             <Link
               to="/sync"
               onClick={() => setIsOpen(false)}
-              className="w-full flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl transition-colors text-left"
+              className="w-full flex items-center gap-3 p-3 rounded-xl transition-colors text-left"
+              onMouseEnter={e => { e.currentTarget.style.background = GH.tileHover; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
             >
-              <RefreshCw className="w-5 h-5 text-slate-400" />
+              <RefreshCw className="w-5 h-5" style={{ color: GH.textMuted }} />
               <div className="flex-1">
-                <p className="text-sm font-medium text-slate-700">
+                <p className="text-sm font-medium" style={{ color: GH.textPrimary }}>
                   {status === 'never' ? 'Start Sync' : 'Sync Now'}
                 </p>
-                <p className="text-xs text-slate-500">Upload new carrier reports</p>
+                <p className="text-xs" style={{ color: GH.textSecondary }}>Upload new carrier reports</p>
               </div>
             </Link>
           </div>
 
           {/* Next reminder */}
-          <div className="px-4 py-3 bg-blue-50 border-t border-blue-100">
-            <p className="text-xs text-blue-600 flex items-center gap-1">
+          <div className="px-4 py-3" style={{ background: 'rgba(139,105,20,0.06)', borderTop: `1px solid rgba(139,105,20,0.1)` }}>
+            <p className="text-xs flex items-center gap-1" style={{ color: GH.gold }}>
               <Calendar className="w-3 h-3" />
               Next recommended sync: {getNextSyncDate()}
             </p>
