@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -24,6 +24,7 @@ import { useDashboardData } from '@/hooks/useDashboardData';
 import { SyncStatusPill } from '@/components/dashboard/SyncStatusPill';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { PageLoader } from '@/components/ui/PageLoader';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 
 // ============================================================
 // THE ONE - Beacon Dashboard
@@ -95,9 +96,9 @@ export default function Index() {
 
         {/* Stale State Banner */}
         {isStale && !isEmpty && (
-          <div className="mb-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 rounded-2xl p-4 flex items-center justify-between">
+          <div className="mb-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Calendar className="w-5 h-5 text-amber-600" />
               </div>
               <div>
@@ -112,7 +113,7 @@ export default function Index() {
             </div>
             <button
               onClick={() => navigate('/sync')}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/25 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/25 transition-colors flex-shrink-0"
             >
               <Upload className="w-4 h-4" />
               Sync Now
@@ -126,9 +127,9 @@ export default function Index() {
           {getGreeting()}
         </h1>
 
-        <div className="flex gap-5">
+        <div className="flex flex-col lg:flex-row gap-5">
           {/* Main Card - The Beacon */}
-          <div className="flex-[2] bg-white rounded-[2rem] p-8 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
+          <div className="w-full lg:flex-[2] bg-white rounded-[2rem] p-8 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
             {/* Refined glow */}
             <div
               className="absolute pointer-events-none"
@@ -163,7 +164,7 @@ export default function Index() {
               {/* THE NUMBER */}
               <div className="mb-6">
                 <span
-                  className={`text-[10rem] font-bold tracking-tighter leading-[0.75] block ${isEmpty ? 'text-slate-200' : 'text-slate-900'}`}
+                  className={`text-[5rem] sm:text-[7rem] lg:text-[10rem] font-bold tracking-tighter leading-[0.75] block ${isEmpty ? 'text-slate-200' : 'text-slate-900'}`}
                   style={{ fontFeatureSettings: '"tnum"' }}
                 >
                   {data.totalClients}
@@ -232,7 +233,7 @@ export default function Index() {
           </div>
 
           {/* Actions Panel */}
-          <div className="flex-[1] bg-slate-900 rounded-[2rem] p-6 flex flex-col shadow-2xl shadow-slate-400/20">
+          <div className="w-full lg:flex-[1] bg-slate-900 rounded-[2rem] p-6 flex flex-col shadow-2xl shadow-slate-400/20">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-5">Quick Actions</p>
 
             <div className="space-y-3 flex-1">
@@ -385,52 +386,29 @@ interface HoverActionButtonProps {
 }
 
 function HoverActionButton({ icon: Icon, label, desc, color, links }: HoverActionButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setIsOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setIsOpen(false), 150);
-  };
-
   return (
-    <div
-      className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* Main Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-200 text-left group"
+    <HoverCard openDelay={0} closeDelay={150}>
+      <HoverCardTrigger asChild>
+        <button
+          className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-200 text-left group"
+        >
+          <div className={`w-11 h-11 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-lg`}>
+            <Icon className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-white">{label}</p>
+            <p className="text-xs text-slate-500">{desc}</p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors duration-200" />
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent
+        side="left"
+        sideOffset={12}
+        collisionPadding={16}
+        className="w-auto p-0 bg-white rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60"
       >
-        <div className={`w-11 h-11 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-lg`}>
-          <Icon className="w-5 h-5 text-white" />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-white">{label}</p>
-          <p className="text-xs text-slate-500">{desc}</p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors duration-200" />
-      </button>
-
-      {/* Dropdown */}
-      <div
-        className={`absolute left-full top-0 ml-0 pl-3 z-50 transition-all duration-150 ${
-          isOpen
-            ? 'opacity-100 translate-x-0 pointer-events-auto'
-            : 'opacity-0 -translate-x-2 pointer-events-none'
-        }`}
-      >
-        {/* Arrow */}
-        <div className="absolute left-3 top-4 -ml-[6px] w-3 h-3 bg-white rotate-45 border-l border-b border-slate-200 shadow-sm" />
-
-        {/* Dropdown Content */}
-        <div className="bg-white rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60 p-2 min-w-[200px]">
+        <div className="p-2 min-w-[200px]">
           {links.map((link, i) => (
             <a
               key={i}
@@ -445,8 +423,8 @@ function HoverActionButton({ icon: Icon, label, desc, color, links }: HoverActio
             </a>
           ))}
         </div>
-      </div>
-    </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
@@ -461,53 +439,32 @@ const CARRIER_PORTALS = [
 ];
 
 function CarrierResourcesHoverButton() {
-  const [isOpen, setIsOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setIsOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setIsOpen(false), 150);
-  };
-
   return (
-    <div
-      className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* Main Button */}
-      <button
-        onClick={() => navigate('/carrier-resources')}
-        className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-200 text-left group"
+    <HoverCard openDelay={0} closeDelay={150}>
+      <HoverCardTrigger asChild>
+        <button
+          onClick={() => navigate('/carrier-resources')}
+          className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-200 text-left group"
+        >
+          <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+            <Building2 className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-white">Carrier Resources</p>
+            <p className="text-xs text-slate-500">Contacts & portals</p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors duration-200" />
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent
+        side="left"
+        sideOffset={12}
+        collisionPadding={16}
+        className="w-auto p-0 bg-white rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60 overflow-hidden"
       >
-        <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-          <Building2 className="w-5 h-5 text-white" />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-white">Carrier Resources</p>
-          <p className="text-xs text-slate-500">Contacts & portals</p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors duration-200" />
-      </button>
-
-      {/* Dropdown */}
-      <div
-        className={`absolute left-full top-0 ml-0 pl-3 z-50 transition-all duration-150 ${
-          isOpen
-            ? 'opacity-100 translate-x-0 pointer-events-auto'
-            : 'opacity-0 -translate-x-2 pointer-events-none'
-        }`}
-      >
-        {/* Arrow */}
-        <div className="absolute left-3 top-4 -ml-[6px] w-3 h-3 bg-white rotate-45 border-l border-b border-slate-200 shadow-sm" />
-
-        {/* Dropdown Content */}
-        <div className="bg-white rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60 overflow-hidden min-w-[220px]">
+        <div className="min-w-[220px]">
           {/* Header */}
           <div className="px-3 py-2 border-b border-slate-100">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Portal Quick Links</p>
@@ -542,7 +499,7 @@ function CarrierResourcesHoverButton() {
             <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
-      </div>
-    </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }

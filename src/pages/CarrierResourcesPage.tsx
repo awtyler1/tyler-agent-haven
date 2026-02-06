@@ -65,7 +65,7 @@ const CarrierResourcesPage = () => {
 
         {/* Carrier Pills */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex bg-white rounded-full p-1.5 shadow-lg shadow-gray-200/50">
+          <div className="inline-flex flex-wrap justify-center bg-white rounded-full p-1.5 shadow-lg shadow-gray-200/50 gap-1">
             {availableCarriers.map((carrier) => {
               const isSelected = selectedCarrierCode === carrier.code;
               const color = CARRIER_BRAND_COLORS[carrier.code] || '#3B82F6';
@@ -144,7 +144,7 @@ const CarrierResourcesPage = () => {
           </section>
 
           {/* Quick Links & Documents */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Quick Links */}
             <section>
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2 px-1">Quick Links</h2>
