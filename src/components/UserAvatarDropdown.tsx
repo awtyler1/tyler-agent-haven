@@ -103,8 +103,8 @@ export function UserAvatarDropdown() {
 
   if (loading) {
     return (
-      <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+      <div className="w-9 h-9 rounded-2xl bg-stone-100 flex items-center justify-center shadow-lg shadow-stone-200/20">
+        <Loader2 className="h-4 w-4 animate-spin text-stone-400" />
       </div>
     );
   }
@@ -113,15 +113,15 @@ export function UserAvatarDropdown() {
     <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="w-9 h-9 rounded-full bg-[#b8860b] text-white flex items-center justify-center text-sm font-medium hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#b8860b]/20 focus:ring-offset-2">
+        <button className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-sm font-medium shadow-lg shadow-amber-500/20 hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:ring-offset-2">
           {userInitials}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 rounded-xl">
+      <DropdownMenuContent align="end" className="w-72 rounded-xl border-stone-200/50 bg-white/90 backdrop-blur-sm shadow-lg">
         {/* User Info Header */}
         <div className="px-3 py-3">
-          <p className="font-medium text-foreground truncate">{profile?.full_name || 'User'}</p>
-          <p className="text-sm text-muted-foreground truncate">{profile?.email}</p>
+          <p className="font-medium text-stone-900 truncate">{profile?.full_name || 'User'}</p>
+          <p className="text-sm text-stone-600 truncate">{profile?.email}</p>
           <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-medium ${roleBadge.className}`}>
             {roleBadge.label}
           </span>
@@ -135,16 +135,16 @@ export function UserAvatarDropdown() {
             <div className="px-3 py-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ArrowLeftRight className="w-4 h-4 text-muted-foreground" />
+                  <ArrowLeftRight className="w-4 h-4 text-stone-400" />
                   <span className="text-sm font-medium">View Mode</span>
                 </div>
-                <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+                <div className="flex items-center gap-1 bg-stone-100 rounded-lg p-0.5">
                   <button
                     onClick={() => switchMode('agent')}
                     className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
                       viewMode === 'agent'
                         ? 'bg-white text-green-700 shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
+                        : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
                     Agent
@@ -154,7 +154,7 @@ export function UserAvatarDropdown() {
                     className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
                       viewMode === 'admin'
                         ? 'bg-white text-purple-700 shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
+                        : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
                     Admin
@@ -172,21 +172,21 @@ export function UserAvatarDropdown() {
         </div>
         <DropdownMenuItem
           onClick={() => navigate('/my-profile')}
-          className="cursor-pointer hover:bg-primary/10"
+          className="cursor-pointer rounded-lg hover:bg-stone-50/80"
         >
           <User className="w-4 h-4 mr-2" />
           My Profile
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => navigate('/contracting-hub')}
-          className="cursor-pointer hover:bg-primary/10"
+          className="cursor-pointer rounded-lg hover:bg-stone-50/80"
         >
           <FileText className="w-4 h-4 mr-2" />
           Certifications
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => window.open('https://fmo.kizen.com/login', '_blank')}
-          className="cursor-pointer hover:bg-primary/10 flex items-center justify-between"
+          className="cursor-pointer rounded-lg hover:bg-stone-50/80 flex items-center justify-between"
         >
           <span className="flex items-center">
             BOSS CRM
@@ -208,7 +208,7 @@ export function UserAvatarDropdown() {
         {showAdminItems && canAccessAdmin() && (
           <DropdownMenuItem
             onClick={() => navigate('/admin')}
-            className="cursor-pointer hover:bg-primary/10"
+            className="cursor-pointer rounded-lg hover:bg-stone-50/80"
           >
             <Shield className="w-4 h-4 mr-2" />
             Admin Dashboard
@@ -220,7 +220,7 @@ export function UserAvatarDropdown() {
           <DropdownMenuItem
             onClick={handleOutlookConnect}
             disabled={outlookLoading}
-            className="cursor-pointer hover:bg-primary/10"
+            className="cursor-pointer rounded-lg hover:bg-stone-50/80"
           >
             {outlookLoading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -240,21 +240,21 @@ export function UserAvatarDropdown() {
           <>
             <DropdownMenuItem
               onClick={() => setCreateAdminOpen(true)}
-              className="cursor-pointer hover:bg-primary/10"
+              className="cursor-pointer rounded-lg hover:bg-stone-50/80"
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Create Admin
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => navigate('/admin/activity-log')}
-              className="cursor-pointer hover:bg-primary/10"
+              className="cursor-pointer rounded-lg hover:bg-stone-50/80"
             >
               <Activity className="w-4 h-4 mr-2" />
               Activity Log
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => navigate('/admin/labs')}
-              className="cursor-pointer hover:bg-primary/10"
+              className="cursor-pointer rounded-lg hover:bg-stone-50/80"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Labs
@@ -266,7 +266,7 @@ export function UserAvatarDropdown() {
         <DropdownMenuSeparator />
         <div className="flex items-center justify-between px-2 py-1.5">
           <div className="flex items-center">
-            <Moon className="w-4 h-4 mr-2 text-muted-foreground" />
+            <Moon className="w-4 h-4 mr-2 text-stone-400" />
             <span className="text-sm">Dark Mode</span>
           </div>
           <Switch
@@ -281,7 +281,7 @@ export function UserAvatarDropdown() {
         {/* Sign Out */}
         <DropdownMenuItem
           onClick={handleLogout}
-          className="cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive"
+          className="cursor-pointer rounded-lg text-red-600 hover:bg-red-50/80 hover:text-red-600 focus:bg-red-50/80 focus:text-red-600"
         >
           <LogOut className="w-4 h-4 mr-2" />
           Sign Out

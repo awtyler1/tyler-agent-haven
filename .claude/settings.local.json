@@ -53,7 +53,12 @@
       "Bash(tasklist:*)",
       "Bash(git clean:*)",
       "Bash(del nul)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(where:*)",
+      "Bash(npx:*)",
+      "Bash(node scripts/generate-favicons.js:*)",
+      "Bash(node scripts/generate-favicons.cjs:*)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }
