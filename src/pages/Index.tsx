@@ -1,50 +1,104 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Building2,
   FileText,
   Award,
   TrendingUp,
-  Zap,
+  Sun,
+  Link2,
   Target,
   Flame,
   ChevronRight,
-  Loader2,
   Upload,
   FileSpreadsheet,
   ArrowRight,
   Calendar,
-  RefreshCw,
   AlertCircle,
   Search,
   GraduationCap,
-  ExternalLink,
+  LayoutGrid,
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { SyncStatusPill } from '@/components/dashboard/SyncStatusPill';
 import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { PageLoader } from '@/components/ui/PageLoader';
-import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 
 // ============================================================
-// THE ONE - Beacon Dashboard
-// Handles: Empty State, Stale State, Normal State
+// Golden Hour — Design Tokens
 // ============================================================
+const GH = {
+  pageBg: '#F3EDE4',
+  heroBg: 'linear-gradient(145deg, #1a1611, #0f0d09)',
+  heroGlow: 'rgba(184,134,11,0.08)',
+  heroBorder: 'rgba(184,134,11,0.08)',
 
+  glass: 'rgba(255,255,255,0.55)',
+  glassBorder: 'rgba(255,255,255,0.7)',
+  glassShadow: '0 2px 12px rgba(60,48,28,0.04)',
+  glassBlur: '20px',
+
+  textPrimary: 'rgba(60,48,28,0.85)',
+  textSecondary: 'rgba(60,48,28,0.55)',
+  textMuted: 'rgba(60,48,28,0.35)',
+  textFaint: 'rgba(60,48,28,0.20)',
+
+  heroText: 'rgba(255,245,230,0.95)',
+  heroTextMuted: 'rgba(255,245,230,0.30)',
+
+  gold: '#8B6914',
+  goldGrad: 'linear-gradient(135deg, #b8860b, #d4a017)',
+
+  border: 'rgba(60,48,28,0.06)',
+  borderLight: 'rgba(60,48,28,0.04)',
+
+  tileHover: 'rgba(60,48,28,0.03)',
+  tileBg: 'rgba(60,48,28,0.015)',
+};
+
+const serif = 'Georgia, "Times New Roman", serif';
+
+// Carrier portal tiles
+const CARRIER_PORTALS = [
+  { name: 'Aetna', letter: 'A', url: 'https://www.aetna.com/producer_public/login.fcc', color: '#7B2D8E' },
+  { name: 'Anthem', letter: 'A', url: 'https://brokerportal.anthem.com/apps/ptb/login', color: '#0072CE' },
+  { name: 'Devoted', letter: 'D', url: 'https://agent.devoted.com/', color: '#F97316' },
+  { name: 'Humana', letter: 'H', url: 'https://account.humana.com/', color: '#4B9B4B' },
+  { name: 'UHC', letter: 'U', url: 'https://www.uhcagent.com', color: '#002677' },
+  { name: 'Wellcare', letter: 'W', url: 'https://www.wellcare.com/en/broker-resources/broker-resources', color: '#00A79D' },
+];
+
+// Carrier bar colors inside the dark hero card
+const HERO_CARRIER_COLORS: Record<string, string> = {
+  humana: '#4ade80',
+  aetna: '#c084fc',
+  anthem: '#60a5fa',
+  wellcare: '#f6c543',
+  cigna: '#f87171',
+  unitedhealthcare: '#38bdf8',
+  uhc: '#38bdf8',
+  centene: '#fb923c',
+};
+
+function getHeroCarrierColor(code: string): string {
+  return HERO_CARRIER_COLORS[code.toLowerCase().replace(/[^a-z]/g, '')] || '#94a3b8';
+}
+
+// ============================================================
+// Golden Hour — Agent Dashboard
+// Handles: Loading, Error, Empty, Stale, Normal
+// ============================================================
 export default function Index() {
   const { data, isLoading, error } = useDashboardData();
   const navigate = useNavigate();
 
-  if (isLoading) {
-    return <PageLoader />;
-  }
+  if (isLoading) return <PageLoader />;
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: GH.pageBg }}>
         <div className="text-center">
-          <p className="text-slate-600 mb-2">Unable to load dashboard</p>
-          <p className="text-sm text-slate-400">{error?.message || 'Please try again'}</p>
+          <p className="mb-2" style={{ color: GH.textSecondary }}>Unable to load dashboard</p>
+          <p className="text-sm" style={{ color: GH.textMuted }}>{error?.message || 'Please try again'}</p>
         </div>
       </div>
     );
@@ -61,28 +115,57 @@ export default function Index() {
 
   const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  const getGreeting = () => {
-    if (isEmpty) return `Let's build your book, ${data.firstName}.`;
-    if (data.growthStreak >= 3) return `You're on fire, ${data.firstName}.`;
-    if (data.netChange > 0) return `Momentum building, ${data.firstName}.`;
-    return `Welcome back, ${data.firstName}.`;
-  };
+  const maxCarrierCount = Math.max(...data.carriers.map(c => c.count), 1);
 
   return (
-    <div className="min-h-screen bg-[#f9fafb] p-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <header className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-200/80 flex items-center justify-center">
-              <span className="font-bold text-blue-600 text-lg">T</span>
-            </div>
-            <div>
-              <p className="text-[11px] text-slate-400 font-medium tracking-wide">TIG PLATFORM</p>
-              <p className="font-semibold text-slate-800 -mt-0.5">Agent Portal</p>
-            </div>
+    <div className="min-h-screen" style={{ background: GH.pageBg }}>
+      {/* Atmospheric blurs */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+        <div
+          style={{
+            position: 'absolute',
+            top: '-10%',
+            left: '-5%',
+            width: 500,
+            height: 500,
+            background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-10%',
+            right: '-5%',
+            width: 400,
+            height: 400,
+            background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)',
+            filter: 'blur(60px)',
+          }}
+        />
+      </div>
+
+      <div className="relative max-w-[1100px] mx-auto px-4 py-3 sm:px-6 sm:py-4">
+        {/* ── Header ── */}
+        <header className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="font-bold" style={{ fontFamily: serif, fontSize: 17, color: GH.gold }}>
+              TIG
+            </span>
+            <span
+              className="uppercase font-medium"
+              style={{ fontSize: 11, letterSpacing: '0.08em', color: GH.textFaint }}
+            >
+              Agent Portal
+            </span>
           </div>
           <div className="flex items-center gap-3">
+            <span
+              className="font-medium hidden sm:inline"
+              style={{ fontSize: 11, color: GH.textMuted, letterSpacing: '0.03em' }}
+            >
+              {currentMonth}
+            </span>
             <SyncStatusPill
               status={data.syncStatus}
               lastSyncAt={data.lastSyncAt}
@@ -96,26 +179,38 @@ export default function Index() {
           </div>
         </header>
 
-        {/* Stale State Banner */}
+        {/* ── Stale Banner ── */}
         {isStale && !isEmpty && (
-          <div className="mb-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div
+            className="mb-6 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(184,134,11,0.06), rgba(212,160,23,0.03))',
+              border: '1px solid rgba(184,134,11,0.12)',
+            }}
+          >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-5 h-5 text-amber-600" />
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(184,134,11,0.08)' }}
+              >
+                <Calendar className="w-5 h-5" style={{ color: GH.gold }} />
               </div>
               <div>
-                <p className="font-medium text-slate-800">Time to sync your {currentMonth.split(' ')[0]} reports</p>
-                <p className="text-sm text-slate-500">
+                <p className="font-medium" style={{ color: GH.textPrimary }}>
+                  Time to sync your {currentMonth.split(' ')[0]} reports
+                </p>
+                <p className="text-sm" style={{ color: GH.textMuted }}>
                   {data.lastSyncAt
                     ? `Last synced ${new Date(data.lastSyncAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
                     : 'No sync yet'
-                  } • Recommended by the 7th each month
+                  } · Recommended by the 7th each month
                 </p>
               </div>
             </div>
             <button
               onClick={() => navigate('/sync')}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/25 transition-colors flex-shrink-0"
+              className="flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-xl transition-opacity hover:opacity-90 flex-shrink-0"
+              style={{ background: GH.goldGrad, boxShadow: '0 2px 8px rgba(139,105,20,0.2)' }}
             >
               <Upload className="w-4 h-4" />
               Sync Now
@@ -123,187 +218,279 @@ export default function Index() {
           </div>
         )}
 
-        {/* Greeting */}
-        <p className="text-slate-400 text-sm mb-1">{currentMonth}</p>
-        <h1 className="text-2xl font-semibold text-slate-800 mb-5">
-          {getGreeting()}
-        </h1>
-
-        <div className="flex flex-col lg:flex-row gap-5">
-          {/* Main Card - The Beacon */}
-          <div className="w-full lg:flex-[2] bg-white rounded-[2rem] p-8 shadow-2xl shadow-slate-200/60 border border-slate-100 relative overflow-hidden">
-            {/* Refined glow */}
+        {/* ── Main Two-Column Layout ── */}
+        <div className="flex flex-col lg:flex-row lg:items-stretch gap-3.5">
+          {/* Left Column */}
+          <div style={{ flex: 29 }} className="min-w-0">
+            {/* ── Dark Hero Card ── */}
             <div
-              className="absolute pointer-events-none"
+              className="relative overflow-hidden flex flex-col"
               style={{
-                top: '-5%',
-                left: '-5%',
-                width: '65%',
-                height: '65%',
-                background: `radial-gradient(ellipse at center, rgba(59, 130, 246, ${isEmpty ? '0.04' : '0.08'}) 0%, rgba(99, 102, 241, ${isEmpty ? '0.02' : '0.04'}) 45%, transparent 70%)`,
+                background: GH.heroBg,
+                borderRadius: 22,
+                padding: '22px 28px 20px',
+                border: `1px solid ${GH.heroBorder}`,
+                boxShadow: '0 4px 30px rgba(60,48,28,0.15), 0 1px 3px rgba(0,0,0,0.1)',
+                height: '100%',
               }}
-            />
+            >
+              {/* Inner glow */}
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  top: '-15%',
+                  left: '-5%',
+                  width: '50%',
+                  height: '65%',
+                  background: `radial-gradient(ellipse at center, ${GH.heroGlow} 0%, transparent 70%)`,
+                }}
+              />
 
-            <div className="relative">
-              {/* Badges - Only show when not empty */}
-              {!isEmpty && (
-                <div className="flex items-center gap-3 mb-3">
-                  {(data.newThisMonth > 0 || data.termedThisMonth > 0) && (
-                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-white shadow-lg ${
-                      data.netChange > 0 ? 'bg-emerald-500 shadow-emerald-500/25' :
-                      data.netChange < 0 ? 'bg-amber-500 shadow-amber-500/25' :
-                      'bg-slate-500 shadow-slate-500/25'
-                    }`}>
-                      <TrendingUp className={`w-4 h-4 ${data.netChange < 0 ? 'rotate-180' : ''}`} />
-                      <span className="font-bold">
-                        net {data.netChange > 0 ? '+' : ''}{data.netChange} this month
-                      </span>
-                      <span className="text-sm opacity-75">
-                        (+{data.newThisMonth}{data.termedThisMonth > 0 ? ` / -${data.termedThisMonth}` : ''})
-                      </span>
-                    </div>
-                  )}
-                  {data.growthStreak >= 2 && (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-orange-50 border border-orange-100">
-                      <Flame className="w-4 h-4 text-orange-500" />
-                      <span className="font-semibold text-orange-700">{data.growthStreak} mo streak</span>
-                    </div>
+              <div className="relative flex flex-col flex-1">
+                {/* Badges */}
+                {!isEmpty && (
+                  <div className="flex items-center gap-2 mb-2.5 flex-wrap">
+                    {(data.newThisMonth > 0 || data.termedThisMonth > 0) && (
+                      <div
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full"
+                        style={{
+                          background: data.netChange > 0
+                            ? 'rgba(74,222,128,0.08)'
+                            : data.netChange < 0 ? 'rgba(251,146,60,0.08)' : 'rgba(148,163,184,0.08)',
+                          border: `1px solid ${
+                            data.netChange > 0
+                              ? 'rgba(74,222,128,0.12)'
+                              : data.netChange < 0 ? 'rgba(251,146,60,0.12)' : 'rgba(148,163,184,0.12)'
+                          }`,
+                        }}
+                      >
+                        <TrendingUp
+                          className={`w-3.5 h-3.5 ${data.netChange < 0 ? 'rotate-180' : ''}`}
+                          style={{
+                            color: data.netChange > 0 ? '#4ade80' : data.netChange < 0 ? '#fb923c' : '#94a3b8',
+                          }}
+                        />
+                        <span
+                          className="text-xs font-semibold"
+                          style={{
+                            color: data.netChange > 0 ? '#4ade80' : data.netChange < 0 ? '#fb923c' : '#94a3b8',
+                          }}
+                        >
+                          {data.netChange > 0 ? '+' : ''}{data.netChange} this month
+                        </span>
+                      </div>
+                    )}
+                    {data.growthStreak >= 2 && (
+                      <div
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full"
+                        style={{
+                          background: 'rgba(251,146,60,0.06)',
+                          border: '1px solid rgba(251,146,60,0.1)',
+                        }}
+                      >
+                        <Flame className="w-3.5 h-3.5" style={{ color: '#fb923c' }} />
+                        <span className="font-semibold" style={{ fontSize: 11, color: '#fb923c' }}>
+                          {data.growthStreak} mo
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* THE NUMBER + Sparkline */}
+                <div className="flex items-end justify-between mb-3">
+                  <div>
+                    <span
+                      className="text-[5rem] sm:text-[5.5rem] lg:text-[90px] block"
+                      style={{
+                        fontFamily: serif,
+                        fontWeight: 400,
+                        lineHeight: 0.82,
+                        letterSpacing: -3,
+                        background: isEmpty
+                          ? 'linear-gradient(180deg, rgba(255,245,230,0.15) 20%, rgba(212,160,23,0.08) 100%)'
+                          : 'linear-gradient(180deg, rgba(255,245,230,0.95) 20%, rgba(212,160,23,0.4) 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
+                      {data.totalClients}
+                    </span>
+                    <p className="mt-1" style={{ fontFamily: serif, fontSize: 14, fontStyle: 'italic', color: GH.heroTextMuted }}>
+                      {data.totalClients === 1 ? 'client' : 'clients'} in your book
+                    </p>
+                    {isStale && !isEmpty && (
+                      <p className="text-xs mt-2 flex items-center gap-1.5" style={{ color: '#f6c543' }}>
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        Data may be outdated · Sync to update
+                      </p>
+                    )}
+                  </div>
+                  {!isEmpty && data.monthlyHistory.length >= 2 && (
+                    <MiniSparkline data={data.monthlyHistory} />
                   )}
                 </div>
-              )}
 
-              {/* THE NUMBER */}
-              <div className="mb-6">
-                <span
-                  className={`text-[5rem] sm:text-[7rem] lg:text-[10rem] font-bold tracking-tighter leading-[0.75] block ${isEmpty ? 'text-slate-200' : 'text-slate-900'}`}
-                  style={{ fontFeatureSettings: '"tnum"' }}
-                >
-                  {data.totalClients}
-                </span>
-                <p className="text-xl text-slate-400 mt-3">
-                  {data.totalClients === 1 ? 'client' : 'clients'} in your book
-                </p>
-                {isStale && !isEmpty && (
-                  <p className="text-sm text-amber-600 mt-2 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4" />
-                    Data may be outdated • Sync to update
-                  </p>
+                {/* Conditional content */}
+                {isEmpty ? (
+                  <GHEmptyStateCTA onStartSync={() => navigate('/sync')} />
+                ) : (
+                  <>
+                    {/* Carrier bars */}
+                    {data.carriers.length > 0 && (
+                      <div className={isStale ? 'opacity-75' : ''} style={{ borderTop: '1px solid rgba(255,245,230,0.05)', paddingTop: 12 }}>
+                        <div className="space-y-[5px]">
+                          {data.carriers.map((carrier) => {
+                            const barColor = getHeroCarrierColor(carrier.code);
+                            const pct = (carrier.count / maxCarrierCount) * 100;
+                            return (
+                              <div key={carrier.id} className="flex items-center gap-3.5">
+                                <span
+                                  className="font-medium truncate"
+                                  style={{ fontSize: 11, color: 'rgba(255,245,230,0.3)', width: 56 }}
+                                >
+                                  {carrier.name}
+                                </span>
+                                <div
+                                  className="flex-1 rounded overflow-hidden"
+                                  style={{ height: 10, background: 'rgba(255,245,230,0.02)' }}
+                                >
+                                  <div
+                                    className="h-full rounded transition-all duration-700"
+                                    style={{
+                                      width: `${pct}%`,
+                                      background: `linear-gradient(90deg, ${barColor}25, ${barColor}55)`,
+                                      borderRight: `2px solid ${barColor}`,
+                                    }}
+                                  />
+                                </div>
+                                <span
+                                  className="font-semibold text-right"
+                                  style={{ fontSize: 13, color: 'rgba(255,245,230,0.65)', width: 30 }}
+                                >
+                                  {carrier.count}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Inline milestone */}
+                    <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,245,230,0.05)', paddingTop: 12 }}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className="flex items-center justify-center flex-shrink-0"
+                            style={{
+                              width: 30,
+                              height: 30,
+                              borderRadius: 8,
+                              background: 'rgba(139,92,246,0.1)',
+                              border: '1px solid rgba(139,92,246,0.12)',
+                            }}
+                          >
+                            <Target className="w-3.5 h-3.5" style={{ color: '#a78bfa' }} />
+                          </div>
+                          <div>
+                            <p
+                              className="uppercase"
+                              style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: 'rgba(255,245,230,0.2)' }}
+                            >
+                              Next Milestone
+                            </p>
+                            <p style={{ fontFamily: serif, fontSize: 15, color: 'rgba(255,245,230,0.7)' }}>
+                              {data.nextMilestone} clients
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p style={{ fontFamily: serif, fontSize: 26, color: '#a78bfa', lineHeight: 1 }}>
+                            {toGoal > 0 ? toGoal : 0}
+                          </p>
+                          <p style={{ fontFamily: serif, fontSize: 10, fontStyle: 'italic', color: 'rgba(255,245,230,0.2)' }}>
+                            {toGoal > 0 ? 'to go' : 'reached!'}
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        className="rounded-full overflow-hidden"
+                        style={{ height: 4, background: 'rgba(255,245,230,0.03)', marginTop: 6 }}
+                      >
+                        <div
+                          className="h-full rounded-full transition-all duration-1000"
+                          style={{
+                            width: `${Math.min(progress, 100)}%`,
+                            background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
-
-              {/* Empty State CTA */}
-              {isEmpty ? (
-                <EmptyStateCTA onStartSync={() => navigate('/sync')} />
-              ) : (
-                <>
-                  {/* Carriers row */}
-                  {data.carriers.length > 0 && (
-                    <div className={`flex items-center gap-3 mb-5 pb-5 border-b border-slate-100 flex-wrap ${isStale ? 'opacity-75' : ''}`}>
-                      {data.carriers.map((carrier) => (
-                        <div
-                          key={carrier.id}
-                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100"
-                        >
-                          <div
-                            className={`w-3 h-3 rounded-full ${carrier.color}`}
-                          />
-                          <span className="text-sm font-medium text-slate-600">{carrier.name}</span>
-                          <span className="text-lg font-bold text-slate-800">{carrier.count}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Goal progress */}
-                  <div className="bg-gradient-to-br from-violet-50 to-indigo-50 rounded-2xl p-5 border border-violet-100/50">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
-                          <Target className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-slate-500">Next milestone</p>
-                          <p className="text-2xl font-bold text-slate-800">{data.nextMilestone} clients</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-4xl font-bold text-violet-600">{toGoal > 0 ? toGoal : 0}</p>
-                        <p className="text-sm text-slate-500">{toGoal > 0 ? 'to go' : 'reached!'}</p>
-                      </div>
-                    </div>
-                    <div className="h-3 bg-white rounded-full overflow-hidden shadow-inner">
-                      <div
-                        className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all duration-1000"
-                        style={{ width: `${Math.min(progress, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
+
           </div>
 
-          {/* Actions Panel */}
-          <div className="w-full lg:flex-[1] bg-slate-900 rounded-[2rem] p-6 flex flex-col shadow-2xl shadow-slate-400/20">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-5">Quick Actions</p>
-
-            <div className="space-y-3 flex-1">
-              {/* Sync Button - Promoted when stale or empty */}
-              {(isStale || isEmpty) && (
-                <ActionButton
-                  icon={RefreshCw}
-                  label={isEmpty ? "Sync Book" : "Sync Now"}
-                  desc={isEmpty ? "Import your data" : "Update your data"}
-                  color="from-amber-500 to-orange-500"
-                  to="/sync"
-                  highlighted
-                />
-              )}
-
-              <CarrierResourcesHoverButton />
-              <ActionButton
-                icon={Search}
-                label="Plan Finder"
-                desc="Search Medicare plans"
-                color="from-emerald-500 to-teal-600"
-                to="/plan-finder"
-              />
-              <ActionButton
-                icon={FileText}
-                label="Forms Library"
-                desc="SOA & enrollment"
-                color="from-slate-500 to-slate-600"
-                to="/forms-library"
-              />
-              {!isStale && !isEmpty && (
-                <HoverActionButton
-                  icon={Zap}
-                  label="Quick Quote"
-                  desc="SunFire & C4M"
-                  color="from-orange-500 to-orange-600"
-                  links={[
-                    { name: 'SunFire', url: 'https://www.sunfirematrix.com/app/agent/pfs' },
-                    { name: 'Connecture (C4M)', url: 'https://pinnacle7.destinationrx.com/PC/Agent/Account/Login' },
-                  ]}
-                />
-              )}
-              <ActionButton
-                icon={Award}
-                label="Certifications"
-                desc="Ready to sell"
-                color="from-emerald-500 to-emerald-600"
-                to="/contracting-hub"
-              />
-              <ActionButton
-                icon={GraduationCap}
-                label="Training Library"
-                desc="Videos & tutorials"
-                color="from-purple-500 to-violet-600"
-                to="/training"
-              />
-            </div>
+          {/* Right Column */}
+          <div style={{ flex: 21 }} className="min-w-0 flex flex-col">
+            {/* ── Carrier Portals ── */}
+            <GlassPanel className="flex flex-col flex-1" style={{ padding: '16px 14px', borderRadius: 20 }}>
+              <p
+                className="uppercase font-semibold mb-2.5"
+                style={{ fontSize: 10, letterSpacing: '0.07em', color: GH.textMuted }}
+              >
+                Carrier Portals
+              </p>
+              <div
+                className="grid grid-cols-2 sm:grid-cols-3 gap-2 flex-1"
+                style={{ alignContent: 'center' }}
+              >
+                {CARRIER_PORTALS.map((portal) => (
+                  <PortalTile key={portal.name} portal={portal} />
+                ))}
+              </div>
+              <Link
+                to="/carrier-resources"
+                className="flex items-center justify-center gap-2 cursor-pointer"
+                style={{
+                  marginTop: 10,
+                  padding: '10px 16px',
+                  borderRadius: 12,
+                  background: 'linear-gradient(135deg, rgba(139,105,20,0.08), rgba(139,105,20,0.03))',
+                  border: '1px solid rgba(139,105,20,0.12)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(139,105,20,0.20)';
+                  e.currentTarget.style.background = 'rgba(139,105,20,0.10)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(139,105,20,0.12)';
+                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(139,105,20,0.08), rgba(139,105,20,0.03))';
+                }}
+              >
+                <LayoutGrid style={{ width: 14, height: 14, color: '#8B6914' }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#8B6914' }}>All Carrier Resources</span>
+                <ChevronRight style={{ width: 13, height: 13, color: 'rgba(139,105,20,0.4)' }} />
+              </Link>
+            </GlassPanel>
           </div>
         </div>
+
+        {/* ── Tools Dock ── */}
+        <GlassPanel style={{ padding: '10px 16px', borderRadius: 18, marginTop: 8 }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
+            <DockTile icon={Search} label="Plan Finder" gradient="linear-gradient(135deg, #10b981, #059669)" shadow="0 2px 8px rgba(16,185,129,0.2)" to="/plan-finder" />
+            <DockTile icon={Sun} label="SunFire" gradient="linear-gradient(135deg, #f97316, #ea580c)" shadow="0 2px 8px rgba(249,115,22,0.2)" href="https://www.sunfirematrix.com/app/agent/pfs" />
+            <DockTile icon={Link2} label="C4Medicare" gradient="linear-gradient(135deg, #3b82f6, #2563eb)" shadow="0 2px 8px rgba(59,130,246,0.2)" href="https://pinnacle7.destinationrx.com/PC/Agent/Account/Login" />
+            <DockTile icon={FileText} label="Forms" gradient="linear-gradient(135deg, #64748b, #475569)" shadow="0 2px 8px rgba(100,116,139,0.15)" to="/forms-library" />
+            <DockTile icon={Award} label="Certifications" gradient="linear-gradient(135deg, #10b981, #059669)" shadow="0 2px 8px rgba(16,185,129,0.15)" to="/contracting-hub" />
+            <DockTile icon={GraduationCap} label="Training" gradient="linear-gradient(135deg, #8b5cf6, #7c3aed)" shadow="0 2px 8px rgba(139,92,246,0.15)" to="/training" />
+          </div>
+        </GlassPanel>
       </div>
     </div>
   );
@@ -313,21 +500,107 @@ export default function Index() {
 // Sub-components
 // ============================================================
 
-function EmptyStateCTA({ onStartSync }: { onStartSync: () => void }) {
+/** Frosted glass panel wrapper */
+function GlassPanel({
+  children,
+  className = '',
+  style = {},
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100/50">
+    <div
+      className={className}
+      style={{
+        background: GH.glass,
+        backdropFilter: `blur(${GH.glassBlur})`,
+        WebkitBackdropFilter: `blur(${GH.glassBlur})`,
+        border: `1px solid ${GH.glassBorder}`,
+        borderRadius: 18,
+        boxShadow: GH.glassShadow,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Decorative sparkline SVG */
+function MiniSparkline({ data }: { data: number[] }) {
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const w = 80;
+  const h = 40;
+  const pad = 4;
+
+  const points = data.map((v, i) => {
+    const x = pad + (i / (data.length - 1)) * (w - pad * 2);
+    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    return `${x},${y}`;
+  });
+
+  const [lastX, lastY] = points[points.length - 1].split(',');
+
+  return (
+    <svg width={w} height={h} className="opacity-60 flex-shrink-0">
+      <defs>
+        <linearGradient id="ghSparkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="20%" stopColor="#4ade80" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#4ade80" stopOpacity="0.7" />
+        </linearGradient>
+      </defs>
+      <polyline
+        points={points.join(' ')}
+        fill="none"
+        stroke="url(#ghSparkGrad)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx={lastX} cy={lastY} r="3" fill="#4ade80" opacity="0.8" />
+      <circle cx={lastX} cy={lastY} r="6" fill="#4ade80" opacity="0.15" />
+    </svg>
+  );
+}
+
+/** Empty state call-to-action inside the dark hero card */
+function GHEmptyStateCTA({ onStartSync }: { onStartSync: () => void }) {
+  return (
+    <div
+      className="rounded-2xl p-6 mt-2"
+      style={{
+        background: 'rgba(255,245,230,0.04)',
+        border: '1px solid rgba(255,245,230,0.06)',
+      }}
+    >
       <div className="flex items-start gap-4">
-        <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25 flex-shrink-0">
-          <FileSpreadsheet className="w-7 h-7 text-white" />
+        <div
+          className="flex items-center justify-center flex-shrink-0"
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 14,
+            background: GH.goldGrad,
+            boxShadow: '0 2px 12px rgba(139,105,20,0.25)',
+          }}
+        >
+          <FileSpreadsheet className="w-6 h-6 text-white" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-slate-800 mb-1">Import your production reports</h3>
-          <p className="text-slate-500 mb-4">
-            Upload carrier reports to see your complete book of business. We'll organize everything for you.
+          <h3 className="font-semibold mb-1" style={{ fontSize: 16, color: GH.heroText }}>
+            Import your production reports
+          </h3>
+          <p className="mb-4" style={{ fontSize: 14, color: GH.heroTextMuted }}>
+            Upload carrier reports to see your complete book of business.
           </p>
           <button
             onClick={onStartSync}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-xl transition-opacity hover:opacity-90"
+            style={{ background: GH.goldGrad, boxShadow: '0 2px 8px rgba(139,105,20,0.25)' }}
           >
             <Upload className="w-4 h-4" />
             Start Sync
@@ -335,182 +608,86 @@ function EmptyStateCTA({ onStartSync }: { onStartSync: () => void }) {
           </button>
         </div>
       </div>
-
-      {/* What you'll see */}
-      <div className="mt-6 pt-5 border-t border-blue-100">
-        <p className="text-xs text-slate-500 uppercase tracking-wide mb-3">After syncing, you'll see</p>
-        <div className="flex gap-4 flex-wrap">
-          {[
-            { icon: '📊', label: 'Total clients' },
-            { icon: '🏢', label: 'By carrier' },
-            { icon: '📈', label: 'Growth trends' },
-            { icon: '🎯', label: 'Milestones' },
-          ].map(({ icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-slate-600">
-              <span>{icon}</span>
-              <span className="text-sm">{label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
 
-interface ActionButtonProps {
-  icon: React.ElementType;
-  label: string;
-  desc: string;
-  color: string;
-  to: string;
-  highlighted?: boolean;
-}
-
-function ActionButton({ icon: Icon, label, desc, color, to, highlighted }: ActionButtonProps) {
+/** Carrier portal tile for the 3x2 grid */
+function PortalTile({ portal }: { portal: typeof CARRIER_PORTALS[number] }) {
   return (
-    <Link
-      to={to}
-      className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all duration-200 text-left group border ${
-        highlighted
-          ? 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/30'
-          : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.05] hover:border-white/[0.1]'
-      }`}
+    <a
+      href={portal.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex flex-col items-center justify-center gap-1.5 transition-colors"
+      style={{
+        padding: '10px 6px',
+        borderRadius: 14,
+        background: GH.tileBg,
+        border: `1px solid ${GH.borderLight}`,
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = GH.tileBg; }}
     >
-      <div className={`w-11 h-11 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-lg`}>
-        <Icon className="w-5 h-5 text-white" />
+      <div
+        className="flex items-center justify-center"
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: 10,
+          background: `linear-gradient(135deg, ${portal.color}25, ${portal.color}08)`,
+          border: `1px solid ${portal.color}20`,
+          boxShadow: `0 2px 8px ${portal.color}12`,
+        }}
+      >
+        <span className="font-bold" style={{ fontSize: 14, color: portal.color }}>
+          {portal.letter}
+        </span>
       </div>
-      <div className="flex-1">
-        <p className="text-sm font-semibold text-white">{label}</p>
-        <p className={`text-xs ${highlighted ? 'text-amber-300' : 'text-slate-500'}`}>{desc}</p>
-      </div>
-      <ChevronRight className={`w-5 h-5 ${highlighted ? 'text-amber-400' : 'text-slate-600'} group-hover:translate-x-0.5 transition-all`} />
-    </Link>
+      <span className="font-medium" style={{ fontSize: 11, color: GH.textSecondary }}>
+        {portal.name}
+      </span>
+    </a>
   );
 }
 
-interface HoverActionButtonProps {
+/** Dock tile for the full-width tools dock */
+interface DockTileProps {
   icon: React.ElementType;
   label: string;
-  desc: string;
-  color: string;
-  links: { name: string; url: string; icon?: React.ElementType }[];
+  gradient: string;
+  shadow: string;
+  to?: string;
+  href?: string;
 }
 
-function HoverActionButton({ icon: Icon, label, desc, color, links }: HoverActionButtonProps) {
-  return (
-    <HoverCard openDelay={0} closeDelay={150}>
-      <HoverCardTrigger asChild>
-        <button
-          className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-200 text-left group"
-        >
-          <div className={`w-11 h-11 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-lg`}>
-            <Icon className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-white">{label}</p>
-            <p className="text-xs text-slate-500">{desc}</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors duration-200" />
-        </button>
-      </HoverCardTrigger>
-      <HoverCardContent
-        side="left"
-        sideOffset={12}
-        collisionPadding={16}
-        className="w-auto p-0 bg-white rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60"
+function DockTile({ icon: Icon, label, gradient, shadow, to, href }: DockTileProps) {
+  const inner = (
+    <div
+      className="flex flex-col items-center gap-1.5 transition-colors cursor-pointer"
+      style={{
+        padding: '10px 6px 8px',
+        borderRadius: 14,
+        background: GH.tileBg,
+        border: `1px solid ${GH.borderLight}`,
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = GH.tileBg; }}
+    >
+      <div
+        className="flex items-center justify-center"
+        style={{ width: 34, height: 34, borderRadius: 9, background: gradient, boxShadow: shadow }}
       >
-        <div className="p-2 min-w-[200px]">
-          {links.map((link, i) => (
-            <a
-              key={i}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-all duration-150 group/link"
-            >
-              {link.icon && <link.icon className="w-4 h-4 text-slate-400 group-hover/link:text-slate-600" />}
-              <span className="text-sm font-medium text-slate-700 group-hover/link:text-slate-900">{link.name}</span>
-              <ExternalLink className="w-3 h-3 text-slate-300 group-hover/link:text-slate-400 ml-auto" />
-            </a>
-          ))}
-        </div>
-      </HoverCardContent>
-    </HoverCard>
+        <Icon className="w-4 h-4 text-white" />
+      </div>
+      <span className="font-medium" style={{ fontSize: 10, color: GH.textSecondary }}>
+        {label}
+      </span>
+    </div>
   );
-}
 
-// Carrier portal links with brand colors
-const CARRIER_PORTALS = [
-  { name: 'Aetna', url: 'https://www.aetna.com/producer_public/login.fcc', color: '#7B2D8E' },
-  { name: 'Anthem', url: 'https://brokerportal.anthem.com/apps/ptb/login', color: '#0072CE' },
-  { name: 'Devoted', url: 'https://agent.devoted.com/', color: '#F97316' },
-  { name: 'Humana', url: 'https://account.humana.com/', color: '#4B9B4B' },
-  { name: 'UHC', url: 'https://www.uhcagent.com', color: '#002677' },
-  { name: 'Wellcare', url: 'https://www.wellcare.com/en/broker-resources/broker-resources', color: '#00A79D' },
-];
-
-function CarrierResourcesHoverButton() {
-  const navigate = useNavigate();
-
-  return (
-    <HoverCard openDelay={0} closeDelay={150}>
-      <HoverCardTrigger asChild>
-        <button
-          onClick={() => navigate('/carrier-resources')}
-          className="w-full flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-200 text-left group"
-        >
-          <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-white">Carrier Resources</p>
-            <p className="text-xs text-slate-500">Contacts & portals</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors duration-200" />
-        </button>
-      </HoverCardTrigger>
-      <HoverCardContent
-        side="left"
-        sideOffset={12}
-        collisionPadding={16}
-        className="w-auto p-0 bg-white rounded-xl shadow-2xl shadow-slate-900/10 border border-slate-200/60 overflow-hidden"
-      >
-        <div className="min-w-[220px]">
-          {/* Header */}
-          <div className="px-3 py-2 border-b border-slate-100">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Portal Quick Links</p>
-          </div>
-
-          {/* Portal Links */}
-          <div className="p-2">
-            {CARRIER_PORTALS.map((portal) => (
-              <a
-                key={portal.name}
-                href={portal.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-all duration-150 group/link"
-              >
-                <div
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: portal.color }}
-                />
-                <span className="text-sm font-medium text-slate-700 group-hover/link:text-slate-900">{portal.name}</span>
-                <ExternalLink className="w-3 h-3 text-slate-300 group-hover/link:text-slate-400 ml-auto" />
-              </a>
-            ))}
-          </div>
-
-          {/* Footer */}
-          <Link
-            to="/carrier-resources"
-            className="flex items-center justify-center gap-1.5 px-3 py-2.5 border-t border-slate-100 text-xs font-medium text-blue-600 hover:bg-blue-50 transition-colors"
-          >
-            View all resources
-            <ChevronRight className="w-3 h-3" />
-          </Link>
-        </div>
-      </HoverCardContent>
-    </HoverCard>
-  );
+  if (href) {
+    return <a href={href} target="_blank" rel="noopener noreferrer" className="block">{inner}</a>;
+  }
+  return <Link to={to || '/'} className="block">{inner}</Link>;
 }

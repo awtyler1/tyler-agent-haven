@@ -52,7 +52,8 @@
       "Bash(netstat:*)",
       "Bash(tasklist:*)",
       "Bash(git clean:*)",
-      "Bash(del nul)"
+      "Bash(del nul)",
+      "Bash(git rm:*)"
     ]
   }
 }
