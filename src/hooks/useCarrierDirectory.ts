@@ -58,39 +58,44 @@ export function useCarrierDirectory(stateCode: string = 'KY'): CarrierDirectoryD
 
       if (carriersError) throw carriersError;
 
-      // Fetch contacts for state (including nationwide)
-      const { data: contactsData, error: contactsError } = await supabase
-        .from('carrier_contacts')
-        .select('*')
-        .or(`state_code.eq.${stateCode},state_code.is.null`);
-
-      if (contactsError) throw contactsError;
-
-      // Fetch links for state (including nationwide)
-      const { data: linksData, error: linksError } = await supabase
-        .from('carrier_links')
-        .select('*')
-        .or(`state_code.eq.${stateCode},state_code.is.null`)
-        .order('display_order');
-
-      if (linksError) throw linksError;
-
-      // Fetch documents for state (including nationwide)
-      const { data: documentsData, error: documentsError } = await supabase
-        .from('carrier_documents')
-        .select('*')
-        .or(`state_code.eq.${stateCode},state_code.is.null`)
-        .order('display_order');
-
-      if (documentsError) throw documentsError;
+      // Fetch contacts, links, and documents in parallel.
+      // Each query is independent — if one fails, the others still provide data.
+      const [contactsResult, linksResult, documentsResult] = await Promise.all([
+        supabase
+          .from('carrier_contacts')
+          .select('*')
+          .or(`state_code.eq.${stateCode},state_code.is.null`)
+          .then(res => {
+            if (res.error) console.error('Error fetching carrier contacts:', res.error);
+            return res.data || [];
+          }),
+        supabase
+          .from('carrier_links')
+          .select('*')
+          .or(`state_code.eq.${stateCode},state_code.is.null`)
+          .order('display_order')
+          .then(res => {
+            if (res.error) console.error('Error fetching carrier links:', res.error);
+            return res.data || [];
+          }),
+        supabase
+          .from('carrier_documents')
+          .select('*')
+          .or(`state_code.eq.${stateCode},state_code.is.null`)
+          .order('display_order')
+          .then(res => {
+            if (res.error) console.error('Error fetching carrier documents:', res.error);
+            return res.data || [];
+          }),
+      ]);
 
       // Combine data - attach resources to each carrier
       const carriersWithResources: CarrierWithResources[] = (carriersData || []).map((carrier) => ({
         ...carrier,
         logo: CARRIER_LOGOS[carrier.code] || '',
-        contacts: (contactsData || []).filter((c) => c.carrier_id === carrier.id) as CarrierContact[],
-        links: (linksData || []).filter((l) => l.carrier_id === carrier.id) as CarrierLink[],
-        documents: (documentsData || []).filter((d) => d.carrier_id === carrier.id) as CarrierDocument[],
+        contacts: contactsResult.filter((c: any) => c.carrier_id === carrier.id) as CarrierContact[],
+        links: linksResult.filter((l: any) => l.carrier_id === carrier.id) as CarrierLink[],
+        documents: documentsResult.filter((d: any) => d.carrier_id === carrier.id) as CarrierDocument[],
       }));
 
       setCarriers(carriersWithResources);
