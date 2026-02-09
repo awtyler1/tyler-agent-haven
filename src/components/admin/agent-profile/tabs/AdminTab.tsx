@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Loader2, Trash2, MoreVertical } from 'lucide-react';
+import { Loader2, Trash2, MoreVertical, ShieldPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useAdminNotes, type AdminNote } from '@/hooks/useAdminNotes';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AgentProfile {
   id: string;
@@ -29,16 +31,20 @@ interface AgentProfile {
 
 interface AdminTabProps {
   profile: AgentProfile;
+  role: string | null;
   onDeactivate: () => void;
   onDelete: () => void;
+  onPromoted?: () => void;
 }
 
 export const AdminTab: React.FC<AdminTabProps> = ({
   profile,
+  role,
   onDeactivate,
   onDelete,
+  onPromoted,
 }) => {
-  const { profile: currentUserProfile } = useAuth();
+  const { profile: currentUserProfile, isSuperAdmin, isAdmin } = useAuth();
   // Fixed: pass object with profileId property
   const {
     notes,
@@ -54,6 +60,31 @@ export const AdminTab: React.FC<AdminTabProps> = ({
   const [editingContent, setEditingContent] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
+  const [promoteDialogOpen, setPromoteDialogOpen] = useState(false);
+  const [promoting, setPromoting] = useState(false);
+
+  const isAlreadyAdmin = role === 'admin' || role === 'super_admin';
+  const showPromote = isAdmin() && !isAlreadyAdmin;
+
+  const handlePromote = async () => {
+    setPromoting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('promote-to-admin', {
+        body: { profileId: profile.id, role: 'admin' },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success(data.message || 'Promoted to admin successfully');
+      setPromoteDialogOpen(false);
+      onPromoted?.();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to promote user');
+    } finally {
+      setPromoting(false);
+    }
+  };
 
   const handleAddNote = async () => {
     if (!newNoteContent.trim()) return;
@@ -162,6 +193,64 @@ export const AdminTab: React.FC<AdminTabProps> = ({
           <div className="px-4 py-8 text-center text-sm text-stone-500">No admin notes yet</div>
         )}
       </div>
+
+      {/* Promote to Admin — Super Admin only, when user is not already admin */}
+      {showPromote && (
+        <div className="bg-white rounded-xl shadow-sm border border-stone-200/50 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-stone-900">Promote to Admin</p>
+              <p className="text-xs text-stone-500 mt-1">
+                Grant admin access while preserving their agent profile and data
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPromoteDialogOpen(true)}
+              className="text-blue-600 border-blue-200 hover:bg-blue-50"
+            >
+              <ShieldPlus className="w-4 h-4 mr-1.5" />
+              Promote
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Promote Confirmation Dialog */}
+      <AlertDialog open={promoteDialogOpen} onOpenChange={setPromoteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Promote to Admin?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>
+                  This will give <strong>{profile.full_name || 'this agent'}</strong> admin
+                  access while preserving their agent profile and all data.
+                </p>
+                <p>
+                  They'll be able to switch between Admin and Agent views using the
+                  view mode toggle.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={promoting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handlePromote}
+              disabled={promoting}
+            >
+              {promoting ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <ShieldPlus className="h-4 w-4 mr-2" />
+              )}
+              Promote to Admin
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Danger Zone */}
       <div className="bg-white rounded-xl shadow-sm border border-red-200 p-5">

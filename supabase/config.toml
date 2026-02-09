@@ -38,6 +38,10 @@ verify_jwt = false
 # Internal auth: validates user session before generating PDF
 verify_jwt = false
 
+[functions.promote-to-admin]
+# Internal auth: extracts token, calls getUser(), checks admin role
+verify_jwt = false
+
 [functions.generate-growth-plan-pdf]
 # Growth Plan PDF generation - disable gateway JWT due to ECC key issue
 verify_jwt = false

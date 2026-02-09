@@ -127,6 +127,9 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  // Refresh trigger — increment to re-run the data fetch
+  const [refreshKey, setRefreshKey] = useState(0);
+
   // Permission checks
   const canEdit = isAdmin() && !isSelfView;
 
@@ -259,7 +262,7 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
     }
 
     fetchAgentData();
-  }, [profileId]);
+  }, [profileId, refreshKey]);
 
   // ─────────────────────────────────────────────────────────────
   // Handlers
@@ -436,8 +439,10 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
         {activeTab === 'admin' && isAdmin() && (
           <AdminTab
             profile={profile}
+            role={role}
             onDeactivate={() => setIsDeactivateModalOpen(true)}
             onDelete={() => setIsDeleteModalOpen(true)}
+            onPromoted={() => setRefreshKey(k => k + 1)}
           />
         )}
       </div>

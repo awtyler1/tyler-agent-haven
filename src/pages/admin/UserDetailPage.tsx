@@ -61,6 +61,7 @@ interface UserProfile {
   first_login_at: string | null;
   appointed_at: string | null;
   role: string | null;
+  allRoles: string[];
   is_active: boolean;
 }
 
@@ -79,6 +80,16 @@ const adminAssignableRoles: AppRole[] = ['internal_tig_agent', 'independent_agen
 
 // All roles for Super Admins
 const allRoles: AppRole[] = ['super_admin', 'admin', 'internal_tig_agent', 'independent_agent'];
+
+// Role tiers — changing a role only replaces within the same tier
+const ADMIN_TIER_ROLES: AppRole[] = ['super_admin', 'admin'];
+const AGENT_TIER_ROLES: AppRole[] = ['manager', 'internal_tig_agent', 'independent_agent'];
+
+const ROLE_HIERARCHY: AppRole[] = ['super_admin', 'admin', 'manager', 'internal_tig_agent', 'independent_agent'];
+
+function getPrimaryRole(roles: string[]): string | null {
+  return ROLE_HIERARCHY.find(r => roles.includes(r)) ?? null;
+}
 
 const onboardingStatusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   CONTRACTING_REQUIRED: { label: 'Contracting Required', variant: 'destructive' },
@@ -116,20 +127,21 @@ export default function UserDetailPage() {
       
       setLoading(true);
       try {
-        // Fetch profile and role in parallel
-        const [profileResult, roleResult] = await Promise.all([
+        // Fetch profile and roles in parallel
+        const [profileResult, rolesResult] = await Promise.all([
           supabase.from('profiles').select('*').eq('user_id', userId).single(),
-          supabase.from('user_roles').select('role').eq('user_id', userId).maybeSingle()
+          supabase.from('user_roles').select('role').eq('user_id', userId)
         ]);
 
         if (profileResult.error) throw profileResult.error;
 
         const profile = profileResult.data;
-        const roleData = roleResult.data;
+        const fetchedRoles = rolesResult.data?.map(r => r.role) || [];
 
         const userData = {
           ...profile,
-          role: roleData?.role || null,
+          role: getPrimaryRole(fetchedRoles),
+          allRoles: fetchedRoles,
           is_active: profile.is_active ?? true,
         };
         
@@ -228,12 +240,41 @@ export default function UserDetailPage() {
     if (!user) return;
     setUpdatingRole(true);
     try {
-      await supabase.from('user_roles').delete().eq('user_id', user.user_id);
-      const { error } = await supabase.from('user_roles').insert({ user_id: user.user_id, role: newRole });
+      // Determine which tier the new role belongs to
+      const sameTierRoles = ADMIN_TIER_ROLES.includes(newRole)
+        ? ADMIN_TIER_ROLES
+        : AGENT_TIER_ROLES;
+
+      // Only remove roles in the same tier as the new role (preserve other tiers)
+      const rolesToRemove = user.allRoles.filter(r =>
+        sameTierRoles.includes(r as AppRole)
+      );
+
+      if (rolesToRemove.length > 0) {
+        await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', user.user_id)
+          .in('role', rolesToRemove);
+      }
+
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: user.user_id, role: newRole });
       if (error) throw error;
 
+      // Compute updated role set
+      const updatedRoles = [
+        ...user.allRoles.filter(r => !sameTierRoles.includes(r as AppRole)),
+        newRole,
+      ];
+
       toast.success('Role updated successfully');
-      setUser(prev => prev ? { ...prev, role: newRole } : null);
+      setUser(prev => prev ? {
+        ...prev,
+        role: getPrimaryRole(updatedRoles),
+        allRoles: updatedRoles,
+      } : null);
     } catch (err: any) {
       toast.error(`Failed to update role: ${err.message}`);
     } finally {
@@ -338,7 +379,7 @@ export default function UserDetailPage() {
     }
   };
 
-  const isAgentRole = user?.role === 'independent_agent' || user?.role === 'internal_tig_agent';
+  const isAgentRole = user?.allRoles?.some(r => r === 'independent_agent' || r === 'internal_tig_agent') ?? false;
   
   const timelineEvents = user ? [
     { 
