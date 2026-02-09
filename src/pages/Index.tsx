@@ -44,7 +44,7 @@ const GH = {
   textFaint: 'rgba(60,48,28,0.20)',
 
   heroText: 'rgba(255,245,230,0.95)',
-  heroTextMuted: 'rgba(255,245,230,0.30)',
+  heroTextMuted: 'rgba(255,245,230,0.55)',
 
   gold: '#8B6914',
   goldGrad: 'linear-gradient(135deg, #b8860b, #d4a017)',
@@ -341,11 +341,11 @@ export default function Index() {
                       style={{
                         fontFamily: serif,
                         fontWeight: 400,
-                        lineHeight: 0.82,
+                        lineHeight: 0.95,
                         letterSpacing: -3,
                         background: isEmpty
                           ? 'linear-gradient(180deg, rgba(255,245,230,0.15) 20%, rgba(212,160,23,0.08) 100%)'
-                          : 'linear-gradient(180deg, rgba(255,245,230,0.95) 20%, rgba(212,160,23,0.4) 100%)',
+                          : 'linear-gradient(180deg, rgba(255,245,230,0.95) 20%, rgba(212,160,23,0.65) 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text',
@@ -353,7 +353,7 @@ export default function Index() {
                     >
                       {data.totalClients}
                     </span>
-                    <p className="mt-1" style={{ fontFamily: serif, fontSize: 14, fontStyle: 'italic', color: GH.heroTextMuted }}>
+                    <p className="mt-2" style={{ fontFamily: serif, fontSize: 14, fontStyle: 'italic', color: GH.heroTextMuted }}>
                       {data.totalClients === 1 ? 'client' : 'clients'} in your book
                     </p>
                     {isStale && !isEmpty && (
@@ -384,7 +384,7 @@ export default function Index() {
                               <div key={carrier.id} className="flex items-center gap-3.5">
                                 <span
                                   className="font-medium truncate"
-                                  style={{ fontSize: 11, color: 'rgba(255,245,230,0.3)', width: 56 }}
+                                  style={{ fontSize: 11, color: 'rgba(255,245,230,0.55)', width: 56 }}
                                 >
                                   {carrier.name}
                                 </span>
@@ -433,7 +433,7 @@ export default function Index() {
                           <div>
                             <p
                               className="uppercase"
-                              style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: 'rgba(255,245,230,0.2)' }}
+                              style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: 'rgba(255,245,230,0.45)' }}
                             >
                               Next Milestone
                             </p>

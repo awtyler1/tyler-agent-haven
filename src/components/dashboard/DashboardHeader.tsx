@@ -39,8 +39,8 @@ export function DashboardHeader({ fullName, syncStatus, lastSyncDate }: Dashboar
     <header className="relative z-10 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         {/* Logo */}
-        <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-200/80 flex items-center justify-center">
-          <span className="font-bold text-blue-600">T</span>
+        <div className="w-10 h-10 bg-gradient-to-br from-[hsl(43,56%,45%)] to-[hsl(43,56%,38%)] rounded-xl shadow-sm border border-[rgba(184,134,11,0.15)] flex items-center justify-center">
+          <span className="font-bold text-white">T</span>
         </div>
 
         {/* Labels */}

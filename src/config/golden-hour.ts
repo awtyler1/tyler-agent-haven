@@ -21,7 +21,7 @@ export const GH = {
 
   // Text on dark hero
   heroText: 'rgba(255,245,230,0.95)',
-  heroTextMuted: 'rgba(255,245,230,0.30)',
+  heroTextMuted: 'rgba(255,245,230,0.55)',
 
   // Gold brand
   gold: '#8B6914',
