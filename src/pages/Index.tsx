@@ -17,6 +17,7 @@ import {
   Search,
   GraduationCap,
   LayoutGrid,
+  Lock,
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { SyncStatusPill } from '@/components/dashboard/SyncStatusPill';
@@ -518,7 +519,7 @@ export default function Index() {
         {/* ── Tools Dock ── */}
         <GlassPanel style={{ padding: '10px 16px', borderRadius: 18, marginTop: 8 }}>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
-            <DockTile icon={Search} label="Plan Finder" gradient="linear-gradient(135deg, #10b981, #059669)" shadow="0 2px 8px rgba(16,185,129,0.2)" to="/plan-finder" />
+            <DockTile icon={Search} label="Plan Finder" gradient="linear-gradient(135deg, #10b981, #059669)" shadow="0 2px 8px rgba(16,185,129,0.2)" to="/plan-finder" comingSoon />
             <DockTile icon={Sun} label="SunFire" gradient="linear-gradient(135deg, #f97316, #ea580c)" shadow="0 2px 8px rgba(249,115,22,0.2)" href="https://www.sunfirematrix.com/app/agent/pfs" />
             <DockTile icon={Link2} label="C4Medicare" gradient="linear-gradient(135deg, #3b82f6, #2563eb)" shadow="0 2px 8px rgba(59,130,246,0.2)" href="https://pinnacle7.destinationrx.com/PC/Agent/Account/Login" />
             <DockTile icon={FileText} label="Forms" gradient="linear-gradient(135deg, #64748b, #475569)" shadow="0 2px 8px rgba(100,116,139,0.15)" to="/forms-library" />
@@ -691,21 +692,26 @@ interface DockTileProps {
   shadow: string;
   to?: string;
   href?: string;
+  comingSoon?: boolean;
 }
 
-function DockTile({ icon: Icon, label, gradient, shadow, to, href }: DockTileProps) {
+function DockTile({ icon: Icon, label, gradient, shadow, to, href, comingSoon }: DockTileProps) {
   const inner = (
     <div
-      className="flex flex-col items-center gap-1.5 transition-colors cursor-pointer"
+      className={`flex flex-col items-center gap-1.5 transition-colors ${comingSoon ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
       style={{
         padding: '10px 6px 8px',
         borderRadius: 14,
         background: GH.tileBg,
         border: `1px solid ${GH.borderLight}`,
+        position: 'relative',
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = GH.tileBg; }}
+      onMouseEnter={(e) => { if (!comingSoon) e.currentTarget.style.background = GH.tileHover; }}
+      onMouseLeave={(e) => { if (!comingSoon) e.currentTarget.style.background = GH.tileBg; }}
     >
+      {comingSoon && (
+        <Lock className="w-3 h-3 absolute top-1.5 right-1.5" style={{ color: GH.textFaint }} />
+      )}
       <div
         className="flex items-center justify-center"
         style={{ width: 34, height: 34, borderRadius: 9, background: gradient, boxShadow: shadow }}
@@ -715,9 +721,17 @@ function DockTile({ icon: Icon, label, gradient, shadow, to, href }: DockTilePro
       <span className="font-medium" style={{ fontSize: 10, color: GH.textSecondary }}>
         {label}
       </span>
+      {comingSoon && (
+        <span className="uppercase tracking-wider" style={{ fontSize: 9, color: GH.textMuted, marginTop: -2 }}>
+          Coming Soon
+        </span>
+      )}
     </div>
   );
 
+  if (comingSoon) {
+    return <div className="block">{inner}</div>;
+  }
   if (href) {
     return <a href={href} target="_blank" rel="noopener noreferrer" className="block">{inner}</a>;
   }

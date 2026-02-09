@@ -17,7 +17,7 @@ export default function LabsPage() {
       name: 'Medicare Plan Finder',
       description: 'Search and compare 2026 Kentucky Medicare Advantage plans',
       icon: Heart,
-      path: '/admin/plan-finder',
+      path: '/plan-finder',
       status: 'In Development',
     },
     {

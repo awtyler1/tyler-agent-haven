@@ -15,6 +15,8 @@ import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { useForms } from '@/hooks/useForms';
 import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { DocumentPreview } from '@/components/ui/DocumentPreview';
+import { GlassPanel } from '@/components/ui/GlassPanel';
+import { GH } from '@/config/golden-hour';
 
 // External links - will be populated with forms you provide
 interface ExternalLinkItem {
@@ -198,35 +200,60 @@ export default function FormsLibraryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: GH.pageBg }}>
+      {/* Atmospheric blurs */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+        <div
+          style={{
+            position: 'absolute',
+            top: '-10%',
+            left: '-5%',
+            width: 500,
+            height: 500,
+            background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-10%',
+            right: '-5%',
+            width: 400,
+            height: 400,
+            background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)',
+            filter: 'blur(60px)',
+          }}
+        />
+      </div>
+
       {/* Header */}
-      <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
-          <Link to={homePath} className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group">
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="font-medium">Dashboard</span>
-          </Link>
-          <UserAvatarDropdown />
-        </div>
+      <header className="flex items-center justify-between pt-6 pb-4 px-4 sm:px-6 max-w-[1100px] mx-auto w-full">
+        <Link to={homePath} className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group">
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+          <span className="font-medium">Dashboard</span>
+        </Link>
+        <UserAvatarDropdown />
       </header>
 
-      <main className="flex-1 px-6 py-6">
-        <div className="max-w-5xl mx-auto">
+      <main className="flex-1 px-4 sm:px-6 pb-6">
+        <div className="max-w-[1100px] mx-auto">
           {/* Title + Search row */}
           <div className="mb-4">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-serif font-semibold text-[#292524]">
+              <h1 className="text-2xl font-semibold" style={{ fontFamily: GH.serif, color: GH.textPrimary }}>
                 Forms Library
               </h1>
               {/* Search */}
               <div className="relative w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5c5552]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: GH.textMuted }} />
                 <input
                   type="text"
                   placeholder="Search forms..."
                   value={searchQuery}
                   onChange={(e) => updateParams({ q: e.target.value || null })}
-                  className="w-full pl-9 pr-4 py-2 text-sm border border-[#e8e4dd] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full pl-9 pr-4 py-2 text-sm rounded-2xl bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  style={{ border: `1px solid ${GH.border}`, color: GH.textPrimary }}
                 />
               </div>
             </div>
@@ -236,57 +263,60 @@ export default function FormsLibraryPage() {
           <div className="grid grid-cols-12 gap-4 items-start">
             {/* Left sidebar - Categories */}
             <div className="col-span-3">
-              <div className="bg-white border border-[#e8e4dd] rounded-xl overflow-hidden">
-                {CATEGORIES.map((category) => {
+              <GlassPanel padding={0} style={{ overflow: 'hidden' }}>
+                {CATEGORIES.map((category, idx) => {
                   const IconComponent = category.icon;
                   const isSelected = selectedCategory === category.key;
                   return (
                     <button
                       key={category.key}
                       onClick={() => updateParams({ category: category.key, q: null })}
-                      className={`w-full px-4 py-3 flex items-center justify-between text-left transition-colors border-b border-[#e8e4dd] last:border-0 ${
-                        isSelected
-                          ? 'bg-blue-600 text-white'
-                          : 'hover:bg-stone-50 text-[#292524]'
-                      }`}
+                      className="w-full px-4 py-3 flex items-center justify-between text-left transition-colors"
+                      style={{
+                        background: isSelected ? GH.tileHover : 'transparent',
+                        fontWeight: isSelected ? 600 : 400,
+                        color: GH.textPrimary,
+                        borderBottom: idx < CATEGORIES.length - 1 ? `1px solid ${GH.border}` : 'none',
+                      }}
+                      onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = GH.tileHover; }}
+                      onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
                     >
                       <div className="flex items-center gap-3">
                         <IconComponent
-                          className={`w-4 h-4 ${
-                            isSelected ? 'text-white/80' : 'text-[#5c5552]'
-                          }`}
+                          className="w-4 h-4"
+                          style={{ color: isSelected ? GH.textPrimary : GH.textSecondary }}
                         />
-                        <span className="text-sm font-medium">{category.label}</span>
+                        <span className="text-sm">{category.label}</span>
                       </div>
                       <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${
-                          isSelected
-                            ? 'bg-white/20 text-white'
-                            : 'bg-stone-100 text-[#5c5552]'
-                        }`}
+                        className="text-xs px-2 py-0.5 rounded-full"
+                        style={{
+                          background: isSelected ? GH.border : GH.tileBg,
+                          color: GH.textSecondary,
+                        }}
                       >
                         {categoryCounts[category.key] || 0}
                       </span>
                     </button>
                   );
                 })}
-              </div>
+              </GlassPanel>
             </div>
 
             {/* Right content - Forms list */}
             <div className="col-span-9">
-              <div className="bg-white border border-[#e8e4dd] rounded-xl">
+              <GlassPanel padding={0}>
                 {/* Category header */}
-                <div className="px-5 py-4 border-b border-[#e8e4dd]">
-                  <h2 className="font-serif text-lg font-semibold text-[#292524]">
+                <div className="px-5 py-3" style={{ borderBottom: `1px solid ${GH.border}` }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: GH.textMuted }}>
                     {currentCategory?.label}
-                  </h2>
+                  </span>
                 </div>
 
                 {/* Forms list */}
                 {loading ? (
                   <div className="px-5 py-12 text-center">
-                    <p className="text-sm text-[#5c5552]">Loading forms...</p>
+                    <p className="text-sm" style={{ color: GH.textSecondary }}>Loading forms...</p>
                   </div>
                 ) : error ? (
                   <div className="px-5 py-12 text-center">
@@ -294,16 +324,16 @@ export default function FormsLibraryPage() {
                   </div>
                 ) : filteredForms.length === 0 ? (
                   <div className="px-5 py-12 text-center">
-                    <FileText className="w-12 h-12 text-[#e8e4dd] mx-auto mb-3" />
-                    <p className="text-sm text-[#5c5552]">
+                    <FileText className="w-8 h-8 mx-auto mb-3" style={{ color: GH.textFaint }} />
+                    <p className="text-sm" style={{ color: GH.textSecondary }}>
                       {searchQuery
                         ? `No forms found matching "${searchQuery}"`
                         : `No forms available in ${currentCategory?.label}`}
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-[#e8e4dd]">
-                    {filteredForms.map((form) => {
+                  <div>
+                    {filteredForms.map((form, idx) => {
                       const isPreviewable = canPreview(form);
                       const isWordDoc = form.url.toLowerCase().endsWith('.doc') || form.url.toLowerCase().endsWith('.docx');
                       const isPdf = form.url.toLowerCase().endsWith('.pdf');
@@ -311,7 +341,10 @@ export default function FormsLibraryPage() {
                       return (
                         <div
                           key={form.id}
-                          className="px-5 py-4 flex items-center justify-between hover:bg-stone-50 transition-colors group"
+                          className="px-5 py-3 flex items-center justify-between transition-colors group cursor-pointer"
+                          style={{ borderTop: idx > 0 ? `1px solid ${GH.border}` : 'none' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                         >
                           <div className="flex items-center gap-3">
                             <div
@@ -327,7 +360,7 @@ export default function FormsLibraryPage() {
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium text-[#292524]">
+                                <p className="text-sm font-medium" style={{ color: GH.textPrimary }}>
                                   {form.name}
                                 </p>
                                 <span
@@ -342,7 +375,7 @@ export default function FormsLibraryPage() {
                                   {isPdf ? 'PDF' : isWordDoc ? 'DOC' : 'Link'}
                                 </span>
                               </div>
-                              <p className="text-xs text-[#5c5552]">{form.description}</p>
+                              <p className="text-xs" style={{ color: GH.textSecondary }}>{form.description}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -353,7 +386,7 @@ export default function FormsLibraryPage() {
                                     e.preventDefault();
                                     window.open(form.url, '_blank');
                                   }}
-                                  className="text-sm text-[#5c5552] hover:text-[#292524] font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-stone-100 transition-colors"
+                                  className="text-sm font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                                 >
                                   <Download className="w-4 h-4" />
                                   Download
@@ -381,11 +414,11 @@ export default function FormsLibraryPage() {
                     })}
                   </div>
                 )}
-              </div>
+              </GlassPanel>
 
               {/* CMS Link */}
               <div className="mt-4 text-center">
-                <p className="text-sm text-[#5c5552]">
+                <p className="text-sm" style={{ color: GH.textSecondary }}>
                   Need something else?{' '}
                   <a
                     href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-List"
@@ -401,13 +434,6 @@ export default function FormsLibraryPage() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="py-3 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
-        <p className="text-xs text-[#5c5552]/50">
-          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
-        </p>
-      </footer>
 
       {/* Document Preview Modal */}
       <DocumentPreview

@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, CheckCircle } from "lucide-react";
 import { TrainingVideo, getNextVideo, trainingVideos } from "@/data/trainingVideos";
 import { VideoPlayer } from "./VideoPlayer";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { GH } from "@/config/golden-hour";
 
 interface VideoContentProps {
   video: TrainingVideo;
@@ -16,34 +18,37 @@ export function VideoContent({ video }: VideoContentProps) {
   return (
     <div>
       {/* Day Label */}
-      <p className="text-sm text-blue-600 font-medium mb-2">Day {currentIndex}</p>
+      <p className="mb-2 uppercase" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: GH.textMuted }}>Day {currentIndex}</p>
 
       {/* Title */}
-      <h1 className="font-serif text-2xl font-semibold text-[#292524] mb-6">
+      <h1 className="text-2xl font-semibold mb-6" style={{ fontFamily: GH.serif, color: GH.textPrimary }}>
         {video.title}
       </h1>
 
       {/* Video Player */}
-      <div className="bg-white border border-[#e8e4dd] rounded-xl overflow-hidden mb-6">
+      <GlassPanel padding={0} style={{ overflow: 'hidden', marginBottom: 24 }}>
         <VideoPlayer
           vimeoId={video.vimeoId}
           vimeoHash={video.vimeoHash}
           startTime={video.startTime}
         />
-      </div>
+      </GlassPanel>
 
       {/* Description */}
-      <p className="text-[#5c5552] mb-6">{video.description}</p>
+      <p className="text-sm mb-6" style={{ color: GH.textSecondary }}>{video.description}</p>
 
       {/* Next Video CTA */}
       {nextVideo && (
         <button
           onClick={() => navigate(`/training/${nextVideo.id}`)}
-          className="group flex items-center justify-between w-full p-4 bg-white border border-[#e8e4dd] rounded-xl hover:bg-stone-50 transition-colors"
+          className="group flex items-center justify-between w-full transition-colors"
+          style={{ padding: 16, background: GH.tileBg, border: `1px solid ${GH.borderLight}`, borderRadius: 14 }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = GH.tileBg; }}
         >
           <div>
-            <p className="text-xs text-[#5c5552] uppercase tracking-wider mb-1">Up Next</p>
-            <p className="font-medium text-[#292524]">
+            <p className="mb-1 uppercase" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: GH.textMuted }}>Up Next</p>
+            <p className="font-medium" style={{ color: GH.textPrimary }}>
               Day {allVideos.findIndex(v => v.id === nextVideo.id) + 1}: {nextVideo.title}
             </p>
           </div>
@@ -52,11 +57,14 @@ export function VideoContent({ video }: VideoContentProps) {
       )}
 
       {!nextVideo && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
-          <p className="text-emerald-700 font-medium">
-            🎉 You've completed all training videos!
-          </p>
-        </div>
+        <GlassPanel style={{ textAlign: 'center', padding: 16 }}>
+          <div className="flex items-center justify-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <p className="font-medium text-green-600">
+              You've completed all training videos!
+            </p>
+          </div>
+        </GlassPanel>
       )}
     </div>
   );

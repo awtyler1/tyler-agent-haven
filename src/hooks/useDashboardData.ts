@@ -158,7 +158,7 @@ async function fetchDashboardData(
     newThisMonth = latest.new_clients || 0;
     termedThisMonth = latest.termed_clients || 0;
     netChange = latest.net_change ?? (newThisMonth - termedThisMonth);
-    lastSyncAt = latest.created_at;
+    lastSyncAt = latest.completed_at || latest.created_at;
 
     // Calculate growth streak (consecutive months of positive growth)
     for (let i = syncHistory.length - 1; i > 0; i--) {
