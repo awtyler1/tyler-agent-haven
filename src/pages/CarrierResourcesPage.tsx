@@ -79,19 +79,18 @@ const CarrierResourcesPage = () => {
   const { carriers, loading: isLoading, error: directoryError } = useCarrierDirectory('KY');
   const { carriers: agentCarriers, loading: agentLoading } = useAgentCarriers();
 
-  // Debug: log carrier loading state to help diagnose production issues
-  useEffect(() => {
-    if (!isLoading && !agentLoading) {
-      console.log('[CarrierResources] carriers from directory:', carriers.length, carriers.map(c => c.code));
-      console.log('[CarrierResources] agentCarriers:', agentCarriers.length, agentCarriers.map(c => c.code));
-      if (directoryError) console.error('[CarrierResources] directory error:', directoryError);
-    }
-  }, [isLoading, agentLoading, carriers, agentCarriers, directoryError]);
-
   // Filter to only show carriers the agent is certified with
   const availableCarriers = carriers.filter(c =>
     agentCarriers.some(ac => ac.code === c.code)
   );
+
+  // Debug: log carrier counts to diagnose production blank page
+  useEffect(() => {
+    if (!isLoading && !agentLoading) {
+      console.log('[CarrierResources] directory:', carriers.length, '| agent:', agentCarriers.length, '| available:', availableCarriers.length);
+      if (directoryError) console.error('[CarrierResources] error:', directoryError);
+    }
+  }, [isLoading, agentLoading, carriers, agentCarriers, availableCarriers, directoryError]);
 
   // Persist selected carrier in URL for bookmarking and tab-switching
   const [searchParams, setSearchParams] = useSearchParams();
@@ -142,14 +141,16 @@ const CarrierResourcesPage = () => {
     );
   }
 
-  // Show error state if directory failed to load
-  if (directoryError || (carriers.length === 0 && agentCarriers.length === 0)) {
+  // Show error/empty state instead of blank page
+  if (directoryError || availableCarriers.length === 0) {
     return (
       <div style={{ backgroundColor: '#F3EDE4', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', padding: 40 }}>
-          <p style={{ color: GH.textPrimary, fontSize: 16, fontWeight: 600 }}>Unable to load carrier resources</p>
+          <p style={{ color: GH.textPrimary, fontSize: 16, fontWeight: 600 }}>
+            {directoryError ? 'Unable to load carrier resources' : 'No carrier resources available'}
+          </p>
           <p style={{ color: GH.textSecondary, fontSize: 13, marginTop: 8 }}>
-            {directoryError?.message || `Carriers: ${carriers.length}, Agent carriers: ${agentCarriers.length}`}
+            {directoryError?.message || `Directory: ${carriers.length} | Agent: ${agentCarriers.length} | Available: ${availableCarriers.length}`}
           </p>
           <button
             onClick={() => window.location.reload()}
