@@ -84,14 +84,6 @@ const CarrierResourcesPage = () => {
     agentCarriers.some(ac => ac.code === c.code)
   );
 
-  // Debug: log carrier counts to diagnose production blank page
-  useEffect(() => {
-    if (!isLoading && !agentLoading) {
-      console.log('[CarrierResources] directory:', carriers.length, '| agent:', agentCarriers.length, '| available:', availableCarriers.length);
-      if (directoryError) console.error('[CarrierResources] error:', directoryError);
-    }
-  }, [isLoading, agentLoading, carriers, agentCarriers, availableCarriers, directoryError]);
-
   // Persist selected carrier in URL for bookmarking and tab-switching
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedCarrierCode = searchParams.get('carrier') || '';
@@ -150,7 +142,7 @@ const CarrierResourcesPage = () => {
             {directoryError ? 'Unable to load carrier resources' : 'No carrier resources available'}
           </p>
           <p style={{ color: GH.textSecondary, fontSize: 13, marginTop: 8 }}>
-            {directoryError?.message || `Directory: ${carriers.length} | Agent: ${agentCarriers.length} | Available: ${availableCarriers.length}`}
+            {directoryError ? 'Please try again.' : 'Check back soon or contact your administrator.'}
           </p>
           <button
             onClick={() => window.location.reload()}
