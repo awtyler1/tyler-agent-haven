@@ -774,27 +774,18 @@ serve(async (req: Request) => {
       return corsErrorResponse(req, "No authorization header", 401);
     }
 
-    // Extract token and check if it's a service role token
+    // Extract token and check if it's the service role key
     const token = authHeader.replace("Bearer ", "");
+    const isServiceRole = token === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    // Decode JWT payload to check role (base64 decode the middle part)
-    let isServiceRole = false;
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1]));
-        isServiceRole = payload.role === 'service_role';
-      }
-    } catch {
-      // Not a valid JWT, will be validated as user token
-    }
-
-    // If not service role, validate as user token
+    // If not service role, validate as user token via Supabase auth
+    let authenticatedUser: { id: string } | null = null;
     if (!isServiceRole) {
       const { data: { user }, error } = await supabase.auth.getUser(token);
       if (error || !user) {
         return corsErrorResponse(req, "Unauthorized", 401);
       }
+      authenticatedUser = user;
     }
 
     // Parse request body
@@ -828,16 +819,13 @@ serve(async (req: Request) => {
     let uploaderId: string | null = null;
     if (isServiceRole) {
       uploaderId = profile_id; // Use the target profile as uploader for service role
-    } else {
-      const { data: { user } } = await supabase.auth.getUser(token);
-      if (user) {
-        const { data: uploaderProfile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .single();
-        uploaderId = uploaderProfile?.id || null;
-      }
+    } else if (authenticatedUser) {
+      const { data: uploaderProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', authenticatedUser.id)
+        .single();
+      uploaderId = uploaderProfile?.id || null;
     }
 
     // Decode base64 file content
