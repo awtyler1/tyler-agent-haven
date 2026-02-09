@@ -29,7 +29,9 @@ export const GlassPanel = forwardRef<HTMLElement, GlassPanelProps>(
           ...style,
         }}
         {...rest}
-      />
+      >
+        {children}
+      </Tag>
     );
   }
 );
