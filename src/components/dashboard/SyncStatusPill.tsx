@@ -113,11 +113,11 @@ export function SyncStatusPill({
         <div
           className="absolute top-full right-0 mt-2 w-72 rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
           style={{
-            background: GH.glass,
-            backdropFilter: `blur(${GH.glassBlur})`,
-            WebkitBackdropFilter: `blur(${GH.glassBlur})`,
-            border: `1px solid ${GH.glassBorder}`,
-            boxShadow: '0 8px 40px rgba(60,48,28,0.12), 0 2px 12px rgba(60,48,28,0.06)',
+            background: 'rgba(255,255,255,0.95)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(60,48,28,0.15)',
+            boxShadow: '0 12px 48px rgba(60,48,28,0.18), 0 4px 16px rgba(60,48,28,0.10)',
           }}
         >
           {/* Status Header */}
