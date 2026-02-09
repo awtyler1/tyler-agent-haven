@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { GH } from '@/config/golden-hour';
 import { toast } from 'sonner';
 import { Loader2, Mail, CheckCircle2, Send } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.webp';
@@ -152,35 +152,67 @@ export default function AuthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: GH.pageBg }}>
+        <Loader2 className="h-8 w-8 animate-spin" style={{ color: GH.gold }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
-      <Card 
-        className="w-full max-w-[495px] rounded-[28px] border-0 relative" 
-        style={{ 
-          background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
-          boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
+    <div className="min-h-screen flex items-center justify-center p-4 grain-overlay" style={{ background: GH.pageBg }}>
+      {/* Atmospheric blurs */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+        <div
+          style={{
+            position: 'absolute',
+            top: '-10%',
+            left: '-5%',
+            width: 500,
+            height: 500,
+            background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)',
+            filter: 'blur(80px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-10%',
+            right: '-5%',
+            width: 400,
+            height: 400,
+            background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)',
+            filter: 'blur(60px)',
+          }}
+        />
+      </div>
+
+      <div
+        className="w-full max-w-[495px] relative"
+        style={{
+          background: GH.glass,
+          backdropFilter: `blur(${GH.glassBlur})`,
+          WebkitBackdropFilter: `blur(${GH.glassBlur})`,
+          border: `1px solid ${GH.glassBorder}`,
+          borderRadius: 22,
+          boxShadow: GH.glassShadow,
+          opacity: 0,
+          animation: 'fadeInUp 0.5s ease-out forwards',
         }}
       >
-        <CardHeader className="text-center space-y-8 pt-14 pb-2">
+        <div className="text-center space-y-8 pt-14 pb-2">
           <div className="relative pb-6">
             <img src={tylerLogo} alt="Logo" className="h-[60px] mx-auto" />
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px" style={{ background: `linear-gradient(to right, transparent, ${GH.border}, transparent)` }} />
           </div>
           <div className="space-y-3">
-            <CardTitle className="text-[2.125rem] font-serif" style={{ letterSpacing: '0.025em' }}>Welcome</CardTitle>
-            <CardDescription className="text-muted-foreground/60 font-light text-[13px] leading-[1.7]">Sign in to access your account</CardDescription>
+            <h1 className="text-4xl font-serif" style={{ color: GH.textPrimary, letterSpacing: '-0.01em' }}>Welcome</h1>
+            <p style={{ fontSize: 13, color: GH.textSecondary, lineHeight: 1.7 }}>Sign in to access your account</p>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-12 px-11 pb-16">
+        </div>
+        <div className="space-y-12 px-11 pb-16">
           <form onSubmit={handleLogin} className="space-y-8">
             <div className="space-y-3">
-              <Label htmlFor="login-email" className="text-[11px] font-medium uppercase tracking-widest text-foreground/55">Email</Label>
+              <Label htmlFor="login-email" className="text-[10px] font-semibold uppercase" style={{ letterSpacing: '0.07em', color: GH.textMuted }}>Email</Label>
               <Input
                 id="login-email"
                 type="email"
@@ -193,10 +225,11 @@ export default function AuthPage() {
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="login-password" className="text-[11px] font-medium uppercase tracking-widest text-foreground/55">Password</Label>
-                <Link 
-                  to="/auth/forgot-password" 
-                  className="text-xs text-primary hover:underline font-medium"
+                <Label htmlFor="login-password" className="text-[10px] font-semibold uppercase" style={{ letterSpacing: '0.07em', color: GH.textMuted }}>Password</Label>
+                <Link
+                  to="/auth/forgot-password"
+                  className="text-xs hover:underline font-medium"
+                  style={{ color: GH.gold }}
                 >
                   Forgot password?
                 </Link>
@@ -211,10 +244,10 @@ export default function AuthPage() {
                 className="h-[56px] px-5 text-[15px] bg-white border-border/30 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 focus:border-primary/50 focus:ring-0 focus:shadow-[0_0_0_4px_rgba(163,133,41,0.1),0_1px_3px_rgba(0,0,0,0.04)] placeholder:text-muted-foreground/35"
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full h-[54px] mt-2 text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5" 
-              style={{ 
+            <Button
+              type="submit"
+              className="w-full h-[54px] mt-2 text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
+              style={{
                 background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',
                 boxShadow: '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)'
               }}
@@ -238,11 +271,11 @@ export default function AuthPage() {
               )}
             </Button>
           </form>
-          
+
           {/* Contact section */}
           <div className="pt-2">
-            <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent mb-8" />
-            <p className="text-[13px] text-muted-foreground/70 text-center mb-7 leading-relaxed">
+            <div className="h-px mb-8" style={{ background: `linear-gradient(to right, transparent, ${GH.border}, transparent)` }} />
+            <p className="text-center mb-7 leading-relaxed" style={{ fontSize: 13, color: GH.textSecondary }}>
               Don't have an account? Contact us to get started.
             </p>
             <Dialog open={contactOpen} onOpenChange={(open) => {
@@ -250,7 +283,7 @@ export default function AuthPage() {
               if (!open) resetInquiryForm();
             }}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full h-[50px] border-foreground/12 hover:bg-secondary/30 hover:border-primary/25 font-medium text-foreground/80 rounded-2xl transition-all duration-200">
+                <Button variant="outline" className="w-full h-[50px] font-medium rounded-2xl transition-all duration-200" style={{ borderColor: GH.border, color: GH.textPrimary }}>
                   <Mail className="mr-2 h-4 w-4" />
                   Contact Us
                 </Button>
@@ -262,7 +295,7 @@ export default function AuthPage() {
                     Fill out the form below and our team will reach out to you.
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 {inquirySubmitted ? (
                   <div className="py-8 text-center space-y-4">
                     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
@@ -336,7 +369,7 @@ export default function AuthPage() {
                         </>
                       )}
                     </Button>
-                    
+
                     {/* Help text */}
                     <div className="pt-4 border-t text-center">
                       <p className="text-xs text-muted-foreground">Need help? Contact your administrator.</p>
@@ -346,8 +379,8 @@ export default function AuthPage() {
               </DialogContent>
             </Dialog>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

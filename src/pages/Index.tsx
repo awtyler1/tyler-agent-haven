@@ -30,7 +30,7 @@ import { PageLoader } from '@/components/ui/PageLoader';
 const GH = {
   pageBg: '#F3EDE4',
   heroBg: 'linear-gradient(145deg, #1a1611, #0f0d09)',
-  heroGlow: 'rgba(184,134,11,0.08)',
+  heroGlow: 'rgba(184,134,11,0.14)',
   heroBorder: 'rgba(184,134,11,0.08)',
 
   glass: 'rgba(255,255,255,0.55)',
@@ -56,12 +56,12 @@ const GH = {
   tileBg: 'rgba(60,48,28,0.015)',
 };
 
-const serif = 'Georgia, "Times New Roman", serif';
+const serif = '"Playfair Display", Georgia, serif';
 
 // Carrier SVG icon marks (white on colored background)
 const AetnaIcon = () => (
   <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
-    <text x="0" y="12" fontFamily="Georgia, serif" fontSize="14" fontWeight="700" fill="white">Ae</text>
+    <text x="0" y="12" fontFamily="'Playfair Display', Georgia, serif" fontSize="14" fontWeight="700" fill="white">Ae</text>
   </svg>
 );
 const AnthemIcon = () => (
@@ -154,7 +154,7 @@ export default function Index() {
   const maxCarrierCount = Math.max(...data.carriers.map(c => c.count), 1);
 
   return (
-    <div className="min-h-screen" style={{ background: GH.pageBg }}>
+    <div className="min-h-screen grain-overlay" style={{ background: GH.pageBg }}>
       {/* Atmospheric blurs */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
         <div
@@ -183,7 +183,7 @@ export default function Index() {
 
       <div className="relative max-w-[1100px] mx-auto px-4 py-3 sm:px-6 sm:py-4">
         {/* ── Header ── */}
-        <header className="flex items-center justify-between mb-3">
+        <header className="flex items-center justify-between mb-3" style={{ opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards' }}>
           <div className="flex items-center gap-2">
             <span className="font-bold" style={{ fontFamily: serif, fontSize: 17, color: GH.gold }}>
               TIG
@@ -222,6 +222,9 @@ export default function Index() {
             style={{
               background: 'linear-gradient(135deg, rgba(184,134,11,0.06), rgba(212,160,23,0.03))',
               border: '1px solid rgba(184,134,11,0.12)',
+              opacity: 0,
+              animation: 'fadeInUp 0.5s ease-out forwards',
+              animationDelay: '40ms',
             }}
           >
             <div className="flex items-center gap-3">
@@ -257,7 +260,7 @@ export default function Index() {
         {/* ── Main Two-Column Layout ── */}
         <div className="flex flex-col lg:flex-row lg:items-stretch gap-3.5">
           {/* Left Column */}
-          <div style={{ flex: 29 }} className="min-w-0">
+          <div style={{ flex: 29, opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards', animationDelay: '80ms' }} className="min-w-0">
             {/* ── Dark Hero Card ── */}
             <div
               className="relative overflow-hidden flex flex-col"
@@ -472,7 +475,7 @@ export default function Index() {
           </div>
 
           {/* Right Column */}
-          <div style={{ flex: 21 }} className="min-w-0 flex flex-col">
+          <div style={{ flex: 21, opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards', animationDelay: '160ms' }} className="min-w-0 flex flex-col">
             {/* ── Carrier Portals ── */}
             <GlassPanel className="flex flex-col flex-1" style={{ padding: '16px 14px', borderRadius: 20 }}>
               <p
@@ -517,7 +520,7 @@ export default function Index() {
         </div>
 
         {/* ── Tools Dock ── */}
-        <GlassPanel style={{ padding: '10px 16px', borderRadius: 18, marginTop: 8 }}>
+        <GlassPanel style={{ padding: '10px 16px', borderRadius: 18, marginTop: 8, opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards', animationDelay: '240ms' }}>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
             <DockTile icon={Search} label="Plan Finder" gradient="linear-gradient(135deg, #10b981, #059669)" shadow="0 2px 8px rgba(16,185,129,0.2)" to="/plan-finder" comingSoon />
             <DockTile icon={Sun} label="SunFire" gradient="linear-gradient(135deg, #f97316, #ea580c)" shadow="0 2px 8px rgba(249,115,22,0.2)" href="https://www.sunfirematrix.com/app/agent/pfs" />

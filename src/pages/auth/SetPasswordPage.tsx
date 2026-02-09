@@ -4,10 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2, Eye, EyeOff, CheckCircle, KeyRound, Check, X } from 'lucide-react';
 import tylerLogo from '@/assets/tyler-logo.webp';
+import { GH } from '@/config/golden-hour';
 
 // Password validation helper
 const validatePassword = (password: string): {
@@ -86,7 +86,7 @@ export default function SetPasswordPage() {
     const checkExistingSession = async () => {
       // Give Supabase a moment to process the hash params
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setHasValidSession(true);
@@ -203,37 +203,59 @@ export default function SetPasswordPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
-        <Card 
-          className="w-full max-w-[495px] rounded-[28px] border-0 relative" 
-          style={{ 
-            background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
-            boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
+      <div className="min-h-screen flex items-center justify-center p-4 grain-overlay" style={{ background: GH.pageBg }}>
+        <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+          <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
+          <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+        </div>
+
+        <div
+          className="w-full max-w-[495px] relative"
+          style={{
+            background: GH.glass,
+            backdropFilter: `blur(${GH.glassBlur})`,
+            WebkitBackdropFilter: `blur(${GH.glassBlur})`,
+            border: `1px solid ${GH.glassBorder}`,
+            borderRadius: 22,
+            boxShadow: GH.glassShadow,
+            opacity: 0,
+            animation: 'fadeInUp 0.5s ease-out forwards',
           }}
         >
-          <CardContent className="pt-16 pb-16 text-center">
-            <Loader2 className="h-10 w-10 animate-spin mx-auto mb-6 text-primary" />
-            <p className="text-muted-foreground/70 text-[15px]">Verifying your link...</p>
-          </CardContent>
-        </Card>
+          <div className="pt-16 pb-16 text-center">
+            <Loader2 className="h-10 w-10 animate-spin mx-auto mb-6" style={{ color: GH.gold }} />
+            <p style={{ fontSize: 15, color: GH.textSecondary }}>Verifying your link...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
-        <Card 
-          className="w-full max-w-[495px] rounded-[28px] border-0 relative" 
-          style={{ 
-            background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
-            boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
+      <div className="min-h-screen flex items-center justify-center p-4 grain-overlay" style={{ background: GH.pageBg }}>
+        <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+          <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
+          <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+        </div>
+
+        <div
+          className="w-full max-w-[495px] relative"
+          style={{
+            background: GH.glass,
+            backdropFilter: `blur(${GH.glassBlur})`,
+            WebkitBackdropFilter: `blur(${GH.glassBlur})`,
+            border: `1px solid ${GH.glassBorder}`,
+            borderRadius: 22,
+            boxShadow: GH.glassShadow,
+            opacity: 0,
+            animation: 'fadeInUp 0.5s ease-out forwards',
           }}
         >
-          <CardHeader className="text-center space-y-8 pt-14 pb-2">
+          <div className="text-center space-y-8 pt-14 pb-2">
             <div className="relative pb-6">
               <img src={tylerLogo} alt="Logo" className="h-[60px] mx-auto" />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px" style={{ background: `linear-gradient(to right, transparent, ${GH.border}, transparent)` }} />
             </div>
             <div className="flex justify-center">
               <div className="rounded-full bg-green-50 p-4">
@@ -241,13 +263,13 @@ export default function SetPasswordPage() {
               </div>
             </div>
             <div className="space-y-3">
-              <CardTitle className="text-[2.125rem] font-serif" style={{ letterSpacing: '0.025em' }}>Password Set!</CardTitle>
-              <CardDescription className="text-muted-foreground/60 font-light text-[13px] leading-[1.7]">
+              <h1 className="text-4xl font-serif" style={{ color: GH.textPrimary, letterSpacing: '-0.01em' }}>Password Set!</h1>
+              <p style={{ fontSize: 13, color: GH.textSecondary, lineHeight: 1.7 }}>
                 Redirecting you to get started...
-              </CardDescription>
+              </p>
             </div>
-          </CardHeader>
-          <CardContent className="pb-16 px-11">
+          </div>
+          <div className="pb-16 px-11">
             <Button
               onClick={handleRedirect}
               className="w-full h-[54px] text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
@@ -258,48 +280,61 @@ export default function SetPasswordPage() {
             >
               Continue
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(0deg, #F3F0EA 0%, #FAFAFA 100%)' }}>
-      <Card 
-        className="w-full max-w-[495px] rounded-[28px] border-0 relative" 
-        style={{ 
-          background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
-          boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.08), 0px 0px 100px rgba(163, 133, 41, 0.03)'
+    <div className="min-h-screen flex items-center justify-center p-4 grain-overlay" style={{ background: GH.pageBg }}>
+      {/* Atmospheric blurs */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+        <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+      </div>
+
+      <div
+        className="w-full max-w-[495px] relative"
+        style={{
+          background: GH.glass,
+          backdropFilter: `blur(${GH.glassBlur})`,
+          WebkitBackdropFilter: `blur(${GH.glassBlur})`,
+          border: `1px solid ${GH.glassBorder}`,
+          borderRadius: 22,
+          boxShadow: GH.glassShadow,
+          opacity: 0,
+          animation: 'fadeInUp 0.5s ease-out forwards',
         }}
       >
-        <CardHeader className="text-center space-y-8 pt-14 pb-2">
+        <div className="text-center space-y-8 pt-14 pb-2">
           <div className="relative pb-6">
             <img src={tylerLogo} alt="Logo" className="h-[60px] mx-auto" />
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px" style={{ background: `linear-gradient(to right, transparent, ${GH.border}, transparent)` }} />
           </div>
           <div className="flex justify-center">
-            <div className="rounded-full bg-secondary/60 p-4">
-              <KeyRound className="h-10 w-10 text-muted-foreground/70" />
+            <div className="rounded-full p-4" style={{ background: 'rgba(60,48,28,0.04)' }}>
+              <KeyRound className="h-10 w-10" style={{ color: GH.textMuted }} />
             </div>
           </div>
           <div className="space-y-3">
-            <CardTitle className="text-[2.125rem] font-serif" style={{ letterSpacing: '0.025em' }}>Set Your Password</CardTitle>
-            <CardDescription className="text-muted-foreground/60 font-light text-[13px] leading-[1.7]">
+            <h1 className="text-4xl font-serif" style={{ color: GH.textPrimary, letterSpacing: '-0.01em' }}>Set Your Password</h1>
+            <p style={{ fontSize: 13, color: GH.textSecondary, lineHeight: 1.7 }}>
               Create a secure password to access your account
-            </CardDescription>
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="px-11 pb-16">
+        </div>
+        <div className="px-11 pb-16">
           {!hasValidSession && error ? (
             <div className="text-center space-y-6">
               <div className="p-4 rounded-2xl bg-destructive/10 text-destructive text-sm">
                 {error}
               </div>
               <Link to="/auth">
-                <Button 
-                  variant="outline" 
-                  className="h-[50px] px-8 border-foreground/12 hover:bg-secondary/30 hover:border-primary/25 font-medium text-foreground/80 rounded-2xl transition-all duration-200"
+                <Button
+                  variant="outline"
+                  className="h-[50px] px-8 font-medium rounded-2xl transition-all duration-200"
+                  style={{ borderColor: GH.border, color: GH.textPrimary }}
                 >
                   Go to Login
                 </Button>
@@ -308,7 +343,7 @@ export default function SetPasswordPage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-3">
-                <Label htmlFor="password" className="text-[11px] font-medium uppercase tracking-widest text-foreground/55">New Password</Label>
+                <Label htmlFor="password" className="text-[10px] font-semibold uppercase" style={{ letterSpacing: '0.07em', color: GH.textMuted }}>New Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -323,7 +358,8 @@ export default function SetPasswordPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground/70 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: GH.textMuted }}
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -334,7 +370,7 @@ export default function SetPasswordPage() {
                   <div className="space-y-3 pt-1">
                     {/* Strength bar */}
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(60,48,28,0.04)' }}>
                         <div
                           className={`h-full transition-all duration-300 ${
                             passwordValidation.strength === 'strong'
@@ -364,23 +400,23 @@ export default function SetPasswordPage() {
 
                     {/* Requirements checklist */}
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.length ? 'text-green-600' : 'text-muted-foreground/60'}`}>
+                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.length ? 'text-green-600' : ''}`} style={passwordValidation.checks.length ? {} : { color: GH.textMuted }}>
                         {passwordValidation.checks.length ? <Check size={14} /> : <X size={14} />}
                         <span>12+ characters</span>
                       </div>
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.uppercase ? 'text-green-600' : 'text-muted-foreground/60'}`}>
+                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.uppercase ? 'text-green-600' : ''}`} style={passwordValidation.checks.uppercase ? {} : { color: GH.textMuted }}>
                         {passwordValidation.checks.uppercase ? <Check size={14} /> : <X size={14} />}
                         <span>Uppercase letter</span>
                       </div>
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.lowercase ? 'text-green-600' : 'text-muted-foreground/60'}`}>
+                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.lowercase ? 'text-green-600' : ''}`} style={passwordValidation.checks.lowercase ? {} : { color: GH.textMuted }}>
                         {passwordValidation.checks.lowercase ? <Check size={14} /> : <X size={14} />}
                         <span>Lowercase letter</span>
                       </div>
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.number ? 'text-green-600' : 'text-muted-foreground/60'}`}>
+                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.number ? 'text-green-600' : ''}`} style={passwordValidation.checks.number ? {} : { color: GH.textMuted }}>
                         {passwordValidation.checks.number ? <Check size={14} /> : <X size={14} />}
                         <span>Number</span>
                       </div>
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.special ? 'text-green-600' : 'text-muted-foreground/60'}`}>
+                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.special ? 'text-green-600' : ''}`} style={passwordValidation.checks.special ? {} : { color: GH.textMuted }}>
                         {passwordValidation.checks.special ? <Check size={14} /> : <X size={14} />}
                         <span>Special character</span>
                       </div>
@@ -390,7 +426,7 @@ export default function SetPasswordPage() {
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="confirmPassword" className="text-[11px] font-medium uppercase tracking-widest text-foreground/55">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-[10px] font-semibold uppercase" style={{ letterSpacing: '0.07em', color: GH.textMuted }}>Confirm Password</Label>
                 <Input
                   id="confirmPassword"
                   type={showPassword ? 'text' : 'password'}
@@ -408,10 +444,10 @@ export default function SetPasswordPage() {
                 </div>
               )}
 
-              <Button 
-                type="submit" 
-                className="w-full h-[54px] text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5" 
-                style={{ 
+              <Button
+                type="submit"
+                className="w-full h-[54px] text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
+                style={{
                   background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',
                   boxShadow: '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)'
                 }}
@@ -430,8 +466,8 @@ export default function SetPasswordPage() {
               </Button>
             </form>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

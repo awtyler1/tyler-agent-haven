@@ -200,7 +200,7 @@ export default function FormsLibraryPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: GH.pageBg }}>
+    <div className="min-h-screen flex flex-col grain-overlay" style={{ background: GH.pageBg }}>
       {/* Atmospheric blurs */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
         <div

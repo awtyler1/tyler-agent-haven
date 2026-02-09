@@ -14,7 +14,7 @@ export function TrainingLayout({ sidebar, content }: TrainingLayoutProps) {
   const { homePath } = useNavigationContext();
 
   return (
-    <div className="min-h-screen" style={{ background: GH.pageBg }}>
+    <div className="min-h-screen grain-overlay" style={{ background: GH.pageBg }}>
       {/* Atmospheric blurs */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
         <div

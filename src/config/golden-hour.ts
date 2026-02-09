@@ -4,7 +4,7 @@ export const GH = {
 
   // Hero (dark card)
   heroBg: 'linear-gradient(145deg, #1a1611, #0f0d09)',
-  heroGlow: 'rgba(184,134,11,0.08)',
+  heroGlow: 'rgba(184,134,11,0.14)',
   heroBorder: 'rgba(184,134,11,0.08)',
 
   // Glass panels
