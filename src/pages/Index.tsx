@@ -356,9 +356,16 @@ export default function Index() {
                     >
                       {data.totalClients}
                     </span>
-                    <p className="mt-2" style={{ fontFamily: serif, fontSize: 14, fontStyle: 'italic', color: GH.heroTextMuted }}>
+                    <Link
+                      to="/my-clients"
+                      className="mt-2 inline-flex items-center gap-1.5 group"
+                      style={{ fontFamily: serif, fontSize: 14, fontStyle: 'italic', color: GH.heroTextMuted, textDecoration: 'none' }}
+                    >
                       {data.totalClients === 1 ? 'client' : 'clients'} in your book
-                    </p>
+                      <ChevronRight
+                        className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-70 group-hover:translate-x-0 transition-all duration-200"
+                      />
+                    </Link>
                     {isStale && !isEmpty && (
                       <p className="text-xs mt-2 flex items-center gap-1.5" style={{ color: '#f6c543' }}>
                         <AlertCircle className="w-3.5 h-3.5" />
