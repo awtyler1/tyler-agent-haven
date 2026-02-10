@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, ExternalLink, ArrowLeftRight } from 'lucide-react';
+import { User, FileText, Shield, Moon, LogOut, Loader2, Mail, UserPlus, Activity, Sparkles, ExternalLink, ArrowLeftRight, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
@@ -176,6 +176,13 @@ export function UserAvatarDropdown() {
         >
           <User className="w-4 h-4 mr-2" />
           My Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => navigate('/my-clients')}
+          className="cursor-pointer rounded-lg hover:bg-stone-50/80"
+        >
+          <BookOpen className="w-4 h-4 mr-2" />
+          My Book
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => navigate('/contracting-hub')}

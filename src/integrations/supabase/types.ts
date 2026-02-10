@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       activity_logs: {
@@ -712,6 +687,136 @@ export type Database = {
         }
         Relationships: []
       }
+      client_interactions: {
+        Row: {
+          client_id: string
+          created_at: string
+          duration_minutes: number | null
+          follow_up_completed_at: string | null
+          follow_up_date: string | null
+          id: string
+          interaction_type: string
+          notes: string | null
+          outcome: string | null
+          profile_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          duration_minutes?: number | null
+          follow_up_completed_at?: string | null
+          follow_up_date?: string | null
+          id?: string
+          interaction_type: string
+          notes?: string | null
+          outcome?: string | null
+          profile_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          duration_minutes?: number | null
+          follow_up_completed_at?: string | null
+          follow_up_date?: string | null
+          id?: string
+          interaction_type?: string
+          notes?: string | null
+          outcome?: string | null
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_interactions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_interactions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_risk_flags: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          flag_type: string
+          id: string
+          metadata: Json | null
+          profile_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          source: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          flag_type: string
+          id?: string
+          metadata?: Json | null
+          profile_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          flag_type?: string
+          id?: string
+          metadata?: Json | null
+          profile_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_risk_flags_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_risk_flags_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_risk_flags_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
@@ -720,12 +825,14 @@ export type Database = {
           address_state: string | null
           address_zip: string | null
           city: string | null
+          county_fips: string | null
           created_at: string | null
           date_of_birth: string | null
           dob: string | null
           email: string | null
           first_name: string
           id: string
+          last_contacted_at: string | null
           last_name: string
           medicare_number: string | null
           middle_initial: string | null
@@ -742,12 +849,14 @@ export type Database = {
           address_state?: string | null
           address_zip?: string | null
           city?: string | null
+          county_fips?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           dob?: string | null
           email?: string | null
           first_name: string
           id?: string
+          last_contacted_at?: string | null
           last_name: string
           medicare_number?: string | null
           middle_initial?: string | null
@@ -764,12 +873,14 @@ export type Database = {
           address_state?: string | null
           address_zip?: string | null
           city?: string | null
+          county_fips?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           dob?: string | null
           email?: string | null
           first_name?: string
           id?: string
+          last_contacted_at?: string | null
           last_name?: string
           medicare_number?: string | null
           middle_initial?: string | null
@@ -2174,10 +2285,10 @@ export type Database = {
       current_user_has_downline: { Args: never; Returns: boolean }
       get_carrier_book_stats: {
         Args: {
-          p_profile_id: string
           p_carrier_id: string
-          p_month_start: string
           p_month_end: string
+          p_month_start: string
+          p_profile_id: string
         }
         Returns: Json
       }
@@ -2340,9 +2451,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: [

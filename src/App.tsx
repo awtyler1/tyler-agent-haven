@@ -46,6 +46,7 @@ const TrainingPage = lazy(() => import("./pages/TrainingPage"));
 const ContractingPage = lazy(() => import("./pages/ContractingPage"));
 const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
 const T65ReviewPage = lazy(() => import("./pages/T65ReviewPage"));
+const MyClientsPage = lazy(() => import("./pages/MyClientsPage"));
 const SyncFlow = lazy(() => import("./pages/SyncFlow"));
 
 // Lazy load: Admin pages (only loaded by admins)
@@ -267,6 +268,7 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/sync" element={<ProtectedRoute><SyncFlow /></ProtectedRoute>} />
             <Route path="/t65-review" element={<ProtectedRoute><T65ReviewPage /></ProtectedRoute>} />
+            <Route path="/my-clients" element={<ProtectedRoute><MyClientsPage /></ProtectedRoute>} />
             <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
             <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
             <Route path="/my-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />

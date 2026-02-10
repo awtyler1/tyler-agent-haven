@@ -845,28 +845,38 @@ export default function SyncFlow() {
       }
 
       // Recalculate totals from ALL carrier uploads for this sync (not just current session)
+      // Per-carrier policy counts are kept in sync_carrier_uploads for carrier breakdown views
       const { data: allUploads } = await supabase
         .from('sync_carrier_uploads')
         .select('client_count, new_clients, termed_clients')
         .eq('sync_id', sync.id);
 
-      const actualTotal = allUploads?.reduce((sum, u) => sum + (u.client_count || 0), 0) || 0;
       const actualNewClients = allUploads?.reduce((sum, u) => sum + (u.new_clients || 0), 0) || 0;
       const actualTermedClients = allUploads?.reduce((sum, u) => sum + (u.termed_clients || 0), 0) || 0;
       const actualNetChange = actualNewClients - actualTermedClients;
+
+      // Count unique active clients (not policies) — a client with 2 carriers counts once
+      const { data: activeClientIds } = await supabase
+        .from('policies')
+        .select('client_id')
+        .eq('profile_id', profile.id)
+        .eq('status', 'active');
+      const uniqueActiveClients = activeClientIds
+        ? new Set(activeClientIds.map(p => p.client_id)).size
+        : 0;
 
       // Update monthly_syncs with correct totals
       await supabase
         .from('monthly_syncs')
         .update({
-          total_clients: actualTotal,
+          total_clients: uniqueActiveClients,
           new_clients: actualNewClients,
           termed_clients: actualTermedClients,
           net_change: actualNetChange,
         })
         .eq('id', sync.id);
 
-      setFinalTotal(actualTotal);
+      setFinalTotal(uniqueActiveClients);
       setFinalNewClients(actualNewClients);
 
       // Update profile's last_sync_at timestamp
@@ -876,7 +886,7 @@ export default function SyncFlow() {
         .eq('id', profile.id);
 
       // Check and award milestones
-      await checkAndAwardMilestones(profile.id, actualTotal, sync.id);
+      await checkAndAwardMilestones(profile.id, uniqueActiveClients, sync.id);
 
       // Invalidate dashboard + admin caches so fresh data loads immediately
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });

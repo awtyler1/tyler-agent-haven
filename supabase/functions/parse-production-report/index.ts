@@ -577,7 +577,8 @@ function parseAnthemReport(rows: Record<string, string>[]): ParsedRow[] {
 async function findOrCreateClient(
   supabase: SupabaseClient,
   profileId: string,
-  row: ParsedRow
+  row: ParsedRow,
+  carrierId: string
 ): Promise<{ clientId: string; isNew: boolean }> {
   let existing: { id: string } | null = null;
   let findError: Error | null = null;
@@ -607,18 +608,35 @@ async function findOrCreateClient(
     existing = result.data;
     findError = result.error;
   } else if (row.first_name && row.last_name) {
-    // Last resort path (Anthem): Match by name only (case-insensitive)
-    // Less precise but it's all Anthem provides
-    const result = await supabase
-      .from('clients')
-      .select('id')
-      .eq('profile_id', profileId)
-      .ilike('first_name', row.first_name)
-      .ilike('last_name', row.last_name)
-      .maybeSingle();
+    // Anthem path: No Medicare # and no DOB
+    // First try matching via carrier_member_id through policies table (more precise)
+    if (row.carrier_member_id && carrierId) {
+      const policyResult = await supabase
+        .from('policies')
+        .select('client_id')
+        .eq('carrier_member_id', row.carrier_member_id)
+        .eq('carrier_id', carrierId)
+        .eq('profile_id', profileId)
+        .maybeSingle();
 
-    existing = result.data;
-    findError = result.error;
+      if (!policyResult.error && policyResult.data?.client_id) {
+        existing = { id: policyResult.data.client_id };
+      }
+    }
+
+    // Fall back to name-only match if carrier_member_id didn't find anything
+    if (!existing) {
+      const result = await supabase
+        .from('clients')
+        .select('id')
+        .eq('profile_id', profileId)
+        .ilike('first_name', row.first_name)
+        .ilike('last_name', row.last_name)
+        .maybeSingle();
+
+      existing = result.data;
+      findError = result.error;
+    }
   } else {
     throw new Error('Cannot find/create client: missing required identification fields');
   }
@@ -919,7 +937,8 @@ serve(async (req: Request) => {
           const { clientId, isNew: clientIsNew } = await findOrCreateClient(
             supabase,
             profile_id,
-            row
+            row,
+            carrier.id
           );
 
           // Upsert policy

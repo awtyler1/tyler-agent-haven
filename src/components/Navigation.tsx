@@ -12,6 +12,7 @@ import { logActivity, ActivityAction } from "@/utils/activityLogger";
 
 const navLinks = [
   { name: "Dashboard", href: "/" },
+  { name: "My Book", href: "/my-clients" },
 ];
 
 const Navigation = () => {

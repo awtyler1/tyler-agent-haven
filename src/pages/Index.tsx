@@ -183,7 +183,7 @@ export default function Index() {
 
       <div className="relative max-w-[1100px] mx-auto px-4 py-3 sm:px-6 sm:py-4">
         {/* ── Header ── */}
-        <header className="flex items-center justify-between mb-3" style={{ opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards' }}>
+        <header className="flex items-center justify-between mb-3 relative z-10" style={{ opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards' }}>
           <div className="flex items-center gap-2">
             <span className="font-bold" style={{ fontFamily: serif, fontSize: 17, color: GH.gold }}>
               TIG
