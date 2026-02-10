@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Search, ArrowUpDown, Loader2, Phone, BookOpen } from 'lucide-react';
-import Navigation from '@/components/Navigation';
+import { Link } from 'react-router-dom';
+import { Search, ArrowUpDown, ArrowLeft, Loader2, Phone, BookOpen } from 'lucide-react';
+import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { useMyClients, type StatusFilter } from '@/hooks/useMyClients';
 
 // Golden Hour tokens (matching Index.tsx)
@@ -75,6 +77,7 @@ export default function MyClientsPage() {
     sortAsc,
     handleSort,
   } = useMyClients();
+  const { homePath } = useNavigationContext();
 
   const SortHeader = ({ column, label, className = '' }: { column: string; label: string; className?: string }) => (
     <th
@@ -93,9 +96,16 @@ export default function MyClientsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: GH.pageBg }}>
-      <Navigation />
+      {/* Header */}
+      <header className="flex items-center justify-between pt-6 pb-4 px-4 sm:px-6 max-w-6xl mx-auto w-full">
+        <Link to={homePath} className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group">
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+          <span className="font-medium">Dashboard</span>
+        </Link>
+        <UserAvatarDropdown />
+      </header>
 
-      <div className="max-w-6xl mx-auto px-6 pt-28 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold" style={{ color: GH.textPrimary }}>
