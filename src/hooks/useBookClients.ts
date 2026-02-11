@@ -53,6 +53,14 @@ export function useBookClients() {
           .eq('status', 'active'),
       ]);
 
+      console.log('[useBookClients] querying profile_id:', profile.id);
+      console.log('[useBookClients] raw results:', {
+        clientsCount: clientsRes.data?.length ?? 0,
+        clientsError: clientsRes.error,
+        flagsCount: flagsRes.data?.length ?? 0,
+        flagsError: flagsRes.error,
+      });
+
       if (clientsRes.error) throw clientsRes.error;
 
       // Build DB flag lookup (may be empty — that's fine, we compute flags below)

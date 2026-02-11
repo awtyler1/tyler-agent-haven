@@ -74,10 +74,10 @@ export default function BookDashboard() {
   const totalClientsForCarrier = carrierBreakdown.reduce((sum, c) => sum + c.count, 0);
   const attentionItems = buildAttentionItems(flaggedClients);
 
-  // Use actual data from hooks — no hardcoded fallbacks that contradict
-  const activeClients = summary?.active_clients || allClients.length;
-  const totalTermed = summary?.total_termed_12m || 0;
-  const monthsOfData = summary?.months_of_data || 0;
+  // Use actual data from hooks — ?? instead of || so 0 isn't treated as falsy
+  const activeClients = summary?.active_clients ?? allClients.length;
+  const totalTermed = summary?.total_termed_12m ?? 0;
+  const monthsOfData = summary?.months_of_data ?? 0;
   const retentionRate = summary?.retention_rate ?? 100;
   const growthRate = summary?.growth_rate ?? 0;
   const newThisMonth = summary?.new_this_month ?? 0;

@@ -37,10 +37,21 @@ export function useBookSummary() {
           .limit(13),
       ]);
 
-      const totalClients = clientsRes.count || 0;
+      const totalClients = clientsRes.count ?? 0;
       const policies = (policiesRes.data as any[]) || [];
       const activePolicies = policies.filter(p => p.status === 'active');
       const syncs = (syncsRes.data as any[]) || [];
+
+      console.log('[useBookSummary] querying profile_id:', profileId);
+      console.log('[useBookSummary] raw results:', {
+        totalClients,
+        policiesCount: policies.length,
+        activePoliciesCount: activePolicies.length,
+        syncsCount: syncs.length,
+        clientsError: clientsRes.error,
+        policiesError: policiesRes.error,
+        syncsError: syncsRes.error,
+      });
 
       // Active clients = clients with at least one active policy
       const clientsWithActivePolicy = new Set(activePolicies.map(p => p.client_id));
@@ -56,16 +67,16 @@ export function useBookSummary() {
 
       // --- Growth & retention from monthly syncs ---
       const currentMonth = syncs[0]; // most recent
-      const newThisMonth = currentMonth?.new_clients || 0;
+      const newThisMonth = currentMonth?.new_clients ?? 0;
 
       // Total termed across all available sync months
-      const totalTermed = syncs.reduce((sum: number, s: any) => sum + (s.termed_clients || 0), 0);
+      const totalTermed = syncs.reduce((sum: number, s: any) => sum + (s.termed_clients ?? 0), 0);
 
       // Growth rate: compare current to earliest available data point
       // syncs are descending, so last element is the oldest
       const earliestSync = syncs.length > 1 ? syncs[syncs.length - 1] : null;
-      const currentTotal = currentMonth?.total_clients || activeClients;
-      const earliestTotal = earliestSync?.total_clients || 0;
+      const currentTotal = currentMonth?.total_clients ?? activeClients;
+      const earliestTotal = earliestSync?.total_clients ?? 0;
       const monthsSpan = syncs.length;
 
       let growthRate = 0;
@@ -86,7 +97,7 @@ export function useBookSummary() {
       // Which simplifies to: 1 - (termed / (start + added))
       let retentionRate = 100;
       if (syncs.length > 0) {
-        const totalAdded = syncs.reduce((sum: number, s: any) => sum + (s.new_clients || 0), 0);
+        const totalAdded = syncs.reduce((sum: number, s: any) => sum + (s.new_clients ?? 0), 0);
         const denominator = earliestTotal + totalAdded;
         if (denominator > 0 && totalTermed > 0) {
           retentionRate = ((denominator - totalTermed) / denominator) * 100;

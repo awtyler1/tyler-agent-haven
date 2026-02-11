@@ -529,7 +529,7 @@ export default function Index() {
         {/* ── Tools Dock ── */}
         <GlassPanel style={{ padding: '10px 16px', borderRadius: 18, marginTop: 8, opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards', animationDelay: '240ms' }}>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
-            <DockTile icon={Search} label="Plan Finder" gradient="linear-gradient(135deg, #10b981, #059669)" shadow="0 2px 8px rgba(16,185,129,0.2)" to="/plan-finder" comingSoon />
+            <DockTile icon={Search} label="Plan Finder" gradient="linear-gradient(135deg, #10b981, #059669)" shadow="0 2px 8px rgba(16,185,129,0.2)" to="/plan-finder" />
             <DockTile icon={Sun} label="SunFire" gradient="linear-gradient(135deg, #f97316, #ea580c)" shadow="0 2px 8px rgba(249,115,22,0.2)" href="https://www.sunfirematrix.com/app/agent/pfs" />
             <DockTile icon={Link2} label="C4Medicare" gradient="linear-gradient(135deg, #3b82f6, #2563eb)" shadow="0 2px 8px rgba(59,130,246,0.2)" href="https://pinnacle7.destinationrx.com/PC/Agent/Account/Login" />
             <DockTile icon={FileText} label="Forms" gradient="linear-gradient(135deg, #64748b, #475569)" shadow="0 2px 8px rgba(100,116,139,0.15)" to="/forms-library" />
