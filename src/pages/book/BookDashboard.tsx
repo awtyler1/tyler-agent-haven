@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Users, TrendingUp } from 'lucide-react';
 import { useBookSummary } from '@/hooks/useBookSummary';
 import { useMonthlyGrowth } from '@/hooks/useMonthlyGrowth';
@@ -11,9 +11,12 @@ import { CarrierBreakdown } from '@/components/book/CarrierBreakdown';
 import { MilestoneProgress } from '@/components/book/MilestoneProgress';
 import type { CarrierBreakdownItem } from '@/types/book';
 import { getCarrierColor } from '@/types/book';
+import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
+import { useNavigationContext } from '@/hooks/useNavigationContext';
 
 export default function BookDashboard() {
   const navigate = useNavigate();
+  const { homePath } = useNavigationContext();
   const { data: summary } = useBookSummary();
   const { data: monthlyData = [] } = useMonthlyGrowth(12);
   const { data: carrierIncomeData = [] } = useCarrierIncome();
@@ -33,10 +36,16 @@ export default function BookDashboard() {
     ];
   }, [summary]);
 
-  // Build carrier breakdown from clients (one carrier per client)
+  // Only clients with at least one active policy (matches hero card's active_clients)
+  const activeOnlyClients = useMemo(() =>
+    allClients.filter(c => c.policy_status === 'active'),
+    [allClients],
+  );
+
+  // Build carrier breakdown from active clients only (one carrier per client)
   const carrierBreakdown: CarrierBreakdownItem[] = useMemo(() => {
     const carrierMap = new Map<string, { carrier_id: string; carrier_name: string; count: number; color: string }>();
-    allClients.forEach(c => {
+    activeOnlyClients.forEach(c => {
       if (!c.carrier_id || !c.carrier_name) return;
       const existing = carrierMap.get(c.carrier_id);
       if (existing) {
@@ -60,7 +69,7 @@ export default function BookDashboard() {
         percentage: total > 0 ? Math.round((c.count / total) * 1000) / 10 : 0,
         color: c.color,
       }));
-  }, [allClients]);
+  }, [activeOnlyClients]);
 
   const totalClientsForCarrier = carrierBreakdown.reduce((sum, c) => sum + c.count, 0);
   const attentionItems = buildAttentionItems(flaggedClients);
@@ -91,22 +100,53 @@ export default function BookDashboard() {
 
   return (
     <div
-      className="min-h-screen px-10 py-8"
+      className="min-h-screen"
       style={{ background: '#F8F5F0', fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}
     >
-      {/* Header */}
-      <div className="flex justify-between items-center mb-7">
-        <div>
-          <h1 className="text-[26px] font-bold m-0 tracking-tight" style={{ color: '#2C2418' }}>My Book</h1>
-          <p className="text-[13px] m-0 mt-1" style={{ color: '#8B7E6A' }}>Your book at a glance</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ background: '#2D8B4E' }} />
-          <span className="text-[13px]" style={{ color: '#8B7E6A' }}>
-            Synced {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+      {/* Sticky Header */}
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          height: 52,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          background: 'rgba(255,255,255,0.5)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(60,48,28,0.04)',
+        }}
+      >
+        <Link
+          to={homePath}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            textDecoration: 'none',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#8B6914' }}>
+            <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: '#2C2418',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            My Book
           </span>
-        </div>
-      </div>
+        </Link>
+        <UserAvatarDropdown />
+      </header>
+
+      <div className="px-10 py-8">
 
       {/* Hero Card */}
       <HeroCard
@@ -217,6 +257,7 @@ export default function BookDashboard() {
         >
           View All Clients →
         </button>
+      </div>
       </div>
     </div>
   );

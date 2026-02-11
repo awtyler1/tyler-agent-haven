@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TrendingUp, DollarSign, Users, Activity } from 'lucide-react';
 import { useBookSummary } from '@/hooks/useBookSummary';
 import { useMonthlyGrowth } from '@/hooks/useMonthlyGrowth';
@@ -7,6 +7,7 @@ import { useCarrierIncome } from '@/hooks/useCarrierIncome';
 import { GrowthChart } from '@/components/book/GrowthChart';
 import { MonthlyActivityTable } from '@/components/book/MonthlyActivityTable';
 import { IncomeByCarrier } from '@/components/book/IncomeByCarrier';
+import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 
 export default function GrowthIncome() {
   const navigate = useNavigate();
@@ -67,24 +68,53 @@ export default function GrowthIncome() {
 
   return (
     <div
-      className="min-h-screen px-10 py-8"
+      className="min-h-screen"
       style={{ background: '#F8F5F0', fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}
     >
-      {/* Header */}
-      <div className="mb-7">
-        <button
-          onClick={() => navigate('/book')}
-          className="text-[13px] font-medium mb-1 bg-transparent border-none cursor-pointer p-0"
-          style={{ color: '#3B6FB5' }}
+      {/* Sticky Header */}
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          height: 52,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          background: 'rgba(255,255,255,0.5)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(60,48,28,0.04)',
+        }}
+      >
+        <Link
+          to="/book"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            textDecoration: 'none',
+          }}
         >
-          ← My Book
-        </button>
-        <h1 className="text-[26px] font-bold m-0" style={{ color: '#2C2418' }}>Growth & Income</h1>
-        <p className="text-[14px] m-0 mt-1" style={{ color: '#8B7E6A' }}>
-          How your book is growing and what it's earning
-        </p>
-      </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#8B6914' }}>
+            <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: '#2C2418',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            Growth & Income
+          </span>
+        </Link>
+        <UserAvatarDropdown />
+      </header>
 
+      <div className="px-10 py-8">
       {/* Top metrics */}
       <div className="grid grid-cols-4 gap-3 mb-6">
         {metrics.map((m, i) => (
@@ -116,6 +146,7 @@ export default function GrowthIncome() {
       <div className="grid grid-cols-2 gap-5">
         <MonthlyActivityTable data={monthlyData} />
         <IncomeByCarrier carriers={carrierIncomeData} totalIncome={totalIncome} />
+      </div>
       </div>
     </div>
   );

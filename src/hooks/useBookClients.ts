@@ -233,11 +233,6 @@ function computeAttentionFlag(
   }
   // NULL last_contacted_at = agent hasn't started tracking yet — NOT overdue
 
-  // Priority 3: No phone on file
-  if (!client.phone) {
-    return { flag_type: 'attention', title: 'Needs phone number', severity: 'low' };
-  }
-
   return null;
 }
 

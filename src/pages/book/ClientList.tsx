@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useBookClients, type BookClientWithMeta } from '@/hooks/useBookClients';
 import { ClientDirectory } from '@/components/book/ClientDirectory';
 import { ClientDetail } from '@/components/book/ClientDetail';
 import { CarrierFilterDropdown, CarrierFilterChips } from '@/components/book/CarrierFilterDropdown';
 import { DateFilterDropdown, DateFilterChip } from '@/components/book/DateFilterDropdown';
+import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 
 export default function ClientList() {
   const navigate = useNavigate();
@@ -48,28 +49,39 @@ export default function ClientList() {
     <div className="h-screen flex flex-col" style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", background: '#F8F5F0' }}>
       {/* Header bar */}
       <div
-        className="px-7 py-4 flex-shrink-0 flex items-center justify-between"
+        className="px-6 flex-shrink-0 flex items-center justify-between"
         style={{
-          borderBottom: '1px solid rgba(200,190,170,0.25)',
+          height: 52,
+          borderBottom: '1px solid rgba(60,48,28,0.04)',
           background: 'rgba(255,255,255,0.5)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
         }}
       >
-        <div>
-          <button
-            onClick={() => navigate('/book')}
-            className="text-[13px] font-medium mb-0.5 bg-transparent border-none cursor-pointer p-0"
-            style={{ color: '#3B6FB5' }}
+        <Link
+          to="/book"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            textDecoration: 'none',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#8B6914' }}>
+            <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: '#2C2418',
+              letterSpacing: '-0.01em',
+            }}
           >
-            ← My Book
-          </button>
-          <h1 className="text-[22px] font-bold m-0" style={{ color: '#2C2418' }}>All Clients</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ background: '#2D8B4E' }} />
-          <span className="text-[13px]" style={{ color: '#8B7E6A' }}>
-            {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            All Clients
           </span>
-        </div>
+        </Link>
+        <UserAvatarDropdown />
       </div>
 
       {/* Two-panel layout */}
