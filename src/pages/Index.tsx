@@ -357,7 +357,7 @@ export default function Index() {
                       {data.totalClients}
                     </span>
                     <Link
-                      to="/my-clients"
+                      to="/book"
                       className="mt-2 inline-flex items-center gap-1.5 group"
                       style={{ fontFamily: serif, fontSize: 14, fontStyle: 'italic', color: GH.heroTextMuted, textDecoration: 'none' }}
                     >

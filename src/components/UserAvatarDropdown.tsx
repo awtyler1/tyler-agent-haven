@@ -178,7 +178,7 @@ export function UserAvatarDropdown() {
           My Profile
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => navigate('/my-clients')}
+          onClick={() => navigate('/book')}
           className="cursor-pointer rounded-lg hover:bg-stone-50/80"
         >
           <BookOpen className="w-4 h-4 mr-2" />
