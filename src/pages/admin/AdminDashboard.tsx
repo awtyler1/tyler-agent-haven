@@ -2,9 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { useAdminDashboardData } from '@/hooks/useAdminDashboardData';
-import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import {
   Search,
   ClipboardList,
@@ -12,7 +10,6 @@ import {
   Plus,
   Upload,
   Loader2,
-  RefreshCw,
 } from 'lucide-react';
 
 interface SearchResult {
@@ -34,9 +31,8 @@ const getGreeting = () => {
 
 export default function AdminDashboard() {
   const { profile } = useAuth();
-  const { homePath, isDualRole, viewMode, toggleMode } = useNavigationContext();
   const navigate = useNavigate();
-  const { stats, pendingCount, isLoading: loading, refetch } = useAdminDashboardData();
+  const { stats, pendingCount, isLoading: loading } = useAdminDashboardData();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -142,55 +138,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-amber-50/80 via-orange-50/40 to-stone-100">
-      {/* Subtle texture overlay */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.015) 1px, transparent 0)',
-          backgroundSize: '20px 20px'
-        }}
-      />
-
-      {/* Header */}
-      <header className="relative bg-white/60 backdrop-blur-xl border-b border-white/80 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
-          {/* Left: Logo + Branding */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25 flex items-center justify-center">
-              <span className="font-serif text-base font-bold text-white">T</span>
-            </div>
-            <span className="font-serif text-xl font-semibold text-stone-900">TIG</span>
-            <span className="text-stone-300">|</span>
-            <span className="text-sm text-stone-500">Admin</span>
-
-            {/* Mode toggle for dual-role users */}
-            {isDualRole && (
-              <button
-                onClick={toggleMode}
-                className="ml-2 px-3 py-1.5 text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100/80 rounded-lg transition-colors"
-              >
-                Switch to Agent View
-              </button>
-            )}
-          </div>
-
-          {/* Right: Refresh + Avatar */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => refetch()}
-              className="p-2 rounded-xl text-stone-400 hover:text-stone-600 hover:bg-stone-100/80 transition-colors"
-              title="Refresh data"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-            <UserAvatarDropdown />
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content - Centered */}
-      <main className="relative flex flex-col items-center px-6 py-12">
+    <div className="flex flex-col items-center px-6 py-12">
         {/* Greeting Section */}
         <div className="text-center mb-10">
           <p className="text-amber-600/70 text-sm font-medium mb-2">
@@ -357,7 +305,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-      </main>
     </div>
   );
 }

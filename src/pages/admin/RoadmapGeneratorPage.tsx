@@ -8,7 +8,7 @@ import { useRoadmapGenerator } from '@/hooks/useRoadmapGenerator';
 import { BrokerProfileForm } from '@/components/roadmap/BrokerProfileForm';
 import { BrokerProfile } from '@/types/roadmap';
 import { Button } from '@/components/ui/button';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import {
   Plus,
   FileText,
@@ -348,7 +348,7 @@ export default function RoadmapGeneratorPage() {
   );
 
   return (
-    <AdminLayout>
+    <>
       {viewMode === 'list' && renderListView()}
       {(viewMode === 'new' || viewMode === 'edit') && renderFormView()}
 
@@ -372,6 +372,6 @@ export default function RoadmapGeneratorPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AdminLayout>
+    </>
   );
 }

@@ -16,7 +16,7 @@ import {
   ChevronRight,
   Trash2,
 } from 'lucide-react';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { PageLoader } from '@/components/ui/PageLoader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -778,7 +778,7 @@ export default function ContractingQueuePage() {
   }
 
   return (
-    <AdminLayout>
+    <>
       {/* Header */}
       <h1 className="text-2xl font-serif font-medium text-foreground">Contracting Queue</h1>
 
@@ -957,6 +957,6 @@ export default function ContractingQueuePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 }

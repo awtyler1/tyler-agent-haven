@@ -937,7 +937,7 @@ export default function SyncFlow() {
   // LOADING
   if (phase === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: GH.pageBg }}>
+      <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: GH.gold }} />
       </div>
     );
@@ -946,7 +946,7 @@ export default function SyncFlow() {
   // SELECT CARRIERS (First sync or new agent)
   if (phase === 'select') {
     return (
-      <div className="min-h-screen p-6" style={{ background: GH.pageBg }}>
+      <div className="p-6">
         <div className="max-w-lg mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -1021,7 +1021,7 @@ export default function SyncFlow() {
   // CONFIRM (Returning user)
   if (phase === 'confirm') {
     return (
-      <div className="min-h-screen p-6" style={{ background: GH.pageBg }}>
+      <div className="p-6">
         <div className="max-w-lg mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -1101,7 +1101,7 @@ export default function SyncFlow() {
   // ADD MORE CARRIERS
   if (phase === 'addMore') {
     return (
-      <div className="min-h-screen p-6" style={{ background: GH.pageBg }}>
+      <div className="p-6">
         <div className="max-w-lg mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -1185,7 +1185,7 @@ export default function SyncFlow() {
   // UPLOAD PHASE
   if (phase === 'upload') {
     return (
-      <div className="min-h-screen p-6" style={{ background: GH.pageBg }}>
+      <div className="p-6">
         <div className="max-w-lg mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -1271,7 +1271,7 @@ export default function SyncFlow() {
     const nextSyncFormatted = getNextSyncDate();
 
     return (
-      <div className="min-h-screen p-6 flex items-center justify-center" style={{ background: GH.pageBg }}>
+      <div className="p-6 flex items-center justify-center py-20">
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Sparkles className="w-10 h-10 text-emerald-600" />

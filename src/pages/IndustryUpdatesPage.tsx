@@ -1,6 +1,4 @@
 import { useState } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import { Calendar, ChevronRight, FileText, TrendingUp, Building2, Package } from "lucide-react";
 
 const categories = [
@@ -29,11 +27,9 @@ const IndustryUpdatesPage = () => {
     : updates;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-      <main>
+    <div className="px-8 py-5">
         {/* Hero */}
-        <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 lg:px-20 bg-cream">
+        <section className="pb-8 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <h1 className="heading-display mb-4">Industry & Market Updates</h1>
             <p className="text-body max-w-2xl">
@@ -109,8 +105,6 @@ const IndustryUpdatesPage = () => {
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
     </div>
   );
 };

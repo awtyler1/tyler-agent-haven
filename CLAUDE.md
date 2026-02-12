@@ -4,6 +4,8 @@
 
 **Last Updated:** January 26, 2026
 
+> **Rule:** Before building any new page, component, or UI feature, read `HOMESTEAD.md` first. It is the single source of truth for colors, typography, spacing, components, animation, and layout patterns.
+
 ---
 
 ## Tech Stack
@@ -45,7 +47,7 @@ supabase/
 ├── functions/       # 21 Edge Functions (Deno)
 └── migrations/      # 67 database migrations
 
-docs/                # 26 documentation files
+docs/                # 32 active + 6 archived documentation files
 ```
 
 ---
@@ -59,7 +61,7 @@ docs/                # 26 documentation files
 | **Contracting Wizard** | 8-step form with PDF generation |
 | **Contracting Hub** | Per-carrier status tracking |
 | **RTS Import** | Upload Pinnacle Excel → auto-create profiles + certs |
-| **Book of Business** | Production tracking with milestone achievements |
+| **Book of Business** | Admin Smart Sync + parsing pipeline functional. Agent-facing BOB view not yet built. |
 | **Carrier Resources** | Contacts, portals, documents (filtered by agent certs) |
 | **Forms Library** | SOA, enrollment, compliance forms |
 | **Training** | Video library with progress tracking |
@@ -105,7 +107,7 @@ docs/                # 26 documentation files
 
 ## Design System
 
-See `DESIGN_SYSTEM.md` for full patterns. Key tokens:
+See `HOMESTEAD.md` for full patterns (replaces `DESIGN_SYSTEM.md`, now archived in `docs/archived/`). Key tokens:
 
 | Element | Pattern |
 |---------|---------|
@@ -181,11 +183,16 @@ White-label pivot in progress — audit completed, changes pending.
 
 | File | Purpose |
 |------|---------|
-| `DESIGN_SYSTEM.md` | UI patterns and design tokens |
-| `docs/ARCHITECTURE.md` | Full architecture documentation with C4 diagrams |
-| `docs/CODEBASE_SUMMARY.md` | Sprint planning context |
+| `HOMESTEAD.md` | Design system (replaces DESIGN_SYSTEM.md) |
+| `docs/ARCHITECTURE.md` | Full architecture docs + code health + schema appendices |
+| `docs/DASHBOARD_AUDIT.md` | Dashboard UX analysis, content inventory, responsive issues |
+| `docs/ADMIN_PAGES_AUDIT.md` | Admin pages visual consistency + style reference |
+| `docs/AGENTS_PAGE_REDESIGN.md` | Agents page redesign spec + visual audit |
+| `docs/GROWTH_PLAN_V8_AUDIT.md` | Growth Plan PDF logic + visual audit |
+| `docs/AGENT_IMPORT.md` | Agent import flow, schema, planned improvements |
 | `docs/BRANDING_WORKFLOW_AUDIT.md` | TIG branding removal checklist |
-| `docs/ADMIN_STYLE_GUIDE.md` | Admin UI component standards |
+| `docs/DEVELOPER_ONBOARDING.md` | New developer setup guide |
+| `docs/GOLDEN_HOUR_MIGRATION_AUDIT.md` | GH theme migration for 3 areas |
 
 ---
 

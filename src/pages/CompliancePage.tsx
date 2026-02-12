@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { Shield, FileText, Download, ExternalLink, ChevronRight, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
-import { useNavigationContext } from "@/hooks/useNavigationContext";
 
 const sections = [
   { id: "rules", title: "Compliance Rules", icon: Shield },
@@ -206,32 +204,10 @@ const CompliancePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link to={homePath} className="flex items-center gap-2">
-              <span className="text-lg font-semibold text-[#292524]">TIG</span>
-            </Link>
-            <span className="text-[#e8e4dd]">|</span>
-            <span className="text-sm text-[#5c5552]">Agent Portal</span>
-          </div>
-          <UserAvatarDropdown />
-        </div>
-      </header>
-
-      <main className="flex-1">
-        {/* Back Link + Title */}
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <Link
-            to={homePath}
-            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mb-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Link>
-          <h1 className="font-serif text-2xl font-semibold text-[#292524]">Compliance</h1>
+    <div className="px-8 py-5">
+        {/* Title */}
+        <div className="max-w-5xl mx-auto mb-4">
+          <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Compliance</h1>
         </div>
 
         {/* Content */}
@@ -264,14 +240,6 @@ const CompliancePage = () => {
             </div>
           </div>
         </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="py-8 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
-        <p className="text-xs text-[#5c5552]/50">
-          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
-        </p>
-      </footer>
 
       {/* PDF Preview Modal */}
       <Dialog open={!!previewDoc} onOpenChange={() => setPreviewDoc(null)}>

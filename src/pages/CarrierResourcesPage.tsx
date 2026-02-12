@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { useNavigationContext } from '@/hooks/useNavigationContext';
+import { useSearchParams } from 'react-router-dom';
 import { useCarrierDirectory, useAgentCarriers } from '@/hooks/useCarrierDirectory';
 import { CARRIER_BRAND_COLORS } from '@/config/carriers';
-import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { PageLoader } from '@/components/ui/PageLoader';
 import { GH } from '@/config/golden-hour';
 import { GlassPanel } from '@/components/ui/GlassPanel';
@@ -75,7 +73,6 @@ const emptyStyle: React.CSSProperties = {
 };
 
 const CarrierResourcesPage = () => {
-  const { homePath } = useNavigationContext();
   const { carriers, loading: isLoading, error: directoryError } = useCarrierDirectory('KY');
   const { carriers: agentCarriers, loading: agentLoading } = useAgentCarriers();
 
@@ -127,7 +124,7 @@ const CarrierResourcesPage = () => {
 
   if (isLoading || agentLoading) {
     return (
-      <div style={{ backgroundColor: '#F3EDE4', minHeight: '100vh' }}>
+      <div className="px-8 py-5">
         <PageLoader message="Loading carrier resources..." />
       </div>
     );
@@ -136,7 +133,7 @@ const CarrierResourcesPage = () => {
   // Show error/empty state instead of blank page
   if (directoryError || availableCarriers.length === 0) {
     return (
-      <div style={{ backgroundColor: '#F3EDE4', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="px-8 py-5 flex items-center justify-center" style={{ minHeight: '60vh' }}>
         <div style={{ textAlign: 'center', padding: 40 }}>
           <p style={{ color: GH.textPrimary, fontSize: 16, fontWeight: 600 }}>
             {directoryError ? 'Unable to load carrier resources' : 'No carrier resources available'}
@@ -156,71 +153,8 @@ const CarrierResourcesPage = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F3EDE4', position: 'relative' }}>
-      {/* Atmospheric overlays */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 20% 0%, rgba(184,134,11,0.04) 0%, transparent 60%)',
-          zIndex: 0,
-        }}
-      />
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 80% 100%, rgba(88,44,131,0.02) 0%, transparent 60%)',
-          zIndex: 0,
-        }}
-      />
-
-      {/* Sticky Header — title lives in the bar */}
-      <header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          height: 52,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 24px',
-          background: 'rgba(255,255,255,0.5)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(60,48,28,0.04)',
-        }}
-      >
-        <Link
-          to={homePath}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            textDecoration: 'none',
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#8B6914' }}>
-            <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span
-            style={{
-              fontSize: 15,
-              fontWeight: 600,
-              color: GH.textPrimary,
-              letterSpacing: '-0.01em',
-            }}
-          >
-            Carrier Resources
-          </span>
-        </Link>
-        <UserAvatarDropdown />
-      </header>
-
-      <main style={{ maxWidth: 900, margin: '0 auto', padding: '14px 24px 0', position: 'relative', zIndex: 1 }}>
+    <div className="px-8 py-5">
+      <main style={{ maxWidth: 900, margin: '0 auto' }}>
         {/* Carrier Pills */}
         <GlassPanel
           style={{

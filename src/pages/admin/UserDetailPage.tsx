@@ -46,7 +46,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { AgentDocumentsCard } from '@/components/admin/AgentDocumentsCard';
 
 interface UserProfile {
@@ -426,7 +426,7 @@ export default function UserDetailPage() {
   const onboardingInfo = onboardingStatusLabels[user.onboarding_status] || { label: user.onboarding_status, variant: 'outline' as const };
 
   return (
-    <AdminLayout>
+    <>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -762,6 +762,6 @@ export default function UserDetailPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

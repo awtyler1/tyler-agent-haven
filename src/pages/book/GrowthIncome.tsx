@@ -68,8 +68,8 @@ export default function GrowthIncome() {
 
   return (
     <div
-      className="min-h-screen"
-      style={{ background: '#F8F5F0', fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}
+      className="px-8 py-5"
+      style={{ fontFamily: "var(--font-sans)" }}
     >
       {/* Sticky Header */}
       <header

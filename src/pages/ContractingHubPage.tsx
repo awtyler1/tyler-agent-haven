@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import {
   CheckCircle2,
@@ -14,13 +13,10 @@ import {
   ChevronDown,
   AlertTriangle,
   MapPin,
-  ArrowLeft,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useProfile, Profile } from '@/hooks/useProfile';
-import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { carriers as carriersData } from '@/data/carriersData';
-import { useNavigationContext } from '@/hooks/useNavigationContext';
 import { PageLoader } from '@/components/ui/PageLoader';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { GH } from '@/config/golden-hour';
@@ -89,7 +85,6 @@ interface CarrierRow {
 
 const ContractingHubPage = () => {
   const { profile, refetch: refetchProfile } = useProfile();
-  const { homePath } = useNavigationContext();
 
   // AHIP upload state
   const [uploading, setUploading] = useState(false);
@@ -396,44 +391,8 @@ const ContractingHubPage = () => {
   const hasUpload = profile?.ahip_cert_year === currentCertYear && profile?.ahip_cert_file_path;
 
   return (
-    <div className="min-h-screen flex flex-col grain-overlay" style={{ background: GH.pageBg }}>
-      {/* Atmospheric blurs */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-        <div
-          style={{
-            position: 'absolute',
-            top: '-10%',
-            left: '-5%',
-            width: 500,
-            height: 500,
-            background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-10%',
-            right: '-5%',
-            width: 400,
-            height: 400,
-            background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)',
-            filter: 'blur(60px)',
-          }}
-        />
-      </div>
-
-      {/* Header */}
-      <header className="flex items-center justify-between pt-6 pb-4 px-4 sm:px-6 max-w-[1100px] mx-auto w-full">
-        <Link to={homePath} className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group">
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-          <span className="font-medium">Dashboard</span>
-        </Link>
-        <UserAvatarDropdown />
-      </header>
-
-      <main className="flex-1 px-4 sm:px-6 pb-6">
-        <div className="max-w-[1100px] mx-auto">
+    <div className="px-8 py-5">
+      <div className="max-w-[1100px] mx-auto">
           {/* Title */}
           <div className="mb-4">
             <h1 className="text-2xl font-semibold" style={{ fontFamily: GH.serif, color: GH.textPrimary }}>
@@ -706,9 +665,7 @@ const ContractingHubPage = () => {
               </div>
             )}
           </GlassPanel>
-        </div>
-      </main>
-
+      </div>
     </div>
   );
 };

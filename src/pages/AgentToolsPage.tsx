@@ -1,28 +1,11 @@
 import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigationContext } from '@/hooks/useNavigationContext';
-import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import connect4Logo from '@/assets/connect4insurance-logo.png';
 import sunfireLogo from '@/assets/sunfire-logo.png';
 
 const AgentToolsPage = () => {
-  const { homePath } = useNavigationContext();
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
-      {/* Header */}
-      <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
-          <Link to={homePath} className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group">
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="font-medium">Dashboard</span>
-          </Link>
-          <UserAvatarDropdown />
-        </div>
-      </header>
-
-      <main className="flex-1 px-6 py-6">
+    <div className="px-8 py-5">
         <div className="max-w-5xl mx-auto">
           {/* Page Header */}
           <div className="mb-6">
@@ -89,14 +72,6 @@ const AgentToolsPage = () => {
             </a>
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 py-3 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
-        <p className="text-xs text-[#5c5552]/50">
-          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
-        </p>
-      </footer>
     </div>
   );
 };

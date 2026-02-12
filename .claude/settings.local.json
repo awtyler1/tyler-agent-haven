@@ -58,7 +58,24 @@
       "Bash(npx:*)",
       "Bash(node scripts/generate-favicons.js:*)",
       "Bash(node scripts/generate-favicons.cjs:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(gh run list:*)",
+      "Bash(npx vercel:*)",
+      "Bash(wc:*)",
+      "Bash(sidebar)",
+      "Bash(header)",
+      "Bash(menu \")",
+      "Bash(xargs -I {} bash -c 'echo \"\"=== {} ===\"\" && grep -A 10 \"\"export.*function\"\" {} | head -15')",
+      "Bash(for f in AuthPage SetPasswordPage ForgotPasswordPage Index NotFound StartHerePage IndustryUpdatesPage CompliancePage CarrierResourcesPage AgentToolsPage ContractingHubPage FormsLibraryPage CarrierPortalsPage CarrierPlansPage TrainingPage ContractingPage MyProfilePage T65ReviewPage SyncFlow BookDashboard GrowthIncome ClientList AdminDashboard AgentsPage UserDetailPage NewAgentPage ContractingQueuePage LabsPage ActivityLogPage RTSImportPage RoadmapGeneratorPage AgentProfilePage PdfBuilderPage PlanFinderPage AgentsBookPage AgentBookDetailPage DocumentManagementPage)",
+      "Bash(do)",
+      "Bash(if [ ! -f \"src/pages/$f.tsx\" ])",
+      "Bash([ ! -f \"src/pages/admin/$f.tsx\" ])",
+      "Bash([ ! -f \"src/pages/auth/$f.tsx\" ])",
+      "Bash([ ! -f \"src/pages/book/$f.tsx\" ])",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(fi)",
+      "Bash(git status:*)"
     ]
   }
 }

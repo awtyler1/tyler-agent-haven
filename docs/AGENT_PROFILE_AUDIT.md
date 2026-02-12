@@ -340,3 +340,88 @@ The AgentProfilePage redesign is **well-architected** with clean component separ
 - [x] Empty states handled gracefully
 
 **Verdict: Production-ready with minor data display improvements pending.**
+
+---
+
+## Data Model Reference
+
+*Extracted from AGENT_PROFILE_PAGE_DISCOVERY.md — database tables, relationships, and data flow for the agent profile feature.*
+
+### profiles Table Fields (displayed/edited on page)
+
+| Field | Displayed | Editable | Location on Page |
+|-------|-----------|----------|------------------|
+| `id` | No (used internally) | No | — |
+| `user_id` | No (used internally) | No | — |
+| `full_name` | Yes | Yes (Inline) | Header band |
+| `email` | Yes | Yes (Inline) | Header band |
+| `npn` | Yes | Yes (Inline) | Meta row |
+| `manager_id` | Yes (as link) | Yes (Modal) | Meta row |
+| `ownership_group` | Yes (A&A badge) | Yes (Modal) | Via manager modal |
+| `onboarding_status` | Yes (Badge) | No | Header band |
+| `is_active` | Yes (Badge) | Yes (Modal) | Header / Deactivate modal |
+| `is_test` | Yes (Badge) | No | Header band |
+| `ahip_cert_year` | Yes | No | Compliance strip |
+| `contracting_notes` | Yes | Yes (Inline) | Notes card |
+| `setup_link_sent_at` | Yes (button text) | No | Header actions |
+| `password_created_at` | Yes (determines button) | No | Header actions |
+| `appointed_at` | No | No | — |
+| `assigned_carriers` | No | No | — |
+| `excluded_carriers` | No | No | — |
+
+### carrier_statuses Table Fields
+
+| Field | Displayed | Purpose |
+|-------|-----------|---------|
+| `carrier_id` | Yes (via join) | Links to carriers table |
+| `contracting_status` | Yes (Colored dot) | `not_started`, `in_progress`, `contracted`, `issue` |
+| `contracting_submitted_at` | Yes ("Updated" date) | Timestamp of submission |
+| `contracted_at` | Yes ("Updated" date) | Timestamp of contracting |
+| `issue_description` | No | Not currently displayed |
+
+### How RTS Data Maps to carrier_statuses
+
+RTS imports (`lib/rtsImport.ts`) create records in `agent_certifications` table with carrier names. The `carrier_statuses` table is populated:
+
+1. **During contracting wizard** — when agent submits contracting application
+2. **Via carrier request modal** — creates `in_progress` status
+3. **Manual admin updates** — not currently in UI (would need carrier status edit)
+
+**The carrier_statuses are NOT directly imported from RTS.** RTS imports go to `agent_certifications` which tracks certifications by year/product. The `carrier_statuses` table tracks contracting workflow state.
+
+### contracting_notes
+
+- **Stored in:** `profiles.contracting_notes` (TEXT field)
+- **Single text field**, not threaded/timestamped
+- **Displayed as:** "Notes" card (label is misleading)
+- **Editable by:** Admins and agents (self-view)
+
+### Database Tables Summary
+
+| Table | Relationship to Profile | Key Fields |
+|-------|------------------------|------------|
+| `profiles` | Primary | id, user_id, full_name, email, npn, manager_id, onboarding_status, is_active, contracting_notes |
+| `user_roles` | Via user_id | user_id, role |
+| `carrier_statuses` | Via profile_id | profile_id, carrier_id, contracting_status, contracted_at |
+| `agent_documents` | Via profile_id | profile_id, category, document_type, file_path, expires_at |
+| `agent_certifications` | Via profile_id | profile_id, carrier_name, certification_year, product_type |
+| `contracting_communications` | Via agent_id (user_id) | agent_id, recipient_email, subject, carriers_included, sent_at |
+| `activity_logs` | Via user_id | user_id, action_type, entity_id, metadata |
+
+### Supabase Queries (data flow on page load)
+
+| # | Table | Operation | Purpose |
+|---|-------|-----------|---------|
+| 1 | `profiles` | SELECT single | Fetch agent profile by ID |
+| 2 | `user_roles` | SELECT single | Fetch role if user_id exists |
+| 3 | `profiles` | SELECT single | Fetch manager info if manager_id exists |
+| 4 | `carrier_statuses` | SELECT many | Fetch contracting statuses by profile_id |
+| 5 | `carriers` | SELECT many | Fetch carrier names for status display |
+| 6 | `profiles` | SELECT many | Fetch direct reports (where manager_id = this profile) |
+| 7 | `agent_certifications` | SELECT limit 1 | Check for inferred AHIP (2026) |
+
+**Additional queries in handlers:**
+- `profiles` UPDATE — for name, email, NPN, notes edits
+- `carriers` SELECT — when opening carrier request modal
+- `carrier_statuses` INSERT — when sending carrier request
+- `profiles` SELECT — refresh after various operations

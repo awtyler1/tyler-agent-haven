@@ -53,10 +53,10 @@ export function ProtectedRoute({
   // Show loading state while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex items-center justify-center" style={{ background: 'var(--bg)', minHeight: '100vh' }}>
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading...</p>
+          <Loader2 className="h-8 w-8 animate-spin" style={{ color: 'var(--text-muted)' }} />
+          <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Loading...</p>
         </div>
       </div>
     );

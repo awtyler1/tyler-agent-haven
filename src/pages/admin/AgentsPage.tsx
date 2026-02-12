@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { AllAgentsTab } from '@/components/admin/AllAgentsTab';
 import { PageLoader } from '@/components/ui/PageLoader';
 
@@ -22,8 +22,8 @@ export default function AgentsPage() {
   }
 
   return (
-    <AdminLayout>
+    <>
       <AllAgentsTab />
-    </AdminLayout>
+    </>
   );
 }

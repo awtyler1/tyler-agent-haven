@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { SyncStatusPill } from '@/components/dashboard/SyncStatusPill';
-import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { PageLoader } from '@/components/ui/PageLoader';
 
 // ============================================================
@@ -56,12 +55,12 @@ const GH = {
   tileBg: 'rgba(60,48,28,0.015)',
 };
 
-const serif = '"Playfair Display", Georgia, serif';
+const serif = "var(--font-serif)";
 
 // Carrier SVG icon marks (white on colored background)
 const AetnaIcon = () => (
   <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
-    <text x="0" y="12" fontFamily="'Playfair Display', Georgia, serif" fontSize="14" fontWeight="700" fill="white">Ae</text>
+    <text x="0" y="12" fontFamily="Lora, Georgia, serif" fontSize="14" fontWeight="700" fill="white">Ae</text>
   </svg>
 );
 const AnthemIcon = () => (
@@ -154,47 +153,9 @@ export default function Index() {
   const maxCarrierCount = Math.max(...data.carriers.map(c => c.count), 1);
 
   return (
-    <div className="min-h-screen grain-overlay" style={{ background: GH.pageBg }}>
-      {/* Atmospheric blurs */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-        <div
-          style={{
-            position: 'absolute',
-            top: '-10%',
-            left: '-5%',
-            width: 500,
-            height: 500,
-            background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)',
-            filter: 'blur(80px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-10%',
-            right: '-5%',
-            width: 400,
-            height: 400,
-            background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)',
-            filter: 'blur(60px)',
-          }}
-        />
-      </div>
-
-      <div className="relative max-w-[1100px] mx-auto px-4 py-3 sm:px-6 sm:py-4">
-        {/* ── Header ── */}
-        <header className="flex items-center justify-between mb-3 relative z-10" style={{ opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards' }}>
-          <div className="flex items-center gap-2">
-            <span className="font-bold" style={{ fontFamily: serif, fontSize: 17, color: GH.gold }}>
-              TIG
-            </span>
-            <span
-              className="uppercase font-medium"
-              style={{ fontSize: 11, letterSpacing: '0.08em', color: GH.textFaint }}
-            >
-              Agent Portal
-            </span>
-          </div>
+    <div className="relative max-w-[1100px] mx-auto px-4 py-3 sm:px-6 sm:py-4">
+        {/* ── Sync Status ── */}
+        <div className="flex items-center justify-end mb-3" style={{ opacity: 0, animation: 'fadeInUp 0.5s ease-out forwards' }}>
           <div className="flex items-center gap-3">
             <span
               className="font-medium hidden sm:inline"
@@ -211,9 +172,8 @@ export default function Index() {
               netChange={data.netChange}
               carrierCount={data.carriers.length}
             />
-            <UserAvatarDropdown />
           </div>
-        </header>
+        </div>
 
         {/* ── Stale Banner ── */}
         {isStale && !isEmpty && (
@@ -538,7 +498,6 @@ export default function Index() {
           </div>
         </GlassPanel>
       </div>
-    </div>
   );
 }
 

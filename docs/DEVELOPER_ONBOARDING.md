@@ -288,7 +288,7 @@ tyler-agent-haven/
 | `src/components/ProtectedRoute.tsx` | Route guards for auth/roles |
 | `src/integrations/supabase/client.ts` | Supabase client initialization |
 | `CLAUDE.md` | Project context (keep updated!) |
-| `DESIGN_SYSTEM.md` | UI patterns and tokens |
+| `HOMESTEAD.md` | UI patterns and tokens |
 
 ### Database Schema (Key Tables)
 
@@ -420,7 +420,7 @@ import { cn } from '@/lib/utils';
 ### Week 1: Environment & Orientation
 
 - [ ] Complete environment setup (this guide)
-- [ ] Read `CLAUDE.md` and `DESIGN_SYSTEM.md`
+- [ ] Read `CLAUDE.md` and `HOMESTEAD.md`
 - [ ] Explore the app as an agent (create test account)
 - [ ] Explore the app as an admin (ask for test admin access)
 - [ ] Review `src/App.tsx` to understand routing
@@ -511,10 +511,9 @@ supabase functions deploy function-name --project-ref mgczpsrtkdkkjzmztpyd
 | Document | Purpose |
 |----------|---------|
 | `CLAUDE.md` | Project context for AI assistants |
-| `DESIGN_SYSTEM.md` | UI patterns, colors, components |
+| `HOMESTEAD.md` | Design system (UI patterns, colors, components) |
 | `docs/ARCHITECTURE.md` | System architecture deep dive |
-| `docs/CODEBASE_SUMMARY.md` | Feature inventory |
-| `docs/ADMIN_STYLE_GUIDE.md` | Admin UI standards |
+| `docs/ADMIN_PAGES_AUDIT.md` | Admin pages visual audit + style reference |
 
 ### External Resources
 
@@ -558,7 +557,7 @@ Print this and check off as you go:
 Week 1
 [ ] Environment setup complete
 [ ] Dev server runs without errors
-[ ] Read CLAUDE.md and DESIGN_SYSTEM.md
+[ ] Read CLAUDE.md and HOMESTEAD.md
 [ ] Explored app as agent role
 [ ] Explored app as admin role
 [ ] Understand routing in App.tsx

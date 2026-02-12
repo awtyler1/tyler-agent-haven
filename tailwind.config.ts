@@ -14,10 +14,11 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ["Playfair Display", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Outfit", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["Lora", "Georgia", "'Times New Roman'", "serif"],
       },
       colors: {
+        /* Shadcn/Radix tokens (HSL from CSS vars) */
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -27,13 +28,6 @@ export default {
           DEFAULT: "hsl(var(--brand))",
           foreground: "hsl(var(--brand-foreground))",
         },
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          light: "hsl(var(--gold-light))",
-          dark: "hsl(var(--gold-dark))",
-        },
-        cream: "hsl(var(--cream))",
-        charcoal: "hsl(var(--charcoal))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -72,23 +66,39 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        /* Apple HIG Dark Mode System Colors */
-        apple: {
-          blue: "#0A84FF",
-          green: "#30D158",
-          yellow: "#FFD60A",
-          orange: "#FF9F0A",
-          red: "#FF453A",
-          pink: "#FF375F",
-          purple: "#BF5AF2",
-          cyan: "#64D2FF",
-          gray: "#8E8E93",
-          "gray-2": "#636366",
-          "gray-3": "#48484A",
-          "gray-4": "#3A3A3C",
-          "gray-5": "#2C2C2E",
-          "gray-6": "#1C1C1E",
+
+        /* Homestead tokens (direct hex/rgba values) */
+        homestead: {
+          bg: "var(--bg)",
+          "bg-subtle": "var(--bg-subtle)",
+          "bg-muted": "var(--bg-muted)",
+          "bg-card": "var(--bg-card)",
+          "bg-warm-glow": "var(--bg-warm-glow)",
         },
+        gold: {
+          DEFAULT: "var(--gold)",
+          dark: "var(--gold-dark)",
+        },
+        "hs-sidebar": {
+          DEFAULT: "var(--sidebar)",
+          border: "var(--sidebar-border)",
+          hover: "var(--sidebar-hover)",
+          text: "var(--sidebar-text)",
+          "text-active": "var(--sidebar-text-active)",
+          "section-label": "var(--sidebar-section-label)",
+        },
+        "hs-text": {
+          primary: "var(--text-primary)",
+          muted: "var(--text-muted)",
+          faint: "var(--text-faint)",
+        },
+        "hs-green": {
+          DEFAULT: "var(--green)",
+          bg: "var(--green-bg)",
+        },
+        "hs-amber": "var(--amber)",
+        "hs-red": "var(--red)",
+        "hs-blue": "var(--blue)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -116,6 +126,15 @@ export default {
           from: { opacity: "0", transform: "scale(0.95)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "land-bounce": {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.012)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -123,6 +142,8 @@ export default {
         "fade-in": "fade-in 0.6s ease-out forwards",
         "fade-in-up": "fade-in-up 0.8s ease-out forwards",
         "scale-in": "scale-in 0.5s ease-out forwards",
+        "fade-up": "fade-up var(--med) var(--ease) forwards",
+        "land-bounce": "land-bounce 0.3s var(--ease)",
       },
     },
   },

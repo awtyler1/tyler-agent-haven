@@ -221,7 +221,7 @@ CORS config in `supabase/functions/_shared/cors.ts` — allows tigagenthub.com +
 
 ## 5. Design System Reference
 
-**Full spec:** `DESIGN_SYSTEM.md`
+**Full spec:** `HOMESTEAD.md`
 
 ### Cards
 ```tsx
@@ -305,4 +305,4 @@ bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]
 7. **New route** would go in `src/App.tsx` as a `<ProtectedRoute>` child.
 8. **Dashboard dock tile** would need a new entry on `Index.tsx` to link to leads.
 9. **broker_roadmaps.lead_star_leads** suggests LeadStar as an existing lead vendor concept worth investigating.
-10. **Match the design system** — cards, list rows, status dots, typography per `DESIGN_SYSTEM.md`.
+10. **Match the design system** — cards, list rows, status dots, typography per `HOMESTEAD.md`.

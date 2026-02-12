@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { FileText, Sparkles, MessageSquare, Heart } from 'lucide-react';
 
 export default function LabsPage() {
@@ -30,7 +30,7 @@ export default function LabsPage() {
   ];
 
   return (
-    <AdminLayout>
+    <>
       <div className="mb-8">
         <div className="flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-gold" />
@@ -65,6 +65,6 @@ export default function LabsPage() {
       <p className="text-xs text-muted-foreground mt-8 max-w-2xl">
         Features here are works in progress. They may change or be removed.
       </p>
-    </AdminLayout>
+    </>
   );
 }

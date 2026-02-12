@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,8 +14,6 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Search, MapPin, Heart, ArrowRight, X, Loader2, ArrowLeft } from 'lucide-react';
-import { useNavigationContext } from '@/hooks/useNavigationContext';
-import { UserAvatarDropdown } from '@/components/UserAvatarDropdown';
 import { usePlansByCounty, useCmsCounties, useFilteredPlans } from '@/hooks/useCmsPlans';
 import { type CmsPlan } from '@/types/cms';
 import { PlanComparison } from '@/components/medicare/PlanComparison';
@@ -276,8 +274,6 @@ const POPULAR_COUNTIES = [
 // Main Component
 // ============================================================================
 export default function PlanFinderPage() {
-  const { homePath } = useNavigationContext();
-
   // URL state persistence
   const [searchParams, setSearchParams] = useSearchParams();
   const searchInput = searchParams.get('q') || '';
@@ -378,20 +374,17 @@ export default function PlanFinderPage() {
   // Comparison view
   if (view === 'compare' && comparePlans.length > 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-        <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
-          <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
-            <button
-              onClick={() => updateParams({ view: 'finder' })}
-              className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group"
-            >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-              <span className="font-medium">Back to Plans</span>
-            </button>
-            <UserAvatarDropdown />
-          </div>
-        </header>
-        <main className="max-w-5xl mx-auto px-6 pb-8 pt-6">
+      <div className="px-8 py-5">
+        <div className="max-w-5xl mx-auto mb-4">
+          <button
+            onClick={() => updateParams({ view: 'finder' })}
+            className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group"
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="font-medium">Back to Plans</span>
+          </button>
+        </div>
+        <div className="max-w-5xl mx-auto">
           <PlanComparison
             plans={comparePlans}
             onRemovePlan={(id) => {
@@ -403,25 +396,14 @@ export default function PlanFinderPage() {
               }
             }}
           />
-        </main>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      {/* Header */}
-      <header className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto flex items-center justify-between py-3 px-6">
-          <Link to={homePath} className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors group">
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="font-medium">Dashboard</span>
-          </Link>
-          <UserAvatarDropdown />
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-6 pb-8 pt-6">
+    <div className="px-8 py-5">
+      <main className="max-w-5xl mx-auto">
         {/* Title */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-1">

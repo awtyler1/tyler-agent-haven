@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2, UserPlus, Users, Search, Check } from 'lucide-react';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 
 interface AgentOption {
   id: string;
@@ -179,7 +179,7 @@ export default function NewAgentPage() {
   };
 
   return (
-    <AdminLayout maxWidth="narrow">
+    <>
       {/* Compact Header */}
       <div className="mb-4">
         <h1 className="text-xl font-serif font-medium text-foreground">Start Agent Contracting</h1>
@@ -351,6 +351,6 @@ export default function NewAgentPage() {
           </div>
         </form>
       </div>
-    </AdminLayout>
+    </>
   );
 }

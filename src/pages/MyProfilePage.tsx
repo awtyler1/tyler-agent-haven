@@ -15,7 +15,7 @@ export default function MyProfilePage() {
 
   if (!profile?.id) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+      <div className="flex items-center justify-center py-20">
         <p className="text-muted-foreground">Profile not found</p>
       </div>
     );

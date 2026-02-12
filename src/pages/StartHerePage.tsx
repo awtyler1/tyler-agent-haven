@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { 
-  FileText, 
-  Award, 
+import {
+  FileText,
+  Award,
   GraduationCap
 } from "lucide-react";
 
@@ -28,11 +26,9 @@ const ourSupport = [
 
 const StartHerePage = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <main className="bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
+    <div className="px-8 py-5">
         {/* Hero Section */}
-        <section className="pt-32 pb-8 md:pt-36 md:pb-10 px-6 md:px-12 lg:px-20">
+        <section className="pb-8 px-6 md:px-12 lg:px-20">
           <div className="container-narrow text-center">
             <h1 className="heading-display mb-3">Your Onboarding Roadmap</h1>
           </div>
@@ -129,8 +125,6 @@ const StartHerePage = () => {
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
     </div>
   );
 };

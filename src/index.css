@@ -1,78 +1,114 @@
-@import "@fontsource/playfair-display/400.css";
-@import "@fontsource/playfair-display/500.css";
-@import "@fontsource/playfair-display/600.css";
-@import "@fontsource/playfair-display/700.css";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 30 10% 15%;
+    /* =============================================
+       HOMESTEAD DESIGN TOKENS
+       ============================================= */
 
-    --card: 0 0% 100%;
-    --card-foreground: 30 10% 15%;
+    /* Surfaces */
+    --bg: #F3EDE3;
+    --bg-subtle: #EDE7DB;
+    --bg-muted: #E4DDD0;
+    --bg-card: #FFFFFF;
+    --bg-warm-glow: #F8F2EA;
+
+    /* Sidebar */
+    --sidebar: #28262A;
+    --sidebar-border: #3A373E;
+    --sidebar-hover: rgba(255,255,255,0.05);
+    --sidebar-text: #8A858F;
+    --sidebar-text-active: #E8E2D6;
+    --sidebar-section-label: #5A5660;
+
+    /* Brand — Gold */
+    --gold: #C9A84C;
+    --gold-dark: #8A6D20;
+    --gold-active-bg: rgba(201,168,76,0.13);
+
+    /* Text */
+    --text-primary: #2B2B22;
+    --text-muted: #A89A84;
+    --text-faint: #BEB3A2;
+
+    /* Semantic */
+    --green: #6B8A42;
+    --green-bg: rgba(107,138,66,0.1);
+    --amber: #B8944A;
+    --red: #C44A3F;
+    --blue: #4A7FB5;
+
+    /* Motion */
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --fast: 0.15s;
+    --med: 0.3s;
+
+    /* Fonts */
+    --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+
+    /* Carrier Brand Colors */
+    --carrier-humana: #3A9A34;
+    --carrier-aetna: #6B2580;
+    --carrier-anthem: #0033A0;
+    --carrier-uhc: #002677;
+    --carrier-wellcare: #007A72;
+    --carrier-devoted: #B8292F;
+
+    /* =============================================
+       SHADCN/RADIX COMPATIBILITY LAYER
+       Maps Homestead tokens → Shadcn CSS variables
+       ============================================= */
+    --background: 38 27% 92%;       /* maps to --bg #F3EDE3 */
+    --foreground: 60 12% 15%;       /* maps to --text-primary #2B2B22 */
+
+    --card: 0 0% 100%;              /* maps to --bg-card #FFFFFF */
+    --card-foreground: 60 12% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 10% 15%;
+    --popover-foreground: 60 12% 15%;
 
-    /* Primary blue for actions */
-    --primary: 217 91% 50%;
+    --primary: 210 43% 50%;         /* maps to --blue #4A7FB5 */
     --primary-foreground: 0 0% 100%;
 
-    /* Brand gold from the logo */
-    --brand: 43 56% 41%;
+    --brand: 43 50% 54%;            /* maps to --gold #C9A84C */
     --brand-foreground: 0 0% 100%;
 
-    --secondary: 40 20% 96%;
-    --secondary-foreground: 30 10% 15%;
+    --secondary: 35 22% 93%;        /* maps to --bg-subtle #EDE7DB */
+    --secondary-foreground: 60 12% 15%;
 
-    --muted: 40 15% 95%;
-    --muted-foreground: 30 8% 35%;
+    --muted: 33 18% 86%;            /* maps to --bg-muted #E4DDD0 */
+    --muted-foreground: 33 16% 40%;
 
-    --accent: 217 91% 50%;
+    --accent: 210 43% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 5 57% 51%;       /* maps to --red #C44A3F */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 40 20% 90%;
-    --input: 40 20% 90%;
-    --ring: 217 91% 50%;
+    --border: 33 18% 86%;           /* maps to --bg-muted */
+    --input: 33 18% 86%;
+    --ring: 210 43% 50%;            /* maps to --blue */
 
     --radius: 0.5rem;
 
-    /* Custom tokens */
-    --gold: 43 56% 41%;
-    --gold-light: 43 40% 85%;
-    --gold-dark: 43 60% 32%;
-    --cream: 40 30% 98%;
-    --charcoal: 30 10% 15%;
-
-    /* Typography */
-    --font-serif: "Playfair Display", Georgia, serif;
-    --font-sans: "Inter", system-ui, sans-serif;
-
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(43 30% 20% / 0.08);
-    --shadow-card: 0 2px 12px -2px hsl(43 30% 20% / 0.06);
-    --shadow-elevated: 0 8px 30px -6px hsl(43 30% 20% / 0.12);
+    /* Shadows (Homestead-aligned) */
+    --shadow-soft: 0 4px 20px -4px rgba(0,0,0,0.06);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-elevated: 0 6px 16px rgba(0,0,0,0.08);
 
     /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s var(--ease);
 
+    /* Shadcn sidebar compat (not used by new shell, kept for primitives) */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 

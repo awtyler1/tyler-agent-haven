@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { AssignManagerModal } from '@/components/admin/AssignManagerModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigationContext } from '@/hooks/useNavigationContext';
@@ -360,20 +360,20 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
 
   if (loading) {
     return (
-      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
+      <>
         <div className="flex items-center justify-center py-24">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
             <p className="text-sm text-stone-500">Loading agent profile...</p>
           </div>
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   if (error || !profile) {
     return (
-      <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
+      <>
         <div className="flex items-center justify-center py-24">
           <div className="text-center">
             <h2 className="text-lg font-semibold text-stone-900 mb-2">{error || 'Agent not found'}</h2>
@@ -382,12 +382,12 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
             </Button>
           </div>
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   return (
-    <AdminLayout showBackButton backLabel={backLabel} onBack={handleBackNavigation}>
+    <>
       <div className="max-w-5xl mx-auto space-y-4">
         {/* Header */}
         <AgentProfileHeader
@@ -490,6 +490,6 @@ export default function AgentProfilePage({ selfViewProfileId }: AgentProfilePage
           }}
         />
       )}
-    </AdminLayout>
+    </>
   );
 }

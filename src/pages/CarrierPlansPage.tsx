@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { carriers as allCarriersData } from "@/data/carriersData";
-import { useProfile } from "@/hooks/useProfile";
-import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
 import { useAgentCarriers } from "@/hooks/useCarrierDirectory";
-import { useNavigationContext } from "@/hooks/useNavigationContext";
 import {
   Accordion,
   AccordionContent,
@@ -30,10 +27,8 @@ const stateCodeMap: Record<string, string> = {
 };
 
 export default function CarrierPlansPage() {
-  const { profile } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
   const { carriers: agentCarriers, loading: carriersLoading } = useAgentCarriers();
-  const { homePath } = useNavigationContext();
 
   // Read carrier and state from URL params
   const carrierParam = searchParams.get("carrier") || "";
@@ -90,25 +85,8 @@ export default function CarrierPlansPage() {
   const getPlanCount = (type: string) => summaryData[type]?.length || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex flex-col">
-      {/* Header - matches Index.tsx and CarrierResourcesPage.tsx */}
-      <header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between py-3">
-          <div className="flex items-center gap-2">
-            <Link to={homePath} className="flex items-center gap-2">
-              <span className="font-serif text-xl font-semibold text-[#292524]">TIG</span>
-            </Link>
-            <span className="text-[#e8e4dd]">|</span>
-            <span className="text-sm text-[#5c5552]">Agent Portal</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-[#5c5552] hidden sm:block">{profile?.full_name || 'Agent'}</span>
-            <UserAvatarDropdown />
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1 px-6 py-4">
+    <div className="px-8 py-5 flex flex-col" style={{ minHeight: 'calc(100vh - 20px)' }}>
+      <main className="flex-1">
         <div className="max-w-6xl mx-auto">
           {/* Header Row */}
           <div className="mb-4">
@@ -313,13 +291,6 @@ export default function CarrierPlansPage() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="py-3 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
-        <p className="text-xs text-[#5c5552]/50">
-          Powered by <span className="text-[#5c5552]/70">Tyler Insurance Group</span>
-        </p>
-      </footer>
     </div>
   );
 }

@@ -134,7 +134,7 @@ const printRef = useRef<HTMLDivElement>(null);
 
 ## 2. Design System Tokens
 
-### From DESIGN_SYSTEM.md
+### From HOMESTEAD.md
 
 **Color System:**
 | Token | HSL Value | Usage |

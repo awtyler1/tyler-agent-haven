@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import Navigation from '@/components/Navigation';
 
 interface PolicyWithClient {
   id: string;
@@ -147,11 +146,9 @@ export default function T65ReviewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-background">
-      <Navigation />
-
+    <div className="px-6 py-5">
       {/* Header */}
-      <div className="bg-white dark:bg-card border-b border-stone-200 dark:border-border px-6 py-4 pt-20">
+      <div className="bg-white dark:bg-card border-b border-stone-200 dark:border-border px-6 py-4 rounded-xl mb-4">
         <div className="max-w-3xl mx-auto">
           <button
             onClick={() => navigate('/')}

@@ -46,7 +46,7 @@ export default function ClientList() {
   };
 
   return (
-    <div className="h-screen flex flex-col" style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", background: '#F8F5F0' }}>
+    <div className="flex flex-col h-full" style={{ fontFamily: "var(--font-sans)" }}>
       {/* Header bar */}
       <div
         className="px-6 flex-shrink-0 flex items-center justify-between"

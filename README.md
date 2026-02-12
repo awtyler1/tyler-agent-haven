@@ -44,9 +44,8 @@ docs/                # Documentation
 | File | Description |
 |------|-------------|
 | `CLAUDE.md` | Project context for AI assistants |
-| `DESIGN_SYSTEM.md` | UI patterns and design tokens |
-| `docs/ARCHITECTURE.md` | Full architecture documentation |
-| `docs/CODEBASE_SUMMARY.md` | Feature inventory and quick stats |
+| `HOMESTEAD.md` | Design system (UI patterns and tokens) |
+| `docs/ARCHITECTURE.md` | Full architecture documentation + appendices |
 
 ## Deployment
 

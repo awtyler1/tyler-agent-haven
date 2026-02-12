@@ -96,7 +96,7 @@ MINOR: Label clarity
 
 **Strengths:**
 - UI genuinely gets out of the way on content pages
-- Generous whitespace usage (documented in DESIGN_SYSTEM.md)
+- Generous whitespace usage (documented in HOMESTEAD.md)
 - Subtle hover states that don't overwhelm
 
 **Issues:**
@@ -222,7 +222,7 @@ MODERATE: Carrier table shows all columns always
 
 **Strengths:**
 - EmptyState.tsx in book-of-business is well-crafted
-- DESIGN_SYSTEM.md documents empty state pattern
+- HOMESTEAD.md documents empty state pattern
 - Positive framing ("Build your book" not "Nothing here")
 
 **Issues:**
@@ -974,3 +974,136 @@ Replace all inline shadows with design system tokens:
 *"The details are not the details. They make the design." — Charles Eames*
 
 *This audit represents a commitment to elevating every pixel, interaction, and moment to meet the standards of world-class design. The path from 7.2 to 9.0 is clear—it requires discipline, consistency, and an unwavering focus on the humans we serve.*
+
+---
+
+## Phase 2 Design Principle Scores
+
+### Clarity — Score: 7/10
+
+**Passes:**
+- Page titles clearly communicate purpose
+- Primary actions are visually distinct (blue)
+- Status indicators use appropriate colors
+
+**Fails:**
+- Some icon buttons lack labels (accessibility)
+- "Coming Soon" cards could be hidden entirely
+- Dense tables on mobile need column prioritization
+
+**Evidence:**
+```tsx
+// Index.tsx:228 - "Coming Soon" card creates clutter
+<div className="relative bg-white border border-[#e8e4dd] rounded-xl px-4 py-3 opacity-60 cursor-default">
+  <span className="absolute top-2 right-2 text-xs bg-stone-200 text-[#5c5552] px-2 py-0.5 rounded-full">
+    Coming Soon
+  </span>
+```
+
+**Recommendation:** Hide coming soon features or use feature flags instead of showing disabled UI.
+
+### Deference — Score: 8/10
+
+**Passes:**
+- Content takes center stage
+- Minimal decorative elements
+- Animations are subtle (`transition-colors`, `transition-all`)
+
+**Fails:**
+- Fixed footer on agent dashboard obscures content
+- Some cards have excessive hover effects
+
+**Evidence:**
+```tsx
+// Index.tsx:294 - Fixed footer covers content
+<footer className="fixed bottom-0 left-0 right-0 py-3 text-center bg-gradient-to-t from-[#FEFDFB] to-transparent">
+```
+
+**Recommendation:** Change to static footer or add scroll padding.
+
+### Depth — Score: 7/10
+
+**Passes:**
+- Cards have appropriate elevation via borders
+- Modals use backdrop blur
+- Active sidebar items are clearly distinguished
+
+**Fails:**
+- No shadow hierarchy (all cards appear at same level)
+- Dropdown menus could use more elevation
+
+**Recommendation:** Implement 3-level shadow hierarchy:
+```css
+/* Level 1: Cards (resting) */
+box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+
+/* Level 2: Cards (hover/active) */
+box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+/* Level 3: Modals/Dropdowns */
+box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+```
+
+### Consistency — Score: 6/10
+
+**Critical Issue: Three Header Patterns**
+
+1. **Agent pages** (Index.tsx):
+```tsx
+<header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
+  <div className="max-w-5xl mx-auto flex items-center justify-between py-4">
+```
+
+2. **Admin pages** (AdminLayout.tsx):
+```tsx
+<header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+  <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+```
+
+3. **Resource pages** (CarrierResourcesPage.tsx):
+```tsx
+<header className="border-b border-[#e8e4dd] bg-white/80 backdrop-blur-sm sticky top-0 z-50 px-6">
+  <div className="max-w-6xl mx-auto flex items-center justify-between py-3">
+```
+
+**Issues:**
+- Different `z-index` values (40 vs 50)
+- Different `max-w` values (5xl vs 6xl)
+- Different `py` values (3 vs 4)
+
+**Recommendation:** Create single `<AppHeader />` component with consistent values.
+
+### Feedback — Score: 7/10
+
+**Passes:**
+- Toast notifications on actions (Sonner)
+- Loading spinners during data fetch
+- Form validation feedback
+
+**Fails:**
+- No button loading states during form submission
+- Missing optimistic updates on list operations
+- Save indicator disappears too quickly (2s)
+
+**Evidence:**
+```tsx
+// ContractingForm.tsx:93-94 - showSaved state
+const [showSaved, setShowSaved] = useState(false);
+// Disappears after only 2 seconds
+const timer = setTimeout(() => setShowSaved(false), 2000);
+```
+
+**Recommendation:** Extend saved indicator to 3-4 seconds; add persistent "last saved" timestamp.
+
+### Efficiency — Score: 8/10
+
+**Task Analysis:**
+
+| Task | Current Clicks | Optimal | Gap |
+|------|---------------|---------|-----|
+| Agent opens carrier resources | 2 | 1 | Add to dashboard |
+| Admin finds agent | 2-3 | 1 | Keyboard shortcut |
+| Agent uploads AHIP cert | 3 | 2 | Drag-drop zone |
+| Admin creates agent | 4 | 3 | Inline quick-add |
+
+**Recommendation:** Implement command palette (Cmd+K) for power users.

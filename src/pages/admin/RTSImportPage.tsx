@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, Loader2, Check } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { Button } from '@/components/ui/button';
 import { importRTSCertifications } from '@/lib/rtsImport';
 import { supabase } from '@/integrations/supabase/client';
@@ -130,7 +130,7 @@ export default function RTSImportPage() {
   const isStale = (days: number): boolean => days >= 5;
 
   return (
-    <AdminLayout maxWidth="narrow">
+    <>
       <div
         className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]"
         onDragOver={handleDrag}
@@ -223,7 +223,7 @@ export default function RTSImportPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }
 

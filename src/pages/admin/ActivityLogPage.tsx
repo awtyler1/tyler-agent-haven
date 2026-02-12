@@ -12,7 +12,7 @@ import {
   Download,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -283,7 +283,7 @@ export default function ActivityLogPage() {
   });
 
   return (
-    <AdminLayout maxWidth="wide">
+    <>
       <div className="flex flex-col h-[calc(100vh-120px)]">
         {/* Header - fixed */}
         <div className="flex items-center justify-between mb-4">
@@ -392,6 +392,6 @@ export default function ActivityLogPage() {
           </p>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

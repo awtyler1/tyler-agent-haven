@@ -8,14 +8,22 @@ interface PageLoaderProps {
 export function PageLoader({ message = 'Loading...', className }: PageLoaderProps) {
   return (
     <div className={cn(
-      "min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3] flex items-center justify-center",
+      "flex items-center justify-center",
       className
-    )}>
+    )}
+      style={{ background: 'var(--bg)', minHeight: '100%' }}
+    >
       <div className="flex flex-col items-center gap-4">
         {/* TIG mark with subtle gold shimmer */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="w-12 h-12 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-md border border-amber-100/50 flex items-center justify-center">
-            <span className="font-serif text-xl font-bold text-amber-700">T</span>
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            }}
+          >
+            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 700, color: '#fff' }}>T</span>
           </div>
           {/* Subtle shimmer overlay */}
           <div
@@ -26,7 +34,7 @@ export function PageLoader({ message = 'Loading...', className }: PageLoaderProp
             }}
           />
         </div>
-        <p className="text-sm text-[#8c8580] font-light">{message}</p>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 300 }}>{message}</p>
       </div>
 
       <style>{`

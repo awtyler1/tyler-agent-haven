@@ -1,6 +1,4 @@
 import { useState } from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { useCarrierDirectory, useSupportedCarriers } from "@/hooks/useCarrierDirectory";
 import {
@@ -51,21 +49,15 @@ const CarrierPortalsPage = () => {
   const selectedStateName = STATES.find(s => s.code === selectedStateCode)?.name || selectedStateCode;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FEFDFB] via-[#FDFBF7] to-[#FAF8F3]">
-      <Navigation />
-      <main>
+    <div className="px-8 py-5">
         {/* Hero */}
-        <section className="pt-24 pb-3 md:pt-28 md:pb-4 px-6 md:px-12 lg:px-20 bg-cream">
-          <div className="container-narrow text-center">
-            <h1 className="heading-display mb-2">Carrier Portals</h1>
-            <p className="text-base md:text-lg text-foreground font-medium max-w-3xl mx-auto">
-              Fast access to your carrier broker portals.
-            </p>
-          </div>
-        </section>
+        <div className="mb-4">
+          <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Carrier Portals</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Fast access to your carrier broker portals.</p>
+        </div>
 
         {/* State Selector */}
-        <section className="pb-3 px-6 md:px-12 lg:px-20 bg-cream">
+        <section className="pb-3 px-6 md:px-12 lg:px-20">
           <div className="container-narrow">
             <div className="flex items-center justify-center gap-2">
               <span className="text-xs text-muted-foreground font-medium">State:</span>
@@ -136,8 +128,6 @@ const CarrierPortalsPage = () => {
             )}
           </div>
         </section>
-      </main>
-      <Footer />
     </div>
   );
 };

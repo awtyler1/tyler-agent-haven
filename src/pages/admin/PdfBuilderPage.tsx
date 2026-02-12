@@ -7,7 +7,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -483,7 +483,7 @@ export default function PdfBuilderPage() {
   const hasMessages = messages.length > 0;
 
   return (
-    <AdminLayout>
+    <>
       <div className="h-[calc(100vh-140px)] flex bg-gray-50 -m-6 -mb-8">
         {/* Chat area */}
         <div className="flex-1 flex flex-col min-w-0">
@@ -617,6 +617,6 @@ export default function PdfBuilderPage() {
           />
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

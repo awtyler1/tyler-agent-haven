@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, ChevronRight, Download, Loader2, RefreshCw } from 'lucide-react';
-import { AdminLayout } from '@/components/layout/AdminLayout';
+
 import { useAdminAgentsBook, type AgentWithBook } from '@/hooks/useAdminAgentsBook';
 
 type SyncStatus = 'current' | 'stale' | 'very-stale' | 'never';
@@ -111,7 +111,7 @@ export default function AgentsBookPage() {
   };
 
   return (
-    <AdminLayout>
+    <>
       {/* Page Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
@@ -313,6 +313,6 @@ export default function AgentsBookPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

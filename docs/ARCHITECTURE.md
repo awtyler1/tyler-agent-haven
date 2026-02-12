@@ -1114,3 +1114,449 @@ Located in `supabase/migrations/` - 67 migration files covering:
 | **Book of Business** | Agent's portfolio of clients |
 | **RAG** | Retrieval Augmented Generation (AI technique) |
 | **Edge Function** | Serverless function running at edge locations |
+
+---
+
+## Appendix C: Code Health
+
+*Sources: Architecture Review (Jan 25, 2026) and Code Quality Review (Jan 25, 2026)*
+
+### Overall Health Scorecard
+
+**Architecture Health: B+ | Code Quality: B**
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| Structure | A | Clear feature-based organization, logical groupings |
+| Patterns | B+ | Good hook composition, some large files |
+| Type Safety | B- | 109 `any` usages need attention |
+| Error Handling | A- | Consistent try/catch with toast feedback |
+| Security | B+ | OAuth token encryption pending |
+| Performance | B- | Bundle optimized post-review; image assets remain large |
+| Testing | F | 0% test coverage (no unit, integration, or E2E tests) |
+| Documentation | A- | Well-documented, good inline comments |
+| Maintainability | B | Some large files need refactoring |
+
+### Codebase Statistics
+
+| Metric | Count |
+|--------|-------|
+| Frontend files (.tsx) | 134 |
+| Frontend files (.ts) | 38 |
+| Custom hooks | 13 |
+| UI components (Shadcn) | 58 |
+| Feature components | ~60 |
+| Edge functions | 21 |
+| Database migrations | 67 |
+
+### ESLint Analysis
+
+**Total issues: 104 (85 errors, 19 warnings)**
+
+| Issue Type | Count | Severity |
+|------------|-------|----------|
+| `@typescript-eslint/no-explicit-any` | 76 | Error |
+| `react-refresh/only-export-components` | 12 | Warning |
+| `react-hooks/exhaustive-deps` | 4 | Warning |
+| `no-useless-escape` | 4 | Error |
+| `@typescript-eslint/no-require-imports` | 1 | Error |
+
+**Top files needing attention:**
+
+| File | Issue Count | Primary Issue |
+|------|-------------|---------------|
+| `pdf-field-audit/index.ts` | 7 | `any` types |
+| `generate-contracting-pdf/index.ts` | 4 | `any` types |
+| `AgentProfilePage.tsx` | 4 | `any` types + size (2,002 lines) |
+| `ContractingForm.tsx` | 3 | `any` types (878 lines) |
+| `LicensingSection.tsx` | 3 | `any` types |
+
+**Recommended ESLint additions:**
+
+```javascript
+// eslint.config.js
+rules: {
+  'no-console': ['warn', { allow: ['warn', 'error'] }],
+  '@typescript-eslint/no-explicit-any': 'error',
+}
+```
+
+### Bundle Size Analysis
+
+**Post-optimization (Jan 25, 2026):**
+
+| Metric | Before | After | Improvement |
+|--------|--------|-------|-------------|
+| Main JS bundle (gzip) | 682 KB | 134 KB | 80% smaller |
+| Initial load (gzip) | 682 KB | ~227 KB | 67% smaller |
+| Chunk count | 1 | ~50 | Route-based splitting |
+| Build warnings | 1 | 0 | Resolved |
+| CSS (gzip) | 22 KB | 22 KB | Unchanged |
+| Build time | 21s | 38s | Slightly longer |
+
+**Optimizations applied:**
+
+1. **Route-based code splitting** via `React.lazy()` -- 19 pages lazy-loaded (only auth flow eagerly loaded)
+2. **Vendor chunk splitting** via Vite `manualChunks`:
+   - vendor-react: 53 KB gzip
+   - vendor-ui: 39 KB gzip
+   - vendor-supabase: 43 KB gzip
+   - vendor-pdf: 129 KB gzip (lazy)
+   - xlsx: 142 KB gzip (lazy)
+3. **Build configuration** -- ES2020 target, esbuild minification, dependency pre-bundling
+
+**Remaining optimization opportunities:**
+
+| Item | Current | Target | Action |
+|------|---------|--------|--------|
+| tyler-logo.png | 769 KB | <100 KB | Convert to WebP, compress |
+| favicon.png | 1.1 MB | <50 KB | Create proper ICO/SVG |
+| Font subsets | All loaded | Latin only | Remove unused font subsets |
+
+### Security Findings
+
+#### High Priority
+
+| Issue | Location | Risk |
+|-------|----------|------|
+| OAuth tokens stored unencrypted | `microsoft-oauth-callback/index.ts:133-134` | Token theft if DB compromised |
+| Token decryption TODO | `microsoft-send-email/index.ts:130` | Token exposure |
+
+**Recommendation:** Implement AES encryption for OAuth tokens before production use of Outlook integration.
+
+#### Security Best Practices Checklist
+
+| Practice | Status |
+|----------|--------|
+| No hardcoded secrets | Pass |
+| Environment variables | Pass (via Supabase) |
+| Input validation | Partial (manual checks, Zod installed but underutilized) |
+| XSS prevention | Pass (React escaping) |
+| SQL injection | Pass (Supabase client parameterized) |
+| CSRF protection | Pass (Supabase Auth) |
+| Secure headers | Pass (Edge function CORS) |
+
+### Code Smells
+
+**Console statements:** 107 occurrences across 39 files. Should be removed or converted to structured logging for production.
+
+**TODO/FIXME items:** 7 total (3 security-related OAuth encryption, 2 video tracking, 2 bulk operations).
+
+**Large files (refactoring candidates):**
+
+| File | Lines | Recommendation |
+|------|-------|----------------|
+| `AgentProfilePage.tsx` | 2,002 | Split into ProfileEditForm, AgentDocuments, CertificationPanel |
+| `ContractingForm.tsx` | 878 | Extract section logic to hooks |
+| `ContractingQueuePage.tsx` | 811 | Extract list/detail views |
+| `UserDetailPage.tsx` | 675 | Legacy -- consider removal |
+
+**Code duplication patterns:**
+
+| Pattern | Occurrences | Action |
+|---------|-------------|--------|
+| Form field rendering | Multiple sections | Extract to shared component |
+| Error toast patterns | ~40 instances | Create error toast utility |
+| Loading state UI | ~30 instances | Create LoadingState component |
+
+### Tech Debt Inventory
+
+#### High Priority
+
+| Item | Location | Effort | Impact |
+|------|----------|--------|--------|
+| OAuth token encryption | Edge functions | Medium | Security |
+| AgentProfilePage refactor | pages/admin | High | Maintainability |
+| Type `any` cleanup (76 instances) | Throughout | Medium | Type safety |
+
+#### Medium Priority
+
+| Item | Location | Effort | Impact |
+|------|----------|--------|--------|
+| Add basic test coverage | New files | High | Quality |
+| UserDetailPage removal | pages/admin | Low | Cleanup |
+| Console log cleanup | Throughout | Low | Production readiness |
+| TanStack Query deeper integration | hooks | Medium | Performance |
+
+#### Low Priority
+
+| Item | Location | Effort | Impact |
+|------|----------|--------|--------|
+| Video completion tracking | VideoSidebar | Low | Feature |
+| Bulk operations | AllAgentsTab | Medium | Feature |
+| Enable strict TypeScript | tsconfig | High | Type safety |
+| Storybook for component library | New | Medium | Documentation |
+
+### Testing Status
+
+| Metric | Value |
+|--------|-------|
+| Unit tests | 0 |
+| Integration tests | 0 |
+| E2E tests | 0 |
+| Test coverage | 0% |
+
+**Recommended test stack:** Vitest + Testing Library (unit/component), Playwright (E2E), Istanbul/c8 (coverage).
+
+**Priority test targets:**
+
+```
+Unit:        src/lib/formatters.ts, src/lib/errors.ts, src/hooks/useFormValidation.ts
+Component:   ProtectedRoute.tsx, ContractingForm sections, Admin data tables
+E2E:         Login flow, Agent contracting submission, Admin agent management
+```
+
+### Memoization Usage
+
+| Pattern | Count | Assessment |
+|---------|-------|------------|
+| useState | ~150 | Standard usage |
+| useEffect | ~120 | Standard usage |
+| useCallback | ~90 | Good usage |
+| useMemo | ~50 | Good usage |
+| React.memo | ~6 | Could increase for list items |
+
+---
+
+## Appendix D: Schema Reference -- Carrier Contracting
+
+*Source: Carrier Contracting Schema Summary (Jan 22, 2026)*
+
+### Table: `carriers`
+
+Master list of insurance carriers.
+
+```sql
+CREATE TABLE carriers (
+  id UUID PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,           -- 'aetna', 'humana', 'uhc', etc.
+  name TEXT NOT NULL,                  -- 'Aetna', 'Humana', 'UnitedHealthcare'
+  display_name TEXT,                   -- Short display name
+  is_active BOOLEAN DEFAULT true,
+  requires_non_resident_states BOOLEAN DEFAULT true,
+  requires_corporate_resolution BOOLEAN DEFAULT false,
+  rts_aliases TEXT[],                  -- ['UHC', 'United', 'UnitedHealthcare Medicare']
+  product_tags TEXT[],
+  state_availability TEXT[],
+  notes TEXT,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+);
+```
+
+**Current carriers:** aetna, anthem, cigna, devoted, essence, humana, molina, uhc, wellcare, bcbs
+
+### Table: `carrier_statuses`
+
+Contracting status per agent per carrier. Primary table for knowing which carriers an agent is contracted with.
+
+```sql
+CREATE TABLE carrier_statuses (
+  id UUID PRIMARY KEY,
+  profile_id UUID REFERENCES profiles(id),
+  user_id UUID,                                -- Legacy: auth user ID (may be null for imported agents)
+  carrier_id UUID REFERENCES carriers(id),
+  contracting_status TEXT DEFAULT 'not_started', -- 'not_started' | 'in_progress' | 'contracted' | 'issue'
+  contracting_submitted_at TIMESTAMPTZ,
+  contracted_at TIMESTAMPTZ,
+  contracting_link_sent_at TIMESTAMPTZ,
+  contracting_link_url TEXT,
+  link_resend_requested_at TIMESTAMPTZ,
+  issue_description TEXT,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  UNIQUE(profile_id, carrier_id)
+);
+```
+
+**Status values:**
+
+| Status | Meaning | Set By |
+|--------|---------|--------|
+| `not_started` | No contracting action taken | Default |
+| `in_progress` | Carrier request email sent to Pinnacle | Admin (Request Carrier modal) |
+| `contracted` | Agent is RTS with carrier | RTS Import or manual update |
+| `issue` | Problem with contracting | Admin manual update |
+
+### Table: `agent_certifications`
+
+RTS certification data imported from Pinnacle spreadsheets. Tracks certification year per carrier/product combination.
+
+```sql
+CREATE TABLE agent_certifications (
+  id UUID PRIMARY KEY,
+  profile_id UUID REFERENCES profiles(id),
+  carrier_name TEXT NOT NULL,          -- 'Aetna', 'Humana', 'UHC'
+  product_type TEXT NOT NULL,          -- 'MA', 'PDP', 'MEDIGAP', 'ALL_ANCILLARY', 'MAPD'
+  certification_year INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  UNIQUE(profile_id, carrier_name, product_type)
+);
+```
+
+### Table: `agent_carriers`
+
+Tracks which carriers an agent wants to track in their Book of Business. Separate from contracting status -- this is what the agent explicitly selects for production tracking.
+
+```sql
+CREATE TABLE agent_carriers (
+  id UUID PRIMARY KEY,
+  profile_id UUID REFERENCES profiles(id),
+  carrier_id UUID REFERENCES carriers(id),
+  added_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(profile_id, carrier_id)
+);
+```
+
+### Production Tables: `clients` and `policies`
+
+```sql
+CREATE TABLE clients (
+  id UUID PRIMARY KEY,
+  profile_id UUID REFERENCES profiles(id),
+  medicare_number VARCHAR(15) NOT NULL,
+  first_name TEXT,
+  last_name TEXT,
+  middle_initial VARCHAR(5),
+  date_of_birth DATE,
+  phone VARCHAR(20),
+  address_line1 TEXT,
+  address_city TEXT,
+  address_state VARCHAR(2),
+  address_zip VARCHAR(10),
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  UNIQUE(profile_id, medicare_number)
+);
+
+CREATE TABLE policies (
+  id UUID PRIMARY KEY,
+  client_id UUID REFERENCES clients(id),
+  carrier_id UUID REFERENCES carriers(id),
+  profile_id UUID REFERENCES profiles(id),
+  carrier_member_id TEXT,
+  plan_name TEXT,
+  effective_date DATE,
+  term_date DATE,
+  status VARCHAR(20) DEFAULT 'active',
+  source_upload_id UUID,
+  last_seen_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  UNIQUE(client_id, carrier_id)
+);
+```
+
+### Production Uploads Table
+
+```sql
+CREATE TABLE production_uploads (
+  id UUID PRIMARY KEY,
+  profile_id UUID REFERENCES profiles(id),
+  carrier_id UUID REFERENCES carriers(id),
+  file_name TEXT NOT NULL,
+  file_size_bytes INTEGER,
+  status VARCHAR(20) DEFAULT 'pending',  -- 'pending', 'processing', 'complete', 'error'
+  error_message TEXT,
+  total_rows INTEGER DEFAULT 0,
+  imported_count INTEGER DEFAULT 0,
+  updated_count INTEGER DEFAULT 0,
+  skipped_count INTEGER DEFAULT 0,
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ,
+  uploaded_by UUID REFERENCES profiles(id)
+);
+```
+
+### Entity Relationships (Carrier Domain)
+
+```
+profiles (agent)
+    |
+    +---> carrier_statuses ---> carriers
+    |     (contracting status)
+    |
+    +---> agent_certifications
+    |     (RTS certs, uses carrier_name string)
+    |
+    +---> agent_carriers ---> carriers
+    |     (Book of Business tracking selection)
+    |
+    +---> clients
+    |       +---> policies ---> carriers
+    |             (production data)
+    |
+    +---> production_uploads ---> carriers
+          (upload history)
+```
+
+### RTS Import Flow Detail
+
+**Source:** `src/lib/rtsImport.ts`
+
+1. Admin uploads Pinnacle RTS Excel file (sheet named "Certs")
+2. System parses columns in format `Carrier: Product` (e.g., "Aetna: MA")
+3. For each row:
+   - Extract NPN from column D
+   - Match NPN to profile via `profiles.npn`
+   - If no profile exists, create stub profile (no `user_id`, not yet invited)
+   - Import certifications to `agent_certifications`
+   - For current-year certs, also update `carrier_statuses` to "contracted"
+4. Uses `carriers.rts_aliases` for name normalization (e.g., "UHC" -> "uhc" carrier code)
+5. Logs import results to `rts_import_logs`
+
+### Carrier Selection UI Notes
+
+**Admin view (AgentProfilePage.tsx):**
+- Displays carrier statuses in a card showing contracted carriers
+- Shows status indicators (contracted, in_progress, issue, not_started)
+- "Request Carrier" modal allows admins to select carriers not yet in `carrier_statuses`, send email to Pinnacle for contracting, and create records with status "in_progress"
+
+**Agent view (NewAgentSetup.tsx -- Book of Business):**
+- Shown when agent first accesses Book of Business
+- Agent selects carriers they are contracted with
+- Saves to `agent_carriers` table
+- Currently scoped to 4 carriers via `getSupportedCarriers()` in sync.ts (humana, aetna, anthem, wellcare)
+
+### Architecture Note: Dual Carrier Tracking
+
+There are two separate systems for tracking carrier relationships:
+
+1. **Contracting** (`carrier_statuses`) -- Which carriers is the agent contracted with?
+2. **Book of Business** (`agent_carriers`) -- Which carriers does the agent want to track production for?
+
+These currently operate independently. A potential consolidation path is to add a `track_in_book_of_business BOOLEAN` column to `carrier_statuses` and deprecate the `agent_carriers` table.
+
+---
+
+## Appendix E: Known Issues
+
+*Source: Codebase Summary (Jan 25, 2026)*
+
+### Incomplete Features
+
+- **Industry Updates Page:** Placeholder content only -- no real data source
+- **Training Library:** Video player and sidebar exist but limited content
+- **AI Chat:** Edge functions deployed (`agent-chat`, `agent-chat-rag`) but feature not fully integrated in agent-facing UI
+
+### TIG-Specific Items Pending Removal
+
+- About page (TIG leadership bios)
+- Contact page (TIG staff directory)
+- "Direct to TIG" labels throughout the UI
+- `internal_tig_agent` role naming convention
+- `ownership_group: a_and_a` references in data
+
+### Technical Debt (Non-Code)
+
+- Some carrier data is Kentucky-specific (state availability, plan details)
+- Forms Library contains carrier-specific content that may not be portable to other markets
+- `admin/UserDetailPage.tsx` is legacy and possibly unused (superseded by AgentProfilePage)
+
+### Needs Decision
+
+- **Book of Business:** Complete Smart Sync integration (parse-production-report edge function) or simplify to manual entry?
+- **Training Library:** Source generic Medicare sales content or remove the feature?
+- **Forms Library:** Make carrier/state configurable or remove carrier-specific forms?

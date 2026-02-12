@@ -10,11 +10,13 @@ import { ViewModeProvider } from "./contexts/ViewModeContext";
 import { UploadProvider } from "./contexts/UploadContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { GlobalUploadIndicator } from "./components/book-of-business/GlobalUploadIndicator";
+import { AgentShell } from "./components/shell/AgentShell";
+import { AdminShell } from "./components/shell/AdminShell";
 
 // Loading fallback for lazy-loaded routes
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-50">
-    <div className="animate-pulse text-slate-400">Loading...</div>
+  <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+    <div className="animate-pulse" style={{ color: 'var(--text-muted)' }}>Loading...</div>
   </div>
 );
 
@@ -46,7 +48,6 @@ const TrainingPage = lazy(() => import("./pages/TrainingPage"));
 const ContractingPage = lazy(() => import("./pages/ContractingPage"));
 const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
 const T65ReviewPage = lazy(() => import("./pages/T65ReviewPage"));
-const MyClientsPage = lazy(() => import("./pages/MyClientsPage"));
 const SyncFlow = lazy(() => import("./pages/SyncFlow"));
 
 // Lazy load: Book of Business pages
@@ -141,156 +142,66 @@ const App = () => (
           <RecoveryRedirectHandler />
           <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Auth */}
+            {/* ================================ */}
+            {/* Public — no shell               */}
+            {/* ================================ */}
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/auth/set-password" element={<SetPasswordPage />} />
             <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-            
-            {/* Agent contracting (accessible only to agents needing contracting) */}
-            <Route 
-              path="/contracting" 
-              element={
-                <ProtectedRoute requireAgent allowContractingOnly>
-                  <ContractingPage />
-                </ProtectedRoute>
-              } 
-            />
-            
-            {/* Admin routes */}
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route
-              path="/admin/users/:userId"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <UserDetailPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/agents" 
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AgentsPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route
-              path="/admin/agents/new"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <NewAgentPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/agents/:profileId"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AgentProfilePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/contracting" 
-              element={
-                <ProtectedRoute requireAdmin>
-                  <ContractingQueuePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route
-              path="/admin/activity-log"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <ActivityLogPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/rts-import"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <RTSImportPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/roadmaps"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <RoadmapGeneratorPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/labs"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <LabsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/pdf-builder"
-              element={
-                <ProtectedRoute requireSuperAdmin>
-                  <PdfBuilderPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/plan-finder"
-              element={
-                <ProtectedRoute>
-                  <PlanFinderPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/agents/book"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AgentsBookPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/agents/:agentId/book"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AgentBookDetailPage />
-                </ProtectedRoute>
-              }
-            />
 
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/sync" element={<ProtectedRoute><SyncFlow /></ProtectedRoute>} />
-            <Route path="/t65-review" element={<ProtectedRoute><T65ReviewPage /></ProtectedRoute>} />
-            <Route path="/my-clients" element={<Navigate to="/book/clients" replace />} />
-            <Route path="/book" element={<ProtectedRoute><BookDashboard /></ProtectedRoute>} />
-            <Route path="/book/growth" element={<ProtectedRoute><GrowthIncome /></ProtectedRoute>} />
-            <Route path="/book/clients" element={<ProtectedRoute><BookClientList /></ProtectedRoute>} />
-            <Route path="/start-here" element={<ProtectedRoute><StartHerePage /></ProtectedRoute>} />
-            <Route path="/contracting-hub" element={<ProtectedRoute><ContractingHubPage /></ProtectedRoute>} />
-            <Route path="/my-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
-            <Route path="/industry-updates" element={<ProtectedRoute><IndustryUpdatesPage /></ProtectedRoute>} />
-            {/* Training Library */}
-            <Route path="/training" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />
-            <Route path="/training/:videoId" element={<ProtectedRoute><TrainingPage /></ProtectedRoute>} />
-            <Route path="/compliance" element={<ProtectedRoute><CompliancePage /></ProtectedRoute>} />
-            <Route path="/carrier-resources" element={<ProtectedRoute><CarrierResourcesPage /></ProtectedRoute>} />
-            <Route path="/carrier-resources/plans" element={<ProtectedRoute><CarrierPlansPage /></ProtectedRoute>} />
-            <Route path="/agent-tools" element={<ProtectedRoute><AgentToolsPage /></ProtectedRoute>} />
-            <Route path="/forms-library" element={<ProtectedRoute><FormsLibraryPage /></ProtectedRoute>} />
-            <Route path="/carrier-portals" element={<ProtectedRoute><CarrierPortalsPage /></ProtectedRoute>} />
-            <Route path="/admin/documents" element={<ProtectedRoute requireAdmin><DocumentManagementPage /></ProtectedRoute>} />
+            {/* ================================ */}
+            {/* Agent contracting (inside shell, accessible to contracting-required agents) */}
+            {/* ================================ */}
+            <Route element={<ProtectedRoute requireAgent allowContractingOnly><AgentShell /></ProtectedRoute>}>
+              <Route path="contracting" element={<ContractingPage />} />
+            </Route>
+
+            {/* ================================ */}
+            {/* Agent shell                     */}
+            {/* ================================ */}
+            <Route element={<ProtectedRoute><AgentShell /></ProtectedRoute>}>
+              <Route index element={<Index />} />
+              <Route path="book" element={<BookDashboard />} />
+              <Route path="book/clients" element={<BookClientList />} />
+              <Route path="book/growth" element={<GrowthIncome />} />
+              <Route path="contracting-hub" element={<ContractingHubPage />} />
+              <Route path="plan-finder" element={<PlanFinderPage />} />
+              <Route path="carrier-portals" element={<CarrierPortalsPage />} />
+              <Route path="carrier-resources" element={<CarrierResourcesPage />} />
+              <Route path="carrier-resources/plans" element={<CarrierPlansPage />} />
+              <Route path="forms-library" element={<FormsLibraryPage />} />
+              <Route path="training" element={<TrainingPage />} />
+              <Route path="training/:videoId" element={<TrainingPage />} />
+              <Route path="compliance" element={<CompliancePage />} />
+              <Route path="agent-tools" element={<AgentToolsPage />} />
+              <Route path="my-profile" element={<MyProfilePage />} />
+              <Route path="start-here" element={<StartHerePage />} />
+              <Route path="industry-updates" element={<IndustryUpdatesPage />} />
+              <Route path="t65-review" element={<T65ReviewPage />} />
+              <Route path="sync" element={<SyncFlow />} />
+              <Route path="my-clients" element={<Navigate to="/book/clients" replace />} />
+            </Route>
+
+            {/* ================================ */}
+            {/* Admin shell                     */}
+            {/* ================================ */}
+            <Route element={<ProtectedRoute requireAdmin><AdminShell /></ProtectedRoute>}>
+              <Route path="admin" element={<AdminDashboard />} />
+              <Route path="admin/agents" element={<AgentsPage />} />
+              <Route path="admin/agents/new" element={<NewAgentPage />} />
+              <Route path="admin/agents/book" element={<AgentsBookPage />} />
+              <Route path="admin/agents/:agentId/book" element={<AgentBookDetailPage />} />
+              <Route path="admin/agents/:profileId" element={<AgentProfilePage />} />
+              <Route path="admin/users/:userId" element={<UserDetailPage />} />
+              <Route path="admin/contracting" element={<ContractingQueuePage />} />
+              <Route path="admin/rts-import" element={<RTSImportPage />} />
+              <Route path="admin/roadmaps" element={<RoadmapGeneratorPage />} />
+              <Route path="admin/documents" element={<DocumentManagementPage />} />
+              <Route path="admin/activity-log" element={<ProtectedRoute requireSuperAdmin><ActivityLogPage /></ProtectedRoute>} />
+              <Route path="admin/labs" element={<ProtectedRoute requireSuperAdmin><LabsPage /></ProtectedRoute>} />
+              <Route path="admin/pdf-builder" element={<ProtectedRoute requireSuperAdmin><PdfBuilderPage /></ProtectedRoute>} />
+            </Route>
+
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
