@@ -545,7 +545,7 @@ export function AgentShell() {
       </nav>
 
       {/* Content area */}
-      <main style={{ flex: 1, overflowY: 'auto', marginLeft: 0 }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', marginLeft: 0 }}>
         <Outlet />
       </main>
     </div>

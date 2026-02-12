@@ -226,6 +226,27 @@ Shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.05)
 10. Forms (clipboard)
 11. Training (graduation cap)
 
+### Page Full-Height Pattern
+
+AgentShell's `<main>` is a flex column container (`display: flex; flex-direction: column`). Any page that needs to fill the full content area height should use this pattern on its outermost wrapper:
+
+```css
+/* Page wrapper */
+flex: 1 1 auto;
+display: flex;
+flex-direction: column;
+min-height: 0;        /* prevents flex item overflow */
+```
+
+This enables:
+- **Bottom-pinned elements** (footers, strips) via `flex-shrink: 0` on the bottom element
+- **Vertically centered content** via `flex: 1 1 auto; justify-content: center` on the middle section
+- **Full-height backgrounds** (gradients, radial warmth) that span the visible area
+
+Pages that don't need full-height control can ignore this — block content renders normally as a flex child.
+
+**Reference implementation:** Dashboard (`src/pages/Index.tsx`) — hero number centered with carrier strip pinned to bottom.
+
 ---
 
 ## 6. COMPONENTS
