@@ -412,14 +412,17 @@ export function ClientListPanel({
             </div>
           </div>
         ) : (
-          clients.map((client) => (
-            <ClientRow
-              key={client.id}
-              client={client}
-              isSelected={selectedClientId === client.id}
-              onSelect={() => onSelectClient(client.id)}
-            />
-          ))
+          clients.map((client) => {
+            const isSelected = selectedClientId != null && String(client.id) === String(selectedClientId);
+            return (
+              <ClientRow
+                key={client.id}
+                client={client}
+                isSelected={isSelected}
+                onSelect={() => onSelectClient(String(client.id))}
+              />
+            );
+          })
         )}
       </div>
 
@@ -537,11 +540,11 @@ function ClientRow({
   const carrierName = client.carrier_name || '';
   const carrierColor = getCarrierCSSVar(carrierName);
   const birthday = getBirthdayInfo(client.date_of_birth);
-  const isFlagged = client.flag_type === 'not_on_report' || client.flag_type === 'termed_on_report';
-  const hasBirthdayFlag = client.flag_type === 'birthday_upcoming';
-  const isBirthdayRow = birthday !== null || hasBirthdayFlag;
 
-  // Flag tag display
+  // Flagged = any attention flag EXCEPT birthday (birthday gets its own gem badge)
+  const isFlagged = !!client.flag_type && client.flag_type !== 'birthday_upcoming';
+
+  // Flag tag display — map flag_type to label and color treatment
   let flagTag: { label: string; type: 'alert' | 'termed' } | null = null;
   if (client.flag_type === 'not_on_report') {
     flagTag = { label: 'Not on report', type: 'alert' };
@@ -549,6 +552,8 @@ function ClientRow({
     flagTag = { label: 'Termed on report', type: 'termed' };
   } else if (client.flag_type === 'no_contact_90' || client.flag_type === 'no_contact_180') {
     flagTag = { label: client.flag_title || 'Overdue', type: 'alert' };
+  } else if (client.flag_type && client.flag_type !== 'birthday_upcoming') {
+    flagTag = { label: client.flag_title || client.flag_type.replace(/_/g, ' '), type: 'alert' };
   }
 
   return (
@@ -564,12 +569,10 @@ function ClientRow({
         transition: 'background 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         background: isSelected
-          ? '#F8F2EA'
+          ? '#F0E8DA'
           : isFlagged
             ? 'rgba(196,74,63,0.03)'
-            : isBirthdayRow
-              ? 'rgba(201,168,76,0.04)'
-              : 'transparent',
+            : 'transparent',
         ...(isFlagged
           ? { borderLeft: '3px solid var(--red)', paddingLeft: 13 }
           : {}),
@@ -578,18 +581,14 @@ function ClientRow({
         if (!isSelected) {
           e.currentTarget.style.background = isFlagged
             ? 'rgba(196,74,63,0.06)'
-            : isBirthdayRow
-              ? 'rgba(201,168,76,0.08)'
-              : 'var(--bg-subtle)';
+            : 'var(--bg-subtle)';
         }
       }}
       onMouseLeave={(e) => {
         if (!isSelected) {
           e.currentTarget.style.background = isFlagged
             ? 'rgba(196,74,63,0.03)'
-            : isBirthdayRow
-              ? 'rgba(201,168,76,0.04)'
-              : 'transparent';
+            : 'transparent';
         }
       }}
     >
@@ -604,6 +603,7 @@ function ClientRow({
             width: 3,
             background: 'var(--gold)',
             borderRadius: '2px 0 0 2px',
+            zIndex: 2,
           }}
         />
       )}
@@ -680,7 +680,7 @@ function ClientRow({
           <span
             style={{
               fontSize: 9,
-              fontWeight: 600,
+              fontWeight: 700,
               padding: '2px 8px',
               borderRadius: 10,
               display: 'inline-flex',
@@ -692,7 +692,7 @@ function ClientRow({
                     color: 'white',
                   }
                 : {
-                    background: 'rgba(201,168,76,0.12)',
+                    background: 'rgba(201,168,76,0.15)',
                     color: 'var(--gold-dark)',
                   }),
             }}

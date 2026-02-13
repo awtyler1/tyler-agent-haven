@@ -72,13 +72,13 @@ export default function ClientList() {
   // Reset page when filters change
   useMemo(() => setCurrentPage(1), [searchQuery, selectedCarrier, birthdayFilter, statusFilter]);
 
-  // Auto-select first client if none selected
+  // Auto-select first client if none selected (String() guards against type mismatch)
   const selectedClient =
-    displayClients.find((c) => c.id === selectedClientId) || displayClients[0] || null;
+    displayClients.find((c) => selectedClientId != null && String(c.id) === String(selectedClientId)) || displayClients[0] || null;
 
-  // Stats for header badges
-  const totalCount = filteredClients?.length || 0;
-  const attentionCount = flaggedClients?.length || 0;
+  // Stats for header badges — use displayClients (post-status-filter) so badge matches pagination
+  const totalCount = displayClients.length;
+  const attentionCount = flaggedClients?.filter(c => c.flag_type !== 'birthday_upcoming').length || 0;
   const birthdayCount = useMemo(() => {
     if (!filteredClients) return 0;
     const now = new Date();
@@ -95,13 +95,13 @@ export default function ClientList() {
   }, [filteredClients]);
 
   // Navigate between clients with arrow buttons
-  const selectedIndex = displayClients.findIndex((c) => c.id === selectedClient?.id);
+  const selectedIndex = displayClients.findIndex((c) => selectedClient && String(c.id) === String(selectedClient.id));
   const handlePrevClient = () => {
-    if (selectedIndex > 0) setSelectedClientId(displayClients[selectedIndex - 1].id);
+    if (selectedIndex > 0) setSelectedClientId(String(displayClients[selectedIndex - 1].id));
   };
   const handleNextClient = () => {
     if (selectedIndex < displayClients.length - 1)
-      setSelectedClientId(displayClients[selectedIndex + 1].id);
+      setSelectedClientId(String(displayClients[selectedIndex + 1].id));
   };
 
   if (isLoading) {
@@ -145,8 +145,8 @@ export default function ClientList() {
       >
         <ClientListPanel
           clients={paginatedClients}
-          selectedClientId={selectedClient?.id || null}
-          onSelectClient={(id: string) => setSelectedClientId(id)}
+          selectedClientId={selectedClient ? String(selectedClient.id) : null}
+          onSelectClient={(id: string) => setSelectedClientId(String(id))}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           availableCarriers={availableCarriers}

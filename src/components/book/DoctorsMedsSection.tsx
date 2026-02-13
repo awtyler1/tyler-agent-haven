@@ -41,6 +41,8 @@ export function DoctorsMedsSection({
   const [activePCP, setActivePCP] = useState<string | null>(
     doctors.find((d) => d.isPCP)?.id || null,
   );
+  const [showAllDoctors, setShowAllDoctors] = useState(false);
+  const [showAllMeds, setShowAllMeds] = useState(false);
 
   return (
     <div style={{ marginBottom: 20 }}>
@@ -146,7 +148,7 @@ export function DoctorsMedsSection({
               </button>
             </div>
 
-            {doctors.map((doc) => (
+            {(showAllDoctors ? doctors : doctors.slice(0, 3)).map((doc) => (
               <DoctorRow
                 key={doc.id}
                 doctor={doc}
@@ -154,6 +156,26 @@ export function DoctorsMedsSection({
                 onSetPCP={() => setActivePCP(doc.id)}
               />
             ))}
+            {doctors.length > 3 && (
+              <button
+                onClick={() => setShowAllDoctors(!showAllDoctors)}
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: 'var(--blue)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '6px 0 0',
+                  display: 'block',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#3A6FA5')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--blue)')}
+              >
+                {showAllDoctors ? 'Show fewer' : `Show all ${doctors.length} doctors`}
+              </button>
+            )}
           </div>
 
           {/* Medications card */}
@@ -201,9 +223,29 @@ export function DoctorsMedsSection({
               </button>
             </div>
 
-            {medications.map((med) => (
+            {(showAllMeds ? medications : medications.slice(0, 3)).map((med) => (
               <MedRow key={med.id} medication={med} />
             ))}
+            {medications.length > 3 && (
+              <button
+                onClick={() => setShowAllMeds(!showAllMeds)}
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: 'var(--blue)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '6px 0 0',
+                  display: 'block',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#3A6FA5')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--blue)')}
+              >
+                {showAllMeds ? 'Show fewer' : `Show all ${medications.length} medications`}
+              </button>
+            )}
 
             {pharmacy && (
               <div
