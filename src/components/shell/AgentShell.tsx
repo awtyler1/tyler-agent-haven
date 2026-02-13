@@ -544,9 +544,11 @@ export function AgentShell() {
         />
       </nav>
 
-      {/* Content area */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', marginLeft: 0 }}>
-        <Outlet />
+      {/* Content area — flex column so pages can fill height; scroll wrapper for normal pages */}
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', marginLeft: 0 }}>
+        <div style={{ flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, overflowY: 'auto' }}>
+          <Outlet />
+        </div>
       </main>
     </div>
   );
