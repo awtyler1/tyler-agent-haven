@@ -22,6 +22,7 @@ export default function ClientList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [birthdayFilter, setBirthdayFilter] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'active' | 'termed' | 'all'>('active');
+  const [effDateFilter, setEffDateFilter] = useState<string>('');
 
   // Single-carrier filter bridged to the array interface
   const selectedCarrier = selectedCarriers[0] || '';
@@ -38,6 +39,15 @@ export default function ClientList() {
       list = list.filter((c) => c.policy_status === 'active' || !c.policy_status);
     } else if (statusFilter === 'termed') {
       list = list.filter((c) => c.policy_status === 'termed');
+    }
+
+    // Effective date year filter
+    if (effDateFilter) {
+      list = list.filter((c) => {
+        if (!c.effective_date) return false;
+        const year = new Date(c.effective_date).getFullYear().toString();
+        return year === effDateFilter;
+      });
     }
 
     // Birthday filter — within next 30 days
@@ -60,7 +70,7 @@ export default function ClientList() {
       if (aFlagged !== bFlagged) return bFlagged - aFlagged;
       return `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`);
     });
-  }, [filteredClients, birthdayFilter, statusFilter]);
+  }, [filteredClients, birthdayFilter, statusFilter, effDateFilter]);
 
   // Pagination
   const totalPages = Math.ceil(displayClients.length / ITEMS_PER_PAGE);
@@ -70,7 +80,7 @@ export default function ClientList() {
   );
 
   // Reset page when filters change
-  useMemo(() => setCurrentPage(1), [searchQuery, selectedCarrier, birthdayFilter, statusFilter]);
+  useMemo(() => setCurrentPage(1), [searchQuery, selectedCarrier, birthdayFilter, statusFilter, effDateFilter]);
 
   // Auto-select first client if none selected (String() guards against type mismatch)
   const selectedClient =
@@ -157,6 +167,8 @@ export default function ClientList() {
           birthdayCount={birthdayCount}
           statusFilter={statusFilter}
           onStatusChange={setStatusFilter}
+          effDateFilter={effDateFilter}
+          onEffDateChange={setEffDateFilter}
           currentPage={currentPage}
           totalPages={totalPages}
           totalClients={displayClients.length}

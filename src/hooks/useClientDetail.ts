@@ -10,6 +10,11 @@ export interface ClientDetailData {
   phone: string | null;
   email: string | null;
   last_contacted_at: string | null;
+  medicare_number: string | null;
+  address_line1: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_zip: string | null;
   policies: {
     id: string;
     plan_name: string;
@@ -53,6 +58,7 @@ export function useClientDetail(clientId: string | null) {
           .from('clients')
           .select(`
             id, first_name, last_name, date_of_birth, phone, email, last_contacted_at,
+            medicare_number, address_line1, address_city, address_state, address_zip,
             policies (
               id, plan_name, plan_type, effective_date, term_date, status,
               carrier:carriers ( id, name )

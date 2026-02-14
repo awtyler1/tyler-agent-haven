@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCreateInteraction } from '@/hooks/useClientInteractions';
 import { useClientDetail } from '@/hooks/useClientDetail';
 
@@ -49,8 +49,17 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
   const [selectedOutcome, setSelectedOutcome] = useState<CallOutcome>('reached');
   const [noteText, setNoteText] = useState('');
   const [timelineOpen, setTimelineOpen] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const createInteraction = useCreateInteraction();
+
+  // Auto-dismiss error after 5 seconds
+  useEffect(() => {
+    if (!saveError) return;
+    const timer = setTimeout(() => setSaveError(null), 5000);
+    return () => clearTimeout(timer);
+  }, [saveError]);
   const { data: detail } = useClientDetail(clientId);
 
   const interactions = detail?.interactions || [];
@@ -76,6 +85,7 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
 
   const handleSave = () => {
     if (!noteText.trim()) return;
+    setSaveError(null);
     createInteraction.mutate(
       {
         client_id: clientId,
@@ -86,6 +96,10 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
       {
         onSuccess: () => {
           setNoteText('');
+          inputRef.current?.focus();
+        },
+        onError: () => {
+          setSaveError("Couldn't save — try again");
         },
       },
     );
@@ -188,6 +202,7 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
         {/* Input + Save */}
         <div style={{ display: 'flex', gap: 8 }}>
           <input
+            ref={inputRef}
             type="text"
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
@@ -231,6 +246,18 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
             {createInteraction.isPending ? 'Saving…' : 'Save'}
           </button>
         </div>
+        {saveError && (
+          <div
+            style={{
+              fontSize: 12,
+              color: 'var(--red)',
+              fontFamily: 'var(--font-sans)',
+              marginTop: 6,
+            }}
+          >
+            {saveError}
+          </div>
+        )}
       </div>
 
       {/* Timeline toggle */}

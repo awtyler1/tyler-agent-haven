@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { BookClientWithMeta } from '@/hooks/useBookClients';
 import { useClientDetail } from '@/hooks/useClientDetail';
 import { formatPhone, titleCase } from '@/lib/utils';
@@ -32,6 +33,7 @@ interface ClientDetailProps {
 
 export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
   const { data: detail } = useClientDetail(client.id);
+  const [editAllFields, setEditAllFields] = useState(false);
 
   // Use detail data when available, fall back to list data
   const primaryPolicy = detail?.policies
@@ -98,20 +100,21 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <button
+              onClick={() => setEditAllFields(!editAllFields)}
               style={{
                 fontFamily: "var(--font-sans)",
                 fontSize: 11,
                 fontWeight: 500,
                 padding: '4px 12px',
                 borderRadius: 6,
-                border: '1px solid var(--bg-muted)',
-                background: 'white',
-                color: 'var(--text-muted)',
+                border: `1px solid ${editAllFields ? 'var(--gold)' : 'var(--bg-muted)'}`,
+                background: editAllFields ? 'rgba(201,168,76,0.06)' : 'white',
+                color: editAllFields ? 'var(--gold-dark)' : 'var(--text-muted)',
                 cursor: 'pointer',
                 transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
             >
-              Edit
+              {editAllFields ? 'Done' : 'Edit'}
             </button>
             <button
               onClick={onPrev}
@@ -185,24 +188,24 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
           }}
         >
           {/* Zip chip — gold-tinted, placed first */}
-          <span
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: 'var(--gold-dark)',
-              padding: '4px 11px',
-              borderRadius: 6,
-              background: 'rgba(201,168,76,0.06)',
-              border: '1px solid rgba(201,168,76,0.3)',
-              letterSpacing: '0.03em',
-              display: 'inline-flex',
-              alignItems: 'center',
-            }}
-          >
-            {/* Show zip from detail or placeholder */}
-            {/* TODO: wire to real zip from client data */}
-            40502
-          </span>
+          {(detail?.address_zip || client.carrier_name) && (
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: 'var(--gold-dark)',
+                padding: '4px 11px',
+                borderRadius: 6,
+                background: 'rgba(201,168,76,0.06)',
+                border: '1px solid rgba(201,168,76,0.3)',
+                letterSpacing: '0.03em',
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              {detail?.address_zip || '—'}
+            </span>
+          )}
 
           {/* Carrier chip */}
           {carrierName && (
@@ -307,10 +310,17 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
 
         {/* Personal Information */}
         <ClientInfoSection
-          dateOfBirth={client.date_of_birth}
+          clientId={client.id}
+          dateOfBirth={detail?.date_of_birth ?? client.date_of_birth}
           age={client.age}
-          phone={client.phone}
-          email={client.email}
+          phone={detail?.phone ?? client.phone}
+          email={detail?.email ?? client.email}
+          medicareNumber={detail?.medicare_number}
+          addressLine1={detail?.address_line1}
+          addressCity={detail?.address_city}
+          addressState={detail?.address_state}
+          addressZip={detail?.address_zip}
+          editAll={editAllFields}
         />
 
         {/* Doctors & Medications */}

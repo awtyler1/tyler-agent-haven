@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface Doctor {
   id: string;
@@ -38,11 +38,65 @@ export function DoctorsMedsSection({
   pharmacy = 'CVS — 1234 Richmond Rd',
 }: DoctorsMedsSectionProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [localDoctors, setLocalDoctors] = useState<Doctor[]>(doctors);
+  const [localMeds, setLocalMeds] = useState<Medication[]>(medications);
+  const [localPharmacy, setLocalPharmacy] = useState(pharmacy);
   const [activePCP, setActivePCP] = useState<string | null>(
     doctors.find((d) => d.isPCP)?.id || null,
   );
   const [showAllDoctors, setShowAllDoctors] = useState(false);
   const [showAllMeds, setShowAllMeds] = useState(false);
+  const [addingDoctor, setAddingDoctor] = useState(false);
+  const [addingMed, setAddingMed] = useState(false);
+  const [editingPharmacy, setEditingPharmacy] = useState(false);
+
+  const handleAddDoctor = (name: string, specialty: string) => {
+    // TODO: persist to client_doctors table when created
+    const newDoc: Doctor = {
+      id: crypto.randomUUID(),
+      name: name.trim(),
+      specialty: specialty.trim(),
+      isPCP: false,
+    };
+    setLocalDoctors((prev) => [...prev, newDoc]);
+    setAddingDoctor(false);
+  };
+
+  const handleRemoveDoctor = (id: string) => {
+    // TODO: delete from client_doctors table when created
+    setLocalDoctors((prev) => prev.filter((d) => d.id !== id));
+    if (activePCP === id) setActivePCP(null);
+  };
+
+  const handleSetPCP = (id: string) => {
+    // TODO: persist PCP designation to database when client_doctors table exists
+    setActivePCP(id);
+  };
+
+  const handleAddMed = (name: string, dosage: string) => {
+    // TODO: persist to client_medications table when created
+    const newMed: Medication = {
+      id: crypto.randomUUID(),
+      name: name.trim(),
+      dosage: dosage.trim(),
+    };
+    setLocalMeds((prev) => [...prev, newMed]);
+    setAddingMed(false);
+  };
+
+  const handleRemoveMed = (id: string) => {
+    // TODO: delete from client_medications table when created
+    setLocalMeds((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const handlePharmacySave = (value: string) => {
+    // TODO: persist pharmacy to clients table or dedicated field when available
+    setLocalPharmacy(value.trim() || pharmacy);
+    setEditingPharmacy(false);
+  };
+
+  const visibleDoctors = showAllDoctors ? localDoctors : localDoctors.slice(0, 3);
+  const visibleMeds = showAllMeds ? localMeds : localMeds.slice(0, 3);
 
   return (
     <div style={{ marginBottom: 20 }}>
@@ -92,7 +146,7 @@ export function DoctorsMedsSection({
           overflow: 'hidden',
           transition:
             'max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-          maxHeight: isOpen ? 800 : 0,
+          maxHeight: isOpen ? 1200 : 0,
           opacity: isOpen ? 1 : 0,
         }}
       >
@@ -132,6 +186,7 @@ export function DoctorsMedsSection({
                 Doctors
               </div>
               <button
+                onClick={() => setAddingDoctor(true)}
                 style={{
                   fontFamily: "var(--font-sans)",
                   fontSize: 11,
@@ -148,15 +203,16 @@ export function DoctorsMedsSection({
               </button>
             </div>
 
-            {(showAllDoctors ? doctors : doctors.slice(0, 3)).map((doc) => (
+            {visibleDoctors.map((doc) => (
               <DoctorRow
                 key={doc.id}
                 doctor={doc}
                 isActivePCP={activePCP === doc.id}
-                onSetPCP={() => setActivePCP(doc.id)}
+                onSetPCP={() => handleSetPCP(doc.id)}
+                onRemove={() => handleRemoveDoctor(doc.id)}
               />
             ))}
-            {doctors.length > 3 && (
+            {localDoctors.length > 3 && (
               <button
                 onClick={() => setShowAllDoctors(!showAllDoctors)}
                 style={{
@@ -173,8 +229,14 @@ export function DoctorsMedsSection({
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#3A6FA5')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--blue)')}
               >
-                {showAllDoctors ? 'Show fewer' : `Show all ${doctors.length} doctors`}
+                {showAllDoctors ? 'Show fewer' : `Show all ${localDoctors.length} doctors`}
               </button>
+            )}
+            {addingDoctor && (
+              <InlineAddDoctor
+                onSave={handleAddDoctor}
+                onCancel={() => setAddingDoctor(false)}
+              />
             )}
           </div>
 
@@ -207,6 +269,7 @@ export function DoctorsMedsSection({
                 Medications
               </div>
               <button
+                onClick={() => setAddingMed(true)}
                 style={{
                   fontFamily: "var(--font-sans)",
                   fontSize: 11,
@@ -223,10 +286,14 @@ export function DoctorsMedsSection({
               </button>
             </div>
 
-            {(showAllMeds ? medications : medications.slice(0, 3)).map((med) => (
-              <MedRow key={med.id} medication={med} />
+            {visibleMeds.map((med) => (
+              <MedRow
+                key={med.id}
+                medication={med}
+                onRemove={() => handleRemoveMed(med.id)}
+              />
             ))}
-            {medications.length > 3 && (
+            {localMeds.length > 3 && (
               <button
                 onClick={() => setShowAllMeds(!showAllMeds)}
                 style={{
@@ -243,26 +310,50 @@ export function DoctorsMedsSection({
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#3A6FA5')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--blue)')}
               >
-                {showAllMeds ? 'Show fewer' : `Show all ${medications.length} medications`}
+                {showAllMeds ? 'Show fewer' : `Show all ${localMeds.length} medications`}
               </button>
             )}
-
-            {pharmacy && (
-              <div
-                style={{
-                  marginTop: 10,
-                  paddingTop: 8,
-                  borderTop: '1px solid var(--bg-muted)',
-                  fontSize: 11,
-                  color: 'var(--text-muted)',
-                }}
-              >
-                Preferred pharmacy:{' '}
-                <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                  {pharmacy}
-                </strong>
-              </div>
+            {addingMed && (
+              <InlineAddMed
+                onSave={handleAddMed}
+                onCancel={() => setAddingMed(false)}
+              />
             )}
+
+            {/* Pharmacy — editable */}
+            <div
+              style={{
+                marginTop: 10,
+                paddingTop: 8,
+                borderTop: '1px solid var(--bg-muted)',
+                fontSize: 11,
+                color: 'var(--text-muted)',
+              }}
+            >
+              Preferred pharmacy:{' '}
+              {editingPharmacy ? (
+                <PharmacyInput
+                  value={localPharmacy}
+                  onSave={handlePharmacySave}
+                  onCancel={() => setEditingPharmacy(false)}
+                />
+              ) : (
+                <strong
+                  onClick={() => setEditingPharmacy(true)}
+                  style={{
+                    color: 'var(--text-primary)',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    borderBottom: '1px dashed var(--bg-muted)',
+                    transition: 'border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--gold)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--bg-muted)')}
+                >
+                  {localPharmacy}
+                </strong>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -270,14 +361,239 @@ export function DoctorsMedsSection({
   );
 }
 
+/** Inline add form for doctors */
+function InlineAddDoctor({
+  onSave,
+  onCancel,
+}: {
+  onSave: (name: string, specialty: string) => void;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState('');
+  const [specialty, setSpecialty] = useState('');
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    nameRef.current?.focus();
+  }, []);
+
+  const handleSubmit = () => {
+    if (!name.trim()) return;
+    onSave(name, specialty);
+  };
+
+  return (
+    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <input
+        ref={nameRef}
+        type="text"
+        placeholder="Doctor name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSubmit();
+          if (e.key === 'Escape') onCancel();
+        }}
+        style={inlineInputStyle}
+        onFocus={(e) => (e.target.style.borderColor = 'var(--gold)')}
+        onBlur={(e) => (e.target.style.borderColor = 'var(--bg-muted)')}
+      />
+      <input
+        type="text"
+        placeholder="Specialty (optional)"
+        value={specialty}
+        onChange={(e) => setSpecialty(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSubmit();
+          if (e.key === 'Escape') onCancel();
+        }}
+        style={inlineInputStyle}
+        onFocus={(e) => (e.target.style.borderColor = 'var(--gold)')}
+        onBlur={(e) => (e.target.style.borderColor = 'var(--bg-muted)')}
+      />
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button
+          onClick={handleSubmit}
+          disabled={!name.trim()}
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: 11,
+            fontWeight: 600,
+            padding: '5px 14px',
+            borderRadius: 8,
+            border: 'none',
+            background: name.trim() ? 'var(--blue)' : 'var(--bg-muted)',
+            color: name.trim() ? 'white' : 'var(--text-faint)',
+            cursor: name.trim() ? 'pointer' : 'default',
+            transition: 'background 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          Save
+        </button>
+        <button
+          onClick={onCancel}
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: 11,
+            fontWeight: 500,
+            color: 'var(--text-muted)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Inline add form for medications */
+function InlineAddMed({
+  onSave,
+  onCancel,
+}: {
+  onSave: (name: string, dosage: string) => void;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState('');
+  const [dosage, setDosage] = useState('');
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    nameRef.current?.focus();
+  }, []);
+
+  const handleSubmit = () => {
+    if (!name.trim()) return;
+    onSave(name, dosage);
+  };
+
+  return (
+    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <input
+        ref={nameRef}
+        type="text"
+        placeholder="Medication name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSubmit();
+          if (e.key === 'Escape') onCancel();
+        }}
+        style={inlineInputStyle}
+        onFocus={(e) => (e.target.style.borderColor = 'var(--gold)')}
+        onBlur={(e) => (e.target.style.borderColor = 'var(--bg-muted)')}
+      />
+      <input
+        type="text"
+        placeholder="Dosage (optional)"
+        value={dosage}
+        onChange={(e) => setDosage(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSubmit();
+          if (e.key === 'Escape') onCancel();
+        }}
+        style={inlineInputStyle}
+        onFocus={(e) => (e.target.style.borderColor = 'var(--gold)')}
+        onBlur={(e) => (e.target.style.borderColor = 'var(--bg-muted)')}
+      />
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button
+          onClick={handleSubmit}
+          disabled={!name.trim()}
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: 11,
+            fontWeight: 600,
+            padding: '5px 14px',
+            borderRadius: 8,
+            border: 'none',
+            background: name.trim() ? 'var(--blue)' : 'var(--bg-muted)',
+            color: name.trim() ? 'white' : 'var(--text-faint)',
+            cursor: name.trim() ? 'pointer' : 'default',
+            transition: 'background 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          Save
+        </button>
+        <button
+          onClick={onCancel}
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: 11,
+            fontWeight: 500,
+            color: 'var(--text-muted)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Inline pharmacy editor */
+function PharmacyInput({
+  value,
+  onSave,
+  onCancel,
+}: {
+  value: string;
+  onSave: (v: string) => void;
+  onCancel: () => void;
+}) {
+  const [draft, setDraft] = useState(value);
+  const ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    ref.current?.focus();
+  }, []);
+
+  return (
+    <input
+      ref={ref}
+      type="text"
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => onSave(draft)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') onSave(draft);
+        if (e.key === 'Escape') onCancel();
+      }}
+      style={{
+        fontFamily: 'var(--font-sans)',
+        fontSize: 11,
+        fontWeight: 500,
+        color: 'var(--text-primary)',
+        padding: '2px 6px',
+        borderRadius: 4,
+        border: '1px solid var(--gold)',
+        background: 'white',
+        outline: 'none',
+        width: '100%',
+        marginTop: 2,
+      }}
+    />
+  );
+}
+
 function DoctorRow({
   doctor,
   isActivePCP,
   onSetPCP,
+  onRemove,
 }: {
   doctor: Doctor;
   isActivePCP: boolean;
   onSetPCP: () => void;
+  onRemove: () => void;
 }) {
   const initials = doctor.name
     .replace(/^Dr\.\s*/, '')
@@ -327,7 +643,9 @@ function DoctorRow({
         >
           {doctor.name}
         </div>
-        <div style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>{doctor.specialty}</div>
+        {doctor.specialty && (
+          <div style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>{doctor.specialty}</div>
+        )}
       </div>
 
       {/* PCP badge */}
@@ -357,6 +675,10 @@ function DoctorRow({
       {/* Remove button */}
       <button
         className="remove-btn-target"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
         style={{
           width: 22,
           height: 22,
@@ -381,7 +703,13 @@ function DoctorRow({
   );
 }
 
-function MedRow({ medication }: { medication: Medication }) {
+function MedRow({
+  medication,
+  onRemove,
+}: {
+  medication: Medication;
+  onRemove: () => void;
+}) {
   return (
     <div
       className="med-row-hover"
@@ -402,12 +730,18 @@ function MedRow({ medication }: { medication: Medication }) {
         >
           {medication.name}
         </div>
-        <div style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>{medication.dosage}</div>
+        {medication.dosage && (
+          <div style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>{medication.dosage}</div>
+        )}
       </div>
 
       {/* Remove button */}
       <button
         className="remove-btn-target"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
         style={{
           width: 22,
           height: 22,
@@ -431,3 +765,15 @@ function MedRow({ medication }: { medication: Medication }) {
     </div>
   );
 }
+
+const inlineInputStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-sans)',
+  fontSize: 12.5,
+  padding: '6px 10px',
+  borderRadius: 6,
+  border: '1px solid var(--bg-muted)',
+  background: 'white',
+  color: 'var(--text-primary)',
+  outline: 'none',
+  transition: 'border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+};

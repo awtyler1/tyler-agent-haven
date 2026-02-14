@@ -60,6 +60,8 @@ interface ClientListPanelProps {
   birthdayCount: number;
   statusFilter: 'active' | 'termed' | 'all';
   onStatusChange: (s: 'active' | 'termed' | 'all') => void;
+  effDateFilter: string;
+  onEffDateChange: (v: string) => void;
   currentPage: number;
   totalPages: number;
   totalClients: number;
@@ -90,6 +92,8 @@ export function ClientListPanel({
   itemsPerPage,
   totalCount,
   attentionCount,
+  effDateFilter,
+  onEffDateChange,
 }: ClientListPanelProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalClients);
@@ -293,7 +297,7 @@ export function ClientListPanel({
               fontWeight: 500,
               padding: '5px 22px 5px 8px',
               borderRadius: 6,
-              border: '1px solid var(--bg-muted)',
+              border: `1px solid ${selectedCarrier ? 'var(--gold)' : 'var(--bg-muted)'}`,
               background: 'white',
               color: 'var(--text-muted)',
               cursor: 'pointer',
@@ -313,14 +317,15 @@ export function ClientListPanel({
 
           {/* Eff. Date filter */}
           <select
-            defaultValue=""
+            value={effDateFilter}
+            onChange={(e) => onEffDateChange(e.target.value)}
             style={{
               fontFamily: "var(--font-sans)",
               fontSize: 11,
               fontWeight: 500,
               padding: '5px 22px 5px 8px',
               borderRadius: 6,
-              border: '1px solid var(--bg-muted)',
+              border: `1px solid ${effDateFilter ? 'var(--gold)' : 'var(--bg-muted)'}`,
               background: 'white',
               color: 'var(--text-muted)',
               cursor: 'pointer',
@@ -331,9 +336,9 @@ export function ClientListPanel({
             }}
           >
             <option value="">Eff. Date</option>
-            <option value="01/2026">01/2026</option>
-            <option value="01/2025">01/2025</option>
-            <option value="01/2024">01/2024</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
           </select>
 
           {/* Birthday toggle — compact: emoji + count only */}
@@ -369,7 +374,7 @@ export function ClientListPanel({
               fontWeight: 500,
               padding: '5px 22px 5px 8px',
               borderRadius: 6,
-              border: '1px solid var(--bg-muted)',
+              border: `1px solid ${statusFilter !== 'active' ? 'var(--gold)' : 'var(--bg-muted)'}`,
               background: 'white',
               color: 'var(--text-muted)',
               cursor: 'pointer',
