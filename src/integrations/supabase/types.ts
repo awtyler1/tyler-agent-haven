@@ -2262,6 +2262,193 @@ export type Database = {
         }
         Relationships: []
       }
+      training_lesson_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          last_watched_at: string | null
+          lesson_id: string
+          profile_id: string
+          status: string
+          updated_at: string
+          video_progress_seconds: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          last_watched_at?: string | null
+          lesson_id: string
+          profile_id: string
+          status?: string
+          updated_at?: string
+          video_progress_seconds?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          last_watched_at?: string | null
+          lesson_id?: string
+          profile_id?: string
+          status?: string
+          updated_at?: string
+          video_progress_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "training_lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_lesson_progress_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_lessons: {
+        Row: {
+          content_types: string[]
+          created_at: string
+          duration_minutes: number
+          id: string
+          is_published: boolean
+          pdf_url: string | null
+          sort_order: number
+          subtitle: string | null
+          title: string
+          track_id: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          content_types?: string[]
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_published?: boolean
+          pdf_url?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          track_id: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          content_types?: string[]
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          is_published?: boolean
+          pdf_url?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          track_id?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_lessons_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "training_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_playbooks: {
+        Row: {
+          created_at: string
+          icon_color: string
+          id: string
+          is_published: boolean
+          pages: number
+          pdf_url: string | null
+          sort_order: number
+          title: string
+          track_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icon_color?: string
+          id?: string
+          is_published?: boolean
+          pages?: number
+          pdf_url?: string | null
+          sort_order?: number
+          title: string
+          track_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icon_color?: string
+          id?: string
+          is_published?: boolean
+          pages?: number
+          pdf_url?: string | null
+          sort_order?: number
+          title?: string
+          track_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_playbooks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "training_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_tracks: {
+        Row: {
+          cover_theme: string
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          sort_order: number
+          title: string
+          track_number: string
+          updated_at: string
+        }
+        Insert: {
+          cover_theme?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          sort_order?: number
+          title: string
+          track_number: string
+          updated_at?: string
+        }
+        Update: {
+          cover_theme?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          sort_order?: number
+          title?: string
+          track_number?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
