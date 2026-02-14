@@ -1,13 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2, Eye, EyeOff, CheckCircle, KeyRound, Check, X } from 'lucide-react';
-import tylerLogo from '@/assets/tyler-logo.webp';
-import { GH } from '@/config/golden-hour';
+import AuthLayout from '@/components/auth/AuthLayout';
 
 // Password validation helper
 const validatePassword = (password: string): {
@@ -57,6 +53,12 @@ const validatePassword = (password: string): {
   return { isValid: true, message: '', strength, checks };
 };
 
+const strengthColors = {
+  weak: { bar: 'var(--red)', label: 'var(--red)' },
+  medium: { bar: 'var(--gold)', label: 'var(--gold-dark)' },
+  strong: { bar: 'var(--green)', label: 'var(--green)' },
+};
+
 export default function SetPasswordPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -66,7 +68,6 @@ export default function SetPasswordPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasValidSession, setHasValidSession] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Listen for auth state changes - this will fire when Supabase processes the recovery token
@@ -201,273 +202,275 @@ export default function SetPasswordPage() {
     }
   };
 
+  // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 grain-overlay" style={{ background: GH.pageBg }}>
-        <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-          <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
-          <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+      <AuthLayout>
+        <div style={{ padding: '48px 0', textAlign: 'center' }}>
+          <Loader2
+            className="animate-spin"
+            style={{ color: 'var(--gold)', width: 32, height: 32, margin: '0 auto' }}
+          />
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>Verifying your link...</p>
         </div>
-
-        <div
-          className="w-full max-w-[495px] relative"
-          style={{
-            background: GH.glass,
-            backdropFilter: `blur(${GH.glassBlur})`,
-            WebkitBackdropFilter: `blur(${GH.glassBlur})`,
-            border: `1px solid ${GH.glassBorder}`,
-            borderRadius: 22,
-            boxShadow: GH.glassShadow,
-            opacity: 0,
-            animation: 'fadeInUp 0.5s ease-out forwards',
-          }}
-        >
-          <div className="pt-16 pb-16 text-center">
-            <Loader2 className="h-10 w-10 animate-spin mx-auto mb-6" style={{ color: GH.gold }} />
-            <p style={{ fontSize: 15, color: GH.textSecondary }}>Verifying your link...</p>
-          </div>
-        </div>
-      </div>
+      </AuthLayout>
     );
   }
 
+  // Success state
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 grain-overlay" style={{ background: GH.pageBg }}>
-        <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-          <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
-          <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)', filter: 'blur(60px)' }} />
-        </div>
-
-        <div
-          className="w-full max-w-[495px] relative"
-          style={{
-            background: GH.glass,
-            backdropFilter: `blur(${GH.glassBlur})`,
-            WebkitBackdropFilter: `blur(${GH.glassBlur})`,
-            border: `1px solid ${GH.glassBorder}`,
-            borderRadius: 22,
-            boxShadow: GH.glassShadow,
-            opacity: 0,
-            animation: 'fadeInUp 0.5s ease-out forwards',
-          }}
-        >
-          <div className="text-center space-y-8 pt-14 pb-2">
-            <div className="relative pb-6">
-              <img src={tylerLogo} alt="Logo" className="h-[60px] mx-auto" />
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px" style={{ background: `linear-gradient(to right, transparent, ${GH.border}, transparent)` }} />
-            </div>
-            <div className="flex justify-center">
-              <div className="rounded-full bg-green-50 p-4">
-                <CheckCircle className="h-10 w-10 text-green-600" />
-              </div>
-            </div>
-            <div className="space-y-3">
-              <h1 className="text-4xl font-serif" style={{ color: GH.textPrimary, letterSpacing: '-0.01em' }}>Password Set!</h1>
-              <p style={{ fontSize: 13, color: GH.textSecondary, lineHeight: 1.7 }}>
-                Redirecting you to get started...
-              </p>
-            </div>
+      <AuthLayout>
+        <div style={{ textAlign: 'center', padding: '28px 0 8px' }}>
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: 'rgba(107,138,66,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto',
+            }}
+          >
+            <CheckCircle size={26} style={{ color: 'var(--green)' }} />
           </div>
-          <div className="pb-16 px-11">
-            <Button
-              onClick={handleRedirect}
-              className="w-full h-[54px] text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
-              style={{
-                background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',
-                boxShadow: '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)'
-              }}
-            >
-              Continue
-            </Button>
-          </div>
+          <h1
+            style={{
+              fontFamily: "'Lora', serif",
+              fontSize: 28,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              marginTop: 20,
+            }}
+          >
+            Password Set!
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
+            Redirecting you to get started...
+          </p>
         </div>
-      </div>
+        <div style={{ padding: '24px 36px 36px' }}>
+          <button type="button" className="auth-btn-primary" onClick={handleRedirect}>
+            Continue
+          </button>
+        </div>
+      </AuthLayout>
     );
   }
 
+  // Main form / error state
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 grain-overlay" style={{ background: GH.pageBg }}>
-      {/* Atmospheric blurs */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-        <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(184,134,11,0.04) 0%, transparent 60%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(139,92,246,0.025) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+    <AuthLayout>
+      <div style={{ textAlign: 'center', padding: '28px 0 8px' }}>
+        {/* Icon circle */}
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            background: 'rgba(201,168,76,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto',
+          }}
+        >
+          <KeyRound size={26} style={{ color: 'var(--gold-dark)' }} />
+        </div>
+        <h1
+          style={{
+            fontFamily: "'Lora', serif",
+            fontSize: 28,
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            marginTop: 20,
+          }}
+        >
+          Set Your Password
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
+          Create a secure password to access your account
+        </p>
       </div>
 
-      <div
-        className="w-full max-w-[495px] relative"
-        style={{
-          background: GH.glass,
-          backdropFilter: `blur(${GH.glassBlur})`,
-          WebkitBackdropFilter: `blur(${GH.glassBlur})`,
-          border: `1px solid ${GH.glassBorder}`,
-          borderRadius: 22,
-          boxShadow: GH.glassShadow,
-          opacity: 0,
-          animation: 'fadeInUp 0.5s ease-out forwards',
-        }}
-      >
-        <div className="text-center space-y-8 pt-14 pb-2">
-          <div className="relative pb-6">
-            <img src={tylerLogo} alt="Logo" className="h-[60px] mx-auto" />
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px" style={{ background: `linear-gradient(to right, transparent, ${GH.border}, transparent)` }} />
-          </div>
-          <div className="flex justify-center">
-            <div className="rounded-full p-4" style={{ background: 'rgba(60,48,28,0.04)' }}>
-              <KeyRound className="h-10 w-10" style={{ color: GH.textMuted }} />
+      <div style={{ padding: '24px 36px 36px' }}>
+        {!hasValidSession && error ? (
+          /* Error state — invalid/expired link */
+          <div>
+            <div
+              style={{
+                padding: 14,
+                borderRadius: 8,
+                background: 'rgba(196,74,63,0.08)',
+                color: 'var(--red)',
+                fontSize: 13,
+                marginBottom: 20,
+              }}
+            >
+              {error}
             </div>
+            <Link to="/auth" style={{ textDecoration: 'none' }}>
+              <button type="button" className="auth-btn-outline">
+                Go to Login
+              </button>
+            </Link>
           </div>
-          <div className="space-y-3">
-            <h1 className="text-4xl font-serif" style={{ color: GH.textPrimary, letterSpacing: '-0.01em' }}>Set Your Password</h1>
-            <p style={{ fontSize: 13, color: GH.textSecondary, lineHeight: 1.7 }}>
-              Create a secure password to access your account
-            </p>
-          </div>
-        </div>
-        <div className="px-11 pb-16">
-          {!hasValidSession && error ? (
-            <div className="text-center space-y-6">
-              <div className="p-4 rounded-2xl bg-destructive/10 text-destructive text-sm">
-                {error}
-              </div>
-              <Link to="/auth">
-                <Button
-                  variant="outline"
-                  className="h-[50px] px-8 font-medium rounded-2xl transition-all duration-200"
-                  style={{ borderColor: GH.border, color: GH.textPrimary }}
-                >
-                  Go to Login
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-3">
-                <Label htmlFor="password" className="text-[10px] font-semibold uppercase" style={{ letterSpacing: '0.07em', color: GH.textMuted }}>New Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    required
-                    minLength={12}
-                    className="h-[56px] px-5 pr-12 text-[15px] bg-white border-border/30 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 focus:border-primary/50 focus:ring-0 focus:shadow-[0_0_0_4px_rgba(163,133,41,0.1),0_1px_3px_rgba(0,0,0,0.04)] placeholder:text-muted-foreground/35"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: GH.textMuted }}
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-
-                {/* Password strength indicator */}
-                {password.length > 0 && (
-                  <div className="space-y-3 pt-1">
-                    {/* Strength bar */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(60,48,28,0.04)' }}>
-                        <div
-                          className={`h-full transition-all duration-300 ${
-                            passwordValidation.strength === 'strong'
-                              ? 'w-full bg-green-500'
-                              : passwordValidation.strength === 'medium'
-                              ? 'w-2/3 bg-amber-500'
-                              : 'w-1/3 bg-red-500'
-                          }`}
-                        />
-                      </div>
-                      <span
-                        className={`text-xs font-medium ${
-                          passwordValidation.strength === 'strong'
-                            ? 'text-green-600'
-                            : passwordValidation.strength === 'medium'
-                            ? 'text-amber-600'
-                            : 'text-red-600'
-                        }`}
-                      >
-                        {passwordValidation.strength === 'strong'
-                          ? 'Strong'
-                          : passwordValidation.strength === 'medium'
-                          ? 'Medium'
-                          : 'Weak'}
-                      </span>
-                    </div>
-
-                    {/* Requirements checklist */}
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.length ? 'text-green-600' : ''}`} style={passwordValidation.checks.length ? {} : { color: GH.textMuted }}>
-                        {passwordValidation.checks.length ? <Check size={14} /> : <X size={14} />}
-                        <span>12+ characters</span>
-                      </div>
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.uppercase ? 'text-green-600' : ''}`} style={passwordValidation.checks.uppercase ? {} : { color: GH.textMuted }}>
-                        {passwordValidation.checks.uppercase ? <Check size={14} /> : <X size={14} />}
-                        <span>Uppercase letter</span>
-                      </div>
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.lowercase ? 'text-green-600' : ''}`} style={passwordValidation.checks.lowercase ? {} : { color: GH.textMuted }}>
-                        {passwordValidation.checks.lowercase ? <Check size={14} /> : <X size={14} />}
-                        <span>Lowercase letter</span>
-                      </div>
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.number ? 'text-green-600' : ''}`} style={passwordValidation.checks.number ? {} : { color: GH.textMuted }}>
-                        {passwordValidation.checks.number ? <Check size={14} /> : <X size={14} />}
-                        <span>Number</span>
-                      </div>
-                      <div className={`flex items-center gap-1.5 ${passwordValidation.checks.special ? 'text-green-600' : ''}`} style={passwordValidation.checks.special ? {} : { color: GH.textMuted }}>
-                        {passwordValidation.checks.special ? <Check size={14} /> : <X size={14} />}
-                        <span>Special character</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="confirmPassword" className="text-[10px] font-semibold uppercase" style={{ letterSpacing: '0.07em', color: GH.textMuted }}>Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
+        ) : (
+          <form onSubmit={handleSubmit}>
+            {/* New Password */}
+            <div style={{ marginBottom: 20 }}>
+              <label htmlFor="password" className="auth-label">New Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="password"
                   type={showPassword ? 'text' : 'password'}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
                   required
-                  className="h-[56px] px-5 text-[15px] bg-white border-border/30 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 focus:border-primary/50 focus:ring-0 focus:shadow-[0_0_0_4px_rgba(163,133,41,0.1),0_1px_3px_rgba(0,0,0,0.04)] placeholder:text-muted-foreground/35"
+                  minLength={12}
+                  className="auth-input"
+                  style={{ paddingRight: 42 }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-faint)',
+                    padding: 0,
+                    display: 'flex',
+                  }}
+                >
+                  {showPassword ? <EyeOff size={18} strokeWidth={1.7} /> : <Eye size={18} strokeWidth={1.7} />}
+                </button>
               </div>
 
-              {error && (
-                <div className="p-4 rounded-2xl bg-destructive/10 text-destructive text-sm">
-                  {error}
+              {/* Password strength indicator */}
+              {password.length > 0 && (
+                <div style={{ marginTop: 10 }}>
+                  {/* Strength bar */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div
+                      style={{
+                        flex: 1,
+                        height: 4,
+                        borderRadius: 2,
+                        background: 'rgba(0,0,0,0.04)',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: '100%',
+                          width: passwordValidation.strength === 'strong' ? '100%' : passwordValidation.strength === 'medium' ? '66%' : '33%',
+                          background: strengthColors[passwordValidation.strength].bar,
+                          transition: 'width 0.3s, background 0.3s',
+                        }}
+                      />
+                    </div>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: strengthColors[passwordValidation.strength].label,
+                      }}
+                    >
+                      {passwordValidation.strength === 'strong' ? 'Strong' : passwordValidation.strength === 'medium' ? 'Medium' : 'Weak'}
+                    </span>
+                  </div>
+
+                  {/* Requirements checklist */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '4px 16px',
+                      marginTop: 8,
+                      fontSize: 11,
+                    }}
+                  >
+                    {[
+                      { key: 'length' as const, label: '12+ characters' },
+                      { key: 'uppercase' as const, label: 'Uppercase letter' },
+                      { key: 'lowercase' as const, label: 'Lowercase letter' },
+                      { key: 'number' as const, label: 'Number' },
+                      { key: 'special' as const, label: 'Special character' },
+                    ].map(({ key, label }) => (
+                      <div
+                        key={key}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          color: passwordValidation.checks[key] ? 'var(--green)' : 'var(--text-faint)',
+                        }}
+                      >
+                        {passwordValidation.checks[key] ? <Check size={14} /> : <X size={14} />}
+                        <span>{label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
+            </div>
 
-              <Button
-                type="submit"
-                className="w-full h-[54px] text-white font-semibold text-[15px] rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
+            {/* Confirm Password */}
+            <div style={{ marginBottom: 20 }}>
+              <label htmlFor="confirmPassword" className="auth-label">Confirm Password</label>
+              <input
+                id="confirmPassword"
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm your password"
+                required
+                className="auth-input"
+              />
+            </div>
+
+            {/* Error display */}
+            {error && (
+              <div
                 style={{
-                  background: 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)',
-                  boxShadow: '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)'
+                  padding: 14,
+                  borderRadius: 8,
+                  background: 'rgba(196,74,63,0.08)',
+                  color: 'var(--red)',
+                  fontSize: 13,
+                  marginBottom: 20,
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(180deg, hsl(43, 58%, 38%) 0%, hsl(43, 62%, 30%) 100%)';
-                  e.currentTarget.style.boxShadow = '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 8px 20px rgba(163, 133, 41, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(180deg, hsl(43, 55%, 42%) 0%, hsl(43, 58%, 36%) 100%)';
-                  e.currentTarget.style.boxShadow = '0px 1px 0px rgba(255,255,255,0.15) inset, 0px 4px 12px rgba(163, 133, 41, 0.3)';
-                }}
-                disabled={isSubmitting || !hasValidSession}
               >
-                {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Set Password & Continue
-              </Button>
-            </form>
-          )}
-        </div>
+                {error}
+              </div>
+            )}
+
+            {/* Submit button */}
+            <button
+              type="submit"
+              className="auth-btn-primary"
+              disabled={isSubmitting || !hasValidSession}
+            >
+              {isSubmitting ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <Loader2 className="animate-spin" size={16} />
+                  Setting password...
+                </span>
+              ) : (
+                'Set Password & Continue'
+              )}
+            </button>
+          </form>
+        )}
       </div>
-    </div>
+    </AuthLayout>
   );
 }
