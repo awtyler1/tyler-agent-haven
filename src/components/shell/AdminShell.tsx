@@ -22,9 +22,7 @@ export function AdminShell() {
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          background: 'rgba(255,255,255,0.80)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
+          background: 'white',
           borderBottom: '1px solid var(--bg-muted)',
         }}
       >

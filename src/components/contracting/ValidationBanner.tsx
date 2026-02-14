@@ -44,7 +44,6 @@ export function ValidationBanner({
           className="rounded-2xl px-5 py-4 border border-rose-200/50"
           style={{ 
             background: 'linear-gradient(180deg, rgba(255, 251, 250, 0.97) 0%, rgba(254, 249, 248, 0.97) 100%)',
-            backdropFilter: 'blur(12px)',
             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.03)'
           }}
         >

@@ -134,7 +134,7 @@ export function MobileMenuButton({ onClick }: { onClick: () => void }) {
         background: 'white',
         border: '1px solid var(--bg-muted)',
         borderRadius: 12,
-        boxShadow: '0 4px 16px rgba(60,48,28,0.06)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
         color: 'var(--text-primary)',
       }}
     >
