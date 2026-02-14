@@ -45,6 +45,7 @@ const CarrierPortalsPage = lazy(() => import("./pages/CarrierPortalsPage"));
 const CarrierPlansPage = lazy(() => import("./pages/CarrierPlansPage"));
 const DocumentManagementPage = lazy(() => import("./pages/DocumentManagementPage"));
 const TrainingPage = lazy(() => import("./pages/TrainingPage"));
+const TrainingLibrary = lazy(() => import("./pages/training/TrainingLibrary"));
 const ContractingPage = lazy(() => import("./pages/ContractingPage"));
 const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
 const T65ReviewPage = lazy(() => import("./pages/T65ReviewPage"));
@@ -168,7 +169,7 @@ const App = () => (
               <Route path="carrier-resources" element={<CarrierResourcesPage />} />
               <Route path="carrier-resources/plans" element={<CarrierPlansPage />} />
               <Route path="forms-library" element={<FormsLibraryPage />} />
-              <Route path="training" element={<TrainingPage />} />
+              <Route path="training" element={<TrainingLibrary />} />
               <Route path="training/:videoId" element={<TrainingPage />} />
               <Route path="compliance" element={<CompliancePage />} />
               <Route path="agent-tools" element={<AgentToolsPage />} />
