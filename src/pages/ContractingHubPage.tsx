@@ -18,8 +18,6 @@ import { toast } from 'sonner';
 import { useProfile, Profile } from '@/hooks/useProfile';
 import { carriers as carriersData } from '@/data/carriersData';
 import { PageLoader } from '@/components/ui/PageLoader';
-import { GlassPanel } from '@/components/ui/GlassPanel';
-import { GH } from '@/config/golden-hour';
 
 // Short product labels
 const PRODUCT_SHORT: Record<string, string> = {
@@ -395,24 +393,24 @@ const ContractingHubPage = () => {
       <div className="max-w-[1100px] mx-auto">
           {/* Title */}
           <div className="mb-4">
-            <h1 className="text-2xl font-semibold" style={{ fontFamily: GH.serif, color: GH.textPrimary }}>
+            <h1 className="text-2xl font-semibold" style={{ fontFamily: "'Lora', Georgia, serif", color: 'var(--text-primary)' }}>
               Contracting Hub
             </h1>
           </div>
 
           {/* Progress Card */}
-          <GlassPanel style={{ padding: '12px 16px', marginBottom: 16 }}>
+          <div className="bg-white rounded-xl" style={{ padding: '12px 16px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             <div className="flex items-center justify-between gap-6">
               {/* Progress Section - ~50% */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-2xl font-bold" style={{ color: GH.textPrimary }}>{readyCount}</span>
-                  <span className="text-sm" style={{ color: GH.textSecondary }}>of {carrierRows.length} Ready to Sell</span>
+                  <span className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{readyCount}</span>
+                  <span className="text-sm" style={{ color: 'var(--text-muted)' }}>of {carrierRows.length} Ready to Sell</span>
                 </div>
-                <div className="rounded-full overflow-hidden mb-1" style={{ height: 4, background: GH.tileBg }}>
+                <div className="rounded-full overflow-hidden mb-1" style={{ height: 4, background: 'var(--bg-subtle)' }}>
                   <div
                     className="h-full rounded-full transition-all duration-500"
-                    style={{ width: `${carrierRows.length > 0 ? (readyCount / carrierRows.length) * 100 : 0}%`, background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' }}
+                    style={{ width: `${carrierRows.length > 0 ? (readyCount / carrierRows.length) * 100 : 0}%`, background: 'linear-gradient(90deg, var(--gold-dark), var(--gold))' }}
                   />
                 </div>
                 <div className="flex gap-3 text-xs">
@@ -429,7 +427,7 @@ const ContractingHubPage = () => {
               </div>
 
               {/* Divider */}
-              <div className="w-px h-12" style={{ background: GH.border }} />
+              <div className="w-px h-12" style={{ background: 'var(--bg-muted)' }} />
 
               {/* AHIP Section - ~30% */}
               <div className="flex-shrink-0">
@@ -437,13 +435,13 @@ const ContractingHubPage = () => {
                   <div>
                     <div className="flex items-center gap-1.5">
                       <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      <span className="text-sm font-medium" style={{ color: GH.textPrimary }}>AHIP {currentCertYear}</span>
+                      <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>AHIP {currentCertYear}</span>
                     </div>
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
                       className="text-xs hover:text-blue-600 mt-0.5"
-                      style={{ color: GH.textSecondary }}
+                      style={{ color: 'var(--text-muted)' }}
                     >
                       {uploading ? 'Uploading...' : hasUpload ? 'Replace certificate' : 'Upload certificate'}
                     </button>
@@ -460,7 +458,7 @@ const ContractingHubPage = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-white transition-colors"
-                        style={{ background: GH.goldGrad, borderRadius: 10 }}
+                        style={{ background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))', borderRadius: 10 }}
                       >
                         Start AHIP
                         <ExternalLink className="h-3 w-3" />
@@ -489,16 +487,16 @@ const ContractingHubPage = () => {
               </div>
 
               {/* Divider */}
-              <div className="w-px h-12" style={{ background: GH.border }} />
+              <div className="w-px h-12" style={{ background: 'var(--bg-muted)' }} />
 
               {/* Resources Dropdown - ~20% */}
               <div className="relative flex-shrink-0" ref={resourcesRef}>
                 <button
                   onClick={() => setResourcesOpen(!resourcesOpen)}
                   className="flex items-center gap-1.5 text-sm transition-colors"
-                  style={{ color: GH.textSecondary }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = GH.textPrimary; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = GH.textSecondary; }}
+                  style={{ color: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-primary)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}
                 >
                   <FileText className="h-4 w-4" />
                   <span>Resources</span>
@@ -506,48 +504,48 @@ const ContractingHubPage = () => {
                 </button>
 
                 {resourcesOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 py-1 z-50" style={{ background: GH.glass, backdropFilter: `blur(${GH.glassBlur})`, WebkitBackdropFilter: `blur(${GH.glassBlur})`, border: `1px solid ${GH.glassBorder}`, borderRadius: 18, boxShadow: '0 8px 24px rgba(60,48,28,0.08)' }}>
+                  <div className="absolute right-0 top-full mt-2 w-56 py-1 z-50" style={{ background: 'white', border: '1px solid var(--bg-muted)', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
                     <button
                       className="w-full flex items-center justify-between px-3 py-2 text-sm transition-colors"
-                      style={{ color: GH.textPrimary }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
+                      style={{ color: 'var(--text-primary)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <span>2026 Recertification Guide</span>
-                      <Download className="h-4 w-4" style={{ color: GH.textMuted }} />
+                      <Download className="h-4 w-4" style={{ color: 'var(--text-faint)' }} />
                     </button>
                     <button
                       className="w-full flex items-center justify-between px-3 py-2 text-sm transition-colors"
-                      style={{ color: GH.textPrimary }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
+                      style={{ color: 'var(--text-primary)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <span>Carrier Portal Logins</span>
-                      <Download className="h-4 w-4" style={{ color: GH.textMuted }} />
+                      <Download className="h-4 w-4" style={{ color: 'var(--text-faint)' }} />
                     </button>
                   </div>
                 )}
               </div>
             </div>
-          </GlassPanel>
+          </div>
 
           {/* License Bar */}
           {(licenseData.residentState || licenseData.nonResidentStates.length > 0) && (
-            <GlassPanel style={{ padding: '8px 16px', marginBottom: 16 }} className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm" style={{ color: GH.textSecondary }}>
-                <MapPin className="h-4 w-4" style={{ color: GH.textMuted }} />
+            <div className="flex items-center justify-between bg-white rounded-xl" style={{ padding: '8px 16px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
+                <MapPin className="h-4 w-4" style={{ color: 'var(--text-faint)' }} />
                 <span>
-                  <span style={{ color: GH.textSecondary }}>Licensed:</span>{' '}
+                  <span style={{ color: 'var(--text-muted)' }}>Licensed:</span>{' '}
                   {licenseData.residentState && (
-                    <span className="font-medium" style={{ color: GH.textPrimary }}>
+                    <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
                       {licenseData.residentState}
-                      <span className="font-normal" style={{ color: GH.textSecondary }}> (Resident)</span>
+                      <span className="font-normal" style={{ color: 'var(--text-muted)' }}> (Resident)</span>
                     </span>
                   )}
                   {licenseData.nonResidentStates.length > 0 && (
                     <>
-                      {licenseData.residentState && <span className="mx-1.5" style={{ color: GH.border }}>•</span>}
-                      <span style={{ color: GH.textPrimary }}>
+                      {licenseData.residentState && <span className="mx-1.5" style={{ color: 'var(--bg-muted)' }}>•</span>}
+                      <span style={{ color: 'var(--text-primary)' }}>
                         {licenseData.nonResidentStates.join(' • ')}
                       </span>
                     </>
@@ -560,7 +558,7 @@ const ContractingHubPage = () => {
               >
                 + Request License
               </a>
-            </GlassPanel>
+            </div>
           )}
 
           {/* Hidden file input for AHIP upload */}
@@ -573,28 +571,28 @@ const ContractingHubPage = () => {
           />
 
           {/* Carrier Table */}
-          <GlassPanel padding={0} style={{ overflow: 'hidden' }}>
+          <div className="bg-white rounded-xl overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             {!ahipComplete ? (
               <div className="px-5 py-12 text-center">
-                <Lock className="w-8 h-8 mx-auto mb-3" style={{ color: GH.textFaint }} />
-                <p className="text-sm" style={{ color: GH.textSecondary }}>Complete AHIP first to view carrier status</p>
+                <Lock className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--text-faint)' }} />
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Complete AHIP first to view carrier status</p>
               </div>
             ) : carrierRows.length === 0 ? (
               <div className="px-5 py-12 text-center">
-                <Building2 className="w-8 h-8 mx-auto mb-3" style={{ color: GH.textFaint }} />
-                <p className="text-sm" style={{ color: GH.textSecondary }}>No carriers found. Contact your manager to get started.</p>
+                <Building2 className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--text-faint)' }} />
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No carriers found. Contact your manager to get started.</p>
               </div>
             ) : (
               <div className="max-h-[400px] overflow-y-auto">
                 <table className="w-full">
                   <thead className="sticky top-0 z-10">
-                    <tr style={{ borderBottom: `1px solid ${GH.border}` }}>
-                      <th className="text-left uppercase px-4 py-3 w-[280px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: GH.textMuted, background: GH.glass }}>Carrier</th>
-                      <th className="text-left uppercase px-4 py-3" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: GH.textMuted, background: GH.glass }}>Products</th>
-                      <th className="text-center uppercase px-2 py-3 w-[100px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: GH.textMuted, background: GH.glass }}>Contracted</th>
-                      <th className="text-center uppercase px-2 py-3 w-[80px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: GH.textMuted, background: GH.glass }}>2026</th>
-                      <th className="text-center uppercase px-2 py-3 w-[80px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: GH.textMuted, background: GH.glass }}>2027</th>
-                      <th className="text-center uppercase px-4 py-3 w-[140px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: GH.textMuted, background: GH.glass }}>Status</th>
+                    <tr style={{ borderBottom: '1px solid var(--bg-muted)' }}>
+                      <th className="text-left uppercase px-4 py-3 w-[280px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-faint)', background: 'white' }}>Carrier</th>
+                      <th className="text-left uppercase px-4 py-3" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-faint)', background: 'white' }}>Products</th>
+                      <th className="text-center uppercase px-2 py-3 w-[100px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-faint)', background: 'white' }}>Contracted</th>
+                      <th className="text-center uppercase px-2 py-3 w-[80px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-faint)', background: 'white' }}>2026</th>
+                      <th className="text-center uppercase px-2 py-3 w-[80px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-faint)', background: 'white' }}>2027</th>
+                      <th className="text-center uppercase px-4 py-3 w-[140px]" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', color: 'var(--text-faint)', background: 'white' }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -602,15 +600,15 @@ const ContractingHubPage = () => {
                       <tr
                         key={row.carrierName}
                         className="transition-colors"
-                        style={{ borderTop: idx > 0 ? `1px solid ${GH.border}` : 'none' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
+                        style={{ borderTop: idx > 0 ? '1px solid var(--bg-muted)' : 'none' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
                         onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                       >
                         <td className="px-4 py-3 w-[280px]">
-                          <span className="font-medium" style={{ color: GH.textPrimary }}>{row.carrierName}</span>
+                          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{row.carrierName}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm" style={{ color: GH.textSecondary }}>{row.products.join(', ') || '—'}</span>
+                          <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{row.products.join(', ') || '—'}</span>
                         </td>
                         <td className="px-2 py-3 text-center w-[100px]">
                           {row.contractingStatus === 'rts' ? (
@@ -620,21 +618,21 @@ const ContractingHubPage = () => {
                               Pending
                             </span>
                           ) : (
-                            <Circle className="h-4 w-4 mx-auto" style={{ color: GH.textFaint }} />
+                            <Circle className="h-4 w-4 mx-auto" style={{ color: 'var(--text-faint)' }} />
                           )}
                         </td>
                         <td className="px-2 py-3 text-center w-[80px]">
                           {row.hasCertFor2026 ? (
                             <CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" />
                           ) : (
-                            <Circle className="h-4 w-4 mx-auto" style={{ color: GH.textFaint }} />
+                            <Circle className="h-4 w-4 mx-auto" style={{ color: 'var(--text-faint)' }} />
                           )}
                         </td>
                         <td className="px-2 py-3 text-center w-[80px]">
                           {row.hasCertFor2027 ? (
                             <CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" />
                           ) : (
-                            <span className="text-xs" style={{ color: GH.textMuted }}>Coming</span>
+                            <span className="text-xs" style={{ color: 'var(--text-faint)' }}>Coming</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-center w-[140px]">
@@ -664,7 +662,7 @@ const ContractingHubPage = () => {
                 </table>
               </div>
             )}
-          </GlassPanel>
+          </div>
       </div>
     </div>
   );
