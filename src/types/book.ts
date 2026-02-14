@@ -9,6 +9,10 @@ export interface BookClient {
   phone: string | null;
   email: string | null;
   last_contacted_at: string | null;
+  // Client lifecycle
+  status?: string;
+  lead_source?: string | null;
+  created_at?: string | null;
   // Joined from latest active policy
   carrier_id?: string;
   carrier_name?: string;

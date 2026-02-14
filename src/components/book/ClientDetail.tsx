@@ -5,6 +5,7 @@ import { formatPhone, titleCase } from '@/lib/utils';
 import { JournalZone } from './JournalZone';
 import { ClientInfoSection } from './ClientInfoSection';
 import { DoctorsMedsSection } from './DoctorsMedsSection';
+import { LeadInfoSection } from './LeadInfoSection';
 
 // Map carrier names to Homestead CSS variables
 const CARRIER_CSS_VARS: Record<string, string> = {
@@ -25,15 +26,26 @@ function getCarrierCSSVar(carrierName: string): string {
   return 'var(--text-muted)';
 }
 
+const SOURCE_LABELS: Record<string, string> = {
+  referral: 'Referral',
+  phone_call: 'Phone Call',
+  community_event: 'Community Event',
+  walk_in: 'Walk-in',
+  other: 'Other',
+};
+
 interface ClientDetailProps {
   client: BookClientWithMeta;
   onPrev?: () => void;
   onNext?: () => void;
+  onEnroll?: () => void;
 }
 
-export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
+export function ClientDetail({ client, onPrev, onNext, onEnroll }: ClientDetailProps) {
   const { data: detail } = useClientDetail(client.id);
   const [editAllFields, setEditAllFields] = useState(false);
+
+  const isLead = client.status === 'lead';
 
   // Use detail data when available, fall back to list data
   const primaryPolicy = detail?.policies
@@ -45,16 +57,17 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
   const effectiveDate = primaryPolicy?.effective_date || client.effective_date || '';
   const carrierCSSVar = getCarrierCSSVar(carrierName);
 
-  // Build carrier chip label: show planName only if it already includes the carrier,
-  // otherwise prefix with carrier name. Avoids "Aetna Aetna Medicare Signature…" duplication.
   const carrierChipLabel = planName
     ? planName.toLowerCase().includes(carrierName.toLowerCase())
       ? planName
       : `${carrierName} ${planName}`
     : carrierName;
 
-  // Format effective date as "Eff MM/YYYY"
   const effDisplay = effectiveDate ? formatEffDate(effectiveDate) : null;
+
+  // Lead-specific meta
+  const sourceLabel = client.lead_source ? SOURCE_LABELS[client.lead_source] || client.lead_source : null;
+  const addedDisplay = client.created_at ? formatAddedDate(client.created_at) : null;
 
   return (
     <div
@@ -68,14 +81,18 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
         minHeight: 0,
       }}
     >
-      {/* ===== Warm Header Shelf ===== */}
+      {/* ===== Header Shelf ===== */}
       <div
         style={{
           padding: '20px 24px 16px',
           flexShrink: 0,
-          background: 'linear-gradient(180deg, var(--bg-warm-glow) 0%, var(--bg) 100%)',
+          background: isLead
+            ? 'linear-gradient(180deg, rgba(74,127,181,0.04) 0%, var(--bg) 100%)'
+            : 'linear-gradient(180deg, var(--bg-warm-glow) 0%, var(--bg) 100%)',
           borderBottom: '2px solid transparent',
-          borderImage: 'linear-gradient(90deg, var(--gold) 0%, rgba(201,168,76,0.15) 100%) 1',
+          borderImage: isLead
+            ? 'linear-gradient(90deg, var(--blue) 0%, rgba(74,127,181,0.1) 100%) 1'
+            : 'linear-gradient(90deg, var(--gold) 0%, rgba(201,168,76,0.15) 100%) 1',
           position: 'relative',
         }}
       >
@@ -87,16 +104,37 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
             justifyContent: 'space-between',
           }}
         >
-          <div
-            style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: 22,
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            {titleCase(client.first_name)} {titleCase(client.last_name)}
+          <div>
+            {/* Lead badge */}
+            {isLead && (
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: 'var(--blue)',
+                  background: 'rgba(74,127,181,0.08)',
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  display: 'inline-block',
+                  marginBottom: 6,
+                }}
+              >
+                LEAD
+              </span>
+            )}
+            <div
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: 22,
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              {titleCase(client.first_name)} {titleCase(client.last_name)}
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <button
@@ -116,64 +154,78 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
             >
               {editAllFields ? 'Done' : 'Edit'}
             </button>
-            <button
-              onClick={onPrev}
-              disabled={!onPrev}
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 6,
-                border: '1px solid var(--bg-muted)',
-                background: 'white',
-                color: onPrev ? 'var(--text-muted)' : 'var(--text-faint)',
-                cursor: onPrev ? 'pointer' : 'default',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
-                opacity: onPrev ? 1 : 0.5,
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            {isLead && onEnroll ? (
+              <button
+                onClick={onEnroll}
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: '4px 14px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: 'var(--green)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
               >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <button
-              onClick={onNext}
-              disabled={!onNext}
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 6,
-                border: '1px solid var(--bg-muted)',
-                background: 'white',
-                color: onNext ? 'var(--text-muted)' : 'var(--text-faint)',
-                cursor: onNext ? 'pointer' : 'default',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
-                opacity: onNext ? 1 : 0.5,
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <polyline points="9 6 15 12 9 18" />
-              </svg>
-            </button>
+                Enroll
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polyline points="9 6 15 12 9 18" />
+                </svg>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={onPrev}
+                  disabled={!onPrev}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 6,
+                    border: '1px solid var(--bg-muted)',
+                    background: 'white',
+                    color: onPrev ? 'var(--text-muted)' : 'var(--text-faint)',
+                    cursor: onPrev ? 'pointer' : 'default',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                    opacity: onPrev ? 1 : 0.5,
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+                <button
+                  onClick={onNext}
+                  disabled={!onNext}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 6,
+                    border: '1px solid var(--bg-muted)',
+                    background: 'white',
+                    color: onNext ? 'var(--text-muted)' : 'var(--text-faint)',
+                    cursor: onNext ? 'pointer' : 'default',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                    opacity: onNext ? 1 : 0.5,
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="9 6 15 12 9 18" />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -187,7 +239,7 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
             flexWrap: 'wrap',
           }}
         >
-          {/* Zip chip — gold-tinted, placed first */}
+          {/* Zip chip — gold-tinted, always first */}
           {(detail?.address_zip || client.carrier_name) && (
             <span
               style={{
@@ -203,12 +255,12 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
                 alignItems: 'center',
               }}
             >
-              {detail?.address_zip || '—'}
+              {detail?.address_zip || '\u2014'}
             </span>
           )}
 
-          {/* Carrier chip */}
-          {carrierName && (
+          {/* For clients: carrier chip, eff date */}
+          {!isLead && carrierName && (
             <span
               style={{
                 fontSize: 11.5,
@@ -236,8 +288,7 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
             </span>
           )}
 
-          {/* Effective date chip */}
-          {effDisplay && (
+          {!isLead && effDisplay && (
             <span
               style={{
                 fontSize: 11.5,
@@ -255,7 +306,44 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
             </span>
           )}
 
-          {/* Phone chip */}
+          {/* For leads: source chip, date added chip */}
+          {isLead && sourceLabel && (
+            <span
+              style={{
+                fontSize: 11.5,
+                fontWeight: 500,
+                color: 'var(--text-muted)',
+                padding: '4px 11px',
+                borderRadius: 6,
+                background: 'white',
+                border: '1px solid var(--bg-muted)',
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              {sourceLabel}
+            </span>
+          )}
+
+          {isLead && addedDisplay && (
+            <span
+              style={{
+                fontSize: 11.5,
+                fontWeight: 500,
+                color: 'var(--text-muted)',
+                padding: '4px 11px',
+                borderRadius: 6,
+                background: 'white',
+                border: '1px solid var(--bg-muted)',
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              {addedDisplay}
+            </span>
+          )}
+
+          {/* Phone chip — always shown */}
           {client.phone && (
             <a
               href={`tel:+1${client.phone.replace(/\D/g, '').replace(/^1/, '')}`}
@@ -295,36 +383,97 @@ export function ClientDetail({ client, onPrev, onNext }: ClientDetailProps) {
           flex: 1,
           minHeight: 0,
           overflowY: 'auto',
-          padding: '16px 24px 20px',
+          padding: '0 0 20px',
           scrollbarWidth: 'thin',
           scrollbarColor: 'var(--bg-muted) transparent',
         }}
       >
+        {/* Conversion banner (leads only) */}
+        {isLead && onEnroll && (
+          <div
+            style={{
+              margin: '16px 24px 0',
+              padding: '14px 18px',
+              borderRadius: 10,
+              background: 'linear-gradient(135deg, rgba(107,138,66,0.08) 0%, rgba(201,168,76,0.06) 100%)',
+              border: '1px solid rgba(107,138,66,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>
+                Ready to enroll <strong>{titleCase(client.first_name)}</strong>?
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-sans)', marginTop: 2 }}>
+                Add their plan info to convert this lead to a client.
+              </div>
+            </div>
+            <button
+              onClick={onEnroll}
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: 11,
+                fontWeight: 600,
+                padding: '6px 14px',
+                borderRadius: 6,
+                border: 'none',
+                background: 'var(--green)',
+                color: 'white',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+            >
+              Enroll
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="9 6 15 12 9 18" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         {/* Journal Zone */}
-        <div style={{ marginBottom: 20 }}>
-          <JournalZone clientId={client.id} firstName={titleCase(client.first_name)} />
+        <div style={{ margin: '16px 24px 0' }}>
+          <JournalZone clientId={client.id} firstName={titleCase(client.first_name)} isLead={isLead} />
         </div>
 
-        {/* 4px spacer */}
         <div style={{ height: 4 }} />
 
-        {/* Personal Information */}
-        <ClientInfoSection
-          clientId={client.id}
-          dateOfBirth={detail?.date_of_birth ?? client.date_of_birth}
-          age={client.age}
-          phone={detail?.phone ?? client.phone}
-          email={detail?.email ?? client.email}
-          medicareNumber={detail?.medicare_number}
-          addressLine1={detail?.address_line1}
-          addressCity={detail?.address_city}
-          addressState={detail?.address_state}
-          addressZip={detail?.address_zip}
-          editAll={editAllFields}
-        />
-
-        {/* Doctors & Medications */}
-        <DoctorsMedsSection />
+        {/* Sections differ for leads vs clients */}
+        <div style={{ padding: '0 24px' }}>
+          {isLead ? (
+            <LeadInfoSection
+              clientId={client.id}
+              leadSource={detail?.lead_source ?? client.lead_source ?? null}
+              dateOfBirth={detail?.date_of_birth ?? client.date_of_birth}
+              email={detail?.email ?? client.email}
+              editAll={editAllFields}
+            />
+          ) : (
+            <>
+              <ClientInfoSection
+                clientId={client.id}
+                dateOfBirth={detail?.date_of_birth ?? client.date_of_birth}
+                age={client.age}
+                phone={detail?.phone ?? client.phone}
+                email={detail?.email ?? client.email}
+                medicareNumber={detail?.medicare_number}
+                addressLine1={detail?.address_line1}
+                addressCity={detail?.address_city}
+                addressState={detail?.address_state}
+                addressZip={detail?.address_zip}
+                editAll={editAllFields}
+              />
+              <DoctorsMedsSection />
+            </>
+          )}
+        </div>
       </div>
 
       {/* Custom scrollbar + hover styles */}
@@ -346,5 +495,15 @@ function formatEffDate(dateStr: string): string {
     return `Eff ${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
   } catch {
     return `Eff ${dateStr}`;
+  }
+}
+
+function formatAddedDate(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `Added ${months[d.getMonth()]} ${d.getDate()}`;
+  } catch {
+    return '';
   }
 }

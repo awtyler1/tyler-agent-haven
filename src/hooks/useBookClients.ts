@@ -38,6 +38,7 @@ export function useBookClients() {
           .from('clients')
           .select(`
             id, first_name, last_name, date_of_birth, phone, email, last_contacted_at,
+            status, lead_source, created_at,
             policies (
               id, plan_name, plan_type, effective_date, term_date, status,
               carrier:carriers ( id, name )
@@ -117,6 +118,9 @@ export function useBookClients() {
           phone: client.phone,
           email: client.email,
           last_contacted_at: client.last_contacted_at,
+          status: client.status || 'active',
+          lead_source: client.lead_source || null,
+          created_at: client.created_at || null,
           carrier_id: primary?.carrier?.id || undefined,
           carrier_name: carrierName || undefined,
           plan_name: primary?.plan_name || undefined,

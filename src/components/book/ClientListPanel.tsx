@@ -32,7 +32,7 @@ function getBirthdayInfo(dob: string | null): { isToday: boolean; isUpcoming: bo
     now.getMonth() === d.getMonth() &&
     now.getDate() === d.getDate()
   ) {
-    return { isToday: true, isUpcoming: false, label: '🎂 Today' };
+    return { isToday: true, isUpcoming: false, label: '\u{1F382} Today' };
   }
 
   // Check upcoming 30 days
@@ -40,14 +40,34 @@ function getBirthdayInfo(dob: string | null): { isToday: boolean; isUpcoming: bo
   const diffDays = Math.ceil((birthdayThisYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays > 0 && diffDays <= 30) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return { isToday: false, isUpcoming: true, label: `🎂 ${months[d.getMonth()]} ${d.getDate()}` };
+    return { isToday: false, isUpcoming: true, label: `\u{1F382} ${months[d.getMonth()]} ${d.getDate()}` };
   }
 
   return null;
 }
 
+const SOURCE_LABELS: Record<string, string> = {
+  referral: 'Referral',
+  phone_call: 'Phone Call',
+  community_event: 'Community Event',
+  walk_in: 'Walk-in',
+  other: 'Other',
+};
+
+function formatShortDate(dateStr: string | null): string {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[d.getMonth()]} ${d.getDate()}`;
+  } catch {
+    return '';
+  }
+}
+
 interface ClientListPanelProps {
   clients: BookClientWithMeta[];
+  leads: BookClientWithMeta[];
   selectedClientId: string | null;
   onSelectClient: (id: string) => void;
   searchQuery: string;
@@ -58,8 +78,8 @@ interface ClientListPanelProps {
   birthdayFilter: boolean;
   onBirthdayToggle: () => void;
   birthdayCount: number;
-  statusFilter: 'active' | 'termed' | 'all';
-  onStatusChange: (s: 'active' | 'termed' | 'all') => void;
+  statusFilter: 'active' | 'termed' | 'lead' | 'all';
+  onStatusChange: (s: 'active' | 'termed' | 'lead' | 'all') => void;
   effDateFilter: string;
   onEffDateChange: (v: string) => void;
   currentPage: number;
@@ -68,11 +88,15 @@ interface ClientListPanelProps {
   onPageChange: (page: number) => void;
   itemsPerPage: number;
   totalCount: number;
+  leadCount: number;
   attentionCount: number;
+  onAddClient?: () => void;
+  onAddLead?: () => void;
 }
 
 export function ClientListPanel({
   clients,
+  leads,
   selectedClientId,
   onSelectClient,
   searchQuery,
@@ -91,15 +115,21 @@ export function ClientListPanel({
   onPageChange,
   itemsPerPage,
   totalCount,
+  leadCount,
   attentionCount,
   effDateFilter,
   onEffDateChange,
+  onAddClient,
+  onAddLead,
 }: ClientListPanelProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalClients);
 
   // Build page numbers for pagination
   const pageNumbers = buildPageNumbers(currentPage, totalPages);
+
+  const showLeadsSection = leads.length > 0 && statusFilter !== 'termed' && statusFilter !== 'active';
+  const showClientsSection = statusFilter !== 'lead';
 
   return (
     <div
@@ -137,21 +167,24 @@ export function ClientListPanel({
         </h1>
         <div style={{ display: 'flex', gap: 6 }}>
           <button
+            onClick={onAddLead}
             style={{
               fontFamily: "'Outfit', sans-serif",
               fontSize: 11,
               fontWeight: 600,
               padding: '5px 12px',
               borderRadius: 8,
-              border: '1px solid var(--bg-muted)',
+              border: '1px solid rgba(74,127,181,0.3)',
               background: 'transparent',
-              color: 'var(--text-muted)',
+              color: 'var(--blue)',
               cursor: 'pointer',
+              transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            Export
+            + Lead
           </button>
           <button
+            onClick={onAddClient}
             style={{
               fontFamily: "'Outfit', sans-serif",
               fontSize: 11,
@@ -164,7 +197,7 @@ export function ClientListPanel({
               cursor: 'pointer',
             }}
           >
-            + Add Client
+            + Client
           </button>
         </div>
       </div>
@@ -192,6 +225,20 @@ export function ClientListPanel({
         >
           {totalCount} clients
         </span>
+        {leadCount > 0 && (
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              padding: '4px 12px',
+              borderRadius: 8,
+              background: 'rgba(74,127,181,0.1)',
+              color: 'var(--blue)',
+            }}
+          >
+            {leadCount} leads
+          </span>
+        )}
         {attentionCount > 0 && (
           <span
             style={{
@@ -217,7 +264,7 @@ export function ClientListPanel({
               color: 'var(--gold-dark)',
             }}
           >
-            🎂 {birthdayCount} birthdays
+            {'\u{1F382}'} {birthdayCount} birthdays
           </span>
         )}
       </div>
@@ -361,13 +408,13 @@ export function ClientListPanel({
               transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            🎂 {birthdayCount > 0 ? birthdayCount : ''}
+            {'\u{1F382}'} {birthdayCount > 0 ? birthdayCount : ''}
           </button>
 
           {/* Status filter */}
           <select
             value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value as 'active' | 'termed' | 'all')}
+            onChange={(e) => onStatusChange(e.target.value as 'active' | 'termed' | 'lead' | 'all')}
             style={{
               fontFamily: "var(--font-sans)",
               fontSize: 11,
@@ -385,6 +432,7 @@ export function ClientListPanel({
             }}
           >
             <option value="active">Active</option>
+            <option value="lead">Leads</option>
             <option value="termed">Termed</option>
             <option value="all">All</option>
           </select>
@@ -402,7 +450,7 @@ export function ClientListPanel({
           scrollbarColor: 'var(--bg-muted) transparent',
         }}
       >
-        {clients.length === 0 ? (
+        {clients.length === 0 && leads.length === 0 ? (
           <div
             style={{
               padding: '40px 20px',
@@ -417,22 +465,65 @@ export function ClientListPanel({
             </div>
           </div>
         ) : (
-          clients.map((client) => {
-            const isSelected = selectedClientId != null && String(client.id) === String(selectedClientId);
-            return (
-              <ClientRow
-                key={client.id}
-                client={client}
-                isSelected={isSelected}
-                onSelect={() => onSelectClient(String(client.id))}
-              />
-            );
-          })
+          <>
+            {/* Leads section */}
+            {showLeadsSection && leads.length > 0 && (
+              <>
+                <SectionDivider label={`Leads \u00B7 ${leads.length}`} />
+                {leads.map((lead) => {
+                  const isSelected = selectedClientId != null && String(lead.id) === String(selectedClientId);
+                  return (
+                    <LeadRow
+                      key={lead.id}
+                      client={lead}
+                      isSelected={isSelected}
+                      onSelect={() => onSelectClient(String(lead.id))}
+                    />
+                  );
+                })}
+              </>
+            )}
+
+            {/* Lead-only filter: show leads without dividers */}
+            {statusFilter === 'lead' && leads.length > 0 && (
+              leads.map((lead) => {
+                const isSelected = selectedClientId != null && String(lead.id) === String(selectedClientId);
+                return (
+                  <LeadRow
+                    key={lead.id}
+                    client={lead}
+                    isSelected={isSelected}
+                    onSelect={() => onSelectClient(String(lead.id))}
+                  />
+                );
+              })
+            )}
+
+            {/* Clients section */}
+            {showClientsSection && clients.length > 0 && (
+              <>
+                {showLeadsSection && leads.length > 0 && (
+                  <SectionDivider label={`Clients \u00B7 ${totalClients}`} />
+                )}
+                {clients.map((client) => {
+                  const isSelected = selectedClientId != null && String(client.id) === String(selectedClientId);
+                  return (
+                    <ClientRow
+                      key={client.id}
+                      client={client}
+                      isSelected={isSelected}
+                      onSelect={() => onSelectClient(String(client.id))}
+                    />
+                  );
+                })}
+              </>
+            )}
+          </>
         )}
       </div>
 
       {/* Pagination footer */}
-      {totalClients > 0 && (
+      {totalClients > 0 && statusFilter !== 'lead' && (
         <div
           style={{
             padding: '10px 16px',
@@ -532,6 +623,145 @@ export function ClientListPanel({
   );
 }
 
+/** Section divider between leads and clients */
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div
+      style={{
+        padding: '6px 18px',
+        fontSize: 9,
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '0.08em',
+        color: 'var(--text-faint)',
+        background: 'var(--bg-subtle)',
+        borderBottom: '1px solid #F0EBE2',
+        fontFamily: "var(--font-sans)",
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+/** Lead row — blue dot, blue left border, LEAD tag */
+function LeadRow({
+  client,
+  isSelected,
+  onSelect,
+}: {
+  client: BookClientWithMeta;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const sourceLabel = client.lead_source ? SOURCE_LABELS[client.lead_source] || client.lead_source : null;
+  const addedDate = formatShortDate(client.created_at || null);
+  const subLine = [sourceLabel, addedDate ? `Added ${addedDate}` : null].filter(Boolean).join(' \u00B7 ');
+
+  return (
+    <div
+      onClick={onSelect}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '10px 16px',
+        paddingLeft: 15,
+        cursor: 'pointer',
+        borderBottom: '1px solid #F5F0E8',
+        borderLeft: '3px solid var(--blue)',
+        transition: 'background 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+        position: 'relative',
+        background: isSelected ? '#F0E8DA' : 'transparent',
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) e.currentTarget.style.background = 'var(--bg-subtle)';
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) e.currentTarget.style.background = 'transparent';
+      }}
+    >
+      {/* Selected indicator — gold right bar */}
+      {isSelected && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 8,
+            bottom: 8,
+            width: 3,
+            background: 'var(--gold)',
+            borderRadius: '2px 0 0 2px',
+            zIndex: 2,
+          }}
+        />
+      )}
+
+      {/* Blue dot */}
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          flexShrink: 0,
+          background: 'var(--blue)',
+        }}
+      />
+
+      {/* Lead info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              lineHeight: 1.3,
+            }}
+          >
+            {titleCase(client.first_name)} {titleCase(client.last_name)}
+          </span>
+          <span
+            style={{
+              fontSize: 9,
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: 'var(--blue)',
+              background: 'rgba(74,127,181,0.1)',
+              padding: '2px 7px',
+              borderRadius: 4,
+            }}
+          >
+            LEAD
+          </span>
+        </div>
+        {subLine && (
+          <div
+            style={{
+              fontSize: 10,
+              color: 'var(--text-faint)',
+              marginTop: 1,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {subLine}
+          </div>
+        )}
+      </div>
+
+      {/* Right side: phone */}
+      {client.phone && (
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>
+          {formatPhone(client.phone)}
+        </span>
+      )}
+    </div>
+  );
+}
+
 /** Single client row in the list */
 function ClientRow({
   client,
@@ -568,7 +798,7 @@ function ClientRow({
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        padding: `10px 16px${isFlagged ? '' : ''}`,
+        padding: '10px 16px',
         cursor: 'pointer',
         borderBottom: '1px solid #F5F0E8',
         transition: 'background 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -646,7 +876,7 @@ function ClientRow({
             textOverflow: 'ellipsis',
           }}
         >
-          {carrierName}{client.plan_name ? ` · ${client.plan_name}` : client.plan_type ? ` · ${client.plan_type}` : ''}
+          {carrierName}{client.plan_name ? ` \u00B7 ${client.plan_name}` : client.plan_type ? ` \u00B7 ${client.plan_type}` : ''}
         </div>
       </div>
 

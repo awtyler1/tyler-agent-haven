@@ -839,6 +839,8 @@ export type Database = {
           phone: string | null
           profile_id: string
           state: string | null
+          status: string
+          lead_source: string | null
           updated_at: string | null
           zip: string | null
         }
@@ -863,6 +865,8 @@ export type Database = {
           phone?: string | null
           profile_id: string
           state?: string | null
+          status?: string
+          lead_source?: string | null
           updated_at?: string | null
           zip?: string | null
         }
@@ -887,6 +891,8 @@ export type Database = {
           phone?: string | null
           profile_id?: string
           state?: string | null
+          status?: string
+          lead_source?: string | null
           updated_at?: string | null
           zip?: string | null
         }

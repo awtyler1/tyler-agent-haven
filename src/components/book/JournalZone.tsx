@@ -42,9 +42,10 @@ const TYPE_BADGE_STYLES: Record<string, { bg: string; color: string }> = {
 interface JournalZoneProps {
   clientId: string;
   firstName: string;
+  isLead?: boolean;
 }
 
-export function JournalZone({ clientId, firstName }: JournalZoneProps) {
+export function JournalZone({ clientId, firstName, isLead = false }: JournalZoneProps) {
   const [selectedType, setSelectedType] = useState<InteractionType>('note');
   const [selectedOutcome, setSelectedOutcome] = useState<CallOutcome>('reached');
   const [noteText, setNoteText] = useState('');
@@ -111,7 +112,7 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
         background: 'var(--bg-card)',
         borderRadius: 10,
         boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-        borderLeft: '3px solid var(--gold)',
+        borderLeft: `3px solid ${isLead ? 'var(--blue)' : 'var(--gold)'}`,
         overflow: 'hidden',
       }}
     >
@@ -119,7 +120,9 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
       <div
         style={{
           padding: '14px 18px',
-          background: 'linear-gradient(180deg, rgba(201,168,76,0.04) 0%, transparent 100%)',
+          background: isLead
+            ? 'linear-gradient(180deg, rgba(74,127,181,0.04) 0%, transparent 100%)'
+            : 'linear-gradient(180deg, rgba(201,168,76,0.04) 0%, transparent 100%)',
           borderBottom: '1px solid #F0EBE2',
         }}
       >
@@ -222,7 +225,7 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
               outline: 'none',
               transition: 'border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
-            onFocus={(e) => (e.target.style.borderColor = 'var(--gold)')}
+            onFocus={(e) => (e.target.style.borderColor = isLead ? 'var(--blue)' : 'var(--gold)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--bg-muted)')}
           />
           <button
@@ -273,7 +276,7 @@ export function JournalZone({ clientId, firstName }: JournalZoneProps) {
           borderBottom: timelineOpen ? '1px solid #F0EBE2' : 'none',
           transition: 'background 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(201,168,76,0.03)')}
+        onMouseEnter={(e) => (e.currentTarget.style.background = isLead ? 'rgba(74,127,181,0.03)' : 'rgba(201,168,76,0.03)')}
         onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
       >
         <svg

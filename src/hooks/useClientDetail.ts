@@ -15,6 +15,9 @@ export interface ClientDetailData {
   address_city: string | null;
   address_state: string | null;
   address_zip: string | null;
+  status: string;
+  lead_source: string | null;
+  created_at: string | null;
   policies: {
     id: string;
     plan_name: string;
@@ -59,6 +62,7 @@ export function useClientDetail(clientId: string | null) {
           .select(`
             id, first_name, last_name, date_of_birth, phone, email, last_contacted_at,
             medicare_number, address_line1, address_city, address_state, address_zip,
+            status, lead_source, created_at,
             policies (
               id, plan_name, plan_type, effective_date, term_date, status,
               carrier:carriers ( id, name )
