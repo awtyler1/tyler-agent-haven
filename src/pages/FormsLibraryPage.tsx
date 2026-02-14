@@ -6,13 +6,9 @@ import {
   ExternalLink,
   FolderOpen,
   Building2,
-  Eye,
-  Download,
 } from 'lucide-react';
 import { useForms } from '@/hooks/useForms';
 import { DocumentPreview } from '@/components/ui/DocumentPreview';
-import { GlassPanel } from '@/components/ui/GlassPanel';
-import { GH } from '@/config/golden-hour';
 
 // External links - will be populated with forms you provide
 interface ExternalLinkItem {
@@ -99,6 +95,11 @@ export default function FormsLibraryPage() {
 
   // Preview doc state (transient - doesn't need URL persistence)
   const [previewDoc, setPreviewDoc] = useState<{ url: string; name: string; downloadUrl: string } | null>(null);
+
+  // Row hover state
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+  // Rail hover state
+  const [hoveredRail, setHoveredRail] = useState<string | null>(null);
 
   // Convert DB forms to display format and merge with external links
   const allForms = useMemo(() => {
@@ -194,203 +195,497 @@ export default function FormsLibraryPage() {
   };
 
   return (
-    <div className="px-8 py-5">
-      <div className="max-w-[1100px] mx-auto">
-          {/* Title + Search row */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-semibold" style={{ fontFamily: GH.serif, color: GH.textPrimary }}>
-                Forms Library
-              </h1>
-              {/* Search */}
-              <div className="relative w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: GH.textMuted }} />
-                <input
-                  type="text"
-                  placeholder="Search forms..."
-                  value={searchQuery}
-                  onChange={(e) => updateParams({ q: e.target.value || null })}
-                  className="w-full pl-9 pr-4 py-2 text-sm rounded-2xl bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  style={{ border: `1px solid ${GH.border}`, color: GH.textPrimary }}
-                />
-              </div>
-            </div>
+    <div
+      style={{
+        flex: '1 1 0%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      {/* ── Page Header ── */}
+      <div
+        style={{
+          padding: '16px 24px 12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Left: title + stat badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <h1
+            style={{
+              margin: 0,
+              fontFamily: "'Lora', serif",
+              fontSize: 20,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+            }}
+          >
+            Forms
+          </h1>
+          <span
+            style={{
+              background: 'var(--bg-subtle)',
+              fontSize: 11,
+              fontWeight: 600,
+              padding: '3px 10px',
+              borderRadius: 8,
+              color: 'var(--text-muted)',
+            }}
+          >
+            {allForms.length} form{allForms.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {/* Right: search input */}
+        <div style={{ position: 'relative', width: 220 }}>
+          <Search
+            style={{
+              position: 'absolute',
+              left: 10,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: 14,
+              height: 14,
+              color: 'var(--text-faint)',
+              pointerEvents: 'none',
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Search forms..."
+            value={searchQuery}
+            onChange={(e) => updateParams({ q: e.target.value || null })}
+            style={{
+              width: '100%',
+              paddingLeft: 32,
+              paddingRight: 12,
+              paddingTop: 7,
+              paddingBottom: 7,
+              fontSize: 12,
+              border: '1px solid var(--bg-muted)',
+              borderRadius: 8,
+              outline: 'none',
+              color: 'var(--text-primary)',
+              background: 'white',
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--bg-muted)'; }}
+          />
+        </div>
+      </div>
+
+      {/* ── Split Card Container ── */}
+      <div
+        style={{
+          margin: '0 24px 14px',
+          flex: 1,
+          display: 'flex',
+          overflow: 'hidden',
+          background: 'var(--bg-card)',
+          borderRadius: 12,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}
+      >
+        {/* ── Left Rail ── */}
+        <div
+          style={{
+            width: 180,
+            borderRight: '1px solid #F0EBE2',
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Rail header */}
+          <div
+            style={{
+              padding: '12px 16px 8px',
+              fontSize: 9,
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--text-faint)',
+            }}
+          >
+            Categories
           </div>
 
-          {/* Two-column layout */}
-          <div className="grid grid-cols-12 gap-4 items-start">
-            {/* Left sidebar - Categories */}
-            <div className="col-span-3">
-              <GlassPanel padding={0} style={{ overflow: 'hidden' }}>
-                {CATEGORIES.map((category, idx) => {
-                  const IconComponent = category.icon;
-                  const isSelected = selectedCategory === category.key;
-                  return (
-                    <button
-                      key={category.key}
-                      onClick={() => updateParams({ category: category.key, q: null })}
-                      className="w-full px-4 py-3 flex items-center justify-between text-left transition-colors"
-                      style={{
-                        background: isSelected ? GH.tileHover : 'transparent',
-                        fontWeight: isSelected ? 600 : 400,
-                        color: GH.textPrimary,
-                        borderBottom: idx < CATEGORIES.length - 1 ? `1px solid ${GH.border}` : 'none',
-                      }}
-                      onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = GH.tileHover; }}
-                      onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <IconComponent
-                          className="w-4 h-4"
-                          style={{ color: isSelected ? GH.textPrimary : GH.textSecondary }}
-                        />
-                        <span className="text-sm">{category.label}</span>
-                      </div>
-                      <span
-                        className="text-xs px-2 py-0.5 rounded-full"
-                        style={{
-                          background: isSelected ? GH.border : GH.tileBg,
-                          color: GH.textSecondary,
-                        }}
-                      >
-                        {categoryCounts[category.key] || 0}
-                      </span>
-                    </button>
-                  );
-                })}
-              </GlassPanel>
-            </div>
+          {/* Rail items */}
+          {CATEGORIES.map((category) => {
+            const IconComponent = category.icon;
+            const isSelected = selectedCategory === category.key;
+            const isHovered = hoveredRail === category.key;
+            const count = categoryCounts[category.key] || 0;
 
-            {/* Right content - Forms list */}
-            <div className="col-span-9">
-              <GlassPanel padding={0}>
-                {/* Category header */}
-                <div className="px-5 py-3" style={{ borderBottom: `1px solid ${GH.border}` }}>
-                  <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: GH.textMuted }}>
-                    {currentCategory?.label}
+            return (
+              <button
+                key={category.key}
+                onClick={() => updateParams({ category: category.key, q: null })}
+                onMouseEnter={() => setHoveredRail(category.key)}
+                onMouseLeave={() => setHoveredRail(null)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '9px 14px',
+                  border: 'none',
+                  borderLeft: isSelected
+                    ? '3px solid var(--gold)'
+                    : '3px solid transparent',
+                  background: isSelected
+                    ? 'rgba(201,168,76,0.06)'
+                    : isHovered
+                      ? 'var(--bg-subtle)'
+                      : 'transparent',
+                  cursor: 'pointer',
+                  opacity: count === 0 ? 0.35 : 1,
+                  width: '100%',
+                  textAlign: 'left',
+                  font: 'inherit',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <IconComponent
+                    style={{
+                      width: 14,
+                      height: 14,
+                      color: isSelected ? 'var(--gold-dark)' : 'var(--text-muted)',
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 12.5,
+                      fontWeight: isSelected ? 600 : 500,
+                      color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)',
+                    }}
+                  >
+                    {category.label}
                   </span>
                 </div>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 600,
+                    padding: '1px 7px',
+                    borderRadius: 10,
+                    background: isSelected
+                      ? 'rgba(201,168,76,0.15)'
+                      : 'var(--bg-subtle)',
+                    color: isSelected ? 'var(--gold-dark)' : 'var(--text-muted)',
+                  }}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-                {/* Forms list */}
-                {loading ? (
-                  <div className="px-5 py-12 text-center">
-                    <p className="text-sm" style={{ color: GH.textSecondary }}>Loading forms...</p>
-                  </div>
-                ) : error ? (
-                  <div className="px-5 py-12 text-center">
-                    <p className="text-sm text-red-600">Failed to load forms. Please try again.</p>
-                  </div>
-                ) : filteredForms.length === 0 ? (
-                  <div className="px-5 py-12 text-center">
-                    <FileText className="w-8 h-8 mx-auto mb-3" style={{ color: GH.textFaint }} />
-                    <p className="text-sm" style={{ color: GH.textSecondary }}>
-                      {searchQuery
-                        ? `No forms found matching "${searchQuery}"`
-                        : `No forms available in ${currentCategory?.label}`}
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    {filteredForms.map((form, idx) => {
-                      const isPreviewable = canPreview(form);
-                      const isWordDoc = form.url.toLowerCase().endsWith('.doc') || form.url.toLowerCase().endsWith('.docx');
-                      const isPdf = form.url.toLowerCase().endsWith('.pdf');
-                      const isLink = !isPdf && !isWordDoc;
-                      return (
-                        <div
-                          key={form.id}
-                          className="px-5 py-3 flex items-center justify-between transition-colors group cursor-pointer"
-                          style={{ borderTop: idx > 0 ? `1px solid ${GH.border}` : 'none' }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = GH.tileHover; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                isPdf ? 'bg-red-50' : isWordDoc ? 'bg-blue-50' : 'bg-stone-50'
-                              }`}
-                            >
-                              {isLink ? (
-                                <ExternalLink className="w-5 h-5 text-stone-600" />
-                              ) : (
-                                <FileText className={`w-5 h-5 ${isPdf ? 'text-red-600' : 'text-blue-600'}`} />
-                              )}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium" style={{ color: GH.textPrimary }}>
-                                  {form.name}
-                                </p>
-                                <span
-                                  className={`text-xs px-1.5 py-0.5 rounded ${
-                                    isPdf
-                                      ? 'bg-red-100 text-red-700'
-                                      : isWordDoc
-                                      ? 'bg-blue-100 text-blue-700'
-                                      : 'bg-stone-100 text-stone-700'
-                                  }`}
-                                >
-                                  {isPdf ? 'PDF' : isWordDoc ? 'DOC' : 'Link'}
-                                </span>
-                              </div>
-                              <p className="text-xs" style={{ color: GH.textSecondary }}>{form.description}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {isPreviewable ? (
-                              <>
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    window.open(form.url, '_blank');
-                                  }}
-                                  className="text-sm font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
-                                >
-                                  <Download className="w-4 h-4" />
-                                  Download
-                                </button>
-                                <button
-                                  onClick={(e) => handleFormClick(form, e)}
-                                  className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                                  title="Quick View"
-                                >
-                                  <Eye className="w-5 h-5" />
-                                </button>
-                              </>
-                            ) : (
-                              <button
-                                onClick={(e) => handleFormClick(form, e)}
-                                className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-                              >
-                                Open
-                                <ExternalLink className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </GlassPanel>
+        {/* ── Detail Panel ── */}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: 0,
+          }}
+        >
+          {/* Detail header */}
+          <div
+            style={{
+              padding: '10px 18px 8px',
+              borderBottom: '1px solid #F0EBE2',
+            }}
+          >
+            <span
+              style={{
+                fontSize: 9,
+                textTransform: 'uppercase',
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                color: 'var(--text-faint)',
+              }}
+            >
+              {currentCategory?.label} · {filteredForms.length} form{filteredForms.length !== 1 ? 's' : ''}
+            </span>
+          </div>
 
-              {/* CMS Link */}
-              <div className="mt-4 text-center">
-                <p className="text-sm" style={{ color: GH.textSecondary }}>
-                  Need something else?{' '}
-                  <a
-                    href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-List"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    Browse CMS Forms Library
-                  </a>
+          {/* Detail body */}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {loading ? (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                }}
+              >
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>
+                  Loading forms...
                 </p>
               </div>
-            </div>
+            ) : error ? (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                }}
+              >
+                <p style={{ fontSize: 13, color: 'var(--red)', margin: 0 }}>
+                  Failed to load forms. Please try again.
+                </p>
+              </div>
+            ) : filteredForms.length === 0 ? (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  gap: 8,
+                }}
+              >
+                <FileText
+                  style={{ width: 28, height: 28, color: 'var(--text-faint)' }}
+                />
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>
+                  {searchQuery
+                    ? `No forms found matching "${searchQuery}"`
+                    : `No forms available in ${currentCategory?.label}`}
+                </p>
+              </div>
+            ) : (
+              filteredForms.map((form, idx) => {
+                const isPreviewable = canPreview(form);
+                const isWordDoc =
+                  form.url.toLowerCase().endsWith('.doc') ||
+                  form.url.toLowerCase().endsWith('.docx');
+                const isPdf = form.url.toLowerCase().endsWith('.pdf');
+                const isLink = !isPdf && !isWordDoc;
+                const isHovered = hoveredRow === form.id;
+
+                return (
+                  <div
+                    key={form.id}
+                    onMouseEnter={() => setHoveredRow(form.id)}
+                    onMouseLeave={() => setHoveredRow(null)}
+                    style={{
+                      padding: '10px 18px',
+                      borderBottom:
+                        idx < filteredForms.length - 1
+                          ? '1px solid #F0EBE2'
+                          : 'none',
+                      background: isHovered ? 'var(--bg-subtle)' : 'transparent',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      transition: 'background 120ms',
+                    }}
+                  >
+                    {/* Form icon square */}
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 7,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        background: isPdf
+                          ? 'rgba(196,74,63,0.08)'
+                          : isWordDoc
+                            ? 'rgba(74,127,181,0.08)'
+                            : 'rgba(168,154,132,0.1)',
+                        color: isPdf
+                          ? 'var(--red)'
+                          : isWordDoc
+                            ? 'var(--blue)'
+                            : 'var(--text-muted)',
+                      }}
+                    >
+                      {isLink ? (
+                        <ExternalLink style={{ width: 14, height: 14 }} />
+                      ) : (
+                        <FileText style={{ width: 14, height: 14 }} />
+                      )}
+                    </div>
+
+                    {/* Form info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 12.5,
+                          fontWeight: 500,
+                          color: 'var(--text-primary)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {form.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 10.5,
+                          color: 'var(--text-muted)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {form.description}
+                      </div>
+                    </div>
+
+                    {/* Type tag */}
+                    <span
+                      style={{
+                        fontSize: 9,
+                        fontWeight: 600,
+                        padding: '2px 6px',
+                        borderRadius: 4,
+                        flexShrink: 0,
+                        background: isPdf
+                          ? 'rgba(196,74,63,0.08)'
+                          : isWordDoc
+                            ? 'rgba(74,127,181,0.08)'
+                            : 'rgba(168,154,132,0.1)',
+                        color: isPdf
+                          ? 'var(--red)'
+                          : isWordDoc
+                            ? 'var(--blue)'
+                            : 'var(--text-muted)',
+                      }}
+                    >
+                      {isPdf ? 'PDF' : isWordDoc ? 'DOC' : 'Link'}
+                    </span>
+
+                    {/* Action buttons — visible on hover */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        opacity: isHovered ? 1 : 0,
+                        transition: 'opacity 150ms',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isPreviewable ? (
+                        <>
+                          <button
+                            onClick={(e) => handleFormClick(form, e)}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(74,127,181,0.08)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                            }}
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 500,
+                              color: 'var(--blue)',
+                              padding: '4px 10px',
+                              borderRadius: 6,
+                              border: 'none',
+                              background: 'transparent',
+                              cursor: 'pointer',
+                              font: 'inherit',
+                            }}
+                          >
+                            Preview
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              window.open(form.url, '_blank');
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(74,127,181,0.08)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                            }}
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 500,
+                              color: 'var(--blue)',
+                              padding: '4px 10px',
+                              borderRadius: 6,
+                              border: 'none',
+                              background: 'transparent',
+                              cursor: 'pointer',
+                              font: 'inherit',
+                            }}
+                          >
+                            Download
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={(e) => handleFormClick(form, e)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(74,127,181,0.08)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                          }}
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 500,
+                            color: 'var(--blue)',
+                            padding: '4px 10px',
+                            borderRadius: 6,
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: 'pointer',
+                            font: 'inherit',
+                          }}
+                        >
+                          Open ↗
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* CMS Footer */}
+          <div
+            style={{
+              padding: '10px 18px',
+              borderTop: '1px solid #F0EBE2',
+              textAlign: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              Need something else?{' '}
+              <a
+                href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-List"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--blue)', textDecoration: 'none' }}
+              >
+                Browse CMS Forms Library →
+              </a>
+            </span>
           </div>
         </div>
+      </div>
 
       {/* Document Preview Modal */}
       <DocumentPreview
