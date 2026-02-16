@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBookClients } from '@/hooks/useBookClients';
 import { ClientListPanel } from '@/components/book/ClientListPanel';
 import { ClientDetail } from '@/components/book/ClientDetail';
@@ -12,6 +13,7 @@ const ITEMS_PER_PAGE = 25;
 type Mode = 'view' | 'add-client' | 'add-lead' | 'convert-lead';
 
 export default function ClientList() {
+  const navigate = useNavigate();
   const {
     clients: filteredClients,
     flaggedClients,
@@ -170,6 +172,76 @@ export default function ClientList() {
     );
   }
 
+  // Empty book welcome screen
+  const hasNoClients = filteredClients.length === 0 && !searchQuery && selectedCarriers.length === 0;
+  if (hasNoClients) {
+    return (
+      <div style={{
+        flex: '1 1 0%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'var(--bg)',
+      }}>
+        <div style={{ textAlign: 'center', maxWidth: 440 }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: 14,
+            background: 'linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.04))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 20px',
+          }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+            </svg>
+          </div>
+
+          <h1 style={{ fontFamily: "'Lora', serif", fontSize: 22, fontWeight: 600, marginBottom: 10, color: 'var(--text-primary)' }}>
+            Welcome to your book
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
+            Import your existing clients from SunFire, Connecture, or carrier reports — or add them one at a time.
+          </p>
+
+          <button
+            onClick={() => navigate('/import')}
+            style={{
+              padding: '10px 24px', fontSize: 13, fontWeight: 600, borderRadius: 8,
+              background: 'var(--blue)', color: 'white', border: 'none', cursor: 'pointer',
+            }}
+          >
+            Import Your Book
+          </button>
+
+          <div style={{ margin: '16px 0', fontSize: 11, color: 'var(--text-faint)' }}>or</div>
+
+          <button
+            onClick={() => setMode('add-client')}
+            style={{
+              padding: '8px 20px', fontSize: 12, fontWeight: 600, borderRadius: 8,
+              background: 'transparent', border: '1px solid var(--bg-muted)',
+              color: 'var(--text-muted)', cursor: 'pointer',
+            }}
+          >
+            Add clients manually
+          </button>
+
+          <div style={{
+            display: 'flex', gap: 8, justifyContent: 'center', marginTop: 28,
+            flexWrap: 'wrap',
+          }}>
+            {['SunFire', 'Connecture', 'Carrier Reports', 'CSV/Excel'].map(f => (
+              <span key={f} style={{
+                fontSize: 10, fontWeight: 600, color: 'var(--text-faint)',
+                padding: '4px 10px', borderRadius: 20,
+                background: 'var(--bg-subtle)', whiteSpace: 'nowrap',
+              }}>
+                &#10003; {f}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Determine what to render in the right panel
   const renderRightPanel = () => {
     switch (mode) {
@@ -287,6 +359,7 @@ export default function ClientList() {
           attentionCount={attentionCount}
           onAddClient={() => setMode('add-client')}
           onAddLead={() => setMode('add-lead')}
+          onImport={() => navigate('/import')}
         />
         {renderRightPanel()}
       </div>

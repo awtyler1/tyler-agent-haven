@@ -92,6 +92,7 @@ interface ClientListPanelProps {
   attentionCount: number;
   onAddClient?: () => void;
   onAddLead?: () => void;
+  onImport?: () => void;
 }
 
 export function ClientListPanel({
@@ -121,6 +122,7 @@ export function ClientListPanel({
   onEffDateChange,
   onAddClient,
   onAddLead,
+  onImport,
 }: ClientListPanelProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalClients);
@@ -166,6 +168,41 @@ export function ClientListPanel({
           My Book
         </h1>
         <div style={{ display: 'flex', gap: 6 }}>
+          {onImport && (
+            <button
+              onClick={onImport}
+              style={{
+                fontFamily: "'Outfit', sans-serif",
+                fontSize: 11,
+                fontWeight: 600,
+                padding: '5px 12px',
+                borderRadius: 8,
+                border: '1px solid var(--bg-muted)',
+                background: 'transparent',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'var(--blue)';
+                e.currentTarget.style.color = 'var(--blue)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--bg-muted)';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              Import
+            </button>
+          )}
           <button
             onClick={onAddLead}
             style={{

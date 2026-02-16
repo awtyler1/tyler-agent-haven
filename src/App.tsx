@@ -54,6 +54,7 @@ const SyncFlow = lazy(() => import("./pages/SyncFlow"));
 // Lazy load: Book of Business pages
 const GrowthIncome = lazy(() => import("./pages/book/GrowthIncome"));
 const BookClientList = lazy(() => import("./pages/book/ClientList"));
+const BookImportPage = lazy(() => import("./pages/book/BookImportPage"));
 
 // Lazy load: Admin pages (only loaded by admins)
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -163,6 +164,7 @@ const App = () => (
               <Route index element={<Index />} />
               <Route path="book" element={<BookClientList />} />
               <Route path="book/growth" element={<GrowthIncome />} />
+              <Route path="import" element={<BookImportPage />} />
               <Route path="contracting-hub" element={<ContractingHubPage />} />
               <Route path="plan-finder" element={<PlanFinderPage />} />
               <Route path="carrier-portals" element={<CarrierPortalsPage />} />

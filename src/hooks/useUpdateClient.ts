@@ -2,6 +2,30 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { ClientDetailData } from '@/hooks/useClientDetail';
 
+/**
+ * Fields that should be tracked when hand-edited in the CRM.
+ * These are the fields the import pipeline might try to overwrite.
+ * Additive content (notes, interactions, doctors) is NOT tracked.
+ */
+const TRACKABLE_FIELDS = new Set([
+  'phone', 'email',
+  'address_line1', 'address_city', 'address_state', 'address_zip',
+  'date_of_birth', 'medicare_number',
+  'part_a_date', 'part_b_date',
+  'first_name', 'last_name',
+]);
+
+/**
+ * Given a current array of manually edited field names and a field being edited,
+ * returns the updated array with the field added (if not already present and if trackable).
+ */
+function appendEditedField(currentFields: string[] | null, fieldName: string): string[] {
+  const fields = currentFields ?? [];
+  if (!TRACKABLE_FIELDS.has(fieldName)) return fields;
+  if (fields.includes(fieldName)) return fields;
+  return [...fields, fieldName];
+}
+
 interface UpdateClientParams {
   clientId: string;
   field: string;
@@ -13,9 +37,24 @@ export function useUpdateClient() {
 
   return useMutation({
     mutationFn: async ({ clientId, field, value }: UpdateClientParams) => {
+      const updateData: Record<string, any> = { [field]: value };
+
+      if (TRACKABLE_FIELDS.has(field)) {
+        const { data: current } = await supabase
+          .from('clients')
+          .select('manually_edited_fields')
+          .eq('id', clientId)
+          .single();
+
+        updateData.manually_edited_fields = appendEditedField(
+          (current?.manually_edited_fields as string[]) ?? null,
+          field,
+        );
+      }
+
       const { error } = await supabase
         .from('clients')
-        .update({ [field]: value })
+        .update(updateData)
         .eq('id', clientId);
 
       if (error) throw error;
@@ -28,6 +67,7 @@ export function useUpdateClient() {
         queryClient.setQueryData<ClientDetailData>(['client-detail', clientId], {
           ...previous,
           [field]: value,
+          manually_edited_fields: appendEditedField(previous.manually_edited_fields, field),
         });
       }
 

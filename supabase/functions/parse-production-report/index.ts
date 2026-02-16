@@ -21,6 +21,15 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import * as XLSX from "https://esm.sh/xlsx@0.18.5";
 import { getCorsHeaders, handleCorsOptions, corsJsonResponse, corsErrorResponse } from "../_shared/cors.ts";
 import { createSupabaseAdmin, getErrorMessage } from "../_shared/auth.ts";
+import {
+  loadClientCache,
+  findExistingClient,
+  upsertClient,
+  upsertPolicy as sharedUpsertPolicy,
+  type ParsedClientRow,
+  type ParsedPolicyRow,
+  type BatchClientCache,
+} from '../_shared/clientDedup.ts';
 
 // ============================================================================
 // TYPES
@@ -566,146 +575,43 @@ function parseAnthemReport(rows: Record<string, string>[]): ParsedRow[] {
 // DATABASE OPERATIONS
 // ============================================================================
 
-/**
- * Find or create a client for a given profile
- *
- * Matching logic (in priority order):
- * 1. If medicare_number is provided: match by profile_id + medicare_number
- * 2. If medicare_number is null but DOB exists (Humana): match by profile_id + first_name + last_name + date_of_birth
- * 3. If both medicare_number AND DOB are null (Anthem): match by profile_id + first_name + last_name only
- */
+// REPLACED: Old findOrCreateClient with sequential DB queries
+// Now uses shared dedup service with batch pre-loaded cache
 async function findOrCreateClient(
   supabase: SupabaseClient,
   profileId: string,
   row: ParsedRow,
-  carrierId: string
+  carrierId: string,
+  cache: BatchClientCache
 ): Promise<{ clientId: string; isNew: boolean }> {
-  let existing: { id: string } | null = null;
-  let findError: Error | null = null;
+  // Map the existing ParsedRow format to ParsedClientRow
+  const parsedRow: ParsedClientRow = {
+    first_name: row.first_name ?? undefined,
+    last_name: row.last_name ?? undefined,
+    middle_initial: row.middle_initial ?? undefined,
+    date_of_birth: row.date_of_birth ?? undefined,
+    medicare_number: row.medicare_number ?? undefined,
+    phone: row.phone ?? undefined,
+    email: row.email ?? undefined,
+    address_line1: row.address_line1 ?? undefined,
+    address_city: row.address_city ?? undefined,
+    address_state: row.address_state ?? undefined,
+    address_zip: row.address_zip ?? undefined,
+  };
 
-  if (row.medicare_number) {
-    // Primary path: Match by medicare_number
-    const result = await supabase
-      .from('clients')
-      .select('id')
-      .eq('profile_id', profileId)
-      .eq('medicare_number', row.medicare_number)
-      .maybeSingle();
+  // Find match using in-memory cache
+  const matchResult = findExistingClient(cache, parsedRow);
 
-    existing = result.data;
-    findError = result.error;
-  } else if (row.first_name && row.last_name && row.date_of_birth) {
-    // Fallback path (Humana): Match by name + DOB (case-insensitive)
-    const result = await supabase
-      .from('clients')
-      .select('id')
-      .eq('profile_id', profileId)
-      .ilike('first_name', row.first_name)
-      .ilike('last_name', row.last_name)
-      .eq('date_of_birth', row.date_of_birth)
-      .maybeSingle();
-
-    existing = result.data;
-    findError = result.error;
-  } else if (row.first_name && row.last_name) {
-    // Anthem path: No Medicare # and no DOB
-    // First try matching via carrier_member_id through policies table (more precise)
-    if (row.carrier_member_id && carrierId) {
-      const policyResult = await supabase
-        .from('policies')
-        .select('client_id')
-        .eq('carrier_member_id', row.carrier_member_id)
-        .eq('carrier_id', carrierId)
-        .eq('profile_id', profileId)
-        .maybeSingle();
-
-      if (!policyResult.error && policyResult.data?.client_id) {
-        existing = { id: policyResult.data.client_id };
-      }
-    }
-
-    // Fall back to name-only match if carrier_member_id didn't find anything
-    if (!existing) {
-      const result = await supabase
-        .from('clients')
-        .select('id')
-        .eq('profile_id', profileId)
-        .ilike('first_name', row.first_name)
-        .ilike('last_name', row.last_name)
-        .maybeSingle();
-
-      existing = result.data;
-      findError = result.error;
-    }
-  } else {
-    throw new Error('Cannot find/create client: missing required identification fields');
-  }
-
-  if (findError) {
-    throw new Error(`Error finding client: ${findError.message}`);
-  }
-
-  if (existing) {
-    // Update existing client with latest info (only update non-null fields)
-    const updateData: Record<string, unknown> = {
-      updated_at: new Date().toISOString(),
-    };
-
-    // Only update fields that have values (don't overwrite with nulls)
-    if (row.first_name) updateData.first_name = row.first_name;
-    if (row.last_name) updateData.last_name = row.last_name;
-    if (row.middle_initial) updateData.middle_initial = row.middle_initial;
-    if (row.date_of_birth) updateData.date_of_birth = row.date_of_birth;
-    if (row.phone) updateData.phone = row.phone;
-    if (row.email) updateData.email = row.email;
-    if (row.address_line1) updateData.address_line1 = row.address_line1;
-    if (row.address_city) updateData.address_city = row.address_city;
-    if (row.address_state) updateData.address_state = row.address_state;
-    if (row.address_zip) updateData.address_zip = row.address_zip;
-
-    const { error: updateError } = await supabase
-      .from('clients')
-      .update(updateData)
-      .eq('id', existing.id);
-
-    if (updateError) {
-      console.warn(`Error updating client ${existing.id}: ${updateError.message}`);
-    }
-
-    return { clientId: existing.id, isNew: false };
-  }
-
-  // Create new client
-  const { data: newClient, error: createError } = await supabase
-    .from('clients')
-    .insert({
-      profile_id: profileId,
-      medicare_number: row.medicare_number,
-      first_name: row.first_name,
-      last_name: row.last_name,
-      middle_initial: row.middle_initial,
-      date_of_birth: row.date_of_birth,
-      phone: row.phone,
-      email: row.email,
-      address_line1: row.address_line1,
-      address_city: row.address_city,
-      address_state: row.address_state,
-      address_zip: row.address_zip,
-    })
-    .select('id')
-    .single();
-
-  if (createError) {
-    throw new Error(`Error creating client: ${createError.message}`);
-  }
-
-  return { clientId: newClient.id, isNew: true };
+  // Upsert with manual edit protection
+  return await upsertClient(
+    supabase, profileId, parsedRow, matchResult,
+    'SMART_SYNC', cache, undefined  // no importBatchId for Smart Sync
+  );
 }
 
-/**
- * Create or update a policy for a client/carrier combination
- */
-async function upsertPolicy(
+// REPLACED: Old inline upsertPolicy
+// Now uses shared dedup service with updated unique constraint (client_id, carrier_id, plan_type)
+async function upsertPolicyLocal(
   supabase: SupabaseClient,
   clientId: string,
   carrierId: string,
@@ -713,59 +619,17 @@ async function upsertPolicy(
   uploadId: string,
   row: ParsedRow
 ): Promise<{ isNew: boolean }> {
-  // Try to find existing policy
-  const { data: existing, error: findError } = await supabase
-    .from('policies')
-    .select('id')
-    .eq('client_id', clientId)
-    .eq('carrier_id', carrierId)
-    .maybeSingle();
-
-  if (findError) {
-    throw new Error(`Error finding policy: ${findError.message}`);
-  }
-
-  const policyData = {
-    plan_name: row.plan_name,
+  const policyRow: ParsedPolicyRow = {
+    carrier_member_id: row.carrier_member_id ?? undefined,
+    plan_name: row.plan_name ?? undefined,
     plan_type: derivePlanType(row.plan_name),
-    effective_date: row.effective_date,
-    term_date: row.term_date,
-    status: row.status,
-    carrier_member_id: row.carrier_member_id,
-    source_upload_id: uploadId,
-    last_seen_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    effective_date: row.effective_date ?? undefined,
+    term_date: row.term_date ?? undefined,
   };
 
-  if (existing) {
-    // Update existing policy
-    const { error: updateError } = await supabase
-      .from('policies')
-      .update(policyData)
-      .eq('id', existing.id);
-
-    if (updateError) {
-      throw new Error(`Error updating policy: ${updateError.message}`);
-    }
-
-    return { isNew: false };
-  }
-
-  // Create new policy
-  const { error: createError } = await supabase
-    .from('policies')
-    .insert({
-      client_id: clientId,
-      carrier_id: carrierId,
-      profile_id: profileId,
-      ...policyData,
-    });
-
-  if (createError) {
-    throw new Error(`Error creating policy: ${createError.message}`);
-  }
-
-  return { isNew: true };
+  return await sharedUpsertPolicy(
+    supabase, clientId, carrierId, profileId, policyRow, uploadId
+  );
 }
 
 // ============================================================================
@@ -923,6 +787,9 @@ serve(async (req: Request) => {
 
       console.log(`Parsed ${parsedRows.length} valid rows for ${carrier_code}`);
 
+      // Load all agent's clients into memory for batch matching
+      const cache = await loadClientCache(supabase, profile_id);
+
       // Process each row
       const stats: Stats = {
         total: parsedRows.length,
@@ -938,11 +805,12 @@ serve(async (req: Request) => {
             supabase,
             profile_id,
             row,
-            carrier.id
+            carrier.id,
+            cache
           );
 
           // Upsert policy
-          const { isNew: policyIsNew } = await upsertPolicy(
+          const { isNew: policyIsNew } = await upsertPolicyLocal(
             supabase,
             clientId,
             carrier.id,

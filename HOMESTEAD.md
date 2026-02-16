@@ -372,6 +372,98 @@ When a section has no data yet:
 - No illustrations, no icons, no cute graphics
 ```
 
+### Upload Drop Zone
+Drag-and-drop file upload target.
+
+```css
+.drop-zone {
+  border: 2px dashed var(--bg-muted);       /* Default border */
+  border-radius: 10px;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg);
+  transition: all var(--med) var(--ease);
+}
+.drop-zone.drag-over {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.03);
+}
+```
+
+- **Icon:** Upload arrow (22px) in a 48px gold-gradient circle above the text.
+- **Label:** "Drop your file here or **browse**" — browse in blue.
+- **Subtext:** File format hints (11.5px, `--text-faint`).
+- **Validation errors** shown as amber inline text below the zone.
+
+### Carrier Sync Tiles
+Grid of per-carrier import cards.
+
+```css
+.carrier-tile {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all var(--med) var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.carrier-tile.synced {
+  border: 2px solid rgba(107,138,66,0.2);
+}
+.carrier-tile.drag-over {
+  border: 2px solid var(--gold);
+  transform: scale(1.02);
+}
+```
+
+- **Layout:** `grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))`.
+- **Stagger entrance:** `importFadeUp 0.35s` with `0.05s × index` delay.
+- **Synced state:** Green top bar (3px), green check badge, "Re-sync" link in blue.
+- **Unsynced state:** Dashed drop zone inside tile, clock icon badge.
+- **Carrier dot:** 10px circle in carrier brand color.
+
+### Processing Stepper
+Animated step list during file upload.
+
+```css
+.step-icon { width: 24px; height: 24px; border-radius: 50%; }
+.step-icon.done    { background: var(--green-bg); }
+.step-icon.active  { background: rgba(201,168,76,0.15); }
+.step-icon.pending { background: var(--bg-subtle); }
+```
+
+- **Steps appear** with `importStepFadeIn 0.3s` as they become visible.
+- **Spinner** above steps: 48px circle, `--bg-muted` border, `--gold` top, `importSpin 0.8s linear infinite`.
+- **Error state:** Spinner replaced with 56px red circle + X icon (`importPopIn 0.4s`). Steps hidden. Error message + "Try again" / "Back" buttons shown.
+- **Timeout:** After 30s, show "Large files can take a moment… **Cancel**".
+
+### Success / Celebration Screen
+Post-import success with hero number and milestone progress.
+
+- **First-time variant:** Radial warm glow, popIn check (72px green circle), "Your book is here, *Name*" (Lora italic), hero count-up number, "Your book is home" green pill, "View My Book" blue button.
+- **Monthly sync variant:** PopIn check (64px), count-up hero number, delta pill ("↑ N new from Carrier"), breakdown row (New | Updated), milestone progress bar, "Back to Import" + "View My Book" buttons.
+- **Count-up:** `easeOutQuart` over 1s, 400ms initial delay.
+- **Stagger:** Check → number → label → pill → bar → buttons at ~0.1–0.15s intervals.
+
+### Inline Mismatch Banner
+Warning card when file format doesn't match expected carrier.
+
+```css
+.mismatch-card {
+  max-width: 480px;
+  padding: 28px;
+  border-radius: 12px;
+  background: rgba(184,148,74,0.04);
+  border: 1px solid rgba(184,148,74,0.2);
+  animation: importFadeUp 0.4s var(--ease) forwards 0.1s;
+}
+```
+
+- **Layout:** AlertTriangle icon (amber) + title + description, then action buttons.
+- **Actions:** Primary "Use as [Carrier]" (blue), secondary "Continue anyway" (outlined), tertiary "Cancel import" (text-only).
+
 ### Form Inputs
 ```css
 .input {
@@ -445,6 +537,23 @@ Two speeds. One curve. No exceptions.
   to   { opacity: 1; transform: translateY(0); }
 }
 /* Stagger: 0.1s, 0.3s, 0.45s, 0.55s, 0.7s */
+```
+
+**Pop-in entrance** — used for celebration elements (check marks, icons):
+```css
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.3); }
+  60%  { transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+```
+
+**Step fade-in** — used for sequential step reveals:
+```css
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
 ```
 
 **Landing bounce** — used when a count-up animation reaches its target:
@@ -530,6 +639,20 @@ function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
 - **Labels above inputs** (never inline/floating labels — our users are 45–65, clarity over cleverness).
 - **Actions sticky at bottom** or clearly visible without scrolling.
 
+### Import Page (Book Import)
+Multi-mode page with 6 visual states managed by a state machine hook (`useBookImport`).
+
+**Modes:** `carrier-grid` → `processing` → `mismatch?` → `summary` → `success`; plus `bulk-upload` as an alternate entry point.
+
+- **Carrier Grid:** Sync progress strip + carrier tile grid + bulk import card. Tiles stagger-animate on mount.
+- **Bulk Upload:** Centered white card with Upload Drop Zone + auto-detect format strip.
+- **Processing:** Centered spinner + step list. Error variant replaces spinner with red X.
+- **Mismatch:** Centered amber warning card with two action options + cancel.
+- **Summary:** Centered white card with stats grid (new/updated/skipped). Edge cases: empty file (muted icon, "No records"), all-skipped (amber icon, auto-expanded skip details, no commit button).
+- **Success:** Full-height radial warm glow with popIn check + count-up hero number + milestone bar.
+
+**Reference implementation:** `src/pages/book/BookImportPage.tsx`
+
 ---
 
 ## 11. DO'S AND DON'TS
@@ -579,5 +702,5 @@ This document grows with the platform. It's not a snapshot — it's a living fou
 
 ---
 
-*Homestead v1.0 — February 2026*
+*Homestead v1.1 — February 2026*
 *Built for agents who build their futures one client at a time.*

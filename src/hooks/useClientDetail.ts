@@ -45,6 +45,7 @@ export interface ClientDetailData {
     status: string;
     created_at: string;
   }[];
+  manually_edited_fields: string[] | null;
 }
 
 export function useClientDetail(clientId: string | null) {
@@ -62,7 +63,7 @@ export function useClientDetail(clientId: string | null) {
           .select(`
             id, first_name, last_name, date_of_birth, phone, email, last_contacted_at,
             medicare_number, address_line1, address_city, address_state, address_zip,
-            status, lead_source, created_at,
+            status, lead_source, created_at, manually_edited_fields,
             policies (
               id, plan_name, plan_type, effective_date, term_date, status,
               carrier:carriers ( id, name )

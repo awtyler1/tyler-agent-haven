@@ -264,6 +264,144 @@ export type Database = {
         }
         Relationships: []
       }
+      book_import_batches: {
+        Row: {
+          carrier_id: string | null
+          committed_at: string | null
+          created_at: string
+          detected_format: string | null
+          error_message: string | null
+          file_name: string
+          file_size_bytes: number | null
+          format_mismatch: boolean | null
+          id: string
+          mismatch_detected_carrier: string | null
+          new_records: number | null
+          profile_id: string
+          skip_details: Json | null
+          skipped_records: number | null
+          source_format: string
+          staged_at: string | null
+          status: string
+          termed_records: number | null
+          total_records: number | null
+          updated_records: number | null
+        }
+        Insert: {
+          carrier_id?: string | null
+          committed_at?: string | null
+          created_at?: string
+          detected_format?: string | null
+          error_message?: string | null
+          file_name: string
+          file_size_bytes?: number | null
+          format_mismatch?: boolean | null
+          id?: string
+          mismatch_detected_carrier?: string | null
+          new_records?: number | null
+          profile_id: string
+          skip_details?: Json | null
+          skipped_records?: number | null
+          source_format: string
+          staged_at?: string | null
+          status?: string
+          termed_records?: number | null
+          total_records?: number | null
+          updated_records?: number | null
+        }
+        Update: {
+          carrier_id?: string | null
+          committed_at?: string | null
+          created_at?: string
+          detected_format?: string | null
+          error_message?: string | null
+          file_name?: string
+          file_size_bytes?: number | null
+          format_mismatch?: boolean | null
+          id?: string
+          mismatch_detected_carrier?: string | null
+          new_records?: number | null
+          profile_id?: string
+          skip_details?: Json | null
+          skipped_records?: number | null
+          source_format?: string
+          staged_at?: string | null
+          status?: string
+          termed_records?: number | null
+          total_records?: number | null
+          updated_records?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_import_batches_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_import_batches_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      book_import_staged_records: {
+        Row: {
+          batch_id: string
+          created_at: string
+          id: string
+          mapped_data: Json
+          match_type: string
+          matched_client_id: string | null
+          policy_data: Json | null
+          raw_data: Json
+          row_number: number
+          skip_reason: string | null
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          id?: string
+          mapped_data: Json
+          match_type?: string
+          matched_client_id?: string | null
+          policy_data?: Json | null
+          raw_data: Json
+          row_number: number
+          skip_reason?: string | null
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          id?: string
+          mapped_data?: Json
+          match_type?: string
+          matched_client_id?: string | null
+          policy_data?: Json | null
+          raw_data?: Json
+          row_number?: number
+          skip_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_import_staged_records_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "book_import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_import_staged_records_matched_client_id_fkey"
+            columns: ["matched_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       broker_roadmaps: {
         Row: {
           activity_targets: Json | null
@@ -832,15 +970,20 @@ export type Database = {
           email: string | null
           first_name: string
           id: string
+          import_batch_id: string | null
           last_contacted_at: string | null
           last_name: string
+          lead_source: string | null
+          manually_edited_fields: Json | null
           medicare_number: string | null
           middle_initial: string | null
+          part_a_date: string | null
+          part_b_date: string | null
           phone: string | null
           profile_id: string
+          source: string | null
           state: string | null
           status: string
-          lead_source: string | null
           updated_at: string | null
           zip: string | null
         }
@@ -858,15 +1001,20 @@ export type Database = {
           email?: string | null
           first_name: string
           id?: string
+          import_batch_id?: string | null
           last_contacted_at?: string | null
           last_name: string
+          lead_source?: string | null
+          manually_edited_fields?: Json | null
           medicare_number?: string | null
           middle_initial?: string | null
+          part_a_date?: string | null
+          part_b_date?: string | null
           phone?: string | null
           profile_id: string
+          source?: string | null
           state?: string | null
           status?: string
-          lead_source?: string | null
           updated_at?: string | null
           zip?: string | null
         }
@@ -884,19 +1032,31 @@ export type Database = {
           email?: string | null
           first_name?: string
           id?: string
+          import_batch_id?: string | null
           last_contacted_at?: string | null
           last_name?: string
+          lead_source?: string | null
+          manually_edited_fields?: Json | null
           medicare_number?: string | null
           middle_initial?: string | null
+          part_a_date?: string | null
+          part_b_date?: string | null
           phone?: string | null
           profile_id?: string
+          source?: string | null
           state?: string | null
           status?: string
-          lead_source?: string | null
           updated_at?: string | null
           zip?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "clients_import_batch_fkey"
+            columns: ["import_batch_id"]
+            isOneToOne: false
+            referencedRelation: "book_import_batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "clients_profile_id_fkey"
             columns: ["profile_id"]
