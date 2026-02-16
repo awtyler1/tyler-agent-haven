@@ -172,18 +172,41 @@ export default function BookImportPage() {
     return () => { style.remove(); };
   }, []);
 
+  // ── Processing minimum display time (1.5s so stepper doesn't flash) ──
+  const processingStartRef = useRef<number>(0);
+  const [processingHeld, setProcessingHeld] = useState(false);
+
+  useEffect(() => {
+    if (mode === 'processing') {
+      processingStartRef.current = Date.now();
+      setProcessingHeld(true);
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (!processingHeld || mode === 'processing') return;
+    const elapsed = Date.now() - processingStartRef.current;
+    const remaining = Math.max(0, 1500 - elapsed);
+    if (remaining === 0) { setProcessingHeld(false); return; }
+    const timer = setTimeout(() => setProcessingHeld(false), remaining);
+    return () => clearTimeout(timer);
+  }, [processingHeld, mode]);
+
+  // Effective mode delays transition away from processing for at least 1.5s
+  const effectiveMode = processingHeld ? 'processing' : mode;
+
   // ── Processing step animation ──
   const [activeStep, setActiveStep] = useState(0);
   useEffect(() => {
-    if (mode !== 'processing') { setActiveStep(0); return; }
+    if (effectiveMode !== 'processing') { setActiveStep(0); return; }
     setActiveStep(0);
     const t1 = setTimeout(() => setActiveStep(1), 500);
     const t2 = setTimeout(() => setActiveStep(2), 1500);
     return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [mode]);
+  }, [effectiveMode]);
 
   // When upload completes (mode changes from processing), mark all steps done
-  const allStepsDone = mode !== 'processing' && activeStep >= 2;
+  const allStepsDone = effectiveMode !== 'processing' && activeStep >= 2;
 
   // ── Count-up animation for success ──
   const [displayCount, setDisplayCount] = useState(0);
@@ -326,7 +349,7 @@ export default function BookImportPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {/* MODE: CARRIER GRID                                    */}
       {/* ══════════════════════════════════════════════════════ */}
-      {mode === 'carrier-grid' && (
+      {effectiveMode === 'carrier-grid' && (
         <div style={{ flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--bg)' }}>
           {/* Header */}
           <div style={{ padding: '20px 32px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
@@ -644,7 +667,7 @@ export default function BookImportPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {/* MODE: BULK UPLOAD                                     */}
       {/* ══════════════════════════════════════════════════════ */}
-      {mode === 'bulk-upload' && (
+      {effectiveMode === 'bulk-upload' && (
         <div style={{ flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--bg)' }}>
           <div style={{ padding: '20px 32px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
             <BackButton onClick={() => setMode('carrier-grid')} />
@@ -747,7 +770,7 @@ export default function BookImportPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {/* MODE: PROCESSING                                      */}
       {/* ══════════════════════════════════════════════════════ */}
-      {mode === 'processing' && (
+      {effectiveMode === 'processing' && (
         <div style={{
           flex: '1 1 0%', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
@@ -885,7 +908,7 @@ export default function BookImportPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {/* MODE: MISMATCH                                        */}
       {/* ══════════════════════════════════════════════════════ */}
-      {mode === 'mismatch' && batch && (
+      {effectiveMode === 'mismatch' && batch && (
         <div style={{
           flex: '1 1 0%', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
@@ -945,10 +968,11 @@ export default function BookImportPage() {
         </div>
       )}
 
+
       {/* ══════════════════════════════════════════════════════ */}
       {/* MODE: SUMMARY                                         */}
       {/* ══════════════════════════════════════════════════════ */}
-      {mode === 'summary' && batch && (
+      {effectiveMode === 'summary' && batch && (
         <div style={{ flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--bg)' }}>
           <div style={{ padding: '20px 32px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
             <BackButton onClick={cancelImport} />
@@ -1080,12 +1104,17 @@ export default function BookImportPage() {
                     </div>
                   </div>
                   {(showSkipDetails || (batch.skippedRecords === batch.totalRecords && batch.totalRecords > 0)) && (
-                    <div style={{ marginTop: 10, maxHeight: 120, overflowY: 'auto' }}>
-                      {batch.skipDetails.map((d, i) => (
+                    <div style={{ marginTop: 10, maxHeight: 160, overflowY: 'auto' }}>
+                      {batch.skipDetails.slice(0, 20).map((d, i) => (
                         <div key={i} style={{ fontSize: 11, color: 'var(--text-faint)', padding: '3px 0' }}>
                           Row {d.row}: {d.reason}
                         </div>
                       ))}
+                      {batch.skipDetails.length > 20 && (
+                        <div style={{ fontSize: 11, color: 'var(--text-faint)', padding: '6px 0 2px', fontStyle: 'italic' }}>
+                          and {batch.skipDetails.length - 20} more…
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1143,7 +1172,7 @@ export default function BookImportPage() {
       {/* ══════════════════════════════════════════════════════ */}
       {/* MODE: SUCCESS                                         */}
       {/* ══════════════════════════════════════════════════════ */}
-      {mode === 'success' && batch && (
+      {effectiveMode === 'success' && batch && (
         isFirstImport ? (
           /* ── First-time success ── */
           <div style={{
@@ -1362,6 +1391,7 @@ export default function BookImportPage() {
     </div>
   );
 }
+
 
 // ── Animated milestone fill ─────────────────────────────────
 

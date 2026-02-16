@@ -316,13 +316,49 @@ export default function ClientList() {
 
   return (
     <div style={{ flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
-      {/* Split Panel — starts immediately */}
+      {/* Header row with Import button */}
+      <div
+        style={{
+          flexShrink: 0,
+          display: 'flex',
+          justifyContent: 'flex-end',
+          padding: '12px 28px 0',
+        }}
+      >
+        <button
+          onClick={() => navigate('/import')}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            padding: '5px 14px',
+            borderRadius: 8,
+            border: '1px solid var(--bg-muted)',
+            background: 'transparent',
+            color: 'var(--text-muted)',
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--blue)'; e.currentTarget.style.color = 'var(--blue)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--bg-muted)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+          </svg>
+          Import
+        </button>
+      </div>
+
+      {/* Split Panel */}
       <div
         style={{
           flex: 1,
           display: 'flex',
           gap: 0,
-          margin: '14px 28px 14px',
+          margin: '8px 28px 14px',
           minHeight: 0,
           borderRadius: 12,
           overflow: 'hidden',
