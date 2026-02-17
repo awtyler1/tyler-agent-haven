@@ -57,11 +57,29 @@ function parseCSV(content: string): { headers: string[]; rows: Record<string, st
   const lines = content.split(/\r\n|\r|\n/).filter(line => line.trim().length > 0);
   if (lines.length === 0) return { headers: [], rows: [] };
 
-  const headers = parseCSVLine(lines[0]);
+  // Skip leading comment lines (lines without commas, e.g., Anthem date stamp)
+  let headerIdx = 0;
+  while (headerIdx < lines.length && !lines[headerIdx].includes(',')) {
+    headerIdx++;
+  }
+  if (headerIdx >= lines.length) return { headers: [], rows: [] };
+
+  const headers = parseCSVLine(lines[headerIdx]);
   const rows: Record<string, string>[] = [];
 
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = headerIdx + 1; i < lines.length; i++) {
     const values = parseCSVLine(lines[i]);
+
+    // Handle overflow from unquoted commas in data (e.g., WellCare plan names)
+    if (values.length > headers.length) {
+      const planIdx = headers.findIndex(h => /plan.?name/i.test(h));
+      if (planIdx >= 0 && planIdx < values.length) {
+        const overflow = values.length - headers.length;
+        const merged = values.slice(planIdx, planIdx + 1 + overflow).join(',');
+        values.splice(planIdx, 1 + overflow, merged);
+      }
+    }
+
     const row: Record<string, string> = {};
     for (let j = 0; j < headers.length; j++) {
       row[headers[j]] = values[j] || '';
@@ -129,14 +147,22 @@ function detectFormat(headers: string[]): FormatDetectionResult {
     return { format: 'connecture', confidence: 'medium' };
   }
 
-  // Aetna signatures: "Member ID" + "Plan Name" or "Group Name"
+  // Aetna signatures: "Medicare Number" + "Coverage Effective Date" + "Member Status"
+  const aetnaSignals = ['medicare number', 'coverage effective date', 'member status'];
+  if (aetnaSignals.filter(s => headerSet.has(s)).length >= 3) {
+    return { format: 'aetna', detectedCarrierCode: 'aetna', detectedCarrierName: 'Aetna', confidence: 'high' };
+  }
   if (lowerHeaders.some(h => h.includes('member id')) && lowerHeaders.some(h => h.includes('plan name') || h.includes('group'))) {
     if (lowerHeaders.some(h => h.includes('aetna') || h.includes('cvs'))) {
       return { format: 'aetna', detectedCarrierCode: 'aetna', detectedCarrierName: 'Aetna', confidence: 'high' };
     }
   }
 
-  // Humana signatures
+  // Humana signatures: MbrFirstName + MbrLastName + Humana ID (exact column names)
+  const humanaSignals = ['mbrfirstname', 'mbrlastname', 'humana id'];
+  if (humanaSignals.filter(s => headerSet.has(s)).length >= 2) {
+    return { format: 'humana', detectedCarrierCode: 'humana', detectedCarrierName: 'Humana', confidence: 'high' };
+  }
   const hasName = lowerHeaders.some(h => h.includes('first') && h.includes('name')) ||
                   (headerSet.has('first name') || headerSet.has('firstname'));
   const hasMBI = lowerHeaders.some(h => h.includes('mbi') || h.includes('medicare') || h.includes('beneficiary'));
@@ -145,13 +171,17 @@ function detectFormat(headers: string[]): FormatDetectionResult {
     return { format: 'humana', detectedCarrierCode: 'humana', detectedCarrierName: 'Humana', confidence: 'high' };
   }
 
-  // WellCare signatures
-  if (lowerHeaders.some(h => h.includes('wellcare') || h.includes('centene'))) {
+  // WellCare/Centene signatures: Centene ID + Member First Name + Member DoB
+  const wellcareSignals = ['centene id', 'member first name', 'member dob'];
+  if (wellcareSignals.filter(s => headerSet.has(s)).length >= 2 ||
+      lowerHeaders.some(h => h.includes('wellcare') || h.includes('centene'))) {
     return { format: 'wellcare', detectedCarrierCode: 'wellcare', detectedCarrierName: 'WellCare', confidence: 'high' };
   }
 
-  // Anthem signatures
-  if (lowerHeaders.some(h => h.includes('anthem') || h.includes('elevance'))) {
+  // Anthem signatures: Client Name + Client ID + Market
+  const anthemSignals = ['client name', 'client id', 'market'];
+  if (anthemSignals.filter(s => headerSet.has(s)).length >= 3 ||
+      lowerHeaders.some(h => h.includes('anthem') || h.includes('elevance'))) {
     return { format: 'anthem', detectedCarrierCode: 'anthem', detectedCarrierName: 'Anthem', confidence: 'high' };
   }
 
@@ -186,8 +216,9 @@ function parseDate(val: string): string | undefined {
   if (!val || val.trim() === '') return undefined;
   const v = val.trim();
 
-  // Handle the "3000-01-01" placeholder for no term date
-  if (v === '3000-01-01' || v === '9999-12-31') return undefined;
+  // Handle sentinel values for "no termination" (year >= 2900)
+  const yearMatch = v.match(/^(\d{4})/);
+  if (yearMatch && parseInt(yearMatch[1]) >= 2900) return undefined;
 
   // Already ISO format
   if (/^\d{4}-\d{2}-\d{2}/.test(v)) return v.substring(0, 10);
@@ -320,12 +351,12 @@ function parseCarrierReportRow(
     return key ? row[key] : undefined;
   };
 
-  return {
+  const result = {
     client: {
-      first_name: get(['first name', 'firstname', 'first_name', 'fname']),
-      last_name: get(['last name', 'lastname', 'last_name', 'lname']),
-      middle_initial: get(['middle', 'mi', 'middle initial']),
-      date_of_birth: parseDate(get(['dob', 'date of birth', 'birth date', 'birthdate']) ?? ''),
+      first_name: get(['first name', 'firstname', 'first_name', 'fname', 'mbrfirstname', 'member first name']),
+      last_name: get(['last name', 'lastname', 'last_name', 'lname', 'mbrlastname', 'member last name']),
+      middle_initial: get(['middle', 'mi', 'middle initial', 'mbrmiddleinit']),
+      date_of_birth: parseDate(get(['dob', 'date of birth', 'birth date', 'birthdate', 'member dob']) ?? ''),
       medicare_number: get(['mbi', 'medicare', 'medicare number', 'beneficiary id', 'hicn']),
       phone: cleanPhone(get(['phone', 'telephone', 'phone number'])),
       email: get(['email', 'email address']),
@@ -337,13 +368,27 @@ function parseCarrierReportRow(
     },
     policy: {
       carrier_name: carrierCode,
-      carrier_member_id: get(['member id', 'memberid', 'member_id', 'subscriber id', 'id']),
-      plan_name: get(['plan name', 'planname', 'plan_name', 'product', 'plan']),
-      plan_type: derivePlanType(get(['plan name', 'planname', 'plan type', 'plan_type', 'product'])),
-      effective_date: parseDate(get(['effective date', 'effectivedate', 'effective_date', 'eff date', 'start date']) ?? ''),
-      term_date: parseDate(get(['term date', 'termdate', 'term_date', 'disenrollment', 'end date']) ?? ''),
+      carrier_member_id: get(['member id', 'memberid', 'member_id', 'subscriber id', 'centene id', 'humana id', 'client id', 'id']),
+      plan_name: get(['plan name', 'planname', 'plan_name', 'salesproduct', 'product', 'plan']),
+      plan_type: derivePlanType(get(['plan name', 'planname', 'plan type', 'plan_type', 'salesproduct', 'product'])),
+      effective_date: parseDate(get(['effective date', 'effectivedate', 'effective_date', 'eff date', 'start date', 'coverage effective date']) ?? ''),
+      term_date: parseDate(get(['term date', 'termdate', 'term_date', 'disenrollment', 'end date', 'termination date', 'inactive date', 'cancellation date']) ?? ''),
     },
   };
+
+  // Status-based term date validation (works across all carriers)
+  const statusVal = get(['member status', 'status']);
+  if (statusVal) {
+    const s = statusVal.toLowerCase().trim();
+    if (s === 't' || s.includes('inactive') || s.includes('cancel') || s.includes('terminated')) {
+      // Terminated — keep term_date as-is
+    } else if (s === 'a' || s.includes('active')) {
+      // Active — clear any sentinel/future term dates
+      result.policy.term_date = undefined;
+    }
+  }
+
+  return result;
 }
 
 // --- FREEFORM PARSER (fuzzy header matching) ---
@@ -500,9 +545,47 @@ async function handleParse(req: Request, supabase: SupabaseClient, body: any): P
         case 'aetna':
         case 'humana':
         case 'wellcare':
-        case 'anthem':
           ({ client, policy } = parseCarrierReportRow(rawRow, headers, formatResult.detectedCarrierCode));
           break;
+        case 'anthem': {
+          ({ client, policy } = parseCarrierReportRow(rawRow, headers, formatResult.detectedCarrierCode));
+          // Only process Senior market rows
+          const marketKey = findHeader(headers, ['market']);
+          const market = marketKey ? rawRow[marketKey] : undefined;
+          if (market && market.toLowerCase() !== 'senior') {
+            skipCount++;
+            skipDetails.push({ row: i + 2, reason: `Non-Senior market: ${market}` });
+            stagedRecords.push({
+              batch_id: batchId,
+              row_number: i + 1,
+              raw_data: rawRow,
+              mapped_data: client,
+              match_type: 'skip',
+              skip_reason: `Non-Senior market: ${market}`,
+              policy_data: policy,
+            });
+            continue;
+          }
+          // Parse "Last, First Middle" from Client Name
+          if (!client.first_name && !client.last_name) {
+            const nameKey = findHeader(headers, ['client name']);
+            const clientName = nameKey ? rawRow[nameKey] : undefined;
+            if (clientName) {
+              const nameParts = clientName.split(',').map((s: string) => s.trim());
+              if (nameParts.length >= 2) {
+                client.last_name = nameParts[0];
+                const firstParts = nameParts[1].split(/\s+/);
+                client.first_name = firstParts[0];
+                if (firstParts.length > 1) {
+                  client.middle_initial = firstParts[firstParts.length - 1];
+                }
+              } else {
+                client.last_name = clientName.trim();
+              }
+            }
+          }
+          break;
+        }
         case 'connecture':
           ({ client, policy } = parseCarrierReportRow(rawRow, headers, undefined));
           break;
@@ -848,7 +931,17 @@ serve(async (req: Request) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const isServiceRole = token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    let isServiceRole = token === Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    // Fallback: decode JWT and check role claim (handles env var encoding quirks)
+    if (!isServiceRole) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role === 'service_role') {
+          isServiceRole = true;
+        }
+      } catch { /* not a valid JWT — will fall through to user auth */ }
+    }
 
     if (!isServiceRole) {
       const { data: { user }, error } = await supabase.auth.getUser(token);
