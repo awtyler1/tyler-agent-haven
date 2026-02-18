@@ -75,7 +75,15 @@
       "Bash(then)",
       "Bash(echo:*)",
       "Bash(fi)",
-      "Bash(git status:*)"
+      "Bash(git status:*)",
+      "Bash(npm run deploy:functions:*)",
+      "Bash(export SUPABASE_SERVICE_ROLE_KEY:*)",
+      "Bash(ANON=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nY3pwc3J0a2Rra2p6bXp0cHlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1NDA2OTUsImV4cCI6MjA4MjExNjY5NX0.xYLadB9p9fwDGgJvKDwyQJa_iATqh840rbBJiwIPntw\")",
+      "Bash(node test-parsers.mjs:*)",
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(node test-humana.mjs:*)",
+      "Bash(node:*)"
     ]
   }
 }
