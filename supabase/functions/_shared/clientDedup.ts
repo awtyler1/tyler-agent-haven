@@ -244,6 +244,8 @@ export async function upsertClient(
     for (const field of CLIENT_IMPORT_FIELDS) {
       const value = row[field];
       if (value !== undefined && value !== null && value !== '') {
+        // Validate address_state: must be exactly 2 chars (US state abbreviation)
+        if (field === 'address_state' && value.length !== 2) continue;
         insertData[field] = value;
       }
     }
@@ -296,6 +298,9 @@ export async function upsertClient(
         console.log(`Skipping protected field "${field}" on client ${matchResult.clientId}`);
         continue;
       }
+
+      // Validate address_state: must be exactly 2 chars (US state abbreviation)
+      if (field === 'address_state' && value.length !== 2) continue;
 
       updateData[field] = value;
     }

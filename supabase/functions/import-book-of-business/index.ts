@@ -141,10 +141,17 @@ function detectFormat(headers: string[]): FormatDetectionResult {
     return { format: 'sunfire', confidence: 'high' };
   }
 
-  // Connecture signatures
-  const connectureSignals = ['beneficiary id', 'plan id', 'enrollment date', 'disenrollment date'];
-  if (connectureSignals.filter(s => headerSet.has(s)).length >= 2) {
-    return { format: 'connecture', confidence: 'medium' };
+  // Connecture — SearchResults export (Connect4Insurance)
+  const connectureSearchSignals = ['carrier status', 'primary email address', 'agent username'];
+  const connectureSearchCount = connectureSearchSignals.filter(s =>
+    lowerHeaders.some(h => h === s || h.includes(s))
+  ).length;
+  // Connecture — legacy enrollment export
+  const connectureLegacySignals = ['beneficiary id', 'plan id', 'enrollment date', 'disenrollment date'];
+  const connectureLegacyCount = connectureLegacySignals.filter(s => headerSet.has(s)).length;
+
+  if (connectureSearchCount >= 2 || connectureLegacyCount >= 2) {
+    return { format: 'connecture', confidence: connectureSearchCount >= 3 ? 'high' : 'medium' };
   }
 
   // Aetna signatures: "Medicare Number" + "Coverage Effective Date" + "Member Status"
@@ -259,11 +266,19 @@ function parseAddress(address: string): { line1?: string; city?: string; state?:
   return { line1: address.trim() };
 }
 
-/** Derive plan_type from plan name keywords */
+/** Derive plan_type from plan name keywords or short code */
 function derivePlanType(planName?: string): string {
   if (!planName) return 'OTHER';
-  const lower = planName.toLowerCase();
+  const lower = planName.toLowerCase().trim();
+
+  // Exact short-code matches (e.g., Humana "Plan Type" column values)
+  if (lower === 'ma' || lower === 'mapd') return 'MA';
+  if (lower === 'pdp') return 'PDP';
+  if (lower === 'dsnp' || lower === 'd-snp') return 'DSNP';
+
+  // Substring matches for full plan names
   if (lower.includes('pdp') || lower.includes('part d') || lower.includes('prescription')) return 'PDP';
+  if (lower.includes('d-snp') || lower.includes('dsnp')) return 'DSNP';
   if (lower.includes('plan g') || lower.includes('plan f') || lower.includes('plan n') ||
       lower.includes('medigap') || lower.includes('supplement') || lower.includes('med supp')) return 'MEDIGAP';
   if (lower.includes('hmo') || lower.includes('ppo') || lower.includes('pffs') ||
@@ -291,6 +306,13 @@ function cleanPhone(val?: string): string | undefined {
   if (digits.length === 11 && digits.startsWith('1')) return digits.substring(1);
   if (digits.length >= 7) return digits;
   return undefined;
+}
+
+/** Convert ALL CAPS or mixed-case string to Title Case (handles hyphens, apostrophes) */
+function toTitleCase(val?: string): string | undefined {
+  if (!val || val.trim() === '') return undefined;
+  return val.trim().toLowerCase()
+    .replace(/(?:^|\s|-|')\S/g, c => c.toUpperCase());
 }
 
 // ============================================================================
@@ -323,7 +345,7 @@ function parseSunFireRow(
       email: get(['email', 'emailaddress', 'email address']),
       address_line1: addressParsed.line1 ?? get(['address_line1', 'address1', 'street']),
       address_city: addressParsed.city ?? get(['city']),
-      address_state: addressParsed.state ?? get(['state', 'st']),
+      address_state: addressParsed.state ?? get(['state']),
       address_zip: addressParsed.zip ?? get(['zip', 'zipcode', 'zip code', 'postal']),
       county_fips: get(['county', 'countyfips', 'county_fips', 'fips']),
       part_a_date: parseDate(get(['part_a_effective_date', 'part a', 'parta']) ?? ''),
@@ -362,19 +384,34 @@ function parseCarrierReportRow(
       email: get(['email', 'email address']),
       address_line1: get(['address', 'address1', 'street', 'address line 1']),
       address_city: get(['city']),
-      address_state: get(['state', 'st']),
+      address_state: get(['state']),
       address_zip: get(['zip', 'zipcode', 'zip code', 'postal code']),
       county_fips: get(['county', 'fips', 'county fips']),
     },
     policy: {
       carrier_name: carrierCode,
-      carrier_member_id: get(['member id', 'memberid', 'member_id', 'subscriber id', 'centene id', 'humana id', 'client id', 'id']),
-      plan_name: get(['plan name', 'planname', 'plan_name', 'salesproduct', 'product', 'plan']),
-      plan_type: derivePlanType(get(['plan name', 'planname', 'plan type', 'plan_type', 'salesproduct', 'product'])),
+      carrier_member_id: get(['humana id', 'member id', 'memberid', 'member_id', 'subscriber id', 'centene id', 'client id']),
+      plan_name: get(['plan name', 'plan_name', 'planname', 'salesproduct']),
+      plan_type: derivePlanType(get(['plan type', 'plan_type', 'plan name', 'plan_name', 'planname', 'salesproduct'])),
       effective_date: parseDate(get(['effective date', 'effectivedate', 'effective_date', 'eff date', 'start date', 'coverage effective date']) ?? ''),
       term_date: parseDate(get(['term date', 'termdate', 'term_date', 'disenrollment', 'end date', 'termination date', 'inactive date', 'cancellation date']) ?? ''),
     },
   };
+
+  // Normalize name casing (carrier reports often use ALL CAPS)
+  result.client.first_name = toTitleCase(result.client.first_name) || result.client.first_name;
+  result.client.last_name = toTitleCase(result.client.last_name) || result.client.last_name;
+  if (result.client.middle_initial) {
+    result.client.middle_initial = result.client.middle_initial.trim().toUpperCase();
+  }
+
+  // Normalize email casing and filter placeholder values
+  if (result.client.email) {
+    result.client.email = result.client.email.toLowerCase().trim();
+    if (result.client.email === 'unavailable' || result.client.email === 'n/a' || result.client.email === 'none') {
+      result.client.email = undefined;
+    }
+  }
 
   // Status-based term date validation (works across all carriers)
   const statusVal = get(['member status', 'status']);
@@ -382,8 +419,8 @@ function parseCarrierReportRow(
     const s = statusVal.toLowerCase().trim();
     if (s === 't' || s.includes('inactive') || s.includes('cancel') || s.includes('terminated')) {
       // Terminated — keep term_date as-is
-    } else if (s === 'a' || s.includes('active')) {
-      // Active — clear any sentinel/future term dates
+    } else if (s === 'a' || s.includes('active') || s.includes('future')) {
+      // Active (including "Future Disenrollment") — clear any sentinel/future term dates
       result.policy.term_date = undefined;
     }
   }
@@ -545,10 +582,10 @@ async function handleParse(req: Request, supabase: SupabaseClient, body: any): P
         case 'aetna':
         case 'humana':
         case 'wellcare':
-          ({ client, policy } = parseCarrierReportRow(rawRow, headers, formatResult.detectedCarrierCode));
+          ({ client, policy } = parseCarrierReportRow(rawRow, headers, formatResult.detectedCarrierName));
           break;
         case 'anthem': {
-          ({ client, policy } = parseCarrierReportRow(rawRow, headers, formatResult.detectedCarrierCode));
+          ({ client, policy } = parseCarrierReportRow(rawRow, headers, formatResult.detectedCarrierName));
           // Only process Senior market rows
           const marketKey = findHeader(headers, ['market']);
           const market = marketKey ? rawRow[marketKey] : undefined;
@@ -573,14 +610,14 @@ async function handleParse(req: Request, supabase: SupabaseClient, body: any): P
             if (clientName) {
               const nameParts = clientName.split(',').map((s: string) => s.trim());
               if (nameParts.length >= 2) {
-                client.last_name = nameParts[0];
+                client.last_name = toTitleCase(nameParts[0]) || nameParts[0];
                 const firstParts = nameParts[1].split(/\s+/);
-                client.first_name = firstParts[0];
+                client.first_name = toTitleCase(firstParts[0]) || firstParts[0];
                 if (firstParts.length > 1) {
                   client.middle_initial = firstParts[firstParts.length - 1];
                 }
               } else {
-                client.last_name = clientName.trim();
+                client.last_name = toTitleCase(clientName.trim()) || clientName.trim();
               }
             }
           }
@@ -861,6 +898,12 @@ async function handleCancel(req: Request, supabase: SupabaseClient, body: any): 
   if (!batchId) {
     return corsErrorResponse(req, 'Missing batchId', 400);
   }
+
+  // Clean up staged records before marking batch as cancelled
+  await supabase
+    .from('book_import_staged_records')
+    .delete()
+    .eq('batch_id', batchId);
 
   const { error } = await supabase
     .from('book_import_batches')
