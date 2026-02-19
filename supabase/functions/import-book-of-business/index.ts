@@ -17,6 +17,9 @@ import {
   findExistingClient,
   upsertClient,
   upsertPolicy,
+  derivePlanType,
+  splitAddressLine2,
+  repairWellCarePlanName,
   type ParsedClientRow,
   type ParsedPolicyRow,
   type BatchClientCache,
@@ -205,12 +208,23 @@ function detectFormat(headers: string[]): FormatDetectionResult {
 // COLUMN MAPPING HELPERS
 // ============================================================================
 
-/** Find the first header that matches any of the given patterns (case-insensitive) */
+/** Find the first header that matches any of the given patterns (case-insensitive).
+ *  Prefers exact matches over substring matches to avoid greedy collisions
+ *  (e.g., "Coverage Effective Date" matching before "Plan Effective Date"
+ *  when the pattern is just "effective date"). */
 function findHeader(headers: string[], patterns: string[]): string | null {
-  for (const header of headers) {
-    const lower = header.toLowerCase().trim();
-    for (const pattern of patterns) {
-      if (lower === pattern || lower.includes(pattern)) {
+  // Pass 1: exact matches (pattern === header)
+  for (const pattern of patterns) {
+    for (const header of headers) {
+      if (header.toLowerCase().trim() === pattern) {
+        return header;
+      }
+    }
+  }
+  // Pass 2: substring matches (header includes pattern)
+  for (const pattern of patterns) {
+    for (const header of headers) {
+      if (header.toLowerCase().trim().includes(pattern)) {
         return header;
       }
     }
@@ -266,25 +280,7 @@ function parseAddress(address: string): { line1?: string; city?: string; state?:
   return { line1: address.trim() };
 }
 
-/** Derive plan_type from plan name keywords or short code */
-function derivePlanType(planName?: string): string {
-  if (!planName) return 'OTHER';
-  const lower = planName.toLowerCase().trim();
-
-  // Exact short-code matches (e.g., Humana "Plan Type" column values)
-  if (lower === 'ma' || lower === 'mapd') return 'MA';
-  if (lower === 'pdp') return 'PDP';
-  if (lower === 'dsnp' || lower === 'd-snp') return 'DSNP';
-
-  // Substring matches for full plan names
-  if (lower.includes('pdp') || lower.includes('part d') || lower.includes('prescription')) return 'PDP';
-  if (lower.includes('d-snp') || lower.includes('dsnp')) return 'DSNP';
-  if (lower.includes('plan g') || lower.includes('plan f') || lower.includes('plan n') ||
-      lower.includes('medigap') || lower.includes('supplement') || lower.includes('med supp')) return 'MEDIGAP';
-  if (lower.includes('hmo') || lower.includes('ppo') || lower.includes('pffs') ||
-      lower.includes('snp') || lower.includes('medicare advantage') || lower.includes(' ma ')) return 'MA';
-  return 'OTHER';
-}
+// derivePlanType() is imported from _shared/clientDedup.ts (canonical, shared version)
 
 /** Derive carrier from plan name or enrollment code */
 function deriveCarrier(planName?: string, enrollmentCode?: string): { code?: string; name?: string } {
@@ -377,12 +373,13 @@ function parseCarrierReportRow(
     client: {
       first_name: get(['first name', 'firstname', 'first_name', 'fname', 'mbrfirstname', 'member first name']),
       last_name: get(['last name', 'lastname', 'last_name', 'lname', 'mbrlastname', 'member last name']),
-      middle_initial: get(['middle', 'mi', 'middle initial', 'mbrmiddleinit']),
+      middle_initial: get(['middle initial', 'mbrmiddleinit', 'middle_initial', 'middle init']),
       date_of_birth: parseDate(get(['dob', 'date of birth', 'birth date', 'birthdate', 'member dob']) ?? ''),
       medicare_number: get(['mbi', 'medicare', 'medicare number', 'beneficiary id', 'hicn']),
       phone: cleanPhone(get(['phone', 'telephone', 'phone number'])),
       email: get(['email', 'email address']),
-      address_line1: get(['address', 'address1', 'street', 'address line 1']),
+      address_line1: get(['address line 1', 'address', 'address1', 'street']),
+      address_line2: get(['address line 2', 'address2', 'apt', 'unit']),
       address_city: get(['city']),
       address_state: get(['state']),
       address_zip: get(['zip', 'zipcode', 'zip code', 'postal code']),
@@ -393,7 +390,7 @@ function parseCarrierReportRow(
       carrier_member_id: get(['humana id', 'member id', 'memberid', 'member_id', 'subscriber id', 'centene id', 'client id']),
       plan_name: get(['plan name', 'plan_name', 'planname', 'salesproduct']),
       plan_type: derivePlanType(get(['plan type', 'plan_type', 'plan name', 'plan_name', 'planname', 'salesproduct'])),
-      effective_date: parseDate(get(['effective date', 'effectivedate', 'effective_date', 'eff date', 'start date', 'coverage effective date']) ?? ''),
+      effective_date: parseDate(get(['plan effective date', 'effective date', 'effectivedate', 'effective_date', 'eff date', 'start date', 'coverage effective date']) ?? ''),
       term_date: parseDate(get(['term date', 'termdate', 'term_date', 'disenrollment', 'end date', 'termination date', 'inactive date', 'cancellation date']) ?? ''),
     },
   };
@@ -405,6 +402,20 @@ function parseCarrierReportRow(
     result.client.middle_initial = result.client.middle_initial.trim().toUpperCase();
   }
 
+  // Normalize address casing (carrier reports often use ALL CAPS)
+  result.client.address_line1 = toTitleCase(result.client.address_line1) || result.client.address_line1;
+  result.client.address_line2 = toTitleCase(result.client.address_line2) || result.client.address_line2;
+  result.client.address_city = toTitleCase(result.client.address_city) || result.client.address_city;
+
+  // Split address_line1 into line1/line2 if it contains an apt/unit indicator
+  if (!result.client.address_line2 && result.client.address_line1) {
+    const { line1, line2 } = splitAddressLine2(result.client.address_line1);
+    result.client.address_line1 = toTitleCase(line1) || result.client.address_line1;
+    if (line2) {
+      result.client.address_line2 = toTitleCase(line2);
+    }
+  }
+
   // Normalize email casing and filter placeholder values
   if (result.client.email) {
     result.client.email = result.client.email.toLowerCase().trim();
@@ -413,15 +424,26 @@ function parseCarrierReportRow(
     }
   }
 
-  // Status-based term date validation (works across all carriers)
+  // Derive explicit policy status from carrier's status column
+  // Note: sentinel dates (year >= 2900) are already cleared by parseDate()
   const statusVal = get(['member status', 'status']);
   if (statusVal) {
     const s = statusVal.toLowerCase().trim();
     if (s === 't' || s.includes('inactive') || s.includes('cancel') || s.includes('terminated')) {
-      // Terminated — keep term_date as-is
+      result.policy.status = 'termed';
     } else if (s === 'a' || s.includes('active') || s.includes('future')) {
-      // Active (including "Future Disenrollment") — clear any sentinel/future term dates
-      result.policy.term_date = undefined;
+      result.policy.status = 'active';
+    }
+  }
+
+  // WellCare plan name repair — their export truncates plan names at ~30 chars
+  if (carrierCode?.toLowerCase() === 'wellcare') {
+    const cmsContract = get(['cms contract']);
+    const planNumber = get(['plan number']);
+    if (result.policy.plan_name) {
+      result.policy.plan_name = repairWellCarePlanName(
+        result.policy.plan_name, cmsContract, planNumber
+      ) ?? result.policy.plan_name;
     }
   }
 

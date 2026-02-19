@@ -104,7 +104,7 @@ async function fetchDashboardData(
   profileFullName: string | null
 ): Promise<DashboardData> {
   // Run BOTH queries in parallel for faster loading
-  const [syncHistoryResult, carrierDataResult, activeBookResult] = await Promise.all([
+  const [syncHistoryResult, carrierDataResult] = await Promise.all([
     // Query 1: All completed syncs for history and calculations
     supabase
       .from('monthly_syncs')
@@ -113,27 +113,11 @@ async function fetchDashboardData(
       .eq('status', 'complete')
       .order('month', { ascending: true }),
 
-    // Query 2: Carrier breakdown from latest sync
-    supabase
-      .from('monthly_syncs')
-      .select(`
-        id,
-        sync_carrier_uploads (
-          carrier_id,
-          client_count,
-          carriers (id, code, name)
-        )
-      `)
-      .eq('profile_id', profileId)
-      .eq('status', 'complete')
-      .order('month', { ascending: false })
-      .limit(1)
-      .single(),
-
-    // Query 3: Live count of unique clients with active policies (the REAL book size)
+    // Query 2: Live carrier breakdown + book count from active policies
+    // Also used to derive liveActiveCount (unique client_ids)
     supabase
       .from('policies')
-      .select('client_id')
+      .select('carrier_id, client_id, carriers(id, code, name)')
       .eq('profile_id', profileId)
       .eq('status', 'active'),
   ]);
@@ -153,9 +137,9 @@ async function fetchDashboardData(
   let avgNewPerMonth: number | undefined;
   let bestMonth: { month: string; count: number } | undefined;
 
-  // Live active book count = unique clients with active policies
-  const liveActiveCount = activeBookResult.data
-    ? new Set(activeBookResult.data.map((p: any) => p.client_id)).size
+  // Live active book count = unique clients with active policies (derived from Query 2)
+  const liveActiveCount = carrierDataResult.data
+    ? new Set((carrierDataResult.data as any[]).map((p: any) => p.client_id)).size
     : 0;
 
   if (syncHistory.length > 0) {
@@ -219,22 +203,36 @@ async function fetchDashboardData(
   // Determine sync status using the 7th-of-month rule
   const syncStatus = determineSyncStatus(lastSyncAt);
 
-  // Process carrier breakdown
+  // Process carrier breakdown from live policy data
+  // Count unique clients per carrier (a client with 2 plan types at same carrier = 1)
   const carriers: CarrierData[] = [];
-  if (carrierDataResult.data?.sync_carrier_uploads) {
-    const uploads = carrierDataResult.data.sync_carrier_uploads as any[];
-    for (const u of uploads) {
-      if (u.client_count && u.client_count > 0 && u.carriers) {
-        carriers.push({
-          id: u.carrier_id,
-          code: u.carriers.code,
-          name: u.carriers.name,
-          count: u.client_count,
-          color: getCarrierColor(u.carriers.code),
+  if (carrierDataResult.data) {
+    const carrierClientSets = new Map<string, { id: string; code: string; name: string; clients: Set<string> }>();
+    for (const p of carrierDataResult.data as any[]) {
+      const c = p.carriers;
+      if (!c?.id) continue;
+      const key = String(c.id);
+      const existing = carrierClientSets.get(key);
+      if (existing) {
+        existing.clients.add(p.client_id);
+      } else {
+        carrierClientSets.set(key, {
+          id: key,
+          code: c.code,
+          name: c.name,
+          clients: new Set([p.client_id]),
         });
       }
     }
-    // Sort by count descending
+    for (const c of carrierClientSets.values()) {
+      carriers.push({
+        id: c.id,
+        code: c.code,
+        name: c.name,
+        count: c.clients.size,
+        color: getCarrierColor(c.code),
+      });
+    }
     carriers.sort((a, b) => b.count - a.count);
   }
 
@@ -298,7 +296,7 @@ async function fetchDashboardData(
  * Sources:
  * - Profile from useProfile/useAuth
  * - Book data from monthly_syncs table
- * - Carrier breakdown from sync_carrier_uploads
+ * - Carrier breakdown from live policies table
  */
 export function useDashboardData(): UseDashboardDataReturn {
   const { profile, loading: profileLoading } = useProfile();

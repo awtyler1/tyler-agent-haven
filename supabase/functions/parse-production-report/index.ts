@@ -26,6 +26,9 @@ import {
   findExistingClient,
   upsertClient,
   upsertPolicy as sharedUpsertPolicy,
+  derivePlanType as sharedDerivePlanType,
+  splitAddressLine2,
+  repairWellCarePlanName,
   type ParsedClientRow,
   type ParsedPolicyRow,
   type BatchClientCache,
@@ -51,6 +54,7 @@ interface ParsedRow {
   phone: string | null;
   email: string | null;
   address_line1: string | null;
+  address_line2: string | null;
   address_city: string | null;
   address_state: string | null;
   address_zip: string | null;
@@ -72,27 +76,9 @@ interface Stats {
 // PLAN TYPE DERIVATION
 // ============================================================================
 
-/**
- * Derive plan_type from plan_name string.
- * Used to categorize policies for commission calculations.
- */
+// derivePlanType delegates to the canonical shared version in _shared/clientDedup.ts
 function derivePlanType(planName: string | null): 'MA' | 'PDP' | 'MEDIGAP' | 'OTHER' {
-  if (!planName) return 'OTHER';
-  const name = planName.toLowerCase();
-
-  if (name.includes('pdp') || name.includes('part d') || name.includes('prescription')) {
-    return 'PDP';
-  }
-  if (name.includes('plan g') || name.includes('plan f') || name.includes('plan n') ||
-      name.includes('medigap') || name.includes('supplement') ||
-      name.includes('modernized') || name.includes('innovative')) {
-    return 'MEDIGAP';
-  }
-  if (name.includes('hmo') || name.includes('ppo') || name.includes('snp') ||
-      name.includes('ma ') || name.startsWith('ma ') || name.includes('medicare advantage')) {
-    return 'MA';
-  }
-  return 'OTHER';
+  return sharedDerivePlanType(planName);
 }
 
 // ============================================================================
@@ -317,17 +303,18 @@ function parseAetnaReport(rows: Record<string, string>[]): ParsedRow[] {
 
     parsed.push({
       medicare_number: medicareNumber,
-      first_name: row['First Name'] || null,
-      last_name: row['Last Name'] || null,
+      first_name: toTitleCase(row['First Name']) || null,
+      last_name: toTitleCase(row['Last Name']) || null,
       middle_initial: row['Middle Initial'] || null,
       date_of_birth: normalizeDate(row['Date of Birth']),
       phone: normalizePhone(row['Phone Number']),
       email: null,
-      address_line1: row['Address Line 1'] || null,
-      address_city: row['City'] || null,
+      address_line1: toTitleCase(row['Address Line 1']) || null,
+      address_line2: toTitleCase(row['Address Line 2']) || null,
+      address_city: toTitleCase(row['City']) || null,
       address_state: row['State'] || null,
       address_zip: row['Zip Code'] || null,
-      effective_date: normalizeDate(row['Coverage Effective Date']),
+      effective_date: normalizeDate(row['Plan Effective Date']) || normalizeDate(row['Coverage Effective Date']),
       term_date: normalizeDate(row['Term Date']),
       status: memberStatus === 'A' ? 'active' : 'termed',
       plan_name: row['Plan Name'] || null,
@@ -375,6 +362,9 @@ function parseWellCareReport(rows: Record<string, string>[]): ParsedRow[] {
     const addressRaw = row['Address'] || '';
     const address = addressRaw.replace(/^"|"$/g, '').trim();
 
+    // Split address into line1/line2 if it contains an apt/unit indicator
+    const { line1: addrLine1, line2: addrLine2 } = splitAddressLine2(address);
+
     // Clean city - remove surrounding quotes
     const cityRaw = row['City'] || '';
     const city = cityRaw.replace(/^"|"$/g, '').trim();
@@ -387,14 +377,15 @@ function parseWellCareReport(rows: Record<string, string>[]): ParsedRow[] {
       date_of_birth: normalizeDate(row['Member DoB']),
       phone: normalizePhone(row['Phone']),
       email: null,
-      address_line1: address || null,
-      address_city: city || null,
+      address_line1: toTitleCase(addrLine1) || null,
+      address_line2: toTitleCase(addrLine2) || null,
+      address_city: toTitleCase(city) || null,
       address_state: row['State']?.trim() || null,
       address_zip: row['Zip']?.trim() || null,
       effective_date: normalizeDate(row['Effective Date']),
       term_date: hasTermDate ? normalizeDate(termDateRaw) : null,
       status,
-      plan_name: row['Plan Name'] || null,
+      plan_name: repairWellCarePlanName(row['Plan Name'] || null, row['CMS Contract'], row['Plan Number']),
       carrier_member_id: row['Centene ID'] || null,
     });
   }
@@ -470,6 +461,7 @@ function parseHumanaReport(rows: Record<string, string>[]): ParsedRow[] {
       phone,
       email,
       address_line1: null, // Humana doesn't provide address in this report
+      address_line2: null,
       address_city: null,
       address_state: null,
       address_zip: null,
@@ -570,6 +562,7 @@ function parseAnthemReport(rows: Record<string, string>[]): ParsedRow[] {
       phone: null, // Not in this report
       email: null,
       address_line1: null,
+      address_line2: null,
       address_city: null,
       address_state: row['State']?.trim() || null,
       address_zip: null,
@@ -607,6 +600,7 @@ async function findOrCreateClient(
     phone: row.phone ?? undefined,
     email: row.email ?? undefined,
     address_line1: row.address_line1 ?? undefined,
+    address_line2: row.address_line2 ?? undefined,
     address_city: row.address_city ?? undefined,
     address_state: row.address_state ?? undefined,
     address_zip: row.address_zip ?? undefined,
@@ -638,6 +632,7 @@ async function upsertPolicyLocal(
     plan_type: derivePlanType(row.plan_name),
     effective_date: row.effective_date ?? undefined,
     term_date: row.term_date ?? undefined,
+    status: row.status,
   };
 
   return await sharedUpsertPolicy(

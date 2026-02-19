@@ -7,9 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
 import { ViewModeProvider } from "./contexts/ViewModeContext";
-import { UploadProvider } from "./contexts/UploadContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { GlobalUploadIndicator } from "./components/book-of-business/GlobalUploadIndicator";
 import { AgentShell } from "./components/shell/AgentShell";
 import { AdminShell } from "./components/shell/AdminShell";
 
@@ -137,9 +135,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-          <UploadProvider>
           <ViewModeProvider>
-          <GlobalUploadIndicator />
           <RecoveryRedirectHandler />
           <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -207,7 +203,6 @@ const App = () => (
           </Routes>
           </Suspense>
           </ViewModeProvider>
-          </UploadProvider>
         </BrowserRouter>
       </TooltipProvider>
     </FeatureFlagsProvider>

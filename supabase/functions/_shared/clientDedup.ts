@@ -22,6 +22,7 @@ export interface ParsedClientRow {
   phone?: string;
   email?: string;
   address_line1?: string;
+  address_line2?: string;
   address_city?: string;
   address_state?: string;
   address_zip?: string;
@@ -37,6 +38,7 @@ export interface ParsedPolicyRow {
   plan_type?: string;          // 'MA', 'PDP', 'MEDIGAP', 'OTHER'
   effective_date?: string;     // ISO date string
   term_date?: string;          // ISO date string
+  status?: 'active' | 'termed'; // Explicit carrier status (takes priority over term_date derivation)
 }
 
 export interface ClientMatchResult {
@@ -73,6 +75,35 @@ function nameDobKey(lastName: string, firstName: string, dob: string): string {
 /** Build the name-only composite key */
 function nameKey(lastName: string, firstName: string): string {
   return `${norm(lastName)}|${norm(firstName)}`;
+}
+
+// ============================================================================
+// PLAN TYPE DERIVATION (canonical — used by both Smart Sync and Book Import)
+// ============================================================================
+
+/**
+ * Derive plan_type from plan name keywords or short code.
+ * Valid return values: 'MA', 'PDP', 'MEDIGAP', 'OTHER'.
+ * D-SNP plans are Medicare Advantage → return 'MA'.
+ */
+export function derivePlanType(planName?: string | null): 'MA' | 'PDP' | 'MEDIGAP' | 'OTHER' {
+  if (!planName) return 'OTHER';
+  const lower = planName.toLowerCase().trim();
+
+  // Exact short-code matches (e.g., Humana "Plan Type" column values)
+  if (lower === 'ma' || lower === 'mapd') return 'MA';
+  if (lower === 'pdp' || lower === 'choice') return 'PDP';
+  if (lower === 'dsnp' || lower === 'd-snp') return 'MA';
+
+  // Substring matches for full plan names
+  if (lower.includes('pdp') || lower.includes('part d') || lower.includes('prescription')) return 'PDP';
+  if (lower.includes('plan g') || lower.includes('plan f') || lower.includes('plan n') ||
+      lower.includes('medigap') || lower.includes('supplement') || lower.includes('med supp') ||
+      lower.includes('modernized') || lower.includes('innovative')) return 'MEDIGAP';
+  if (lower.includes('hmo') || lower.includes('ppo') || lower.includes('pffs') ||
+      lower.includes('snp') || lower.includes('medicare advantage') ||
+      lower.includes(' ma ') || lower.startsWith('ma ')) return 'MA';
+  return 'OTHER';
 }
 
 // ============================================================================
@@ -205,7 +236,7 @@ const CLIENT_IMPORT_FIELDS: (keyof ParsedClientRow)[] = [
   'first_name', 'last_name', 'middle_initial',
   'date_of_birth', 'medicare_number',
   'phone', 'email',
-  'address_line1', 'address_city', 'address_state', 'address_zip',
+  'address_line1', 'address_line2', 'address_city', 'address_state', 'address_zip',
   'county_fips', 'part_a_date', 'part_b_date',
 ];
 
@@ -371,7 +402,7 @@ export async function upsertPolicy(
   // Check if policy already exists for this client + carrier + plan type
   const { data: existing, error: findError } = await supabase
     .from('policies')
-    .select('id')
+    .select('id, status, effective_date')
     .eq('client_id', clientId)
     .eq('carrier_id', carrierId)
     .eq('plan_type', planType)
@@ -383,9 +414,42 @@ export async function upsertPolicy(
   }
 
   if (existing) {
-    // UPDATE existing policy with non-null fields
+    // Determine incoming status — prefer explicit carrier status, fall back to term_date
+    const now = new Date();
+    let incomingStatus: 'active' | 'termed' = 'active';
+    if (row.status) {
+      incomingStatus = row.status;
+    } else if (row.term_date && new Date(row.term_date) < now) {
+      incomingStatus = 'termed';
+    }
+
+    const existingStatus = existing.status as string;
+
+    // ACTIVE-WINS LOGIC: prevent termed rows from overwriting active policies
+    if (existingStatus === 'active' && incomingStatus === 'termed') {
+      // Existing is active, incoming is termed — skip update (active wins)
+      console.log(`Skipping termed update on active policy ${existing.id} (active wins)`);
+      // Still update last_seen_at and source tracking
+      const minimalUpdate: Record<string, any> = { last_seen_at: now.toISOString() };
+      if (sourceUploadId) minimalUpdate.last_seen_upload_id = sourceUploadId;
+      await supabase.from('policies').update(minimalUpdate).eq('id', existing.id);
+      return { isNew: false };
+    }
+
+    if (existingStatus === incomingStatus && row.effective_date && existing.effective_date) {
+      // Same status — only update if incoming has a later effective_date
+      if (new Date(row.effective_date) < new Date(existing.effective_date)) {
+        console.log(`Skipping older ${incomingStatus} row on policy ${existing.id} (same status, older effective_date)`);
+        const minimalUpdate: Record<string, any> = { last_seen_at: now.toISOString() };
+        if (sourceUploadId) minimalUpdate.last_seen_upload_id = sourceUploadId;
+        await supabase.from('policies').update(minimalUpdate).eq('id', existing.id);
+        return { isNew: false };
+      }
+    }
+
+    // Proceed with update (termed→active, or same-status with newer/equal effective_date)
     const updateData: Record<string, any> = {
-      last_seen_at: new Date().toISOString(),
+      last_seen_at: now.toISOString(),
     };
 
     if (row.plan_name) updateData.plan_name = row.plan_name;
@@ -394,12 +458,9 @@ export async function upsertPolicy(
     if (row.carrier_member_id) updateData.carrier_member_id = row.carrier_member_id;
     if (sourceUploadId) updateData.last_seen_upload_id = sourceUploadId;
 
-    // If term_date is set AND in the past, mark as termed
-    // Future term_dates (e.g., Anthem end-of-year) mean still active
-    if (row.term_date && new Date(row.term_date) < new Date()) {
-      updateData.status = 'termed';
-    } else if (row.term_date && new Date(row.term_date) >= new Date()) {
-      // Future term date = active (benefit year end, not a real termination)
+    updateData.status = incomingStatus;
+    // Future term dates mean still active
+    if (row.term_date && new Date(row.term_date) >= now) {
       updateData.status = 'active';
     }
 
@@ -451,4 +512,46 @@ export async function upsertPolicy(
 
     return { isNew: true };
   }
+}
+
+// ============================================================================
+// ADDRESS LINE2 SPLITTING
+// ============================================================================
+
+/** Split address into line1 and line2 if it contains an apartment/unit indicator.
+ *  Uses word-boundary matching to avoid false positives like "ROCKMINSTER". */
+export function splitAddressLine2(address: string): { line1: string; line2: string | null } {
+  const match = address.match(/^(.+?)\s+\b(APT|UNIT|STE|SUITE|BLDG|LOT|#)\b\.?\s*(.*)$/i);
+  if (match) {
+    const line1 = match[1].trim();
+    const line2 = `${match[2]} ${match[3]}`.trim();
+    return { line1, line2: line2 || null };
+  }
+  return { line1: address, line2: null };
+}
+
+// ============================================================================
+// WELLCARE PLAN NAME REPAIR
+// ============================================================================
+
+/** WellCare plan name repair — their export truncates at ~30 chars.
+ *  Uses CMS Contract + Plan Number as lookup key. */
+const WELLCARE_PLAN_NAMES: Record<string, string> = {
+  'H3975-004': 'Wellcare Dual Access Open (PPO)',
+  'H3975-001': 'Wellcare No Premium Open (PPO)',
+  'H9730-011': 'Wellcare All Dual Assure (HMO D-SNP)',
+  'H9730-003': 'Wellcare Dual Access (HMO D-SNP)',
+  'S4802-150': 'WellCare Value Script (PDP)',
+  'S4802-161': 'WellCare Value Script (PDP)',
+};
+
+export function repairWellCarePlanName(
+  planName: string | null | undefined,
+  cmsContract: string | null | undefined,
+  planNumber: string | null | undefined
+): string | null {
+  if (!planName) return null;
+  if (!cmsContract || !planNumber) return planName;
+  const key = `${cmsContract.trim()}-${planNumber.trim().padStart(3, '0')}`;
+  return WELLCARE_PLAN_NAMES[key] || planName;
 }

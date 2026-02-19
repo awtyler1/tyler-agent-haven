@@ -374,7 +374,10 @@ export async function checkAndAwardMilestones(
 }
 
 /**
- * Finalize a sync and check for milestones
+ * Finalize a sync and check for milestones.
+ * @deprecated Use SyncFlow's handleCompleteSync instead — this function
+ * sums carrier counts without cross-carrier dedup, inflating the total.
+ * Kept for backward compatibility but should not be used for new code.
  */
 export async function completeSync(
   syncId: string,

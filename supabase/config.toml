@@ -46,6 +46,14 @@ verify_jwt = false
 # Growth Plan PDF generation - disable gateway JWT due to ECC key issue
 verify_jwt = false
 
+[functions.import-book-of-business]
+# Internal auth: accepts user JWT (frontend) or service_role (server-to-server)
+verify_jwt = false
+
+[functions.parse-production-report]
+# Internal auth: validates caller before processing production uploads
+verify_jwt = false
+
 # =============================================================================
 # FUNCTIONS RELYING ON GATEWAY JWT VERIFICATION
 # These functions don't do internal auth - rely on Supabase gateway

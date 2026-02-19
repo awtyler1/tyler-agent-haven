@@ -53,7 +53,7 @@ export interface ClientRiskFlag {
 }
 
 export interface BookSummary {
-  total_clients: number;
+  total_contacts: number;
   active_clients: number;
   total_policies: number;
   active_policies: number;

@@ -53,7 +53,11 @@ export function useBookSummary() {
         syncsError: syncsRes.error,
       });
 
-      // Active clients = clients with at least one active policy
+      // IMPORTANT: Two different counts exist:
+      // - totalClients (returned as total_contacts): ALL client records in the clients table (553)
+      //   Includes Connecture/SunFire contacts that may not have any carrier policy.
+      // - activeClients: Unique clients with at least one active policy in the policies table (204)
+      //   THIS is the real book size. Use this for hero numbers, milestones, and growth metrics.
       const clientsWithActivePolicy = new Set(activePolicies.map(p => p.client_id));
       const activeClients = clientsWithActivePolicy.size;
 
@@ -110,7 +114,7 @@ export function useBookSummary() {
       const clientsNeedingAttention = 0; // populated by useBookClients
 
       return {
-        total_clients: totalClients,
+        total_contacts: totalClients,
         active_clients: activeClients,
         total_policies: policies.length,
         active_policies: activePolicies.length,
