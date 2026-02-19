@@ -334,7 +334,7 @@ function parseSunFireRow(
     client: {
       first_name: get(['firstname', 'first name', 'first_name']),
       last_name: get(['lastname', 'last name', 'last_name']),
-      middle_initial: get(['middleinitial', 'middle initial', 'mi']),
+      middle_initial: get(['middleinitial', 'middle initial', 'middle_initial', 'middle init', 'mbrmiddleinit']),
       date_of_birth: parseDate(get(['dob', 'date of birth', 'dateofbirth', 'birth date']) ?? ''),
       medicare_number: get(['mbi', 'medicare', 'medicarenumber', 'medicare_number', 'medicare number']),
       phone: cleanPhone(get(['phone', 'phonenumber', 'phone number', 'telephone'])),
