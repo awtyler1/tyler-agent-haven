@@ -35,7 +35,7 @@ export interface ParsedPolicyRow {
   carrier_name?: string;
   carrier_member_id?: string;
   plan_name?: string;
-  plan_type?: string;          // 'MA', 'PDP', 'MEDIGAP', 'OTHER'
+  plan_type?: string;          // 'MA', 'PDP', 'MEDIGAP', 'DENTAL', 'OTHER'
   effective_date?: string;     // ISO date string
   term_date?: string;          // ISO date string
   status?: 'active' | 'termed'; // Explicit carrier status (takes priority over term_date derivation)
@@ -83,10 +83,10 @@ function nameKey(lastName: string, firstName: string): string {
 
 /**
  * Derive plan_type from plan name keywords or short code.
- * Valid return values: 'MA', 'PDP', 'MEDIGAP', 'OTHER'.
+ * Valid return values: 'MA', 'PDP', 'MEDIGAP', 'DENTAL', 'OTHER'.
  * D-SNP plans are Medicare Advantage → return 'MA'.
  */
-export function derivePlanType(planName?: string | null): 'MA' | 'PDP' | 'MEDIGAP' | 'OTHER' {
+export function derivePlanType(planName?: string | null): 'MA' | 'PDP' | 'MEDIGAP' | 'DENTAL' | 'OTHER' {
   if (!planName) return 'OTHER';
   const lower = planName.toLowerCase().trim();
 
@@ -94,12 +94,16 @@ export function derivePlanType(planName?: string | null): 'MA' | 'PDP' | 'MEDIGA
   if (lower === 'ma' || lower === 'mapd') return 'MA';
   if (lower === 'pdp' || lower === 'choice') return 'PDP';
   if (lower === 'dsnp' || lower === 'd-snp') return 'MA';
+  if (lower === 'mes' || lower === 'med supp' || lower === 'medsup') return 'MEDIGAP';
+  if (lower === 'idv' || lower === 'dental' || lower === 'vision') return 'DENTAL';
 
   // Substring matches for full plan names
   if (lower.includes('pdp') || lower.includes('part d') || lower.includes('prescription')) return 'PDP';
   if (lower.includes('plan g') || lower.includes('plan f') || lower.includes('plan n') ||
       lower.includes('medigap') || lower.includes('supplement') || lower.includes('med supp') ||
-      lower.includes('modernized') || lower.includes('innovative')) return 'MEDIGAP';
+      lower.includes('modernized') || lower.includes('innovative') ||
+      lower === 'mes' || lower.startsWith('mes ')) return 'MEDIGAP';
+  if (lower.includes('dental') || lower.includes('extend') || lower.includes('bright plus')) return 'DENTAL';
   if (lower.includes('hmo') || lower.includes('ppo') || lower.includes('pffs') ||
       lower.includes('snp') || lower.includes('medicare advantage') ||
       lower.includes(' ma ') || lower.startsWith('ma ')) return 'MA';

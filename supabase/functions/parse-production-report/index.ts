@@ -62,6 +62,7 @@ interface ParsedRow {
   term_date: string | null;
   status: 'active' | 'termed';
   plan_name: string | null;
+  plan_type?: string; // Pre-derived plan type (Humana provides this directly)
   carrier_member_id: string | null;
 }
 
@@ -77,7 +78,7 @@ interface Stats {
 // ============================================================================
 
 // derivePlanType delegates to the canonical shared version in _shared/clientDedup.ts
-function derivePlanType(planName: string | null): 'MA' | 'PDP' | 'MEDIGAP' | 'OTHER' {
+function derivePlanType(planName: string | null): 'MA' | 'PDP' | 'MEDIGAP' | 'DENTAL' | 'OTHER' {
   return sharedDerivePlanType(planName);
 }
 
@@ -165,7 +166,7 @@ function parseXLSX(bytes: Uint8Array): Record<string, string>[] {
   const sheet = workbook.Sheets[sheetName];
 
   // Convert to JSON with raw values (strings)
-  const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false });
+  const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false, defval: '' });
 
   // Convert all values to strings for consistency with CSV parsing
   return rawRows.map(row => {
@@ -442,12 +443,12 @@ function parseHumanaReport(rows: Record<string, string>[]): ParsedRow[] {
     const phone = phoneRaw && phoneRaw !== 'Unavailable' ? normalizePhone(phoneRaw) : null;
 
     const emailRaw = row['Email']?.trim();
-    const email = emailRaw && emailRaw !== 'Unavailable' ? emailRaw : null;
+    const email = emailRaw && emailRaw !== 'Unavailable' ? emailRaw.toLowerCase().trim() : null;
 
-    // Combine Plan Type and SalesProduct for plan name
+    // Use SalesProduct as plan_name; Plan Type is used for plan_type derivation
     const planType = row['Plan Type']?.trim() || '';
     const salesProduct = row['SalesProduct']?.trim() || '';
-    const planName = [planType, salesProduct].filter(Boolean).join(' ') || null;
+    const planName = salesProduct || null;
 
     // Map status
     const mappedStatus = status === 'Inactive Policy' ? 'termed' : 'active';
@@ -469,6 +470,7 @@ function parseHumanaReport(rows: Record<string, string>[]): ParsedRow[] {
       term_date: normalizeDate(row['Inactive Date']),
       status: mappedStatus,
       plan_name: planName,
+      plan_type: planType || undefined, // "MA", "MES", "PDP", "IDV" — mapped by derivePlanType()
       carrier_member_id: row['Humana ID']?.trim() || null,
     });
   }
@@ -629,7 +631,7 @@ async function upsertPolicyLocal(
   const policyRow: ParsedPolicyRow = {
     carrier_member_id: row.carrier_member_id ?? undefined,
     plan_name: row.plan_name ?? undefined,
-    plan_type: derivePlanType(row.plan_name),
+    plan_type: row.plan_type ? derivePlanType(row.plan_type) : derivePlanType(row.plan_name),
     effective_date: row.effective_date ?? undefined,
     term_date: row.term_date ?? undefined,
     status: row.status,

@@ -101,7 +101,7 @@ function parseXLSXFile(buffer: Uint8Array): { headers: string[]; rows: Record<st
   const workbook = XLSX.read(buffer, { type: 'array' });
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
-  const jsonData = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false });
+  const jsonData = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false, defval: '' });
 
   if (jsonData.length === 0) return { headers: [], rows: [] };
 
