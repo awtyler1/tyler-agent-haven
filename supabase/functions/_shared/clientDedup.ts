@@ -243,11 +243,12 @@ export async function upsertClient(
     // Set all available fields from the parsed row
     for (const field of CLIENT_IMPORT_FIELDS) {
       const value = row[field];
-      if (value !== undefined && value !== null && value !== '') {
-        // Validate address_state: must be exactly 2 chars (US state abbreviation)
-        if (field === 'address_state' && value.length !== 2) continue;
-        insertData[field] = value;
-      }
+      if (value === undefined || value === null || value === '') continue;
+
+      // address_state is VARCHAR(2) — reject values that aren't 2-letter state codes
+      if (field === 'address_state' && value.length !== 2) continue;
+
+      insertData[field] = value;
     }
 
     const { data, error } = await supabase
@@ -293,14 +294,14 @@ export async function upsertClient(
       const value = row[field];
       if (value === undefined || value === null || value === '') continue;
 
+      // address_state is VARCHAR(2) — reject values that aren't 2-letter state codes
+      if (field === 'address_state' && value.length !== 2) continue;
+
       // Skip fields the agent has hand-edited
       if (protectedFields.has(field)) {
         console.log(`Skipping protected field "${field}" on client ${matchResult.clientId}`);
         continue;
       }
-
-      // Validate address_state: must be exactly 2 chars (US state abbreviation)
-      if (field === 'address_state' && value.length !== 2) continue;
 
       updateData[field] = value;
     }
@@ -393,9 +394,13 @@ export async function upsertPolicy(
     if (row.carrier_member_id) updateData.carrier_member_id = row.carrier_member_id;
     if (sourceUploadId) updateData.last_seen_upload_id = sourceUploadId;
 
-    // If term_date is set, mark as termed
-    if (row.term_date) {
+    // If term_date is set AND in the past, mark as termed
+    // Future term_dates (e.g., Anthem end-of-year) mean still active
+    if (row.term_date && new Date(row.term_date) < new Date()) {
       updateData.status = 'termed';
+    } else if (row.term_date && new Date(row.term_date) >= new Date()) {
+      // Future term date = active (benefit year end, not a real termination)
+      updateData.status = 'active';
     }
 
     const { error } = await supabase
@@ -417,7 +422,7 @@ export async function upsertPolicy(
       carrier_id: carrierId,
       profile_id: profileId,
       plan_type: planType,
-      status: row.term_date ? 'termed' : 'active',
+      status: (row.term_date && new Date(row.term_date) < new Date()) ? 'termed' : 'active',
       last_seen_at: new Date().toISOString(),
     };
 

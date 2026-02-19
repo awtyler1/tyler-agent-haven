@@ -544,9 +544,22 @@ function parseAnthemReport(rows: Record<string, string>[]): ParsedRow[] {
       continue;
     }
 
-    // Handle cancellation date - 9999-12-31 means no term date
+    // Handle cancellation date:
+    // - 9999-12-31 = sentinel for "no termination" → null
+    // - Future dates (e.g., 2026-12-31 end of benefit year) = still active → null
+    // - Past dates = actual termination → keep as term_date
     const cancelDate = row['Cancellation Date']?.trim();
-    const termDate = cancelDate && cancelDate !== '9999-12-31' ? normalizeDate(cancelDate) : null;
+    let termDate: string | null = null;
+    if (cancelDate && cancelDate !== '9999-12-31') {
+      const normalized = normalizeDate(cancelDate);
+      if (normalized) {
+        const cancelTime = new Date(normalized).getTime();
+        const today = new Date().setHours(0, 0, 0, 0);
+        if (cancelTime < today) {
+          termDate = normalized; // Only set term_date for PAST dates
+        }
+      }
+    }
 
     parsed.push({
       medicare_number: null, // Anthem doesn't provide Medicare number

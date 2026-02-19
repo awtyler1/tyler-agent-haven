@@ -666,13 +666,16 @@ async function handleParse(req: Request, supabase: SupabaseClient, body: any): P
         updateCount++;
       }
 
+      // Only store real UUID client IDs — temp "staged-N" IDs are for in-memory dedup only
+      const isRealClientId = matchResult.clientId && !matchResult.clientId.startsWith('staged-');
+
       stagedRecords.push({
         batch_id: batchId,
         row_number: i + 1,
         raw_data: rawRow,
         mapped_data: client,
         match_type: matchType,
-        matched_client_id: matchResult.clientId,
+        matched_client_id: isRealClientId ? matchResult.clientId : null,
         policy_data: policy,
       });
 

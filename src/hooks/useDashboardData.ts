@@ -104,7 +104,7 @@ async function fetchDashboardData(
   profileFullName: string | null
 ): Promise<DashboardData> {
   // Run BOTH queries in parallel for faster loading
-  const [syncHistoryResult, carrierDataResult] = await Promise.all([
+  const [syncHistoryResult, carrierDataResult, activeBookResult] = await Promise.all([
     // Query 1: All completed syncs for history and calculations
     supabase
       .from('monthly_syncs')
@@ -129,6 +129,13 @@ async function fetchDashboardData(
       .order('month', { ascending: false })
       .limit(1)
       .single(),
+
+    // Query 3: Live count of unique clients with active policies (the REAL book size)
+    supabase
+      .from('policies')
+      .select('client_id')
+      .eq('profile_id', profileId)
+      .eq('status', 'active'),
   ]);
 
   if (syncHistoryResult.error) throw syncHistoryResult.error;
@@ -146,6 +153,11 @@ async function fetchDashboardData(
   let avgNewPerMonth: number | undefined;
   let bestMonth: { month: string; count: number } | undefined;
 
+  // Live active book count = unique clients with active policies
+  const liveActiveCount = activeBookResult.data
+    ? new Set(activeBookResult.data.map((p: any) => p.client_id)).size
+    : 0;
+
   if (syncHistory.length > 0) {
     // Get last 6 months for sparkline
     const recentSyncs = syncHistory.slice(-6);
@@ -153,7 +165,8 @@ async function fetchDashboardData(
 
     // Latest sync data
     const latest = syncHistory[syncHistory.length - 1];
-    totalClients = latest.total_clients || 0;
+    // Use live policy count as the hero number (most accurate), fall back to sync snapshot
+    totalClients = liveActiveCount > 0 ? liveActiveCount : (latest.total_clients || 0);
     // Use stored new_clients (based on effective_date) instead of delta calculation
     newThisMonth = latest.new_clients || 0;
     termedThisMonth = latest.termed_clients || 0;
@@ -196,6 +209,11 @@ async function fetchDashboardData(
         };
       }
     }
+  }
+
+  // If no sync history but we have active policies, still show the live count
+  if (syncHistory.length === 0 && liveActiveCount > 0) {
+    totalClients = liveActiveCount;
   }
 
   // Determine sync status using the 7th-of-month rule
