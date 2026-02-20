@@ -1,45 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDashboardData } from '@/hooks/useDashboardData';
-import { PageLoader } from '@/components/ui/PageLoader';
-
-// ── Carrier color maps ──────────────────────────────────────
-const carrierColorMap: Record<string, string> = {
-  'Humana': 'var(--carrier-humana)',
-  'Aetna': 'var(--carrier-aetna)',
-  'Anthem': 'var(--carrier-anthem)',
-  'UHC': 'var(--carrier-uhc)',
-  'United Healthcare': 'var(--carrier-uhc)',
-  'UnitedHealthcare': 'var(--carrier-uhc)',
-  'WellCare': 'var(--carrier-wellcare)',
-  'Wellcare': 'var(--carrier-wellcare)',
-  'Devoted': 'var(--carrier-devoted)',
-  'Devoted Health': 'var(--carrier-devoted)',
-};
-
-const carrierHoverBgMap: Record<string, string> = {
-  'Humana': 'rgba(58,154,52,0.05)',
-  'Aetna': 'rgba(107,37,128,0.04)',
-  'Anthem': 'rgba(0,51,160,0.04)',
-  'UHC': 'rgba(0,38,119,0.04)',
-  'United Healthcare': 'rgba(0,38,119,0.04)',
-  'UnitedHealthcare': 'rgba(0,38,119,0.04)',
-  'WellCare': 'rgba(0,122,114,0.04)',
-  'Wellcare': 'rgba(0,122,114,0.04)',
-  'Devoted': 'rgba(184,41,47,0.04)',
-  'Devoted Health': 'rgba(184,41,47,0.04)',
-};
-
-const CANONICAL_CARRIERS = ['Humana', 'Aetna', 'Anthem', 'UHC', 'WellCare', 'Devoted'];
+import { useAuth } from '@/hooks/useAuth';
 
 // ── Helpers ─────────────────────────────────────────────────
-function getNextMilestone(clients: number): number {
-  if (clients < 100) return Math.ceil((clients + 1) / 25) * 25;
-  if (clients < 500) return Math.ceil((clients + 1) / 50) * 50;
-  if (clients < 1000) return Math.ceil((clients + 1) / 100) * 100;
-  return Math.ceil((clients + 1) / 250) * 250;
-}
-
 function getGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) return 'morning';
@@ -47,116 +9,71 @@ function getGreeting(): string {
   return 'evening';
 }
 
-function easeOutQuart(t: number): number {
-  return 1 - Math.pow(1 - t, 4);
-}
-
 function fadeUp(delay: string): React.CSSProperties {
   return { opacity: 0, animation: `fadeUp 0.5s var(--ease) forwards ${delay}` };
 }
 
+// ── Quick action data ───────────────────────────────────────
+const quickActions = [
+  {
+    title: 'Contracting Hub',
+    description: 'View carrier status and certifications',
+    path: '/contracting-hub',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+        <path d="M14 2v6h6" />
+        <path d="M16 13H8" />
+        <path d="M16 17H8" />
+        <path d="M10 9H8" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Training',
+    description: 'Access learning paths and resources',
+    path: '/training',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+        <path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Carrier Resources',
+    description: 'Contacts, documents, and portal links',
+    path: '/carrier-resources',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M12 8v4" />
+        <path d="M12 16h.01" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Compliance',
+    description: 'Rules, guidelines, and required forms',
+    path: '/compliance',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    ),
+  },
+] as const;
+
 // ── Dashboard ───────────────────────────────────────────────
 export default function Index() {
-  const { data, isLoading, error, refetch } = useDashboardData();
+  const { profile } = useAuth();
   const navigate = useNavigate();
 
-  // Count-up animation
-  const [displayCount, setDisplayCount] = useState(0);
-  const [bounce, setBounce] = useState(false);
-  const animRef = useRef(0);
-
-  // Hover states
-  const [syncHovered, setSyncHovered] = useState(false);
-  const [hoveredCarrier, setHoveredCarrier] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!data) return;
-    const target = data.totalClients;
-    if (target === 0) { setDisplayCount(0); return; }
-
-    const delay = setTimeout(() => {
-      const duration = 1000;
-      const start = performance.now();
-
-      const tick = (now: number) => {
-        const elapsed = now - start;
-        const t = Math.min(elapsed / duration, 1);
-        setDisplayCount(Math.round(easeOutQuart(t) * target));
-
-        if (t < 1) {
-          animRef.current = requestAnimationFrame(tick);
-        } else {
-          setBounce(true);
-          setTimeout(() => setBounce(false), 300);
-        }
-      };
-
-      animRef.current = requestAnimationFrame(tick);
-    }, 200);
-
-    return () => { clearTimeout(delay); cancelAnimationFrame(animRef.current); };
-  }, [data?.totalClients]);
-
-  // ── Loading ──
-  if (isLoading) return <PageLoader />;
-
-  // ── Error ──
-  if (error || !data) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center">
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--text-muted)' }}>
-          Unable to load dashboard
-        </p>
-        <button
-          onClick={() => refetch()}
-          style={{
-            marginTop: 12, padding: '8px 20px', borderRadius: 8,
-            background: 'var(--blue)', color: '#fff',
-            fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 500,
-            border: 'none', cursor: 'pointer',
-          }}
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
-  // ── Derived data ──
-  const firstName = data.firstName || 'Agent';
+  const firstName = profile?.full_name?.split(' ')[0] || 'Agent';
   const dateStr = new Date().toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
-
-  // Sync badge
-  const daysSinceSync = data.lastSyncAt
-    ? Math.floor((Date.now() - new Date(data.lastSyncAt).getTime()) / 86_400_000)
-    : null;
-  const isSyncFresh = daysSinceSync !== null && daysSinceSync <= 7;
-  const syncColor = isSyncFresh ? 'var(--green)' : 'var(--amber)';
-  const syncText = daysSinceSync === null
-    ? 'Never synced'
-    : isSyncFresh
-      ? `Synced ${new Date(data.lastSyncAt!).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-      : `Last synced ${daysSinceSync} days ago`;
-
-  // Milestone
-  const milestoneTarget = getNextMilestone(data.totalClients);
-  const remaining = milestoneTarget - data.totalClients;
-  const milestoneProgress = Math.min((data.totalClients / milestoneTarget) * 100, 100);
-
-  let notePrefix: string;
-  let noteBold: string;
-  if (data.totalClients === 0) {
-    notePrefix = 'Start building your book — ';
-    noteBold = 'every client counts.';
-  } else if (remaining <= 20) {
-    notePrefix = 'Almost there — just ';
-    noteBold = `${remaining} to go`;
-  } else {
-    notePrefix = 'On your way to ';
-    noteBold = `${milestoneTarget}`;
-  }
 
   // AEP countdown
   const AEP_START_MONTH = 10;
@@ -179,8 +96,6 @@ export default function Index() {
   if (now >= preseasonStart && now < aepStart) aepPhase = 'pre';
   else if (now >= aepStart && now <= aepEnd) aepPhase = 'during';
 
-  const goToSync = () => navigate('/sync');
-
   return (
     <div
       style={{
@@ -194,144 +109,126 @@ export default function Index() {
       {/* ── Header ── */}
       <div
         style={{
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
           padding: '20px 32px 0',
           ...fadeUp('0s'),
         }}
       >
-        {/* Left: date + greeting */}
-        <div>
-          <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)' }}>
-            {dateStr}
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-serif)', fontSize: 25, fontWeight: 400,
-              color: 'var(--text-primary)', marginTop: 2,
-            }}
-          >
-            Good {getGreeting()},{' '}
-            <em style={{ color: 'var(--gold-dark)' }}>{firstName}</em>
-          </div>
+        <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)' }}>
+          {dateStr}
         </div>
-
-        {/* Right: sync badge */}
         <div
-          role="button"
-          tabIndex={0}
-          aria-label="Sync your book of business"
-          onClick={goToSync}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToSync(); } }}
-          onMouseEnter={() => setSyncHovered(true)}
-          onMouseLeave={() => setSyncHovered(false)}
           style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '5px 12px', borderRadius: 20,
-            fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 500,
-            color: syncColor,
-            background: syncHovered ? 'rgba(0,0,0,0.04)' : 'transparent',
-            cursor: 'pointer', transition: 'background var(--fast)',
-            outline: 'none',
+            fontFamily: 'var(--font-serif)', fontSize: 25, fontWeight: 400,
+            color: 'var(--text-primary)', marginTop: 2,
           }}
         >
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: syncColor, flexShrink: 0 }} />
-          <span>{syncText}</span>
-          <span style={{ opacity: syncHovered ? 0.7 : 0, transition: 'opacity var(--fast)' }}>
-            · Sync
-          </span>
+          Good {getGreeting()},{' '}
+          <em style={{ color: 'var(--gold-dark)' }}>{firstName}</em>
         </div>
       </div>
 
-      {/* ── Center ── */}
+      {/* ── Center content ── */}
       <div
         style={{
           flex: '1 1 auto', display: 'flex', flexDirection: 'column',
           justifyContent: 'center', alignItems: 'center',
-          minHeight: 0, paddingBottom: 20,
+          minHeight: 0, padding: '0 32px 20px',
         }}
       >
-        {/* Hero number */}
-        <div aria-live="polite" style={fadeUp('0.15s')}>
-          <div
-            style={{
-              fontFamily: 'var(--font-serif)', fontWeight: 700,
-              fontSize: 'min(134px, 14.5vh)', lineHeight: 0.85,
-              letterSpacing: '-0.04em', color: 'var(--text-primary)',
-              transform: bounce ? 'scale(1.012)' : 'scale(1)',
-              transition: 'transform 0.3s var(--ease)',
-              textAlign: 'center',
-            }}
-          >
-            {displayCount}
-          </div>
-        </div>
-
-        {/* Label */}
+        {/* Welcome line */}
         <div
           style={{
-            fontFamily: 'var(--font-sans)', fontSize: 'min(17px, 2vh)',
-            fontWeight: 400, color: 'var(--text-muted)',
-            marginTop: 'min(8px, 1vh)',
-            ...fadeUp('0.3s'),
+            fontFamily: 'var(--font-sans)', fontSize: 15, color: 'var(--text-muted)',
+            marginBottom: 28,
+            ...fadeUp('0.1s'),
           }}
         >
-          clients in your book
+          Welcome to your TIG hub.
         </div>
 
-        {/* Delta badge */}
-        {data.newThisMonth > 0 && (
-          <div
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              marginTop: 10, padding: '5px 16px', borderRadius: 20,
-              background: 'var(--green-bg)', color: 'var(--green)',
-              fontFamily: 'var(--font-sans)', fontSize: 13.5, fontWeight: 600,
-              ...fadeUp('0.45s'),
-            }}
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path
-                d="M6 10V2M6 2L2.5 5.5M6 2L9.5 5.5"
-                stroke="currentColor" strokeWidth="2.5"
-                strokeLinecap="round" strokeLinejoin="round"
-              />
-            </svg>
-            {data.newThisMonth} new this month
-          </div>
-        )}
-
-        {/* Milestone */}
-        <div style={{ width: 'min(380px, 52%)', marginTop: 'min(24px, 2.5vh)', ...fadeUp('0.55s') }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span
+        {/* Quick-action grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 14,
+            maxWidth: 560,
+            width: '100%',
+            ...fadeUp('0.2s'),
+          }}
+        >
+          {quickActions.map((action) => (
+            <button
+              key={action.path}
+              onClick={() => navigate(action.path)}
               style={{
-                fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 600,
-                textTransform: 'uppercase', letterSpacing: '0.08em',
-                color: 'var(--text-muted)',
+                display: 'flex', alignItems: 'flex-start', gap: 14,
+                padding: '18px 20px',
+                background: 'var(--bg-card)',
+                borderRadius: 14,
+                border: 'none',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'transform var(--med) var(--ease), box-shadow var(--med) var(--ease)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
               }}
             >
-              Next Milestone
-            </span>
-            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 600, color: '#8A7B68' }}>
-              {data.totalClients} / {milestoneTarget}
-            </span>
-          </div>
+              <div style={{ flexShrink: 0, marginTop: 1 }}>
+                {action.icon}
+              </div>
+              <div>
+                <div style={{
+                  fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600,
+                  color: 'var(--text-primary)',
+                }}>
+                  {action.title}
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-sans)', fontSize: 12,
+                  color: 'var(--text-muted)', marginTop: 3,
+                }}>
+                  {action.description}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
 
-          {/* Track */}
-          <div style={{ height: 8, background: 'var(--bg-muted)', borderRadius: 4, marginTop: 8, overflow: 'hidden', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.12)' }}>
-            <MilestoneBar progress={milestoneProgress} />
-          </div>
-
-          {/* Note */}
-          <div
-            style={{
-              fontFamily: 'var(--font-sans)', fontSize: 12.5,
-              color: 'var(--text-muted)', textAlign: 'center', marginTop: 10,
-            }}
-          >
-            {notePrefix}
-            <span style={{ fontWeight: 700, color: 'var(--gold-dark)' }}>{noteBold}</span>
-          </div>
+        {/* Onboarding progress placeholder */}
+        <div
+          style={{
+            maxWidth: 560, width: '100%', marginTop: 20,
+            padding: '16px 20px',
+            background: 'var(--bg-subtle)',
+            borderRadius: 12,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            ...fadeUp('0.35s'),
+          }}
+        >
+          <span style={{
+            fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600,
+            color: 'var(--text-muted)',
+          }}>
+            Onboarding Progress
+          </span>
+          <span style={{
+            fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 600,
+            color: '#fff',
+            background: 'var(--gold)',
+            padding: '3px 10px',
+            borderRadius: 20,
+            letterSpacing: '0.03em',
+          }}>
+            Coming Soon
+          </span>
         </div>
 
         {/* AEP countdown */}
@@ -346,11 +243,11 @@ export default function Index() {
                   : 'Last day of Annual Enrollment Period'
             }
             style={{
-              width: 'min(380px, 52%)',
-              marginTop: 'min(24px, 2.5vh)',
+              maxWidth: 560, width: '100%',
+              marginTop: 20,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               fontFamily: 'var(--font-sans)', fontSize: 12.5,
-              ...fadeUp('0.65s'),
+              ...fadeUp('0.45s'),
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
@@ -381,82 +278,6 @@ export default function Index() {
           </div>
         )}
       </div>
-
-      {/* ── Portal strip ── */}
-      <div
-        style={{
-          flexShrink: 0,
-          background: 'var(--bg-subtle)',
-          borderTop: '1px solid var(--bg-muted)',
-          padding: '14px 32px',
-          display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap',
-          ...fadeUp('0.7s'),
-        }}
-      >
-        {CANONICAL_CARRIERS.map((name) => {
-          const color = carrierColorMap[name] || 'var(--text-muted)';
-          const hoverBg = carrierHoverBgMap[name] || 'rgba(0,0,0,0.03)';
-          const isHovered = hoveredCarrier === name;
-
-          return (
-            <a
-              key={name}
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              aria-label={`Open ${name} portal`}
-              onMouseEnter={() => setHoveredCarrier(name)}
-              onMouseLeave={() => setHoveredCarrier(null)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                padding: '7px 14px', borderRadius: 20,
-                background: isHovered ? hoverBg : '#fff',
-                color,
-                fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600,
-                boxShadow: isHovered
-                  ? '0 6px 16px rgba(0,0,0,0.08)'
-                  : '0 1px 3px rgba(0,0,0,0.04)',
-                transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
-                transition: 'transform var(--med) var(--ease), box-shadow var(--med), background var(--fast)',
-                textDecoration: 'none', cursor: 'pointer',
-              }}
-            >
-              {name}
-              <span
-                style={{
-                  fontSize: 9,
-                  opacity: isHovered ? 0.5 : 0,
-                  transition: 'opacity var(--fast)',
-                }}
-              >
-                ↗
-              </span>
-            </a>
-          );
-        })}
-      </div>
     </div>
-  );
-}
-
-// ── Animated milestone fill ─────────────────────────────────
-function MilestoneBar({ progress }: { progress: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (ref.current) ref.current.style.width = `${progress}%`;
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [progress]);
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        width: '0%', height: '100%', borderRadius: 4,
-        background: 'linear-gradient(90deg, var(--gold-dark), var(--gold))',
-        transition: 'width 1.2s var(--ease)',
-      }}
-    />
   );
 }

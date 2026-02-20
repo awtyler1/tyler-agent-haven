@@ -30,48 +30,10 @@ const Icons = {
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
   ),
-  Search: (
+  Compass: (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  ),
-  Flame: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
-    </svg>
-  ),
-  Grid: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7" />
-      <rect x="14" y="3" width="7" height="7" />
-      <rect x="14" y="14" width="7" height="7" />
-      <rect x="3" y="14" width="7" height="7" />
-    </svg>
-  ),
-  Shield: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <path d="M12 8v4m0 4h.01" />
-    </svg>
-  ),
-  Book: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-    </svg>
-  ),
-  Contact: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="4" width="20" height="16" rx="2" />
-      <circle cx="12" cy="11" r="3" />
-      <path d="M6 20c0-2 2.5-4 6-4s6 2 6 4" />
-    </svg>
-  ),
-  Dollar: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="1" x2="12" y2="23" />
-      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
     </svg>
   ),
   Pen: (
@@ -82,40 +44,63 @@ const Icons = {
       <line x1="16" y1="17" x2="8" y2="17" />
     </svg>
   ),
-  Clipboard: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-    </svg>
-  ),
   Graduation: (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
       <path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" />
     </svg>
   ),
+  Shield: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M12 8v4m0 4h.01" />
+    </svg>
+  ),
+  Grid: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+    </svg>
+  ),
+  Clipboard: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+    </svg>
+  ),
+  ShieldCheck: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  ),
+  Wrench: (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+    </svg>
+  ),
 };
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: 'Sell',
+    label: '',
     items: [
-      { label: 'Home', path: '/', icon: Icons.Home },
-      { label: 'Plan Finder', path: '/plan-finder', icon: Icons.Search },
-      { label: 'SunFire', path: 'https://www.sunfirematrix.com', icon: Icons.Flame, external: true },
-      { label: 'Connecture', path: 'https://www.connecture.com', icon: Icons.Grid, external: true },
-      { label: 'Carriers', path: '/carrier-resources', icon: Icons.Shield },
+      { label: 'Dashboard', path: '/', icon: Icons.Home },
+      { label: 'Start Here', path: '/start-here', icon: Icons.Compass },
+      { label: 'Contracting', path: '/contracting-hub', icon: Icons.Pen },
+      { label: 'Training', path: '/training', icon: Icons.Graduation },
     ],
   },
   {
-    label: 'Manage',
+    label: 'Resources',
     items: [
-      { label: 'My Book', path: '/book', icon: Icons.Book },
-      { label: 'BOSS CRM', path: 'https://www.bosscrm.com', icon: Icons.Contact, external: true },
-      { label: 'Commissions', path: '/book/growth', icon: Icons.Dollar },
-      { label: 'Contracting', path: '/contracting-hub', icon: Icons.Pen },
+      { label: 'Carriers', path: '/carrier-resources', icon: Icons.Shield },
+      { label: 'Portals', path: '/carrier-portals', icon: Icons.Grid },
       { label: 'Forms', path: '/forms-library', icon: Icons.Clipboard },
-      { label: 'Training', path: '/training', icon: Icons.Graduation },
+      { label: 'Compliance', path: '/compliance', icon: Icons.ShieldCheck },
+      { label: 'Tools', path: '/agent-tools', icon: Icons.Wrench },
     ],
   },
 ];
@@ -425,20 +410,22 @@ export function AgentShell() {
         {/* Navigation groups — overflow hidden, never scrolls */}
         <div style={{ flex: 1, overflow: 'hidden', padding: '6px 0 0' }}>
           {NAV_GROUPS.map((group, groupIdx) => (
-            <div key={group.label} style={{ marginBottom: 0 }}>
-              {/* Section label */}
-              <div
-                style={{
-                  fontSize: 9,
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: 'var(--sidebar-section-label)',
-                  padding: `${groupIdx === 0 ? '4px' : '12px'} 16px 4px`,
-                }}
-              >
-                {group.label}
-              </div>
+            <div key={group.label || `group-${groupIdx}`} style={{ marginBottom: 0 }}>
+              {/* Section label — skip when empty */}
+              {group.label && (
+                <div
+                  style={{
+                    fontSize: 9,
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: 'var(--sidebar-section-label)',
+                    padding: `${groupIdx === 0 ? '4px' : '12px'} 16px 4px`,
+                  }}
+                >
+                  {group.label}
+                </div>
+              )}
 
               {/* Nav items */}
               {group.items.map((item) => {
