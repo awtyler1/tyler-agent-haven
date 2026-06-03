@@ -12,16 +12,31 @@ export const ALLOWED_ORIGINS = [
 ];
 
 /**
+ * Returns true if the origin is allowed. In addition to the explicit list
+ * above, any Vercel deployment (*.vercel.app) is permitted so the standalone
+ * contracting app works on its host-provided URL without hardcoding it.
+ */
+function isAllowedOrigin(origin: string): boolean {
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  try {
+    const host = new URL(origin).hostname;
+    return host === "vercel.app" || host.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Generate CORS headers based on the request origin.
- * Returns headers that allow the request origin if it's in the allowed list,
+ * Returns headers that allow the request origin if it's permitted,
  * otherwise defaults to the first allowed origin.
  */
 export function getCorsHeaders(req: Request): HeadersInit {
   const origin = req.headers.get("Origin") || "";
-  const corsOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const corsOrigin = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": corsOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-contracting-secret",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
   };
 }
