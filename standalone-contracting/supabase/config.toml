@@ -1,0 +1,10 @@
+# Supabase config for the standalone contracting app.
+# Set `project_id` to your Supabase project ref before `supabase link`.
+project_id = "your-project-ref"
+
+# Both functions are public (no login). The app reaches them with the anon key.
+[functions.generate-contracting-pdf]
+verify_jwt = false
+
+[functions.send-contracting-packet]
+verify_jwt = false

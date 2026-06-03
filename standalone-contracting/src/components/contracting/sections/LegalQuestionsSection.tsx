@@ -1,0 +1,416 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { ContractingApplication, LEGAL_QUESTIONS, LegalQuestion } from '@/types/contracting';
+import { FileDropZone } from '../FileDropZone';
+import { Shield, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface LegalQuestionsSectionProps {
+  application: ContractingApplication;
+  onUpdate: <K extends keyof ContractingApplication>(field: K, value: ContractingApplication[K]) => void;
+  onUpload: (file: File, documentType: string) => Promise<string | null>;
+  onRemove: (documentType: string) => Promise<void>;
+  disabled?: boolean;
+}
+
+export function LegalQuestionsSection({ application, onUpdate, onUpload, onRemove, disabled }: LegalQuestionsSectionProps) {
+  const legalQuestions = application.legal_questions || {};
+  const uploadedDocs = application.uploaded_documents || {};
+  const disciplinaryEntries = application.disciplinary_entries || {};
+
+  const getQuestion = (id: string): LegalQuestion => {
+    return legalQuestions[id] || { answer: null, explanation: '' };
+  };
+
+  const updateQuestion = (id: string, updates: Partial<LegalQuestion>) => {
+    const current = getQuestion(id);
+    const updated = { ...current, ...updates };
+    onUpdate('legal_questions', { ...legalQuestions, [id]: updated });
+  };
+
+  const hasAnyYesAnswers = Object.values(legalQuestions).some(q => q.answer === true);
+
+  // Get only parent questions and standalone questions (not sub-questions)
+  const mainQuestions = LEGAL_QUESTIONS.filter(q => !('isSubQuestion' in q && q.isSubQuestion));
+
+  return (
+    <Card 
+      className="rounded-[28px] border-0 overflow-hidden"
+      style={{ 
+        background: 'linear-gradient(180deg, #FFFFFF 0%, #FEFEFE 100%)',
+        boxShadow: '0px 1px 0px rgba(255, 255, 255, 0.8) inset, 0px 20px 60px rgba(0, 0, 0, 0.06)'
+      }}
+    >
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Shield className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-lg font-medium">Background Questions</CardTitle>
+            <p className="text-xs text-muted-foreground/60">Please answer all questions truthfully. Most agents answer "No" to all.</p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4 pb-6">
+        {disabled && (
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 text-muted-foreground/60">
+            <Lock className="h-4 w-4" />
+            <span className="text-sm">Enter your initials above to unlock this section</span>
+          </div>
+        )}
+
+        <div style={{ opacity: disabled ? 0.5 : 1, pointerEvents: disabled ? 'none' : 'auto' }} className="space-y-3">
+          {mainQuestions.map((question) => {
+            const q = getQuestion(question.id);
+            const hasSubQuestions = LEGAL_QUESTIONS.some(sq => 'isSubQuestion' in sq && sq.isSubQuestion && sq.id.startsWith(question.id) && sq.id !== question.id);
+            const subQuestions = hasSubQuestions ? LEGAL_QUESTIONS.filter(sq => 'isSubQuestion' in sq && sq.isSubQuestion && sq.id.startsWith(question.id) && sq.id !== question.id) : [];
+
+            return (
+              <div 
+                key={question.id} 
+                className={cn(
+                  "p-4 rounded-xl border transition-colors",
+                  q.answer === true 
+                    ? "bg-amber-50/50 border-amber-200/30" 
+                    : q.answer === false 
+                      ? "bg-emerald-50/30 border-emerald-200/20"
+                      : "bg-muted/10 border-border/10"
+                )}
+              >
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <p className="text-sm leading-relaxed">
+                      <span className="font-medium text-muted-foreground/70 mr-2">{question.id}.</span>
+                      {question.text}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => updateQuestion(question.id, { answer: true })}
+                      className={cn(
+                        "px-4 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                        q.answer === true
+                          ? "bg-amber-500 text-white"
+                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateQuestion(question.id, { answer: false })}
+                      className={cn(
+                        "px-4 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                        q.answer === false
+                          ? "bg-emerald-500 text-white"
+                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sub-questions when Yes is selected */}
+                {q.answer === true && subQuestions.length > 0 && (
+                  <div className="mt-4 pl-4 border-l-2 border-amber-200/50 space-y-3">
+                    {subQuestions.map((sq) => {
+                      const subQ = getQuestion(sq.id);
+                      return (
+                        <div key={sq.id} className="flex gap-4">
+                          <div className="flex-1">
+                            <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                              <span className="font-medium mr-1">{sq.id.toUpperCase()}.</span>
+                              {sq.text}
+                            </p>
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => updateQuestion(sq.id, { answer: true })}
+                              className={cn(
+                                "px-3 py-1 rounded text-[10px] font-medium transition-colors",
+                                subQ.answer === true
+                                  ? "bg-amber-500 text-white"
+                                  : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                              )}
+                            >
+                              Yes
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateQuestion(sq.id, { answer: false })}
+                              className={cn(
+                                "px-3 py-1 rounded text-[10px] font-medium transition-colors",
+                                subQ.answer === false
+                                  ? "bg-emerald-500 text-white"
+                                  : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                              )}
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+              </div>
+            );
+          })}
+
+          {/* Disclaimer and Supporting Documents Section */}
+          {hasAnyYesAnswers && (
+            <div className="mt-6 space-y-4">
+              {/* Disclaimer */}
+              <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/30">
+                <div className="flex gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="space-y-4 w-full">
+                    <p className="text-sm text-amber-900/80 leading-relaxed">
+                      If you answered "YES" to any of the questions above, please provide an explanation that includes dates, actions, and descriptions. You can attach additional paper if necessary.
+                    </p>
+                    
+                    {/* Structured Explanation Fields - Entry 1 */}
+                    <div className="space-y-3 p-3 rounded-lg bg-white/60 border border-amber-100">
+                      <p className="text-xs font-semibold text-amber-900/80">Entry 1</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
+                          <Input
+                            type="date"
+                            value={disciplinaryEntries.entry1?.date_of_action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry1: { 
+                                ...disciplinaryEntries.entry1, 
+                                date_of_action: e.target.value 
+                              } 
+                            })}
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Action</Label>
+                          <Input
+                            value={disciplinaryEntries.entry1?.action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry1: { 
+                                ...disciplinaryEntries.entry1, 
+                                action: e.target.value 
+                              } 
+                            })}
+                            placeholder="What action was taken"
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
+                        <Input
+                          value={disciplinaryEntries.entry1?.reason || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry1: { 
+                              ...disciplinaryEntries.entry1, 
+                              reason: e.target.value 
+                            } 
+                          })}
+                          placeholder="Reason for the action"
+                          className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
+                        <Textarea
+                          value={disciplinaryEntries.entry1?.explanation || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry1: { 
+                              ...disciplinaryEntries.entry1, 
+                              explanation: e.target.value 
+                            } 
+                          })}
+                          placeholder="Detailed explanation of circumstances and outcomes"
+                          className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Structured Explanation Fields - Entry 2 */}
+                    <div className="space-y-3 p-3 rounded-lg bg-white/60 border border-amber-100">
+                      <p className="text-xs font-semibold text-amber-900/80">Entry 2 (if applicable)</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
+                          <Input
+                            type="date"
+                            value={disciplinaryEntries.entry2?.date_of_action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry2: { 
+                                ...disciplinaryEntries.entry2, 
+                                date_of_action: e.target.value 
+                              } 
+                            })}
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Action</Label>
+                          <Input
+                            value={disciplinaryEntries.entry2?.action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry2: { 
+                                ...disciplinaryEntries.entry2, 
+                                action: e.target.value 
+                              } 
+                            })}
+                            placeholder="What action was taken"
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
+                        <Input
+                          value={disciplinaryEntries.entry2?.reason || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry2: { 
+                              ...disciplinaryEntries.entry2, 
+                              reason: e.target.value 
+                            } 
+                          })}
+                          placeholder="Reason for the action"
+                          className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
+                        <Textarea
+                          value={disciplinaryEntries.entry2?.explanation || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry2: { 
+                              ...disciplinaryEntries.entry2, 
+                              explanation: e.target.value 
+                            } 
+                          })}
+                          placeholder="Detailed explanation of circumstances and outcomes"
+                          className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Structured Explanation Fields - Entry 3 */}
+                    <div className="space-y-3 p-3 rounded-lg bg-white/60 border border-amber-100">
+                      <p className="text-xs font-semibold text-amber-900/80">Entry 3 (if applicable)</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Date of Action</Label>
+                          <Input
+                            type="date"
+                            value={disciplinaryEntries.entry3?.date_of_action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry3: { 
+                                ...disciplinaryEntries.entry3, 
+                                date_of_action: e.target.value 
+                              } 
+                            })}
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium text-amber-900/70">Action</Label>
+                          <Input
+                            value={disciplinaryEntries.entry3?.action || ''}
+                            onChange={(e) => onUpdate('disciplinary_entries', { 
+                              ...disciplinaryEntries, 
+                              entry3: { 
+                                ...disciplinaryEntries.entry3, 
+                                action: e.target.value 
+                              } 
+                            })}
+                            placeholder="What action was taken"
+                            className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Reason</Label>
+                        <Input
+                          value={disciplinaryEntries.entry3?.reason || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry3: { 
+                              ...disciplinaryEntries.entry3, 
+                              reason: e.target.value 
+                            } 
+                          })}
+                          placeholder="Reason for the action"
+                          className="text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-amber-900/70">Explanation</Label>
+                        <Textarea
+                          value={disciplinaryEntries.entry3?.explanation || ''}
+                          onChange={(e) => onUpdate('disciplinary_entries', { 
+                            ...disciplinaryEntries, 
+                            entry3: { 
+                              ...disciplinaryEntries.entry3, 
+                              explanation: e.target.value 
+                            } 
+                          })}
+                          placeholder="Detailed explanation of circumstances and outcomes"
+                          className="min-h-[60px] text-sm rounded-lg border-amber-200/50 bg-white/80 focus:border-amber-300 focus:ring-amber-200/50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* File Upload */}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-amber-900/70">
+                        Supporting Documents (Optional)
+                      </Label>
+                      <FileDropZone
+                        label="Upload supporting documentation"
+                        description="PDF, DOC, or image files with additional explanation or evidence"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        existingFile={uploadedDocs.background_explanation}
+                        onUpload={(file) => onUpload(file, 'background_explanation')}
+                        onRemove={() => onRemove('background_explanation')}
+                        compact
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Attestation */}
+          <div className="mt-6 p-4 rounded-xl bg-muted/20 border border-border/10">
+            <div className="flex gap-3">
+              <CheckCircle className="h-4 w-4 text-muted-foreground/50 shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground/70 leading-relaxed">
+                By signing this form, I attest that the information I have provided is true to the best of my knowledge. 
+                I acknowledge that if any of the information changes, I will notify Tyler Insurance Group within five (5) days of such a change.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
