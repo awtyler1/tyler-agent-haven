@@ -5,6 +5,12 @@ import { isAuthError, getErrorStatus, getErrorMessage } from "../_shared/auth.ts
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 // Where completed packets are emailed. Override per-deployment.
 const CONTRACTING_TEAM_EMAIL = Deno.env.get("CONTRACTING_TEAM_EMAIL") || "caroline@tylerinsurancegroup.com";
+// Carbon-copied on every submission. Comma-separated list via env, with a
+// sensible default.
+const CONTRACTING_TEAM_CC = (Deno.env.get("CONTRACTING_TEAM_CC") || "andrew@tylerinsurancegroup.com,austin@tylerinsurancegroup.com")
+  .split(",")
+  .map((addr) => addr.trim())
+  .filter(Boolean);
 const FROM_ADDRESS = Deno.env.get("CONTRACTING_FROM_ADDRESS") || "Tyler Insurance Group <austin@send.tylerinsurancegroup.com>";
 const REPLY_TO = Deno.env.get("CONTRACTING_REPLY_TO") || "austin@tylerinsurancegroup.com";
 // Optional shared secret. When set, callers must send a matching
@@ -141,6 +147,7 @@ const handler = async (req: Request): Promise<Response> => {
         from: FROM_ADDRESS,
         reply_to: REPLY_TO,
         to: [CONTRACTING_TEAM_EMAIL],
+        cc: CONTRACTING_TEAM_CC,
         subject: `New Contracting Packet Submission — ${name.trim()} (NPN ${npn.trim()})`,
         html: `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
