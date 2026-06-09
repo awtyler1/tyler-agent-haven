@@ -97,7 +97,7 @@ export const founders: Founder[] = [
   {
     name: "Andrew Horn",
     title: "Co-Founder",
-    photo: "/images/founders/andrew-horn.jpg",
+    photo: "/images/founders/andrew-horn.png",
     initials: "AH",
     blurb: "Obsessed with the tools and training that actually move an agent's numbers — and stay close to every agent he brings on.",
   },
