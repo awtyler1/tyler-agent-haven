@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG — The Operators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  /* PALETTE: Ink & Bone + gold spark */
+  :root{--bone:#F6F3EC;--bone2:#EFEBE0;--ink:#14130F;--muted:#69655c;--line:#e4ded0;--gold:#B0892F;--gold-soft:#C9A84C}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Space Grotesk',sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:18px;right:18px;z-index:99;background:var(--ink);color:var(--bone);border-radius:30px;padding:8px 16px;font-size:12.5px;font-weight:600}.tag b{color:var(--gold-soft)}
+  .photo{background:linear-gradient(135deg,#3a352b,#1c1a14);position:relative;border-radius:16px;overflow:hidden}
+  .photo .cap{position:absolute;left:16px;bottom:14px;color:#fff;font-size:13px;font-weight:500;z-index:2}
+  .photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(10,9,6,.6))}
+
+  .top{display:flex;align-items:center;gap:24px;height:74px;border-bottom:1px solid var(--ink)}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'Space Grotesk';font-weight:700;letter-spacing:.02em}
+  .mk{width:30px;height:30px;border-radius:8px;background:var(--ink);color:var(--gold-soft);font-family:'Space Grotesk';font-weight:700;display:flex;align-items:center;justify-content:center}
+  .links{display:flex;gap:26px;margin-left:8px;flex:1}.links a{font-size:14px;color:var(--muted)}.links a:hover{color:var(--ink)}
+  .btn{font-weight:600;font-size:14px;padding:11px 20px;border-radius:8px;border:1.5px solid var(--ink);cursor:pointer;transition:.18s}
+  .btn-ghost:hover{background:var(--ink);color:var(--bone)}
+  .btn-dark{background:var(--ink);color:var(--bone)}.btn-dark:hover{background:#000}
+  .nav-cta{display:flex;gap:10px}
+
+  .hero{display:grid;grid-template-columns:1.06fr .94fr;gap:50px;align-items:center;padding:70px 0 60px}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+  h1{font-family:'Space Grotesk';font-size:clamp(42px,5.4vw,72px);font-weight:700;line-height:1.0;letter-spacing:-.035em;margin-bottom:24px}
+  h1 .em{color:var(--gold)}
+  .sub{font-size:18px;color:var(--muted);line-height:1.65;max-width:46ch;margin-bottom:26px}
+  .note{border-left:2px solid var(--gold);padding-left:18px;margin-bottom:28px}
+  .note p{font-size:15px;line-height:1.6;color:var(--ink)}
+  .sign{font-family:'Caveat',cursive;font-size:26px;color:var(--ink);margin-top:6px}
+  .sign span{color:var(--muted);font-family:'Inter';font-size:12.5px;display:block;margin-top:2px}
+  .cta{display:flex;gap:12px}
+  .hphoto{height:540px}
+
+  .proof{display:flex;gap:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+  .proof div{flex:1;padding:22px 28px;border-right:1px solid var(--line)}
+  .proof div:last-child{border-right:none}
+  .proof .v{font-family:'Space Grotesk';font-size:15px;font-weight:700}
+  .proof .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+  .how{padding:84px 0}
+  .kick{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  h2{font-family:'Space Grotesk';font-size:clamp(28px,3.6vw,44px);font-weight:700;letter-spacing:-.025em;max-width:18ch;margin-bottom:46px;line-height:1.05}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .step{border-top:2px solid var(--ink);padding-top:20px}
+  .step .n{font-family:'Space Grotesk';font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px}
+  .step h3{font-family:'Space Grotesk';font-size:19px;font-weight:600;margin-bottom:8px}
+  .step p{font-size:14.5px;color:var(--muted);line-height:1.6}
+
+  .ops{background:var(--ink);color:var(--bone);padding:84px 0}
+  .ops .kick{color:var(--gold-soft)}
+  .ops h2{color:var(--bone)}
+  .opgrid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .op{display:grid;grid-template-columns:130px 1fr;gap:20px;align-items:center}
+  .op .photo{height:150px}
+  .op h3{font-family:'Space Grotesk';font-size:20px;font-weight:600;margin-bottom:4px}
+  .op .role{font-size:13px;color:var(--gold-soft);margin-bottom:10px}
+  .op p{font-size:14px;color:rgba(246,243,236,.7);line-height:1.6}
+
+  footer{padding:32px 0;display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+  @media(max-width:860px){.hero{grid-template-columns:1fr;gap:30px}.hphoto{height:380px}.steps{grid-template-columns:1fr}.opgrid{grid-template-columns:1fr}.links{display:none}}
+</style>
+</head>
+<body>
+  <div class="tag">THE OPERATORS · <b>Ink &amp; Bone</b></div>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand"><span class="mk">T</span> Tyler Insurance Group</div>
+      <div class="links"><a>Why TIG</a><a>How we work</a><a>Tools</a><a>Training</a><a>Founders</a></div>
+      <div class="nav-cta"><a class="btn btn-ghost">Agent Login</a><a class="btn btn-dark">Talk to a founder</a></div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Independent Medicare FMO · Nationwide</div>
+        <h1 class="disp">The FMO built for <span class="em">where Medicare is going.</span></h1>
+        <p class="sub">We're operators, not administrators — still in the field, still writing business. So we built the FMO we always wished we had, and we get in the mud with you to grow it.</p>
+        <div class="note">
+          <p>“Most FMOs hand you a login and disappear. We hand you our cell numbers.”</p>
+          <div class="sign">Austin &amp; Andrew<span>Co-Founders, Tyler Insurance Group</span></div>
+        </div>
+        <div class="cta"><a class="btn btn-dark">Become a TIG Agent</a><a class="btn btn-ghost">See how we work</a></div>
+      </div>
+      <div class="photo hphoto"><span class="cap">Austin &amp; Andrew — co-founders, still in the field</span></div>
+    </section>
+  </div>
+
+  <div class="proof">
+    <div><div class="v">Top contracts, nearly every carrier</div><div class="l">Carrier access</div></div>
+    <div><div class="v">400+ agents, coast to coast</div><div class="l">National network</div></div>
+    <div><div class="v">10+ years operating</div><div class="l">Track record</div></div>
+    <div><div class="v">Founder-led</div><div class="l">You'll know us by name</div></div>
+  </div>
+
+  <section class="how"><div class="wrap">
+    <div class="kick">How we actually work with you</div>
+    <h2 class="disp">A game plan and a phone number — not a portal and a prayer.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h3 class="disp">We build the plan</h3><p>Sit down with a founder, map your market and your goals, and leave with a real growth plan — not a welcome email.</p></div>
+      <div class="step"><div class="n">02</div><h3 class="disp">We equip you</h3><p>Top contracts, SunFire & Connecture, a modern CRM, and training that goes past Medicare 101 into building a book.</p></div>
+      <div class="step"><div class="n">03</div><h3 class="disp">We stay in it</h3><p>Real mentorship as you scale — and as you build your own team. We grow when you grow. That's the whole model.</p></div>
+    </div>
+  </div></section>
+
+  <section class="ops"><div class="wrap">
+    <div class="kick">Your operators</div>
+    <h2 class="disp">Young, hungry, and still in the field.</h2>
+    <div class="opgrid">
+      <div class="op"><div class="photo"></div><div><h3 class="disp">Austin</h3><div class="role">Co-Founder</div><p>Still writing business and building agencies — so the advice you get is current, not theoretical.</p></div></div>
+      <div class="op"><div class="photo" style="background:linear-gradient(135deg,#46402f,#211e16)"></div><div><h3 class="disp">Andrew Horn</h3><div class="role">Co-Founder</div><p>Obsessed with the tools, training, and systems that turn good agents into top producers.</p></div></div>
+    </div>
+  </div></section>
+
+  <div class="wrap"><footer><span>© Tyler Insurance Group · Nationwide</span><span>Powered by Tyler Insurance Group</span></footer></div>
+</body>
+</html>
