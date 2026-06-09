@@ -35,7 +35,7 @@ export const navLinks = [
 
 // ── Hero ────────────────────────────────────────────────────────────────────
 export const hero = {
-  eyebrow: "Independent Medicare FMO",
+  eyebrow: "Tyler Insurance Group · Independent Medicare FMO",
   // Keep the headline punchy — it's the first thing a prospective agent reads.
   titleLines: ["The FMO built for", "where Medicare is going."],
   subhead:

@@ -100,7 +100,7 @@ export default function LandingPage() {
         <div className="lp-nav__inner">
           <a href="#top" className="lp-brand" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             <span className="lp-brand__mark">T</span>
-            <span className="lp-brand__name">{tig.short}</span>
+            <span className="lp-brand__name">{tig.name}</span>
           </a>
           <nav className="lp-nav__links">
             {navLinks.map((l) => (
@@ -342,7 +342,7 @@ const CSS = `
 .lp-nav__inner { max-width: 1180px; margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; gap: 28px; }
 .lp-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
 .lp-brand__mark { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: #fff; font-weight: 800; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.lp-brand__name { font-weight: 700; font-size: 16px; letter-spacing: 0.14em; color: #fff; transition: color 0.25s; }
+.lp-brand__name { font-weight: 700; font-size: 15px; letter-spacing: 0.01em; color: #fff; transition: color 0.25s; white-space: nowrap; }
 .lp-nav--solid .lp-brand__name { color: var(--text); }
 .lp-nav__links { display: flex; gap: 26px; margin-left: 12px; flex: 1; }
 .lp-nav__link { font-size: 14px; font-weight: 500; text-decoration: none; color: rgba(255,255,255,0.78); transition: color 0.18s; }

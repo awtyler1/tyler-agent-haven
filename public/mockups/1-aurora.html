@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Concept — Aurora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{ --ink:#16151a; --muted:#615d6b; --line:#ececf2; --gold:#C9A84C; --gold2:#8A6D20; }
+  body{ font-family:'Inter',system-ui,sans-serif; color:var(--ink); background:#fff; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:1140px; margin:0 auto; padding:0 28px; }
+  a{ text-decoration:none; color:inherit; }
+
+  /* concept tag */
+  .tag{ position:fixed; bottom:18px; right:18px; z-index:99; background:#fff; border:1px solid var(--line); border-radius:30px; padding:8px 16px; font-size:12.5px; font-weight:600; box-shadow:0 8px 30px rgba(0,0,0,.08); }
+  .tag b{ color:var(--gold2); }
+
+  nav{ position:sticky; top:0; z-index:50; background:rgba(255,255,255,.8); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); }
+  nav .wrap{ display:flex; align-items:center; gap:30px; height:68px; }
+  .brand{ display:flex; align-items:center; gap:11px; font-weight:700; }
+  .mark{ width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#e7cf86,var(--gold2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800; }
+  nav .links{ display:flex; gap:26px; margin-left:8px; flex:1; }
+  nav .links a{ font-size:14.5px; font-weight:500; color:var(--muted); }
+  nav .links a:hover{ color:var(--ink); }
+  .btn{ display:inline-flex;align-items:center;justify-content:center; font-weight:600; font-size:14.5px; padding:11px 20px; border-radius:11px; border:1px solid transparent; cursor:pointer; transition:.18s; }
+  .btn-ghost{ color:var(--ink); border-color:var(--line); }
+  .btn-ghost:hover{ border-color:#cfcad6; }
+  .btn-primary{ color:#fff; background:linear-gradient(135deg,#1d1b22,#16151a); }
+  .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.18); }
+  .nav-cta{ display:flex; gap:10px; }
+
+  /* hero */
+  header.hero{ position:relative; overflow:hidden; padding:120px 0 96px; text-align:center; }
+  .mesh{ position:absolute; inset:-200px 0 auto; height:680px; pointer-events:none; filter:blur(50px); opacity:.9; }
+  .blob{ position:absolute; border-radius:50%; }
+  .b1{ width:520px;height:520px; left:8%; top:-60px; background:radial-gradient(circle,#ffe8b0,transparent 60%); }
+  .b2{ width:560px;height:560px; right:4%; top:-100px; background:radial-gradient(circle,#e7d2ff,transparent 60%); }
+  .b3{ width:480px;height:480px; left:38%; top:60px; background:radial-gradient(circle,#ffd9c7,transparent 60%); }
+  .hero .eyebrow{ font-size:13px; font-weight:600; letter-spacing:.04em; color:var(--gold2); margin-bottom:22px; position:relative; }
+  h1{ font-size:clamp(40px,6.4vw,72px); font-weight:800; letter-spacing:-.035em; line-height:1.03; max-width:16ch; margin:0 auto 22px; position:relative; }
+  .grad{ background:linear-gradient(100deg,#8A6D20,#C9A84C 40%,#b07cff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .sub{ font-size:clamp(16px,1.6vw,19px); color:var(--muted); max-width:620px; margin:0 auto 34px; line-height:1.6; position:relative; }
+  .hero-cta{ display:flex; gap:14px; justify-content:center; position:relative; }
+  .btn-lg{ padding:15px 28px; font-size:15.5px; }
+
+  /* stat card */
+  .stats{ position:relative; margin:64px auto 0; max-width:840px; background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:0 30px 60px rgba(20,18,30,.08); display:grid; grid-template-columns:repeat(4,1fr); }
+  .stat{ padding:28px 20px; text-align:center; border-right:1px solid var(--line); }
+  .stat:last-child{ border-right:none; }
+  .stat .v{ font-size:32px; font-weight:800; letter-spacing:-.02em; }
+  .stat .l{ font-size:12.5px; font-weight:600; color:var(--muted); margin-top:6px; }
+
+  /* carriers */
+  .carriers{ padding:48px 0 8px; text-align:center; }
+  .carriers .lbl{ font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:22px; }
+  .crow{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+  .cpill{ font-size:14px; font-weight:600; color:#4a4753; padding:9px 16px; border:1px solid var(--line); border-radius:30px; }
+
+  /* why */
+  section.why{ padding:96px 0; }
+  .ey{ font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+  h2{ font-size:clamp(27px,3.4vw,40px); font-weight:800; letter-spacing:-.025em; max-width:640px; margin-bottom:46px; }
+  .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+  .card{ border:1px solid var(--line); border-radius:18px; padding:26px; transition:.22s; background:linear-gradient(180deg,#fff,#fcfbfe); }
+  .card:hover{ transform:translateY(-4px); box-shadow:0 18px 40px rgba(20,18,30,.08); }
+  .ic{ width:42px;height:42px;border-radius:11px; background:linear-gradient(135deg,#fff2cf,#f3e2b0); display:flex;align-items:center;justify-content:center; margin-bottom:16px; font-size:20px; }
+  .card h3{ font-size:16.5px; font-weight:700; margin-bottom:8px; }
+  .card p{ font-size:14px; color:var(--muted); line-height:1.6; }
+
+  footer{ border-top:1px solid var(--line); padding:34px 0; color:var(--muted); font-size:13.5px; display:flex; justify-content:space-between; }
+  @media(max-width:860px){ .grid{grid-template-columns:repeat(2,1fr);} .stats{grid-template-columns:repeat(2,1fr);} .stat:nth-child(2){border-right:none;} nav .links{display:none;} }
+  @media(max-width:520px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+  <div class="tag">Concept <b>Aurora</b> · light fintech</div>
+  <nav><div class="wrap">
+    <a class="brand"><span class="mark">T</span> Tyler Insurance Group</a>
+    <div class="links"><a>Why TIG</a><a>Tools</a><a>Resources</a><a>Training</a><a>About</a></div>
+    <div class="nav-cta"><a class="btn btn-ghost">Agent Login</a><a class="btn btn-primary">Become an Agent</a></div>
+  </div></nav>
+
+  <header class="hero">
+    <div class="mesh"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+    <div class="wrap">
+      <div class="eyebrow">Tyler Insurance Group · Independent Medicare FMO</div>
+      <h1>Grow your Medicare book with a <span class="grad">partner</span>, not a pipeline.</h1>
+      <p class="sub">Top carrier access, the best quoting and CRM tech, real training, and a contracting team that actually picks up the phone.</p>
+      <div class="hero-cta"><a class="btn btn-primary btn-lg">Become a TIG Agent</a><a class="btn btn-ghost btn-lg">Agent Login</a></div>
+      <div class="stats">
+        <div class="stat"><div class="v">60+</div><div class="l">Carriers</div></div>
+        <div class="stat"><div class="v">1,200+</div><div class="l">Agents</div></div>
+        <div class="stat"><div class="v">15+</div><div class="l">Years</div></div>
+        <div class="stat"><div class="v">AHIP</div><div class="l">Ready</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="carriers"><div class="wrap">
+    <div class="lbl">Direct contracts with the carriers that matter</div>
+    <div class="crow">
+      <span class="cpill">UnitedHealthcare</span><span class="cpill">Humana</span><span class="cpill">Aetna</span><span class="cpill">Cigna</span><span class="cpill">Anthem</span><span class="cpill">Wellcare</span><span class="cpill">Devoted Health</span><span class="cpill">Mutual of Omaha</span>
+    </div>
+  </div></div>
+
+  <section class="why"><div class="wrap">
+    <div class="ey">Why TIG</div>
+    <h2>Built to help you write more, keep more, and grow faster.</h2>
+    <div class="grid">
+      <div class="card"><div class="ic">🛡️</div><h3>Carrier access & comp</h3><p>Direct, competitive contracts with the carriers your clients want — and fast releases.</p></div>
+      <div class="card"><div class="ic">⚡</div><h3>Tools & technology</h3><p>Quote and enroll in minutes with SunFire and Connecture, plus a modern CRM at no cost.</p></div>
+      <div class="card"><div class="ic">🎓</div><h3>Training & support</h3><p>Medicare 101 to growing a mature book, plus market updates and CRM walkthroughs.</p></div>
+      <div class="card"><div class="ic">✍️</div><h3>Contracting made easy</h3><p>A streamlined flow and a dedicated team that gets you appointed without the runaround.</p></div>
+    </div>
+  </div></section>
+
+  <footer><div class="wrap" style="display:flex;justify-content:space-between;width:100%;max-width:1140px;margin:0 auto;padding:0 28px;"><span>© Tyler Insurance Group</span><span>Powered by Tyler Insurance Group</span></div></footer>
+</body>
+</html>
