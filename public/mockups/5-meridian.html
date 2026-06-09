@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Concept — Meridian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--ink:#15141a;--muted:#605c69;--line:#eceaf0;--gold:#B0892F;--gold-soft:#C9A84C}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Sora',sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:18px;right:18px;z-index:99;background:#fff;border:1px solid var(--line);border-radius:30px;padding:8px 16px;font-size:12.5px;font-weight:600;color:var(--muted);box-shadow:0 8px 30px rgba(0,0,0,.08)}.tag b{color:var(--gold)}
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:30px;height:70px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:15.5px}
+  .mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--gold-soft),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+  nav .links{display:flex;gap:26px;margin-left:8px;flex:1}.links a{font-size:14px;color:var(--muted)}.links a:hover{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;padding:11px 20px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:.18s}
+  .btn-ghost{color:var(--ink);border-color:var(--line)}.btn-ghost:hover{border-color:#cdc9d4}
+  .btn-dark{background:var(--ink);color:#fff}.btn-dark:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+  .nav-cta{display:flex;gap:10px}
+
+  header.hero{padding:80px 0}
+  .hgrid{display:grid;grid-template-columns:1.25fr .75fr;gap:48px;align-items:stretch}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:26px}
+  h1{font-family:'Sora',sans-serif;font-size:clamp(44px,5.8vw,76px);font-weight:700;letter-spacing:-.035em;line-height:1.02;margin-bottom:26px}
+  h1 .em{color:var(--gold)}
+  .sub{font-size:18px;color:var(--muted);line-height:1.65;max-width:48ch;margin-bottom:32px}
+  .hero-cta{display:flex;gap:14px}
+  .btn-lg{padding:15px 28px;font-size:15.5px}
+  .panel{border-radius:22px;background:linear-gradient(160deg,#1c1b22,#15141a);color:#fff;padding:38px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+  .panel .pg{position:absolute;width:360px;height:360px;right:-120px;top:-120px;background:radial-gradient(circle,rgba(201,168,76,.35),transparent 60%);filter:blur(10px)}
+  .panel .ptitle{position:relative;font-family:'Sora',sans-serif;font-size:19px;font-weight:600;margin-bottom:auto}
+  .pstats{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:30px}
+  .pstat .v{font-family:'Sora',sans-serif;font-size:32px;font-weight:700;background:linear-gradient(120deg,#f0dd9e,var(--gold-soft));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .pstat .l{font-size:12px;color:rgba(255,255,255,.55);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+
+  .carriers{padding:40px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .carriers .lbl{text-align:center;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+  .crow{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+  .cpill{font-size:14px;font-weight:600;color:#4a4753;padding:9px 16px;border:1px solid var(--line);border-radius:30px}
+
+  section.why{padding:96px 0}
+  .ey{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  h2{font-family:'Sora',sans-serif;font-size:clamp(28px,3.6vw,42px);font-weight:700;letter-spacing:-.025em;max-width:640px;margin-bottom:46px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .card{border:1px solid var(--line);border-radius:18px;padding:26px;transition:.22s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(20,18,30,.08)}
+  .ic{width:42px;height:42px;border-radius:11px;background:rgba(201,168,76,.12);color:var(--gold);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:19px}
+  .card h3{font-size:16.5px;font-weight:700;margin-bottom:8px}.card p{font-size:14px;color:var(--muted);line-height:1.6}
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:13.5px}footer .wrap{display:flex;justify-content:space-between}
+  @media(max-width:880px){.hgrid{grid-template-columns:1fr;gap:32px}.grid{grid-template-columns:repeat(2,1fr)}.links{display:none}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="tag">Concept <b>Meridian</b> · editorial split</div>
+  <nav><div class="wrap">
+    <a class="brand"><span class="mark">T</span> Tyler Insurance Group</a>
+    <div class="links"><a>Why TIG</a><a>Tools</a><a>Resources</a><a>Training</a><a>About</a></div>
+    <div class="nav-cta"><a class="btn btn-ghost">Agent Login</a><a class="btn btn-dark">Become an Agent</a></div>
+  </div></nav>
+
+  <header class="hero"><div class="wrap"><div class="hgrid">
+    <div>
+      <div class="eyebrow">Tyler Insurance Group · Independent Medicare FMO</div>
+      <h1 class="disp">The FMO built for <span class="em">where Medicare is going.</span></h1>
+      <p class="sub">Top carrier access, the best quoting and CRM tech, real training, and a contracting team that actually picks up the phone.</p>
+      <div class="hero-cta"><a class="btn btn-dark btn-lg">Become a TIG Agent</a><a class="btn btn-ghost btn-lg">Agent Login</a></div>
+    </div>
+    <div class="panel">
+      <span class="pg"></span>
+      <div class="ptitle">Carrier access. Modern tech. Real support.</div>
+      <div class="pstats">
+        <div class="pstat"><div class="v">60+</div><div class="l">Carriers</div></div>
+        <div class="pstat"><div class="v">1,200+</div><div class="l">Agents</div></div>
+        <div class="pstat"><div class="v">15+</div><div class="l">Years</div></div>
+        <div class="pstat"><div class="v">AHIP</div><div class="l">Ready</div></div>
+      </div>
+    </div>
+  </div></div></header>
+
+  <div class="carriers"><div class="wrap"><div class="lbl">Direct contracts with the carriers that matter</div>
+    <div class="crow"><span class="cpill">UnitedHealthcare</span><span class="cpill">Humana</span><span class="cpill">Aetna</span><span class="cpill">Cigna</span><span class="cpill">Anthem</span><span class="cpill">Wellcare</span><span class="cpill">Devoted Health</span><span class="cpill">Mutual of Omaha</span></div>
+  </div></div>
+
+  <section class="why"><div class="wrap">
+    <div class="ey">Why TIG</div><h2>Built to help you write more, keep more, and grow faster.</h2>
+    <div class="grid">
+      <div class="card"><div class="ic">🛡️</div><h3>Carrier access & comp</h3><p>Direct, competitive contracts with the carriers your clients want — and fast releases.</p></div>
+      <div class="card"><div class="ic">⚡</div><h3>Tools & technology</h3><p>Quote and enroll in minutes with SunFire and Connecture, plus a modern CRM at no cost.</p></div>
+      <div class="card"><div class="ic">🎓</div><h3>Training & support</h3><p>Medicare 101 to growing a mature book, plus market updates and CRM walkthroughs.</p></div>
+      <div class="card"><div class="ic">✍️</div><h3>Contracting made easy</h3><p>A streamlined flow and a dedicated team that gets you appointed without the runaround.</p></div>
+    </div>
+  </div></section>
+  <footer><div class="wrap"><span>© Tyler Insurance Group</span><span>Powered by Tyler Insurance Group</span></div></footer>
+</body>
+</html>
