@@ -103,7 +103,7 @@ export default function LandingPage() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
-            <span className="lp-brand__mark">T</span>
+            <img className="lp-brand__crest" src="/tyler-crest.png" alt="" aria-hidden="true" />
             <span className="lp-brand__name">{tig.name}</span>
           </a>
           <nav className="lp-nav__links">
@@ -234,11 +234,8 @@ export default function LandingPage() {
       <footer className="lp-footer">
         <div className="lp-container lp-footer__inner">
           <div className="lp-footer__brand">
-            <span className="lp-brand__mark">T</span>
-            <div>
-              <div className="lp-footer__name">{tig.name}</div>
-              <div className="lp-footer__tag">{tig.tagline}</div>
-            </div>
+            <img className="lp-footer__logo" src="/tyler-logo-light.png" alt="Tyler Insurance Group" />
+            <div className="lp-footer__tag">{tig.tagline}</div>
           </div>
           <div className="lp-footer__links">
             {navLinks.map((l) => (
@@ -290,6 +287,7 @@ const CSS = `
 .lp-brand{ display:inline-flex; align-items:center; gap:11px; text-decoration:none; }
 .lp-brand__mark{ width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#e7cf86,var(--gold2));
   color:var(--em); font-weight:800; font-size:15px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.lp-brand__crest{ height:30px; width:auto; display:block; }
 .lp-brand__name{ font-weight:700; font-size:15px; letter-spacing:.01em; color:#fff; white-space:nowrap; }
 .lp-nav__links{ display:flex; gap:24px; margin-left:10px; flex:1; }
 .lp-nav__link{ font-size:14px; font-weight:500; text-decoration:none; color:rgba(244,241,232,.74); transition:color .18s; }
@@ -357,7 +355,8 @@ const CSS = `
 /* Footer */
 .lp-footer{ background:#0a221a; color:var(--bone); }
 .lp-footer__inner{ display:flex; align-items:center; justify-content:space-between; gap:24px; padding-top:44px; padding-bottom:30px; flex-wrap:wrap; }
-.lp-footer__brand{ display:flex; align-items:center; gap:14px; }
+.lp-footer__brand{ display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+.lp-footer__logo{ height:54px; width:auto; display:block; }
 .lp-footer__name{ font-weight:700; font-size:16px; }
 .lp-footer__tag{ font-size:12.5px; color:rgba(244,241,232,.5); margin-top:2px; }
 .lp-footer__links{ display:flex; gap:22px; flex-wrap:wrap; }
