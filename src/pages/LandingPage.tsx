@@ -190,7 +190,7 @@ export default function LandingPage() {
       {/* ── Founder note + faces ── */}
       <section className="lp-section" id="founders">
         <div className="lp-container">
-          <div className="lp-kick">Straight from the founders</div>
+          <div className="lp-kick">Straight from us</div>
           <div className="lp-note">
             {founderNote.lines.map((line, i) => (
               <p className="lp-note__line" key={i}>
@@ -301,9 +301,9 @@ const CSS = `
   background:radial-gradient(circle,rgba(201,168,76,.15),transparent 60%); pointer-events:none; }
 .lp-hero__inner{ position:relative; }
 .lp-eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; }
-.lp-h1{ font-size:clamp(40px,6vw,76px); font-weight:800; letter-spacing:-.035em; line-height:1.0; margin:0 auto 22px; max-width:16ch; }
+.lp-h1{ font-size:clamp(40px,6vw,76px); font-weight:800; letter-spacing:-.035em; line-height:1.1; margin:0 auto 22px; max-width:16ch; }
 .lp-h1__line{ display:block; }
-.lp-h1__line--gold{ background:linear-gradient(110deg,#f3e6b8,var(--gold)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.lp-h1__line--gold{ background:linear-gradient(110deg,#f3e6b8,var(--gold)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; padding-bottom:.16em; }
 .lp-hero__sub{ font-size:clamp(16px,1.6vw,19px); line-height:1.7; color:rgba(244,241,232,.82); max-width:60ch; margin:0 auto 26px; }
 .lp-punch{ font-family:'Outfit',sans-serif; font-size:clamp(18px,2vw,22px); font-weight:600; color:#fff; max-width:32ch; margin:0 auto 34px; line-height:1.35; }
 .lp-hero__ctas{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
@@ -337,7 +337,7 @@ const CSS = `
 /* Founders */
 .lp-founders{ display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:48px; }
 .lp-founder{ display:flex; gap:20px; align-items:center; background:#fff; border:1px solid var(--line); border-radius:18px; padding:22px; }
-.lp-founder__photo{ width:120px; height:120px; border-radius:14px; object-fit:cover; flex-shrink:0; background:var(--soft); }
+.lp-founder__photo{ width:120px; height:120px; border-radius:14px; object-fit:cover; object-position:center 18%; flex-shrink:0; background:var(--soft); }
 .lp-founder__photo--ph{ display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,var(--em),var(--em2)); }
 .lp-founder__photo--ph span{ font-family:'Outfit',sans-serif; font-weight:700; font-size:34px; color:var(--gold); }
 .lp-founder__name{ font-family:'Outfit',sans-serif; font-size:21px; font-weight:600; margin:0; }
