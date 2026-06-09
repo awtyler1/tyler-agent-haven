@@ -147,11 +147,11 @@ export default function SetPasswordPage() {
       if (profile?.onboarding_status === 'CONTRACTING_REQUIRED') {
         window.location.href = '/contracting';
       } else {
-        window.location.href = '/';
+        window.location.href = '/hub';
       }
     } catch (err) {
       console.error('Error during redirect:', err);
-      window.location.href = '/';
+      window.location.href = '/hub';
     }
   };
 

@@ -217,7 +217,7 @@ export function useAuth() {
       return '/admin';
     }
 
-    return '/';
+    return '/hub';
   };
 
   const canAccessRoute = (route: string): boolean => {

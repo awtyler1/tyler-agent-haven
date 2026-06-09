@@ -87,7 +87,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: '',
     items: [
-      { label: 'Dashboard', path: '/', icon: Icons.Home },
+      { label: 'Dashboard', path: '/hub', icon: Icons.Home },
       { label: 'Start Here', path: '/start-here', icon: Icons.Compass },
       { label: 'Contracting', path: '/contracting-hub', icon: Icons.Pen },
       { label: 'Training', path: '/training', icon: Icons.Graduation },

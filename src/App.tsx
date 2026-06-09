@@ -24,7 +24,8 @@ const PageLoader = () => (
 // Critical paths (Auth, Index) are loaded eagerly for fast initial render.
 // ============================================================================
 
-// Eager load: Critical path pages (auth flow)
+// Eager load: Public landing + critical path pages (auth flow)
+import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import SetPasswordPage from "./pages/auth/SetPasswordPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
@@ -134,6 +135,7 @@ const App = () => (
             {/* ================================ */}
             {/* Public — no shell               */}
             {/* ================================ */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/auth/set-password" element={<SetPasswordPage />} />
             <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
@@ -149,7 +151,7 @@ const App = () => (
             {/* Agent shell                     */}
             {/* ================================ */}
             <Route element={<ProtectedRoute><AgentShell /></ProtectedRoute>}>
-              <Route index element={<Index />} />
+              <Route path="hub" element={<Index />} />
               <Route path="contracting-hub" element={<ContractingHubPage />} />
               <Route path="carrier-portals" element={<CarrierPortalsPage />} />
               <Route path="carrier-resources" element={<CarrierResourcesPage />} />
