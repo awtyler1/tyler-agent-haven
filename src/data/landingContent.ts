@@ -90,7 +90,7 @@ export const founders: Founder[] = [
     name: "Austin Tyler",
     credential: "MBA",
     title: "Co-Founder",
-    photo: "/images/founders/austin-tyler.jpg",
+    photo: "/images/founders/atyler-headshot.jpg",
     initials: "AT",
     blurb: "Grew a book and built agencies the hard way — so the advice you get is current and earned, not theoretical.",
   },
