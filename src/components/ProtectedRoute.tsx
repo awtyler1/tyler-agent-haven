@@ -69,22 +69,22 @@ export function ProtectedRoute({
 
   // Block admin routes for dual-role users in agent view mode
   if (isAdminRouteBlockedByViewMode) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/hub" replace />;
   }
 
   // Check super admin access
   if (requireSuperAdmin && !isSuperAdmin()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/hub" replace />;
   }
 
   // Check admin access
   if (requireAdmin && !isAdmin()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/hub" replace />;
   }
 
   // Check agent access
   if (requireAgent && !isAgent()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/hub" replace />;
   }
 
   // Special case: agents who need contracting should be redirected
@@ -94,7 +94,7 @@ export function ProtectedRoute({
 
   // Special case: agents on allowContractingOnly routes must need contracting
   if (allowContractingOnly && (!isAgent() || !isContractingRequired)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/hub" replace />;
   }
 
   return <>{children}</>;
