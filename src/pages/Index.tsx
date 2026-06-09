@@ -1,5 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  hubEvents,
+  hubUpdates,
+  hubContacts,
+  type EventType,
+} from '@/data/hubContent';
 
 // ── Helpers ─────────────────────────────────────────────────
 function getGreeting(): string {
@@ -13,57 +19,77 @@ function fadeUp(delay: string): React.CSSProperties {
   return { opacity: 0, animation: `fadeUp 0.5s var(--ease) forwards ${delay}` };
 }
 
-// ── Quick action data ───────────────────────────────────────
-const quickActions = [
-  {
-    title: 'Contracting Hub',
-    description: 'View carrier status and certifications',
-    path: '/contracting-hub',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-        <path d="M14 2v6h6" />
-        <path d="M16 13H8" />
-        <path d="M16 17H8" />
-        <path d="M10 9H8" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Training',
-    description: 'Access learning paths and resources',
-    path: '/training',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-        <path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Carrier Resources',
-    description: 'Contacts, documents, and portal links',
-    path: '/carrier-resources',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        <path d="M12 8v4" />
-        <path d="M12 16h.01" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Compliance',
-    description: 'Rules, guidelines, and required forms',
-    path: '/compliance',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-dark)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <path d="M9 12l2 2 4-4" />
-      </svg>
-    ),
-  },
+function formatEventDate(iso: string): { month: string; day: string } {
+  const d = new Date(iso + 'T00:00:00');
+  return {
+    month: d.toLocaleDateString('en-US', { month: 'short' }),
+    day: d.toLocaleDateString('en-US', { day: 'numeric' }),
+  };
+}
+
+function formatUpdateDate(iso: string): string {
+  return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+const EVENT_STYLES: Record<EventType, { color: string; label: string }> = {
+  training: { color: 'var(--blue)', label: 'Training' },
+  deadline: { color: 'var(--red)', label: 'Deadline' },
+  enrollment: { color: 'var(--gold)', label: 'Enrollment' },
+  meeting: { color: 'var(--green)', label: 'Meeting' },
+  event: { color: 'var(--text-muted)', label: 'Event' },
+};
+
+// Quick links into the rest of the hub
+const quickLinks = [
+  { label: 'Contracting', path: '/contracting-hub' },
+  { label: 'Training', path: '/training' },
+  { label: 'Carriers', path: '/carrier-resources' },
+  { label: 'Forms', path: '/forms-library' },
+  { label: 'Compliance', path: '/compliance' },
+  { label: 'Tools', path: '/agent-tools' },
 ] as const;
+
+// ── Shared card styles ──────────────────────────────────────
+const cardStyle: React.CSSProperties = {
+  background: 'var(--bg-card)',
+  borderRadius: 12,
+  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+  overflow: 'hidden',
+};
+const cardHeaderStyle: React.CSSProperties = {
+  padding: '14px 18px',
+  borderBottom: '1px solid var(--bg-muted)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+};
+const cardTitleStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-sans)',
+  fontSize: 14,
+  fontWeight: 600,
+  color: 'var(--text-primary)',
+};
+const cardActionStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-sans)',
+  fontSize: 12,
+  fontWeight: 500,
+  color: 'var(--blue)',
+  background: 'transparent',
+  border: 'none',
+  cursor: 'pointer',
+  padding: 0,
+};
+const emptyStyle: React.CSSProperties = {
+  padding: '24px 18px',
+  fontFamily: 'var(--font-sans)',
+  fontSize: 13,
+  color: 'var(--text-muted)',
+  textAlign: 'center',
+};
 
 // ── Dashboard ───────────────────────────────────────────────
 export default function Index() {
@@ -71,9 +97,22 @@ export default function Index() {
   const navigate = useNavigate();
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Agent';
-  const dateStr = new Date().toLocaleDateString('en-US', {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
+  const todayKey = now.toISOString().slice(0, 10);
+
+  // Upcoming events (future-dated, soonest first)
+  const upcoming = [...hubEvents]
+    .filter((e) => e.date >= todayKey)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 5);
+
+  // Latest updates (newest first)
+  const updates = [...hubUpdates]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 4);
 
   // AEP countdown
   const AEP_START_MONTH = 10;
@@ -82,7 +121,6 @@ export default function Index() {
   const AEP_END_DAY = 7;
   const AEP_PRESEASON_DAYS = 30;
 
-  const now = new Date();
   const currentYear = now.getFullYear();
   const aepStart = new Date(currentYear, AEP_START_MONTH - 1, AEP_START_DAY);
   const aepEnd = new Date(currentYear, AEP_END_MONTH - 1, AEP_END_DAY);
@@ -103,135 +141,37 @@ export default function Index() {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
-        background: 'radial-gradient(ellipse 50% 50% at 50% 48%, var(--bg-warm-glow) 0%, var(--bg) 70%)',
+        background: 'radial-gradient(ellipse 60% 50% at 50% 0%, var(--bg-warm-glow) 0%, var(--bg) 60%)',
       }}
     >
       {/* ── Header ── */}
       <div
         style={{
           padding: '20px 32px 0',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          gap: 16,
+          flexWrap: 'wrap',
           ...fadeUp('0s'),
         }}
       >
-        <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)' }}>
-          {dateStr}
-        </div>
-        <div
-          style={{
-            fontFamily: 'var(--font-serif)', fontSize: 25, fontWeight: 400,
-            color: 'var(--text-primary)', marginTop: 2,
-          }}
-        >
-          Good {getGreeting()},{' '}
-          <em style={{ color: 'var(--gold-dark)' }}>{firstName}</em>
-        </div>
-      </div>
-
-      {/* ── Center content ── */}
-      <div
-        style={{
-          flex: '1 1 auto', display: 'flex', flexDirection: 'column',
-          justifyContent: 'center', alignItems: 'center',
-          minHeight: 0, padding: '0 32px 20px',
-        }}
-      >
-        {/* Welcome line */}
-        <div
-          style={{
-            fontFamily: 'var(--font-sans)', fontSize: 15, color: 'var(--text-muted)',
-            marginBottom: 28,
-            ...fadeUp('0.1s'),
-          }}
-        >
-          Welcome to your TIG hub.
+        <div>
+          <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)' }}>
+            {dateStr}
+          </div>
+          <div
+            style={{
+              fontFamily: 'var(--font-serif)', fontSize: 25, fontWeight: 400,
+              color: 'var(--text-primary)', marginTop: 2,
+            }}
+          >
+            Good {getGreeting()},{' '}
+            <em style={{ color: 'var(--gold-dark)' }}>{firstName}</em>
+          </div>
         </div>
 
-        {/* Quick-action grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 14,
-            maxWidth: 560,
-            width: '100%',
-            ...fadeUp('0.2s'),
-          }}
-        >
-          {quickActions.map((action) => (
-            <button
-              key={action.path}
-              onClick={() => navigate(action.path)}
-              style={{
-                display: 'flex', alignItems: 'flex-start', gap: 14,
-                padding: '18px 20px',
-                background: 'var(--bg-card)',
-                borderRadius: 14,
-                border: 'none',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'transform var(--med) var(--ease), box-shadow var(--med) var(--ease)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
-              }}
-            >
-              <div style={{ flexShrink: 0, marginTop: 1 }}>
-                {action.icon}
-              </div>
-              <div>
-                <div style={{
-                  fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600,
-                  color: 'var(--text-primary)',
-                }}>
-                  {action.title}
-                </div>
-                <div style={{
-                  fontFamily: 'var(--font-sans)', fontSize: 12,
-                  color: 'var(--text-muted)', marginTop: 3,
-                }}>
-                  {action.description}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Onboarding progress placeholder */}
-        <div
-          style={{
-            maxWidth: 560, width: '100%', marginTop: 20,
-            padding: '16px 20px',
-            background: 'var(--bg-subtle)',
-            borderRadius: 12,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            ...fadeUp('0.35s'),
-          }}
-        >
-          <span style={{
-            fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600,
-            color: 'var(--text-muted)',
-          }}>
-            Onboarding Progress
-          </span>
-          <span style={{
-            fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 600,
-            color: '#fff',
-            background: 'var(--gold)',
-            padding: '3px 10px',
-            borderRadius: 20,
-            letterSpacing: '0.03em',
-          }}>
-            Coming Soon
-          </span>
-        </div>
-
-        {/* AEP countdown */}
+        {/* AEP countdown pill */}
         {aepPhase !== 'off' && (
           <div
             role="status"
@@ -243,24 +183,22 @@ export default function Index() {
                   : 'Last day of Annual Enrollment Period'
             }
             style={{
-              maxWidth: 560, width: '100%',
-              marginTop: 20,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              padding: '7px 14px', borderRadius: 20,
+              background: 'var(--bg-card)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
               fontFamily: 'var(--font-sans)', fontSize: 12.5,
-              ...fadeUp('0.45s'),
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
             {aepPhase === 'pre' ? (
               <span style={{ fontWeight: 500, color: 'var(--text-muted)' }}>
                 AEP opens in{' '}
-                <span style={{ fontWeight: 700, color: 'var(--gold-dark)' }}>{daysUntilAep}</span>
-                {' '}days
+                <span style={{ fontWeight: 700, color: 'var(--gold-dark)' }}>{daysUntilAep}</span> days
               </span>
             ) : daysLeftInAep <= 0 ? (
               <span style={{ fontWeight: 600, color: 'var(--red)' }}>Last day of AEP</span>
@@ -271,12 +209,229 @@ export default function Index() {
                   color: daysLeftInAep > 10 ? 'var(--gold-dark)' : daysLeftInAep >= 4 ? 'var(--amber)' : 'var(--red)',
                 }}>
                   {daysLeftInAep}
-                </span>
-                {' '}{daysLeftInAep === 1 ? 'day' : 'days'} left in AEP
+                </span>{' '}
+                {daysLeftInAep === 1 ? 'day' : 'days'} left in AEP
               </span>
             )}
           </div>
         )}
+      </div>
+
+      {/* ── Hub grid ── */}
+      <div
+        style={{
+          padding: '22px 32px 32px',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) 300px',
+          gap: 20,
+          alignItems: 'start',
+        }}
+      >
+        {/* ── Main column ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
+          {/* Latest Updates */}
+          <section style={{ ...cardStyle, ...fadeUp('0.1s') }}>
+            <div style={cardHeaderStyle}>
+              <span style={cardTitleStyle}>Latest Updates</span>
+              <button style={cardActionStyle} onClick={() => navigate('/industry-updates')}>
+                View all
+              </button>
+            </div>
+            {updates.length === 0 ? (
+              <div style={emptyStyle}>No updates right now.</div>
+            ) : (
+              <div>
+                {updates.map((u, i) => (
+                  <article
+                    key={u.id}
+                    onClick={() => u.url && window.open(u.url, '_blank', 'noopener,noreferrer')}
+                    style={{
+                      padding: '14px 18px',
+                      borderBottom: i < updates.length - 1 ? '1px solid var(--bg-muted)' : 'none',
+                      cursor: u.url ? 'pointer' : 'default',
+                      transition: 'background var(--fast) var(--ease)',
+                    }}
+                    onMouseEnter={(e) => { if (u.url) e.currentTarget.style.background = 'var(--bg-subtle)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
+                      <span style={{
+                        fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 600,
+                        textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gold-dark)',
+                      }}>
+                        {u.category}
+                      </span>
+                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)' }}>
+                        {formatUpdateDate(u.date)}
+                      </span>
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600,
+                      color: 'var(--text-primary)', marginBottom: 3,
+                    }}>
+                      {u.title}
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-muted)',
+                      lineHeight: 1.45,
+                    }}>
+                      {u.excerpt}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Upcoming */}
+          <section style={{ ...cardStyle, ...fadeUp('0.2s') }}>
+            <div style={cardHeaderStyle}>
+              <span style={cardTitleStyle}>Upcoming</span>
+            </div>
+            {upcoming.length === 0 ? (
+              <div style={emptyStyle}>No upcoming events.</div>
+            ) : (
+              <div>
+                {upcoming.map((ev, i) => {
+                  const { month, day } = formatEventDate(ev.date);
+                  const style = EVENT_STYLES[ev.type];
+                  return (
+                    <div
+                      key={ev.id}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 14,
+                        padding: '12px 18px',
+                        borderBottom: i < upcoming.length - 1 ? '1px solid var(--bg-muted)' : 'none',
+                      }}
+                    >
+                      {/* Date block */}
+                      <div style={{
+                        flexShrink: 0, width: 44, textAlign: 'center',
+                        background: 'var(--bg-subtle)', borderRadius: 8, padding: '6px 0',
+                      }}>
+                        <div style={{
+                          fontFamily: 'var(--font-sans)', fontSize: 9, fontWeight: 600,
+                          textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)',
+                        }}>
+                          {month}
+                        </div>
+                        <div style={{
+                          fontFamily: 'var(--font-sans)', fontSize: 17, fontWeight: 700,
+                          color: 'var(--text-primary)', lineHeight: 1.1,
+                        }}>
+                          {day}
+                        </div>
+                      </div>
+                      {/* Details */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontFamily: 'var(--font-sans)', fontSize: 13.5, fontWeight: 600,
+                          color: 'var(--text-primary)',
+                        }}>
+                          {ev.title}
+                        </div>
+                        <div style={{
+                          fontFamily: 'var(--font-sans)', fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2,
+                          display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+                        }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                            <span style={{ width: 7, height: 7, borderRadius: '50%', background: style.color, flexShrink: 0 }} />
+                            {style.label}
+                          </span>
+                          {ev.time && <span>· {ev.time}</span>}
+                          {ev.location && <span>· {ev.location}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* ── Side column ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Quick links */}
+          <section style={{ ...cardStyle, ...fadeUp('0.15s') }}>
+            <div style={cardHeaderStyle}>
+              <span style={cardTitleStyle}>Quick Links</span>
+            </div>
+            <div style={{ padding: '6px 0' }}>
+              {quickLinks.map((link) => (
+                <button
+                  key={link.path}
+                  onClick={() => navigate(link.path)}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    width: '100%', padding: '9px 18px', border: 'none', background: 'transparent',
+                    cursor: 'pointer', textAlign: 'left',
+                    fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500,
+                    color: 'var(--text-primary)', transition: 'background var(--fast) var(--ease)',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {link.label}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Your TIG Team */}
+          <section style={{ ...cardStyle, ...fadeUp('0.25s') }}>
+            <div style={cardHeaderStyle}>
+              <span style={cardTitleStyle}>Your TIG Team</span>
+            </div>
+            {hubContacts.length === 0 ? (
+              <div style={emptyStyle}>Contacts coming soon.</div>
+            ) : (
+              <div>
+                {hubContacts.map((c, i) => (
+                  <div
+                    key={c.id}
+                    style={{
+                      padding: '12px 18px',
+                      borderBottom: i < hubContacts.length - 1 ? '1px solid var(--bg-muted)' : 'none',
+                    }}
+                  >
+                    <div style={{
+                      fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)',
+                    }}>
+                      {c.name}
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-sans)', fontSize: 11.5, color: 'var(--text-muted)', marginTop: 1,
+                    }}>
+                      {c.role}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 6 }}>
+                      {c.email && (
+                        <a
+                          href={`mailto:${c.email}`}
+                          style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--blue)', textDecoration: 'none' }}
+                        >
+                          {c.email}
+                        </a>
+                      )}
+                      {c.phone && (
+                        <a
+                          href={`tel:${c.phone.replace(/[^0-9+]/g, '')}`}
+                          style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none' }}
+                        >
+                          {c.phone}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );
