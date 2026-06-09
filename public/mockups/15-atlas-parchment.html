@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ATLAS — Parchment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  /* PARCHMENT — warm cream page + warm charcoal console (on-brand) */
+  :root{--bg:#F6F1E7;--bg2:#EFE8D9;--ink:#211e18;--muted:#6f685b;--line:#e2d9c8;--gold:#9C7A1F;--gold-soft:#C9A84C;--green:#5b7d44;--cpanel:#26241f;--cline:rgba(255,255,255,.08);--ctxt:#ece6d8;--cmuted:#a59d8c;--mono:'IBM Plex Mono',monospace}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Space Grotesk',sans-serif}.mono{font-family:var(--mono)}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:18px;right:18px;z-index:99;background:#fff;border:1px solid var(--line);border-radius:30px;padding:8px 16px;font-size:12.5px;font-weight:600;color:var(--muted);box-shadow:0 8px 30px rgba(60,50,30,.1)}.tag b{color:var(--gold)}
+
+  .top{display:flex;align-items:center;gap:22px;height:70px;border-bottom:1px solid var(--line)}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;letter-spacing:.02em}
+  .mk{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e7cf86,var(--gold));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk'}
+  .top .live{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--green);display:flex;align-items:center;gap:7px}
+  .top .live .d{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s infinite}@keyframes blink{50%{opacity:.35}}
+  .top .li{font-family:var(--mono);font-size:13px;color:var(--muted);margin-left:22px}.top .li:hover{color:var(--ink)}
+
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding:64px 0 44px}
+  .kicker{font-family:var(--mono);font-size:12.5px;color:var(--gold);letter-spacing:.04em;margin-bottom:20px}
+  h1{font-family:'Space Grotesk';font-size:clamp(40px,5vw,66px);font-weight:700;line-height:1.02;letter-spacing:-.03em;margin-bottom:22px}
+  h1 .em{color:var(--gold)}
+  .sub{font-size:17px;color:var(--muted);line-height:1.6;max-width:46ch;margin-bottom:24px}
+  .humanrow{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+  .ava{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#caa97e,#8a6f54);flex-shrink:0}
+  .humanrow .q{font-size:14px}.humanrow .q b{font-weight:600}.humanrow .by{color:var(--muted)}
+  .cta{display:flex;gap:12px}
+  .btn{font-family:var(--mono);font-size:13.5px;font-weight:600;padding:13px 22px;border-radius:9px;border:1px solid var(--line);cursor:pointer;transition:.18s;color:var(--ink);background:#fff}
+  .btn-gold{background:linear-gradient(135deg,#e7cf86,var(--gold));color:#fff;border-color:transparent}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(156,122,31,.28)}
+  .btn-ghost:hover{border-color:#cdbfa6}
+
+  .console{background:linear-gradient(180deg,#2a2820,#211f1a);border:1px solid var(--cline);border-radius:16px;overflow:hidden;box-shadow:0 34px 66px rgba(60,50,30,.22)}
+  .ctabs{display:flex;gap:2px;padding:12px 14px;border-bottom:1px solid var(--cline);font-family:var(--mono);font-size:12.5px}
+  .ctab{padding:7px 13px;border-radius:7px;color:var(--cmuted);cursor:pointer}.ctab.on{background:rgba(201,168,76,.16);color:var(--gold-soft)}
+  .crow{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px;padding:13px 18px;font-family:var(--mono);font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .crow:last-child{border-bottom:none}
+  .crow .c1{color:var(--ctxt)}.crow .c2{color:var(--cmuted)}
+  .up{color:#7fb05e}.tagpill{font-size:11px;color:var(--gold-soft);border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:2px 9px}
+  .ticker{border-top:1px solid var(--cline);background:#1c1a15;overflow:hidden;white-space:nowrap}
+  .ticker .run{display:inline-block;padding:10px 0;font-family:var(--mono);font-size:12.5px;color:var(--cmuted);animation:scroll 26s linear infinite}
+  .ticker .run span{margin:0 26px}.ticker .g{color:var(--gold-soft)}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  .bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:150px;gap:14px;padding:50px 0 90px}
+  .b{border:1px solid var(--line);border-radius:16px;padding:22px;background:#fffdf8;transition:.2s;position:relative;overflow:hidden}
+  .b:hover{border-color:rgba(156,122,31,.45);transform:translateY(-3px);box-shadow:0 16px 36px rgba(60,50,30,.08)}
+  .b .bk{font-family:var(--mono);font-size:11.5px;color:var(--gold);letter-spacing:.05em}
+  .b h3{font-family:'Space Grotesk';font-size:18px;font-weight:600;margin:10px 0 6px}
+  .b p{font-size:13.5px;color:var(--muted);line-height:1.55}
+  .b.big{grid-column:span 2;grid-row:span 2;display:flex;flex-direction:column;background:var(--bg2)}
+  .b.wide{grid-column:span 2}
+  .b .big-num{font-family:'Space Grotesk';font-size:54px;font-weight:700;color:var(--gold);letter-spacing:-.03em;margin-top:auto}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:30px}.bento{grid-template-columns:repeat(2,1fr)}.b.big{grid-column:span 2}.top .li{display:none}}
+  @media(max-width:560px){.bento{grid-template-columns:1fr}.b,.b.big,.b.wide{grid-column:span 1;grid-row:auto}}
+</style>
+</head>
+<body>
+  <div class="tag">ATLAS · <b>Parchment</b></div>
+  <div class="wrap">
+    <div class="top">
+      <div class="logo"><span class="mk">T</span> Tyler Insurance Group</div>
+      <span class="li">Why</span><span class="li">Platform</span><span class="li">Carriers</span>
+      <span class="live"><span class="d"></span> SYSTEM LIVE</span>
+      <span class="li">Agent Login →</span>
+    </div>
+    <div class="hero">
+      <div>
+        <div class="kicker">// TYLER INSURANCE GROUP — INDEPENDENT MEDICARE FMO</div>
+        <h1 class="disp">The FMO built for <span class="em">where Medicare is going.</span></h1>
+        <p class="sub">Carrier access, certifications, quoting, comp intelligence, and CRM — one connected system, updating in real time, so you always know your next move.</p>
+        <div class="humanrow"><span class="ava"></span><span class="q"><b>“They treat my book like it's their own.”</b> <span class="by">— Dee, TIG agent · 8 yrs</span></span></div>
+        <div class="cta"><a class="btn btn-gold">Become a TIG Agent</a><a class="btn btn-ghost">Explore the platform</a></div>
+      </div>
+      <div class="console">
+        <div class="ctabs"><span class="ctab on">Carriers</span><span class="ctab">Certs</span><span class="ctab">Comp</span><span class="ctab">Market</span></div>
+        <div>
+          <div class="crow"><span class="c1">UnitedHealthcare</span><span class="c2">Appointed</span><span class="tagpill">MA · PDP</span></div>
+          <div class="crow"><span class="c1">Humana</span><span class="c2">Appointed</span><span class="tagpill">MA · DSNP</span></div>
+          <div class="crow"><span class="c1">Aetna</span><span class="c2">2027 cert</span><span class="up">▲ open</span></div>
+          <div class="crow"><span class="c1">Cigna</span><span class="c2">Appointed</span><span class="tagpill">PDP</span></div>
+          <div class="crow"><span class="c1">Wellcare</span><span class="c2">2027 cert</span><span class="up">▲ open</span></div>
+        </div>
+        <div class="ticker"><span class="run"><span><span class="g">●</span> 2027 certs opening — Aetna, Wellcare</span><span><span class="g">●</span> AHIP 2027 live</span><span><span class="g">●</span> New comp grid: Humana MA</span><span><span class="g">●</span> CMS final rule posted</span><span><span class="g">●</span> 2027 certs opening — Aetna, Wellcare</span><span><span class="g">●</span> AHIP 2027 live</span><span><span class="g">●</span> New comp grid: Humana MA</span><span><span class="g">●</span> CMS final rule posted</span></span></div>
+      </div>
+    </div>
+    <div class="bento">
+      <div class="b big"><span class="bk">01 / CARRIER DESK</span><h3 class="disp">60+ carriers, one desk.</h3><p>Direct contracts, appointment status, and broker support — live, never a spreadsheet.</p><div class="big-num">60+</div></div>
+      <div class="b"><span class="bk">02 / CERTS</span><h3 class="disp">Cert tracker</h3><p>Know the moment each carrier opens — right after AHIP.</p></div>
+      <div class="b"><span class="bk">03 / QUOTE</span><h3 class="disp">Quote & enroll</h3><p>SunFire + Connecture, built in.</p></div>
+      <div class="b wide"><span class="bk">04 / COMP INTELLIGENCE</span><h3 class="disp">See your comp before you write.</h3><p>Street-level grids across every carrier, side by side.</p></div>
+      <div class="b"><span class="bk">05 / LEARN</span><h3 class="disp">Learning center</h3><p>Medicare 101 → mature-book growth.</p></div>
+    </div>
+  </div>
+</body>
+</html>

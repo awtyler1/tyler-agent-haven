@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Concept — Onyx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  :root{ --bg:#0c0c0f; --bg2:#111114; --line:rgba(255,255,255,.09); --txt:#ECEAF2; --muted:#8e8a9a; --gold:#D4B65E; --gold2:#C9A84C; }
+  body{ font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--txt); -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:1160px; margin:0 auto; padding:0 28px; }
+  a{ text-decoration:none; color:inherit; }
+  .disp{ font-family:'Space Grotesk',sans-serif; }
+
+  .tag{ position:fixed; bottom:18px; right:18px; z-index:99; background:#16161b; border:1px solid var(--line); border-radius:30px; padding:8px 16px; font-size:12.5px; font-weight:600; color:var(--muted); }
+  .tag b{ color:var(--gold); }
+
+  /* subtle grid bg on hero */
+  .grid-bg{ position:absolute; inset:0; background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px); background-size:54px 54px; mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000 30%,transparent 75%); opacity:.5; }
+
+  nav{ position:sticky; top:0; z-index:50; background:rgba(12,12,15,.7); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+  nav .wrap{ display:flex; align-items:center; gap:30px; height:70px; }
+  .brand{ display:flex; align-items:center; gap:11px; font-weight:600; }
+  .mark{ width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#e7cf86,var(--gold2));display:flex;align-items:center;justify-content:center;color:#16151a;font-weight:800; }
+  nav .links{ display:flex; gap:26px; margin-left:8px; flex:1; }
+  nav .links a{ font-size:14px; color:var(--muted); }
+  nav .links a:hover{ color:var(--txt); }
+  .btn{ display:inline-flex;align-items:center;justify-content:center; font-weight:600; font-size:14px; padding:11px 20px; border-radius:10px; border:1px solid transparent; cursor:pointer; transition:.18s; }
+  .btn-ghost{ color:var(--txt); border-color:var(--line); background:rgba(255,255,255,.03); }
+  .btn-ghost:hover{ border-color:rgba(255,255,255,.3); }
+  .btn-gold{ color:#16151a; background:linear-gradient(135deg,#e7cf86,var(--gold2)); font-weight:700; }
+  .btn-gold:hover{ transform:translateY(-1px); box-shadow:0 10px 30px rgba(201,168,76,.3); }
+  .nav-cta{ display:flex; gap:10px; }
+
+  header.hero{ position:relative; overflow:hidden; padding:140px 0 110px; text-align:center; }
+  .glow{ position:absolute; top:-160px; left:50%; transform:translateX(-50%); width:1000px; height:620px; background:radial-gradient(circle,rgba(212,182,94,.22),transparent 60%); filter:blur(30px); pointer-events:none; }
+  .pill{ position:relative; display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--muted); border:1px solid var(--line); background:rgba(255,255,255,.03); padding:7px 14px; border-radius:30px; margin-bottom:26px; }
+  .dot{ width:7px;height:7px;border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); }
+  h1{ position:relative; font-size:clamp(42px,7vw,82px); font-weight:700; letter-spacing:-.04em; line-height:1; max-width:15ch; margin:0 auto 24px; }
+  .grad{ background:linear-gradient(120deg,#f4e6b0,var(--gold)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .sub{ position:relative; font-size:clamp(16px,1.6vw,19px); color:var(--muted); max-width:600px; margin:0 auto 36px; line-height:1.6; }
+  .hero-cta{ position:relative; display:flex; gap:14px; justify-content:center; }
+  .btn-lg{ padding:15px 28px; font-size:15.5px; }
+  .stats{ position:relative; display:flex; justify-content:center; gap:60px; margin-top:70px; flex-wrap:wrap; }
+  .stat .v{ font-family:'Space Grotesk',sans-serif; font-size:34px; font-weight:700; background:linear-gradient(120deg,#f4e6b0,var(--gold)); -webkit-background-clip:text;background-clip:text; -webkit-text-fill-color:transparent; }
+  .stat .l{ font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#6c687a; margin-top:6px; }
+
+  .carriers{ padding:42px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--bg2); }
+  .carriers .lbl{ text-align:center; font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:#6c687a; margin-bottom:20px; }
+  .crow{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+  .cpill{ font-size:14px; font-weight:500; color:#b6b2c2; padding:9px 16px; border:1px solid var(--line); border-radius:30px; }
+
+  section.why{ padding:100px 0; }
+  .ey{ font-size:12px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
+  h2{ font-family:'Space Grotesk',sans-serif; font-size:clamp(28px,3.6vw,42px); font-weight:600; letter-spacing:-.02em; max-width:640px; margin-bottom:48px; }
+  .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .card{ border:1px solid var(--line); border-radius:16px; padding:26px; background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); transition:.22s; }
+  .card:hover{ border-color:rgba(212,182,94,.4); transform:translateY(-4px); }
+  .ic{ width:42px;height:42px;border-radius:11px; background:rgba(212,182,94,.13); color:var(--gold); display:flex;align-items:center;justify-content:center; margin-bottom:16px; font-size:19px; }
+  .card h3{ font-size:16.5px; font-weight:600; margin-bottom:8px; }
+  .card p{ font-size:14px; color:var(--muted); line-height:1.6; }
+
+  footer{ border-top:1px solid var(--line); padding:34px 0; color:#6c687a; font-size:13.5px; }
+  footer .wrap{ display:flex; justify-content:space-between; }
+  @media(max-width:860px){ .grid{grid-template-columns:repeat(2,1fr);} nav .links{display:none;} }
+  @media(max-width:520px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+  <div class="tag">Concept <b>Onyx</b> · dark tech-forward</div>
+  <nav><div class="wrap">
+    <a class="brand"><span class="mark">T</span> Tyler Insurance Group</a>
+    <div class="links"><a>Why TIG</a><a>Tools</a><a>Resources</a><a>Training</a><a>About</a></div>
+    <div class="nav-cta"><a class="btn btn-ghost">Agent Login</a><a class="btn btn-gold">Become an Agent</a></div>
+  </div></nav>
+
+  <header class="hero">
+    <div class="grid-bg"></div><div class="glow"></div>
+    <div class="wrap">
+      <span class="pill"><span class="dot"></span> Tyler Insurance Group · Independent Medicare FMO</span>
+      <h1 class="disp">The FMO built for <span class="grad">where Medicare is going.</span></h1>
+      <p class="sub">Top carrier access, the best quoting and CRM tech, real training, and a contracting team that actually picks up the phone.</p>
+      <div class="hero-cta"><a class="btn btn-gold btn-lg">Become a TIG Agent</a><a class="btn btn-ghost btn-lg">Agent Login</a></div>
+      <div class="stats">
+        <div class="stat"><div class="v">60+</div><div class="l">Carriers</div></div>
+        <div class="stat"><div class="v">1,200+</div><div class="l">Agents</div></div>
+        <div class="stat"><div class="v">15+</div><div class="l">Years</div></div>
+        <div class="stat"><div class="v">AHIP</div><div class="l">Ready</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="carriers"><div class="wrap">
+    <div class="lbl">Direct contracts with the carriers that matter</div>
+    <div class="crow">
+      <span class="cpill">UnitedHealthcare</span><span class="cpill">Humana</span><span class="cpill">Aetna</span><span class="cpill">Cigna</span><span class="cpill">Anthem</span><span class="cpill">Wellcare</span><span class="cpill">Devoted Health</span><span class="cpill">Mutual of Omaha</span>
+    </div>
+  </div></div>
+
+  <section class="why"><div class="wrap">
+    <div class="ey">Why TIG</div>
+    <h2>Built to help you write more, keep more, and grow faster.</h2>
+    <div class="grid">
+      <div class="card"><div class="ic">🛡️</div><h3>Carrier access & comp</h3><p>Direct, competitive contracts with the carriers your clients want — and fast releases.</p></div>
+      <div class="card"><div class="ic">⚡</div><h3>Tools & technology</h3><p>Quote and enroll in minutes with SunFire and Connecture, plus a modern CRM at no cost.</p></div>
+      <div class="card"><div class="ic">🎓</div><h3>Training & support</h3><p>Medicare 101 to growing a mature book, plus market updates and CRM walkthroughs.</p></div>
+      <div class="card"><div class="ic">✍️</div><h3>Contracting made easy</h3><p>A streamlined flow and a dedicated team that gets you appointed without the runaround.</p></div>
+    </div>
+  </div></section>
+
+  <footer><div class="wrap"><span>© Tyler Insurance Group</span><span>Powered by Tyler Insurance Group</span></div></footer>
+</body>
+</html>

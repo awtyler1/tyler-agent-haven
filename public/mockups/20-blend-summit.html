@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Blend — Summit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--soft:#eae4d6;--line:#dfd8c8;--muted:#5f6b62;--ink:#16201b;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Space Grotesk',sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:18px;right:18px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:8px 16px;font-size:12.5px;font-weight:600}.tag b{color:var(--gold)}
+  .photo{background:linear-gradient(135deg,#26473b,#0c2a20);border-radius:16px;position:relative;overflow:hidden}.photo .cap{position:absolute;left:15px;bottom:13px;color:#fff;font-size:12.5px;z-index:2}.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(6,20,15,.6))}
+
+  .hero{background:linear-gradient(165deg,var(--em),var(--em2));color:var(--bone);position:relative;overflow:hidden}
+  .hero .glow{position:absolute;top:-140px;left:50%;transform:translateX(-50%);width:1100px;height:640px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  /* faint elevation ridge */
+  .hero .ridge{position:absolute;left:0;right:0;bottom:0;height:160px;background:
+    linear-gradient(120deg,transparent 0 38%,rgba(255,255,255,.04) 38% 39%,transparent 39%),
+    linear-gradient(60deg,transparent 0 58%,rgba(255,255,255,.04) 58% 59%,transparent 59%);pointer-events:none}
+  .top{display:flex;align-items:center;gap:24px;height:76px;position:relative}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'Space Grotesk';font-weight:700}
+  .mk{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-family:'Space Grotesk';font-weight:800;display:flex;align-items:center;justify-content:center}
+  .links{display:flex;gap:24px;margin-left:8px;flex:1}.links a{font-size:14px;color:rgba(244,241,232,.72)}.links a:hover{color:#fff}
+  .btn{font-weight:600;font-size:14px;padding:11px 20px;border-radius:9px;cursor:pointer;transition:.18s;border:1px solid transparent}
+  .btn-ghost{color:var(--bone);border-color:rgba(244,241,232,.25)}.btn-ghost:hover{border-color:var(--bone)}
+  .btn-gold{background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em)}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(168,128,31,.35)}
+  .nav-cta{display:flex;gap:10px}
+  .hin{position:relative;padding:74px 0 90px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+  h1{font-family:'Space Grotesk';font-size:clamp(42px,5.6vw,76px);font-weight:700;line-height:1.0;letter-spacing:-.035em;margin-bottom:22px}
+  h1 .em{color:transparent;background:linear-gradient(110deg,#f3e6b8,var(--gold));-webkit-background-clip:text;background-clip:text}
+  .sub{font-size:18px;color:rgba(244,241,232,.8);line-height:1.65;max-width:48ch;margin-bottom:24px}
+  .punch{font-family:'Space Grotesk';font-size:20px;font-weight:600;margin-bottom:28px;color:#fff;line-height:1.3}.punch .u{color:var(--gold)}
+  .cta{display:flex;gap:12px}
+  .hphoto{height:480px}
+
+  .view{padding:84px 0}
+  .kick{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
+  h2{font-family:'Space Grotesk';font-size:clamp(28px,3.8vw,46px);font-weight:700;letter-spacing:-.03em;max-width:18ch;margin-bottom:46px;line-height:1.03}
+  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:2px solid var(--em)}
+  .v{padding:28px 26px 30px;border-right:1px solid var(--line)}.v:last-child{border-right:none}
+  .v .n{font-family:'Space Grotesk';font-size:13px;font-weight:700;color:var(--gold2);margin-bottom:12px}
+  .v h3{font-family:'Space Grotesk';font-size:20px;font-weight:600;margin-bottom:9px}
+  .v p{font-size:14.5px;color:var(--muted);line-height:1.6}
+
+  .founders{background:var(--soft);padding:80px 0}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .f{display:flex;gap:18px;align-items:center;background:var(--bone);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .f .photo{width:96px;height:96px;flex-shrink:0;border-radius:12px}
+  .f h3{font-family:'Space Grotesk';font-size:19px;font-weight:600}
+  .f .rl{font-size:13px;color:var(--gold2);margin:2px 0 8px}
+  .f p{font-size:13.5px;color:var(--muted);line-height:1.55}
+  footer{padding:32px 0;display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+  @media(max-width:860px){.hin{grid-template-columns:1fr;gap:30px}.hphoto{height:360px}.vgrid{grid-template-columns:1fr}.v{border-right:none;border-bottom:1px solid var(--line)}.frow{grid-template-columns:1fr}.links{display:none}}
+</style>
+</head>
+<body>
+  <div class="tag">BLEND · <b>Summit</b></div>
+  <section class="hero">
+    <div class="glow"></div><div class="ridge"></div>
+    <div class="wrap">
+      <div class="top">
+        <div class="brand"><span class="mk">T</span> Tyler Insurance Group</div>
+        <div class="links"><a>Why TIG</a><a>The climb</a><a>Tools</a><a>Training</a><a>Founders</a></div>
+        <div class="nav-cta"><a class="btn btn-ghost">Agent Login</a><a class="btn btn-gold">Become an Agent</a></div>
+      </div>
+      <div class="hin">
+        <div>
+          <div class="eyebrow">Independent Medicare FMO · Nationwide</div>
+          <h1 class="disp">The FMO built for <span class="em">where Medicare is going.</span></h1>
+          <p class="sub">We've built the books, made the climb, and learned where this business is headed. Now we hand you the map — and get in the mud right beside you.</p>
+          <div class="punch disp">We'd rather <span class="u">climb with you</span> than wave from the top.</div>
+          <div class="cta"><a class="btn btn-gold">Become a TIG Agent</a><a class="btn btn-ghost">See the climb</a></div>
+        </div>
+        <div class="photo hphoto"><span class="cap">Austin &amp; Andrew — co-founders</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view"><div class="wrap">
+    <div class="kick">The view from here</div>
+    <h2 class="disp">We've already made the climb. Now we make it with you.</h2>
+    <div class="vgrid">
+      <div class="v"><div class="n">01</div><h3 class="disp">We've done it.</h3><p>Top contracts, a national book, ten years in. The guidance you get is earned in the field — never theory.</p></div>
+      <div class="v"><div class="n">02</div><h3 class="disp">We share the map.</h3><p>The exact tools, training, and playbook that got us here — handed to you, not gatekept.</p></div>
+      <div class="v"><div class="n">03</div><h3 class="disp">We climb with you.</h3><p>Founders in the mud beside you as you grow your book — and build your own agency.</p></div>
+    </div>
+  </div></section>
+
+  <section class="founders"><div class="wrap">
+    <div class="kick">The operators behind it</div>
+    <h2 class="disp" style="margin-bottom:36px">Operators who've built it — and still build alongside you.</h2>
+    <div class="frow">
+      <div class="f"><div class="photo"></div><div><h3 class="disp">Austin</h3><div class="rl">Co-Founder</div><p>Built and scaled in the field — so the advice you get is current and proven.</p></div></div>
+      <div class="f"><div class="photo" style="background:linear-gradient(135deg,#2c5042,#0c2a20)"></div><div><h3 class="disp">Andrew Horn</h3><div class="rl">Co-Founder</div><p>Relentless about the tools and training that turn good agents into top producers.</p></div></div>
+    </div>
+  </div></section>
+
+  <div class="wrap"><footer><span>© Tyler Insurance Group · Nationwide</span><span>Powered by Tyler Insurance Group</span></footer></div>
+</body>
+</html>
