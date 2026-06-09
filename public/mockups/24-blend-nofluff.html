@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Blend — No Fluff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--soft:#eae4d6;--line:#dfd8c8;--muted:#5f6b62;--ink:#16201b;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Space Grotesk',sans-serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:18px;right:18px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:8px 16px;font-size:12.5px;font-weight:600}.tag b{color:var(--gold)}
+  .photo{background:linear-gradient(135deg,#26473b,#0c2a20);border-radius:16px;position:relative;overflow:hidden}.photo .cap{position:absolute;left:15px;bottom:13px;color:#fff;font-size:12.5px;z-index:2}.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(6,20,15,.55))}
+
+  .hero{background:linear-gradient(165deg,var(--em),var(--em2));color:var(--bone);position:relative;overflow:hidden}
+  .hero .glow{position:absolute;top:-120px;right:-100px;width:760px;height:620px;background:radial-gradient(circle,rgba(201,168,76,.15),transparent 60%)}
+  .top{display:flex;align-items:center;gap:24px;height:76px;position:relative}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'Space Grotesk';font-weight:700}
+  .mk{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-family:'Space Grotesk';font-weight:800;display:flex;align-items:center;justify-content:center}
+  .links{display:flex;gap:24px;margin-left:8px;flex:1}.links a{font-size:14px;color:rgba(244,241,232,.72)}.links a:hover{color:#fff}
+  .btn{font-weight:600;font-size:14px;padding:11px 20px;border-radius:9px;cursor:pointer;transition:.18s;border:1px solid transparent}
+  .btn-ghost{color:var(--bone);border-color:rgba(244,241,232,.25)}.btn-ghost:hover{border-color:var(--bone)}
+  .btn-gold{background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em)}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(168,128,31,.35)}
+  .nav-cta{display:flex;gap:10px}
+  .hin{position:relative;padding:70px 0 84px}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:24px}
+  h1{font-family:'Space Grotesk';font-size:clamp(44px,6.2vw,84px);font-weight:700;line-height:.98;letter-spacing:-.04em;margin-bottom:24px;max-width:16ch}
+  h1 .em{color:transparent;background:linear-gradient(110deg,#f3e6b8,var(--gold));-webkit-background-clip:text;background-clip:text}
+  .sub{font-size:18px;color:rgba(244,241,232,.82);line-height:1.65;max-width:52ch;margin-bottom:30px}
+  .cta{display:flex;gap:12px}
+
+  /* founder note */
+  .note{padding:88px 0}
+  .ncard{display:grid;grid-template-columns:300px 1fr;gap:40px;align-items:center}
+  .ncard .photo{height:360px}
+  .kick{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);margin-bottom:18px}
+  .ntext p{font-family:'Space Grotesk';font-size:clamp(20px,2.3vw,28px);font-weight:500;line-height:1.4;letter-spacing:-.01em;margin-bottom:18px}
+  .ntext p .u{color:var(--gold2)}
+  .ntext .sig{font-size:14px;color:var(--muted);margin-top:8px}
+
+  /* lessons */
+  .lessons{background:var(--em);color:var(--bone);padding:84px 0}
+  .lessons .kick{color:var(--gold)}
+  .lessons h2{font-family:'Space Grotesk';font-size:clamp(28px,3.6vw,44px);font-weight:700;letter-spacing:-.03em;color:#fff;margin-bottom:42px;max-width:18ch}
+  .lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid rgba(255,255,255,.15)}
+  .l{padding:26px 0;border-bottom:1px solid rgba(255,255,255,.12);padding-right:30px}
+  .l:nth-child(odd){border-right:1px solid rgba(255,255,255,.12);padding-right:40px}
+  .l:nth-child(even){padding-left:40px}
+  .l .claim{font-family:'Space Grotesk';font-size:20px;font-weight:600;margin-bottom:8px}
+  .l p{font-size:14.5px;color:rgba(244,241,232,.72);line-height:1.6}
+
+  footer{padding:32px 0;display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+  @media(max-width:860px){.ncard{grid-template-columns:1fr;gap:24px}.ncard .photo{height:300px}.lgrid{grid-template-columns:1fr}.l:nth-child(odd){border-right:none;padding-right:0}.l:nth-child(even){padding-left:0}.links{display:none}}
+</style>
+</head>
+<body>
+  <div class="tag">BLEND · <b>No Fluff</b></div>
+  <section class="hero">
+    <div class="glow"></div>
+    <div class="wrap">
+      <div class="top">
+        <div class="brand"><span class="mk">T</span> Tyler Insurance Group</div>
+        <div class="links"><a>Why TIG</a><a>Our story</a><a>What we learned</a><a>Founders</a></div>
+        <div class="nav-cta"><a class="btn btn-ghost">Agent Login</a><a class="btn btn-gold">Become an Agent</a></div>
+      </div>
+      <div class="hin">
+        <div class="eyebrow">Tyler Insurance Group · Independent Medicare FMO · Nationwide</div>
+        <h1 class="disp">We grew our books the hard way. <span class="em">You don't have to.</span></h1>
+        <p class="sub">Ten years. A lot of business written. Plenty of mistakes we'd rather forget. We built the FMO we wish we'd had — and we'll hand you everything we learned. The good and the expensive.</p>
+        <div class="cta"><a class="btn btn-gold">Become a TIG Agent</a><a class="btn btn-ghost">Read our story</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="note"><div class="wrap">
+    <div class="ncard">
+      <div class="photo"><span class="cap">Austin &amp; Andrew — co-founders</span></div>
+      <div class="ntext">
+        <div class="kick">Straight from the founders</div>
+        <p>“We didn't start TIG because the world needed another FMO. We started it because the ones above us took their cut and <span class="u">left us to figure it out alone.</span>”</p>
+        <p>“So we did — for ten years. Now we just give you the shortcut we never got.”</p>
+        <div class="sig">— Austin &amp; Andrew, Co-Founders</div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="lessons"><div class="wrap">
+    <div class="kick">What we figured out</div>
+    <h2 class="disp">The stuff nobody told us. So we'll tell you.</h2>
+    <div class="lgrid">
+      <div class="l"><div class="claim disp">Big FMO ≠ more money.</div><p>Scale doesn't write your business. Support does. We'd rather know your name than pad a headcount.</p></div>
+      <div class="l"><div class="claim disp">The override is a trap.</div><p>Chase the biggest cut and you'll get the least help. The agents who win optimize for growth, not basis points.</p></div>
+      <div class="l"><div class="claim disp">Tools beat motivation.</div><p>You don't need a pep talk. You need quoting, a CRM, and a system that makes the next call easier.</p></div>
+      <div class="l"><div class="claim disp">A book is built on retention.</div><p>Anyone can write a plan. We'll show you how to keep the client — and the renewals that come with them.</p></div>
+    </div>
+  </div></section>
+
+  <div class="wrap"><footer><span>© Tyler Insurance Group · Nationwide</span><span>Powered by Tyler Insurance Group</span></footer></div>
+</body>
+</html>

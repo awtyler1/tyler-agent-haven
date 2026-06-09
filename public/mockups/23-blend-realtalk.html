@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Blend — Real Talk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--soft:#eae4d6;--line:#dfd8c8;--muted:#5f6b62;--ink:#16201b;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Space Grotesk',sans-serif}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:18px;right:18px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:8px 16px;font-size:12.5px;font-weight:600}.tag b{color:var(--gold)}
+  .photo{background:linear-gradient(135deg,#26473b,#0c2a20);border-radius:16px;position:relative;overflow:hidden}.photo .cap{position:absolute;left:15px;bottom:13px;color:#fff;font-size:12.5px;z-index:2}.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(6,20,15,.55))}
+
+  .hero{background:linear-gradient(165deg,var(--em),var(--em2));color:var(--bone);position:relative;overflow:hidden}
+  .hero .glow{position:absolute;top:-120px;left:50%;transform:translateX(-50%);width:980px;height:560px;background:radial-gradient(circle,rgba(201,168,76,.13),transparent 60%)}
+  .top{display:flex;align-items:center;gap:24px;height:76px;position:relative}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'Space Grotesk';font-weight:700}
+  .mk{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-family:'Space Grotesk';font-weight:800;display:flex;align-items:center;justify-content:center}
+  .links{display:flex;gap:24px;margin-left:8px;flex:1}.links a{font-size:14px;color:rgba(244,241,232,.72)}.links a:hover{color:#fff}
+  .btn{font-weight:600;font-size:14px;padding:11px 20px;border-radius:9px;cursor:pointer;transition:.18s;border:1px solid transparent}
+  .btn-ghost{color:var(--bone);border-color:rgba(244,241,232,.25)}.btn-ghost:hover{border-color:var(--bone)}
+  .btn-gold{background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em)}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(168,128,31,.35)}
+  .nav-cta{display:flex;gap:10px}
+  .hin{position:relative;padding:64px 0 78px;display:grid;grid-template-columns:1.1fr .9fr;gap:46px;align-items:center}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+  h1{font-family:'Space Grotesk';font-size:clamp(40px,5.4vw,72px);font-weight:700;line-height:1.0;letter-spacing:-.035em;margin-bottom:24px}
+  h1 .em{color:transparent;background:linear-gradient(110deg,#f3e6b8,var(--gold));-webkit-background-clip:text;background-clip:text}
+  .sub{font-size:18px;color:rgba(244,241,232,.82);line-height:1.7;max-width:48ch;margin-bottom:24px}
+  .punch{font-family:'Space Grotesk';font-size:19px;font-weight:600;margin-bottom:28px;color:#fff;line-height:1.35}.punch .u{color:var(--gold)}
+  .cta{display:flex;gap:12px}
+  .hphoto{height:460px}
+
+  /* honest version */
+  .truth{padding:88px 0}
+  .kick{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
+  h2{font-family:'Space Grotesk';font-size:clamp(28px,3.8vw,46px);font-weight:700;letter-spacing:-.03em;margin-bottom:42px;line-height:1.03}
+  .tlist{border-top:2px solid var(--em)}
+  .t{padding:26px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr 1.1fr;gap:30px;align-items:baseline}
+  .t .claim{font-family:'Space Grotesk';font-size:clamp(20px,2.2vw,27px);font-weight:600;letter-spacing:-.015em}
+  .t .clar{font-size:15.5px;color:var(--muted);line-height:1.6}
+
+  /* what you get */
+  .get{background:var(--em);color:var(--bone);padding:84px 0}
+  .get .kick{color:var(--gold)}
+  .get h2{color:#fff;max-width:18ch}
+  .glist{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid rgba(255,255,255,.15);margin-top:8px}
+  .g{display:flex;gap:14px;padding:20px 4px;border-bottom:1px solid rgba(255,255,255,.12);align-items:flex-start}
+  .g .ck{color:var(--gold);font-weight:700;font-size:18px;line-height:1.3}
+  .g .tx b{font-family:'Space Grotesk';font-weight:600;font-size:16.5px;display:block;margin-bottom:3px}
+  .g .tx span{font-size:14px;color:rgba(244,241,232,.7);line-height:1.55}
+
+  .founders{background:var(--soft);padding:78px 0}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .f{display:flex;gap:18px;align-items:center;background:var(--bone);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .f .photo{width:90px;height:90px;flex-shrink:0;border-radius:12px}
+  .f h3{font-family:'Space Grotesk';font-size:19px;font-weight:600}.f .rl{font-size:13px;color:var(--gold2);margin:2px 0 8px}.f p{font-size:13.5px;color:var(--muted);line-height:1.55}
+  footer{padding:32px 0;display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+  @media(max-width:860px){.hin{grid-template-columns:1fr;gap:28px}.hphoto{height:340px}.t{grid-template-columns:1fr;gap:8px}.glist{grid-template-columns:1fr}.frow{grid-template-columns:1fr}.links{display:none}}
+</style>
+</head>
+<body>
+  <div class="tag">BLEND · <b>Real Talk</b></div>
+  <section class="hero">
+    <div class="glow"></div>
+    <div class="wrap">
+      <div class="top">
+        <div class="brand"><span class="mk">T</span> Tyler Insurance Group</div>
+        <div class="links"><a>Why TIG</a><a>The honest version</a><a>What you get</a><a>Founders</a></div>
+        <div class="nav-cta"><a class="btn btn-ghost">Agent Login</a><a class="btn btn-gold">Become an Agent</a></div>
+      </div>
+      <div class="hin">
+        <div>
+          <div class="eyebrow">Independent Medicare FMO · Nationwide</div>
+          <h1 class="disp">The FMO built for <span class="em">where Medicare is going.</span></h1>
+          <p class="sub">Real talk: most FMOs hand you a login, pitch you on overrides, and disappear. We've spent 10 years growing our own books — winning, failing, and paying for the lessons. We'll just give them to you.</p>
+          <div class="punch disp">We don't win by signing more agents. We win when <span class="u">you write more business.</span></div>
+          <div class="cta"><a class="btn btn-gold">Become a TIG Agent</a><a class="btn btn-ghost">See what you get</a></div>
+        </div>
+        <div class="photo hphoto"><span class="cap">Austin &amp; Andrew — co-founders</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="truth"><div class="wrap">
+    <div class="kick">The honest version</div>
+    <h2 class="disp">No pitch. Here's the truth.</h2>
+    <div class="tlist">
+      <div class="t"><div class="claim disp">We're not the biggest FMO.</div><div class="clar">Doesn't matter. "Big" never made anybody a single sale. We'd rather make 400 agents better than recruit 4,000 and forget their names.</div></div>
+      <div class="t"><div class="claim disp">We've made expensive mistakes.</div><div class="clar">We've hired wrong, lost deals, and burned cash figuring this out. You get the lessons. We already paid the tuition.</div></div>
+      <div class="t"><div class="claim disp">Overrides won't grow your book.</div><div class="clar">Skills, reps, and the right tools will. So that's all we obsess over. If you came for the biggest override, we're probably not your shop.</div></div>
+      <div class="t"><div class="claim disp">If you don't grow, we don't grow.</div><div class="clar">That's not a slogan — it's the math. So we're not going to waste your time, and we're not going to waste ours.</div></div>
+    </div>
+  </div></section>
+
+  <section class="get"><div class="wrap">
+    <div class="kick">What you actually get</div>
+    <h2 class="disp">Everything we use. Handed to you.</h2>
+    <div class="glist">
+      <div class="g"><span class="ck">✓</span><span class="tx"><b>Top contracts, nearly every carrier</b><span>Competitive comp and fast releases — table stakes, done right.</span></span></div>
+      <div class="g"><span class="ck">✓</span><span class="tx"><b>SunFire + Connecture + a real CRM</b><span>The quoting, enrollment, and tracking stack — at no cost to you.</span></span></div>
+      <div class="g"><span class="ck">✓</span><span class="tx"><b>Coaching past "pass AHIP"</b><span>How to actually grow and keep a book — and build your own team.</span></span></div>
+      <div class="g"><span class="ck">✓</span><span class="tx"><b>The playbooks that grew our books</b><span>What worked, what didn't, and what to copy — no gatekeeping.</span></span></div>
+      <div class="g"><span class="ck">✓</span><span class="tx"><b>Our actual cell numbers</b><span>You call a founder, not a ticket queue. Same-day, every time.</span></span></div>
+      <div class="g"><span class="ck">✓</span><span class="tx"><b>Operators who still sell</b><span>Advice from people doing it this season — not a memo from 2015.</span></span></div>
+    </div>
+  </div></section>
+
+  <section class="founders"><div class="wrap">
+    <div class="kick">Who you'll be working with</div>
+    <h2 class="disp" style="margin-bottom:34px">Still selling. Still building. Still happy to tell you what didn't work.</h2>
+    <div class="frow">
+      <div class="f"><div class="photo"></div><div><h3 class="disp">Austin</h3><div class="rl">Co-Founder</div><p>Grew a book and built agencies the hard way — so the advice is current and earned.</p></div></div>
+      <div class="f"><div class="photo" style="background:linear-gradient(135deg,#2c5042,#0c2a20)"></div><div><h3 class="disp">Andrew Horn</h3><div class="rl">Co-Founder</div><p>Obsessed with the tools and training that actually move an agent's numbers.</p></div></div>
+    </div>
+  </div></section>
+
+  <div class="wrap"><footer><span>© Tyler Insurance Group · Nationwide</span><span>Powered by Tyler Insurance Group</span></footer></div>
+</body>
+</html>
