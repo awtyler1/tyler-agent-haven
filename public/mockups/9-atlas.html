@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ATLAS — The Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#08090c;--panel:#0f1116;--panel2:#13151c;--line:rgba(255,255,255,.08);--txt:#E7E9EE;--muted:#8b909e;--gold:#D4B65E;--green:#56c08d;--mono:'IBM Plex Mono',monospace}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--txt);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Space Grotesk',sans-serif}.mono{font-family:var(--mono)}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+  a{text-decoration:none;color:inherit}
+  /* studio pitch ribbon */
+  .pitch{background:linear-gradient(90deg,#0f1116,#13151c);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--muted);padding:9px 28px;display:flex;gap:14px;align-items:center}
+  .pitch b{color:var(--gold);letter-spacing:.08em}
+  .pitch .ph{color:#cfd2db}
+  /* topbar */
+  .top{display:flex;align-items:center;gap:22px;height:62px}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;letter-spacing:.04em}
+  .mk{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#f0dd9e,#b89234);color:#0b0b0d;font-weight:800;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk'}
+  .top .live{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--green);display:flex;align-items:center;gap:7px}
+  .top .live .d{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2s infinite}
+  @keyframes blink{50%{opacity:.4}}
+  .top .li{font-family:var(--mono);font-size:13px;color:var(--muted);margin-left:22px}.top .li:hover{color:#fff}
+
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding:54px 0 40px}
+  .kicker{font-family:var(--mono);font-size:12.5px;color:var(--gold);letter-spacing:.06em;margin-bottom:20px}
+  h1{font-family:'Space Grotesk';font-size:clamp(40px,5vw,66px);font-weight:700;line-height:1.02;letter-spacing:-.03em;margin-bottom:22px}
+  h1 .em{color:var(--gold)}
+  .sub{font-size:17px;color:var(--muted);line-height:1.6;max-width:46ch;margin-bottom:28px}
+  .cta{display:flex;gap:12px}
+  .btn{font-family:var(--mono);font-size:13.5px;font-weight:600;padding:13px 22px;border-radius:9px;border:1px solid var(--line);cursor:pointer;transition:.18s}
+  .btn-gold{background:linear-gradient(135deg,#f0dd9e,#b89234);color:#0b0b0d;border-color:transparent}.btn-gold:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(212,182,94,.3)}
+  .btn-ghost{background:rgba(255,255,255,.03);color:#fff}.btn-ghost:hover{border-color:rgba(255,255,255,.3)}
+
+  /* console */
+  .console{background:linear-gradient(180deg,var(--panel),#0c0e12);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+  .ctabs{display:flex;gap:2px;padding:12px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12.5px}
+  .ctab{padding:7px 13px;border-radius:7px;color:var(--muted);cursor:pointer}
+  .ctab.on{background:rgba(212,182,94,.14);color:var(--gold)}
+  .crows{padding:8px 0}
+  .crow{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px;padding:12px 18px;font-family:var(--mono);font-size:13px;border-bottom:1px solid rgba(255,255,255,.04)}
+  .crow:last-child{border-bottom:none}
+  .crow .c1{color:#dfe2e9}.crow .c2{color:var(--muted)}
+  .up{color:var(--green)}.tagpill{font-size:11px;color:var(--gold);border:1px solid rgba(212,182,94,.3);border-radius:20px;padding:2px 9px}
+  .ticker{border-top:1px solid var(--line);background:#0b0d11;overflow:hidden;white-space:nowrap}
+  .ticker .run{display:inline-block;padding:10px 0;font-family:var(--mono);font-size:12.5px;color:var(--muted);animation:scroll 26s linear infinite}
+  .ticker .run span{margin:0 26px}.ticker .g{color:var(--gold)}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* bento */
+  .bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:150px;gap:14px;padding:50px 0 90px}
+  .b{border:1px solid var(--line);border-radius:16px;padding:22px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));transition:.2s;position:relative;overflow:hidden}
+  .b:hover{border-color:rgba(212,182,94,.4);transform:translateY(-3px)}
+  .b .bk{font-family:var(--mono);font-size:11.5px;color:var(--gold);letter-spacing:.05em}
+  .b h3{font-family:'Space Grotesk';font-size:18px;font-weight:600;margin:10px 0 6px}
+  .b p{font-size:13.5px;color:var(--muted);line-height:1.55}
+  .b.big{grid-column:span 2;grid-row:span 2}
+  .b.wide{grid-column:span 2}
+  .b .big-num{font-family:'Space Grotesk';font-size:54px;font-weight:700;color:var(--gold);letter-spacing:-.03em;margin-top:auto}
+  .b.big{display:flex;flex-direction:column}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:30px}.bento{grid-template-columns:repeat(2,1fr)}.b.big{grid-column:span 2}.top .li{display:none}}
+  @media(max-width:560px){.bento{grid-template-columns:1fr}.b,.b.big,.b.wide{grid-column:span 1;grid-row:auto}}
+</style>
+</head>
+<body>
+  <div class="pitch"><b>ATLAS</b> <span>·</span> <span class="ph">Philosophy: “Medicare is data in motion. We make TIG the operating system the modern agent runs their business on — proof over promises.”</span></div>
+  <div class="wrap">
+    <div class="top">
+      <div class="logo"><span class="mk">T</span> Tyler Insurance Group</div>
+      <span class="li mono">Why</span><span class="li mono">Platform</span><span class="li mono">Carriers</span>
+      <span class="live"><span class="d"></span> SYSTEM LIVE</span>
+      <span class="li mono">Agent Login →</span>
+    </div>
+
+    <div class="hero">
+      <div>
+        <div class="kicker">// TYLER INSURANCE GROUP — INDEPENDENT MEDICARE FMO</div>
+        <h1 class="disp">The FMO built for <span class="em">where Medicare is going.</span></h1>
+        <p class="sub">Carrier access, certifications, quoting, comp intelligence, and CRM — one connected system, updating in real time, so you always know your next move.</p>
+        <div class="cta"><a class="btn btn-gold">Become a TIG Agent</a><a class="btn btn-ghost">Explore the platform</a></div>
+      </div>
+      <div class="console">
+        <div class="ctabs"><span class="ctab on">Carriers</span><span class="ctab">Certs</span><span class="ctab">Comp</span><span class="ctab">Market</span></div>
+        <div class="crows">
+          <div class="crow"><span class="c1">UnitedHealthcare</span><span class="c2">Appointed</span><span class="tagpill">MA · PDP</span></div>
+          <div class="crow"><span class="c1">Humana</span><span class="c2">Appointed</span><span class="tagpill">MA · DSNP</span></div>
+          <div class="crow"><span class="c1">Aetna</span><span class="c2">2027 cert</span><span class="up">▲ open</span></div>
+          <div class="crow"><span class="c1">Cigna</span><span class="c2">Appointed</span><span class="tagpill">PDP</span></div>
+          <div class="crow"><span class="c1">Wellcare</span><span class="c2">2027 cert</span><span class="up">▲ open</span></div>
+        </div>
+        <div class="ticker"><span class="run"><span><span class="g">●</span> 2027 certs opening — Aetna, Wellcare</span><span><span class="g">●</span> AHIP 2027 live</span><span><span class="g">●</span> New comp grid: Humana MA</span><span><span class="g">●</span> CMS final rule posted</span><span><span class="g">●</span> 2027 certs opening — Aetna, Wellcare</span><span><span class="g">●</span> AHIP 2027 live</span><span><span class="g">●</span> New comp grid: Humana MA</span><span><span class="g">●</span> CMS final rule posted</span></span></div>
+      </div>
+    </div>
+
+    <div class="bento">
+      <div class="b big"><span class="bk">01 / CARRIER DESK</span><h3 class="disp">60+ carriers, one desk.</h3><p>Direct contracts, appointment status, and broker support — live, never a spreadsheet.</p><div class="big-num">60+</div></div>
+      <div class="b"><span class="bk">02 / CERTS</span><h3 class="disp">Cert tracker</h3><p>Know the moment each carrier opens — right after AHIP.</p></div>
+      <div class="b"><span class="bk">03 / QUOTE</span><h3 class="disp">Quote & enroll</h3><p>SunFire + Connecture, built in.</p></div>
+      <div class="b wide"><span class="bk">04 / COMP INTELLIGENCE</span><h3 class="disp">See your comp before you write.</h3><p>Street-level grids across every carrier, side by side.</p></div>
+      <div class="b"><span class="bk">05 / LEARN</span><h3 class="disp">Learning center</h3><p>Medicare 101 → mature-book growth.</p></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FIELD — The Human Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--paper:#F5EFE6;--paper2:#EDE4D6;--ink:#241f1a;--muted:#6e6557;--line:#e0d6c6;--terra:#B5612F;--gold:#A87C2A}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .serif{font-family:'Fraunces',Georgia,serif}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 36px}
+  .pitch{font-size:12px;letter-spacing:.04em;color:var(--muted);padding:10px 36px;border-bottom:1px solid var(--line);display:flex;gap:12px}
+  .pitch b{color:var(--terra);letter-spacing:.1em;text-transform:uppercase}
+
+  .top{display:flex;align-items:center;gap:24px;padding:24px 0}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .nm{font-family:'Fraunces';font-size:19px;font-weight:600}
+  .mk{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#d99356,var(--terra));color:#fff;font-family:'Fraunces';font-weight:600;display:flex;align-items:center;justify-content:center}
+  .top .links{display:flex;gap:26px;margin-left:8px;flex:1}.links a{font-size:14px;color:var(--muted)}.links a:hover{color:var(--ink)}
+  .btn{font-weight:600;font-size:14px;padding:11px 20px;border-radius:999px;cursor:pointer;transition:.18s}
+  .btn-ghost{border:1px solid var(--ink);color:var(--ink)}.btn-ghost:hover{background:var(--ink);color:var(--paper)}
+  .btn-terra{background:var(--terra);color:#fff}.btn-terra:hover{background:#9b5026}
+  .nav-cta{display:flex;gap:10px}
+
+  /* photo placeholders */
+  .photo{position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#caa97e,#8a6f54);}
+  .photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(40,30,20,.55));mix-blend-mode:multiply}
+  .photo .cap{position:absolute;left:16px;bottom:14px;z-index:2;color:#fff;font-size:12.5px;font-weight:500;letter-spacing:.02em;opacity:.95}
+  .photo.p2{background:linear-gradient(135deg,#b98b8b,#6d4b4b)}
+  .photo.p3{background:linear-gradient(135deg,#9aa17e,#5b6347)}
+  .photo.p4{background:linear-gradient(135deg,#c7a26a,#7d5e34)}
+  .photo.p5{background:linear-gradient(135deg,#9d8fb0,#5a4f6e)}
+
+  /* hero collage */
+  .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:46px;align-items:center;padding:40px 0 80px}
+  .eyebrow{font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);margin-bottom:22px}
+  h1{font-family:'Fraunces';font-weight:500;font-size:clamp(44px,6vw,82px);line-height:1.0;letter-spacing:-.02em;margin-bottom:24px}
+  h1 em{font-style:italic;color:var(--terra)}
+  .sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:44ch;margin-bottom:30px}
+  .hero-cta{display:flex;gap:14px}
+  .collage{position:relative;height:520px}
+  .collage .photo{position:absolute}
+  .collage .a{width:64%;height:74%;top:0;right:0}
+  .collage .b{width:54%;height:52%;left:0;bottom:0;border:6px solid var(--paper)}
+  .collage .badge{position:absolute;left:8%;top:8%;z-index:3;background:var(--paper);border-radius:16px;padding:16px 18px;box-shadow:0 16px 40px rgba(40,30,20,.16)}
+  .collage .badge .v{font-family:'Fraunces';font-size:30px;font-weight:600;color:var(--terra)}
+  .collage .badge .l{font-size:12px;color:var(--muted);letter-spacing:.04em}
+
+  .quote-band{background:var(--ink);color:var(--paper);padding:80px 0}
+  .quote-band .q{font-family:'Fraunces';font-weight:500;font-size:clamp(26px,3.4vw,44px);line-height:1.3;max-width:20ch}
+  .quote-band .q em{font-style:italic;color:#e6b877}
+  .quote-band .by{margin-top:24px;color:rgba(245,239,230,.6);font-size:14px;letter-spacing:.04em}
+
+  /* faces */
+  .faces{padding:84px 0}
+  .faces .h{font-family:'Fraunces';font-size:clamp(26px,3.4vw,40px);font-weight:500;max-width:18ch;margin-bottom:8px}
+  .faces .hs{color:var(--muted);font-size:16px;margin-bottom:40px}
+  .fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .face .photo{height:240px;margin-bottom:14px}
+  .face .nm{font-family:'Fraunces';font-size:18px;font-weight:600}
+  .face .rl{font-size:13.5px;color:var(--muted);margin-top:2px}
+
+  /* story split */
+  .story{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;padding:40px 0 90px}
+  .story .photo{height:380px}
+  .story h2{font-family:'Fraunces';font-size:clamp(26px,3.2vw,38px);font-weight:500;margin-bottom:18px;line-height:1.15}
+  .story p{font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+  .story .stats{display:flex;gap:36px;margin-top:18px}
+  .story .v{font-family:'Fraunces';font-size:30px;font-weight:600;color:var(--terra)}.story .l{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted)}
+  @media(max-width:880px){.hero{grid-template-columns:1fr;gap:30px}.collage{height:420px}.fgrid{grid-template-columns:repeat(2,1fr)}.story{grid-template-columns:1fr;gap:24px}.links{display:none}}
+</style>
+</head>
+<body>
+  <div class="pitch"><b>Field</b> <span>Philosophy: “Medicare is deeply human. We lead with people — the agents and the families they serve — so Tyler Insurance Group feels like a movement you belong to, not a portal you log into.”</span></div>
+  <div class="wrap">
+    <div class="top">
+      <a class="brand"><span class="mk">T</span><span class="nm">Tyler Insurance Group</span></a>
+      <div class="links"><a>Why TIG</a><a>Our agents</a><a>Tools</a><a>Training</a><a>About</a></div>
+      <div class="nav-cta"><a class="btn btn-ghost">Agent Login</a><a class="btn btn-terra">Become an Agent</a></div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Tyler Insurance Group · Independent Medicare FMO</div>
+        <h1 class="serif">The FMO built for <em>where Medicare is going.</em></h1>
+        <p class="sub">Behind every plan is a person — and behind every agent is a team that has their back. Carrier access, real tools, true training, and people who pick up the phone.</p>
+        <div class="hero-cta"><a class="btn btn-terra">Become a TIG Agent</a><a class="btn btn-ghost">Meet our agents</a></div>
+      </div>
+      <div class="collage">
+        <div class="photo a"><span class="cap">A TIG agent at a kitchen table — Lexington, KY</span></div>
+        <div class="photo p2 b"><span class="cap">Margaret, 71 — newly enrolled</span></div>
+        <div class="badge"><div class="v">1,200+</div><div class="l">agents, one team</div></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="quote-band"><div class="wrap">
+    <div class="q serif">“They treat my book like it's <em>their own</em>. In this business, that's everything.”</div>
+    <div class="by">— Dee, TIG agent · 8 years</div>
+  </div></section>
+
+  <section class="faces"><div class="wrap">
+    <div class="h serif">The people make the difference.</div>
+    <div class="hs">Real agents. Real support. A team you'll actually know by name.</div>
+    <div class="fgrid">
+      <div class="face"><div class="photo p3"><span class="cap"></span></div><div class="nm serif">Head of Contracting</div><div class="rl">Gets you appointed, fast</div></div>
+      <div class="face"><div class="photo p4"><span class="cap"></span></div><div class="nm serif">Agent Support</div><div class="rl">Answers when you call</div></div>
+      <div class="face"><div class="photo p5"><span class="cap"></span></div><div class="nm serif">Training Lead</div><div class="rl">Medicare 101 → mastery</div></div>
+      <div class="face"><div class="photo p2"><span class="cap"></span></div><div class="nm serif">Commissions</div><div class="rl">Paid right, on time</div></div>
+    </div>
+  </div></section>
+
+  <section class="wrap"><div class="story">
+    <div class="photo p4" style="height:380px"><span class="cap">Carrier partners, contracted direct</span></div>
+    <div>
+      <h2 class="serif">When our agents grow, we grow. That's the whole model.</h2>
+      <p>Direct contracts with the carriers your clients want — UnitedHealthcare, Humana, Aetna, Cigna, Anthem, Wellcare and more — with competitive comp and fast releases.</p>
+      <p>Pair that with SunFire, Connecture, and a modern CRM, and you've got everything you need to build a book that lasts.</p>
+      <div class="stats">
+        <div><div class="v">60+</div><div class="l">Carriers</div></div>
+        <div><div class="v">15+</div><div class="l">Years</div></div>
+        <div><div class="v">AHIP</div><div class="l">Ready</div></div>
+      </div>
+    </div>
+  </div></section>
+
+  <div class="wrap"><footer><span>© Tyler Insurance Group</span><span>Powered by Tyler Insurance Group</span></footer></div>
+</body>
+</html>
