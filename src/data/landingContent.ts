@@ -18,7 +18,7 @@ export const tig = {
 export const navLinks = [
   { label: "Why TIG", href: "#honest" },
   { label: "What you get", href: "#get" },
-  { label: "Founders", href: "#founders" },
+  { label: "Our Team", href: "#founders" },
 ];
 
 export const hero = {
@@ -69,10 +69,10 @@ export const valueItems: { title: string; desc: string }[] = [
 export const founderNote = {
   // The part wrapped between | and | renders gold-emphasized.
   lines: [
-    "We didn't start TIG because the world needed another FMO. We started it because the ones above us took their cut and |left us to figure it out alone.|",
-    "So we did — for over a decade. Now we just give you the shortcut we never got.",
+    "We built this team for one reason: we grew our own books the hard way, and |most agents never get the help we wish we'd had.|",
+    "So we're sharing all of it — the playbooks, the tools, and the lessons that cost us. That's the whole point.",
   ],
-  sign: "— Austin & Andrew, Co-Founders",
+  sign: "— Austin & Andrew, Broker Development",
 };
 
 // ── Founders ──────────────────────────────────────────────────────────────────
@@ -89,14 +89,15 @@ export const founders: Founder[] = [
   {
     name: "Austin Tyler",
     credential: "MBA",
-    title: "Co-Founder",
+    title: "Broker Development",
     photo: "/images/founders/atyler-headshot.jpg",
     initials: "AT",
     blurb: "Grew a book and built agencies the hard way — so the advice you get is current and earned, not theoretical.",
   },
   {
     name: "Andrew Horn",
-    title: "Co-Founder",
+    credential: "MHA",
+    title: "Broker Development",
     photo: "/images/founders/andrew-horn.png",
     initials: "AH",
     blurb: "Obsessed with the tools and training that actually move an agent's numbers — and stay close to every agent he brings on.",
@@ -105,6 +106,6 @@ export const founders: Founder[] = [
 
 export const closingCta = {
   heading: "Come build with operators who'll actually pick up.",
-  sub: "Top contracts, the full toolkit, and founders in it with you. If that's the FMO you've been looking for, let's talk.",
+  sub: "Top contracts, the full toolkit, and us in it with you. If that's the team you've been looking for, let's talk.",
   primaryCta: { label: "Become a TIG Agent", href: "mailto:join@tylerinsurancegroup.com" },
 };
