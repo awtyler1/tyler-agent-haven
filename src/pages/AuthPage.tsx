@@ -5,7 +5,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
-import AuthLayout from '@/components/auth/AuthLayout';
 import { SHARED_AGENT_EMAIL } from '@/config/access';
 
 export default function AuthPage() {
@@ -24,7 +23,6 @@ export default function AuthPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       // Agents only type a password. We sign into the single shared account
       // whose email is fixed in config (never shown to the agent).
@@ -32,7 +30,6 @@ export default function AuthPage() {
         email: SHARED_AGENT_EMAIL,
         password,
       });
-
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Incorrect password. Please try again.');
@@ -42,7 +39,6 @@ export default function AuthPage() {
         setPassword('');
         return;
       }
-
       await logActivity(ActivityAction.LOGIN);
       toast.success('Welcome!');
     } catch (err) {
@@ -52,91 +48,101 @@ export default function AuthPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <AuthLayout>
-        <div style={{ padding: '48px 0', textAlign: 'center' }}>
-          <Loader2
-            className="animate-spin"
-            style={{ color: 'var(--gold)', width: 32, height: 32, margin: '0 auto' }}
-          />
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>Loading...</p>
-        </div>
-      </AuthLayout>
-    );
-  }
-
   return (
-    <AuthLayout>
-      {/* Title block */}
-      <div style={{ textAlign: 'center', padding: '28px 0 32px' }}>
-        <h1 style={{ fontFamily: "'Lora', serif", fontSize: 28, fontWeight: 600, color: 'var(--text-primary)' }}>
-          Welcome
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
-          Enter your access password to continue
-        </p>
-      </div>
+    <div className="tigauth">
+      <style>{CSS}</style>
+      <div className="tigauth__glow" aria-hidden="true" />
+      <div className="tigauth__card">
+        <a className="tigauth__brand" href="/">
+          <img src="/tyler-crest.png" alt="Tyler Insurance Group" className="tigauth__crest" />
+          <span className="tigauth__name">Tyler Insurance Group</span>
+        </a>
 
-      {/* Form area */}
-      <div style={{ padding: '0 36px 36px' }}>
-        <form onSubmit={handleLogin}>
-          {/* Password field */}
-          <div style={{ marginBottom: 24 }}>
-            <label htmlFor="access-password" className="auth-label">Access password</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                id="access-password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoFocus
-                autoComplete="current-password"
-                className="auth-input"
-                style={{ paddingRight: 42 }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                style={{
-                  position: 'absolute',
-                  right: 12,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--text-faint)',
-                  padding: 0,
-                  display: 'flex',
-                }}
-              >
-                {showPassword ? <EyeOff size={18} strokeWidth={1.7} /> : <Eye size={18} strokeWidth={1.7} />}
-              </button>
-            </div>
+        {loading ? (
+          <div className="tigauth__loading">
+            <Loader2 className="animate-spin" size={30} />
+            <p>Loading…</p>
           </div>
+        ) : (
+          <>
+            <h1 className="tigauth__title">Welcome back</h1>
+            <p className="tigauth__sub">Enter your access password to continue.</p>
 
-          {/* Enter button */}
-          <button type="submit" className="auth-btn-primary" disabled={isSubmitting || password.length === 0}>
-            {isSubmitting ? (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <Loader2 className="animate-spin" size={16} />
-                Entering...
-              </span>
-            ) : (
-              'Enter'
-            )}
-          </button>
-        </form>
+            <form onSubmit={handleLogin} className="tigauth__form">
+              <label htmlFor="access-password" className="tigauth__label">Access password</label>
+              <div className="tigauth__field">
+                <input
+                  id="access-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoFocus
+                  autoComplete="current-password"
+                  className="tigauth__input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="tigauth__toggle"
+                >
+                  {showPassword ? <EyeOff size={18} strokeWidth={1.7} /> : <Eye size={18} strokeWidth={1.7} />}
+                </button>
+              </div>
 
-        {/* Help text */}
-        <p style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--text-muted)', marginTop: 24, lineHeight: 1.6 }}>
-          Need the password? Contact your manager at Tyler Insurance Group.
-        </p>
+              <button type="submit" className="tigauth__btn" disabled={isSubmitting || password.length === 0}>
+                {isSubmitting ? (
+                  <span className="tigauth__btnrow"><Loader2 className="animate-spin" size={16} /> Entering…</span>
+                ) : (
+                  'Enter'
+                )}
+              </button>
+            </form>
+
+            <p className="tigauth__help">Need the password? Contact your manager at Tyler Insurance Group.</p>
+          </>
+        )}
       </div>
-    </AuthLayout>
+    </div>
   );
 }
+
+const CSS = `
+.tigauth{
+  --em:#0E3B2E; --em2:#0a2c22; --bone:#F4F1E8; --line:#dfd8c8; --muted:#5f6b62; --ink:#16201b; --gold:#C9A84C; --gold2:#A8801F;
+  position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; overflow:hidden;
+  background:linear-gradient(165deg,var(--em),var(--em2));
+  font-family:'Outfit','Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased;
+}
+.tigauth *{ box-sizing:border-box; }
+.tigauth__glow{ position:absolute; top:-160px; left:50%; transform:translateX(-50%); width:900px; height:560px;
+  background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); pointer-events:none; }
+.tigauth__card{ position:relative; width:100%; max-width:420px; background:var(--bone); border-radius:20px;
+  box-shadow:0 30px 70px rgba(6,20,15,.45); padding:40px 38px 34px; text-align:center; }
+.tigauth__brand{ display:inline-flex; flex-direction:column; align-items:center; gap:10px; text-decoration:none; margin-bottom:26px; }
+.tigauth__crest{ height:58px; width:auto; }
+.tigauth__name{ font-weight:700; font-size:14px; letter-spacing:.04em; text-transform:uppercase; color:var(--gold2); }
+.tigauth__title{ font-family:'Lora',Georgia,serif; font-size:28px; font-weight:600; color:var(--ink); margin:0 0 6px; }
+.tigauth__sub{ font-size:13.5px; color:var(--muted); margin:0 0 28px; }
+.tigauth__form{ text-align:left; }
+.tigauth__label{ display:block; font-size:12.5px; font-weight:600; color:var(--ink); margin-bottom:7px; }
+.tigauth__field{ position:relative; }
+.tigauth__input{ width:100%; font-family:inherit; font-size:14px; padding:12px 44px 12px 14px; border:1px solid var(--line);
+  border-radius:10px; background:#fff; color:var(--ink); outline:none; transition:border-color .15s, box-shadow .15s; }
+.tigauth__input::placeholder{ color:#b9b2a4; }
+.tigauth__input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,.15); }
+.tigauth__toggle{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none;
+  cursor:pointer; color:#9b9484; padding:0; display:flex; }
+.tigauth__toggle:hover{ color:var(--gold2); }
+.tigauth__btn{ width:100%; margin-top:20px; font-family:inherit; font-size:15px; font-weight:600; padding:13px 20px;
+  border:none; border-radius:10px; cursor:pointer; color:var(--em);
+  background:linear-gradient(135deg,#e7cf86,var(--gold2)); transition:transform .15s, box-shadow .15s, opacity .15s; }
+.tigauth__btn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 10px 24px rgba(168,128,31,.32); }
+.tigauth__btn:disabled{ opacity:.55; cursor:not-allowed; }
+.tigauth__btnrow{ display:inline-flex; align-items:center; gap:8px; }
+.tigauth__help{ font-size:12.5px; color:var(--muted); margin:24px 0 0; line-height:1.6; }
+.tigauth__loading{ padding:40px 0; color:var(--gold2); display:flex; flex-direction:column; align-items:center; gap:12px; }
+.tigauth__loading p{ font-size:13px; color:var(--muted); }
+`;
