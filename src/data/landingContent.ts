@@ -69,8 +69,8 @@ export const valueItems: { title: string; desc: string }[] = [
 export const founderNote = {
   // The part wrapped between | and | renders gold-emphasized.
   lines: [
-    "We built this team for one reason: we grew our own books the hard way, and |most agents never get the help we wish we'd had.|",
-    "So we're sharing all of it — the playbooks, the tools, and the lessons that cost us. That's the whole point.",
+    "We've put in the reps and learned most of this the hard way — and |we're still learning every day.|",
+    "Whatever we know, you'll know. We just hand it over — no gatekeeping.",
   ],
   sign: "— Austin & Andrew, Broker Development",
 };
