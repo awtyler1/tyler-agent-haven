@@ -1,168 +1,110 @@
 // ============================================================================
-// TIG LANDING PAGE CONTENT
+// TIG LANDING PAGE CONTENT  — "TIG Blend" (emerald, founder-led, real-talk voice)
 // ----------------------------------------------------------------------------
-// Everything editable on the public landing page lives here. Tweak the copy,
-// stats, links, and contacts below and redeploy — no component changes needed.
+// Everything editable on the public landing lives here. Edit copy + redeploy.
 //
-// Link convention used across the page:
-//   • starts with "http"  → external link (opens in new tab, shows ↗)
-//   • starts with "#"      → smooth-scroll to a section on this page
-//   • starts with "/"      → internal app route (e.g. the gated agent hub)
+// FOUNDER PHOTOS: drop the two headshots in /public/images/founders/ as
+//   austin-tyler.jpg  and  andrew-horn.jpg
+// Until then, the page shows clean initial placeholders automatically.
 // ============================================================================
 
 export const tig = {
   name: "Tyler Insurance Group",
   short: "TIG",
-  tagline: "Independent Medicare FMO",
-  // Where "Become a TIG Agent" inquiries should go:
+  tagline: "Independent Medicare FMO · Nationwide",
   recruitingEmail: "join@tylerinsurancegroup.com",
 };
 
-export const headContracting = {
-  name: "Head of Contracting",
-  email: "contracting@tylerinsurancegroup.com",
-  phone: "", // e.g. "(859) 555-0147" — leave blank to hide
-};
-
-// Top-nav anchor links (in-page sections)
 export const navLinks = [
-  { label: "Why TIG", href: "#why" },
-  { label: "Tools", href: "#tools" },
-  { label: "Resources", href: "#resources" },
-  { label: "Training", href: "#training" },
-  { label: "About", href: "#about" },
+  { label: "Why TIG", href: "#honest" },
+  { label: "What you get", href: "#get" },
+  { label: "Founders", href: "#founders" },
 ];
 
-// ── Hero ────────────────────────────────────────────────────────────────────
 export const hero = {
-  eyebrow: "Tyler Insurance Group · Independent Medicare FMO",
-  // Keep the headline punchy — it's the first thing a prospective agent reads.
+  eyebrow: "Tyler Insurance Group · Independent Medicare FMO · Nationwide",
   titleLines: ["The FMO built for", "where Medicare is going."],
-  subhead:
-    "Top carrier access, the best quoting and CRM tech, real training, and a contracting team that actually picks up the phone. Everything you need to grow your book — in one place.",
-  primaryCta: { label: "Become a TIG Agent", href: "#join" },
+  sub: "Real talk: most FMOs hand you a login, pitch you on overrides, and disappear. We've spent 10+ years growing our own books — winning, failing, and paying for the lessons. We'll just give them to you.",
+  // The line that defines the model. The part after | is gold-emphasized.
+  punch: "We don't win by signing more agents. | We win when you write more business.",
+  primaryCta: { label: "Become a TIG Agent", href: "mailto:join@tylerinsurancegroup.com" },
   secondaryCta: { label: "Agent Login", href: "/auth" },
 };
 
-// Trust stats under the hero — REPLACE with your real numbers.
-export const heroStats = [
-  { value: "60+", label: "Carriers" },
-  { value: "1,200+", label: "Agents" },
-  { value: "15+", label: "Years" },
-  { value: "AHIP", label: "Ready" },
-];
-
-// Carrier names shown in the trust strip (text only — no logos required).
-export const carriers = [
-  "UnitedHealthcare",
-  "Humana",
-  "Aetna",
-  "Cigna",
-  "Anthem",
-  "Wellcare",
-  "Devoted Health",
-  "Mutual of Omaha",
-];
-
-// ── Why TIG (value pillars) ───────────────────────────────────────────────────
-export const pillars: { icon: string; title: string; body: string }[] = [
+// ── The honest version (blunt truths) ────────────────────────────────────────
+export const truths: { claim: string; clarifier: string }[] = [
   {
-    icon: "shield",
-    title: "Top carrier access & comp",
-    body: "Direct, competitive contracts with the carriers your clients actually want — with street-level commissions and fast releases.",
+    claim: "We're not the biggest FMO.",
+    clarifier:
+      "Doesn't matter. “Big” never made anybody a single sale. We'd rather make our agents better than recruit thousands and forget their names.",
   },
   {
-    icon: "bolt",
-    title: "Tools & technology",
-    body: "Quote and enroll in minutes with SunFire and Connecture, and run your whole book from a modern CRM — all at no cost to you.",
+    claim: "We've made expensive mistakes.",
+    clarifier:
+      "We've hired wrong, lost deals, and burned cash figuring this out. You get the lessons. We already paid the tuition.",
   },
   {
-    icon: "cap",
-    title: "Training & support",
-    body: "From Medicare 101 to growing a mature book, plus market updates and CRM walkthroughs. Real people, real answers.",
+    claim: "Overrides won't grow your book.",
+    clarifier:
+      "Skills, reps, and the right tools will. So that's all we obsess over. If you came for the biggest override, we're probably not your shop.",
   },
   {
-    icon: "pen",
-    title: "Contracting made easy",
-    body: "A streamlined onboarding flow and a dedicated contracting team that gets you appointed without the runaround.",
+    claim: "If you don't grow, we don't grow.",
+    clarifier:
+      "That's not a slogan — it's the math. So we're not going to waste your time, and we're not going to waste ours.",
   },
 ];
 
-// ── Tools we offer ────────────────────────────────────────────────────────────
-export const tools: { name: string; desc: string; href: string }[] = [
-  {
-    name: "SunFire",
-    desc: "Real-time MA/PDP quoting, provider & drug lookups, and e-signature enrollment.",
-    href: "https://www.sunfirematrix.com/",
-  },
-  {
-    name: "Connecture (DRX)",
-    desc: "Side-by-side plan comparison and compliant online enrollment.",
-    href: "https://www.connecture.com/",
-  },
-  {
-    name: "BOSS CRM",
-    desc: "Track leads, manage clients, and stay on top of every renewal.",
-    href: "https://fmo.kizen.com/login",
-  },
+// ── What you actually get ─────────────────────────────────────────────────────
+export const valueItems: { title: string; desc: string }[] = [
+  { title: "Top contracts, nearly every carrier", desc: "Competitive comp and fast releases — table stakes, done right." },
+  { title: "SunFire + Connecture + a real CRM", desc: "The quoting, enrollment, and tracking stack — at no cost to you." },
+  { title: "Coaching past “pass AHIP”", desc: "How to actually grow and keep a book — and build your own team." },
+  { title: "The playbooks that grew our books", desc: "What worked, what didn't, and what to copy — no gatekeeping." },
+  { title: "Our actual cell numbers", desc: "You call a founder, not a ticket queue. Same-day, every time." },
+  { title: "Operators who still sell", desc: "Advice from people doing it this season — not a memo from 2015." },
 ];
 
-// ── Agent resources ───────────────────────────────────────────────────────────
-export const resources: { icon: string; title: string; desc: string; href: string }[] = [
-  {
-    icon: "phone",
-    title: "Carrier contact list",
-    desc: "Direct lines, broker support, and portal links for every carrier.",
-    href: "/carrier-resources",
-  },
-  {
-    icon: "badge",
-    title: "Certifications",
-    desc: "Carrier certifications as they open each year — right after AHIP.",
-    href: "/contracting-hub",
-  },
-  {
-    icon: "check",
-    title: "AHIP info",
-    desc: "Everything you need to complete AHIP and get ready to sell.",
-    href: "#training",
-  },
-  {
-    icon: "chat",
-    title: "Contracting questions",
-    desc: "Talk to our head of contracting and get appointed faster.",
-    href: "mailto:contracting@tylerinsurancegroup.com",
-  },
-];
-
-// ── Training & Learning Center ─────────────────────────────────────────────────
-export const training = {
-  trainingItems: [
-    "Medicare 101 for new agents",
-    "Growing & retaining your book",
-    "CRM walkthroughs & workflows",
-    "AHIP & carrier certification prep",
+// ── Founder note (first person) ───────────────────────────────────────────────
+export const founderNote = {
+  // The part wrapped between | and | renders gold-emphasized.
+  lines: [
+    "We didn't start TIG because the world needed another FMO. We started it because the ones above us took their cut and |left us to figure it out alone.|",
+    "So we did — for over a decade. Now we just give you the shortcut we never got.",
   ],
-  learningItems: [
-    "Industry insights & analysis",
-    "CMS & market updates",
-    "Compliance best practices",
-    "TIG blog — guides to grow your business",
-  ],
+  sign: "— Austin & Andrew, Co-Founders",
 };
 
-// ── About ──────────────────────────────────────────────────────────────────────
-export const about = {
-  heading: "An FMO that feels like a partner, not a pipeline.",
-  body: [
-    "Tyler Insurance Group is an independent Medicare FMO built around one idea: when our agents grow, we grow. We pair top carrier access and modern technology with the kind of hands-on support you can only get from people who pick up the phone.",
-    "Whether you're writing your first plan or running a mature book, we give you the tools, training, and contracting muscle to build something that lasts.",
-  ],
-};
+// ── Founders ──────────────────────────────────────────────────────────────────
+export interface Founder {
+  name: string;
+  credential?: string; // e.g. "MBA"
+  title: string;
+  photo: string;
+  initials: string;
+  blurb: string;
+}
 
-// ── Closing CTA ──────────────────────────────────────────────────────────────────
-export const joinCta = {
-  heading: "Ready to grow with TIG?",
-  subhead: "Get contracted, get the tools, and get to selling. We'll handle the rest.",
+export const founders: Founder[] = [
+  {
+    name: "Austin Tyler",
+    credential: "MBA",
+    title: "Co-Founder",
+    photo: "/images/founders/austin-tyler.jpg",
+    initials: "AT",
+    blurb: "Grew a book and built agencies the hard way — so the advice you get is current and earned, not theoretical.",
+  },
+  {
+    name: "Andrew Horn",
+    title: "Co-Founder",
+    photo: "/images/founders/andrew-horn.jpg",
+    initials: "AH",
+    blurb: "Obsessed with the tools and training that actually move an agent's numbers — and stay close to every agent he brings on.",
+  },
+];
+
+export const closingCta = {
+  heading: "Come build with operators who'll actually pick up.",
+  sub: "Top contracts, the full toolkit, and founders in it with you. If that's the FMO you've been looking for, let's talk.",
   primaryCta: { label: "Become a TIG Agent", href: "mailto:join@tylerinsurancegroup.com" },
 };
