@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { FeatureFlagsProvider } from "./contexts/FeatureFlagsContext";
 import { ViewModeProvider } from "./contexts/ViewModeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -46,13 +46,6 @@ const TrainingPage = lazy(() => import("./pages/TrainingPage"));
 const TrainingLibrary = lazy(() => import("./pages/training/TrainingLibrary"));
 const ContractingPage = lazy(() => import("./pages/ContractingPage"));
 const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
-const T65ReviewPage = lazy(() => import("./pages/T65ReviewPage"));
-const SyncFlow = lazy(() => import("./pages/SyncFlow"));
-
-// Lazy load: Book of Business pages
-const GrowthIncome = lazy(() => import("./pages/book/GrowthIncome"));
-const BookClientList = lazy(() => import("./pages/book/ClientList"));
-const BookImportPage = lazy(() => import("./pages/book/BookImportPage"));
 
 // Lazy load: Admin pages (only loaded by admins)
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -66,7 +59,6 @@ const RTSImportPage = lazy(() => import("./pages/admin/RTSImportPage"));
 const RoadmapGeneratorPage = lazy(() => import("./pages/admin/RoadmapGeneratorPage"));
 const AgentProfilePage = lazy(() => import("./pages/admin/AgentProfilePage"));
 const PdfBuilderPage = lazy(() => import("./pages/admin/PdfBuilderPage"));
-const PlanFinderPage = lazy(() => import("./pages/PlanFinderPage"));
 const AgentsBookPage = lazy(() => import("./pages/admin/AgentsBookPage"));
 const AgentBookDetailPage = lazy(() => import("./pages/admin/AgentBookDetailPage"));
 
@@ -158,11 +150,7 @@ const App = () => (
             {/* ================================ */}
             <Route element={<ProtectedRoute><AgentShell /></ProtectedRoute>}>
               <Route index element={<Index />} />
-              <Route path="book" element={<BookClientList />} />
-              <Route path="book/growth" element={<GrowthIncome />} />
-              <Route path="import" element={<BookImportPage />} />
               <Route path="contracting-hub" element={<ContractingHubPage />} />
-              <Route path="plan-finder" element={<PlanFinderPage />} />
               <Route path="carrier-portals" element={<CarrierPortalsPage />} />
               <Route path="carrier-resources" element={<CarrierResourcesPage />} />
               <Route path="carrier-resources/plans" element={<CarrierPlansPage />} />
@@ -174,9 +162,6 @@ const App = () => (
               <Route path="my-profile" element={<MyProfilePage />} />
               <Route path="start-here" element={<StartHerePage />} />
               <Route path="industry-updates" element={<IndustryUpdatesPage />} />
-              <Route path="t65-review" element={<T65ReviewPage />} />
-              <Route path="sync" element={<SyncFlow />} />
-              <Route path="my-clients" element={<Navigate to="/book" replace />} />
             </Route>
 
             {/* ================================ */}
