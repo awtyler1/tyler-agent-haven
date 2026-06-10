@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calendar — Agenda</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;
+    --c-deadline:#b8503f;--c-cert:#A8801F;--c-tig:#5b7d44;--c-carrier:#5e7d9e;--c-holiday:#8a8273;--c-ooo:#a08bb0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}
+  .crest{height:30px;width:auto}
+  .nav{margin-top:14px}
+  .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}
+  .nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5);line-height:1.5}
+  .sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px}
+  .max{max-width:760px;margin:0 auto}
+  .head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .head h1{font-family:'Outfit';font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .head .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .mnav{display:flex;align-items:center;gap:10px}
+  .mnav .mo{font-family:'Outfit';font-size:17px;font-weight:700;min-width:150px;text-align:center}
+  .mnav button{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:15px;transition:.15s}
+  .mnav button:hover{border-color:var(--gold)}
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .f{font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer}
+  .f.on{background:var(--em);border-color:var(--em);color:var(--bone)}
+
+  .day{display:flex;gap:16px;margin-bottom:4px}
+  .day__date{width:58px;flex-shrink:0;text-align:center;padding-top:4px}
+  .day__date .dw{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .day__date .dn{font-family:'Outfit';font-size:23px;font-weight:700;line-height:1.1}
+  .day__date.today .dn{color:var(--gold2)}
+  .day__date.today .dw{color:var(--gold2)}
+  .day__line{width:2px;background:var(--line);border-radius:2px;flex-shrink:0;margin:4px 0}
+  .day__evts{flex:1;padding-bottom:18px;min-width:0}
+  .e{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 16px;margin-bottom:8px;border-left:4px solid var(--ec)}
+  .e .t{font-size:13.5px;font-weight:600}
+  .e .s{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .e .cat{margin-left:auto;flex-shrink:0;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ec)}
+  .bigday .e{background:linear-gradient(135deg,#10362a,#0a2c22);border-color:transparent;color:var(--bone)}
+  .bigday .e .s{color:rgba(244,241,232,.6)}
+  .bigday .e .cat{color:var(--gold)}
+  .mt-empty{font-size:13px;color:var(--muted);font-style:italic;padding:20px 0 30px 74px}
+  @media(max-width:760px){.sb{display:none}.main{padding:20px}}
+</style>
+</head>
+<body>
+  <div class="tag">CALENDAR · <b>Agenda</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav">
+        <a><span class="ic">⌂</span> Home</a>
+        <a><span class="ic">⛨</span> Carriers</a>
+        <a><span class="ic">⚡</span> Quote &amp; Enroll</a>
+        <a><span class="ic">🎓</span> Training &amp; Playbooks</a>
+        <a><span class="ic">📈</span> Knowledge &amp; Updates</a>
+        <a><span class="ic">📋</span> Forms &amp; Compliance</a>
+        <a class="on"><span class="ic">🗓</span> Calendar</a>
+        <a><span class="ic">☎</span> Contacts</a>
+      </nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+
+    <main class="main"><div class="max">
+      <div class="head">
+        <div>
+          <h1 class="disp">Calendar</h1>
+          <div class="sub">Everything coming up, in order.</div>
+        </div>
+        <div class="mnav">
+          <button onclick="move(-1)">‹</button>
+          <span class="mo disp" id="motitle"></span>
+          <button onclick="move(1)">›</button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <span class="f on">All</span><span class="f">Deadlines</span><span class="f">Certs</span><span class="f">TIG events</span><span class="f">Carrier events</span><span class="f">Holidays &amp; OOO</span>
+      </div>
+
+      <div id="list"></div>
+    </div></main>
+  </div>
+
+<script>
+const EVENTS={
+  '2026-06':[
+    {d:12,dw:'Fri',t:'Monthly Agent Call',s:'11:00 AM ET · Zoom',c:'tig',cat:'TIG event'},
+    {d:18,dw:'Thu',t:'New Agent Onboarding',s:'1:00 PM ET · Zoom',c:'tig',cat:'TIG event'},
+    {d:19,dw:'Fri',t:'Juneteenth',s:'Markets + office closed',c:'holiday',cat:'Holiday'},
+    {d:24,dw:'Wed',t:'Aetna 2027 cert deep-dive',s:'2:00 PM ET · carrier webinar',c:'carrier',cat:'Carrier'},
+    {d:30,dw:'Tue',t:'Aetna 2027 certs close',s:'Last day — don\\'t wait for the portal rush',c:'deadline',cat:'Deadline',big:true},
+  ],
+  '2026-07':[
+    {d:3,dw:'Fri',t:'Office closed',s:'July 4th weekend',c:'holiday',cat:'Holiday'},
+    {d:5,dw:'Sun',t:'Humana RTS attestation due',s:'10 minutes in the Humana portal',c:'deadline',cat:'Deadline',big:true},
+    {d:8,dw:'Wed',t:'UHC 2027 certifications open',s:'Certify early, sell day one of AEP',c:'cert',cat:'Certs'},
+    {d:14,dw:'Tue',t:'Monthly Agent Call',s:'11:00 AM ET · Zoom',c:'tig',cat:'TIG event'},
+    {d:20,dw:'Mon',t:'Austin out of office',s:'Back July 23 — text Andrew',c:'ooo',cat:'OOO'},
+    {d:20,dw:'Mon',t:'Wellcare product webinar',s:'1:00 PM ET',c:'carrier',cat:'Carrier'},
+  ],
+  '2026-08':[
+    {d:11,dw:'Tue',t:'Monthly Agent Call',s:'11:00 AM ET · Zoom',c:'tig',cat:'TIG event'},
+    {d:20,dw:'Thu',t:'TIG Summer Cookout 🍔',s:'Families welcome · Lexington',c:'tig',cat:'TIG event'},
+  ],
+};
+const COLORS={deadline:'var(--c-deadline)',cert:'var(--c-cert)',tig:'var(--c-tig)',carrier:'var(--c-carrier)',holiday:'var(--c-holiday)',ooo:'var(--c-ooo)'};
+let cur=new Date(2026,5,1);
+function render(){
+  const key=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('motitle').textContent=cur.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const evs=EVENTS[key]||[];
+  if(!evs.length){document.getElementById('list').innerHTML='<div class="mt-empty">Nothing on the calendar this month — yet.</div>';return}
+  const byday={};evs.forEach(e=>{(byday[e.d]=byday[e.d]||[]).push(e)});
+  document.getElementById('list').innerHTML=Object.keys(byday).sort((a,b)=>a-b).map(d=>{
+    const items=byday[d];
+    const isToday=key==='2026-06'&&Number(d)===9;
+    return `<div class="day${items.some(e=>e.big)?' bigday':''}">
+      <div class="day__date${isToday?' today':''}"><div class="dw">${items[0].dw}</div><div class="dn disp">${d}</div></div>
+      <div class="day__line"></div>
+      <div class="day__evts">${items.map(e=>`<div class="e" style="--ec:${COLORS[e.c]}"><div><div class="t">${e.t}</div><div class="s">${e.s}</div></div><span class="cat">${e.cat}</span></div>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+function move(n){cur=new Date(cur.getFullYear(),cur.getMonth()+n,1);render()}
+render();
+</script>
+</body>
+</html>
