@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Article — What / Why / Do</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}.crest{height:30px}
+  .nav{margin-top:14px}.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}.nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5)}.sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px;display:flex;justify-content:center}
+  .art{max-width:680px;width:100%}
+  .back{font-size:12.5px;font-weight:600;color:var(--gold2);margin-bottom:18px;display:inline-block}
+  .meta{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .cat{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#5e7d9e;padding:4px 10px;border-radius:20px}
+  .mdate{font-size:12px;color:var(--muted)}
+  h1{font-family:'Outfit';font-size:clamp(26px,3.6vw,36px);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:10px}
+  .byline{font-size:12.5px;color:var(--muted);margin-bottom:22px}
+
+  /* numbered takeaways strip — fixed component */
+  .tldr{display:flex;gap:0;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:26px}
+  .tldr .t{flex:1;padding:15px 16px;border-right:1px solid var(--line)}
+  .tldr .t:last-child{border-right:none}
+  .tldr .t .n{font-family:'Outfit';font-size:20px;font-weight:800;color:var(--gold2);line-height:1}
+  .tldr .t p{font-size:12px;line-height:1.4;color:var(--muted);margin-top:7px}
+
+  /* What / Why / Do — fixed structure */
+  .block{margin-bottom:22px}
+  .block__h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .block__ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .block__h .t{font-family:'Outfit';font-size:17px;font-weight:700}
+  .block p{font-size:15.5px;line-height:1.7;color:#33312c;margin-bottom:12px}
+  .block ul{margin:0 0 6px 2px}
+  .block ul li{list-style:none;display:flex;gap:10px;font-size:15px;line-height:1.6;margin-bottom:8px;color:#33312c}
+  .block ul li:before{content:"–";color:var(--gold2);font-weight:700}
+
+  .what .block__ic{background:rgba(94,125,158,.14);color:#5e7d9e}
+  .why .block__ic{background:rgba(168,128,31,.14);color:var(--gold2)}
+  .why{background:linear-gradient(135deg,#10362a,#0a2c22);color:var(--bone);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden}
+  .why:before{content:"";position:absolute;top:-70px;right:-50px;width:240px;height:240px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  .why .block__ic{background:rgba(201,168,76,.2);color:var(--gold);position:relative}
+  .why .block__h .t{position:relative}
+  .why p{color:rgba(244,241,232,.92);position:relative}
+  .do .block__ic{background:rgba(91,125,68,.16);color:#5b7d44}
+  .do ol{margin:0;counter-reset:step}
+  .do ol li{list-style:none;display:flex;gap:12px;font-size:15px;line-height:1.5;margin-bottom:11px;align-items:flex-start}
+  .do ol li:before{counter-increment:step;content:counter(step);width:22px;height:22px;border-radius:50%;background:var(--em);color:var(--bone);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  @media(max-width:760px){.sb{display:none}.main{padding:22px}.tldr{flex-direction:column}.tldr .t{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+  <div class="tag">ARTICLE · <b>What / Why / Do</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav"><a><span class="ic">⌂</span> Home</a><a><span class="ic">⛨</span> Carriers</a><a><span class="ic">🎓</span> 2027 Certifications</a><a><span class="ic">📚</span> Training</a><a class="on"><span class="ic">📈</span> Knowledge &amp; Updates</a><a><span class="ic">📋</span> Forms</a><a><span class="ic">🗓</span> Calendar</a><a><span class="ic">☎</span> Contacts</a></nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+    <main class="main">
+      <article class="art">
+        <a class="back">← Knowledge &amp; Updates</a>
+        <div class="meta"><span class="cat">CMS</span><span class="mdate">June 8, 2026 · 4 min read</span></div>
+        <h1 class="disp">2027 CMS Final Rule: what actually changes for you</h1>
+        <div class="byline">By Andrew Horn, Tyler Insurance Group</div>
+
+        <div class="tldr">
+          <div class="t"><div class="n">1</div><p>Marketing &amp; call documentation gets stricter.</p></div>
+          <div class="t"><div class="n">2</div><p>Plans can't churn clients mid-year as easily.</p></div>
+          <div class="t"><div class="n">3</div><p>Lead-vendor crackdown favors direct FMO ties.</p></div>
+        </div>
+
+        <div class="block what">
+          <div class="block__h"><span class="block__ic">📋</span><span class="t disp">What happened</span></div>
+          <p>CMS released its 2027 final rule. The parts that touch you:</p>
+          <ul>
+            <li>Stricter documentation on marketing and enrollment calls.</li>
+            <li>New limits on mid-year plan changes.</li>
+            <li>More scrutiny on lead vendors and third-party marketers.</li>
+          </ul>
+        </div>
+
+        <div class="block why">
+          <div class="block__h"><span class="block__ic">💡</span><span class="t disp">Why it matters to you</span></div>
+          <p>This raises the compliance floor. High-volume, low-touch shops get squeezed; relationship-driven advisors get a cleaner field — and clients who are harder for outside marketers to poach. Net-net: good for the way you already work.</p>
+        </div>
+
+        <div class="block do">
+          <div class="block__h"><span class="block__ic">✅</span><span class="t disp">What to do now</span></div>
+          <ol>
+            <li>Confirm every appointment has a documented SOA on file.</li>
+            <li>Audit your lead sources and drop any that can't prove compliance.</li>
+            <li>Work plan stability into your renewal conversations this fall.</li>
+          </ol>
+        </div>
+      </article>
+    </main>
+  </div>
+</body>
+</html>
