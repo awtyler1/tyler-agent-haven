@@ -78,7 +78,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Tyler Insurance Group <onboarding@resend.dev>",
+        from: "Tyler Insurance Group <noreply@tylerinsurancegroup.com>",
         to: ["austin@tylerinsurancegroup.com", "andrew@tylerinsurancegroup.com"],
         reply_to: email,
         subject: `New Agent Inquiry from ${name}`,
@@ -123,7 +123,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Tyler Insurance Group <onboarding@resend.dev>",
+        from: "Tyler Insurance Group <noreply@tylerinsurancegroup.com>",
         to: [email],
         subject: "We received your inquiry - Tyler Insurance Group",
         html: `
