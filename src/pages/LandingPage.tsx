@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   tig,
@@ -87,13 +87,44 @@ function withEmphasis(text: string) {
 
 export default function LandingPage() {
   const [punchA, punchB] = hero.punch.split('|');
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const targets = document.querySelectorAll('.lp-reveal');
+    let io: IntersectionObserver | undefined;
+    if (reduce) {
+      targets.forEach((el) => el.classList.add('is-in'));
+    } else {
+      io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('is-in');
+              io?.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+      );
+      targets.forEach((el) => io!.observe(el));
+    }
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      io?.disconnect();
+    };
+  }, []);
 
   return (
     <div className="lp">
       <style>{CSS}</style>
 
       {/* ── Nav ── */}
-      <header className="lp-nav">
+      <header className={`lp-nav${scrolled ? ' lp-nav--scrolled' : ''}`}>
         <div className="lp-container lp-nav__inner">
           <a
             href="#top"
@@ -153,7 +184,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── The honest version ── */}
-      <section className="lp-section" id="honest">
+      <section className="lp-section lp-reveal" id="honest">
         <div className="lp-container">
           <div className="lp-kick">The honest version</div>
           <h2 className="lp-h2">No pitch. Here's the truth.</h2>
@@ -169,9 +200,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── A word from the team (founders) ── */}
-      <section className="lp-section" id="founders">
+      <section className="lp-section lp-section--em lp-reveal" id="founders">
         <div className="lp-container">
-          <div className="lp-kick">A word from the team</div>
+          <div className="lp-kick lp-kick--gold">A word from the team</div>
           <div className="lp-note">
             {founderNote.lines.map((line, i) => (
               <p className="lp-note__line" key={i}>
@@ -199,10 +230,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── What you get ── */}
-      <section className="lp-section lp-section--em" id="get">
+      <section className="lp-section lp-reveal" id="get">
         <div className="lp-container">
-          <div className="lp-kick lp-kick--gold">What you actually get</div>
-          <h2 className="lp-h2 lp-h2--light">Everything we use. Handed to you.</h2>
+          <div className="lp-kick">What you actually get</div>
+          <h2 className="lp-h2">Everything we use. Handed to you.</h2>
           <div className="lp-get">
             {valueItems.map((v) => (
               <div className="lp-get__item" key={v.title}>
@@ -218,7 +249,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Closing CTA ── */}
-      <section className="lp-cta">
+      <section className="lp-cta lp-reveal">
         <div className="lp-cta__glow" aria-hidden="true" />
         <div className="lp-container lp-cta__inner">
           <h2 className="lp-cta__title">{closingCta.heading}</h2>
@@ -281,7 +312,9 @@ const CSS = `
 
 /* Nav */
 .lp-nav{ position:sticky; top:0; z-index:50; background:rgba(14,59,46,.92);
-  backdrop-filter:saturate(140%) blur(10px); border-bottom:1px solid rgba(255,255,255,.1); }
+  backdrop-filter:saturate(140%) blur(10px); border-bottom:1px solid rgba(255,255,255,.1);
+  transition:background .25s ease, box-shadow .25s ease; }
+.lp-nav--scrolled{ background:rgba(10,44,34,.97); box-shadow:0 6px 24px rgba(0,0,0,.22); }
 .lp-nav__inner{ display:flex; align-items:center; gap:26px; height:66px; }
 .lp-brand{ display:inline-flex; align-items:center; gap:11px; text-decoration:none; }
 .lp-brand__mark{ width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#e7cf86,var(--gold2));
@@ -297,8 +330,11 @@ const CSS = `
 .lp-hero{ position:relative; overflow:hidden; background:linear-gradient(165deg,var(--em),var(--em2)); color:var(--bone);
   padding:78px 0 92px; text-align:center; }
 .lp-hero__glow{ position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:1000px; height:580px;
-  background:radial-gradient(circle,rgba(201,168,76,.15),transparent 60%); pointer-events:none; }
-.lp-hero__inner{ position:relative; }
+  background:radial-gradient(circle,rgba(201,168,76,.15),transparent 60%); pointer-events:none;
+  animation:lpDrift 9s ease-in-out infinite; }
+@keyframes lpDrift{ 0%,100%{ transform:translateX(-50%) translateY(0); } 50%{ transform:translateX(-50%) translateY(22px); } }
+.lp-hero__inner{ position:relative; animation:lpRise .7s cubic-bezier(.4,0,.2,1) both; }
+@keyframes lpRise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
 .lp-eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; }
 .lp-h1{ font-size:clamp(40px,6vw,76px); font-weight:800; letter-spacing:-.035em; line-height:1.1; margin:0 auto 22px; max-width:16ch; }
 .lp-h1__line{ display:block; }
@@ -310,6 +346,15 @@ const CSS = `
 /* Sections */
 .lp-section{ padding:88px 0; }
 .lp-section--em{ background:var(--em); color:var(--bone); }
+
+/* Scroll reveal */
+.lp-reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
+.lp-reveal.is-in{ opacity:1; transform:none; }
+@media (prefers-reduced-motion: reduce){
+  .lp-reveal{ opacity:1; transform:none; transition:none; }
+  .lp-hero__glow{ animation:none; }
+  .lp-hero__inner{ animation:none; }
+}
 .lp-kick{ font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--gold2); margin-bottom:14px; }
 .lp-kick--gold{ color:var(--gold); }
 .lp-h2{ font-family:'Outfit',sans-serif; font-size:clamp(28px,3.8vw,46px); font-weight:700; letter-spacing:-.03em; line-height:1.04; margin:0 0 42px; }
@@ -321,17 +366,21 @@ const CSS = `
 .lp-truth__claim{ font-family:'Outfit',sans-serif; font-size:clamp(20px,2.2vw,27px); font-weight:700; letter-spacing:-.015em; }
 .lp-truth__clar{ font-size:15.5px; color:var(--muted); line-height:1.6; }
 
-/* What you get */
-.lp-get{ display:grid; grid-template-columns:repeat(2,1fr); gap:0; border-top:1px solid rgba(255,255,255,.15); }
-.lp-get__item{ display:flex; gap:14px; padding:20px 4px; border-bottom:1px solid rgba(255,255,255,.12); align-items:flex-start; }
-.lp-get__ck{ color:var(--gold); font-weight:700; font-size:18px; line-height:1.3; }
-.lp-get__item b{ font-family:'Outfit',sans-serif; font-weight:600; font-size:16.5px; display:block; margin-bottom:3px; color:#fff; }
-.lp-get__item span{ font-size:14px; color:rgba(244,241,232,.7); line-height:1.55; }
+/* What you get (light) */
+.lp-get{ display:grid; grid-template-columns:repeat(2,1fr); gap:0; border-top:1px solid var(--line); }
+.lp-get__item{ display:flex; gap:14px; padding:20px 4px; border-bottom:1px solid var(--line); align-items:flex-start; }
+.lp-get__ck{ color:var(--gold2); font-weight:700; font-size:18px; line-height:1.3; }
+.lp-get__item b{ font-family:'Outfit',sans-serif; font-weight:600; font-size:16.5px; display:block; margin-bottom:3px; color:var(--ink); }
+.lp-get__item span{ font-size:14px; color:var(--muted); line-height:1.55; }
 
 /* Founder note */
 .lp-note{ max-width:760px; }
 .lp-note__line{ font-family:'Outfit',sans-serif; font-size:clamp(20px,2.4vw,30px); font-weight:500; line-height:1.4; letter-spacing:-.01em; margin:0 0 16px; }
 .lp-note__sign{ font-size:14px; color:var(--muted); margin-top:6px; }
+/* note + emphasis on the dark "word from the team" section */
+.lp-section--em .lp-note__line{ color:var(--bone); }
+.lp-section--em .lp-note__sign{ color:rgba(244,241,232,.6); }
+.lp-section--em .lp-gold{ color:var(--gold); }
 
 /* Founders */
 .lp-founders{ display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:48px; }
