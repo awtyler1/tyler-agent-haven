@@ -17,12 +17,18 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Home', path: '/hub', icon: '⌂' },
   { label: 'Carriers', path: '/carrier-resources', icon: '⛨' },
   { label: '2027 Certifications', path: '/certifications', icon: '🎓' },
-  { label: 'Quote & Enroll', path: '/agent-tools', icon: '⚡' },
   { label: 'Training & Playbooks', path: '/training', icon: '📚' },
   { label: 'Knowledge & Updates', path: '/industry-updates', icon: '📈' },
   { label: 'Forms', path: '/forms-library', icon: '📋' },
   { label: 'Calendar', path: '/calendar', icon: '🗓' },
   { label: 'Contacts', path: '/contacts', icon: '☎' },
+];
+
+// External quoting / CRM tools — open in a new tab.
+const TOOL_LINKS = [
+  { label: 'Forge CRM', icon: '🔥', href: 'https://app.runonforge.us' },
+  { label: 'SunFire', icon: '⚡', href: 'https://www.sunfirematrix.com/app/agent/' },
+  { label: 'Connecture', icon: '✍️', href: 'https://pinnacle7.destinationrx.com/PC/Agent/Account/Login' },
 ];
 
 export function AgentShell() {
@@ -68,6 +74,15 @@ export function AgentShell() {
               {item.label}
             </Link>
           ))}
+
+          <div className="shell-nav__label">Tools</div>
+          {TOOL_LINKS.map((t) => (
+            <a key={t.href} href={t.href} target="_blank" rel="noopener noreferrer" className="shell-nav__ext">
+              <span className="shell-nav__ic" aria-hidden="true">{t.icon}</span>
+              {t.label}
+              <span className="shell-nav__arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
         </nav>
 
         <div className="shell-foot">
@@ -103,6 +118,10 @@ const CSS = `
 .shell-nav a.on{ background:rgba(201,168,76,.14); color:#fff; font-weight:600; }
 .shell-nav a.on:before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:2px; background:#C9A84C; }
 .shell-nav__ic{ width:16px; flex-shrink:0; opacity:.9; }
+.shell-nav__label{ font-size:9.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(244,241,232,.4); padding:16px 11px 7px; }
+.shell-nav__ext{ display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:9px; font-size:13.5px; font-weight:500; color:rgba(244,241,232,.74); text-decoration:none; margin-bottom:2px; transition:background .15s,color .15s; }
+.shell-nav__ext:hover{ background:rgba(255,255,255,.05); color:#fff; }
+.shell-nav__arrow{ margin-left:auto; font-size:11px; opacity:.5; }
 
 .shell-foot{ margin-top:auto; padding:12px 10px 4px; border-top:1px solid rgba(255,255,255,.08); }
 .shell-foot__note{ font-size:11.5px; color:rgba(244,241,232,.5); line-height:1.5; }

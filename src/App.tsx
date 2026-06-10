@@ -37,7 +37,6 @@ const StartHerePage = lazy(() => import("./pages/StartHerePage"));
 const IndustryUpdatesPage = lazy(() => import("./pages/IndustryUpdatesPage"));
 const CompliancePage = lazy(() => import("./pages/CompliancePage"));
 const CarrierResourcesPage = lazy(() => import("./pages/CarrierResourcesPage"));
-const AgentToolsPage = lazy(() => import("./pages/AgentToolsPage"));
 const ContractingHubPage = lazy(() => import("./pages/ContractingHubPage"));
 const FormsLibraryPage = lazy(() => import("./pages/FormsLibraryPage"));
 const CarrierPortalsPage = lazy(() => import("./pages/CarrierPortalsPage"));
@@ -166,7 +165,6 @@ const App = () => (
               <Route path="training" element={<TrainingLibrary />} />
               <Route path="training/:videoId" element={<TrainingPage />} />
               <Route path="compliance" element={<CompliancePage />} />
-              <Route path="agent-tools" element={<AgentToolsPage />} />
               <Route path="my-profile" element={<MyProfilePage />} />
               <Route path="start-here" element={<StartHerePage />} />
               <Route path="industry-updates" element={<IndustryUpdatesPage />} />
