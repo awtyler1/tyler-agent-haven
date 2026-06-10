@@ -104,11 +104,16 @@ export default function Index() {
         <section className="hub-board" aria-label="Bulletin board">
           <div className="hub-board__head">
             <span className="hub-board__title">📌 The Board</span>
-            <span className="hub-board__meta">
-              Posted by {boardMeta.postedBy} · {formatPostedOn(boardMeta.postedOn)}
-            </span>
+            {boardItems.length > 0 && (
+              <span className="hub-board__meta">
+                Posted by {boardMeta.postedBy} · {formatPostedOn(boardMeta.postedOn)}
+              </span>
+            )}
           </div>
-          {boardItems.map((item) => {
+          {boardItems.length === 0 ? (
+            <div className="hub-board__empty">Nothing urgent right now. Check back soon.</div>
+          ) : (
+            boardItems.map((item) => {
             const kc = KIND_COLORS[item.kind];
             const days = item.date ? daysUntil(item.date) : null;
             return (
@@ -133,7 +138,8 @@ export default function Index() {
                 </div>
               </div>
             );
-          })}
+          })
+          )}
         </section>
 
         {/* ── Two quiet cards ── */}
@@ -232,6 +238,7 @@ const CSS = `
 .hub-board__head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; position:relative; flex-wrap:wrap; gap:6px; }
 .hub-board__title{ font-size:15px; font-weight:700; }
 .hub-board__meta{ font-size:11px; color:rgba(244,241,232,.55); }
+.hub-board__empty{ font-size:13px; color:rgba(244,241,232,.6); padding:6px 0 2px; position:relative; }
 .hub-bitem{ display:flex; align-items:center; gap:13px; padding:12px 0; border-top:1px solid rgba(255,255,255,.1); position:relative; font-size:14px; }
 .hub-bitem__kind{ flex-shrink:0; width:96px; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; display:flex; align-items:center; gap:7px; }
 .hub-bitem__dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }

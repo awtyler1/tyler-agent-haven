@@ -35,24 +35,15 @@ export const CATEGORY_META: Record<EventCategory, { label: string; color: string
 };
 
 export const calendarEvents: CalEvent[] = [
-  // ── June 2026 ──
-  { id: "call-jun", date: "2026-06-12", title: "Monthly Agent Call", detail: "11:00 AM ET · Zoom", category: "tig" },
-  { id: "onboard-jun", date: "2026-06-18", title: "New Agent Onboarding", detail: "1:00 PM ET · Zoom", category: "tig" },
-  { id: "juneteenth", date: "2026-06-19", title: "Juneteenth", category: "holiday" },
-  { id: "aetna-close", date: "2026-06-30", title: "Aetna 2027 certs close", detail: "Last day — don't wait for the portal rush", category: "deadline" },
+  // Real Medicare/holiday anchors. Add your own TIG events, carrier
+  // events, deadlines, and OOO as they come up — see the shape above.
 
-  // ── July 2026 ──
-  { id: "july4", date: "2026-07-04", title: "Independence Day", category: "holiday" },
-  { id: "humana-rts", date: "2026-07-05", title: "Humana RTS attestation due", detail: "10 minutes in the Humana portal", category: "deadline" },
-  { id: "call-jul", date: "2026-07-14", title: "Monthly Agent Call", detail: "11:00 AM ET · Zoom", category: "tig" },
-
-  // ── September 2026 ──
-  { id: "aep-webinar", date: "2026-09-15", title: "AEP Readiness Webinar", detail: "2:00 PM ET · Zoom", category: "tig" },
-
-  // ── October 2026 ──
+  // ── Annual Enrollment Period (CMS) ──
   { id: "aep-start", date: "2026-10-15", title: "AEP begins 🔔", category: "deadline" },
-
-  // ── December 2026 ──
   { id: "aep-end", date: "2026-12-07", title: "AEP ends", category: "deadline" },
+
+  // ── Federal holidays ──
+  { id: "july4", date: "2026-07-04", title: "Independence Day", category: "holiday" },
+  { id: "thanksgiving", date: "2026-11-26", title: "Thanksgiving", category: "holiday" },
   { id: "christmas", date: "2026-12-25", title: "Christmas Day", category: "holiday" },
 ];
