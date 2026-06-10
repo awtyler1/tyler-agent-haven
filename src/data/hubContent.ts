@@ -6,7 +6,8 @@
 //
 //   • boardMeta / boardItems → 📌 The Board (deadlines, actions, openings)
 //   • dockLinks              → ⚡ the tool dock (always visible row)
-//   • hubEvents              → 🗓 Upcoming (past-dated events auto-hide)
+//   • events live in src/data/calendarContent.ts (one list feeds the
+//     Calendar page AND the hub home's Upcoming card)
 //   • newThisWeek            → 🆕 New this week
 //
 // Dates are 'YYYY-MM-DD'. Keep the board to 3–5 items max — it's a bulletin,
@@ -73,38 +74,10 @@ export const dockLinks = [
   { label: "Forms", icon: "📋", href: "/forms-library" },
 ];
 
-// ── Upcoming events ──────────────────────────────────────────────────────────
-export interface HubEvent {
-  id: string;
-  title: string;
-  date: string; // 'YYYY-MM-DD' — past events auto-hide
-  time?: string; // '11:00 AM ET'
-  location?: string; // 'Zoom'
-}
-
-export const hubEvents: HubEvent[] = [
-  {
-    id: "monthly-call-jun",
-    title: "Monthly Agent Call",
-    date: "2026-06-12",
-    time: "11:00 AM ET",
-    location: "Zoom",
-  },
-  {
-    id: "onboarding-jun",
-    title: "New Agent Onboarding",
-    date: "2026-06-18",
-    time: "1:00 PM ET",
-    location: "Zoom",
-  },
-  {
-    id: "aep-webinar",
-    title: "AEP Readiness Webinar",
-    date: "2026-09-15",
-    time: "2:00 PM ET",
-    location: "Zoom",
-  },
-];
+// ── Events ────────────────────────────────────────────────────────────────────
+// All events (TIG, carrier, deadlines, holidays, OOO) live in
+// src/data/calendarContent.ts — one list feeds the Calendar page and the
+// hub home's "Upcoming" card.
 
 // ── New this week ────────────────────────────────────────────────────────────
 export interface NewItem {

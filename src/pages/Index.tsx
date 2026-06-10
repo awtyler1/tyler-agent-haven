@@ -3,11 +3,11 @@ import {
   boardMeta,
   boardItems,
   dockLinks,
-  hubEvents,
   newThisWeek,
   aep,
   type BoardItem,
 } from '@/data/hubContent';
+import { calendarEvents } from '@/data/calendarContent';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const KIND_COLORS: Record<BoardItem['kind'], { dot: string; label: string }> = {
@@ -66,8 +66,10 @@ export default function Index() {
   const daysLeftAep = Math.ceil((aepEnd.getTime() - now.getTime()) / 86_400_000);
   const inAep = now >= aepStart && now <= aepEnd;
 
-  const upcoming = [...hubEvents]
-    .filter((e) => e.date >= todayKey)
+  // Upcoming = next TIG/carrier happenings from the shared calendar
+  // (skips holidays/OOO — those aren't "events to attend").
+  const upcoming = calendarEvents
+    .filter((e) => e.date >= todayKey && e.category !== 'holiday' && e.category !== 'ooo')
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, 3);
 
@@ -154,7 +156,7 @@ export default function Index() {
                     <div>
                       <div className="hub-ev__t">{ev.title}</div>
                       <div className="hub-ev__s">
-                        {[ev.time, ev.location].filter(Boolean).join(' · ')}
+                        {ev.detail ?? ''}
                       </div>
                     </div>
                   </div>
