@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Training — Filter + Grid</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}.crest{height:30px}
+  .nav{margin-top:14px}.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}.nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5)}.sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px}
+  .max{max-width:1060px;margin:0 auto}
+  .head{margin-bottom:16px}
+  .head h1{font-family:'Outfit';font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .head .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .search{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 16px;font-size:13.5px;color:var(--muted);margin-bottom:18px}
+
+  .layout{display:flex;gap:20px;align-items:flex-start}
+  .filters{width:188px;flex-shrink:0}
+  .fgrp{margin-bottom:20px}
+  .fgrp h3{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+  .fopt{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--ink)}
+  .fopt:hover{background:var(--card)}
+  .fopt.on{background:var(--em);color:var(--bone);font-weight:600}
+  .fopt .ct{font-size:11px;opacity:.7}
+
+  .results{flex:1;min-width:0}
+  .rcount{font-size:12px;color:var(--muted);margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .vc{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+  .vc:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(20,30,24,.08);border-color:var(--gold)}
+  .vc__thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#cdbf9c,#9e8a5e);position:relative;display:flex;align-items:center;justify-content:center}
+  .vc__thumb .play{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--em);display:flex;align-items:center;justify-content:center;font-size:13px;padding-left:2px}
+  .vc.video .vc__thumb{background:linear-gradient(135deg,#1d5d49,#0a2c22)}
+  .vc.article .vc__thumb{background:linear-gradient(135deg,#b9cbbf,#5e7d6e)}
+  .vc.article .vc__thumb .play{border-radius:9px;padding-left:0;font-size:15px}
+  .vc.playbook .vc__thumb{background:linear-gradient(135deg,#d6c08a,#a8801f)}
+  .vc__badge{position:absolute;top:8px;left:8px;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:rgba(14,59,46,.85);color:#fff;padding:3px 8px;border-radius:20px}
+  .vc__dur{position:absolute;bottom:8px;right:8px;font-size:10px;font-weight:600;background:rgba(0,0,0,.6);color:#fff;padding:2px 7px;border-radius:5px}
+  .vc__b{padding:12px 13px}
+  .vc__cat{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold2)}
+  .vc__t{font-size:13px;font-weight:600;margin-top:4px;line-height:1.3}
+  .vc__m{font-size:11px;color:var(--muted);margin-top:5px}
+  @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:860px){.sb{display:none}.layout{flex-direction:column}.filters{width:100%;display:flex;gap:8px;flex-wrap:wrap}.fgrp{margin:0}.fgrp h3{display:none}.fopt{background:var(--card);border:1px solid var(--line)}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="tag">TRAINING · <b>Filter + Grid</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav">
+        <a><span class="ic">⌂</span> Home</a><a><span class="ic">⛨</span> Carriers</a><a><span class="ic">⚡</span> Quote &amp; Enroll</a>
+        <a class="on"><span class="ic">🎓</span> Training &amp; Playbooks</a><a><span class="ic">📈</span> Knowledge &amp; Updates</a>
+        <a><span class="ic">📋</span> Forms &amp; Compliance</a><a><span class="ic">🗓</span> Calendar</a><a><span class="ic">☎</span> Contacts</a>
+      </nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+    <main class="main"><div class="max">
+      <div class="head"><h1 class="disp">Training &amp; Playbooks</h1><div class="sub">Filter by topic or type. Search across everything.</div></div>
+      <div class="search">🔍 Search the library…</div>
+
+      <div class="layout">
+        <aside class="filters">
+          <div class="fgrp">
+            <h3>Topic</h3>
+            <div class="fopt on">All topics <span class="ct">31</span></div>
+            <div class="fopt">CRM &amp; Tools <span class="ct">6</span></div>
+            <div class="fopt">Product Training <span class="ct">9</span></div>
+            <div class="fopt">Grow Your Business <span class="ct">12</span></div>
+            <div class="fopt">Case Studies <span class="ct">4</span></div>
+          </div>
+          <div class="fgrp">
+            <h3>Type</h3>
+            <div class="fopt on">All</div>
+            <div class="fopt">🎬 Videos</div>
+            <div class="fopt">📄 Articles</div>
+            <div class="fopt">📘 Playbooks</div>
+          </div>
+        </aside>
+
+        <div class="results">
+          <div class="rcount">Showing 9 of 31</div>
+          <div class="grid">
+            <div class="vc video"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">12:40</span></div><div class="vc__b"><div class="vc__cat">CRM &amp; Tools</div><div class="vc__t">Forge CRM full walkthrough</div><div class="vc__m">Video · 12 min</div></div></div>
+            <div class="vc video"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">8:25</span></div><div class="vc__b"><div class="vc__cat">CRM &amp; Tools</div><div class="vc__t">SunFire quote to enrollment</div><div class="vc__m">Video · 8 min</div></div></div>
+            <div class="vc article"><div class="vc__thumb"><span class="vc__badge">Article</span><span class="play">📄</span></div><div class="vc__b"><div class="vc__cat">Product</div><div class="vc__t">2027 plan changes cheat sheet</div><div class="vc__m">Article · 5 min read</div></div></div>
+            <div class="vc video"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">15:00</span></div><div class="vc__b"><div class="vc__cat">Product</div><div class="vc__t">MA vs. Med Supp</div><div class="vc__m">Video · 15 min</div></div></div>
+            <div class="vc playbook"><div class="vc__thumb"><span class="vc__badge">Playbook</span><span class="play">📘</span></div><div class="vc__b"><div class="vc__cat">Grow Your Business</div><div class="vc__t">T65 outreach playbook</div><div class="vc__m">Playbook · PDF</div></div></div>
+            <div class="vc video"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">22:00</span></div><div class="vc__b"><div class="vc__cat">Grow Your Business</div><div class="vc__t">Building referral partnerships</div><div class="vc__m">Video · 22 min</div></div></div>
+            <div class="vc article"><div class="vc__thumb"><span class="vc__badge">Article</span><span class="play">📄</span></div><div class="vc__b"><div class="vc__cat">Grow Your Business</div><div class="vc__t">Retention: keeping your book sticky</div><div class="vc__m">Article · 7 min read</div></div></div>
+            <div class="vc article"><div class="vc__thumb"><span class="vc__badge">Case study</span><span class="play">📄</span></div><div class="vc__b"><div class="vc__cat">Case Study</div><div class="vc__t">0 to 200 lives in year one</div><div class="vc__m">Case study · 6 min read</div></div></div>
+            <div class="vc video"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">9:30</span></div><div class="vc__b"><div class="vc__cat">Product</div><div class="vc__t">DSNP eligibility explained</div><div class="vc__m">Video · 9 min</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div></main>
+  </div>
+</body>
+</html>
