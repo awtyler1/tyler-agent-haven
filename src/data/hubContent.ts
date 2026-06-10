@@ -1,133 +1,129 @@
 // ============================================================================
-// TIG AGENT HUB — STATIC CONTENT
+// TIG AGENT HUB — WEEKLY CONTENT (Board + Dock dashboard)
 // ----------------------------------------------------------------------------
-// This is the single source of truth for the dashboard's editable content.
-// To update what agents see on the home page, edit the arrays below and
-// redeploy (Vercel auto-deploys from `main`).
+// This file is the single source of truth for the hub home page. Edit it
+// weekly and redeploy (Vercel auto-deploys from `main`).
 //
-//   • hubEvents   → "Upcoming" calendar list
-//   • hubUpdates  → "Latest Updates" announcements feed
-//   • hubContacts → "Your TIG Team" directory
+//   • boardMeta / boardItems → 📌 The Board (deadlines, actions, openings)
+//   • dockLinks              → ⚡ the tool dock (always visible row)
+//   • hubEvents              → 🗓 Upcoming (past-dated events auto-hide)
+//   • newThisWeek            → 🆕 New this week
 //
-// Dates are ISO strings ('YYYY-MM-DD'). Events with a date in the past are
-// automatically hidden from the dashboard.
+// Dates are 'YYYY-MM-DD'. Keep the board to 3–5 items max — it's a bulletin,
+// not a backlog.
 // ============================================================================
 
-export type EventType = "training" | "deadline" | "enrollment" | "meeting" | "event";
+// ── The Board ────────────────────────────────────────────────────────────────
+export type BoardKind = "deadline" | "action" | "open";
 
+export interface BoardItem {
+  id: string;
+  kind: BoardKind; // deadline = red, action = amber, open = green
+  title: string;
+  note?: string; // the "why it matters" line under the title
+  /** Big right-side label, e.g. 'Jun 30' or 'Open'. */
+  when: string;
+  /** Optional date used to auto-compute "N days" under `when`. */
+  date?: string; // 'YYYY-MM-DD'
+  /** Small label under `when` when no date is given, e.g. 'go early'. */
+  whenSub?: string;
+}
+
+export const boardMeta = {
+  postedBy: "Austin & Andrew",
+  postedOn: "2026-06-09", // update when you refresh the board
+};
+
+export const boardItems: BoardItem[] = [
+  {
+    id: "aetna-cert-close",
+    kind: "deadline",
+    title: "Aetna 2027 certification closes",
+    note: "Do it now, the portal gets slow near the deadline",
+    when: "Jun 30",
+    date: "2026-06-30",
+  },
+  {
+    id: "humana-rts",
+    kind: "action",
+    title: "Humana RTS attestation due",
+    note: "Takes 10 minutes in the Humana portal",
+    when: "Jul 5",
+    date: "2026-07-05",
+  },
+  {
+    id: "wellcare-open",
+    kind: "open",
+    title: "Wellcare 2027 certifications",
+    note: "Early certifiers get first AEP appointments",
+    when: "Open",
+    whenSub: "go early",
+  },
+];
+
+// ── The Dock (tools) ─────────────────────────────────────────────────────────
+// href: 'http…' opens in a new tab; '/path' is an in-app route.
+export const dockLinks = [
+  { label: "SunFire", icon: "⚡", href: "https://www.sunfirematrix.com/app/agent/" },
+  { label: "Connecture", icon: "✍️", href: "https://www.connecture.com/" },
+  { label: "BOSS CRM", icon: "👥", href: "https://fmo.kizen.com/login" },
+  { label: "AHIP", icon: "🎓", href: "https://www.ahipmedicaretraining.com/" },
+  { label: "Carrier portals", icon: "⛨", href: "/carrier-portals" },
+  { label: "Forms", icon: "📋", href: "/forms-library" },
+];
+
+// ── Upcoming events ──────────────────────────────────────────────────────────
 export interface HubEvent {
   id: string;
   title: string;
-  date: string; // 'YYYY-MM-DD'
-  time?: string; // e.g. '2:00 PM ET'
-  type: EventType;
-  location?: string; // e.g. 'Zoom', 'Lexington Office'
+  date: string; // 'YYYY-MM-DD' — past events auto-hide
+  time?: string; // '11:00 AM ET'
+  location?: string; // 'Zoom'
 }
 
-export type UpdateCategory =
-  | "Announcement"
-  | "CMS"
-  | "Carrier"
-  | "Product"
-  | "Compliance";
-
-export interface HubUpdate {
-  id: string;
-  title: string;
-  date: string; // 'YYYY-MM-DD'
-  category: UpdateCategory;
-  excerpt: string;
-  url?: string; // optional external link
-}
-
-export interface HubContact {
-  id: string;
-  name: string; // department or person
-  role: string; // what they help with
-  email?: string;
-  phone?: string;
-}
-
-// ── Upcoming events ─────────────────────────────────────────────────────────
 export const hubEvents: HubEvent[] = [
   {
     id: "monthly-call-jun",
     title: "Monthly Agent Call",
     date: "2026-06-12",
     time: "11:00 AM ET",
-    type: "meeting",
     location: "Zoom",
   },
   {
-    id: "new-agent-onboarding-jun",
+    id: "onboarding-jun",
     title: "New Agent Onboarding",
     date: "2026-06-18",
     time: "1:00 PM ET",
-    type: "training",
     location: "Zoom",
   },
   {
-    id: "2027-certs-open",
-    title: "2027 Certifications Open",
-    date: "2026-06-25",
-    type: "deadline",
-  },
-  {
-    id: "aep-readiness-webinar",
+    id: "aep-webinar",
     title: "AEP Readiness Webinar",
     date: "2026-09-15",
     time: "2:00 PM ET",
-    type: "training",
     location: "Zoom",
   },
 ];
 
-// ── Latest updates ──────────────────────────────────────────────────────────
-export const hubUpdates: HubUpdate[] = [
-  {
-    id: "welcome-hub",
-    title: "Welcome to the new TIG Agent Hub",
-    date: "2026-06-09",
-    category: "Announcement",
-    excerpt:
-      "Your new home base for everything Tyler Insurance Group — calendar, updates, plan info, and contacts all in one place.",
-  },
-  {
-    id: "2027-certs",
-    title: "2027 Carrier Certifications Now Open",
-    date: "2026-06-05",
-    category: "Carrier",
-    excerpt:
-      "Several carriers have opened 2027 certifications. Get ahead of AEP by completing them early.",
-  },
-  {
-    id: "summer-compliance",
-    title: "Summer Compliance Reminder: Marketing Materials",
-    date: "2026-05-28",
-    category: "Compliance",
-    excerpt:
-      "A quick refresher on CMS marketing rules before the busy season. Review before distributing any new materials.",
-  },
+// ── New this week ────────────────────────────────────────────────────────────
+export interface NewItem {
+  id: string;
+  category: "Playbook" | "Form" | "CMS" | "Carrier" | "Training" | "Update";
+  title: string;
+  href?: string; // optional link (in-app route or URL)
+}
+
+export const newThisWeek: NewItem[] = [
+  { id: "t65-script", category: "Playbook", title: "T65 outreach script that converts" },
+  { id: "soa-2027", category: "Form", title: "2027 SOA, updated version", href: "/forms-library" },
+  { id: "final-rule", category: "CMS", title: "2027 Final Rule, plain-English recap" },
 ];
 
-// ── Your TIG team ───────────────────────────────────────────────────────────
-export const hubContacts: HubContact[] = [
-  {
-    id: "contracting",
-    name: "Contracting & Onboarding",
-    role: "Get appointed & set up",
-    email: "contracting@tylerinsurancegroup.com",
-  },
-  {
-    id: "commissions",
-    name: "Commissions",
-    role: "Pay & statements",
-    email: "commissions@tylerinsurancegroup.com",
-  },
-  {
-    id: "support",
-    name: "Agent Support",
-    role: "Day-to-day help",
-    email: "support@tylerinsurancegroup.com",
-  },
-];
+// ── AEP countdown ────────────────────────────────────────────────────────────
+// Oct 15 of the current year; flips to "days left in AEP" during Oct 15–Dec 7.
+export const aep = {
+  startMonth: 10,
+  startDay: 15,
+  endMonth: 12,
+  endDay: 7,
+};

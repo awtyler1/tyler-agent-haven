@@ -1,434 +1,192 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 import {
+  boardMeta,
+  boardItems,
+  dockLinks,
   hubEvents,
-  hubUpdates,
-  hubContacts,
-  type EventType,
+  newThisWeek,
+  aep,
+  type BoardItem,
 } from '@/data/hubContent';
 
-// ── Helpers ─────────────────────────────────────────────────
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'morning';
-  if (hour < 17) return 'afternoon';
-  return 'evening';
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const KIND_COLORS: Record<BoardItem['kind'], { dot: string; label: string }> = {
+  deadline: { dot: '#e0795f', label: 'Deadline' },
+  action: { dot: '#e0a85f', label: 'Action' },
+  open: { dot: '#88b06a', label: 'Now open' },
+};
+
+function daysUntil(iso: string): number {
+  const target = new Date(iso + 'T00:00:00');
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return Math.ceil((target.getTime() - now.getTime()) / 86_400_000);
 }
 
-function fadeUp(delay: string): React.CSSProperties {
-  return { opacity: 0, animation: `fadeUp 0.5s var(--ease) forwards ${delay}` };
+function formatPostedOn(iso: string): string {
+  return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function formatEventDate(iso: string): { month: string; day: string } {
+function eventDate(iso: string): { mo: string; dy: string } {
   const d = new Date(iso + 'T00:00:00');
   return {
-    month: d.toLocaleDateString('en-US', { month: 'short' }),
-    day: d.toLocaleDateString('en-US', { day: 'numeric' }),
+    mo: d.toLocaleDateString('en-US', { month: 'short' }),
+    dy: d.toLocaleDateString('en-US', { day: 'numeric' }),
   };
 }
 
-function formatUpdateDate(iso: string): string {
-  return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+function DockLink({ icon, label, href }: { icon: string; label: string; href: string }) {
+  if (href.startsWith('http')) {
+    return (
+      <a className="hub-dk" href={href} target="_blank" rel="noopener noreferrer">
+        <span className="hub-dk__i" aria-hidden="true">{icon}</span>
+        {label}
+      </a>
+    );
+  }
+  return (
+    <Link className="hub-dk" to={href}>
+      <span className="hub-dk__i" aria-hidden="true">{icon}</span>
+      {label}
+    </Link>
+  );
 }
 
-const EVENT_STYLES: Record<EventType, { color: string; label: string }> = {
-  training: { color: 'var(--blue)', label: 'Training' },
-  deadline: { color: 'var(--red)', label: 'Deadline' },
-  enrollment: { color: 'var(--gold)', label: 'Enrollment' },
-  meeting: { color: 'var(--green)', label: 'Meeting' },
-  event: { color: 'var(--text-muted)', label: 'Event' },
-};
-
-// Quick links into the rest of the hub
-const quickLinks = [
-  { label: 'Contracting', path: '/contracting-hub' },
-  { label: 'Training', path: '/training' },
-  { label: 'Carriers', path: '/carrier-resources' },
-  { label: 'Forms', path: '/forms-library' },
-  { label: 'Compliance', path: '/compliance' },
-  { label: 'Tools', path: '/agent-tools' },
-] as const;
-
-// ── Shared card styles ──────────────────────────────────────
-const cardStyle: React.CSSProperties = {
-  background: 'var(--bg-card)',
-  borderRadius: 12,
-  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-  overflow: 'hidden',
-};
-const cardHeaderStyle: React.CSSProperties = {
-  padding: '14px 18px',
-  borderBottom: '1px solid var(--bg-muted)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-};
-const cardTitleStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-sans)',
-  fontSize: 14,
-  fontWeight: 600,
-  color: 'var(--text-primary)',
-};
-const cardActionStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-sans)',
-  fontSize: 12,
-  fontWeight: 500,
-  color: 'var(--blue)',
-  background: 'transparent',
-  border: 'none',
-  cursor: 'pointer',
-  padding: 0,
-};
-const emptyStyle: React.CSSProperties = {
-  padding: '24px 18px',
-  fontFamily: 'var(--font-sans)',
-  fontSize: 13,
-  color: 'var(--text-muted)',
-  textAlign: 'center',
-};
-
-// ── Dashboard ───────────────────────────────────────────────
+// ── Page ─────────────────────────────────────────────────────────────────────
 export default function Index() {
-  const { profile } = useAuth();
-  const navigate = useNavigate();
-
-  const firstName = profile?.full_name?.split(' ')[0] || 'Agent';
   const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-  });
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const todayKey = now.toISOString().slice(0, 10);
 
-  // Upcoming events (future-dated, soonest first)
+  // AEP phase
+  const year = now.getFullYear();
+  const aepStart = new Date(year, aep.startMonth - 1, aep.startDay);
+  const aepEnd = new Date(year, aep.endMonth - 1, aep.endDay);
+  const daysToAep = Math.ceil((aepStart.getTime() - now.getTime()) / 86_400_000);
+  const daysLeftAep = Math.ceil((aepEnd.getTime() - now.getTime()) / 86_400_000);
+  const inAep = now >= aepStart && now <= aepEnd;
+
   const upcoming = [...hubEvents]
     .filter((e) => e.date >= todayKey)
     .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 5);
-
-  // Latest updates (newest first)
-  const updates = [...hubUpdates]
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 4);
-
-  // AEP countdown
-  const AEP_START_MONTH = 10;
-  const AEP_START_DAY = 15;
-  const AEP_END_MONTH = 12;
-  const AEP_END_DAY = 7;
-  const AEP_PRESEASON_DAYS = 30;
-
-  const currentYear = now.getFullYear();
-  const aepStart = new Date(currentYear, AEP_START_MONTH - 1, AEP_START_DAY);
-  const aepEnd = new Date(currentYear, AEP_END_MONTH - 1, AEP_END_DAY);
-  const preseasonStart = new Date(aepStart.getTime() - AEP_PRESEASON_DAYS * 86_400_000);
-
-  const daysUntilAep = Math.ceil((aepStart.getTime() - now.getTime()) / 86_400_000);
-  const daysLeftInAep = Math.ceil((aepEnd.getTime() - now.getTime()) / 86_400_000);
-
-  type AepPhase = 'off' | 'pre' | 'during';
-  let aepPhase: AepPhase = 'off';
-  if (now >= preseasonStart && now < aepStart) aepPhase = 'pre';
-  else if (now >= aepStart && now <= aepEnd) aepPhase = 'during';
+    .slice(0, 3);
 
   return (
-    <div
-      style={{
-        flex: '1 1 auto',
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 0,
-        background: 'radial-gradient(ellipse 60% 50% at 50% 0%, var(--bg-warm-glow) 0%, var(--bg) 60%)',
-      }}
-    >
-      {/* ── Header ── */}
-      <div
-        style={{
-          padding: '20px 32px 0',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          gap: 16,
-          flexWrap: 'wrap',
-          ...fadeUp('0s'),
-        }}
-      >
-        <div>
-          <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)' }}>
-            {dateStr}
+    <div className="hub">
+      <style>{CSS}</style>
+      <div className="hub-max">
+        {/* ── Header ── */}
+        <div className="hub-head">
+          <div>
+            <div className="hub-date">{dateStr} · Updated weekly</div>
+            <h1 className="hub-h1">Here's what matters this week.</h1>
           </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-serif)', fontSize: 25, fontWeight: 400,
-              color: 'var(--text-primary)', marginTop: 2,
-            }}
-          >
-            Good {getGreeting()},{' '}
-            <em style={{ color: 'var(--gold-dark)' }}>{firstName}</em>
+          <div className="hub-aep" role="status">
+            🗓{' '}
+            {inAep ? (
+              <>AEP: <b>{daysLeftAep <= 0 ? 'last day' : `${daysLeftAep} days left`}</b></>
+            ) : (
+              <>AEP in <b>{daysToAep} days</b></>
+            )}
           </div>
         </div>
 
-        {/* AEP countdown pill */}
-        {aepPhase !== 'off' && (
-          <div
-            role="status"
-            aria-label={
-              aepPhase === 'pre'
-                ? `Annual Enrollment Period opens in ${daysUntilAep} days`
-                : daysLeftInAep > 0
-                  ? `${daysLeftInAep} days left in Annual Enrollment Period`
-                  : 'Last day of Annual Enrollment Period'
-            }
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 7,
-              padding: '7px 14px', borderRadius: 20,
-              background: 'var(--bg-card)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-              fontFamily: 'var(--font-sans)', fontSize: 12.5,
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            {aepPhase === 'pre' ? (
-              <span style={{ fontWeight: 500, color: 'var(--text-muted)' }}>
-                AEP opens in{' '}
-                <span style={{ fontWeight: 700, color: 'var(--gold-dark)' }}>{daysUntilAep}</span> days
-              </span>
-            ) : daysLeftInAep <= 0 ? (
-              <span style={{ fontWeight: 600, color: 'var(--red)' }}>Last day of AEP</span>
-            ) : (
-              <span style={{ fontWeight: 500, color: 'var(--text-muted)' }}>
-                <span style={{
-                  fontWeight: 700,
-                  color: daysLeftInAep > 10 ? 'var(--gold-dark)' : daysLeftInAep >= 4 ? 'var(--amber)' : 'var(--red)',
-                }}>
-                  {daysLeftInAep}
-                </span>{' '}
-                {daysLeftInAep === 1 ? 'day' : 'days'} left in AEP
-              </span>
-            )}
+        {/* ── The Dock ── */}
+        <div className="hub-dock">
+          {dockLinks.map((d) => (
+            <DockLink key={d.label} {...d} />
+          ))}
+        </div>
+
+        {/* ── The Board ── */}
+        <section className="hub-board" aria-label="Bulletin board">
+          <div className="hub-board__head">
+            <span className="hub-board__title">📌 The Board</span>
+            <span className="hub-board__meta">
+              Posted by {boardMeta.postedBy} · {formatPostedOn(boardMeta.postedOn)}
+            </span>
           </div>
-        )}
-      </div>
-
-      {/* ── Hub grid ── */}
-      <div
-        style={{
-          padding: '22px 32px 32px',
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) 300px',
-          gap: 20,
-          alignItems: 'start',
-        }}
-      >
-        {/* ── Main column ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
-          {/* Latest Updates */}
-          <section style={{ ...cardStyle, ...fadeUp('0.1s') }}>
-            <div style={cardHeaderStyle}>
-              <span style={cardTitleStyle}>Latest Updates</span>
-              <button style={cardActionStyle} onClick={() => navigate('/industry-updates')}>
-                View all
-              </button>
-            </div>
-            {updates.length === 0 ? (
-              <div style={emptyStyle}>No updates right now.</div>
-            ) : (
-              <div>
-                {updates.map((u, i) => (
-                  <article
-                    key={u.id}
-                    onClick={() => u.url && window.open(u.url, '_blank', 'noopener,noreferrer')}
-                    style={{
-                      padding: '14px 18px',
-                      borderBottom: i < updates.length - 1 ? '1px solid var(--bg-muted)' : 'none',
-                      cursor: u.url ? 'pointer' : 'default',
-                      transition: 'background var(--fast) var(--ease)',
-                    }}
-                    onMouseEnter={(e) => { if (u.url) e.currentTarget.style.background = 'var(--bg-subtle)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
-                      <span style={{
-                        fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 600,
-                        textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gold-dark)',
-                      }}>
-                        {u.category}
-                      </span>
-                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-muted)' }}>
-                        {formatUpdateDate(u.date)}
-                      </span>
-                    </div>
-                    <div style={{
-                      fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 600,
-                      color: 'var(--text-primary)', marginBottom: 3,
-                    }}>
-                      {u.title}
-                    </div>
-                    <div style={{
-                      fontFamily: 'var(--font-sans)', fontSize: 12.5, color: 'var(--text-muted)',
-                      lineHeight: 1.45,
-                    }}>
-                      {u.excerpt}
-                    </div>
-                  </article>
-                ))}
+          {boardItems.map((item) => {
+            const kc = KIND_COLORS[item.kind];
+            const days = item.date ? daysUntil(item.date) : null;
+            return (
+              <div className="hub-bitem" key={item.id}>
+                <span className="hub-bitem__kind" style={{ color: kc.dot }}>
+                  <span className="hub-bitem__dot" style={{ background: kc.dot }} />
+                  {kc.label}
+                </span>
+                <div className="hub-bitem__body">
+                  <div className="hub-bitem__title">{item.title}</div>
+                  {item.note && <div className="hub-bitem__note">{item.note}</div>}
+                </div>
+                <div className="hub-bitem__when">
+                  <div className="hub-bitem__whenBig">{item.when}</div>
+                  <div className="hub-bitem__whenSub">
+                    {days !== null
+                      ? days <= 0
+                        ? 'today'
+                        : `${days} day${days === 1 ? '' : 's'}`
+                      : item.whenSub ?? ''}
+                  </div>
+                </div>
               </div>
-            )}
-          </section>
+            );
+          })}
+        </section>
 
-          {/* Upcoming */}
-          <section style={{ ...cardStyle, ...fadeUp('0.2s') }}>
-            <div style={cardHeaderStyle}>
-              <span style={cardTitleStyle}>Upcoming</span>
-            </div>
+        {/* ── Two quiet cards ── */}
+        <div className="hub-two">
+          <section className="hub-card">
+            <h2 className="hub-card__h">
+              🗓 Upcoming <Link to="/calendar" className="hub-card__more">Calendar →</Link>
+            </h2>
             {upcoming.length === 0 ? (
-              <div style={emptyStyle}>No upcoming events.</div>
+              <div className="hub-empty">Nothing scheduled. Check back Monday.</div>
             ) : (
-              <div>
-                {upcoming.map((ev, i) => {
-                  const { month, day } = formatEventDate(ev.date);
-                  const style = EVENT_STYLES[ev.type];
-                  return (
-                    <div
-                      key={ev.id}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 14,
-                        padding: '12px 18px',
-                        borderBottom: i < upcoming.length - 1 ? '1px solid var(--bg-muted)' : 'none',
-                      }}
-                    >
-                      {/* Date block */}
-                      <div style={{
-                        flexShrink: 0, width: 44, textAlign: 'center',
-                        background: 'var(--bg-subtle)', borderRadius: 8, padding: '6px 0',
-                      }}>
-                        <div style={{
-                          fontFamily: 'var(--font-sans)', fontSize: 9, fontWeight: 600,
-                          textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)',
-                        }}>
-                          {month}
-                        </div>
-                        <div style={{
-                          fontFamily: 'var(--font-sans)', fontSize: 17, fontWeight: 700,
-                          color: 'var(--text-primary)', lineHeight: 1.1,
-                        }}>
-                          {day}
-                        </div>
+              upcoming.map((ev) => {
+                const d = eventDate(ev.date);
+                return (
+                  <div className="hub-ev" key={ev.id}>
+                    <div className="hub-ev__date">
+                      <div className="hub-ev__mo">{d.mo}</div>
+                      <div className="hub-ev__dy">{d.dy}</div>
+                    </div>
+                    <div>
+                      <div className="hub-ev__t">{ev.title}</div>
+                      <div className="hub-ev__s">
+                        {[ev.time, ev.location].filter(Boolean).join(' · ')}
                       </div>
-                      {/* Details */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{
-                          fontFamily: 'var(--font-sans)', fontSize: 13.5, fontWeight: 600,
-                          color: 'var(--text-primary)',
-                        }}>
-                          {ev.title}
-                        </div>
-                        <div style={{
-                          fontFamily: 'var(--font-sans)', fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2,
-                          display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
-                        }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: '50%', background: style.color, flexShrink: 0 }} />
-                            {style.label}
-                          </span>
-                          {ev.time && <span>· {ev.time}</span>}
-                          {ev.location && <span>· {ev.location}</span>}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-        </div>
-
-        {/* ── Side column ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Quick links */}
-          <section style={{ ...cardStyle, ...fadeUp('0.15s') }}>
-            <div style={cardHeaderStyle}>
-              <span style={cardTitleStyle}>Quick Links</span>
-            </div>
-            <div style={{ padding: '6px 0' }}>
-              {quickLinks.map((link) => (
-                <button
-                  key={link.path}
-                  onClick={() => navigate(link.path)}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    width: '100%', padding: '9px 18px', border: 'none', background: 'transparent',
-                    cursor: 'pointer', textAlign: 'left',
-                    fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500,
-                    color: 'var(--text-primary)', transition: 'background var(--fast) var(--ease)',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                >
-                  {link.label}
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {/* Your TIG Team */}
-          <section style={{ ...cardStyle, ...fadeUp('0.25s') }}>
-            <div style={cardHeaderStyle}>
-              <span style={cardTitleStyle}>Your TIG Team</span>
-            </div>
-            {hubContacts.length === 0 ? (
-              <div style={emptyStyle}>Contacts coming soon.</div>
-            ) : (
-              <div>
-                {hubContacts.map((c, i) => (
-                  <div
-                    key={c.id}
-                    style={{
-                      padding: '12px 18px',
-                      borderBottom: i < hubContacts.length - 1 ? '1px solid var(--bg-muted)' : 'none',
-                    }}
-                  >
-                    <div style={{
-                      fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)',
-                    }}>
-                      {c.name}
-                    </div>
-                    <div style={{
-                      fontFamily: 'var(--font-sans)', fontSize: 11.5, color: 'var(--text-muted)', marginTop: 1,
-                    }}>
-                      {c.role}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 6 }}>
-                      {c.email && (
-                        <a
-                          href={`mailto:${c.email}`}
-                          style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--blue)', textDecoration: 'none' }}
-                        >
-                          {c.email}
-                        </a>
-                      )}
-                      {c.phone && (
-                        <a
-                          href={`tel:${c.phone.replace(/[^0-9+]/g, '')}`}
-                          style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none' }}
-                        >
-                          {c.phone}
-                        </a>
-                      )}
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })
+            )}
+          </section>
+
+          <section className="hub-card">
+            <h2 className="hub-card__h">
+              🆕 New this week <Link to="/industry-updates" className="hub-card__more">All updates →</Link>
+            </h2>
+            {newThisWeek.length === 0 ? (
+              <div className="hub-empty">Nothing new yet this week.</div>
+            ) : (
+              newThisWeek.map((n) => {
+                const inner = (
+                  <>
+                    <div className="hub-new__cat">{n.category}</div>
+                    <div className="hub-new__t">{n.title}</div>
+                  </>
+                );
+                return n.href ? (
+                  n.href.startsWith('http') ? (
+                    <a className="hub-new hub-new--link" key={n.id} href={n.href} target="_blank" rel="noopener noreferrer">{inner}</a>
+                  ) : (
+                    <Link className="hub-new hub-new--link" key={n.id} to={n.href}>{inner}</Link>
+                  )
+                ) : (
+                  <div className="hub-new" key={n.id}>{inner}</div>
+                );
+              })
             )}
           </section>
         </div>
@@ -436,3 +194,77 @@ export default function Index() {
     </div>
   );
 }
+
+// ── Scoped styles (emerald hub) ──────────────────────────────────────────────
+const CSS = `
+.hub{
+  --em:#0E3B2E; --bone:#F4F1E8; --card:#fff; --line:#e7e0cf; --muted:#6b6457;
+  --ink:#1b2620; --gold:#C9A84C; --gold2:#A8801F;
+  flex:1 1 auto; min-height:0; overflow-y:auto; background:var(--bone);
+  font-family:'Outfit','Inter',system-ui,sans-serif; color:var(--ink);
+  -webkit-font-smoothing:antialiased; padding:32px 40px 48px;
+}
+.hub *{ box-sizing:border-box; }
+.hub-max{ max-width:920px; margin:0 auto; }
+
+/* header */
+.hub-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px; }
+.hub-date{ font-size:12.5px; color:var(--muted); }
+.hub-h1{ font-size:27px; font-weight:700; letter-spacing:-.025em; margin:2px 0 0; }
+.hub-aep{ display:inline-flex; align-items:center; gap:8px; background:var(--em); color:var(--bone); padding:9px 15px; border-radius:30px; font-size:13px; }
+.hub-aep b{ color:var(--gold); }
+
+/* dock */
+.hub-dock{ display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
+.hub-dk{ display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--line); border-radius:11px;
+  padding:11px 16px; font-size:13.5px; font-weight:600; color:var(--ink); text-decoration:none; transition:.15s;
+  box-shadow:0 1px 3px rgba(0,0,0,.03); }
+.hub-dk:hover{ border-color:var(--gold); transform:translateY(-2px); }
+.hub-dk__i{ font-size:16px; }
+
+/* board */
+.hub-board{ background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone); border-radius:18px; padding:22px 24px;
+  margin-bottom:22px; position:relative; overflow:hidden; }
+.hub-board:before{ content:""; position:absolute; top:-90px; right:-60px; width:340px; height:340px;
+  background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); pointer-events:none; }
+.hub-board__head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; position:relative; flex-wrap:wrap; gap:6px; }
+.hub-board__title{ font-size:15px; font-weight:700; }
+.hub-board__meta{ font-size:11px; color:rgba(244,241,232,.55); }
+.hub-bitem{ display:flex; align-items:center; gap:13px; padding:12px 0; border-top:1px solid rgba(255,255,255,.1); position:relative; font-size:14px; }
+.hub-bitem__kind{ flex-shrink:0; width:96px; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; display:flex; align-items:center; gap:7px; }
+.hub-bitem__dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.hub-bitem__body{ min-width:0; }
+.hub-bitem__title{ font-weight:600; }
+.hub-bitem__note{ font-size:12px; color:rgba(244,241,232,.55); margin-top:1px; }
+.hub-bitem__when{ margin-left:auto; text-align:right; flex-shrink:0; }
+.hub-bitem__whenBig{ font-size:15px; font-weight:700; color:var(--gold); }
+.hub-bitem__whenSub{ font-size:10.5px; color:rgba(244,241,232,.55); }
+
+/* two cards */
+.hub-two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.hub-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,.03); }
+.hub-card__h{ font-size:13.5px; font-weight:700; display:flex; align-items:center; justify-content:space-between; margin:0 0 12px; }
+.hub-card__more{ font-size:12px; font-weight:500; color:var(--gold2); text-decoration:none; }
+.hub-card__more:hover{ text-decoration:underline; }
+.hub-empty{ font-size:13px; color:var(--muted); padding:8px 0; }
+
+.hub-ev{ display:flex; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); }
+.hub-ev:last-child{ border-bottom:none; }
+.hub-ev__date{ width:40px; text-align:center; background:var(--bone); border-radius:8px; padding:4px 0; flex-shrink:0; }
+.hub-ev__mo{ font-size:9px; font-weight:700; text-transform:uppercase; color:var(--muted); }
+.hub-ev__dy{ font-size:15px; font-weight:700; }
+.hub-ev__t{ font-size:13px; font-weight:600; }
+.hub-ev__s{ font-size:11.5px; color:var(--muted); }
+
+.hub-new{ display:block; padding:9px 0; border-bottom:1px solid var(--line); text-decoration:none; color:var(--ink); }
+.hub-new:last-child{ border-bottom:none; }
+.hub-new--link:hover .hub-new__t{ color:var(--gold2); }
+.hub-new__cat{ font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gold2); }
+.hub-new__t{ font-size:13px; font-weight:600; margin-top:2px; transition:color .15s; }
+
+@media(max-width:760px){
+  .hub{ padding:20px; }
+  .hub-two{ grid-template-columns:1fr; }
+  .hub-bitem__kind{ display:none; }
+}
+`;

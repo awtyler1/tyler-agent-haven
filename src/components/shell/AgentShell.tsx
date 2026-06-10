@@ -1,542 +1,124 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useNavigationContext } from '@/hooks/useNavigationContext';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
 import { toast } from 'sonner';
 
 // ============================================================
-// Sidebar Navigation Config
+// TIG Hub shell — emerald sidebar (shared-login MVP)
 // ============================================================
 
 interface NavItem {
   label: string;
   path: string;
-  icon: React.ReactNode;
-  external?: boolean;
+  icon: string;
 }
 
-interface NavGroup {
-  label: string;
-  items: NavItem[];
-}
-
-// 15px inline SVGs, stroke-width 1.7, Lucide-style
-const Icons = {
-  Home: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
-  ),
-  Compass: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-    </svg>
-  ),
-  Pen: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-    </svg>
-  ),
-  Graduation: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-      <path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" />
-    </svg>
-  ),
-  Shield: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <path d="M12 8v4m0 4h.01" />
-    </svg>
-  ),
-  Grid: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7" />
-      <rect x="14" y="3" width="7" height="7" />
-      <rect x="14" y="14" width="7" height="7" />
-      <rect x="3" y="14" width="7" height="7" />
-    </svg>
-  ),
-  Clipboard: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-    </svg>
-  ),
-  ShieldCheck: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <path d="M9 12l2 2 4-4" />
-    </svg>
-  ),
-  Wrench: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-    </svg>
-  ),
-};
-
-const NAV_GROUPS: NavGroup[] = [
-  {
-    label: '',
-    items: [
-      { label: 'Dashboard', path: '/hub', icon: Icons.Home },
-      { label: 'Start Here', path: '/start-here', icon: Icons.Compass },
-      { label: 'Contracting', path: '/contracting-hub', icon: Icons.Pen },
-      { label: 'Training', path: '/training', icon: Icons.Graduation },
-    ],
-  },
-  {
-    label: 'Resources',
-    items: [
-      { label: 'Carriers', path: '/carrier-resources', icon: Icons.Shield },
-      { label: 'Portals', path: '/carrier-portals', icon: Icons.Grid },
-      { label: 'Forms', path: '/forms-library', icon: Icons.Clipboard },
-      { label: 'Compliance', path: '/compliance', icon: Icons.ShieldCheck },
-      { label: 'Tools', path: '/agent-tools', icon: Icons.Wrench },
-    ],
-  },
+const NAV_ITEMS: NavItem[] = [
+  { label: 'Home', path: '/hub', icon: '⌂' },
+  { label: 'Carriers', path: '/carrier-resources', icon: '⛨' },
+  { label: 'Quote & Enroll', path: '/agent-tools', icon: '⚡' },
+  { label: 'Training & Playbooks', path: '/training', icon: '🎓' },
+  { label: 'Knowledge & Updates', path: '/industry-updates', icon: '📈' },
+  { label: 'Forms & Compliance', path: '/forms-library', icon: '📋' },
+  { label: 'Calendar', path: '/calendar', icon: '🗓' },
+  { label: 'Contacts', path: '/contacts', icon: '☎' },
 ];
 
-// ============================================================
-// UserCardDropdown
-// ============================================================
+export function AgentShell() {
+  const location = useLocation();
 
-function UserCardDropdown({
-  profile,
-  loading,
-  isDualRole,
-  viewMode,
-  toggleMode,
-}: {
-  profile: { full_name: string | null; email: string | null; onboarding_status: string } | null;
-  loading: boolean;
-  isDualRole: boolean;
-  viewMode: string;
-  toggleMode: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  const isActive = (path: string) => {
+    if (path === '/hub') return location.pathname === '/hub';
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
 
-  const profileLoaded = !loading && !!profile;
-
-  // Immediate fallback initials from email if profile not yet loaded
-  const initials = profile?.full_name
-    ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : profile?.email
-      ? profile.email[0].toUpperCase()
-      : '';
-
-  const displayName = profile?.full_name || 'Agent';
-  const roleName = profile?.onboarding_status === 'APPOINTED' ? 'Agent' : 'Onboarding';
-
-  // Close on outside click
-  useEffect(() => {
-    if (!open) return;
-    function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [open]);
-
-  // Close on Escape
-  useEffect(() => {
-    if (!open) return;
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
-    }
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [open]);
-
-  const handleSignOut = useCallback(async () => {
-    setOpen(false);
+  const handleSignOut = async () => {
     await logActivity(ActivityAction.LOGOUT);
     try {
       await supabase.auth.signOut({ scope: 'local' });
     } catch {
-      // Logout errors are non-critical
+      // non-critical
     }
-    Object.keys(localStorage).forEach(key => {
+    Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('sb-')) localStorage.removeItem(key);
     });
-    toast.success('Logged out successfully');
+    toast.success('Logged out');
     window.location.href = '/auth';
-  }, []);
-
-  const menuItemBase: React.CSSProperties = {
-    display: 'block',
-    width: '100%',
-    padding: '8px 14px',
-    fontSize: 13,
-    fontFamily: 'var(--font-sans)',
-    fontWeight: 400,
-    color: 'var(--text-primary)',
-    background: 'transparent',
-    border: 'none',
-    textAlign: 'left',
-    cursor: 'pointer',
-    textDecoration: 'none',
-    transition: 'background var(--fast) var(--ease)',
   };
 
   return (
-    <div ref={menuRef} style={{ position: 'relative', borderTop: '1px solid var(--sidebar-border)', padding: '8px 12px' }}>
-      {/* Trigger */}
-      <button
-        aria-haspopup="true"
-        aria-expanded={open}
-        onClick={() => setOpen(o => !o)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          width: '100%',
-          padding: '4px 4px',
-          borderRadius: 8,
-          border: 'none',
-          background: 'transparent',
-          cursor: 'pointer',
-          textAlign: 'left',
-          transition: 'background var(--fast) var(--ease)',
-          fontFamily: 'var(--font-sans)',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'var(--sidebar-hover)'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-      >
-        {/* Gold avatar — always renders immediately */}
-        <div
-          style={{
-            width: 26,
-            height: 26,
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <span style={{ color: '#fff', fontSize: 10, fontWeight: 700, lineHeight: 1 }}>
-            {initials}
-          </span>
-        </div>
+    <div className="shell">
+      <style>{CSS}</style>
 
-        {/* Name + role or skeleton */}
-        <div style={{ minWidth: 0, flex: 1 }}>
-          {profileLoaded ? (
-            <>
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: 'var(--sidebar-text-active)',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {displayName}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--sidebar-text)' }}>
-                {roleName}
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Skeleton: name bar */}
-              <div style={{ width: 96, height: 12, borderRadius: 4, background: 'var(--sidebar-border)' }} />
-              {/* Skeleton: role bar */}
-              <div style={{ width: 48, height: 9, borderRadius: 3, background: 'var(--sidebar-border)', marginTop: 4 }} />
-            </>
-          )}
-        </div>
-      </button>
+      <aside className="shell-sb">
+        <Link to="/hub" className="shell-brand">
+          <svg className="shell-crest" viewBox="0 0 60 66" fill="none" aria-hidden="true">
+            <path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" strokeWidth="3" />
+            <rect x="19" y="19" width="22" height="5" fill="#C9A84C" />
+            <rect x="27.5" y="19" width="5" height="25" fill="#C9A84C" />
+          </svg>
+          <span className="shell-brand__nm">Tyler<br />Insurance Group</span>
+        </Link>
 
-      {/* Dropdown menu — opens upward */}
-      {open && (
-        <div
-          role="menu"
-          style={{
-            position: 'absolute',
-            bottom: '100%',
-            left: 0,
-            marginBottom: 4,
-            minWidth: 180,
-            background: 'var(--bg-card)',
-            borderRadius: 8,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-            overflow: 'hidden',
-            zIndex: 50,
-          }}
-        >
-          <button
-            role="menuitem"
-            style={menuItemBase}
-            onClick={() => { setOpen(false); navigate('/my-profile'); }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-          >
-            My Profile
-          </button>
-          <button
-            role="menuitem"
-            style={menuItemBase}
-            onClick={() => { setOpen(false); navigate('/my-profile'); }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-          >
-            Settings
-          </button>
-
-          {/* Divider */}
-          <div style={{ height: 1, background: 'var(--bg-muted)', margin: '2px 0' }} />
-
-          {/* Dual-role toggle */}
-          {isDualRole && (
-            <>
-              <button
-                role="menuitem"
-                style={menuItemBase}
-                onClick={() => { setOpen(false); toggleMode(); }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-              >
-                Switch to {viewMode === 'agent' ? 'Admin' : 'Agent'}
-              </button>
-              <div style={{ height: 1, background: 'var(--bg-muted)', margin: '2px 0' }} />
-            </>
-          )}
-
-          {/* Sign Out */}
-          <button
-            role="menuitem"
-            style={{ ...menuItemBase, color: 'var(--red)' }}
-            onClick={handleSignOut}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-subtle)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-          >
-            Sign Out
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================
-// AgentShell
-// ============================================================
-
-export function AgentShell() {
-  const location = useLocation();
-  const { profile, loading } = useAuth();
-  const { isDualRole, toggleMode, viewMode } = useNavigationContext();
-
-  // Active route matching: exact for "/" , startsWith for others
-  const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
-    return location.pathname === path || location.pathname.startsWith(path + '/');
-  };
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        height: '100vh',
-        padding: 10,
-        background: 'var(--bg)',
-        overflow: 'hidden',
-        fontFamily: 'var(--font-sans)',
-      }}
-    >
-      {/* Sidebar */}
-      <nav
-        role="navigation"
-        aria-label="Main navigation"
-        style={{
-          width: 194,
-          minWidth: 194,
-          background: 'var(--sidebar)',
-          borderRadius: 14,
-          boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.05)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Brand area — compact 12px vertical */}
-        <div style={{ padding: '12px 16px 10px', borderBottom: '1px solid var(--sidebar-border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                background: 'linear-gradient(135deg, var(--gold-dark), var(--gold))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span style={{ color: '#fff', fontSize: 14, fontWeight: 700, lineHeight: 1 }}>T</span>
-            </div>
-            <span
-              style={{
-                fontVariant: 'all-small-caps',
-                fontSize: 15,
-                fontWeight: 600,
-                color: 'var(--sidebar-text-active)',
-                letterSpacing: '0.08em',
-              }}
-            >
-              TIG
-            </span>
-          </div>
-        </div>
-
-        {/* Navigation groups — overflow hidden, never scrolls */}
-        <div style={{ flex: 1, overflow: 'hidden', padding: '6px 0 0' }}>
-          {NAV_GROUPS.map((group, groupIdx) => (
-            <div key={group.label || `group-${groupIdx}`} style={{ marginBottom: 0 }}>
-              {/* Section label — skip when empty */}
-              {group.label && (
-                <div
-                  style={{
-                    fontSize: 9,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: 'var(--sidebar-section-label)',
-                    padding: `${groupIdx === 0 ? '4px' : '12px'} 16px 4px`,
-                  }}
-                >
-                  {group.label}
-                </div>
-              )}
-
-              {/* Nav items */}
-              {group.items.map((item) => {
-                if (item.external) {
-                  return (
-                    <a
-                      key={item.label}
-                      href={item.path}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${item.label} (opens external site)`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        padding: '6px 16px',
-                        margin: '0 8px',
-                        borderRadius: 8,
-                        fontSize: 12.5,
-                        fontWeight: 500,
-                        color: '#635F68',
-                        textDecoration: 'none',
-                        transition: 'background var(--fast) var(--ease)',
-                        cursor: 'pointer',
-                        position: 'relative',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--sidebar-hover)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                      }}
-                    >
-                      <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }} aria-hidden="true">
-                        {item.icon}
-                      </span>
-                      <span style={{ flex: 1 }}>{item.label}</span>
-                      <span style={{ fontSize: 8, opacity: 0.7 }}>↗</span>
-                    </a>
-                  );
-                }
-
-                const active = isActive(item.path);
-                return (
-                  <Link
-                    key={item.label}
-                    to={item.path}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: '6px 16px',
-                      margin: '0 8px',
-                      borderRadius: 8,
-                      fontSize: 12.5,
-                      fontWeight: active ? 700 : 500,
-                      color: active ? 'var(--sidebar-text-active)' : 'var(--sidebar-text)',
-                      textDecoration: 'none',
-                      background: active ? 'var(--gold-active-bg)' : 'transparent',
-                      transition: 'background var(--fast) var(--ease)',
-                      position: 'relative',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!active) e.currentTarget.style.background = 'var(--sidebar-hover)';
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active) e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    {/* Gold active bar */}
-                    {active && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: 0,
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          width: 3,
-                          height: 16,
-                          borderRadius: 2,
-                          background: 'var(--gold)',
-                        }}
-                      />
-                    )}
-                    <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
+        <nav className="shell-nav" aria-label="Main navigation">
+          {NAV_ITEMS.map((item) => (
+            <Link key={item.path} to={item.path} className={isActive(item.path) ? 'on' : ''}>
+              <span className="shell-nav__ic" aria-hidden="true">{item.icon}</span>
+              {item.label}
+            </Link>
           ))}
-        </div>
+        </nav>
 
-        {/* User card with dropdown (Fix 2, 3, 4) */}
-        <UserCardDropdown
-          profile={profile}
-          loading={loading}
-          isDualRole={isDualRole}
-          viewMode={viewMode}
-          toggleMode={toggleMode}
-        />
-      </nav>
-
-      {/* Content area — flex column so pages can fill height; scroll wrapper for normal pages */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', marginLeft: 0 }}>
-        <div style={{ flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, overflowY: 'auto' }}>
-          <Outlet />
+        <div className="shell-foot">
+          <div className="shell-foot__note">
+            Questions? Text Austin or Andrew. <Link to="/contacts">Contacts →</Link>
+          </div>
+          <button className="shell-foot__out" onClick={handleSignOut}>Sign out</button>
         </div>
+      </aside>
+
+      <main className="shell-main">
+        <Outlet />
       </main>
     </div>
   );
 }
+
+const CSS = `
+.shell{ display:flex; min-height:100vh; background:#F4F1E8; }
+.shell *{ box-sizing:border-box; }
+
+.shell-sb{ width:230px; flex-shrink:0; background:linear-gradient(180deg,#0b2c21,#082018); color:#F4F1E8;
+  display:flex; flex-direction:column; padding:18px 14px; position:sticky; top:0; height:100vh;
+  font-family:'Outfit','Inter',system-ui,sans-serif; }
+.shell-brand{ display:flex; align-items:center; gap:10px; padding:6px 8px 18px; border-bottom:1px solid rgba(255,255,255,.08); text-decoration:none; color:inherit; }
+.shell-crest{ height:30px; width:auto; flex-shrink:0; }
+.shell-brand__nm{ font-weight:700; font-size:13.5px; line-height:1.2; }
+
+.shell-nav{ margin-top:14px; display:flex; flex-direction:column; }
+.shell-nav a{ display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:9px; font-size:13.5px; font-weight:500;
+  color:rgba(244,241,232,.74); text-decoration:none; position:relative; margin-bottom:2px; transition:background .15s,color .15s; }
+.shell-nav a:hover{ background:rgba(255,255,255,.05); color:#fff; }
+.shell-nav a.on{ background:rgba(201,168,76,.14); color:#fff; font-weight:600; }
+.shell-nav a.on:before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:2px; background:#C9A84C; }
+.shell-nav__ic{ width:16px; flex-shrink:0; opacity:.9; }
+
+.shell-foot{ margin-top:auto; padding:12px 10px 4px; border-top:1px solid rgba(255,255,255,.08); }
+.shell-foot__note{ font-size:11.5px; color:rgba(244,241,232,.5); line-height:1.5; }
+.shell-foot__note a{ color:#C9A84C; font-weight:600; text-decoration:none; }
+.shell-foot__out{ margin-top:10px; width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+  color:rgba(244,241,232,.8); font-family:inherit; font-size:12px; font-weight:600; padding:8px 10px; border-radius:8px; cursor:pointer; transition:.15s; }
+.shell-foot__out:hover{ border-color:rgba(255,255,255,.3); color:#fff; }
+
+.shell-main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:100vh; overflow-y:auto; }
+
+@media(max-width:760px){
+  .shell{ flex-direction:column; }
+  .shell-sb{ width:100%; height:auto; position:static; flex-direction:row; align-items:center; gap:10px; padding:10px 14px; overflow-x:auto; }
+  .shell-brand{ border-bottom:none; padding:0 8px 0 0; }
+  .shell-brand__nm{ display:none; }
+  .shell-nav{ margin-top:0; flex-direction:row; gap:2px; }
+  .shell-nav a{ white-space:nowrap; padding:8px 10px; }
+  .shell-foot{ display:none; }
+}
+`;
