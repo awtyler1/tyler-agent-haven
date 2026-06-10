@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Hub — Daily Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;--red:#b8503f;--amber:#b07f33;--green:#5b7d44}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .crest{height:28px;width:auto}
+
+  /* top nav */
+  .nav{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,var(--em),var(--em2));color:var(--bone)}
+  .nav__in{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:8px;height:62px;padding:0 26px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Outfit';font-weight:700;font-size:14.5px;margin-right:18px}
+  .nav a.lk{padding:8px 12px;border-radius:8px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74)}
+  .nav a.lk:hover{color:#fff;background:rgba(255,255,255,.06)}
+  .nav a.lk.on{color:#fff;background:rgba(201,168,76,.16);font-weight:600}
+  .nav .right{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:26px}
+  .head{margin-bottom:20px}
+  .head .date{font-size:12px;color:var(--muted)}
+  .head h1{font-family:'Outfit';font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+  .head h1 em{font-style:normal;color:var(--gold2)}
+
+  .grid{display:grid;grid-template-columns:1fr 340px;gap:22px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.03);margin-bottom:18px}
+  .card h2{font-family:'Outfit';font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .card h2 a{font-size:12px;font-weight:500;color:var(--gold2)}
+
+  /* bulletin banner */
+  .bulletin{background:linear-gradient(120deg,#10362a,#0c2a20);color:var(--bone);border:none}
+  .bulletin h2{color:#fff}
+  .bdl{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:13.5px}
+  .bdl:last-child{border-bottom:none}
+  .bdl .when{margin-left:auto;font-size:12px;color:rgba(244,241,232,.6);white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+  .upd{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+  .upd:last-child{border-bottom:none}
+  .upd .thumb{width:54px;height:54px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,#dfd0a6,#b89a52)}
+  .upd .cat{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold2)}
+  .upd .ti{font-size:14.5px;font-weight:600;margin-top:3px}
+  .upd .ex{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+
+  /* rail */
+  .aep{background:var(--em);color:var(--bone);border:none}
+  .aep h2{color:#fff}
+  .aep .big{font-family:'Outfit';font-size:34px;font-weight:800;color:var(--gold)}
+  .aep .sm{font-size:12.5px;color:rgba(244,241,232,.72);margin-top:2px}
+  .launch{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .launch a{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid var(--line);border-radius:9px;font-size:12.5px;font-weight:600}
+  .launch a:hover{border-color:var(--gold)}
+  .launch .b{width:7px;height:7px;border-radius:2px;background:var(--gold)}
+  .ev{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .ev:last-child{border-bottom:none}
+  .ev .dte{width:40px;text-align:center;background:var(--bone);border-radius:8px;padding:4px 0;flex-shrink:0}
+  .ev .mo{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted)}.ev .dy{font-family:'Outfit';font-size:15px;font-weight:700}
+  .ev .t{font-size:13px;font-weight:600}.ev .s{font-size:11px;color:var(--muted)}
+
+  @media(max-width:900px){.grid{grid-template-columns:1fr}.nav a.lk{display:none}}
+</style>
+</head>
+<body>
+  <div class="tag">DASH · <b>Daily Briefing</b></div>
+  <header class="nav"><div class="nav__in">
+    <span class="brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg> TIG Hub</span>
+    <a class="lk on">Home</a><a class="lk">Carriers</a><a class="lk">Tools</a><a class="lk">Training</a><a class="lk">Knowledge</a><a class="lk">Forms</a><a class="lk">Contacts</a>
+    <div class="right"><span style="font-size:13px;color:rgba(244,241,232,.7)">🔔</span><span class="av">JD</span></div>
+  </div></header>
+
+  <div class="wrap">
+    <div class="head">
+      <div class="date">Tuesday, June 9, 2026</div>
+      <h1 class="disp">Good morning, <em>Jordan</em>. Here's your briefing.</h1>
+    </div>
+
+    <div class="grid">
+      <div class="col">
+        <div class="card bulletin">
+          <h2>📌 Today's bulletin</h2>
+          <div class="bdl"><span class="dot" style="background:#e0795f"></span>Aetna 2027 certification closes<span class="when">Jun 30</span></div>
+          <div class="bdl"><span class="dot" style="background:#e0a85f"></span>Humana RTS attestation due<span class="when">Jul 5</span></div>
+          <div class="bdl"><span class="dot" style="background:#e0a85f"></span>Monthly production report<span class="when">Jun 28</span></div>
+          <div class="bdl"><span class="dot" style="background:#88b06a"></span>New: Wellcare 2027 certs open<span class="when">Now</span></div>
+        </div>
+
+        <div class="card">
+          <h2>📰 Latest updates &amp; training <a href="#">View all</a></h2>
+          <div class="upd"><div class="thumb"></div><div><div class="cat">Carrier</div><div class="ti">2027 Carrier Certifications Now Open</div><div class="ex">Several carriers opened 2027 certs. Get ahead of AEP and knock them out early.</div></div></div>
+          <div class="upd"><div class="thumb" style="background:linear-gradient(135deg,#c8b6c0,#7a6470)"></div><div><div class="cat">CMS</div><div class="ti">2027 Final Rule — what actually changed</div><div class="ex">A plain-English rundown of the rules that affect how you market and enroll.</div></div></div>
+          <div class="upd"><div class="thumb" style="background:linear-gradient(135deg,#aab68f,#5f6b47)"></div><div><div class="cat">Playbook</div><div class="ti">New: T65 outreach script that converts</div><div class="ex">The exact sequence we use to turn a T65 lead into an enrolled client.</div></div></div>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="card aep">
+          <h2>🔴 AEP countdown</h2>
+          <div class="big">128 days</div>
+          <div class="sm">Until Oct 15. 2027 certs are opening now — don't wait.</div>
+          <div style="margin-top:14px"><a href="#" style="font-size:13px;font-weight:600;color:var(--gold)">2027 plan changes →</a></div>
+        </div>
+        <div class="card">
+          <h2>⚡ Quick launch</h2>
+          <div class="launch"><a><span class="b"></span>SunFire</a><a><span class="b"></span>Connecture</a><a><span class="b"></span>BOSS CRM</a><a><span class="b"></span>Portals</a><a><span class="b"></span>AHIP</a><a><span class="b"></span>Forms</a></div>
+        </div>
+        <div class="card">
+          <h2>🗓 Upcoming <a href="#">Calendar</a></h2>
+          <div class="ev"><div class="dte"><div class="mo">Jun</div><div class="dy">12</div></div><div><div class="t">Monthly Agent Call</div><div class="s">11:00 AM ET · Zoom</div></div></div>
+          <div class="ev"><div class="dte"><div class="mo">Jun</div><div class="dy">18</div></div><div><div class="t">New Agent Onboarding</div><div class="s">1:00 PM ET</div></div></div>
+          <div class="ev"><div class="dte"><div class="mo">Sep</div><div class="dy">15</div></div><div><div class="t">AEP Readiness Webinar</div><div class="s">2:00 PM ET</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

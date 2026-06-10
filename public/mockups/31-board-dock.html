@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Hub — The Board + Dock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;--red:#b8503f;--amber:#b07f33;--green:#5b7d44}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .crest{height:30px;width:auto}
+
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}
+  .nav{margin-top:14px}
+  .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a:hover{background:rgba(255,255,255,.05);color:#fff}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}
+  .nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5);line-height:1.5}
+  .sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:32px 44px}
+  .max{max-width:920px;margin:0 auto}
+  .head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+  .head .date{font-size:12.5px;color:var(--muted)}
+  .head h1{font-family:'Outfit';font-size:27px;font-weight:700;letter-spacing:-.025em;margin-top:2px}
+  .aep{display:inline-flex;align-items:center;gap:8px;background:var(--em);color:var(--bone);padding:9px 15px;border-radius:30px;font-size:13px}.aep b{color:var(--gold)}
+
+  /* dock — always same place, compact */
+  .dock{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+  .dk{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 16px;font-size:13.5px;font-weight:600;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+  .dk:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .dk .i{font-size:16px}
+
+  /* THE BOARD — the one dominant element */
+  .board{background:linear-gradient(135deg,#10362a,#0a2c22);color:var(--bone);border-radius:18px;padding:22px 24px;margin-bottom:22px;position:relative;overflow:hidden}
+  .board:before{content:"";position:absolute;top:-90px;right:-60px;width:340px;height:340px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  .board .bh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative}
+  .board .bh .t{font-family:'Outfit';font-size:15px;font-weight:700}
+  .board .bh .upd{font-size:11px;color:rgba(244,241,232,.55)}
+  .bitem{display:flex;align-items:center;gap:13px;padding:12px 0;border-top:1px solid rgba(255,255,255,.1);position:relative;font-size:14px}
+  .bitem .k{flex-shrink:0;width:96px;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+  .bitem .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .bitem .tx{font-weight:600}
+  .bitem .sub{font-size:12px;color:rgba(244,241,232,.55);font-weight:400;margin-top:1px}
+  .bitem .when{margin-left:auto;text-align:right;flex-shrink:0}
+  .bitem .when .d{font-family:'Outfit';font-size:15px;font-weight:700;color:var(--gold)}
+  .bitem .when .l{font-size:10.5px;color:rgba(244,241,232,.55)}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+  .card h2{font-family:'Outfit';font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .card h2 a{font-size:12px;font-weight:500;color:var(--gold2)}
+  .ev{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}.ev:last-child{border-bottom:none}
+  .ev .dte{width:40px;text-align:center;background:var(--bone);border-radius:8px;padding:4px 0;flex-shrink:0}
+  .ev .mo{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted)}.ev .dy{font-family:'Outfit';font-size:15px;font-weight:700}
+  .ev .t{font-size:13px;font-weight:600}.ev .s{font-size:11.5px;color:var(--muted)}
+  .upd2{padding:9px 0;border-bottom:1px solid var(--line)}.upd2:last-child{border-bottom:none}
+  .upd2 .cat{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold2)}
+  .upd2 .ti{font-size:13px;font-weight:600;margin-top:2px}
+
+  @media(max-width:760px){.sb{display:none}.two{grid-template-columns:1fr}.main{padding:22px}.bitem .k{display:none}}
+</style>
+</head>
+<body>
+  <div class="tag">BLEND · <b>Board + Dock</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand">
+        <svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg>
+        <div class="nm">Tyler<br>Insurance Group</div>
+      </div>
+      <nav class="nav">
+        <a class="on"><span class="ic">⌂</span> Home</a>
+        <a><span class="ic">⛨</span> Carriers</a>
+        <a><span class="ic">⚡</span> Quote &amp; Enroll</a>
+        <a><span class="ic">🎓</span> Training &amp; Playbooks</a>
+        <a><span class="ic">📈</span> Knowledge &amp; Updates</a>
+        <a><span class="ic">📋</span> Forms &amp; Compliance</a>
+        <a><span class="ic">🗓</span> Calendar</a>
+        <a><span class="ic">☎</span> Contacts</a>
+      </nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+
+    <main class="main"><div class="max">
+      <div class="head">
+        <div>
+          <div class="date">Tuesday, June 9 · Updated weekly</div>
+          <h1 class="disp">Here's what matters this week.</h1>
+        </div>
+        <div class="aep">🗓 AEP in <b>128 days</b></div>
+      </div>
+
+      <!-- dock: always here, always the same -->
+      <div class="dock">
+        <a class="dk"><span class="i">⚡</span>SunFire</a>
+        <a class="dk"><span class="i">✍️</span>Connecture</a>
+        <a class="dk"><span class="i">👥</span>BOSS CRM</a>
+        <a class="dk"><span class="i">🎓</span>AHIP</a>
+        <a class="dk"><span class="i">⛨</span>Carrier portals</a>
+        <a class="dk"><span class="i">📋</span>Forms</a>
+      </div>
+
+      <!-- THE BOARD -->
+      <div class="board">
+        <div class="bh"><span class="t">📌 The Board</span><span class="upd">Posted by Austin &amp; Andrew · Jun 9</span></div>
+        <div class="bitem">
+          <span class="k" style="color:#e0795f"><span class="dot" style="background:#e0795f"></span>Deadline</span>
+          <div><div class="tx">Aetna 2027 certification closes</div><div class="sub">Do it now, the portal gets slow near the deadline</div></div>
+          <div class="when"><div class="d">Jun 30</div><div class="l">21 days</div></div>
+        </div>
+        <div class="bitem">
+          <span class="k" style="color:#e0a85f"><span class="dot" style="background:#e0a85f"></span>Action</span>
+          <div><div class="tx">Humana RTS attestation due</div><div class="sub">Takes 10 minutes in the Humana portal</div></div>
+          <div class="when"><div class="d">Jul 5</div><div class="l">26 days</div></div>
+        </div>
+        <div class="bitem">
+          <span class="k" style="color:#88b06a"><span class="dot" style="background:#88b06a"></span>Now open</span>
+          <div><div class="tx">Wellcare 2027 certifications</div><div class="sub">Early certifiers get first AEP appointments</div></div>
+          <div class="when"><div class="d">Open</div><div class="l">go early</div></div>
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <h2>🗓 Upcoming <a href="#">Calendar →</a></h2>
+          <div class="ev"><div class="dte"><div class="mo">Jun</div><div class="dy">12</div></div><div><div class="t">Monthly Agent Call</div><div class="s">11:00 AM ET · Zoom</div></div></div>
+          <div class="ev"><div class="dte"><div class="mo">Jun</div><div class="dy">18</div></div><div><div class="t">New Agent Onboarding</div><div class="s">1:00 PM ET</div></div></div>
+        </div>
+        <div class="card">
+          <h2>🆕 New this week <a href="#">All updates →</a></h2>
+          <div class="upd2"><div class="cat">Playbook</div><div class="ti">T65 outreach script that converts</div></div>
+          <div class="upd2"><div class="cat">Form</div><div class="ti">2027 SOA, updated version</div></div>
+          <div class="upd2"><div class="cat">CMS</div><div class="ti">2027 Final Rule, plain-English recap</div></div>
+        </div>
+      </div>
+    </div></main>
+  </div>
+</body>
+</html>
