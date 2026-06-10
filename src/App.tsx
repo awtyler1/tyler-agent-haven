@@ -28,6 +28,7 @@ const PageLoader = () => (
 
 // Eager load: Public landing + critical path pages (auth flow)
 import LandingPage from "./pages/LandingPage";
+import BecomeAgentPage from "./pages/BecomeAgentPage";
 import AuthPage from "./pages/AuthPage";
 import SetPasswordPage from "./pages/auth/SetPasswordPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
@@ -141,6 +142,7 @@ const App = () => (
             {/* Public — no shell               */}
             {/* ================================ */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/join" element={<BecomeAgentPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/auth/set-password" element={<SetPasswordPage />} />
             <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
