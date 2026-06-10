@@ -1,700 +1,202 @@
-import { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import {
-  Search,
-  FileText,
-  ExternalLink,
-  FolderOpen,
-  Building2,
-} from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForms } from '@/hooks/useForms';
-import { DocumentPreview } from '@/components/ui/DocumentPreview';
+import { PageLoader } from '@/components/ui/PageLoader';
+import type { Form } from '@/types/forms';
 
-// External links - will be populated with forms you provide
-interface ExternalLinkItem {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  url: string;
-  keywords?: string[];
+// Friendly labels + display order. Includes future categories (cms,
+// checklist) so they show automatically once forms use them.
+const CATEGORY_LABELS: Record<string, string> = {
+  cms: 'CMS Forms',
+  client_intake: 'Client Intake',
+  checklist: 'Checklists',
+  enrollment: 'Enrollment',
+  compliance: 'Compliance Forms',
+  other: 'Other Forms',
+};
+const CATEGORY_ORDER = ['cms', 'client_intake', 'checklist', 'enrollment', 'compliance', 'other'];
+
+function labelFor(cat: string) {
+  return CATEGORY_LABELS[cat] || cat.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// CMS and SSA forms
-const EXTERNAL_LINKS: ExternalLinkItem[] = [
-  // CMS Forms
-  {
-    id: 'cms-40b',
-    name: 'Request for Enrollment in Medicare Part B',
-    description: 'CMS-40B - Application to enroll in Medicare Part B during a Special Enrollment Period',
-    category: 'cms',
-    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms40b-e.pdf',
-    keywords: ['part b', 'enrollment', 'sep', '40b', 'special enrollment'],
-  },
-  {
-    id: 'cms-l564',
-    name: 'Medicare Request for Employment Information',
-    description: 'CMS-L564 - Employer verification for Part B Special Enrollment Period eligibility',
-    category: 'cms',
-    url: 'https://www.cms.gov/medicare/cms-forms/cms-forms/downloads/cms-l564e.pdf',
-    keywords: ['employment', 'employer', 'l564', 'verification', 'sep', 'group coverage'],
-  },
-  {
-    id: 'ssa-1020',
-    name: 'Extra Help - LIS Form',
-    description: 'SSA-1020 - Application for Extra Help with Medicare Prescription Drug Plan Costs (Low Income Subsidy)',
-    category: 'cms',
-    url: 'https://www.ssa.gov/forms/ssa-1020.pdf',
-    keywords: ['extra help', 'lis', 'low income subsidy', 'prescription', 'drug costs', '1020'],
-  },
-];
-
-// Category configuration with icons
-type CategoryKey = 'client_intake' | 'cms';
-
-interface CategoryConfig {
-  key: CategoryKey;
-  label: string;
-  icon: typeof FolderOpen;
-}
-
-const CATEGORIES: CategoryConfig[] = [
-  { key: 'client_intake', label: 'Client Intake', icon: FolderOpen },
-  { key: 'cms', label: 'CMS Forms', icon: Building2 },
-];
-
-// Unified form type for display
-interface DisplayForm {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  url: string;
-  isExternal: boolean;
-  keywords?: string[];
+function fileExt(path: string) {
+  const m = path.split('?')[0].match(/\.([a-z0-9]+)$/i);
+  return m ? m[1].toUpperCase() : 'FILE';
 }
 
 export default function FormsLibraryPage() {
-  const { forms: dbForms, loading, error } = useForms();
+  const { forms, loading, error } = useForms();
+  const [query, setQuery] = useState('');
+  const [activeCat, setActiveCat] = useState('All');
 
-  // URL state persistence
-  const [searchParams, setSearchParams] = useSearchParams();
-  const searchQuery = searchParams.get('q') || '';
-  const selectedCategory = (searchParams.get('category') as CategoryKey) || 'client_intake';
+  useEffect(() => {
+    document.title = 'Forms | Tyler Insurance Group';
+  }, []);
 
-  const updateParams = (updates: Record<string, string | null>) => {
-    setSearchParams(prev => {
-      const next = new URLSearchParams(prev);
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value === null || value === '') next.delete(key);
-        else next.set(key, value);
-      });
-      return next;
-    }, { replace: true });
-  };
+  // categories present in the data, in preferred order
+  const presentCats = useMemo(() => {
+    const set = new Set(forms.map((f) => f.category as string));
+    const ordered = CATEGORY_ORDER.filter((c) => set.has(c));
+    const extras = [...set].filter((c) => !CATEGORY_ORDER.includes(c));
+    return [...ordered, ...extras];
+  }, [forms]);
 
-  // Preview doc state (transient - doesn't need URL persistence)
-  const [previewDoc, setPreviewDoc] = useState<{ url: string; name: string; downloadUrl: string } | null>(null);
-
-  // Row hover state
-  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
-  // Rail hover state
-  const [hoveredRail, setHoveredRail] = useState<string | null>(null);
-
-  // Convert DB forms to display format and merge with external links
-  const allForms = useMemo(() => {
-    const displayForms: DisplayForm[] = [];
-
-    // Add DB forms
-    dbForms.forEach((form) => {
-      displayForms.push({
-        id: form.id,
-        name: form.name,
-        description: form.description || '',
-        category: form.category,
-        url: form.file_path,
-        isExternal: form.file_path.startsWith('http'),
-      });
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return forms.filter((f) => {
+      if (activeCat !== 'All' && f.category !== activeCat) return false;
+      if (!q) return true;
+      return (
+        f.name.toLowerCase().includes(q) ||
+        (f.description || '').toLowerCase().includes(q)
+      );
     });
+  }, [forms, query, activeCat]);
 
-    // Add external links
-    EXTERNAL_LINKS.forEach((link) => {
-      displayForms.push({
-        id: link.id,
-        name: link.name,
-        description: link.description,
-        category: link.category,
-        url: link.url,
-        isExternal: true,
-        keywords: link.keywords,
-      });
-    });
+  const groups = useMemo(() => {
+    const cats = activeCat === 'All' ? presentCats : [activeCat];
+    return cats
+      .map((cat) => ({
+        cat,
+        items: filtered
+          .filter((f) => f.category === cat)
+          .sort((a, b) => a.display_order - b.display_order),
+      }))
+      .filter((g) => g.items.length > 0);
+  }, [filtered, presentCats, activeCat]);
 
-    return displayForms;
-  }, [dbForms]);
-
-  // Count forms per category
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    CATEGORIES.forEach((cat) => {
-      counts[cat.key] = allForms.filter((f) => f.category === cat.key).length;
-    });
-    return counts;
-  }, [allForms]);
-
-  // Filter forms by selected category and search query
-  const filteredForms = useMemo(() => {
-    return allForms.filter((form) => {
-      // Must match category
-      if (form.category !== selectedCategory) return false;
-
-      // If search query, must match name, description, or keywords
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch =
-          form.name.toLowerCase().includes(query) ||
-          form.description.toLowerCase().includes(query) ||
-          form.keywords?.some((kw) => kw.toLowerCase().includes(query));
-        return matchesSearch;
-      }
-
-      return true;
-    });
-  }, [allForms, selectedCategory, searchQuery]);
-
-  const currentCategory = CATEGORIES.find((c) => c.key === selectedCategory);
-
-  // Get preview URL - external PDFs and Word docs use Google Docs Viewer
-  const getPreviewUrl = (url: string, isExternal: boolean): string => {
-    const lowerUrl = url.toLowerCase();
-    // Use Google Docs Viewer for Word docs and external PDFs (government sites block iframes)
-    if (lowerUrl.endsWith('.doc') || lowerUrl.endsWith('.docx') || (isExternal && lowerUrl.endsWith('.pdf'))) {
-      return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
-    }
-    return url;
-  };
-
-  // Check if a form can be previewed (PDF or Word doc)
-  const canPreview = (form: DisplayForm): boolean => {
-    const lowerUrl = form.url.toLowerCase();
-    return lowerUrl.endsWith('.pdf') || lowerUrl.endsWith('.doc') || lowerUrl.endsWith('.docx');
-  };
-
-  // Handle form click - preview if possible, otherwise open
-  const handleFormClick = (form: DisplayForm, e: React.MouseEvent) => {
-    e.preventDefault();
-    if (canPreview(form)) {
-      setPreviewDoc({
-        url: getPreviewUrl(form.url, form.isExternal),
-        name: form.name,
-        downloadUrl: form.url // Original URL for download
-      });
-    } else {
-      window.open(form.url, '_blank');
-    }
-  };
+  if (loading) {
+    return (
+      <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F1E8' }}>
+        <PageLoader message="Loading forms..." />
+      </div>
+    );
+  }
 
   return (
-    <div
-      style={{
-        flex: '1 1 0%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}
-    >
-      {/* ── Page Header ── */}
-      <div
-        style={{
-          padding: '16px 24px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        {/* Left: title + stat badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <h1
-            style={{
-              margin: 0,
-              fontFamily: "'Lora', serif",
-              fontSize: 20,
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-            }}
-          >
-            Forms
-          </h1>
-          <span
-            style={{
-              background: 'var(--bg-subtle)',
-              fontSize: 11,
-              fontWeight: 600,
-              padding: '3px 10px',
-              borderRadius: 8,
-              color: 'var(--text-muted)',
-            }}
-          >
-            {allForms.length} form{allForms.length !== 1 ? 's' : ''}
-          </span>
+    <div className="fm">
+      <style>{CSS}</style>
+      <div className="fm-max">
+        <div className="fm-head">
+          <h1 className="fm-h1">Forms</h1>
+          <div className="fm-sub">Grab what you need — CMS forms, intake sheets, checklists, and enrollment kits.</div>
         </div>
 
-        {/* Right: search input */}
-        <div style={{ position: 'relative', width: 220 }}>
-          <Search
-            style={{
-              position: 'absolute',
-              left: 10,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: 14,
-              height: 14,
-              color: 'var(--text-faint)',
-              pointerEvents: 'none',
-            }}
-          />
-          <input
-            type="text"
-            placeholder="Search forms..."
-            value={searchQuery}
-            onChange={(e) => updateParams({ q: e.target.value || null })}
-            style={{
-              width: '100%',
-              paddingLeft: 32,
-              paddingRight: 12,
-              paddingTop: 7,
-              paddingBottom: 7,
-              fontSize: 12,
-              border: '1px solid var(--bg-muted)',
-              borderRadius: 8,
-              outline: 'none',
-              color: 'var(--text-primary)',
-              background: 'white',
-            }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--bg-muted)'; }}
-          />
-        </div>
-      </div>
-
-      {/* ── Split Card Container ── */}
-      <div
-        style={{
-          margin: '0 24px 14px',
-          flex: 1,
-          display: 'flex',
-          overflow: 'hidden',
-          background: 'var(--bg-card)',
-          borderRadius: 12,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-        }}
-      >
-        {/* ── Left Rail ── */}
-        <div
-          style={{
-            width: 180,
-            borderRight: '1px solid #F0EBE2',
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {/* Rail header */}
-          <div
-            style={{
-              padding: '12px 16px 8px',
-              fontSize: 9,
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: 'var(--text-faint)',
-            }}
-          >
-            Categories
+        {error || forms.length === 0 ? (
+          <div className="fm-soon">
+            <div className="fm-soon__glow" aria-hidden="true" />
+            <div className="fm-soon__ic" aria-hidden="true">📋</div>
+            <div className="fm-soon__lbl">{error ? 'Unavailable' : 'Coming soon'}</div>
+            <h2 className="fm-soon__t">{error ? "Couldn't load forms." : 'Forms are on the way.'}</h2>
+            <p className="fm-soon__p">
+              {error
+                ? 'Please refresh and try again.'
+                : 'CMS forms, client intake sheets, checklists, and enrollment kits will live here. Check back soon.'}
+            </p>
+            {error && <button className="fm-retry" onClick={() => window.location.reload()}>Refresh</button>}
           </div>
-
-          {/* Rail items */}
-          {CATEGORIES.map((category) => {
-            const IconComponent = category.icon;
-            const isSelected = selectedCategory === category.key;
-            const isHovered = hoveredRail === category.key;
-            const count = categoryCounts[category.key] || 0;
-
-            return (
-              <button
-                key={category.key}
-                onClick={() => updateParams({ category: category.key, q: null })}
-                onMouseEnter={() => setHoveredRail(category.key)}
-                onMouseLeave={() => setHoveredRail(null)}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '9px 14px',
-                  border: 'none',
-                  borderLeft: isSelected
-                    ? '3px solid var(--gold)'
-                    : '3px solid transparent',
-                  background: isSelected
-                    ? 'rgba(201,168,76,0.06)'
-                    : isHovered
-                      ? 'var(--bg-subtle)'
-                      : 'transparent',
-                  cursor: 'pointer',
-                  opacity: count === 0 ? 0.35 : 1,
-                  width: '100%',
-                  textAlign: 'left',
-                  font: 'inherit',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <IconComponent
-                    style={{
-                      width: 14,
-                      height: 14,
-                      color: isSelected ? 'var(--gold-dark)' : 'var(--text-muted)',
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 12.5,
-                      fontWeight: isSelected ? 600 : 500,
-                      color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)',
-                    }}
-                  >
-                    {category.label}
-                  </span>
-                </div>
-                <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 600,
-                    padding: '1px 7px',
-                    borderRadius: 10,
-                    background: isSelected
-                      ? 'rgba(201,168,76,0.15)'
-                      : 'var(--bg-subtle)',
-                    color: isSelected ? 'var(--gold-dark)' : 'var(--text-muted)',
-                  }}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ── Detail Panel ── */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: 0,
-          }}
-        >
-          {/* Detail header */}
-          <div
-            style={{
-              padding: '10px 18px 8px',
-              borderBottom: '1px solid #F0EBE2',
-            }}
-          >
-            <span
-              style={{
-                fontSize: 9,
-                textTransform: 'uppercase',
-                fontWeight: 700,
-                letterSpacing: '0.08em',
-                color: 'var(--text-faint)',
-              }}
-            >
-              {currentCategory?.label} · {filteredForms.length} form{filteredForms.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-
-          {/* Detail body */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {loading ? (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                }}
-              >
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>
-                  Loading forms...
-                </p>
-              </div>
-            ) : error ? (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                }}
-              >
-                <p style={{ fontSize: 13, color: 'var(--red)', margin: 0 }}>
-                  Failed to load forms. Please try again.
-                </p>
-              </div>
-            ) : filteredForms.length === 0 ? (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                  gap: 8,
-                }}
-              >
-                <FileText
-                  style={{ width: 28, height: 28, color: 'var(--text-faint)' }}
+        ) : (
+          <>
+            <div className="fm-toolbar">
+              <div className="fm-search">
+                🔍
+                <input
+                  className="fm-input"
+                  placeholder="Search forms…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>
-                  {searchQuery
-                    ? `No forms found matching "${searchQuery}"`
-                    : `No forms available in ${currentCategory?.label}`}
-                </p>
               </div>
+              <div className="fm-pills">
+                <button className={`fm-p${activeCat === 'All' ? ' on' : ''}`} onClick={() => setActiveCat('All')}>All</button>
+                {presentCats.map((c) => (
+                  <button key={c} className={`fm-p${activeCat === c ? ' on' : ''}`} onClick={() => setActiveCat(c)}>
+                    {labelFor(c)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {groups.length === 0 ? (
+              <div className="fm-empty">No forms match “{query}”.</div>
             ) : (
-              filteredForms.map((form, idx) => {
-                const isPreviewable = canPreview(form);
-                const isWordDoc =
-                  form.url.toLowerCase().endsWith('.doc') ||
-                  form.url.toLowerCase().endsWith('.docx');
-                const isPdf = form.url.toLowerCase().endsWith('.pdf');
-                const isLink = !isPdf && !isWordDoc;
-                const isHovered = hoveredRow === form.id;
-
-                return (
-                  <div
-                    key={form.id}
-                    onMouseEnter={() => setHoveredRow(form.id)}
-                    onMouseLeave={() => setHoveredRow(null)}
-                    style={{
-                      padding: '10px 18px',
-                      borderBottom:
-                        idx < filteredForms.length - 1
-                          ? '1px solid #F0EBE2'
-                          : 'none',
-                      background: isHovered ? 'var(--bg-subtle)' : 'transparent',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      transition: 'background 120ms',
-                    }}
-                  >
-                    {/* Form icon square */}
-                    <div
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 7,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        background: isPdf
-                          ? 'rgba(196,74,63,0.08)'
-                          : isWordDoc
-                            ? 'rgba(74,127,181,0.08)'
-                            : 'rgba(168,154,132,0.1)',
-                        color: isPdf
-                          ? 'var(--red)'
-                          : isWordDoc
-                            ? 'var(--blue)'
-                            : 'var(--text-muted)',
-                      }}
-                    >
-                      {isLink ? (
-                        <ExternalLink style={{ width: 14, height: 14 }} />
-                      ) : (
-                        <FileText style={{ width: 14, height: 14 }} />
-                      )}
-                    </div>
-
-                    {/* Form info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: 12.5,
-                          fontWeight: 500,
-                          color: 'var(--text-primary)',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {form.name}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 10.5,
-                          color: 'var(--text-muted)',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {form.description}
-                      </div>
-                    </div>
-
-                    {/* Type tag */}
-                    <span
-                      style={{
-                        fontSize: 9,
-                        fontWeight: 600,
-                        padding: '2px 6px',
-                        borderRadius: 4,
-                        flexShrink: 0,
-                        background: isPdf
-                          ? 'rgba(196,74,63,0.08)'
-                          : isWordDoc
-                            ? 'rgba(74,127,181,0.08)'
-                            : 'rgba(168,154,132,0.1)',
-                        color: isPdf
-                          ? 'var(--red)'
-                          : isWordDoc
-                            ? 'var(--blue)'
-                            : 'var(--text-muted)',
-                      }}
-                    >
-                      {isPdf ? 'PDF' : isWordDoc ? 'DOC' : 'Link'}
-                    </span>
-
-                    {/* Action buttons — visible on hover */}
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        opacity: isHovered ? 1 : 0,
-                        transition: 'opacity 150ms',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {isPreviewable ? (
-                        <>
-                          <button
-                            onClick={(e) => handleFormClick(form, e)}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(74,127,181,0.08)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                            }}
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 500,
-                              color: 'var(--blue)',
-                              padding: '4px 10px',
-                              borderRadius: 6,
-                              border: 'none',
-                              background: 'transparent',
-                              cursor: 'pointer',
-                              font: 'inherit',
-                            }}
-                          >
-                            Preview
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              window.open(form.url, '_blank');
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'rgba(74,127,181,0.08)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                            }}
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 500,
-                              color: 'var(--blue)',
-                              padding: '4px 10px',
-                              borderRadius: 6,
-                              border: 'none',
-                              background: 'transparent',
-                              cursor: 'pointer',
-                              font: 'inherit',
-                            }}
-                          >
-                            Download
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={(e) => handleFormClick(form, e)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(74,127,181,0.08)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                          }}
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 500,
-                            color: 'var(--blue)',
-                            padding: '4px 10px',
-                            borderRadius: 6,
-                            border: 'none',
-                            background: 'transparent',
-                            cursor: 'pointer',
-                            font: 'inherit',
-                          }}
-                        >
-                          Open ↗
-                        </button>
-                      )}
-                    </div>
+              groups.map((g) => (
+                <div key={g.cat}>
+                  <div className="fm-group">
+                    {labelFor(g.cat)} <span className="fm-group__c">{g.items.length}</span>
                   </div>
-                );
-              })
+                  {g.items.map((f: Form) => (
+                    <a
+                      className="fm-row"
+                      key={f.id}
+                      href={f.file_path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className="fm-row__fi">{fileExt(f.file_path)}</span>
+                      <div className="fm-row__body">
+                        <div className="fm-row__n">{f.name}</div>
+                        <div className="fm-row__m">
+                          {fileExt(f.file_path)}
+                          {f.year ? ` · ${f.year}` : ''}
+                          {f.description ? ` · ${f.description}` : ''}
+                        </div>
+                      </div>
+                      <span className="fm-row__dl">↓ Download</span>
+                    </a>
+                  ))}
+                </div>
+              ))
             )}
-          </div>
-
-          {/* CMS Footer */}
-          <div
-            style={{
-              padding: '10px 18px',
-              borderTop: '1px solid #F0EBE2',
-              textAlign: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-              Need something else?{' '}
-              <a
-                href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-List"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'var(--blue)', textDecoration: 'none' }}
-              >
-                Browse CMS Forms Library →
-              </a>
-            </span>
-          </div>
-        </div>
+          </>
+        )}
       </div>
-
-      {/* Document Preview Modal */}
-      <DocumentPreview
-        url={previewDoc?.url || ''}
-        label={previewDoc?.name || ''}
-        isOpen={!!previewDoc}
-        onClose={() => setPreviewDoc(null)}
-        downloadUrl={previewDoc?.downloadUrl}
-      />
     </div>
   );
 }
+
+const CSS = `
+.fm{
+  --em:#0E3B2E; --bone:#F4F1E8; --card:#fff; --line:#e7e0cf; --muted:#6b6457; --ink:#1b2620; --gold:#C9A84C; --gold2:#A8801F;
+  flex:1 1 auto; min-height:0; overflow-y:auto; background:var(--bone);
+  font-family:'Outfit','Inter',system-ui,sans-serif; color:var(--ink);
+  -webkit-font-smoothing:antialiased; padding:30px 36px 44px;
+}
+.fm *{ box-sizing:border-box; }
+.fm-max{ max-width:820px; margin:0 auto; }
+.fm-head{ margin-bottom:14px; }
+.fm-h1{ font-size:25px; font-weight:700; letter-spacing:-.02em; margin:0; }
+.fm-sub{ font-size:12.5px; color:var(--muted); margin-top:2px; }
+
+.fm-toolbar{ display:flex; gap:12px; align-items:center; margin-bottom:18px; flex-wrap:wrap; }
+.fm-search{ flex:1; min-width:200px; display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:0 16px; font-size:13.5px; color:var(--muted); }
+.fm-input{ flex:1; border:none; background:none; outline:none; font-family:inherit; font-size:13.5px; color:var(--ink); padding:11px 0; }
+.fm-input::placeholder{ color:#b9b2a4; }
+.fm-pills{ display:flex; gap:6px; flex-wrap:wrap; }
+.fm-p{ font-family:inherit; font-size:11.5px; font-weight:600; padding:6px 13px; border-radius:20px; background:var(--card); border:1px solid var(--line); color:var(--muted); cursor:pointer; transition:.15s; }
+.fm-p:hover{ border-color:var(--gold); }
+.fm-p.on{ background:var(--em); border-color:var(--em); color:var(--bone); }
+
+.fm-group{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:22px 0 10px; display:flex; gap:8px; align-items:center; }
+.fm-group__c{ font-weight:600; color:var(--gold2); background:rgba(168,128,31,.1); padding:1px 7px; border-radius:10px; font-size:10px; }
+.fm-row{ display:flex; align-items:center; gap:13px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 16px; margin-bottom:8px; transition:.15s; text-decoration:none; color:var(--ink); }
+.fm-row:hover{ border-color:var(--gold); transform:translateY(-1px); box-shadow:0 8px 18px rgba(20,30,24,.06); }
+.fm-row__fi{ width:34px; height:34px; border-radius:9px; background:rgba(184,80,63,.08); color:#b8503f; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.fm-row__body{ flex:1; min-width:0; }
+.fm-row__n{ font-size:13.5px; font-weight:600; }
+.fm-row__m{ font-size:11px; color:var(--muted); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.fm-row__dl{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--gold2); border:1px solid var(--line); border-radius:8px; padding:7px 13px; flex-shrink:0; }
+.fm-row:hover .fm-row__dl{ border-color:var(--gold); }
+.fm-empty{ font-size:13px; color:var(--muted); font-style:italic; padding:20px 0; }
+
+/* coming soon / error */
+.fm-soon{ position:relative; overflow:hidden; background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone); border-radius:20px; padding:54px 40px; text-align:center; margin-top:6px; }
+.fm-soon__glow{ position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:560px; height:380px; background:radial-gradient(circle,rgba(201,168,76,.18),transparent 60%); pointer-events:none; }
+.fm-soon__ic{ position:relative; font-size:40px; margin-bottom:14px; }
+.fm-soon__lbl{ position:relative; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+.fm-soon__t{ position:relative; font-size:26px; font-weight:700; letter-spacing:-.02em; margin:0 0 12px; }
+.fm-soon__p{ position:relative; font-size:14.5px; color:rgba(244,241,232,.78); line-height:1.65; max-width:52ch; margin:0 auto; }
+.fm-retry{ position:relative; margin-top:18px; font-family:inherit; font-size:13px; font-weight:600; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold2)); border:none; padding:10px 20px; border-radius:9px; cursor:pointer; }
+
+@media(max-width:760px){ .fm{ padding:20px; } .fm-soon{ padding:40px 22px; } }
+`;
