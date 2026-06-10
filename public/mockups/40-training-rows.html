@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Training — Category Rows</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}.crest{height:30px}
+  .nav{margin-top:14px}.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}.nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5)}.sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px;overflow:hidden}
+  .max{max-width:1040px;margin:0 auto}
+  .head{margin-bottom:14px}
+  .head h1{font-family:'Outfit';font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .head .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+  .search{flex:1;min-width:200px;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 16px;font-size:13.5px;color:var(--muted)}
+  .types{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:30px;padding:4px}
+  .types a{font-size:12px;font-weight:600;padding:6px 13px;border-radius:30px;color:var(--muted)}.types a.on{background:var(--em);color:var(--bone)}
+
+  /* featured */
+  .feat{display:flex;gap:20px;background:linear-gradient(135deg,#10362a,#0a2c22);color:var(--bone);border-radius:18px;padding:22px;margin-bottom:24px;position:relative;overflow:hidden}
+  .feat:before{content:"";position:absolute;top:-80px;right:-50px;width:300px;height:300px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  .feat__thumb{width:230px;flex-shrink:0;aspect-ratio:16/9;border-radius:12px;background:linear-gradient(135deg,#1d5d49,#0a2c22);display:flex;align-items:center;justify-content:center;position:relative}
+  .feat__thumb .play{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--em);display:flex;align-items:center;justify-content:center;font-size:16px;padding-left:3px}
+  .feat__body{position:relative;display:flex;flex-direction:column;justify-content:center}
+  .feat__lbl{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .feat__t{font-family:'Outfit';font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+  .feat__s{font-size:13px;color:rgba(244,241,232,.72);margin-top:8px;max-width:46ch;line-height:1.55}
+  .feat__meta{font-size:11.5px;color:rgba(244,241,232,.6);margin-top:12px}
+
+  .row{margin-bottom:24px}
+  .row__h{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+  .row__h .t{font-family:'Outfit';font-size:15px;font-weight:700}
+  .row__h .more{font-size:12px;font-weight:600;color:var(--gold2)}
+  .scroller{display:flex;gap:13px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+  .vc{width:210px;flex-shrink:0}
+  .vc__thumb{aspect-ratio:16/9;border-radius:11px;background:var(--tc,linear-gradient(135deg,#cdbf9c,#9e8a5e));position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .vc__thumb .play{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--em);display:flex;align-items:center;justify-content:center;font-size:13px;padding-left:2px}
+  .vc__badge{position:absolute;top:8px;left:8px;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:rgba(14,59,46,.85);color:#fff;padding:3px 8px;border-radius:20px}
+  .vc__dur{position:absolute;bottom:8px;right:8px;font-size:10px;font-weight:600;background:rgba(0,0,0,.6);color:#fff;padding:2px 7px;border-radius:5px}
+  .vc__t{font-size:13px;font-weight:600;margin-top:9px;line-height:1.3}
+  .vc__m{font-size:11px;color:var(--muted);margin-top:3px}
+  .art .vc__thumb{background:linear-gradient(135deg,#b9cbbf,#5e7d6e)}
+  .art .vc__thumb .play{border-radius:9px;padding-left:0;font-size:15px}
+  @media(max-width:860px){.sb{display:none}.feat{flex-direction:column}.feat__thumb{width:100%}}
+</style>
+</head>
+<body>
+  <div class="tag">TRAINING · <b>Category Rows</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav">
+        <a><span class="ic">⌂</span> Home</a><a><span class="ic">⛨</span> Carriers</a><a><span class="ic">⚡</span> Quote &amp; Enroll</a>
+        <a class="on"><span class="ic">🎓</span> Training &amp; Playbooks</a><a><span class="ic">📈</span> Knowledge &amp; Updates</a>
+        <a><span class="ic">📋</span> Forms &amp; Compliance</a><a><span class="ic">🗓</span> Calendar</a><a><span class="ic">☎</span> Contacts</a>
+      </nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+    <main class="main"><div class="max">
+      <div class="head"><h1 class="disp">Training &amp; Playbooks</h1><div class="sub">Everything you need to sharpen your skills and grow your book.</div></div>
+      <div class="toolbar">
+        <div class="search">🔍 Search videos, playbooks, and articles…</div>
+        <div class="types"><a class="on">All</a><a>Videos</a><a>Playbooks</a><a>Articles</a></div>
+      </div>
+
+      <div class="feat">
+        <div class="feat__thumb"><span class="play">▶</span></div>
+        <div class="feat__body">
+          <div class="feat__lbl">⭐ Start here</div>
+          <div class="feat__t disp">Forge CRM: Your first 30 minutes</div>
+          <div class="feat__s">Set up your pipeline, log your first lead, and never lose a renewal. The one walkthrough every new TIG agent should watch.</div>
+          <div class="feat__meta">Video · 18 min · CRM &amp; Tools</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row__h"><span class="t">CRM &amp; Tools</span><a class="more">See all (6) →</a></div>
+        <div class="scroller">
+          <div class="vc"><div class="vc__thumb" style="--tc:linear-gradient(135deg,#1d5d49,#0a2c22)"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">12:40</span></div><div class="vc__t">Forge CRM full walkthrough</div><div class="vc__m">Video · 12 min</div></div>
+          <div class="vc"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">6:10</span></div><div class="vc__t">Logging leads &amp; setting tasks</div><div class="vc__m">Video · 6 min</div></div>
+          <div class="vc"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">8:25</span></div><div class="vc__t">SunFire quote to enrollment</div><div class="vc__m">Video · 8 min</div></div>
+          <div class="vc art"><div class="vc__thumb"><span class="vc__badge">Article</span><span class="play">📄</span></div><div class="vc__t">Connecture setup checklist</div><div class="vc__m">Article · 4 min read</div></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row__h"><span class="t">Product Training</span><a class="more">See all (9) →</a></div>
+        <div class="scroller">
+          <div class="vc"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">15:00</span></div><div class="vc__t">MA vs. Med Supp: when to use which</div><div class="vc__m">Video · 15 min</div></div>
+          <div class="vc"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">9:30</span></div><div class="vc__t">DSNP eligibility explained</div><div class="vc__m">Video · 9 min</div></div>
+          <div class="vc art"><div class="vc__thumb"><span class="vc__badge">Article</span><span class="play">📄</span></div><div class="vc__t">2027 plan changes cheat sheet</div><div class="vc__m">Article · 5 min read</div></div>
+          <div class="vc"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">11:00</span></div><div class="vc__t">Reading a Summary of Benefits</div><div class="vc__m">Video · 11 min</div></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row__h"><span class="t">Grow Your Business</span><a class="more">See all (12) →</a></div>
+        <div class="scroller">
+          <div class="vc art"><div class="vc__thumb"><span class="vc__badge">Playbook</span><span class="play">📄</span></div><div class="vc__t">T65 outreach playbook</div><div class="vc__m">Playbook · PDF</div></div>
+          <div class="vc"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">22:00</span></div><div class="vc__t">Building referral partnerships</div><div class="vc__m">Video · 22 min</div></div>
+          <div class="vc art"><div class="vc__thumb"><span class="vc__badge">Article</span><span class="play">📄</span></div><div class="vc__t">Retention: keeping your book sticky</div><div class="vc__m">Article · 7 min read</div></div>
+          <div class="vc"><div class="vc__thumb"><span class="vc__badge">Video</span><span class="play">▶</span><span class="vc__dur">17:30</span></div><div class="vc__t">Community marketing on a budget</div><div class="vc__m">Video · 17 min</div></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row__h"><span class="t">Case Studies</span><a class="more">See all (4) →</a></div>
+        <div class="scroller">
+          <div class="vc art"><div class="vc__thumb"><span class="vc__badge">Case study</span><span class="play">📄</span></div><div class="vc__t">From 0 to 200 lives in year one</div><div class="vc__m">Case study · 6 min read</div></div>
+          <div class="vc art"><div class="vc__thumb"><span class="vc__badge">Case study</span><span class="play">📄</span></div><div class="vc__t">Turning a DSNP focus into a book</div><div class="vc__m">Case study · 8 min read</div></div>
+        </div>
+      </div>
+    </div></main>
+  </div>
+</body>
+</html>

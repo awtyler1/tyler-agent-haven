@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Training — Topic Hubs</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}.crest{height:30px}
+  .nav{margin-top:14px}.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}.nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5)}.sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px}
+  .max{max-width:980px;margin:0 auto}
+  .head{margin-bottom:16px}
+  .head h1{font-family:'Outfit';font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .head .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .search{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 16px;font-size:13.5px;color:var(--muted);margin-bottom:22px}
+
+  .seclbl{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 13px}
+  .hubs{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:30px}
+  .hub{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+  .hub:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(20,30,24,.08);border-color:var(--gold)}
+  .hub__ic{width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,#10362a,#0a2c22);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+  .hub__t{font-family:'Outfit';font-size:17px;font-weight:700}
+  .hub__d{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+  .hub__c{font-size:11.5px;font-weight:600;color:var(--gold2);margin-top:9px}
+
+  .newest{margin-top:6px}
+  .nrow{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 16px;margin-bottom:9px;transition:.15s}
+  .nrow:hover{border-color:var(--gold)}
+  .nrow__th{width:64px;height:40px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,#1d5d49,#0a2c22);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px}
+  .nrow.art .nrow__th{background:linear-gradient(135deg,#b9cbbf,#5e7d6e)}
+  .nrow.pb .nrow__th{background:linear-gradient(135deg,#d6c08a,#a8801f)}
+  .nrow__cat{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold2)}
+  .nrow__t{font-size:13.5px;font-weight:600;margin-top:2px}
+  .nrow__m{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .nrow__new{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:rgba(91,125,68,.14);color:#5b7d44;padding:3px 8px;border-radius:20px;flex-shrink:0}
+  @media(max-width:860px){.sb{display:none}.hubs{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="tag">TRAINING · <b>Topic Hubs</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav">
+        <a><span class="ic">⌂</span> Home</a><a><span class="ic">⛨</span> Carriers</a><a><span class="ic">⚡</span> Quote &amp; Enroll</a>
+        <a class="on"><span class="ic">🎓</span> Training &amp; Playbooks</a><a><span class="ic">📈</span> Knowledge &amp; Updates</a>
+        <a><span class="ic">📋</span> Forms &amp; Compliance</a><a><span class="ic">🗓</span> Calendar</a><a><span class="ic">☎</span> Contacts</a>
+      </nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+    <main class="main"><div class="max">
+      <div class="head"><h1 class="disp">Training &amp; Playbooks</h1><div class="sub">Pick a topic to dive in, or check what's new.</div></div>
+      <div class="search">🔍 Search the library…</div>
+
+      <div class="seclbl">Browse by topic</div>
+      <div class="hubs">
+        <a class="hub"><div class="hub__ic">⚡</div><div><div class="hub__t disp">CRM &amp; Tools</div><div class="hub__d">Forge CRM, SunFire, Connecture — setup and workflows.</div><div class="hub__c">6 items →</div></div></a>
+        <a class="hub"><div class="hub__ic">📦</div><div><div class="hub__t disp">Product Training</div><div class="hub__d">MA, Med Supp, PDP, DSNP — know what you're selling.</div><div class="hub__c">9 items →</div></div></a>
+        <a class="hub"><div class="hub__ic">📈</div><div><div class="hub__t disp">Grow Your Business</div><div class="hub__d">Lead gen, referrals, retention, marketing that works.</div><div class="hub__c">12 items →</div></div></a>
+        <a class="hub"><div class="hub__ic">🏆</div><div><div class="hub__t disp">Case Studies</div><div class="hub__d">Real TIG agents, real playbooks, real numbers.</div><div class="hub__c">4 items →</div></div></a>
+      </div>
+
+      <div class="seclbl">Newest</div>
+      <div class="newest">
+        <a class="nrow"><div class="nrow__th">▶</div><div><div class="nrow__cat">CRM &amp; Tools</div><div class="nrow__t">Forge CRM: Your first 30 minutes</div></div><span class="nrow__new">New</span><span class="nrow__m">Video · 18 min</span></a>
+        <a class="nrow pb"><div class="nrow__th">📘</div><div><div class="nrow__cat">Grow Your Business</div><div class="nrow__t">T65 outreach playbook</div></div><span class="nrow__new">New</span><span class="nrow__m">Playbook · PDF</span></a>
+        <a class="nrow art"><div class="nrow__th">📄</div><div><div class="nrow__cat">Product</div><div class="nrow__t">2027 plan changes cheat sheet</div></div><span class="nrow__m">Article · 5 min</span></a>
+        <a class="nrow"><div class="nrow__th">▶</div><div><div class="nrow__cat">Grow Your Business</div><div class="nrow__t">Building referral partnerships</div></div><span class="nrow__m">Video · 22 min</span></a>
+      </div>
+    </div></main>
+  </div>
+</body>
+</html>
