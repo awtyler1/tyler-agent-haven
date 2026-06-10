@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Certifications — Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;--green:#5b7d44;--amber:#b07f33}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}.crest{height:30px}
+  .nav{margin-top:14px}.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}.nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5)}.sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px}
+  .max{max-width:840px;margin:0 auto}
+  .head{margin-bottom:18px}
+  .head h1{font-family:'Outfit';font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .head .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+  /* Step 1 AHIP hero */
+  .ahip{background:linear-gradient(135deg,#10362a,#0a2c22);color:var(--bone);border-radius:18px;padding:22px 24px;margin-bottom:14px;position:relative;overflow:hidden;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .ahip:before{content:"";position:absolute;top:-80px;right:-50px;width:300px;height:300px;background:radial-gradient(circle,rgba(201,168,76,.18),transparent 60%)}
+  .ahip__step{width:40px;height:40px;border-radius:50%;background:var(--gold);color:var(--em);display:flex;align-items:center;justify-content:center;font-family:'Outfit';font-weight:800;font-size:17px;flex-shrink:0;position:relative}
+  .ahip__body{position:relative;flex:1;min-width:200px}
+  .ahip__lbl{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+  .ahip__t{font-family:'Outfit';font-size:20px;font-weight:700}
+  .ahip__s{font-size:13px;color:rgba(244,241,232,.74);margin-top:5px}
+  .ahip__act{position:relative;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .ahip__open{font-size:11.5px;color:rgba(244,241,232,.7)}.ahip__open b{color:var(--gold)}
+  .btn-gold{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-weight:700;font-size:13px;padding:11px 18px;border-radius:9px}
+
+  /* Step 2 label */
+  .step2{display:flex;align-items:center;gap:11px;margin:22px 0 12px}
+  .step2 .n{width:26px;height:26px;border-radius:50%;background:var(--em);color:var(--bone);display:flex;align-items:center;justify-content:center;font-family:'Outfit';font-weight:700;font-size:13px}
+  .step2 .t{font-family:'Outfit';font-size:16px;font-weight:700}
+  .step2 .c{margin-left:auto;font-size:11.5px;color:var(--muted)}
+
+  .crow{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 16px;margin-bottom:9px}
+  .crow__mark{width:34px;height:34px;border-radius:9px;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Outfit';font-weight:800;font-size:14px;flex-shrink:0}
+  .crow__nm{font-family:'Outfit';font-size:15px;font-weight:700}
+  .crow__status{font-size:11.5px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px}
+  .pill{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+  .pill.open{background:rgba(91,125,68,.15);color:var(--green)}
+  .pill.tbd{background:rgba(176,127,51,.14);color:var(--amber)}
+  .crow__acts{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+  .ca{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:8px 13px;border-radius:8px;border:1px solid var(--line);color:var(--ink)}
+  .ca:hover{border-color:var(--gold)}
+  .ca.dim{color:var(--muted);opacity:.55;cursor:not-allowed}
+  .ca.go{background:var(--em);color:var(--bone);border-color:var(--em)}
+  @media(max-width:760px){.sb{display:none}.crow{flex-wrap:wrap}.crow__acts{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+  <div class="tag">CERTS · <b>Checklist</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav"><a><span class="ic">⌂</span> Home</a><a><span class="ic">⛨</span> Carriers</a><a class="on"><span class="ic">🎓</span> Certifications</a><a><span class="ic">⚡</span> Quote &amp; Enroll</a><a><span class="ic">📚</span> Training &amp; Playbooks</a><a><span class="ic">📈</span> Knowledge &amp; Updates</a><a><span class="ic">📋</span> Forms</a><a><span class="ic">🗓</span> Calendar</a><a><span class="ic">☎</span> Contacts</a></nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+    <main class="main"><div class="max">
+      <div class="head"><h1 class="disp">Certifications</h1><div class="sub">Your AEP readiness checklist. Start with AHIP, then certify each carrier.</div></div>
+
+      <div class="ahip">
+        <div class="ahip__step">1</div>
+        <div class="ahip__body">
+          <div class="ahip__lbl">Start here</div>
+          <div class="ahip__t">Complete your AHIP</div>
+          <div class="ahip__s">Required before any carrier certification. 90% to pass.</div>
+        </div>
+        <div class="ahip__act">
+          <div class="ahip__open">Opens <b>June 22</b></div>
+          <a class="btn-gold">Go to AHIP ↗</a>
+        </div>
+      </div>
+
+      <div class="step2"><span class="n">2</span><span class="t disp">Certify with your carriers</span><span class="c">8 carriers</span></div>
+
+      <div class="crow"><span class="crow__mark" style="background:#7a2f86">A</span><div><div class="crow__nm disp">Aetna</div><div class="crow__status"><span class="pill tbd">Date TBD</span> 2027 certification</div></div><div class="crow__acts"><a class="ca dim">📄 How-to</a><a class="ca dim">Portal ↗</a></div></div>
+      <div class="crow"><span class="crow__mark" style="background:#3A9A34">H</span><div><div class="crow__nm disp">Humana</div><div class="crow__status"><span class="pill tbd">Date TBD</span> 2027 certification</div></div><div class="crow__acts"><a class="ca dim">📄 How-to</a><a class="ca dim">Portal ↗</a></div></div>
+      <div class="crow"><span class="crow__mark" style="background:#002677">U</span><div><div class="crow__nm disp">UnitedHealthcare</div><div class="crow__status"><span class="pill open">Open now</span> via Jarvis</div></div><div class="crow__acts"><a class="ca">📄 How-to</a><a class="ca go">Certify ↗</a></div></div>
+      <div class="crow"><span class="crow__mark" style="background:#0033A0">A</span><div><div class="crow__nm disp">Anthem</div><div class="crow__status"><span class="pill tbd">Date TBD</span> 2027 certification</div></div><div class="crow__acts"><a class="ca dim">📄 How-to</a><a class="ca dim">Portal ↗</a></div></div>
+      <div class="crow"><span class="crow__mark" style="background:#007A72">W</span><div><div class="crow__nm disp">Wellcare</div><div class="crow__status"><span class="pill tbd">Date TBD</span> 2027 certification</div></div><div class="crow__acts"><a class="ca dim">📄 How-to</a><a class="ca dim">Portal ↗</a></div></div>
+      <div class="crow"><span class="crow__mark" style="background:#B8292F">D</span><div><div class="crow__nm disp">Devoted Health</div><div class="crow__status"><span class="pill tbd">Date TBD</span> 2027 certification</div></div><div class="crow__acts"><a class="ca dim">📄 How-to</a><a class="ca dim">Portal ↗</a></div></div>
+    </div></main>
+  </div>
+</body>
+</html>
