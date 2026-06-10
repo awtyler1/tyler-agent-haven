@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useForms } from '@/hooks/useForms';
-import { PageLoader } from '@/components/ui/PageLoader';
+import { ContentLoader } from '@/components/ui/ContentLoader';
 import type { Form } from '@/types/forms';
 
 // Friendly labels + display order. Includes future categories (cms,
@@ -66,11 +66,7 @@ export default function FormsLibraryPage() {
   }, [filtered, presentCats, activeCat]);
 
   if (loading) {
-    return (
-      <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F1E8' }}>
-        <PageLoader message="Loading forms..." />
-      </div>
-    );
+    return <ContentLoader message="Loading forms…" />;
   }
 
   return (

@@ -2,12 +2,11 @@ import { Link } from 'react-router-dom';
 import {
   boardMeta,
   boardItems,
-  dockLinks,
   newThisWeek,
   aep,
   type BoardItem,
 } from '@/data/hubContent';
-import { calendarEvents } from '@/data/calendarContent';
+import { calendarEvents, CATEGORY_META } from '@/data/calendarContent';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const KIND_COLORS: Record<BoardItem['kind'], { dot: string; label: string }> = {
@@ -35,23 +34,6 @@ function eventDate(iso: string): { mo: string; dy: string } {
   };
 }
 
-function DockLink({ icon, label, href }: { icon: string; label: string; href: string }) {
-  if (href.startsWith('http')) {
-    return (
-      <a className="hub-dk" href={href} target="_blank" rel="noopener noreferrer">
-        <span className="hub-dk__i" aria-hidden="true">{icon}</span>
-        {label}
-      </a>
-    );
-  }
-  return (
-    <Link className="hub-dk" to={href}>
-      <span className="hub-dk__i" aria-hidden="true">{icon}</span>
-      {label}
-    </Link>
-  );
-}
-
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function Index() {
   const now = new Date();
@@ -66,12 +48,11 @@ export default function Index() {
   const daysLeftAep = Math.ceil((aepEnd.getTime() - now.getTime()) / 86_400_000);
   const inAep = now >= aepStart && now <= aepEnd;
 
-  // Upcoming = next TIG/carrier happenings from the shared calendar
-  // (skips holidays/OOO — those aren't "events to attend").
+  // Upcoming = everything on the calendar in the next 7 days (a week at a glance).
+  const weekKey = new Date(now.getTime() + 7 * 86_400_000).toISOString().slice(0, 10);
   const upcoming = calendarEvents
-    .filter((e) => e.date >= todayKey && e.category !== 'holiday' && e.category !== 'ooo')
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 3);
+    .filter((e) => e.date >= todayKey && e.date <= weekKey)
+    .sort((a, b) => a.date.localeCompare(b.date));
 
   return (
     <div className="hub">
@@ -91,13 +72,6 @@ export default function Index() {
               <>AEP in <b>{daysToAep} days</b></>
             )}
           </div>
-        </div>
-
-        {/* ── The Dock ── */}
-        <div className="hub-dock">
-          {dockLinks.map((d) => (
-            <DockLink key={d.label} {...d} />
-          ))}
         </div>
 
         {/* ── The Board ── */}
@@ -146,10 +120,11 @@ export default function Index() {
         <div className="hub-two">
           <section className="hub-card">
             <h2 className="hub-card__h">
-              🗓 Upcoming <Link to="/calendar" className="hub-card__more">Calendar →</Link>
+              🗓 Upcoming <span className="hub-card__hint">next 7 days</span>
+              <Link to="/calendar" className="hub-card__more">Calendar →</Link>
             </h2>
             {upcoming.length === 0 ? (
-              <div className="hub-empty">Nothing scheduled. Check back Monday.</div>
+              <div className="hub-empty">Nothing on the calendar in the next 7 days.</div>
             ) : (
               upcoming.map((ev) => {
                 const d = eventDate(ev.date);
@@ -160,10 +135,11 @@ export default function Index() {
                       <div className="hub-ev__dy">{d.dy}</div>
                     </div>
                     <div>
-                      <div className="hub-ev__t">{ev.title}</div>
-                      <div className="hub-ev__s">
-                        {ev.detail ?? ''}
+                      <div className="hub-ev__t">
+                        <span className="hub-ev__dot" style={{ background: CATEGORY_META[ev.category].color }} />
+                        {ev.title}
                       </div>
+                      <div className="hub-ev__s">{ev.detail ?? CATEGORY_META[ev.category].label}</div>
                     </div>
                   </div>
                 );
@@ -222,14 +198,6 @@ const CSS = `
 .hub-aep{ display:inline-flex; align-items:center; gap:8px; background:var(--em); color:var(--bone); padding:9px 15px; border-radius:30px; font-size:13px; }
 .hub-aep b{ color:var(--gold); }
 
-/* dock */
-.hub-dock{ display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
-.hub-dk{ display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--line); border-radius:11px;
-  padding:11px 16px; font-size:13.5px; font-weight:600; color:var(--ink); text-decoration:none; transition:.15s;
-  box-shadow:0 1px 3px rgba(0,0,0,.03); }
-.hub-dk:hover{ border-color:var(--gold); transform:translateY(-2px); }
-.hub-dk__i{ font-size:16px; }
-
 /* board */
 .hub-board{ background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone); border-radius:18px; padding:22px 24px;
   margin-bottom:22px; position:relative; overflow:hidden; }
@@ -252,8 +220,9 @@ const CSS = `
 /* two cards */
 .hub-two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .hub-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,.03); }
-.hub-card__h{ font-size:13.5px; font-weight:700; display:flex; align-items:center; justify-content:space-between; margin:0 0 12px; }
-.hub-card__more{ font-size:12px; font-weight:500; color:var(--gold2); text-decoration:none; }
+.hub-card__h{ font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:8px; margin:0 0 12px; }
+.hub-card__hint{ font-size:10.5px; font-weight:600; color:var(--muted); background:var(--bone); padding:2px 8px; border-radius:20px; }
+.hub-card__more{ margin-left:auto; font-size:12px; font-weight:500; color:var(--gold2); text-decoration:none; }
 .hub-card__more:hover{ text-decoration:underline; }
 .hub-empty{ font-size:13px; color:var(--muted); padding:8px 0; }
 
@@ -262,7 +231,8 @@ const CSS = `
 .hub-ev__date{ width:40px; text-align:center; background:var(--bone); border-radius:8px; padding:4px 0; flex-shrink:0; }
 .hub-ev__mo{ font-size:9px; font-weight:700; text-transform:uppercase; color:var(--muted); }
 .hub-ev__dy{ font-size:15px; font-weight:700; }
-.hub-ev__t{ font-size:13px; font-weight:600; }
+.hub-ev__t{ font-size:13px; font-weight:600; display:flex; align-items:center; gap:7px; }
+.hub-ev__dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 .hub-ev__s{ font-size:11.5px; color:var(--muted); }
 
 .hub-new{ display:block; padding:9px 0; border-bottom:1px solid var(--line); text-decoration:none; color:var(--ink); }

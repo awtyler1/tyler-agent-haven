@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
 import { toast } from 'sonner';
+import { ContentLoader } from '@/components/ui/ContentLoader';
 
 // ============================================================
 // TIG Hub shell — emerald sidebar (shared-login MVP)
@@ -94,7 +96,9 @@ export function AgentShell() {
       </aside>
 
       <main className="shell-main">
-        <Outlet />
+        <Suspense fallback={<ContentLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

@@ -11,10 +11,12 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AgentShell } from "./components/shell/AgentShell";
 import { AdminShell } from "./components/shell/AdminShell";
 
-// Loading fallback for lazy-loaded routes
+// Loading fallback for lazy-loaded routes (calm, bone background — matches the
+// app so chunk loads don't flash a mismatched screen).
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
-    <div className="animate-pulse" style={{ color: 'var(--text-muted)' }}>Loading...</div>
+  <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F1E8' }}>
+    <div style={{ width: 26, height: 26, borderRadius: '50%', border: '2.5px solid rgba(168,128,31,0.2)', borderTopColor: '#A8801F', animation: 'tigspin 0.7s linear infinite' }} />
+    <style>{`@keyframes tigspin{to{transform:rotate(360deg)}}`}</style>
   </div>
 );
 

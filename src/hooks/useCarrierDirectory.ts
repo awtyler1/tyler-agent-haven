@@ -38,14 +38,19 @@ export interface CarrierDirectoryData {
  * Fetch carriers with their contacts, links, and documents for a given state.
  * Includes items where state_code matches OR state_code is NULL (nationwide).
  */
+// Module-level cache so re-navigating to the directory is instant (no loader
+// flash). Data refreshes in the background each visit.
+const directoryCache: Record<string, CarrierWithResources[]> = {};
+
 export function useCarrierDirectory(stateCode: string = 'KY'): CarrierDirectoryData {
-  const [carriers, setCarriers] = useState<CarrierWithResources[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [carriers, setCarriers] = useState<CarrierWithResources[]>(() => directoryCache[stateCode] || []);
+  const [loading, setLoading] = useState(() => !directoryCache[stateCode]);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      // Only show the loader when we have nothing cached to show yet.
+      if (!directoryCache[stateCode]) setLoading(true);
       setError(null);
 
       // Fetch active carriers that have logos (our 6 main carriers)
@@ -98,6 +103,7 @@ export function useCarrierDirectory(stateCode: string = 'KY'): CarrierDirectoryD
         documents: documentsResult.filter((d: any) => d.carrier_id === carrier.id) as CarrierDocument[],
       }));
 
+      directoryCache[stateCode] = carriersWithResources;
       setCarriers(carriersWithResources);
     } catch (err) {
       console.error('Error fetching carrier directory:', err);
