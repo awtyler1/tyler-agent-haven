@@ -59,7 +59,7 @@ export default function InsightsPage() {
           <nav className="ins-nav__lks">
             <RouterLink to="/#honest" className="ins-nav__lk">Why TIG</RouterLink>
             <RouterLink to="/#founders" className="ins-nav__lk">Our Team</RouterLink>
-            <RouterLink to="/insights" className="ins-nav__lk is-on">Insights</RouterLink>
+            <RouterLink to="/insights" className="ins-nav__lk">Insights</RouterLink>
             <RouterLink to="/#get" className="ins-nav__lk">What you get</RouterLink>
           </nav>
           <div className="ins-nav__act">
@@ -212,7 +212,6 @@ const CSS = `
 .ins-nav__lks{ display:flex; gap:24px; flex:1; margin-left:8px; }
 .ins-nav__lk{ color:rgba(244,241,232,.74); font-size:14px; font-weight:500; transition:color .18s; }
 .ins-nav__lk:hover{ color:#fff; }
-.ins-nav__lk.is-on{ color:#fff; }
 .ins-nav__act{ display:flex; align-items:center; gap:10px; }
 .ins-btn{ font-size:13.5px; font-weight:700; padding:9px 15px; border-radius:9px; border:none; cursor:pointer; font-family:inherit; }
 .ins-btn--ghost{ color:rgba(244,241,232,.85); font-weight:600; border:1px solid rgba(244,241,232,.25); background:transparent; padding:8px 14px; }
