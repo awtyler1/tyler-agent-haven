@@ -6,8 +6,10 @@ import { PageLoader } from '@/components/ui/PageLoader';
 import type { CarrierWithResources } from '@/types/carrierDirectory';
 
 // ────────────────────────────────────────────────────────────────
-// DATA SOURCE: carrier_contacts, carrier_links, carrier_documents
-// in Supabase, state-scoped (state_code = 'KY' or NULL/nationwide).
+// DATA SOURCE: carrier_contacts and carrier_links in Supabase,
+// state-scoped (state_code = 'KY' or NULL/nationwide).
+// carrier_documents intentionally not shown — plan docs go stale
+// every year and live in the carrier portals (the source of truth).
 //
 // Shared-login MVP: shows ALL active carriers for the state — no
 // per-agent certification filtering (everyone sees the same page).
@@ -43,7 +45,6 @@ export default function CarrierResourcesPage() {
   const portalLink = selected?.links.find((l) => l.link_type === 'portal');
   const otherLinks = selected?.links.filter((l) => l.link_type !== 'portal') || [];
   const contacts = selected?.contacts || [];
-  const documents = selected?.documents || [];
   const supportPhone = contacts.find((c) => isBrokerSupport(c.contact_type) && c.phone)?.phone;
 
   if (loading) {
@@ -123,7 +124,6 @@ export default function CarrierResourcesPage() {
                   <div className="cr-dhead__st">
                     {STATE.label}
                     {contacts.length > 0 && ` · ${contacts.length} contact${contacts.length === 1 ? '' : 's'}`}
-                    {documents.length > 0 && ` · ${documents.length} doc${documents.length === 1 ? '' : 's'}`}
                   </div>
                 </div>
                 <div className="cr-dhead__acts">
@@ -174,20 +174,6 @@ export default function CarrierResourcesPage() {
                         </div>
                       );
                     })
-                  )}
-                </section>
-
-                <section className="cr-card">
-                  <h2 className="cr-card__h">Documents</h2>
-                  {documents.length === 0 ? (
-                    <div className="cr-empty">No documents yet.</div>
-                  ) : (
-                    documents.map((doc) => (
-                      <a className="cr-doc" key={doc.id} href={doc.file_path} target="_blank" rel="noopener noreferrer">
-                        <span className="cr-doc__fi">PDF</span>
-                        <span className="cr-doc__n">{doc.name}</span>
-                      </a>
-                    ))
                   )}
                 </section>
               </div>
@@ -262,7 +248,7 @@ const CSS = `
 .cr-btn--ghost{ background:rgba(255,255,255,.07); color:#fff; border:1px solid rgba(255,255,255,.16); }
 .cr-btn--ghost:hover{ border-color:rgba(255,255,255,.4); }
 
-.cr-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.cr-grid{ display:grid; grid-template-columns:1fr; gap:14px; }
 .cr-card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
 .cr-card__h{ font-size:13px; font-weight:700; margin:0 0 10px; }
 .cr-empty{ font-size:12.5px; color:var(--muted); padding:10px 0; font-style:italic; }
@@ -278,14 +264,6 @@ const CSS = `
 .cr-ct__ph{ font-size:12.5px; font-weight:700; color:var(--gold2); white-space:nowrap; text-decoration:none; flex-shrink:0; }
 .cr-ct__ph:hover{ text-decoration:underline; }
 
-.cr-doc{ display:flex; align-items:center; gap:9px; padding:8px 0; border-bottom:1px solid var(--line);
-  font-size:12.5px; font-weight:500; color:var(--ink); text-decoration:none; }
-.cr-doc:last-child{ border-bottom:none; }
-.cr-doc:hover .cr-doc__n{ color:var(--gold2); }
-.cr-doc__fi{ width:26px; height:26px; border-radius:7px; background:rgba(184,80,63,.08); color:#b8503f; font-size:9px; font-weight:700;
-  display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.cr-doc__n{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color .15s; }
-
 .cr-pills{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
 .cr-pill{ font-size:11.5px; font-weight:600; padding:7px 13px; border-radius:20px; background:var(--card); border:1px solid var(--line);
   color:var(--muted); text-decoration:none; transition:.15s; }
@@ -298,7 +276,6 @@ const CSS = `
   .cr-rail__h{ display:none; }
   .cr-ri{ width:auto; border-radius:8px; }
   .cr-ri.on:before{ display:none; }
-  .cr-grid{ grid-template-columns:1fr; }
   .cr-dhead__acts{ margin-left:0; width:100%; }
 }
 `;
