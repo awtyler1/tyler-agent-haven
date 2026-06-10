@@ -48,6 +48,7 @@ const ContractingPage = lazy(() => import("./pages/ContractingPage"));
 const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
 const CalendarPage = lazy(() => import("./pages/CalendarPage"));
 const CertificationsPage = lazy(() => import("./pages/CertificationsPage"));
+const ArticlePage = lazy(() => import("./pages/ArticlePage"));
 const ContactsPage = lazy(() => import("./pages/ContactsPage"));
 
 // Lazy load: Admin pages (only loaded by admins)
@@ -168,6 +169,7 @@ const App = () => (
               <Route path="my-profile" element={<MyProfilePage />} />
               <Route path="start-here" element={<StartHerePage />} />
               <Route path="industry-updates" element={<IndustryUpdatesPage />} />
+              <Route path="knowledge/:slug" element={<ArticlePage />} />
             </Route>
 
             {/* ================================ */}
