@@ -26,7 +26,7 @@ function PublicNav() {
         <nav className="iar-nav__lks">
           <RouterLink to="/#honest" className="iar-nav__lk">Why TIG</RouterLink>
           <RouterLink to="/#founders" className="iar-nav__lk">Our Team</RouterLink>
-          <RouterLink to="/insights" className="iar-nav__lk is-on">Insights</RouterLink>
+          <RouterLink to="/insights" className="iar-nav__lk">Insights</RouterLink>
           <RouterLink to="/#get" className="iar-nav__lk">What you get</RouterLink>
         </nav>
         <div className="iar-nav__act">
@@ -185,7 +185,7 @@ const CSS = `
 .iar-mk{ width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); font-weight:800; display:flex; align-items:center; justify-content:center; font-family:'Outfit'; }
 .iar-nav__lks{ display:flex; gap:24px; flex:1; margin-left:8px; }
 .iar-nav__lk{ color:rgba(244,241,232,.74); font-size:14px; font-weight:500; }
-.iar-nav__lk:hover,.iar-nav__lk.is-on{ color:#fff; }
+.iar-nav__lk:hover{ color:#fff; }
 .iar-nav__act{ display:flex; align-items:center; gap:10px; }
 .iar-btn{ font-size:13.5px; font-weight:700; padding:9px 15px; border-radius:9px; cursor:pointer; font-family:inherit; display:inline-block; }
 .iar-btn--ghost{ color:rgba(244,241,232,.85); font-weight:600; border:1px solid rgba(244,241,232,.25); padding:8px 14px; }
