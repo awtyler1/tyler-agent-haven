@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Insights — Editorial</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--card:#fff;--line:#e1d9c8;--muted:#5f6b62;--ink:#16201b;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+
+  .nav{background:rgba(14,59,46,.96);position:sticky;top:0;z-index:50}
+  .nav__in{max-width:1140px;margin:0 auto;padding:0 32px;height:66px;display:flex;align-items:center;gap:26px}
+  .brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:15px}
+  .mk{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-weight:800;display:flex;align-items:center;justify-content:center}
+  .nav__lks{display:flex;gap:24px;flex:1;margin-left:8px}
+  .nav__lk{color:rgba(244,241,232,.74);font-size:14px;font-weight:500}.nav__lk.is-on{color:#fff}
+  .btn-ghost{color:rgba(244,241,232,.85);font-size:13.5px;font-weight:600;border:1px solid rgba(244,241,232,.25);padding:8px 14px;border-radius:9px}
+  .btn-gold{background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-size:13.5px;font-weight:700;padding:9px 15px;border-radius:9px}
+
+  /* header band */
+  .head{background:linear-gradient(168deg,var(--em),var(--em2));color:var(--bone);position:relative;overflow:hidden;padding:64px 0 90px}
+  .head:before{content:"";position:absolute;top:-160px;left:62%;width:760px;height:520px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  .head__in{max-width:1140px;margin:0 auto;padding:0 32px;position:relative}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .head h1{font-family:'Outfit';font-size:clamp(34px,5vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1.04;margin:14px 0 0;max-width:16ch}
+  .head p{font-size:16.5px;color:rgba(244,241,232,.8);line-height:1.6;margin-top:14px;max-width:54ch}
+
+  .wrap{max-width:1140px;margin:-58px auto 0;padding:0 32px 80px;position:relative;z-index:2}
+
+  /* featured */
+  .feat{display:grid;grid-template-columns:1.25fr 1fr;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(20,30,24,.1)}
+  .feat__img{background:linear-gradient(135deg,#13503c,#0a2c22);position:relative;min-height:340px;display:flex;align-items:flex-end;padding:26px}
+  .feat__img:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(201,168,76,.22),transparent 55%)}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(244,241,232,.14);color:var(--gold);border:1px solid rgba(201,168,76,.4);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:30px;position:relative;z-index:2}
+  .feat__body{padding:34px}
+  .kick{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2)}
+  .feat__body h2{font-family:'Outfit';font-size:27px;font-weight:700;letter-spacing:-.02em;line-height:1.14;margin:10px 0 12px}
+  .feat__body p{font-size:14.5px;color:var(--muted);line-height:1.65}
+  .meta{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:12.5px;color:var(--muted)}
+  .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-family:'Outfit';font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .dot{width:3px;height:3px;border-radius:50%;background:var(--line)}
+
+  /* filter row */
+  .filters{display:flex;gap:9px;flex-wrap:wrap;margin:46px 0 22px}
+  .chip{font-size:13px;font-weight:600;padding:8px 15px;border-radius:30px;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer}
+  .chip.is-on{background:var(--em);color:var(--bone);border-color:var(--em)}
+
+  /* grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(20,30,24,.1)}
+  .card__img{height:158px;background:linear-gradient(135deg,#1c5b44,#0e3b2e);position:relative}
+  .card__img.alt{background:linear-gradient(135deg,#2a6b52,#13503c)}
+  .card__img .pill{position:absolute;left:14px;top:14px}
+  .lockbadge{position:absolute;right:12px;top:12px;background:rgba(10,44,34,.82);color:var(--gold);font-size:11px;font-weight:700;padding:5px 10px;border-radius:30px;display:flex;align-items:center;gap:5px;backdrop-filter:blur(2px)}
+  .card__b{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1}
+  .card__b .kick{font-size:11px}
+  .card__b h3{font-family:'Outfit';font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.25;margin:8px 0 8px}
+  .card__b p{font-size:13.5px;color:var(--muted);line-height:1.6;flex:1}
+  .card__meta{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px;color:var(--muted)}
+
+  /* newsletter */
+  .news{margin-top:60px;background:linear-gradient(150deg,var(--em),var(--em2));border-radius:22px;padding:44px;color:var(--bone);display:grid;grid-template-columns:1.3fr 1fr;gap:30px;align-items:center;position:relative;overflow:hidden}
+  .news:before{content:"";position:absolute;right:-80px;top:-80px;width:380px;height:380px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  .news h3{font-family:'Outfit';font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .news p{font-size:14px;color:rgba(244,241,232,.78);line-height:1.6;margin-top:8px}
+  .news__form{display:flex;gap:9px;position:relative;z-index:2}
+  .news input{flex:1;font-family:inherit;font-size:14px;padding:13px 14px;border-radius:10px;border:1px solid rgba(244,241,232,.25);background:rgba(244,241,232,.08);color:#fff}
+  .news input::placeholder{color:rgba(244,241,232,.55)}
+  .news .btn-gold{padding:13px 18px;white-space:nowrap}
+
+  .foot{background:#0a221a;color:rgba(244,241,232,.6);text-align:center;padding:26px;font-size:13px;margin-top:8px}
+  .foot b{color:var(--gold)}
+  @media(max-width:900px){.feat{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.news{grid-template-columns:1fr}.nav__lks{display:none}}
+  @media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style></head>
+<body>
+  <div class="tag">INSIGHTS · <b>A — Editorial</b></div>
+  <div class="nav"><div class="nav__in">
+    <a class="brand"><span class="mk">T</span> Tyler Insurance Group</a>
+    <div class="nav__lks"><a class="nav__lk">Why TIG</a><a class="nav__lk">Our Team</a><a class="nav__lk is-on">Insights</a><a class="nav__lk">What you get</a></div>
+    <a class="btn-ghost">Agent Login</a><a class="btn-gold">Become an Agent</a>
+  </div></div>
+
+  <div class="head"><div class="head__in">
+    <div class="eyebrow">TIG Insights</div>
+    <h1 class="disp">Straight talk on Medicare, the business, and where it's headed.</h1>
+    <p>Field notes from agents who still sell. What's changing in the market, what we're building at TIG, and the plays that actually grow a book.</p>
+  </div></div>
+
+  <div class="wrap">
+    <!-- featured -->
+    <a class="feat">
+      <div class="feat__img"><span class="pill">★ Featured</span></div>
+      <div class="feat__body">
+        <div class="kick">Industry · Medicare 101</div>
+        <h2 class="disp">Why more clients are choosing Medicare Advantage in 2027</h2>
+        <p>The plans changed, the math changed, and the conversation at the kitchen table changed with it. Here's what's actually driving the shift, and how to talk about it honestly.</p>
+        <div class="meta"><span class="av">AT</span> Austin Tyler <span class="dot"></span> 6 min read <span class="dot"></span> Jun 2026</div>
+      </div>
+    </a>
+
+    <!-- filters -->
+    <div class="filters">
+      <span class="chip is-on">All</span>
+      <span class="chip">Medicare 101</span>
+      <span class="chip">Industry Updates</span>
+      <span class="chip">Agency News</span>
+      <span class="chip">Agent Playbooks 🔒</span>
+    </div>
+
+    <!-- grid -->
+    <div class="grid">
+      <a class="card"><div class="card__img"><span class="pill">Industry</span></div>
+        <div class="card__b"><div class="kick">Industry Updates</div><h3 class="disp">What CMS's 2027 final rule means for your clients</h3><p>The marketing rules tightened again. Here's the plain-English version and what to change before AEP.</p>
+        <div class="card__meta"><span class="av">AH</span> Andrew Horn <span class="dot"></span> 5 min</div></div></a>
+
+      <a class="card"><div class="card__img alt"><span class="pill">Agency</span></div>
+        <div class="card__b"><div class="kick">Agency News</div><h3 class="disp">Inside how we built TIG's agent toolkit</h3><p>SunFire, Connecture, a real CRM, and why we give it all away at no cost to our agents.</p>
+        <div class="card__meta"><span class="av">AT</span> Austin Tyler <span class="dot"></span> 4 min</div></div></a>
+
+      <a class="card"><div class="card__img"><span class="pill">Medicare 101</span><span class="lockbadge">🔒 Members</span></div>
+        <div class="card__b"><div class="kick">Agent Playbooks</div><h3 class="disp">The exact T-65 outreach sequence we use</h3><p>Our week-by-week playbook for turning a birthday list into booked appointments. Members only.</p>
+        <div class="card__meta">🔒 Unlock with your agent login</div></div></a>
+
+      <a class="card"><div class="card__img alt"><span class="pill">Industry</span></div>
+        <div class="card__b"><div class="kick">Industry Updates</div><h3 class="disp">Star ratings just moved. Here's who won and lost</h3><p>A quick read on the carriers that gained ground for 2027, and what it means at enrollment.</p>
+        <div class="card__meta"><span class="av">AH</span> Andrew Horn <span class="dot"></span> 3 min</div></div></a>
+
+      <a class="card"><div class="card__img"><span class="pill">Medicare 101</span></div>
+        <div class="card__b"><div class="kick">Medicare 101</div><h3 class="disp">MA vs. Med Supp: how we actually frame it</h3><p>No jargon. The honest tradeoffs we walk every client through so they pick with confidence.</p>
+        <div class="card__meta"><span class="av">AT</span> Austin Tyler <span class="dot"></span> 7 min</div></div></a>
+
+      <a class="card"><div class="card__img alt"><span class="pill">Agency</span><span class="lockbadge">🔒 Members</span></div>
+        <div class="card__b"><div class="kick">Agent Playbooks</div><h3 class="disp">Our compliance checklist for every appointment</h3><p>SOA, recording, disclaimers, the works. The internal checklist our agents run. Members only.</p>
+        <div class="card__meta">🔒 Unlock with your agent login</div></div></a>
+    </div>
+
+    <!-- newsletter -->
+    <div class="news">
+      <div>
+        <h3 class="disp">Get the next one in your inbox.</h3>
+        <p>One useful email when we publish. Medicare shifts, market reads, and what we're learning. No spam, no overrides pitch.</p>
+      </div>
+      <form class="news__form"><input placeholder="you@email.com"/><button class="btn-gold" type="button">Subscribe</button></form>
+    </div>
+  </div>
+
+  <div class="foot">Powered by <b>Tyler Insurance Group</b> · Independent Medicare FMO</div>
+</body>
+</html>
