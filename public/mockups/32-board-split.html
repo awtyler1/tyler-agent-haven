@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TIG Hub — Split Glance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;--red:#b8503f;--amber:#b07f33;--green:#5b7d44}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .crest{height:30px;width:auto}
+
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}
+  .nav{margin-top:14px}
+  .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a:hover{background:rgba(255,255,255,.05);color:#fff}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}
+  .nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5);line-height:1.5}
+  .sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:32px 44px}
+  .max{max-width:980px;margin:0 auto}
+  .head{margin-bottom:18px}
+  .head .date{font-size:12.5px;color:var(--muted)}
+  .head h1{font-family:'Outfit';font-size:27px;font-weight:700;letter-spacing:-.025em;margin-top:2px}
+
+  /* split hero: board left, tools right */
+  .split{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;margin-bottom:18px}
+  .board{background:linear-gradient(135deg,#10362a,#0a2c22);color:var(--bone);border-radius:18px;padding:20px 22px;position:relative;overflow:hidden}
+  .board:before{content:"";position:absolute;top:-90px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  .board .bh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative}
+  .board .bh .t{font-family:'Outfit';font-size:14.5px;font-weight:700}
+  .board .bh .upd{font-size:11px;color:rgba(244,241,232,.55)}
+  .bitem{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid rgba(255,255,255,.1);position:relative;font-size:13.5px}
+  .bitem .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .bitem .tx{font-weight:600}
+  .bitem .when{margin-left:auto;flex-shrink:0;font-family:'Outfit';font-weight:700;color:var(--gold);font-size:13.5px}
+
+  .tools{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+  .tools h2{font-family:'Outfit';font-size:13.5px;font-weight:700;margin-bottom:12px}
+  .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .tg{display:flex;flex-direction:column;align-items:center;gap:6px;padding:13px 8px;border:1px solid var(--line);border-radius:11px;font-size:12px;font-weight:600;text-align:center;transition:.15s}
+  .tg:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .tg .i{font-size:18px}
+
+  /* countdown strip */
+  .strip{display:flex;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 18px;margin-bottom:18px;font-size:13px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+  .strip .seg{display:flex;align-items:center;gap:8px}
+  .strip b{font-family:'Outfit';color:var(--gold2)}
+  .strip .div{width:1px;height:18px;background:var(--line)}
+  .strip .cta{margin-left:auto;font-weight:600;color:var(--gold2);font-size:12.5px}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+  .card h2{font-family:'Outfit';font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .card h2 a{font-size:12px;font-weight:500;color:var(--gold2)}
+  .ev{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}.ev:last-child{border-bottom:none}
+  .ev .dte{width:40px;text-align:center;background:var(--bone);border-radius:8px;padding:4px 0;flex-shrink:0}
+  .ev .mo{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted)}.ev .dy{font-family:'Outfit';font-size:15px;font-weight:700}
+  .ev .t{font-size:13px;font-weight:600}.ev .s{font-size:11.5px;color:var(--muted)}
+  .upd2{padding:9px 0;border-bottom:1px solid var(--line)}.upd2:last-child{border-bottom:none}
+  .upd2 .cat{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold2)}
+  .upd2 .ti{font-size:13px;font-weight:600;margin-top:2px}
+
+  @media(max-width:900px){.split{grid-template-columns:1fr}}
+  @media(max-width:760px){.sb{display:none}.two{grid-template-columns:1fr}.main{padding:22px}}
+</style>
+</head>
+<body>
+  <div class="tag">BLEND · <b>Split Glance</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand">
+        <svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg>
+        <div class="nm">Tyler<br>Insurance Group</div>
+      </div>
+      <nav class="nav">
+        <a class="on"><span class="ic">⌂</span> Home</a>
+        <a><span class="ic">⛨</span> Carriers</a>
+        <a><span class="ic">⚡</span> Quote &amp; Enroll</a>
+        <a><span class="ic">🎓</span> Training &amp; Playbooks</a>
+        <a><span class="ic">📈</span> Knowledge &amp; Updates</a>
+        <a><span class="ic">📋</span> Forms &amp; Compliance</a>
+        <a><span class="ic">🗓</span> Calendar</a>
+        <a><span class="ic">☎</span> Contacts</a>
+      </nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+
+    <main class="main"><div class="max">
+      <div class="head">
+        <div class="date">Tuesday, June 9</div>
+        <h1 class="disp">One glance. Then go sell.</h1>
+      </div>
+
+      <div class="split">
+        <div class="board">
+          <div class="bh"><span class="t">📌 The Board</span><span class="upd">Updated Jun 9</span></div>
+          <div class="bitem"><span class="dot" style="background:#e0795f"></span><span class="tx">Aetna 2027 certification closes</span><span class="when">Jun 30</span></div>
+          <div class="bitem"><span class="dot" style="background:#e0a85f"></span><span class="tx">Humana RTS attestation due</span><span class="when">Jul 5</span></div>
+          <div class="bitem"><span class="dot" style="background:#e0a85f"></span><span class="tx">Monthly production report</span><span class="when">Jun 28</span></div>
+          <div class="bitem"><span class="dot" style="background:#88b06a"></span><span class="tx">Wellcare 2027 certs open, go early</span><span class="when">Now</span></div>
+        </div>
+        <div class="tools">
+          <h2>⚡ Your tools</h2>
+          <div class="tgrid">
+            <a class="tg"><span class="i">⚡</span>SunFire</a>
+            <a class="tg"><span class="i">✍️</span>Connecture</a>
+            <a class="tg"><span class="i">👥</span>BOSS CRM</a>
+            <a class="tg"><span class="i">🎓</span>AHIP</a>
+            <a class="tg"><span class="i">⛨</span>Portals</a>
+            <a class="tg"><span class="i">📋</span>Forms</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="strip">
+        <span class="seg">🗓 AEP opens in <b>128 days</b></span>
+        <span class="div"></span>
+        <span class="seg">📅 Next event: <b>Monthly Agent Call · Jun 12</b></span>
+        <a class="cta">Get AEP-ready →</a>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <h2>🆕 New this week <a href="#">All updates →</a></h2>
+          <div class="upd2"><div class="cat">Playbook</div><div class="ti">T65 outreach script that converts</div></div>
+          <div class="upd2"><div class="cat">Form</div><div class="ti">2027 SOA, updated version</div></div>
+          <div class="upd2"><div class="cat">CMS</div><div class="ti">2027 Final Rule, plain-English recap</div></div>
+        </div>
+        <div class="card">
+          <h2>🗓 Upcoming <a href="#">Calendar →</a></h2>
+          <div class="ev"><div class="dte"><div class="mo">Jun</div><div class="dy">12</div></div><div><div class="t">Monthly Agent Call</div><div class="s">11:00 AM ET · Zoom</div></div></div>
+          <div class="ev"><div class="dte"><div class="mo">Jun</div><div class="dy">18</div></div><div><div class="t">New Agent Onboarding</div><div class="s">1:00 PM ET</div></div></div>
+        </div>
+      </div>
+    </div></main>
+  </div>
+</body>
+</html>
