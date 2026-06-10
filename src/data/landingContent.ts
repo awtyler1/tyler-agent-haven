@@ -27,7 +27,7 @@ export const hero = {
   sub: "Real talk: most FMOs hand you a login, pitch you on overrides, and disappear. We've put in the reps growing our own books, and we'll just give you what we learned.",
   // The line that defines the model. The part after | is gold-emphasized.
   punch: "We don't win by signing more agents. | We win when you write more business.",
-  primaryCta: { label: "Become a TIG Agent", href: "mailto:join@tylerinsurancegroup.com" },
+  primaryCta: { label: "Become a TIG Agent", href: "/join" },
   secondaryCta: { label: "Agent Login", href: "/auth" },
 };
 
@@ -107,5 +107,5 @@ export const founders: Founder[] = [
 export const closingCta = {
   heading: "Come build with operators who'll actually pick up.",
   sub: "Top contracts, the full toolkit, and us in it with you. If that's the team you've been looking for, let's talk.",
-  primaryCta: { label: "Become a TIG Agent", href: "mailto:join@tylerinsurancegroup.com" },
+  primaryCta: { label: "Become a TIG Agent", href: "/join" },
 };
