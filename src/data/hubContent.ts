@@ -36,30 +36,15 @@ export const boardMeta = {
 };
 
 export const boardItems: BoardItem[] = [
-  {
-    id: "aetna-cert-close",
-    kind: "deadline",
-    title: "Aetna 2027 certification closes",
-    note: "Do it now, the portal gets slow near the deadline",
-    when: "Jun 30",
-    date: "2026-06-30",
-  },
-  {
-    id: "humana-rts",
-    kind: "action",
-    title: "Humana RTS attestation due",
-    note: "Takes 10 minutes in the Humana portal",
-    when: "Jul 5",
-    date: "2026-07-05",
-  },
-  {
-    id: "wellcare-open",
-    kind: "open",
-    title: "Wellcare 2027 certifications",
-    note: "Early certifiers get first AEP appointments",
-    when: "Open",
-    whenSub: "go early",
-  },
+  // Add real deadlines/actions/openings here. Example shape:
+  // {
+  //   id: "aetna-cert-close",
+  //   kind: "deadline",                 // deadline | action | open
+  //   title: "Aetna 2027 certification closes",
+  //   note: "Do it now, the portal gets slow near the deadline",
+  //   when: "Jun 30",                   // big right-side label
+  //   date: "2026-06-30",               // optional — auto-computes "N days"
+  // },
 ];
 
 // ── The Dock (tools) ─────────────────────────────────────────────────────────
@@ -88,9 +73,9 @@ export interface NewItem {
 }
 
 export const newThisWeek: NewItem[] = [
-  { id: "t65-script", category: "Playbook", title: "T65 outreach script that converts" },
-  { id: "soa-2027", category: "Form", title: "2027 SOA, updated version", href: "/forms-library" },
-  { id: "final-rule", category: "CMS", title: "2027 Final Rule, plain-English recap" },
+  // Add what changed this week. Example shape:
+  // { id: "t65-script", category: "Playbook", title: "T65 outreach script that converts" },
+  // { id: "soa-2027", category: "Form", title: "2027 SOA (updated)", href: "/forms-library" },
 ];
 
 // ── AEP countdown ────────────────────────────────────────────────────────────
