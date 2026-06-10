@@ -30,9 +30,10 @@
 
   /* featured */
   .feat{display:grid;grid-template-columns:1.25fr 1fr;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(20,30,24,.1)}
-  .feat__img{background:linear-gradient(135deg,#13503c,#0a2c22);position:relative;min-height:340px;display:flex;align-items:flex-end;padding:26px}
-  .feat__img:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(201,168,76,.22),transparent 55%)}
-  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(244,241,232,.14);color:var(--gold);border:1px solid rgba(201,168,76,.4);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:30px;position:relative;z-index:2}
+  .feat__img{position:relative;min-height:340px;display:flex;align-items:flex-end;padding:26px;background:#0a2c22;overflow:hidden}
+  .feat__img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .feat__img:after{content:"";position:absolute;inset:0;background:linear-gradient(155deg,rgba(10,44,34,.25),rgba(10,44,34,.72))}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(10,44,34,.55);color:var(--gold);border:1px solid rgba(201,168,76,.55);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:30px;position:relative;z-index:2;backdrop-filter:blur(3px)}
   .feat__body{padding:34px}
   .kick{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2)}
   .feat__body h2{font-family:'Outfit';font-size:27px;font-weight:700;letter-spacing:-.02em;line-height:1.14;margin:10px 0 12px}
@@ -50,10 +51,13 @@
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
   .card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
   .card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(20,30,24,.1)}
-  .card__img{height:158px;background:linear-gradient(135deg,#1c5b44,#0e3b2e);position:relative}
-  .card__img.alt{background:linear-gradient(135deg,#2a6b52,#13503c)}
+  .card__img{height:158px;position:relative;background:#0e3b2e;overflow:hidden}
+  .card__img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s}
+  .card:hover .card__img img{transform:scale(1.05)}
+  .card__img:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,44,34,.45),transparent 42%)}
   .card__img .pill{position:absolute;left:14px;top:14px}
-  .lockbadge{position:absolute;right:12px;top:12px;background:rgba(10,44,34,.82);color:var(--gold);font-size:11px;font-weight:700;padding:5px 10px;border-radius:30px;display:flex;align-items:center;gap:5px;backdrop-filter:blur(2px)}
+  .lockbadge{position:absolute;right:12px;top:12px;z-index:2;background:rgba(10,44,34,.82);color:var(--gold);font-size:11px;font-weight:700;padding:5px 10px;border-radius:30px;display:flex;align-items:center;gap:5px;backdrop-filter:blur(2px)}
+  .card__img.locked img{filter:saturate(.5) brightness(.7)}
   .card__b{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1}
   .card__b .kick{font-size:11px}
   .card__b h3{font-family:'Outfit';font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.25;margin:8px 0 8px}
@@ -92,7 +96,7 @@
   <div class="wrap">
     <!-- featured -->
     <a class="feat">
-      <div class="feat__img"><span class="pill">★ Featured</span></div>
+      <div class="feat__img"><img src="https://loremflickr.com/900/700/senior,couple,smiling?lock=21" alt=""><span class="pill">★ Featured</span></div>
       <div class="feat__body">
         <div class="kick">Industry · Medicare 101</div>
         <h2 class="disp">Why more clients are choosing Medicare Advantage in 2027</h2>
@@ -112,27 +116,27 @@
 
     <!-- grid -->
     <div class="grid">
-      <a class="card"><div class="card__img"><span class="pill">Industry</span></div>
+      <a class="card"><div class="card__img"><img src="https://loremflickr.com/600/400/government,capitol,washington?lock=22" alt=""><span class="pill">Industry</span></div>
         <div class="card__b"><div class="kick">Industry Updates</div><h3 class="disp">What CMS's 2027 final rule means for your clients</h3><p>The marketing rules tightened again. Here's the plain-English version and what to change before AEP.</p>
         <div class="card__meta"><span class="av">AH</span> Andrew Horn <span class="dot"></span> 5 min</div></div></a>
 
-      <a class="card"><div class="card__img alt"><span class="pill">Agency</span></div>
+      <a class="card"><div class="card__img"><img src="https://loremflickr.com/600/400/laptop,office,desk?lock=23" alt=""><span class="pill">Agency</span></div>
         <div class="card__b"><div class="kick">Agency News</div><h3 class="disp">Inside how we built TIG's agent toolkit</h3><p>SunFire, Connecture, a real CRM, and why we give it all away at no cost to our agents.</p>
         <div class="card__meta"><span class="av">AT</span> Austin Tyler <span class="dot"></span> 4 min</div></div></a>
 
-      <a class="card"><div class="card__img"><span class="pill">Medicare 101</span><span class="lockbadge">🔒 Members</span></div>
+      <a class="card"><div class="card__img locked"><img src="https://loremflickr.com/600/400/calendar,phone,call?lock=24" alt=""><span class="pill">Medicare 101</span><span class="lockbadge">🔒 Members</span></div>
         <div class="card__b"><div class="kick">Agent Playbooks</div><h3 class="disp">The exact T-65 outreach sequence we use</h3><p>Our week-by-week playbook for turning a birthday list into booked appointments. Members only.</p>
         <div class="card__meta">🔒 Unlock with your agent login</div></div></a>
 
-      <a class="card"><div class="card__img alt"><span class="pill">Industry</span></div>
+      <a class="card"><div class="card__img"><img src="https://loremflickr.com/600/400/chart,graph,finance?lock=25" alt=""><span class="pill">Industry</span></div>
         <div class="card__b"><div class="kick">Industry Updates</div><h3 class="disp">Star ratings just moved. Here's who won and lost</h3><p>A quick read on the carriers that gained ground for 2027, and what it means at enrollment.</p>
         <div class="card__meta"><span class="av">AH</span> Andrew Horn <span class="dot"></span> 3 min</div></div></a>
 
-      <a class="card"><div class="card__img"><span class="pill">Medicare 101</span></div>
+      <a class="card"><div class="card__img"><img src="https://loremflickr.com/600/400/doctor,patient,healthcare?lock=26" alt=""><span class="pill">Medicare 101</span></div>
         <div class="card__b"><div class="kick">Medicare 101</div><h3 class="disp">MA vs. Med Supp: how we actually frame it</h3><p>No jargon. The honest tradeoffs we walk every client through so they pick with confidence.</p>
         <div class="card__meta"><span class="av">AT</span> Austin Tyler <span class="dot"></span> 7 min</div></div></a>
 
-      <a class="card"><div class="card__img alt"><span class="pill">Agency</span><span class="lockbadge">🔒 Members</span></div>
+      <a class="card"><div class="card__img locked"><img src="https://loremflickr.com/600/400/checklist,clipboard,document?lock=27" alt=""><span class="pill">Agency</span><span class="lockbadge">🔒 Members</span></div>
         <div class="card__b"><div class="kick">Agent Playbooks</div><h3 class="disp">Our compliance checklist for every appointment</h3><p>SOA, recording, disclaimers, the works. The internal checklist our agents run. Members only.</p>
         <div class="card__meta">🔒 Unlock with your agent login</div></div></a>
     </div>
