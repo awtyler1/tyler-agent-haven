@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Quote & Enroll', path: '/agent-tools', icon: '⚡' },
   { label: 'Training & Playbooks', path: '/training', icon: '📚' },
   { label: 'Knowledge & Updates', path: '/industry-updates', icon: '📈' },
-  { label: 'Forms & Compliance', path: '/forms-library', icon: '📋' },
+  { label: 'Forms', path: '/forms-library', icon: '📋' },
   { label: 'Calendar', path: '/calendar', icon: '🗓' },
   { label: 'Contacts', path: '/contacts', icon: '☎' },
 ];
