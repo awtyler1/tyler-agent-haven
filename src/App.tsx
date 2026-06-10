@@ -48,6 +48,7 @@ const TrainingLibrary = lazy(() => import("./pages/training/TrainingLibrary"));
 const ContractingPage = lazy(() => import("./pages/ContractingPage"));
 const MyProfilePage = lazy(() => import("./pages/MyProfilePage"));
 const CalendarPage = lazy(() => import("./pages/CalendarPage"));
+const CertificationsPage = lazy(() => import("./pages/CertificationsPage"));
 const ContactsPage = lazy(() => import("./pages/ContactsPage"));
 
 // Lazy load: Admin pages (only loaded by admins)
@@ -154,6 +155,7 @@ const App = () => (
             {/* ================================ */}
             <Route element={<ProtectedRoute><AgentShell /></ProtectedRoute>}>
               <Route path="hub" element={<Index />} />
+              <Route path="certifications" element={<CertificationsPage />} />
               <Route path="calendar" element={<CalendarPage />} />
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="contracting-hub" element={<ContractingHubPage />} />
