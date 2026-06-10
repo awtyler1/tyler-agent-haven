@@ -53,7 +53,12 @@ export default function BecomeAgentPage() {
       localStorage.setItem('tig_join_last', String(Date.now()));
       setSubmitted(true);
     } catch (err) {
-      toast.error('Something went wrong sending that. Please try again, or text Austin at (859) 619-6672.');
+      // Surface the HTTP status to help diagnose (404 = not deployed,
+      // 401 = auth, 500 = server/missing email key).
+      console.error('Become-an-agent submit failed:', err);
+      const ctx = (err as { context?: { status?: number } })?.context;
+      const status = ctx && typeof ctx.status === 'number' ? ` (error ${ctx.status})` : '';
+      toast.error(`Couldn't send that${status}. Please try again, or text Austin at (859) 619-6672.`);
     } finally {
       setSubmitting(false);
     }
