@@ -1,26 +1,51 @@
 import { useEffect, useState } from 'react';
-import { knowledgeItems, KNOWLEDGE_META, type KnowledgeItem } from '@/data/knowledgeContent';
+import { Link } from 'react-router-dom';
+import { knowledgeItems, KNOWLEDGE_META, type KnowledgeCategory } from '@/data/knowledgeContent';
+import { articles } from '@/data/articles';
 
 const CATEGORIES = ['All', ...Object.values(KNOWLEDGE_META).map((m) => m.label)];
+
+// Unified feed entry — either an internal article (`to`) or an external/text link (`href`).
+interface FeedEntry {
+  id: string;
+  title: string;
+  category: KnowledgeCategory;
+  date: string;
+  source?: string;
+  summary?: string;
+  href?: string;
+  to?: string;
+  pinned?: boolean;
+}
+
+function buildFeed(): FeedEntry[] {
+  const external: FeedEntry[] = knowledgeItems.map((k) => ({
+    id: k.id, title: k.title, category: k.category, date: k.date,
+    source: k.source, summary: k.summary, href: k.href, pinned: k.pinned,
+  }));
+  const internal: FeedEntry[] = articles.map((a) => ({
+    id: a.slug, title: a.title, category: a.category, date: a.date,
+    source: 'TIG', summary: a.summary, to: `/knowledge/${a.slug}`,
+  }));
+  return [...external, ...internal];
+}
 
 function formatDate(iso: string) {
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-// Group items into relative buckets (newest first).
-function groupItems(items: KnowledgeItem[]) {
+function groupItems(items: FeedEntry[]) {
   const now = new Date();
   const weekAgo = new Date(now);
   weekAgo.setDate(now.getDate() - 7);
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-  const buckets: { label: string; items: KnowledgeItem[] }[] = [];
-  const push = (label: string, item: KnowledgeItem) => {
+  const buckets: { label: string; items: FeedEntry[] }[] = [];
+  const push = (label: string, item: FeedEntry) => {
     let b = buckets.find((x) => x.label === label);
     if (!b) { b = { label, items: [] }; buckets.push(b); }
     b.items.push(item);
   };
-
   for (const it of items) {
     const d = new Date(it.date + 'T00:00:00');
     if (d >= weekAgo) push('This week', it);
@@ -30,9 +55,10 @@ function groupItems(items: KnowledgeItem[]) {
   return buckets;
 }
 
-function FeedItem({ item }: { item: KnowledgeItem }) {
+function FeedItem({ item }: { item: FeedEntry }) {
   const meta = KNOWLEDGE_META[item.category];
   const external = item.href?.startsWith('http');
+  const style = { ['--ec' as string]: meta.color };
   const inner = (
     <>
       <div className="kn-item__body">
@@ -47,19 +73,16 @@ function FeedItem({ item }: { item: KnowledgeItem }) {
       {external && <span className="kn-item__ext" aria-hidden="true">↗</span>}
     </>
   );
-  const style = { ['--ec' as string]: meta.color };
-  return item.href ? (
-    <a
-      className="kn-item"
-      style={style}
-      href={item.href}
-      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-    >
-      {inner}
-    </a>
-  ) : (
-    <div className="kn-item" style={style}>{inner}</div>
-  );
+
+  if (item.to) return <Link className="kn-item" style={style} to={item.to}>{inner}</Link>;
+  if (item.href) {
+    return (
+      <a className="kn-item" style={style} href={item.href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+        {inner}
+      </a>
+    );
+  }
+  return <div className="kn-item" style={style}>{inner}</div>;
 }
 
 export default function IndustryUpdatesPage() {
@@ -69,8 +92,9 @@ export default function IndustryUpdatesPage() {
     document.title = 'Knowledge & Updates | Tyler Insurance Group';
   }, []);
 
-  const hasContent = knowledgeItems.length > 0;
-  const filtered = knowledgeItems
+  const all = buildFeed();
+  const hasContent = all.length > 0;
+  const filtered = all
     .filter((i) => filter === 'All' || KNOWLEDGE_META[i.category].label === filter)
     .sort((a, b) => b.date.localeCompare(a.date));
   const pinned = filtered.find((i) => i.pinned);
@@ -111,19 +135,21 @@ export default function IndustryUpdatesPage() {
             </div>
 
             {pinned && (
-              <a
-                className="kn-pinned"
-                href={pinned.href || undefined}
-                {...(pinned.href?.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              >
-                <div className="kn-pinned__lbl">📌 Pinned</div>
-                <div className="kn-pinned__t">{pinned.title}</div>
-                {pinned.summary && <div className="kn-pinned__s">{pinned.summary}</div>}
-                <div className="kn-pinned__m">
-                  {KNOWLEDGE_META[pinned.category].label}
-                  {pinned.source ? ` · ${pinned.source}` : ''} · {formatDate(pinned.date)}
-                </div>
-              </a>
+              pinned.to ? (
+                <Link className="kn-pinned" to={pinned.to}>
+                  <div className="kn-pinned__lbl">📌 Pinned</div>
+                  <div className="kn-pinned__t">{pinned.title}</div>
+                  {pinned.summary && <div className="kn-pinned__s">{pinned.summary}</div>}
+                  <div className="kn-pinned__m">{KNOWLEDGE_META[pinned.category].label}{pinned.source ? ` · ${pinned.source}` : ''} · {formatDate(pinned.date)}</div>
+                </Link>
+              ) : (
+                <a className="kn-pinned" href={pinned.href || undefined} {...(pinned.href?.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                  <div className="kn-pinned__lbl">📌 Pinned</div>
+                  <div className="kn-pinned__t">{pinned.title}</div>
+                  {pinned.summary && <div className="kn-pinned__s">{pinned.summary}</div>}
+                  <div className="kn-pinned__m">{KNOWLEDGE_META[pinned.category].label}{pinned.source ? ` · ${pinned.source}` : ''} · {formatDate(pinned.date)}</div>
+                </a>
+              )
             )}
 
             {groups.length === 0 && !pinned ? (
@@ -132,9 +158,7 @@ export default function IndustryUpdatesPage() {
               groups.map((g) => (
                 <div key={g.label}>
                   <div className="kn-group">{g.label}</div>
-                  {g.items.map((it) => (
-                    <FeedItem key={it.id} item={it} />
-                  ))}
+                  {g.items.map((it) => <FeedItem key={it.id} item={it} />)}
                 </div>
               ))
             )}
@@ -158,9 +182,7 @@ const CSS = `
 .kn-h1{ font-size:25px; font-weight:700; letter-spacing:-.02em; margin:0; }
 .kn-sub{ font-size:12.5px; color:var(--muted); margin-top:2px; }
 
-/* coming soon */
-.kn-soon{ position:relative; overflow:hidden; background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone);
-  border-radius:20px; padding:54px 40px; text-align:center; margin-top:6px; }
+.kn-soon{ position:relative; overflow:hidden; background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone); border-radius:20px; padding:54px 40px; text-align:center; margin-top:6px; }
 .kn-soon__glow{ position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:560px; height:380px; background:radial-gradient(circle,rgba(201,168,76,.18),transparent 60%); pointer-events:none; }
 .kn-soon__ic{ position:relative; font-size:40px; margin-bottom:14px; }
 .kn-soon__lbl{ position:relative; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
@@ -169,13 +191,11 @@ const CSS = `
 .kn-soon__chips{ position:relative; display:flex; gap:9px; justify-content:center; flex-wrap:wrap; }
 .kn-soon__chip{ font-size:12px; font-weight:600; color:rgba(244,241,232,.85); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); padding:7px 14px; border-radius:30px; }
 
-/* filters */
 .kn-filters{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:18px; }
 .kn-f{ font-family:inherit; font-size:11.5px; font-weight:600; padding:6px 13px; border-radius:20px; background:var(--card); border:1px solid var(--line); color:var(--muted); cursor:pointer; transition:.15s; }
 .kn-f:hover{ border-color:var(--gold); }
 .kn-f.on{ background:var(--em); border-color:var(--em); color:var(--bone); }
 
-/* pinned */
 .kn-pinned{ display:block; background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone); border-radius:16px; padding:20px 22px; margin-bottom:20px; position:relative; overflow:hidden; text-decoration:none; }
 .kn-pinned:before{ content:""; position:absolute; top:-70px; right:-50px; width:260px; height:260px; background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); }
 .kn-pinned__lbl{ font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; position:relative; }
@@ -183,10 +203,8 @@ const CSS = `
 .kn-pinned__s{ font-size:13px; color:rgba(244,241,232,.74); margin-top:7px; line-height:1.55; position:relative; }
 .kn-pinned__m{ font-size:11.5px; color:rgba(244,241,232,.55); margin-top:11px; position:relative; }
 
-/* groups + items */
 .kn-group{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:22px 0 10px; }
-.kn-item{ display:flex; gap:14px; background:var(--card); border:1px solid var(--line); border-radius:13px; padding:15px 17px; margin-bottom:9px;
-  border-left:4px solid var(--ec); transition:.15s; text-decoration:none; color:var(--ink); }
+.kn-item{ display:flex; gap:14px; background:var(--card); border:1px solid var(--line); border-radius:13px; padding:15px 17px; margin-bottom:9px; border-left:4px solid var(--ec); transition:.15s; text-decoration:none; color:var(--ink); }
 .kn-item:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(20,30,24,.07); }
 .kn-item__body{ flex:1; min-width:0; }
 .kn-item__top{ display:flex; align-items:center; gap:9px; margin-bottom:4px; }

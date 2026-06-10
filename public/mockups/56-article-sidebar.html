@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Article — Bottom Line First</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}.crest{height:30px}
+  .nav{margin-top:14px}.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}.nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5)}.sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px}
+  .max{max-width:900px;margin:0 auto}
+  .back{font-size:12.5px;font-weight:600;color:var(--gold2);margin-bottom:18px;display:inline-block}
+  .meta{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .cat{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#5e7d9e;padding:4px 10px;border-radius:20px}
+  .mdate{font-size:12px;color:var(--muted)}
+  h1{font-family:'Outfit';font-size:clamp(26px,3.6vw,36px);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:10px;max-width:18ch}
+  .byline{font-size:12.5px;color:var(--muted);margin-bottom:22px}
+
+  .layout{display:grid;grid-template-columns:1fr 280px;gap:32px;align-items:start}
+
+  /* BOTTOM LINE lead — fixed component */
+  .bl{background:linear-gradient(135deg,#10362a,#0a2c22);color:var(--bone);border-radius:16px;padding:20px 22px;margin-bottom:22px;position:relative;overflow:hidden}
+  .bl:before{content:"";position:absolute;top:-70px;right:-50px;width:240px;height:240px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  .bl__h{font-family:'Outfit';font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;position:relative}
+  .bl p{font-size:16px;line-height:1.6;margin:0;position:relative;color:rgba(244,241,232,.95)}
+
+  .body p{font-size:15.5px;line-height:1.7;color:#33312c;margin-bottom:16px}
+  .body h2{font-family:'Outfit';font-size:19px;font-weight:700;margin:24px 0 10px}
+  .body ul{margin:0 0 16px 2px}
+  .body ul li{list-style:none;display:flex;gap:10px;font-size:15px;line-height:1.6;margin-bottom:8px;color:#33312c}
+  .body ul li:before{content:"–";color:var(--gold2);font-weight:700}
+
+  /* sticky sidebar — fixed components */
+  .rail{position:sticky;top:24px;display:flex;flex-direction:column;gap:14px}
+  .rcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .rcard__h{font-family:'Outfit';font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2);margin-bottom:11px}
+  .rcard.keypts li{list-style:none;display:flex;gap:9px;font-size:12.5px;line-height:1.45;margin-bottom:9px;color:var(--ink)}
+  .rcard.keypts li:last-child{margin-bottom:0}.rcard.keypts .ck{color:var(--gold2);font-weight:800;flex-shrink:0}
+  .rcard.moves li{list-style:none;display:flex;gap:10px;font-size:12.5px;line-height:1.45;margin-bottom:10px;align-items:flex-start}
+  .rcard.moves li:last-child{margin-bottom:0}
+  .rcard.moves .n{width:18px;height:18px;border-radius:50%;background:var(--em);color:var(--bone);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  @media(max-width:860px){.sb{display:none}.layout{grid-template-columns:1fr}.rail{position:static;flex-direction:column}}
+</style>
+</head>
+<body>
+  <div class="tag">ARTICLE · <b>Bottom Line First</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav"><a><span class="ic">⌂</span> Home</a><a><span class="ic">⛨</span> Carriers</a><a><span class="ic">🎓</span> 2027 Certifications</a><a><span class="ic">📚</span> Training</a><a class="on"><span class="ic">📈</span> Knowledge &amp; Updates</a><a><span class="ic">📋</span> Forms</a><a><span class="ic">🗓</span> Calendar</a><a><span class="ic">☎</span> Contacts</a></nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+    <main class="main"><div class="max">
+      <a class="back">← Knowledge &amp; Updates</a>
+      <div class="meta"><span class="cat">CMS</span><span class="mdate">June 8, 2026 · 4 min read</span></div>
+      <h1 class="disp">2027 CMS Final Rule: what actually changes for you</h1>
+      <div class="byline">By Andrew Horn, Tyler Insurance Group</div>
+
+      <div class="layout">
+        <div>
+          <div class="bl">
+            <div class="bl__h">The bottom line</div>
+            <p>If you sell compliant and lead with relationships, the 2027 rule helps you — it squeezes the corner-cutters and makes your renewals stickier.</p>
+          </div>
+
+          <div class="body">
+            <p>CMS released its 2027 final rule last week. Most of it won't touch your day-to-day, but three pieces will shape how you sell this AEP.</p>
+            <h2>What changed</h2>
+            <ul>
+              <li>Stricter documentation on marketing and enrollment calls.</li>
+              <li>New limits on how often plans can change mid-year.</li>
+              <li>More scrutiny on lead vendors and third-party marketers.</li>
+            </ul>
+            <h2>Why it matters</h2>
+            <p>The rule raises the floor on compliance. That's bad news for high-volume, low-touch shops — and good news for advisors who already do it right. Your clients are also less likely to get churned by aggressive outside marketers.</p>
+          </div>
+        </div>
+
+        <aside class="rail">
+          <div class="rcard keypts">
+            <div class="rcard__h">Key points</div>
+            <ul>
+              <li><span class="ck">✓</span> SOAs &amp; call records matter more</li>
+              <li><span class="ck">✓</span> Fewer mid-year plan disruptions</li>
+              <li><span class="ck">✓</span> Lead-vendor crackdown favors FMO ties</li>
+            </ul>
+          </div>
+          <div class="rcard moves">
+            <div class="rcard__h">Your move</div>
+            <ul>
+              <li><span class="n">1</span> Document an SOA for every appointment</li>
+              <li><span class="n">2</span> Audit your lead sources</li>
+              <li><span class="n">3</span> Use plan stability as a renewal talking point</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div></main>
+  </div>
+</body>
+</html>
