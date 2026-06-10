@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calendar — Grid + Month Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;
+    --c-deadline:#b8503f;--c-cert:#A8801F;--c-tig:#5b7d44;--c-carrier:#5e7d9e;--c-holiday:#8a8273;--c-ooo:#a08bb0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}
+  a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}
+  .crest{height:30px;width:auto}
+  .nav{margin-top:14px}
+  .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}
+  .nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5);line-height:1.5}
+  .sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px}
+  .max{max-width:1060px;margin:0 auto}
+  .head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .head h1{font-family:'Outfit';font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .mnav{display:flex;align-items:center;gap:10px}
+  .mnav .mo{font-family:'Outfit';font-size:17px;font-weight:700;min-width:150px;text-align:center}
+  .mnav button{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:15px;transition:.15s}
+  .mnav button:hover{border-color:var(--gold)}
+
+  .wraps{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+
+  .cal{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .dow{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--line);background:#fbf9f4}
+  .dow div{padding:8px 9px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr)}
+  .cell{min-height:64px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 7px}
+  .cell:nth-child(7n){border-right:none}
+  .cell.dim{background:#faf8f2}
+  .cell.dim .dn{color:#c4bcab}
+  .dn{font-size:11px;font-weight:600;color:var(--muted)}
+  .cell.today .dn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--em);color:var(--bone)}
+  .dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+  .dt{width:7px;height:7px;border-radius:50%}
+
+  /* month brief rail */
+  .brief{display:flex;flex-direction:column;gap:12px}
+  .bcard{background:linear-gradient(135deg,#10362a,#0a2c22);color:var(--bone);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden}
+  .bcard:before{content:"";position:absolute;top:-70px;right:-50px;width:240px;height:240px;background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%)}
+  .bcard .h{font-family:'Outfit';font-size:13px;font-weight:700;margin-bottom:10px;position:relative}
+  .bi{display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;position:relative;align-items:center}
+  .bi .d{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .bi .t{font-weight:600}
+  .bi .w{margin-left:auto;font-family:'Outfit';font-weight:700;color:var(--gold);font-size:12.5px;white-space:nowrap}
+  .lcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .lcard .h{font-family:'Outfit';font-size:12.5px;font-weight:700;margin-bottom:8px}
+  .lg{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);padding:3px 0}
+  .lg .d{width:8px;height:8px;border-radius:50%}
+  @media(max-width:900px){.sb{display:none}.wraps{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="tag">CALENDAR · <b>Grid + Month Brief</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav">
+        <a><span class="ic">⌂</span> Home</a>
+        <a><span class="ic">⛨</span> Carriers</a>
+        <a><span class="ic">⚡</span> Quote &amp; Enroll</a>
+        <a><span class="ic">🎓</span> Training &amp; Playbooks</a>
+        <a><span class="ic">📈</span> Knowledge &amp; Updates</a>
+        <a><span class="ic">📋</span> Forms &amp; Compliance</a>
+        <a class="on"><span class="ic">🗓</span> Calendar</a>
+        <a><span class="ic">☎</span> Contacts</a>
+      </nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+
+    <main class="main"><div class="max">
+      <div class="head">
+        <h1 class="disp">Calendar</h1>
+        <div class="mnav">
+          <button onclick="move(-1)">‹</button>
+          <span class="mo disp" id="motitle"></span>
+          <button onclick="move(1)">›</button>
+        </div>
+      </div>
+
+      <div class="wraps">
+        <div class="cal">
+          <div class="dow"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+          <div class="grid" id="grid"></div>
+        </div>
+
+        <div class="brief">
+          <div class="bcard">
+            <div class="h" id="btitle">⭐ This month's must-knows</div>
+            <div id="bitems"></div>
+          </div>
+          <div class="lcard">
+            <div class="h">Legend</div>
+            <div class="lg"><span class="d" style="background:var(--c-deadline)"></span>Deadline</div>
+            <div class="lg"><span class="d" style="background:var(--c-cert)"></span>Certifications</div>
+            <div class="lg"><span class="d" style="background:var(--c-tig)"></span>TIG event</div>
+            <div class="lg"><span class="d" style="background:var(--c-carrier)"></span>Carrier event</div>
+            <div class="lg"><span class="d" style="background:var(--c-holiday)"></span>Holiday</div>
+            <div class="lg"><span class="d" style="background:var(--c-ooo)"></span>Team out of office</div>
+          </div>
+        </div>
+      </div>
+    </div></main>
+  </div>
+
+<script>
+const EVENTS={
+  '2026-06-12':[{t:'Monthly Agent Call',c:'tig',w:'Jun 12'}],
+  '2026-06-18':[{t:'New Agent Onboarding',c:'tig',w:'Jun 18'}],
+  '2026-06-19':[{t:'Juneteenth',c:'holiday',w:'Jun 19'}],
+  '2026-06-24':[{t:'Aetna cert deep-dive',c:'carrier',w:'Jun 24'}],
+  '2026-06-30':[{t:'Aetna 2027 certs close',c:'deadline',w:'Jun 30',star:true}],
+  '2026-07-05':[{t:'Humana RTS due',c:'deadline',w:'Jul 5',star:true}],
+  '2026-07-08':[{t:'UHC 2027 certs open',c:'cert',w:'Jul 8',star:true}],
+  '2026-07-14':[{t:'Monthly Agent Call',c:'tig',w:'Jul 14'}],
+  '2026-07-20':[{t:'Austin OOO (back Jul 23)',c:'ooo',w:'Jul 20'},{t:'Wellcare webinar',c:'carrier',w:'Jul 20'}],
+  '2026-07-21':[{t:'Austin OOO',c:'ooo',w:''}],
+  '2026-08-11':[{t:'Monthly Agent Call',c:'tig',w:'Aug 11'}],
+  '2026-08-20':[{t:'TIG Summer Cookout 🍔',c:'tig',w:'Aug 20',star:true}],
+  '2026-09-15':[{t:'AEP Readiness Webinar',c:'tig',w:'Sep 15',star:true}],
+  '2026-10-15':[{t:'AEP BEGINS',c:'deadline',w:'Oct 15',star:true}],
+};
+const COLORS={deadline:'var(--c-deadline)',cert:'var(--c-cert)',tig:'var(--c-tig)',carrier:'var(--c-carrier)',holiday:'var(--c-holiday)',ooo:'var(--c-ooo)'};
+let cur=new Date(2026,5,1);
+const TODAY='2026-06-09';
+function render(){
+  const y=cur.getFullYear(),m=cur.getMonth();
+  document.getElementById('motitle').textContent=cur.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),prevDays=new Date(y,m,0).getDate();
+  let html='';
+  for(let i=first-1;i>=0;i--)html+=`<div class="cell dim"><span class="dn">${prevDays-i}</span></div>`;
+  for(let d=1;d<=days;d++){
+    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dots=(EVENTS[key]||[]).map(e=>`<span class="dt" style="background:${COLORS[e.c]}"></span>`).join('');
+    html+=`<div class="cell${key===TODAY?' today':''}"><span class="dn">${d}</span><div class="dots">${dots}</div></div>`;
+  }
+  const total=first+days,rem=(7-total%7)%7;
+  for(let i=1;i<=rem;i++)html+=`<div class="cell dim"><span class="dn">${i}</span></div>`;
+  document.getElementById('grid').innerHTML=html;
+
+  // month brief: all events this month, starred first
+  const mevs=[];
+  Object.keys(EVENTS).forEach(k=>{ if(k.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)) EVENTS[k].forEach(e=>{if(e.w)mevs.push(e)}) });
+  mevs.sort((a,b)=>(b.star?1:0)-(a.star?1:0));
+  document.getElementById('bitems').innerHTML=mevs.length
+    ? mevs.map(e=>`<div class="bi"><span class="d" style="background:${COLORS[e.c]}"></span><span class="t">${e.t}</span><span class="w">${e.w}</span></div>`).join('')
+    : '<div class="bi" style="border:none;color:rgba(244,241,232,.6)">Quiet month — nothing posted yet.</div>';
+}
+function move(n){cur=new Date(cur.getFullYear(),cur.getMonth()+n,1);render()}
+render();
+</script>
+</body>
+</html>
