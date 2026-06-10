@@ -16,8 +16,9 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: 'Home', path: '/hub', icon: '⌂' },
   { label: 'Carriers', path: '/carrier-resources', icon: '⛨' },
+  { label: '2027 Certifications', path: '/certifications', icon: '🎓' },
   { label: 'Quote & Enroll', path: '/agent-tools', icon: '⚡' },
-  { label: 'Training & Playbooks', path: '/training', icon: '🎓' },
+  { label: 'Training & Playbooks', path: '/training', icon: '📚' },
   { label: 'Knowledge & Updates', path: '/industry-updates', icon: '📈' },
   { label: 'Forms & Compliance', path: '/forms-library', icon: '📋' },
   { label: 'Calendar', path: '/calendar', icon: '🗓' },
