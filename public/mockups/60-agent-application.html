@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Become an Agent — The Application</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--card:#fff;--line:#e1d9c8;--muted:#5f6b62;--ink:#16201b;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+
+  .nav{background:var(--em);position:sticky;top:0;z-index:50}
+  .nav__in{max-width:760px;margin:0 auto;padding:0 28px;height:64px;display:flex;align-items:center;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:15px}
+  .mk{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-weight:800;display:flex;align-items:center;justify-content:center}
+  .nav__sp{flex:1}.nav__lk{color:rgba(244,241,232,.8);font-size:14px;font-weight:500}
+
+  .wrap{max-width:620px;margin:0 auto;padding:48px 28px 70px;text-align:center}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
+  h1{font-family:'Outfit';font-size:clamp(30px,4.6vw,44px);font-weight:700;letter-spacing:-.025em;line-height:1.1}
+  .lede{font-size:16px;color:var(--muted);line-height:1.65;margin:14px auto 0;max-width:46ch}
+
+  .steps{display:flex;gap:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:30px 0 8px;text-align:left}
+  .st{flex:1;padding:16px 16px;border-right:1px solid var(--line)}
+  .st:last-child{border-right:none}
+  .st .n{font-family:'Outfit';font-size:13px;font-weight:800;color:var(--gold2)}
+  .st .t{font-family:'Outfit';font-size:13.5px;font-weight:700;margin-top:6px}
+  .st .s{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+  .form{background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(20,30,24,.07);text-align:left;margin-top:22px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .fld{margin-bottom:14px}
+  label{display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px}
+  input,select,textarea{width:100%;font-family:inherit;font-size:14px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);outline:none;transition:.15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+  textarea{min-height:84px;resize:vertical}
+  .btn{width:100%;margin-top:8px;font-family:inherit;font-size:15px;font-weight:700;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);cursor:pointer}
+  .micro{font-size:11.5px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5}
+  @media(max-width:620px){.steps{flex-direction:column}.st{border-right:none;border-bottom:1px solid var(--line)}.row{grid-template-columns:1fr}}
+</style></head>
+<body>
+  <div class="tag">BECOME AN AGENT · <b>The Application</b></div>
+  <div class="nav"><div class="nav__in"><a class="brand"><span class="mk">T</span> Tyler Insurance Group</a><span class="nav__sp"></span><a class="nav__lk">← Back to site</a></div></div>
+
+  <div class="wrap">
+    <div class="eyebrow">Become a TIG Agent</div>
+    <h1 class="disp">Request a conversation.</h1>
+    <p class="lede">We don't contract everyone, and we wouldn't want to. The right partnership goes both ways, so this starts with a short call, not a stack of paperwork.</p>
+
+    <div class="steps">
+      <div class="st"><div class="n">01</div><div class="t disp">Tell us about you</div><div class="s">A few quick questions, about 2 minutes.</div></div>
+      <div class="st"><div class="n">02</div><div class="t disp">A 10-minute call</div><div class="s">We get to know each other.</div></div>
+      <div class="st"><div class="n">03</div><div class="t disp">We both decide</div><div class="s">Fit? We move. Not? No pressure.</div></div>
+    </div>
+
+    <form class="form">
+      <div class="row"><div class="fld"><label>First name</label><input/></div><div class="fld"><label>Last name</label><input/></div></div>
+      <div class="row"><div class="fld"><label>Email</label><input type="email"/></div><div class="fld"><label>Phone</label><input type="tel"/></div></div>
+      <div class="fld"><label>State(s) you're licensed in</label><input placeholder="e.g. KY, OH, IN"/></div>
+      <div class="row">
+        <div class="fld"><label>Where you are today</label><select><option>New to Medicare</option><option>Experienced producer</option><option>I lead an agency / team</option></select></div>
+        <div class="fld"><label>Roughly how much you write</label><select><option>Just getting started</option><option>Under 100 apps / yr</option><option>100–300 / yr</option><option>300+ / yr</option></select></div>
+      </div>
+      <div class="fld"><label>Why TIG? What are you hoping to find?</label><textarea placeholder="Tell us what's working, what's not, and what you want from a partner."></textarea></div>
+      <button class="btn">Request a conversation →</button>
+      <div class="micro">Goes straight to Austin. If it's a fit, we'll reach out to set up your 10-minute call.</div>
+    </form>
+  </div>
+</body>
+</html>
