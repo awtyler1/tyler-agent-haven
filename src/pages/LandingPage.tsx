@@ -388,7 +388,7 @@ const CSS = `
 .lp-founder__photo{ width:120px; height:120px; border-radius:14px; object-fit:cover; object-position:center 18%; flex-shrink:0; background:var(--soft); }
 .lp-founder__photo--ph{ display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,var(--em),var(--em2)); }
 .lp-founder__photo--ph span{ font-family:'Outfit',sans-serif; font-weight:700; font-size:34px; color:var(--gold); }
-.lp-founder__name{ font-family:'Outfit',sans-serif; font-size:21px; font-weight:600; margin:0; }
+.lp-founder__name{ font-family:'Outfit',sans-serif; font-size:21px; font-weight:600; margin:0; color:var(--ink); }
 .lp-founder__cred{ font-weight:500; color:var(--muted); font-size:15px; }
 .lp-founder__title{ font-size:13px; color:var(--gold2); font-weight:600; margin:3px 0 10px; }
 .lp-founder__blurb{ font-size:14px; color:var(--muted); line-height:1.6; margin:0; }
