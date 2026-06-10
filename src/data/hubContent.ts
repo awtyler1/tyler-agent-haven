@@ -64,6 +64,7 @@ export const boardItems: BoardItem[] = [
 // ── The Dock (tools) ─────────────────────────────────────────────────────────
 // href: 'http…' opens in a new tab; '/path' is an in-app route.
 export const dockLinks = [
+  { label: "Forge CRM", icon: "🔥", href: "https://app.runonforge.us" },
   { label: "SunFire", icon: "⚡", href: "https://www.sunfirematrix.com/app/agent/" },
   { label: "Connecture", icon: "✍️", href: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login" },
   { label: "BOSS CRM", icon: "👥", href: "https://fmo.kizen.com/login" },
