@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCarrierDirectory } from '@/hooks/useCarrierDirectory';
 import { CARRIER_BRAND_COLORS } from '@/config/carriers';
-import { PageLoader } from '@/components/ui/PageLoader';
+import { ContentLoader } from '@/components/ui/ContentLoader';
 import type { CarrierWithResources } from '@/types/carrierDirectory';
 
 // ────────────────────────────────────────────────────────────────
@@ -48,11 +48,7 @@ export default function CarrierResourcesPage() {
   const supportPhone = contacts.find((c) => isBrokerSupport(c.contact_type) && c.phone)?.phone;
 
   if (loading) {
-    return (
-      <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F1E8' }}>
-        <PageLoader message="Loading carriers..." />
-      </div>
-    );
+    return <ContentLoader message="Loading carriers…" />;
   }
 
   if (error || carriers.length === 0) {
