@@ -65,7 +65,7 @@ export const boardItems: BoardItem[] = [
 // href: 'http…' opens in a new tab; '/path' is an in-app route.
 export const dockLinks = [
   { label: "SunFire", icon: "⚡", href: "https://www.sunfirematrix.com/app/agent/" },
-  { label: "Connecture", icon: "✍️", href: "https://www.connecture.com/" },
+  { label: "Connecture", icon: "✍️", href: "https://pinnacle7.destinationrx.com/PC/Agent/Account/Login" },
   { label: "BOSS CRM", icon: "👥", href: "https://fmo.kizen.com/login" },
   { label: "AHIP", icon: "🎓", href: "https://www.ahipmedicaretraining.com/" },
   { label: "Carrier portals", icon: "⛨", href: "/carrier-portals" },
