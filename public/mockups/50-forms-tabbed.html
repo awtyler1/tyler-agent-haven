@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Forms & Compliance — Tabbed</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--sb:#0b2c21;--sb2:#082018;--bone:#F4F1E8;--card:#fff;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;--green:#5b7d44;--red:#b8503f}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600}.tag b{color:var(--gold)}
+  .app{display:flex;min-height:100vh}
+  .sb{width:228px;flex-shrink:0;background:linear-gradient(180deg,var(--sb),var(--sb2));color:var(--bone);display:flex;flex-direction:column;padding:18px 14px}
+  .sb__brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sb__brand .nm{font-family:'Outfit';font-weight:700;font-size:13.5px;line-height:1.2}.crest{height:30px}
+  .nav{margin-top:14px}.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13px;font-weight:500;color:rgba(244,241,232,.74);position:relative;margin-bottom:2px}
+  .nav a.on{background:rgba(201,168,76,.14);color:#fff;font-weight:600}.nav a.on:before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:2px;background:var(--gold)}
+  .ic{width:16px;flex-shrink:0;opacity:.9}
+  .sb__foot{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:rgba(244,241,232,.5)}.sb__foot a{color:var(--gold);font-weight:600}
+
+  .main{flex:1;min-width:0;padding:30px 36px}
+  .max{max-width:820px;margin:0 auto}
+  .head{margin-bottom:14px}
+  .head h1{font-family:'Outfit';font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .head .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:18px}
+  .tab{font-family:'Outfit';font-size:14px;font-weight:600;padding:11px 18px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+  .tab.on{color:var(--em);border-bottom-color:var(--gold)}
+
+  .search{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 16px;font-size:13.5px;color:var(--muted);margin-bottom:16px}
+  .group{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 10px}
+  .frow{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:8px}
+  .frow:hover{border-color:var(--gold)}
+  .fi{width:34px;height:34px;border-radius:9px;background:rgba(184,80,63,.08);color:#b8503f;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .frow__n{font-size:13.5px;font-weight:600}.frow__m{font-size:11px;color:var(--muted);margin-top:1px}
+  .frow__dl{margin-left:auto;font-size:12px;font-weight:600;color:var(--gold2);border:1px solid var(--line);border-radius:8px;padding:7px 13px}
+
+  /* compliance tab */
+  .crule{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:12px}
+  .crule__t{font-family:'Outfit';font-size:15px;font-weight:700;display:flex;align-items:center;gap:9px}
+  .crule__t .dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}
+  .crule__p{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.6}
+  .dos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .dobox{border-radius:14px;padding:16px 18px}
+  .dobox.do{background:rgba(91,125,68,.08);border:1px solid rgba(91,125,68,.25)}
+  .dobox.dont{background:rgba(184,80,63,.06);border:1px solid rgba(184,80,63,.22)}
+  .dobox h4{font-family:'Outfit';font-size:13px;font-weight:700;margin-bottom:8px}
+  .dobox.do h4{color:var(--green)}.dobox.dont h4{color:var(--red)}
+  .dobox li{font-size:12.5px;color:var(--ink);margin:6px 0 6px 16px;line-height:1.45}
+  .clinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .clink{font-size:12px;font-weight:600;padding:9px 14px;border-radius:9px;background:var(--em);color:var(--bone)}
+  @media(max-width:760px){.sb{display:none}.dos{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="tag">FORMS · <b>Tabbed</b></div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb__brand"><svg class="crest" viewBox="0 0 60 66" fill="none"><path d="M9 7h42v33c0 13-21 20-21 20S9 53 9 40z" stroke="#C9A84C" stroke-width="3"/><rect x="19" y="19" width="22" height="5" fill="#C9A84C"/><rect x="27.5" y="19" width="5" height="25" fill="#C9A84C"/></svg><div class="nm">Tyler<br>Insurance Group</div></div>
+      <nav class="nav"><a><span class="ic">⌂</span> Home</a><a><span class="ic">⛨</span> Carriers</a><a><span class="ic">🎓</span> 2027 Certifications</a><a><span class="ic">⚡</span> Quote &amp; Enroll</a><a><span class="ic">📚</span> Training &amp; Playbooks</a><a><span class="ic">📈</span> Knowledge &amp; Updates</a><a class="on"><span class="ic">📋</span> Forms &amp; Compliance</a><a><span class="ic">🗓</span> Calendar</a><a><span class="ic">☎</span> Contacts</a></nav>
+      <div class="sb__foot">Questions? Text Austin or Andrew. <a>Contacts →</a></div>
+    </aside>
+    <main class="main"><div class="max">
+      <div class="head"><h1 class="disp">Forms &amp; Compliance</h1><div class="sub">Downloadable forms and the rules that keep you safe.</div></div>
+      <div class="tabs"><span class="tab on">📋 Forms</span><span class="tab">⚖️ Compliance</span></div>
+
+      <!-- Forms tab (shown) -->
+      <div class="search">🔍 Search forms…</div>
+      <div class="group">Scope of Appointment</div>
+      <div class="frow"><span class="fi">PDF</span><div><div class="frow__n">Scope of Appointment (SOA)</div><div class="frow__m">PDF · required before every appointment</div></div><a class="frow__dl">↓ Download</a></div>
+      <div class="group">Enrollment</div>
+      <div class="frow"><span class="fi">PDF</span><div><div class="frow__n">Paper enrollment kit</div><div class="frow__m">PDF</div></div><a class="frow__dl">↓ Download</a></div>
+      <div class="frow"><span class="fi">PDF</span><div><div class="frow__n">Permission to contact</div><div class="frow__m">PDF</div></div><a class="frow__dl">↓ Download</a></div>
+      <div class="group">Client Intake</div>
+      <div class="frow"><span class="fi">PDF</span><div><div class="frow__n">New client intake sheet</div><div class="frow__m">PDF</div></div><a class="frow__dl">↓ Download</a></div>
+
+      <!-- Compliance tab preview (rendered below to show the style) -->
+      <div style="margin-top:28px;border-top:1px dashed var(--line);padding-top:18px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">↓ What the <b>Compliance</b> tab looks like</div>
+        <div class="crule"><div class="crule__t"><span class="dot"></span>Scope of Appointment</div><div class="crule__p">A documented SOA is required before discussing any plan. Keep it on file for 10 years.</div></div>
+        <div class="dos">
+          <div class="dobox do"><h4>✓ Do</h4><ul><li>Collect an SOA before every appointment</li><li>Use only CMS-filed materials</li><li>Document every client interaction</li></ul></div>
+          <div class="dobox dont"><h4>✕ Don't</h4><ul><li>Make unsolicited contact</li><li>Cross-sell non-health products</li><li>Use unapproved marketing</li></ul></div>
+        </div>
+        <div class="clinks"><a class="clink">CMS marketing guidelines ↗</a><a class="clink">Medicare Comm. Requirements ↗</a></div>
+      </div>
+    </div></main>
+  </div>
+</body>
+</html>
