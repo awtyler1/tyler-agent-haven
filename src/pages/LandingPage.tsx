@@ -168,29 +168,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── What you get ── */}
-      <section className="lp-section lp-section--em" id="get">
-        <div className="lp-container">
-          <div className="lp-kick lp-kick--gold">What you actually get</div>
-          <h2 className="lp-h2 lp-h2--light">Everything we use. Handed to you.</h2>
-          <div className="lp-get">
-            {valueItems.map((v) => (
-              <div className="lp-get__item" key={v.title}>
-                <span className="lp-get__ck">✓</span>
-                <div>
-                  <b>{v.title}</b>
-                  <span>{v.desc}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Founder note + faces ── */}
+      {/* ── A word from the team (founders) ── */}
       <section className="lp-section" id="founders">
         <div className="lp-container">
-          <div className="lp-kick">Straight from us</div>
+          <div className="lp-kick">A word from the team</div>
           <div className="lp-note">
             {founderNote.lines.map((line, i) => (
               <p className="lp-note__line" key={i}>
@@ -210,7 +191,25 @@ export default function LandingPage() {
                     {f.credential ? <span className="lp-founder__cred">, {f.credential}</span> : null}
                   </h3>
                   <div className="lp-founder__title">{f.title}</div>
-                  <p className="lp-founder__blurb">{f.blurb}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── What you get ── */}
+      <section className="lp-section lp-section--em" id="get">
+        <div className="lp-container">
+          <div className="lp-kick lp-kick--gold">What you actually get</div>
+          <h2 className="lp-h2 lp-h2--light">Everything we use. Handed to you.</h2>
+          <div className="lp-get">
+            {valueItems.map((v) => (
+              <div className="lp-get__item" key={v.title}>
+                <span className="lp-get__ck">✓</span>
+                <div>
+                  <b>{v.title}</b>
+                  <span>{v.desc}</span>
                 </div>
               </div>
             ))}
