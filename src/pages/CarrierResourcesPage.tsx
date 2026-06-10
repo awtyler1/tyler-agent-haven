@@ -1,757 +1,304 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useCarrierDirectory, useAgentCarriers } from '@/hooks/useCarrierDirectory';
+import { useCarrierDirectory } from '@/hooks/useCarrierDirectory';
 import { CARRIER_BRAND_COLORS } from '@/config/carriers';
 import { PageLoader } from '@/components/ui/PageLoader';
+import type { CarrierWithResources } from '@/types/carrierDirectory';
 
-/* ── helpers ── */
+// ────────────────────────────────────────────────────────────────
+// DATA SOURCE: carrier_contacts, carrier_links, carrier_documents
+// in Supabase, state-scoped (state_code = 'KY' or NULL/nationwide).
+//
+// Shared-login MVP: shows ALL active carriers for the state — no
+// per-agent certification filtering (everyone sees the same page).
+//
+// MULTI-STATE: when new states launch, render more state pills and
+// pass the selected code to useCarrierDirectory(stateCode).
+// ────────────────────────────────────────────────────────────────
 
-function getInitials(name: string) {
-  return name.split(' ').map(n => n[0]).join('').slice(0, 2);
-}
+const STATE = { code: 'KY', label: 'Kentucky' };
 
 function isBrokerSupport(contactType: string) {
   return contactType === 'broker_support' || contactType === 'general';
 }
 
-/* ── inline SVG icons ── */
-
-const PhoneIcon = ({ size = 11 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-  </svg>
-);
-
-const ExternalLinkIcon = ({ size = 13 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
-  </svg>
-);
-
-const DocIcon = ({ size = 13 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
-  </svg>
-);
-
-const PortalIcon = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8" /><path d="M12 17v4" />
-  </svg>
-);
-
-const CertIcon = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z" />
-  </svg>
-);
-
-const DollarIcon = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 1v22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-  </svg>
-);
-
-function pillIcon(linkType: string) {
-  switch (linkType) {
-    case 'portal': return <PortalIcon />;
-    case 'certification': return <CertIcon />;
-    case 'commission': return <DollarIcon />;
-    default: return <ExternalLinkIcon size={11} />;
-  }
+function getInitials(name: string) {
+  return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
 }
 
-/* ── main component ── */
-
-// ────────────────────────────────────────────────────────────────
-// DATA SOURCE: carrier_contacts, carrier_links, carrier_documents
-// tables in Supabase. All content is DB-driven, not hardcoded.
-//
-// FUTURE: Admin editor at /admin/carrier-resources will provide
-// inline CRUD (add/edit/remove contacts, links, docs) with
-// state_code scoping for multi-state support. No changes needed
-// to this agent-facing page when that's built.
-// ────────────────────────────────────────────────────────────────
-const CarrierResourcesPage = () => {
-  const { carriers, loading: isLoading, error: directoryError } = useCarrierDirectory('KY');
-  const { carriers: agentCarriers, loading: agentLoading } = useAgentCarriers();
-
-  const availableCarriers = carriers.filter(c =>
-    agentCarriers.some(ac => ac.code === c.code)
-  );
-
+export default function CarrierResourcesPage() {
+  const { carriers, loading, error } = useCarrierDirectory(STATE.code);
   const [searchParams, setSearchParams] = useSearchParams();
-  const selectedCarrierCode = searchParams.get('carrier') || '';
+  const selectedCode = searchParams.get('carrier') || '';
 
   useEffect(() => {
-    if (availableCarriers.length > 0 && !selectedCarrierCode) {
-      setSearchParams({ carrier: availableCarriers[0].code }, { replace: true });
+    if (carriers.length > 0 && !carriers.some((c) => c.code === selectedCode)) {
+      setSearchParams({ carrier: carriers[0].code }, { replace: true });
     }
-  }, [availableCarriers, selectedCarrierCode, setSearchParams]);
+  }, [carriers, selectedCode, setSearchParams]);
 
-  const selectedCarrier = availableCarriers.find(c => c.code === selectedCarrierCode);
-  const brandColor = CARRIER_BRAND_COLORS[selectedCarrierCode] || '#4A7FB5';
+  const selected: CarrierWithResources | undefined = carriers.find((c) => c.code === selectedCode);
+  const brand = CARRIER_BRAND_COLORS[selectedCode] || '#A8801F';
 
-  const quickLinks = selectedCarrier?.links.filter(l =>
-    ['portal', 'certification', 'commission'].includes(l.link_type)
-  ) || [];
-  const portalLink = selectedCarrier?.links.find(l => l.link_type === 'portal');
-  const documents = selectedCarrier?.documents || [];
-  const contacts = selectedCarrier?.contacts || [];
+  const portalLink = selected?.links.find((l) => l.link_type === 'portal');
+  const otherLinks = selected?.links.filter((l) => l.link_type !== 'portal') || [];
+  const contacts = selected?.contacts || [];
+  const documents = selected?.documents || [];
+  const supportPhone = contacts.find((c) => isBrokerSupport(c.contact_type) && c.phone)?.phone;
 
-  // Rail hover state
-  const [hoveredRail, setHoveredRail] = useState<string | null>(null);
-  // Portal button hover
-  const [portalHover, setPortalHover] = useState(false);
-  // Pill hover
-  const [hoveredPill, setHoveredPill] = useState<string | null>(null);
-  // Doc row hover
-  const [hoveredDoc, setHoveredDoc] = useState<string | null>(null);
-  // Contact row hover
-  const [hoveredContact, setHoveredContact] = useState<string | null>(null);
-
-  /* ── contracted/pending counts ── */
-  const contractedCount = availableCarriers.filter(c => c.contacts.length > 0 || c.links.length > 0).length;
-  const pendingCount = availableCarriers.length - contractedCount;
-
-  /* ── loading ── */
-  if (isLoading || agentLoading) {
+  if (loading) {
     return (
-      <div style={{ flex: '1 1 0%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <PageLoader message="Loading carrier resources..." />
+      <div style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F1E8' }}>
+        <PageLoader message="Loading carriers..." />
       </div>
     );
   }
 
-  /* ── error / empty ── */
-  if (directoryError || availableCarriers.length === 0) {
+  if (error || carriers.length === 0) {
     return (
-      <div
-        style={{
-          flex: '1 1 0%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          background: 'var(--bg)',
-        }}
-      >
-        <div style={{ textAlign: 'center', padding: 40 }}>
-          <p style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 600, margin: 0 }}>
-            {directoryError ? 'Unable to load carrier resources' : 'No carrier resources available'}
+      <div className="cr">
+        <style>{CSS}</style>
+        <div className="cr-max" style={{ textAlign: 'center', paddingTop: 80 }}>
+          <h1 className="cr-h1">Carriers</h1>
+          <p style={{ fontSize: 14, color: '#6b6457', marginTop: 10 }}>
+            {error ? 'Unable to load carrier resources. ' : 'No carriers available yet. '}
+            {error && (
+              <button className="cr-retry" onClick={() => window.location.reload()}>Retry</button>
+            )}
           </p>
-          <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 8 }}>
-            {directoryError ? 'Please try again.' : 'Check back soon or contact your administrator.'}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              marginTop: 16,
-              padding: '8px 20px',
-              borderRadius: 8,
-              border: 'none',
-              backgroundColor: 'var(--blue)',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 13,
-              fontWeight: 500,
-            }}
-          >
-            Retry
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        flex: '1 1 0%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        fontFamily: 'var(--font-sans)',
-      }}
-    >
-      {/* ── Page Header ── */}
-      <div style={{ padding: '14px 16px 0' }}>
-        <h1
-          style={{
-            margin: 0,
-            fontFamily: 'var(--font-serif)',
-            fontSize: 20,
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-          }}
-        >
-          Carriers
-        </h1>
-        <p style={{ margin: '2px 0 0', fontSize: 11, color: 'var(--text-muted)' }}>
-          {contractedCount} contracted{pendingCount > 0 ? ` · ${pendingCount} pending` : ''}
-        </p>
-      </div>
-
-      {/* ── Split Layout: Rail + Detail ── */}
-      <div
-        style={{
-          flex: '1 1 0%',
-          display: 'flex',
-          gap: 14,
-          padding: '12px 16px 16px',
-          minHeight: 0,
-          overflow: 'hidden',
-        }}
-      >
-        {/* ── Left Rail ── */}
-        <div
-          style={{
-            width: 190,
-            flexShrink: 0,
-            background: '#fff',
-            borderRadius: 12,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Rail header */}
-          <div style={{ padding: '14px 14px 10px', borderBottom: '1px solid var(--bg-muted)' }}>
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>
-              My Carriers
-            </div>
-            <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 1 }}>
-              {availableCarriers.length} carrier{availableCarriers.length !== 1 ? 's' : ''}
+    <div className="cr">
+      <style>{CSS}</style>
+      <div className="cr-max">
+        {/* ── Header ── */}
+        <div className="cr-head">
+          <div>
+            <h1 className="cr-h1">Carriers</h1>
+            <div className="cr-sub">
+              {carriers.length} carrier{carriers.length === 1 ? '' : 's'} · {STATE.label}
             </div>
           </div>
-
-          {/* Rail items */}
-          <div
-            style={{
-              flex: '1 1 0%',
-              overflowY: 'auto',
-              padding: 4,
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'rgba(0,0,0,0.12) transparent',
-            }}
-          >
-            {availableCarriers.map((carrier) => {
-              const isSelected = selectedCarrierCode === carrier.code;
-              const isHovered = hoveredRail === carrier.code;
-              const dotColor = CARRIER_BRAND_COLORS[carrier.code] || '#4A7FB5';
-
-              return (
-                <div
-                  key={carrier.code}
-                  onClick={() => setSearchParams({ carrier: carrier.code })}
-                  onMouseEnter={() => setHoveredRail(carrier.code)}
-                  onMouseLeave={() => setHoveredRail(null)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '8px 10px',
-                    borderRadius: 7,
-                    cursor: 'pointer',
-                    position: 'relative',
-                    transition: 'all 150ms cubic-bezier(0.4,0,0.2,1)',
-                    background: isSelected
-                      ? 'rgba(201,168,76,0.07)'
-                      : isHovered
-                        ? 'var(--bg-subtle)'
-                        : 'transparent',
-                  }}
-                >
-                  {/* Carrier dot */}
-                  <div
-                    style={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: '50%',
-                      backgroundColor: dotColor,
-                      flexShrink: 0,
-                    }}
-                  />
-
-                  {/* Carrier name */}
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: isSelected ? 700 : 500,
-                      color: 'var(--text-primary)',
-                      flex: 1,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {carrier.name}
-                  </span>
-
-                  {/* Gold selection bar */}
-                  {isSelected && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        right: 0,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        width: 3,
-                        height: 18,
-                        borderRadius: 2,
-                        backgroundColor: 'var(--gold)',
-                      }}
-                    />
-                  )}
-                </div>
-              );
-            })}
+          <div className="cr-state">
+            <span className="cr-state__pill cr-state__pill--on">{STATE.label}</span>
+            <span className="cr-state__pill cr-state__pill--soon">More states soon</span>
           </div>
         </div>
 
-        {/* ── Detail Card ── */}
-        <div
-          style={{
-            flex: '1 1 0%',
-            background: '#fff',
-            borderRadius: 12,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            minWidth: 0,
-          }}
-        >
-          {selectedCarrier ? (
-            <>
-              {/* ── Carrier Header Bar ── */}
-              <div
-                style={{
-                  padding: '14px 18px',
-                  background: 'linear-gradient(180deg, var(--bg-warm-glow) 0%, white 100%)',
-                  borderBottom: '1px solid transparent',
-                  borderImage: `linear-gradient(90deg, ${brandColor} 0%, ${brandColor}14 100%) 1`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexShrink: 0,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {/* Initial square */}
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 9,
-                      backgroundColor: brandColor,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#fff',
-                      fontFamily: 'var(--font-serif)',
-                      fontSize: 16,
-                      fontWeight: 700,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {selectedCarrier.name[0]}
-                  </div>
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-serif)',
-                        fontSize: 18,
-                        fontWeight: 600,
-                        color: brandColor,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {selectedCarrier.name}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
-                      {/* Status badge */}
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          fontSize: 9.5,
-                          fontWeight: 500,
-                          padding: '1px 6px',
-                          borderRadius: 4,
-                          background: 'rgba(107,138,66,0.1)',
-                          color: 'var(--green)',
-                        }}
-                      >
-                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--green)' }} />
-                        Contracted
-                      </span>
-                    </div>
+        {/* ── Rail + Detail ── */}
+        <div className="cr-split">
+          {/* Rail */}
+          <nav className="cr-rail" aria-label="Carriers">
+            <div className="cr-rail__h">All carriers</div>
+            {carriers.map((c) => {
+              const on = c.code === selectedCode;
+              const dot = CARRIER_BRAND_COLORS[c.code] || '#A8801F';
+              return (
+                <button
+                  key={c.code}
+                  className={`cr-ri${on ? ' on' : ''}`}
+                  onClick={() => setSearchParams({ carrier: c.code })}
+                >
+                  <span className="cr-ri__dot" style={{ background: dot }} />
+                  {c.display_name || c.name}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Detail */}
+          {selected && (
+            <div className="cr-detail">
+              {/* Carrier header */}
+              <div className="cr-dhead">
+                <div className="cr-dhead__mark" style={{ background: brand }}>
+                  {(selected.display_name || selected.name)[0]}
+                </div>
+                <div>
+                  <div className="cr-dhead__nm">{selected.display_name || selected.name}</div>
+                  <div className="cr-dhead__st">
+                    {STATE.label}
+                    {contacts.length > 0 && ` · ${contacts.length} contact${contacts.length === 1 ? '' : 's'}`}
+                    {documents.length > 0 && ` · ${documents.length} doc${documents.length === 1 ? '' : 's'}`}
                   </div>
                 </div>
-
-                {/* Portal button */}
-                {portalLink && (
-                  <a
-                    href={portalLink.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onMouseEnter={() => setPortalHover(true)}
-                    onMouseLeave={() => setPortalHover(false)}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      padding: '8px 18px',
-                      borderRadius: 8,
-                      fontSize: 12.5,
-                      fontWeight: 600,
-                      color: '#fff',
-                      backgroundColor: brandColor,
-                      textDecoration: 'none',
-                      transition: 'all 150ms cubic-bezier(0.4,0,0.2,1)',
-                      transform: portalHover ? 'translateY(-1px)' : 'none',
-                      boxShadow: portalHover
-                        ? `0 4px 12px ${brandColor}40`
-                        : 'none',
-                    }}
-                  >
-                    Portal
-                    <ExternalLinkIcon size={13} />
-                  </a>
-                )}
+                <div className="cr-dhead__acts">
+                  {portalLink && (
+                    <a className="cr-btn cr-btn--gold" href={portalLink.url} target="_blank" rel="noopener noreferrer">
+                      Open portal ↗
+                    </a>
+                  )}
+                  {supportPhone && (
+                    <a className="cr-btn cr-btn--ghost" href={`tel:${supportPhone.replace(/\D/g, '')}`}>
+                      📞 {supportPhone}
+                    </a>
+                  )}
+                </div>
               </div>
 
-              {/* ── Body Grid: Contacts + Documents ── */}
-              <div
-                style={{
-                  flex: '1 1 0%',
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  minHeight: 0,
-                  overflow: 'hidden',
-                }}
-              >
-                {/* ── Contacts Column ── */}
-                <div
-                  style={{
-                    padding: '14px 18px',
-                    borderRight: '1px solid var(--bg-muted)',
-                    overflowY: 'auto',
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: 'rgba(0,0,0,0.08) transparent',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-serif)',
-                        fontStyle: 'italic',
-                        fontSize: 12,
-                        color: 'var(--text-muted)',
-                      }}
-                    >
-                      Contacts
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 10,
-                        color: 'var(--text-faint)',
-                        background: 'var(--bg-subtle)',
-                        padding: '1px 5px',
-                        borderRadius: 4,
-                      }}
-                    >
-                      {contacts.length}
-                    </span>
-                  </div>
-
+              {/* Contacts + Documents */}
+              <div className="cr-grid">
+                <section className="cr-card">
+                  <h2 className="cr-card__h">Contacts</h2>
                   {contacts.length === 0 ? (
-                    <div style={{ padding: 20, textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                      No contacts available
-                    </div>
+                    <div className="cr-empty">No contacts yet.</div>
                   ) : (
-                    contacts.map((contact) => {
-                      const isGeneric = isBrokerSupport(contact.contact_type);
-                      const isHovered = hoveredContact === contact.id;
+                    contacts.map((ct) => {
+                      const generic = isBrokerSupport(ct.contact_type);
                       return (
-                        <div
-                          key={contact.id}
-                          onMouseEnter={() => setHoveredContact(contact.id)}
-                          onMouseLeave={() => setHoveredContact(null)}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 10,
-                            padding: '7px 0',
-                            borderBottom: '1px solid rgba(0,0,0,0.03)',
-                            transition: 'all 150ms cubic-bezier(0.4,0,0.2,1)',
-                          }}
-                        >
-                          {/* Avatar */}
-                          <div
-                            style={{
-                              width: 30,
-                              height: 30,
-                              borderRadius: 8,
-                              backgroundColor: isGeneric
-                                ? `${brandColor}1F`
-                                : brandColor,
-                              color: isGeneric ? brandColor : '#fff',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: 10,
-                              fontWeight: 700,
-                              flexShrink: 0,
-                            }}
+                        <div className="cr-ct" key={ct.id}>
+                          <span
+                            className="cr-ct__av"
+                            style={generic ? { background: `${brand}1a`, color: brand } : { background: brand, color: '#fff' }}
                           >
-                            {getInitials(contact.name)}
-                          </div>
-
-                          {/* Name + Role */}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div
-                              style={{
-                                fontSize: 12.5,
-                                fontWeight: 600,
-                                color: 'var(--text-primary)',
-                                lineHeight: 1.2,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {contact.name}
-                            </div>
-                            {contact.title && (
-                              <div
-                                style={{
-                                  fontSize: 10,
-                                  color: 'var(--text-muted)',
-                                  lineHeight: 1.3,
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                }}
-                              >
-                                {contact.title}{contact.region ? ` · ${contact.region}` : ''}
+                            {getInitials(ct.name)}
+                          </span>
+                          <div className="cr-ct__body">
+                            <div className="cr-ct__n">{ct.name}</div>
+                            {(ct.title || ct.region) && (
+                              <div className="cr-ct__r">
+                                {[ct.title, ct.region].filter(Boolean).join(' · ')}
                               </div>
                             )}
+                            {ct.email && (
+                              <a className="cr-ct__em" href={`mailto:${ct.email}`}>{ct.email}</a>
+                            )}
                           </div>
-
-                          {/* Phone (hero) */}
-                          {contact.phone && (
-                            <a
-                              href={`tel:${contact.phone.replace(/\D/g, '')}`}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 4,
-                                fontSize: 12,
-                                fontWeight: 600,
-                                color: 'var(--blue)',
-                                textDecoration: 'none',
-                                whiteSpace: 'nowrap',
-                                flexShrink: 0,
-                              }}
-                            >
-                              <PhoneIcon size={11} />
-                              {contact.phone}
-                            </a>
-                          )}
-
-                          {/* Email tooltip on hover */}
-                          {contact.email && isHovered && (
-                            <a
-                              href={`mailto:${contact.email}`}
-                              style={{
-                                fontSize: 10,
-                                color: 'var(--blue)',
-                                textDecoration: 'none',
-                                flexShrink: 0,
-                                whiteSpace: 'nowrap',
-                              }}
-                              title={contact.email}
-                            >
-                              @
-                            </a>
+                          {ct.phone && (
+                            <a className="cr-ct__ph" href={`tel:${ct.phone.replace(/\D/g, '')}`}>{ct.phone}</a>
                           )}
                         </div>
                       );
                     })
                   )}
-                </div>
+                </section>
 
-                {/* ── Documents Column ── */}
-                <div
-                  style={{
-                    padding: '14px 18px',
-                    overflowY: 'auto',
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: 'rgba(0,0,0,0.08) transparent',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-serif)',
-                        fontStyle: 'italic',
-                        fontSize: 12,
-                        color: 'var(--text-muted)',
-                      }}
-                    >
-                      Documents
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 10,
-                        color: 'var(--text-faint)',
-                        background: 'var(--bg-subtle)',
-                        padding: '1px 5px',
-                        borderRadius: 4,
-                      }}
-                    >
-                      {documents.length}
-                    </span>
-                  </div>
-
+                <section className="cr-card">
+                  <h2 className="cr-card__h">Documents</h2>
                   {documents.length === 0 ? (
-                    <div style={{ padding: 20, textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                      No documents available
-                    </div>
+                    <div className="cr-empty">No documents yet.</div>
                   ) : (
-                    documents.map((doc) => {
-                      const isHovered = hoveredDoc === doc.id;
-                      return (
-                        <a
-                          key={doc.id}
-                          href={doc.file_path}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onMouseEnter={() => setHoveredDoc(doc.id)}
-                          onMouseLeave={() => setHoveredDoc(null)}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 10,
-                            padding: '7px 0',
-                            borderBottom: '1px solid rgba(0,0,0,0.03)',
-                            textDecoration: 'none',
-                            transition: 'all 150ms cubic-bezier(0.4,0,0.2,1)',
-                          }}
-                        >
-                          {/* Doc icon */}
-                          <div
-                            style={{
-                              width: 28,
-                              height: 28,
-                              borderRadius: 6,
-                              backgroundColor: 'rgba(196,74,63,0.06)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              flexShrink: 0,
-                              color: 'var(--red)',
-                            }}
-                          >
-                            <DocIcon size={13} />
-                          </div>
-
-                          {/* Name */}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div
-                              style={{
-                                fontSize: 12,
-                                fontWeight: 500,
-                                color: isHovered ? 'var(--blue)' : 'var(--text-primary)',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                transition: 'color 150ms',
-                              }}
-                            >
-                              {doc.name}
-                            </div>
-                          </div>
-
-                          {/* Meta */}
-                          <span style={{ fontSize: 9.5, color: 'var(--text-faint)', flexShrink: 0 }}>
-                            PDF
-                          </span>
-                        </a>
-                      );
-                    })
+                    documents.map((doc) => (
+                      <a className="cr-doc" key={doc.id} href={doc.file_path} target="_blank" rel="noopener noreferrer">
+                        <span className="cr-doc__fi">PDF</span>
+                        <span className="cr-doc__n">{doc.name}</span>
+                      </a>
+                    ))
                   )}
-                </div>
+                </section>
               </div>
 
-              {/* ── Quick Link Pills ── */}
-              {quickLinks.length > 0 && (
-                <div
-                  style={{
-                    padding: '10px 18px',
-                    borderTop: '1px solid var(--bg-muted)',
-                    display: 'flex',
-                    gap: 8,
-                    flexWrap: 'wrap',
-                    flexShrink: 0,
-                  }}
-                >
-                  {quickLinks.map((link) => {
-                    const isHovered = hoveredPill === link.id;
-                    return (
-                      <a
-                        key={link.id}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onMouseEnter={() => setHoveredPill(link.id)}
-                        onMouseLeave={() => setHoveredPill(null)}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 5,
-                          padding: '5px 12px',
-                          borderRadius: 6,
-                          fontSize: 11,
-                          fontWeight: 500,
-                          textDecoration: 'none',
-                          transition: 'all 150ms cubic-bezier(0.4,0,0.2,1)',
-                          backgroundColor: isHovered ? '#fff' : 'var(--bg-subtle)',
-                          color: isHovered ? 'var(--text-primary)' : 'var(--text-muted)',
-                          border: isHovered ? '1px solid var(--bg-muted)' : '1px solid transparent',
-                        }}
-                      >
-                        {pillIcon(link.link_type)}
-                        {link.name}
-                      </a>
-                    );
-                  })}
+              {/* Link pills */}
+              {otherLinks.length > 0 && (
+                <div className="cr-pills">
+                  {otherLinks.map((l) => (
+                    <a className="cr-pill" key={l.id} href={l.url} target="_blank" rel="noopener noreferrer">
+                      {l.name} ↗
+                    </a>
+                  ))}
                 </div>
               )}
-            </>
-          ) : (
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--text-muted)',
-                fontSize: 13,
-                fontStyle: 'italic',
-              }}
-            >
-              Select a carrier from the list
             </div>
           )}
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default CarrierResourcesPage;
+// ── Scoped styles (emerald) ───────────────────────────────────────────────────
+const CSS = `
+.cr{
+  --em:#0E3B2E; --bone:#F4F1E8; --card:#fff; --line:#e7e0cf; --muted:#6b6457;
+  --ink:#1b2620; --gold:#C9A84C; --gold2:#A8801F;
+  flex:1 1 auto; min-height:0; overflow-y:auto; background:var(--bone);
+  font-family:'Outfit','Inter',system-ui,sans-serif; color:var(--ink);
+  -webkit-font-smoothing:antialiased; padding:30px 36px 44px;
+}
+.cr *{ box-sizing:border-box; }
+.cr-max{ max-width:1020px; margin:0 auto; }
+
+.cr-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px; }
+.cr-h1{ font-size:25px; font-weight:700; letter-spacing:-.02em; margin:0; }
+.cr-sub{ font-size:12.5px; color:var(--muted); margin-top:2px; }
+.cr-retry{ background:none; border:none; color:var(--gold2); font-weight:600; cursor:pointer; font-size:14px; font-family:inherit; text-decoration:underline; }
+
+.cr-state{ display:inline-flex; gap:6px; background:var(--card); border:1px solid var(--line); border-radius:30px; padding:4px; }
+.cr-state__pill{ font-size:12.5px; font-weight:600; padding:6px 14px; border-radius:30px; color:var(--muted); }
+.cr-state__pill--on{ background:var(--em); color:var(--bone); }
+.cr-state__pill--soon{ opacity:.55; font-weight:500; }
+
+.cr-split{ display:flex; gap:16px; align-items:flex-start; }
+
+/* rail */
+.cr-rail{ width:220px; flex-shrink:0; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+.cr-rail__h{ padding:12px 14px; border-bottom:1px solid var(--line); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.cr-ri{ display:flex; align-items:center; gap:9px; width:100%; padding:10px 14px; font-family:inherit; font-size:13px; font-weight:500;
+  color:var(--ink); background:none; border:none; cursor:pointer; position:relative; text-align:left; transition:background .15s; }
+.cr-ri:hover{ background:var(--bone); }
+.cr-ri.on{ background:rgba(201,168,76,.1); font-weight:700; }
+.cr-ri.on:before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:2px; background:var(--gold); }
+.cr-ri__dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+/* detail */
+.cr-detail{ flex:1; min-width:0; }
+.cr-dhead{ background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone); border-radius:16px; padding:20px 22px;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap; position:relative; overflow:hidden; margin-bottom:14px; }
+.cr-dhead:before{ content:""; position:absolute; top:-80px; right:-50px; width:280px; height:280px;
+  background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); pointer-events:none; }
+.cr-dhead__mark{ width:42px; height:42px; border-radius:11px; color:#fff; display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:18px; position:relative; flex-shrink:0; }
+.cr-dhead__nm{ font-size:20px; font-weight:700; position:relative; }
+.cr-dhead__st{ font-size:11.5px; color:rgba(244,241,232,.6); position:relative; margin-top:1px; }
+.cr-dhead__acts{ margin-left:auto; display:flex; gap:9px; position:relative; flex-wrap:wrap; }
+.cr-btn{ display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; padding:10px 16px; border-radius:9px;
+  text-decoration:none; transition:.15s; white-space:nowrap; }
+.cr-btn--gold{ background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); }
+.cr-btn--gold:hover{ transform:translateY(-1px); box-shadow:0 8px 20px rgba(168,128,31,.3); }
+.cr-btn--ghost{ background:rgba(255,255,255,.07); color:#fff; border:1px solid rgba(255,255,255,.16); }
+.cr-btn--ghost:hover{ border-color:rgba(255,255,255,.4); }
+
+.cr-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.cr-card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
+.cr-card__h{ font-size:13px; font-weight:700; margin:0 0 10px; }
+.cr-empty{ font-size:12.5px; color:var(--muted); padding:10px 0; font-style:italic; }
+
+.cr-ct{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+.cr-ct:last-child{ border-bottom:none; }
+.cr-ct__av{ width:30px; height:30px; border-radius:8px; font-size:10.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.cr-ct__body{ min-width:0; flex:1; }
+.cr-ct__n{ font-size:12.5px; font-weight:600; }
+.cr-ct__r{ font-size:10.5px; color:var(--muted); }
+.cr-ct__em{ display:block; font-size:10.5px; color:var(--gold2); text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cr-ct__em:hover{ text-decoration:underline; }
+.cr-ct__ph{ font-size:12.5px; font-weight:700; color:var(--gold2); white-space:nowrap; text-decoration:none; flex-shrink:0; }
+.cr-ct__ph:hover{ text-decoration:underline; }
+
+.cr-doc{ display:flex; align-items:center; gap:9px; padding:8px 0; border-bottom:1px solid var(--line);
+  font-size:12.5px; font-weight:500; color:var(--ink); text-decoration:none; }
+.cr-doc:last-child{ border-bottom:none; }
+.cr-doc:hover .cr-doc__n{ color:var(--gold2); }
+.cr-doc__fi{ width:26px; height:26px; border-radius:7px; background:rgba(184,80,63,.08); color:#b8503f; font-size:9px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.cr-doc__n{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color .15s; }
+
+.cr-pills{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+.cr-pill{ font-size:11.5px; font-weight:600; padding:7px 13px; border-radius:20px; background:var(--card); border:1px solid var(--line);
+  color:var(--muted); text-decoration:none; transition:.15s; }
+.cr-pill:hover{ border-color:var(--gold); color:var(--ink); }
+
+@media(max-width:860px){
+  .cr{ padding:20px; }
+  .cr-split{ flex-direction:column; }
+  .cr-rail{ width:100%; display:flex; flex-wrap:wrap; gap:2px; padding:6px; }
+  .cr-rail__h{ display:none; }
+  .cr-ri{ width:auto; border-radius:8px; }
+  .cr-ri.on:before{ display:none; }
+  .cr-grid{ grid-template-columns:1fr; }
+  .cr-dhead__acts{ margin-left:0; width:100%; }
+}
+`;
