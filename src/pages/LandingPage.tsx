@@ -352,7 +352,7 @@ const CSS = `
 @keyframes lpRise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
 .lp-eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; }
 .lp-h1{ text-transform:uppercase; font-size:clamp(38px,6.2vw,74px); font-weight:900; letter-spacing:-.04em; line-height:1.0; margin:0 auto 22px; max-width:18ch; color:var(--ink); }
-.lp-h1__hi{ color:var(--em); }
+.lp-h1__hi{ color:transparent; background:linear-gradient(110deg,var(--gold),var(--gold2)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
 .lp-hero__sub{ font-size:clamp(16px,1.7vw,20px); line-height:1.55; color:#46524b; max-width:40ch; margin:0 auto 28px; font-weight:500; }
 .lp-hero__ctas{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
 .lp-hero__micro{ font-size:13px; color:var(--muted); margin-top:14px; }
