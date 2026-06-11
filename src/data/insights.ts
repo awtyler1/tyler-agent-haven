@@ -62,6 +62,18 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'cms-2027-commissions',
+    title: 'What the 2027 CMS commission changes mean for you',
+    excerpt:
+      'CMS just raised what you can get paid in 2027 and loosened the marketing rules right before AEP. Here is the plain version, and what the move really signals.',
+    category: 'industry',
+    author: ANDREW,
+    date: '2026-06-11',
+    readTime: '6 min read',
+    featured: true,
+    articleSlug: 'cms-2027-commissions',
+  },
+  {
     slug: 'why-clients-choose-medicare-advantage',
     title: 'Why more clients are choosing Medicare Advantage in 2027',
     excerpt:
@@ -70,77 +82,7 @@ export const insights: InsightPost[] = [
     author: AUSTIN,
     date: '2026-06-10',
     readTime: '6 min read',
-    image: 'https://loremflickr.com/900/700/senior,couple,smiling?lock=21',
-    featured: true,
     articleSlug: 'why-clients-choose-medicare-advantage',
-  },
-  {
-    slug: 'cms-2027-final-rule',
-    title: "What CMS's 2027 final rule means for your clients",
-    excerpt:
-      'The marketing rules tightened again. Here is the plain-English version and the three things worth changing before AEP opens.',
-    category: 'industry',
-    author: ANDREW,
-    date: '2026-06-02',
-    readTime: '5 min read',
-    image: 'https://loremflickr.com/600/400/government,capitol,washington?lock=22',
-  },
-  {
-    slug: 'inside-the-tig-toolkit',
-    title: "Inside how we built TIG's agent toolkit",
-    excerpt:
-      'SunFire, Connecture, a real CRM, and why we give it all away at no cost to our agents. A look at how we actually back the people who write with us.',
-    category: 'agency',
-    author: AUSTIN,
-    date: '2026-05-19',
-    readTime: '4 min read',
-    image: 'https://loremflickr.com/600/400/laptop,office,desk?lock=23',
-  },
-  {
-    slug: 't65-outreach-sequence',
-    title: 'The exact T-65 outreach sequence we use',
-    excerpt:
-      'Our week-by-week playbook for turning a birthday list into booked appointments — scripts, timing, and the follow-up cadence.',
-    category: 'playbook',
-    author: AUSTIN,
-    date: '2026-05-28',
-    readTime: '8 min read',
-    image: 'https://loremflickr.com/600/400/calendar,phone,call?lock=24',
-    members: true,
-  },
-  {
-    slug: 'star-ratings-2027',
-    title: "Star ratings just moved. Here's who won and lost",
-    excerpt:
-      'A quick read on the carriers that gained ground for 2027, and what it means at the kitchen table this enrollment.',
-    category: 'industry',
-    author: ANDREW,
-    date: '2026-05-12',
-    readTime: '3 min read',
-    image: 'https://loremflickr.com/600/400/chart,graph,finance?lock=25',
-  },
-  {
-    slug: 'ma-vs-med-supp-framing',
-    title: 'MA vs. Med Supp: how we actually frame it',
-    excerpt:
-      'No jargon. The honest tradeoffs we walk every client through so they pick the plan that fits their life with confidence.',
-    category: 'medicare-101',
-    author: AUSTIN,
-    date: '2026-05-07',
-    readTime: '7 min read',
-    image: 'https://loremflickr.com/600/400/doctor,patient,healthcare?lock=26',
-  },
-  {
-    slug: 'appointment-compliance-checklist',
-    title: 'Our compliance checklist for every appointment',
-    excerpt:
-      'SOA, recording, disclaimers, the works. The internal checklist our agents run before, during, and after every appointment.',
-    category: 'playbook',
-    author: ANDREW,
-    date: '2026-04-30',
-    readTime: '6 min read',
-    image: 'https://loremflickr.com/600/400/checklist,clipboard,document?lock=27',
-    members: true,
   },
 ];
 
