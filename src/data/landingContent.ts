@@ -30,13 +30,12 @@ export const announcement = {
 };
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
-// The headline renders uppercase; `titleHi` is the gold-emphasized word.
+// The headline renders uppercase; `titleHi` is the emphasized word.
 export const hero = {
-  eyebrow: "Independent Medicare FMO · Nationwide",
   titlePre: "Do you want to ",
   titleHi: "scale",
   titlePost: " your Medicare business?",
-  sub: "Top contracts, the full tech stack, and coaching from agents still writing business today — at no cost to you.",
+  sub: "Build with a team that's written 1,000+ policies in 4 years. None of it alone, and you won't be either.",
   primaryCta: { label: "I'm Ready to Grow", href: "/join" },
   secondaryCta: { label: "Agent Login", href: "/auth" },
   microcopy: "No pressure. We'll see if it's a fit, together.",
