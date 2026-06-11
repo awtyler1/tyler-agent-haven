@@ -151,7 +151,7 @@ const CSS = `
 .ba-g{ color:transparent; background:linear-gradient(110deg,#f3e6b8,var(--gold)); -webkit-background-clip:text; background-clip:text; }
 .ba-hero__p{ font-size:17px; color:rgba(244,241,232,.82); line-height:1.65; margin:18px auto 0; max-width:46ch; }
 
-.ba-formwrap{ max-width:560px; margin:-46px auto 70px; padding:0 28px; position:relative; z-index:2; }
+.ba-formwrap{ max-width:560px; margin:44px auto 70px; padding:0 28px; position:relative; z-index:2; }
 .ba-formwrap__lbl{ text-align:center; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); margin-bottom:8px; }
 .ba-formwrap__h{ text-align:center; font-size:24px; font-weight:700; letter-spacing:-.02em; margin-bottom:6px; }
 .ba-formwrap__sub{ text-align:center; font-size:13px; color:var(--muted); margin-bottom:22px; }

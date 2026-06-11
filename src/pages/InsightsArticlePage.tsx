@@ -31,7 +31,7 @@ function PublicNav() {
         </nav>
         <div className="iar-nav__act">
           <RouterLink to="/auth" className="iar-btn iar-btn--ghost">Agent Login</RouterLink>
-          <RouterLink to="/join" className="iar-btn iar-btn--gold">Become an Agent</RouterLink>
+          <RouterLink to="/join" className="iar-btn iar-btn--gold">I'm Ready to Grow</RouterLink>
         </div>
       </div>
     </header>
