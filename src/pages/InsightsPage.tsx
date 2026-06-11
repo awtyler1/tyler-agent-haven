@@ -21,11 +21,46 @@ function fmtDate(date: string): string {
   });
 }
 
-// Cover image with a graceful branded fallback (never a broken image icon).
-function Cover({ src, className }: { src?: string; className?: string }) {
-  const [err, setErr] = useState(false);
-  if (!src || err) return null;
-  return <img className={className} src={src} alt="" loading="lazy" onError={() => setErr(true)} />;
+// On-brand animated SVG cover, one motif per topic (replaces stock imagery).
+function InsightCover({ category, variant = 'card' }: { category: InsightCategory; variant?: 'card' | 'feat' }) {
+  return (
+    <div className={`ins-cover ins-cover--${variant}`} data-cat={category} aria-hidden="true">
+      <span className="ins-cover__glow" />
+      <svg className="ins-cover__svg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+        {category === 'medicare-101' && (
+          <g className="ins-art">
+            <circle className="r r1" cx="200" cy="110" r="42" />
+            <circle className="r r2" cx="200" cy="110" r="64" />
+            <circle className="r r3" cx="200" cy="110" r="86" />
+            <path className="plus" d="M200 84 v52 M174 110 h52" />
+          </g>
+        )}
+        {category === 'industry' && (
+          <g className="ins-art">
+            <path className="axis" d="M40 156 H360" />
+            <polyline className="line" points="40,150 110,122 180,132 250,90 330,56" />
+            <circle className="enddot" cx="330" cy="56" r="6" />
+          </g>
+        )}
+        {category === 'agency' && (
+          <g className="ins-art ins-art--bars">
+            <rect className="bar b1" x="118" y="70" width="34" height="92" rx="4" />
+            <rect className="bar b2" x="183" y="70" width="34" height="92" rx="4" />
+            <rect className="bar b3" x="248" y="70" width="34" height="92" rx="4" />
+            <path className="trend" d="M135 96 L200 50 L300 64" />
+          </g>
+        )}
+        {category === 'playbook' && (
+          <g className="ins-art ins-art--lock">
+            <rect className="lockbody" x="158" y="104" width="84" height="62" rx="11" />
+            <path className="shackle" d="M174 104 v-12 a26 26 0 0 1 52 0 v12" />
+            <circle className="keyhole" cx="200" cy="130" r="7" />
+            <rect className="keyhole" x="197" y="130" width="6" height="18" rx="3" />
+          </g>
+        )}
+      </svg>
+    </div>
+  );
 }
 
 function Avatar({ initials }: { initials: string }) {
@@ -85,7 +120,7 @@ export default function InsightsPage() {
         {featured && (
           <RouterLink className="ins-feat" to={postHref(featured)}>
             <div className="ins-feat__img">
-              <Cover src={featured.image} />
+              <InsightCover category={featured.category} variant="feat" />
               <span className="ins-pill">★ Featured</span>
             </div>
             <div className="ins-feat__body">
@@ -127,9 +162,9 @@ export default function InsightsPage() {
             {visible.map((p) => (
               <RouterLink className="ins-card" to={postHref(p)} key={p.slug}>
                 <div className={`ins-card__img${p.members ? ' is-locked' : ''}`}>
-                  <Cover src={p.image} />
+                  <InsightCover category={p.category} />
                   <span className="ins-pill">{categoryMeta(p.category).label}</span>
-                  {p.members && <span className="ins-lock">🔒 Members</span>}
+                  {p.members && <span className="ins-lock">Members</span>}
                 </div>
                 <div className="ins-card__b">
                   <div className="ins-kick">{categoryMeta(p.category).label}</div>
@@ -232,9 +267,7 @@ const CSS = `
 
 .ins-feat{ display:grid; grid-template-columns:1.25fr 1fr; background:#fff; border:1px solid var(--line); border-radius:20px; overflow:hidden; box-shadow:0 24px 60px rgba(20,30,24,.1); transition:box-shadow .2s; }
 .ins-feat:hover{ box-shadow:0 30px 70px rgba(20,30,24,.16); }
-.ins-feat__img{ position:relative; min-height:340px; display:flex; align-items:flex-end; padding:26px; background:linear-gradient(150deg,#13503c,#0a2c22); overflow:hidden; }
-.ins-feat__img img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-.ins-feat__img:after{ content:""; position:absolute; inset:0; background:linear-gradient(155deg,rgba(10,44,34,.25),rgba(10,44,34,.72)); }
+.ins-feat__img{ position:relative; min-height:340px; display:flex; align-items:flex-end; padding:26px; background:#0a2c22; overflow:hidden; }
 .ins-feat__body{ padding:34px; }
 .ins-feat__body h2{ font-size:27px; font-weight:700; letter-spacing:-.02em; line-height:1.14; margin:10px 0 12px; }
 .ins-feat__body p{ font-size:14.5px; color:var(--muted); line-height:1.65; }
@@ -248,12 +281,52 @@ const CSS = `
 .ins-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
 .ins-card{ background:#fff; border:1px solid var(--line); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; transition:transform .18s,box-shadow .18s; }
 .ins-card:hover{ transform:translateY(-4px); box-shadow:0 18px 40px rgba(20,30,24,.1); }
-.ins-card__img{ height:158px; position:relative; background:linear-gradient(135deg,#1c5b44,#0e3b2e); overflow:hidden; }
-.ins-card__img img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .3s; }
-.ins-card:hover .ins-card__img img{ transform:scale(1.05); }
-.ins-card__img:after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(10,44,34,.45),transparent 42%); }
+.ins-card__img{ height:158px; position:relative; background:#0a2c22; overflow:hidden; }
 .ins-card__img .ins-pill{ position:absolute; left:14px; top:14px; }
-.ins-card__img.is-locked img{ filter:saturate(.5) brightness(.7); }
+.ins-card__img.is-locked .ins-cover{ filter:saturate(.7) brightness(.88); }
+
+/* Animated topic covers */
+.ins-cover{ position:absolute; inset:0; overflow:hidden; background:linear-gradient(150deg,#13503c,#0a2c22); }
+.ins-cover[data-cat="playbook"]{ background:linear-gradient(150deg,#0f4234,#081f18); }
+.ins-cover__glow{ position:absolute; top:-45%; right:-25%; width:85%; height:150%; background:radial-gradient(circle,rgba(201,168,76,.22),transparent 60%); animation:insDrift 7s ease-in-out infinite; }
+@keyframes insDrift{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(-8%,7%); } }
+.ins-cover__svg{ position:absolute; inset:0; width:100%; height:100%; transition:transform .35s ease; }
+.ins-card:hover .ins-cover__svg{ transform:scale(1.04); }
+
+/* medicare-101: pulsing care rings + cross */
+.ins-art .r{ fill:none; stroke:#C9A84C; stroke-width:2; opacity:.35; transform-box:fill-box; transform-origin:center; }
+.ins-art .r1{ animation:insPulse 3.2s ease-in-out infinite; }
+.ins-art .r2{ opacity:.26; animation:insPulse 3.2s ease-in-out .5s infinite; }
+.ins-art .r3{ opacity:.16; animation:insPulse 3.2s ease-in-out 1s infinite; }
+@keyframes insPulse{ 0%,100%{ transform:scale(1); opacity:.35; } 50%{ transform:scale(1.07); opacity:.12; } }
+.ins-art .plus{ stroke:#e7cf86; stroke-width:11; stroke-linecap:round; }
+
+/* industry: drawing trend line */
+.ins-art .axis{ stroke:rgba(244,241,232,.16); stroke-width:2; }
+.ins-art .line{ fill:none; stroke:#C9A84C; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:520; stroke-dashoffset:520; animation:insDraw 2.4s ease-out forwards; }
+@keyframes insDraw{ to{ stroke-dashoffset:0; } }
+.ins-art .enddot{ fill:#e7cf86; animation:insBlink 2.4s ease-in-out 2s infinite; }
+@keyframes insBlink{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+
+/* agency: growth bars + trend */
+.ins-art--bars .bar{ fill:#C9A84C; transform-box:fill-box; transform-origin:center bottom; transform:scaleY(0); animation:insGrow .8s cubic-bezier(.4,0,.2,1) forwards; }
+.ins-art--bars .b1{ opacity:.5; animation-delay:.1s; }
+.ins-art--bars .b2{ opacity:.72; animation-delay:.25s; }
+.ins-art--bars .b3{ opacity:.95; animation-delay:.4s; }
+@keyframes insGrow{ to{ transform:scaleY(1); } }
+.ins-art--bars .trend{ fill:none; stroke:#e7cf86; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:300; stroke-dashoffset:300; animation:insDraw 1.5s ease-out .55s forwards; }
+
+/* playbook: floating padlock */
+.ins-art--lock{ transform-box:fill-box; transform-origin:center; animation:insFloat 4.5s ease-in-out infinite; }
+.ins-art--lock .lockbody,.ins-art--lock .shackle{ fill:none; stroke:#C9A84C; stroke-width:5; }
+.ins-art--lock .keyhole{ fill:#e7cf86; }
+@keyframes insFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+
+@media (prefers-reduced-motion: reduce){
+  .ins-cover__glow,.ins-art .r,.ins-art .enddot,.ins-art--bars .bar,.ins-art--lock{ animation:none; }
+  .ins-art .line,.ins-art--bars .trend{ animation:none; stroke-dashoffset:0; }
+  .ins-art--bars .bar{ transform:scaleY(1); }
+}
 .ins-lock{ position:absolute; right:12px; top:12px; z-index:2; background:rgba(10,44,34,.82); color:var(--gold); font-size:11px; font-weight:700; padding:5px 10px; border-radius:30px; display:flex; align-items:center; gap:5px; backdrop-filter:blur(2px); }
 .ins-card__b{ padding:18px 18px 20px; display:flex; flex-direction:column; flex:1; }
 .ins-card__b .ins-kick{ font-size:11px; }

@@ -14,11 +14,11 @@
 //   to the matching article slug to wire the card to its full page.
 //   Posts without an `articleSlug` show a graceful "coming soon" reader.
 //
-// IMAGES:
-//   Drop curated covers in /public/images/insights/ and point `image` at
-//   them (e.g. "/images/insights/ma-shift.jpg"). The seed posts use keyword
-//   stock URLs as stand-ins; if an image fails to load the card falls back
-//   to a clean branded gradient — it never shows a broken image.
+// COVERS:
+//   Card covers are generated automatically from the post's `category` as an
+//   on-brand animated graphic (see InsightCover in InsightsPage). No stock
+//   photos. The optional `image` field is currently unused and kept only for
+//   a possible future "real photo" option.
 // ============================================================================
 
 export type InsightCategory = 'medicare-101' | 'industry' | 'agency' | 'playbook';
