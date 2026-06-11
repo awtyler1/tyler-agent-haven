@@ -3,7 +3,9 @@ import { Link as RouterLink } from 'react-router-dom';
 import {
   tig,
   navLinks,
+  announcement,
   hero,
+  trustItems,
   truths,
   valueItems,
   founderNote,
@@ -51,19 +53,19 @@ function SmartLink({
   );
 }
 
-// ── Founder photo with graceful initials fallback ──
-function FounderPhoto({ founder }: { founder: Founder }) {
+// ── Hero founder photo with graceful initials fallback ──
+function HeroPhoto({ founder }: { founder: Founder }) {
   const [errored, setErrored] = useState(false);
   if (errored || !founder.photo) {
     return (
-      <div className="lp-founder__photo lp-founder__photo--ph" aria-hidden="true">
+      <div className="lp-hero__photo lp-hero__photo--ph" aria-hidden="true">
         <span>{founder.initials}</span>
       </div>
     );
   }
   return (
     <img
-      className="lp-founder__photo"
+      className="lp-hero__photo"
       src={founder.photo}
       alt={founder.name}
       loading="lazy"
@@ -86,7 +88,6 @@ function withEmphasis(text: string) {
 }
 
 export default function LandingPage() {
-  const [punchA, punchB] = hero.punch.split('|');
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -123,62 +124,81 @@ export default function LandingPage() {
     <div className="lp">
       <style>{CSS}</style>
 
-      {/* ── Nav ── */}
-      <header className={`lp-nav${scrolled ? ' lp-nav--scrolled' : ''}`}>
-        <div className="lp-container lp-nav__inner">
-          <a
-            href="#top"
-            className="lp-brand"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          >
-            <img className="lp-brand__crest" src="/tyler-crest.png" alt="" aria-hidden="true" />
-            <span className="lp-brand__name">{tig.name}</span>
-          </a>
-          <nav className="lp-nav__links">
-            {navLinks.map((l) => (
-              <SmartLink key={l.href} href={l.href} className="lp-nav__link">
-                {l.label}
+      {/* ── Sticky top: announcement bar + nav ── */}
+      <div className="lp-stickytop">
+        <SmartLink href={announcement.href} className="lp-ann">
+          <span className="lp-ann__badge">{announcement.badge}</span>
+          {announcement.text} <span className="lp-ann__g">{announcement.linkText}</span>
+        </SmartLink>
+
+        <header className={`lp-nav${scrolled ? ' lp-nav--scrolled' : ''}`}>
+          <div className="lp-container lp-nav__inner">
+            <a
+              href="#top"
+              className="lp-brand"
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              <img className="lp-brand__crest" src="/tyler-crest.png" alt="" aria-hidden="true" />
+              <span className="lp-brand__name">{tig.name}</span>
+            </a>
+            <nav className="lp-nav__links">
+              {navLinks.map((l) => (
+                <SmartLink key={l.href} href={l.href} className="lp-nav__link">
+                  {l.label}
+                </SmartLink>
+              ))}
+            </nav>
+            <div className="lp-nav__actions">
+              <SmartLink href={hero.secondaryCta.href} className="lp-btn lp-btn--ghost">
+                {hero.secondaryCta.label}
               </SmartLink>
-            ))}
-          </nav>
-          <div className="lp-nav__actions">
-            <SmartLink href={hero.secondaryCta.href} className="lp-btn lp-btn--ghost">
-              {hero.secondaryCta.label}
-            </SmartLink>
-            <SmartLink href={hero.primaryCta.href} className="lp-btn lp-btn--gold">
-              Become an Agent
-            </SmartLink>
+              <SmartLink href={hero.primaryCta.href} className="lp-btn lp-btn--gold">
+                Become an Agent
+              </SmartLink>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       {/* ── Hero ── */}
       <section className="lp-hero" id="top">
         <div className="lp-hero__glow" aria-hidden="true" />
+
+        {/* Founders flanking the headline (hidden on narrow screens) */}
+        <div className="lp-hero__who lp-hero__who--l" aria-hidden="true">
+          <HeroPhoto founder={founders[0]} />
+          <div className="lp-hero__nm">{founders[0].name}</div>
+          <div className="lp-hero__rl">{founders[0].title}</div>
+        </div>
+        <div className="lp-hero__who lp-hero__who--r" aria-hidden="true">
+          <HeroPhoto founder={founders[1]} />
+          <div className="lp-hero__nm">{founders[1].name}</div>
+          <div className="lp-hero__rl">{founders[1].title}</div>
+        </div>
+
         <div className="lp-container lp-hero__inner">
           <div className="lp-eyebrow">{hero.eyebrow}</div>
           <h1 className="lp-h1">
-            {hero.titleLines.map((line, i) => (
-              <span key={i} className={i === hero.titleLines.length - 1 ? 'lp-h1__line lp-h1__line--gold' : 'lp-h1__line'}>
-                {line}
-              </span>
-            ))}
+            {hero.titlePre}
+            <span className="lp-h1__hi">{hero.titleHi}</span>
+            {hero.titlePost}
           </h1>
           <p className="lp-hero__sub">{hero.sub}</p>
-          <p className="lp-punch">
-            {punchA}
-            <span className="lp-gold">{punchB}</span>
-          </p>
           <div className="lp-hero__ctas">
             <SmartLink href={hero.primaryCta.href} className="lp-btn lp-btn--gold lp-btn--lg">
-              {hero.primaryCta.label}
+              {hero.primaryCta.label} →
             </SmartLink>
-            <SmartLink href="#get" className="lp-btn lp-btn--ghost lp-btn--lg">
-              See what you get
-            </SmartLink>
+          </div>
+          <div className="lp-hero__micro">{hero.microcopy}</div>
+          <div className="lp-hero__trust">
+            {trustItems.map((t) => (
+              <div className="lp-hero__trustit" key={t.strong}>
+                <span aria-hidden="true">{t.icon}</span> <b>{t.strong}</b>, {t.rest}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -210,21 +230,6 @@ export default function LandingPage() {
               </p>
             ))}
             <div className="lp-note__sign">{founderNote.sign}</div>
-          </div>
-
-          <div className="lp-founders">
-            {founders.map((f) => (
-              <div className="lp-founder" key={f.name}>
-                <FounderPhoto founder={f} />
-                <div className="lp-founder__body">
-                  <h3 className="lp-founder__name">
-                    {f.name}
-                    {f.credential ? <span className="lp-founder__cred">, {f.credential}</span> : null}
-                  </h3>
-                  <div className="lp-founder__title">{f.title}</div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -296,7 +301,7 @@ const CSS = `
   color:var(--ink); background:var(--bone); -webkit-font-smoothing:antialiased;
 }
 .lp *{ box-sizing:border-box; }
-.lp section[id]{ scroll-margin-top:78px; }
+.lp section[id]{ scroll-margin-top:116px; }
 .lp-container{ max-width:1120px; margin:0 auto; padding:0 32px; }
 .lp-gold{ color:var(--gold2); }
 
@@ -310,8 +315,19 @@ const CSS = `
 .lp-btn--ghost{ background:transparent; color:#fff; border-color:rgba(255,255,255,.28); }
 .lp-btn--ghost:hover{ border-color:#fff; }
 
+/* Sticky top (announcement + nav stay pinned on scroll) */
+.lp-stickytop{ position:sticky; top:0; z-index:60; }
+
+/* Announcement bar */
+.lp-ann{ display:block; text-align:center; text-decoration:none; background:var(--em2);
+  color:#fff; font-size:14px; font-weight:600; padding:11px 16px; border-bottom:1px solid rgba(255,255,255,.08); }
+.lp-ann__badge{ background:var(--gold); color:var(--em); font-size:11px; font-weight:800; letter-spacing:.04em;
+  padding:3px 9px; border-radius:20px; margin-right:10px; vertical-align:middle; }
+.lp-ann__g{ color:var(--gold); }
+.lp-ann:hover .lp-ann__g{ text-decoration:underline; }
+
 /* Nav */
-.lp-nav{ position:sticky; top:0; z-index:50; background:rgba(14,59,46,.92);
+.lp-nav{ background:rgba(14,59,46,.92);
   backdrop-filter:saturate(140%) blur(10px); border-bottom:1px solid rgba(255,255,255,.1);
   transition:background .25s ease, box-shadow .25s ease; }
 .lp-nav--scrolled{ background:rgba(10,44,34,.97); box-shadow:0 6px 24px rgba(0,0,0,.22); }
@@ -328,7 +344,7 @@ const CSS = `
 
 /* Hero */
 .lp-hero{ position:relative; overflow:hidden; background:linear-gradient(165deg,var(--em),var(--em2)); color:var(--bone);
-  padding:78px 0 92px; text-align:center; }
+  padding:74px 0 96px; text-align:center; min-height:560px; }
 .lp-hero__glow{ position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:1000px; height:580px;
   background:radial-gradient(circle,rgba(201,168,76,.15),transparent 60%); pointer-events:none;
   animation:lpDrift 9s ease-in-out infinite; }
@@ -336,12 +352,26 @@ const CSS = `
 .lp-hero__inner{ position:relative; animation:lpRise .7s cubic-bezier(.4,0,.2,1) both; }
 @keyframes lpRise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
 .lp-eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; }
-.lp-h1{ font-size:clamp(40px,6vw,76px); font-weight:800; letter-spacing:-.035em; line-height:1.1; margin:0 auto 22px; max-width:16ch; }
-.lp-h1__line{ display:block; }
-.lp-h1__line--gold{ background:linear-gradient(110deg,#f3e6b8,var(--gold)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; padding-bottom:.16em; }
-.lp-hero__sub{ font-size:clamp(16px,1.6vw,19px); line-height:1.7; color:rgba(244,241,232,.82); max-width:60ch; margin:0 auto 26px; }
-.lp-punch{ font-family:'Outfit',sans-serif; font-size:clamp(18px,2vw,22px); font-weight:600; color:#fff; max-width:32ch; margin:0 auto 34px; line-height:1.35; }
+.lp-h1{ text-transform:uppercase; font-size:clamp(38px,6.2vw,74px); font-weight:900; letter-spacing:-.04em; line-height:1.0; margin:0 auto 22px; max-width:18ch; }
+.lp-h1__hi{ color:transparent; background:linear-gradient(110deg,#f3e6b8,var(--gold)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.lp-hero__sub{ font-size:clamp(16px,1.6vw,19px); line-height:1.6; color:rgba(244,241,232,.82); max-width:46ch; margin:0 auto 28px; }
 .lp-hero__ctas{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.lp-hero__micro{ font-size:13px; color:rgba(244,241,232,.6); margin-top:14px; }
+.lp-hero__trust{ display:flex; gap:28px; justify-content:center; flex-wrap:wrap; margin-top:40px; }
+.lp-hero__trustit{ font-size:13.5px; color:rgba(244,241,232,.78); }
+.lp-hero__trustit b{ color:var(--gold); font-weight:700; }
+
+/* Flanking founder photos */
+.lp-hero__who{ position:absolute; bottom:52px; z-index:2; text-align:center; }
+.lp-hero__who--l{ left:48px; }
+.lp-hero__who--r{ right:48px; }
+.lp-hero__photo{ width:186px; height:238px; object-fit:cover; object-position:center 16%; border-radius:18px;
+  border:2px solid rgba(201,168,76,.55); box-shadow:0 20px 44px rgba(0,0,0,.4); background:var(--em2); display:block; }
+.lp-hero__photo--ph{ display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,#13503c,#0a2c22); }
+.lp-hero__photo--ph span{ font-family:'Outfit',sans-serif; font-weight:800; font-size:42px; color:var(--gold); }
+.lp-hero__nm{ margin-top:12px; font-size:13px; font-weight:700; color:#fff; }
+.lp-hero__rl{ font-size:11px; color:rgba(244,241,232,.6); }
+@media(max-width:1180px){ .lp-hero__who{ display:none; } }
 
 /* Sections */
 .lp-section{ padding:88px 0; }
