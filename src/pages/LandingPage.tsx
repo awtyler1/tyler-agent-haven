@@ -180,7 +180,6 @@ export default function LandingPage() {
         </div>
 
         <div className="lp-container lp-hero__inner">
-          <div className="lp-eyebrow">{hero.eyebrow}</div>
           <h1 className="lp-h1">
             {hero.titlePre}
             <span className="lp-h1__hi">{hero.titleHi}</span>
@@ -204,9 +203,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── The honest version ── */}
-      <section className="lp-section lp-reveal" id="honest">
+      <section className="lp-section lp-section--em lp-reveal" id="honest">
         <div className="lp-container">
-          <div className="lp-kick">The honest version</div>
+          <div className="lp-kick lp-kick--gold">The honest version</div>
           <h2 className="lp-h2">No pitch. Here's the truth.</h2>
           <div className="lp-truths">
             {truths.map((t) => (
@@ -342,35 +341,35 @@ const CSS = `
 .lp-nav__link:hover{ color:#fff; }
 .lp-nav__actions{ display:flex; align-items:center; gap:10px; }
 
-/* Hero */
-.lp-hero{ position:relative; overflow:hidden; background:linear-gradient(165deg,var(--em),var(--em2)); color:var(--bone);
+/* Hero (light) */
+.lp-hero{ position:relative; overflow:hidden; background:linear-gradient(180deg,#f6f3ec,#eceae3); color:var(--ink);
   padding:74px 0 96px; text-align:center; min-height:560px; }
-.lp-hero__glow{ position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:1000px; height:580px;
-  background:radial-gradient(circle,rgba(201,168,76,.15),transparent 60%); pointer-events:none;
+.lp-hero__glow{ position:absolute; top:-160px; left:50%; transform:translateX(-50%); width:1000px; height:560px;
+  background:radial-gradient(circle,rgba(201,168,76,.10),transparent 62%); pointer-events:none;
   animation:lpDrift 9s ease-in-out infinite; }
 @keyframes lpDrift{ 0%,100%{ transform:translateX(-50%) translateY(0); } 50%{ transform:translateX(-50%) translateY(22px); } }
 .lp-hero__inner{ position:relative; animation:lpRise .7s cubic-bezier(.4,0,.2,1) both; }
 @keyframes lpRise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
 .lp-eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; }
-.lp-h1{ text-transform:uppercase; font-size:clamp(38px,6.2vw,74px); font-weight:900; letter-spacing:-.04em; line-height:1.0; margin:0 auto 22px; max-width:18ch; }
-.lp-h1__hi{ color:transparent; background:linear-gradient(110deg,#f3e6b8,var(--gold)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-.lp-hero__sub{ font-size:clamp(16px,1.6vw,19px); line-height:1.6; color:rgba(244,241,232,.82); max-width:46ch; margin:0 auto 28px; }
+.lp-h1{ text-transform:uppercase; font-size:clamp(38px,6.2vw,74px); font-weight:900; letter-spacing:-.04em; line-height:1.0; margin:0 auto 22px; max-width:18ch; color:var(--ink); }
+.lp-h1__hi{ color:var(--em); }
+.lp-hero__sub{ font-size:clamp(16px,1.7vw,20px); line-height:1.55; color:#46524b; max-width:40ch; margin:0 auto 28px; font-weight:500; }
 .lp-hero__ctas{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
-.lp-hero__micro{ font-size:13px; color:rgba(244,241,232,.6); margin-top:14px; }
-.lp-hero__trust{ display:flex; gap:28px; justify-content:center; flex-wrap:wrap; margin-top:40px; }
-.lp-hero__trustit{ font-size:13.5px; color:rgba(244,241,232,.78); }
-.lp-hero__trustit b{ color:var(--gold); font-weight:700; }
+.lp-hero__micro{ font-size:13px; color:var(--muted); margin-top:14px; }
+.lp-hero__trust{ display:flex; gap:28px; justify-content:center; flex-wrap:wrap; margin-top:38px; }
+.lp-hero__trustit{ font-size:13.5px; color:var(--muted); }
+.lp-hero__trustit b{ color:var(--ink); font-weight:700; }
 
 /* Flanking founder photos */
 .lp-hero__who{ position:absolute; bottom:52px; z-index:2; text-align:center; }
 .lp-hero__who--l{ left:48px; }
 .lp-hero__who--r{ right:48px; }
 .lp-hero__photo{ width:186px; height:238px; object-fit:cover; object-position:center 16%; border-radius:18px;
-  border:2px solid rgba(201,168,76,.55); box-shadow:0 20px 44px rgba(0,0,0,.4); background:var(--em2); display:block; }
+  border:3px solid #fff; box-shadow:0 18px 44px rgba(20,30,24,.22); background:var(--em2); display:block; }
 .lp-hero__photo--ph{ display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,#13503c,#0a2c22); }
 .lp-hero__photo--ph span{ font-family:'Outfit',sans-serif; font-weight:800; font-size:42px; color:var(--gold); }
-.lp-hero__nm{ margin-top:12px; font-size:13px; font-weight:700; color:#fff; }
-.lp-hero__rl{ font-size:11px; color:rgba(244,241,232,.6); }
+.lp-hero__nm{ margin-top:12px; font-size:13px; font-weight:700; color:var(--ink); }
+.lp-hero__rl{ font-size:11px; color:var(--muted); }
 @media(max-width:1180px){ .lp-hero__who{ display:none; } }
 
 /* Sections */
@@ -395,6 +394,12 @@ const CSS = `
 .lp-truth{ display:grid; grid-template-columns:1fr 1.1fr; gap:30px; align-items:baseline; padding:26px 0; border-bottom:1px solid var(--line); }
 .lp-truth__claim{ font-family:'Outfit',sans-serif; font-size:clamp(20px,2.2vw,27px); font-weight:700; letter-spacing:-.015em; }
 .lp-truth__clar{ font-size:15.5px; color:var(--muted); line-height:1.6; }
+/* Truths on the dark (emerald) section */
+.lp-section--em .lp-h2{ color:#fff; }
+.lp-section--em .lp-truths{ border-top-color:rgba(244,241,232,.28); }
+.lp-section--em .lp-truth{ border-bottom-color:rgba(244,241,232,.14); }
+.lp-section--em .lp-truth__claim{ color:#fff; }
+.lp-section--em .lp-truth__clar{ color:rgba(244,241,232,.72); }
 
 /* What you get (light) */
 .lp-get{ display:grid; grid-template-columns:repeat(2,1fr); gap:0; border-top:1px solid var(--line); }
