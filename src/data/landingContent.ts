@@ -38,15 +38,7 @@ export const hero = {
   sub: "Build with a team that's written 1,000+ policies in 4 years. None of it alone, and you won't be either.",
   primaryCta: { label: "I'm Ready to Grow", href: "/join" },
   secondaryCta: { label: "Agent Login", href: "/auth" },
-  microcopy: "No pressure. We'll see if it's a fit, together.",
 };
-
-// Trust strip under the hero CTA — our answer to "no big numbers."
-export const trustItems: { icon: string; strong: string; rest: string }[] = [
-  { icon: "📞", strong: "You call a founder", rest: "not a ticket queue" },
-  { icon: "⚡", strong: "Fast releases", rest: "nearly every carrier" },
-  { icon: "🧰", strong: "Free tools", rest: "quoting to CRM" },
-];
 
 // ── The honest version (blunt truths) ────────────────────────────────────────
 export const truths: { claim: string; clarifier: string }[] = [

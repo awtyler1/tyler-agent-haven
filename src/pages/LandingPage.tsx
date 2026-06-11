@@ -5,7 +5,6 @@ import {
   navLinks,
   announcement,
   hero,
-  trustItems,
   truths,
   valueItems,
   founderNote,
@@ -191,14 +190,6 @@ export default function LandingPage() {
               {hero.primaryCta.label} →
             </SmartLink>
           </div>
-          <div className="lp-hero__micro">{hero.microcopy}</div>
-          <div className="lp-hero__trust">
-            {trustItems.map((t) => (
-              <div className="lp-hero__trustit" key={t.strong}>
-                <span aria-hidden="true">{t.icon}</span> <b>{t.strong}</b>, {t.rest}
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -355,10 +346,6 @@ const CSS = `
 .lp-h1__hi{ color:transparent; background:linear-gradient(110deg,var(--gold),var(--gold2)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
 .lp-hero__sub{ font-size:clamp(16px,1.7vw,20px); line-height:1.55; color:#46524b; max-width:40ch; margin:0 auto 28px; font-weight:500; }
 .lp-hero__ctas{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
-.lp-hero__micro{ font-size:13px; color:var(--muted); margin-top:14px; }
-.lp-hero__trust{ display:flex; gap:28px; justify-content:center; flex-wrap:wrap; margin-top:38px; }
-.lp-hero__trustit{ font-size:13.5px; color:var(--muted); }
-.lp-hero__trustit b{ color:var(--ink); font-weight:700; }
 
 /* Flanking founder photos */
 .lp-hero__who{ position:absolute; bottom:52px; z-index:2; text-align:center; }
