@@ -206,14 +206,9 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ── A word from the team (founders) ── */}
-      <section className="lp-section lp-section--em lp-reveal" id="founders">
-        <div className="lp-container">
-          <div className="lp-kick lp-kick--gold">A word from the team</div>
-          <div className="lp-note">
+          {/* Founder sign-off, folded into the honest section */}
+          <div className="lp-note lp-note--inline">
             {founderNote.lines.map((line, i) => (
               <p className="lp-note__line" key={i}>
                 {withEmphasis(line)}
@@ -399,6 +394,9 @@ const CSS = `
 .lp-note{ max-width:760px; }
 .lp-note__line{ font-family:'Outfit',sans-serif; font-size:clamp(20px,2.4vw,30px); font-weight:500; line-height:1.4; letter-spacing:-.01em; margin:0 0 16px; }
 .lp-note__sign{ font-size:14px; color:var(--muted); margin-top:6px; }
+/* Inline sign-off at the bottom of the honest section */
+.lp-note--inline{ margin-top:38px; padding-top:32px; border-top:1px solid rgba(244,241,232,.16); }
+.lp-note--inline .lp-note__line{ font-size:clamp(18px,2vw,25px); }
 /* note + emphasis on the dark "word from the team" section */
 .lp-section--em .lp-note__line{ color:var(--bone); }
 .lp-section--em .lp-note__sign{ color:rgba(244,241,232,.6); }

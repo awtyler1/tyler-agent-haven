@@ -16,7 +16,6 @@ export const tig = {
 
 export const navLinks = [
   { label: "Why TIG", href: "#honest" },
-  { label: "Our Team", href: "#founders" },
   { label: "Insights", href: "/insights" },
   { label: "What you get", href: "#get" },
 ];
