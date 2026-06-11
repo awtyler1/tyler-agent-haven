@@ -25,7 +25,6 @@ function PublicNav() {
         </RouterLink>
         <nav className="iar-nav__lks">
           <RouterLink to="/#honest" className="iar-nav__lk">Why TIG</RouterLink>
-          <RouterLink to="/#founders" className="iar-nav__lk">Our Team</RouterLink>
           <RouterLink to="/insights" className="iar-nav__lk">Insights</RouterLink>
           <RouterLink to="/#get" className="iar-nav__lk">What you get</RouterLink>
         </nav>

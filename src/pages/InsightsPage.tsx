@@ -58,7 +58,6 @@ export default function InsightsPage() {
           </RouterLink>
           <nav className="ins-nav__lks">
             <RouterLink to="/#honest" className="ins-nav__lk">Why TIG</RouterLink>
-            <RouterLink to="/#founders" className="ins-nav__lk">Our Team</RouterLink>
             <RouterLink to="/insights" className="ins-nav__lk">Insights</RouterLink>
             <RouterLink to="/#get" className="ins-nav__lk">What you get</RouterLink>
           </nav>
