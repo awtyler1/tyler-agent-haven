@@ -37,12 +37,66 @@ export interface Article {
 
 const AUSTIN = {
   name: 'Austin Tyler',
-  title: 'Broker Development · Tyler Insurance Group',
+  title: 'Founder · Tyler Insurance Group',
   photo: '/images/founders/atyler-headshot.jpg',
   initials: 'AT',
 };
 
+const ANDREW = {
+  name: 'Andrew Horn',
+  title: 'Founder · Tyler Insurance Group',
+  photo: '/images/founders/andrew-horn.png',
+  initials: 'AH',
+};
+
 export const articles: Article[] = [
+  {
+    slug: 'cms-2027-commissions',
+    title: 'What the 2027 CMS commission changes mean for you',
+    category: 'cms',
+    date: '2026-06-11',
+    readTime: '6 min read',
+    summary:
+      'CMS raised what you can get paid in 2027 and loosened the marketing rules right before AEP. Here is the plain version, and what the move really signals for agents.',
+    author: ANDREW,
+    takeaways: [
+      'Your max pay went up again. In most states a new MA enrollment is worth up to $725 for 2027, up from $694.',
+      'Part D got the biggest raise: up 14% to $130 for a new member. CMS wants you writing drug plans.',
+      'The marketing rules loosened too. The 48 hour wait after a Scope of Appointment is gone.',
+    ],
+    whatTitle: 'What changed',
+    what: [
+      { type: 'p', text: 'Every year CMS sets the most a carrier is allowed to pay you for a Medicare Advantage or Part D enrollment. For 2027 those caps went up again, and CMS also changed some of the rules around how and when you can market. Here is the plain version.' },
+      { type: 'h', text: 'What you can get paid in 2027' },
+      { type: 'ul', items: [
+        'Medicare Advantage, most states: up to $725 to enroll a new member (up from $694), and $363 a year to keep them.',
+        'Higher-cost states: California and New Jersey are $902 new and $451 renewal. Connecticut, Pennsylvania, and DC are $816 new and $408 renewal.',
+        'Part D drug plans: $130 for a new member (up from $114) and $65 renewal. That 14% raise is the biggest jump on the board.',
+        'Referral fees did not change: $100 for MA, $25 for Part D.',
+      ] },
+      { type: 'p', text: 'One thing to keep straight: these are the maximums, not a promise. A carrier can pay all of it, some of it, or none of it. The cap is the ceiling, not your check.' },
+      { type: 'h', text: 'What changed with the rules' },
+      { type: 'ul', items: [
+        'The 48 hour wait between a signed Scope of Appointment and the actual appointment is gone. You can sit down right away.',
+        'You can now collect a Scope of Appointment at an educational event.',
+        'The 12 hour gap between an educational event and a sales event at the same location is gone, as long as people are told and can leave first.',
+        'The required third-party marketing disclaimer now has to be read before you talk about any plan benefits.',
+      ] },
+      { type: 'p', text: 'The pay changes apply to 2027 enrollments. The marketing changes start October 1, 2026, right before AEP opens.' },
+    ],
+    why: [
+      'More money per sale and less red tape before you can help someone. That is a good setup heading into AEP.',
+      'The 14% Part D raise is the real tell. Standalone drug plans have been a headache since the $2,000 out of pocket cap and carriers pulling plans. CMS is paying you more to keep writing them so seniors do not get left without help. If you have been skipping PDPs, 2027 is the year to stop.',
+      'Zoom out and the signal is clear. After a few years of CMS tightening the screws on agents, the rules just swung the other way. This CMS wants agents selling, not sidelined.',
+    ],
+    actions: [
+      'Know your real numbers. Ask each carrier what they actually pay for 2027, since the CMS cap is just the ceiling.',
+      'Give Part D another look. With a 14% raise and members who genuinely need help, standalone drug plans are worth your time again.',
+      'Use the looser timeline, but keep it clean. No 48 hour wait means you can help people faster, but still get your Scope of Appointment, still record, and still document everything.',
+      "Mark October 1 on your calendar. The new marketing rules start then, so build your AEP game plan around them, not last year's.",
+    ],
+    sources: 'Sources: CMS Contract Year 2027 Final Rule and the June 2026 CMS commission memo; Ritter Insurance Marketing and Center for Medicare Advocacy (2026).',
+  },
   {
     slug: 'why-clients-choose-medicare-advantage',
     title: 'Why more of your clients are choosing Medicare Advantage',

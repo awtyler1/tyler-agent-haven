@@ -118,7 +118,7 @@ export default function InsightsArticlePage() {
           <span className="iar-av">{post.author.initials}</span>
           <div>
             <div className="iar-byline__n">{post.author.name}</div>
-            <div className="iar-byline__t">Broker Development · Tyler Insurance Group</div>
+            <div className="iar-byline__t">Founder · Tyler Insurance Group</div>
           </div>
         </div>
 
