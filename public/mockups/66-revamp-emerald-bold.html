@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Landing Revamp — Emerald Bold</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--line:#e1d9c8;--muted:#5f6b62;--ink:#16201b;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--em2);color:var(--bone);-webkit-font-smoothing:antialiased}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:#fff;color:var(--em);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700}.tag b{color:var(--gold2)}
+
+  .ann{background:var(--gold);color:var(--em);text-align:center;font-size:14px;font-weight:700;padding:11px 16px}
+  .nav{background:rgba(10,44,34,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.08)}
+  .nav__in{max-width:1180px;margin:0 auto;padding:0 32px;height:68px;display:flex;align-items:center;gap:26px}
+  .brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:16px}
+  .mk{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-weight:800;display:flex;align-items:center;justify-content:center}
+  .nav__lks{display:flex;gap:24px;flex:1;margin-left:14px}
+  .nav__lk{color:rgba(244,241,232,.74);font-size:14px;font-weight:500}
+  .btn-ghost{color:#fff;font-size:13.5px;font-weight:600;border:1px solid rgba(255,255,255,.28);padding:9px 15px;border-radius:9px}
+
+  .hero{position:relative;overflow:hidden;text-align:center;padding:96px 0 104px}
+  .hero:before{content:"";position:absolute;top:-160px;left:50%;transform:translateX(-50%);width:1100px;height:620px;background:radial-gradient(circle,rgba(201,168,76,.18),transparent 60%)}
+  .hero__in{max-width:880px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+  .hero h1{font-family:'Outfit';font-weight:900;font-size:clamp(42px,7vw,82px);line-height:1.0;letter-spacing:-.04em;color:#fff}
+  .hero h1 .g{color:transparent;background:linear-gradient(110deg,#f3e6b8,var(--gold));-webkit-background-clip:text;background-clip:text}
+  .hero p{font-size:19px;color:rgba(244,241,232,.82);line-height:1.55;margin:24px auto 0;max-width:46ch}
+  .cta{display:inline-block;margin-top:32px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);font-family:'Outfit';font-weight:800;font-size:18px;padding:18px 42px;border-radius:40px;box-shadow:0 16px 36px rgba(201,168,76,.28)}
+  .sub{font-size:13px;color:rgba(244,241,232,.6);margin-top:14px}
+
+  /* trust row instead of stats */
+  .trust{display:flex;gap:30px;justify-content:center;margin-top:46px;flex-wrap:wrap}
+  .trust .it{font-size:13.5px;color:rgba(244,241,232,.75);display:flex;align-items:center;gap:8px}
+  .trust .it b{color:var(--gold);font-weight:700}
+
+  /* truths */
+  .truths{background:var(--bone);color:var(--ink);padding:60px 0}
+  .truths__in{max-width:1100px;margin:0 auto;padding:0 32px}
+  .truths__k{text-align:center;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:30px}
+  .tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .t{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 26px;display:flex;gap:16px;align-items:flex-start}
+  .t .n{font-family:'Outfit';font-size:26px;font-weight:900;color:var(--gold2);line-height:1;flex:none}
+  .t h3{font-family:'Outfit';font-size:18px;font-weight:700;margin-bottom:5px}
+  .t p{font-size:14px;color:var(--muted);line-height:1.55}
+
+  /* team */
+  .team{padding:64px 0;text-align:center}
+  .team__in{max-width:740px;margin:0 auto;padding:0 32px}
+  .team__k{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+  .team__q{font-family:'Outfit';font-size:clamp(22px,3vw,30px);font-weight:700;line-height:1.32;margin:16px 0 18px;color:#fff}
+  .team__q .g{color:var(--gold)}
+  .team__sign{font-size:14px;font-weight:600;color:rgba(244,241,232,.6)}
+
+  @media(max-width:760px){.tgrid{grid-template-columns:1fr}.nav__lks{display:none}}
+</style></head>
+<body>
+  <div class="tag">REVAMP · <b>2 — Emerald Bold</b></div>
+  <div class="ann">Now contracting for 2027 AEP — see if you're a fit →</div>
+  <div class="nav"><div class="nav__in">
+    <a class="brand"><span class="mk">T</span> Tyler Insurance Group</a>
+    <div class="nav__lks"><a class="nav__lk">Why TIG</a><a class="nav__lk">Our Team</a><a class="nav__lk">Insights</a><a class="nav__lk">What you get</a></div>
+    <a class="btn-ghost">Agent Login</a>
+  </div></div>
+
+  <div class="hero"><div class="hero__in">
+    <div class="eyebrow">Independent Medicare FMO · Nationwide</div>
+    <h1 class="disp">DO YOU WANT TO <span class="g">SCALE</span> YOUR MEDICARE BUSINESS?</h1>
+    <p>Top contracts, the full tech stack, and coaching from agents still writing business today — at no cost to you.</p>
+    <a class="cta">I'M READY TO GROW →</a>
+    <div class="sub">No pressure. We'll see if it's a fit, together.</div>
+    <div class="trust">
+      <div class="it">📞 <b>You call a founder</b>, not a ticket queue</div>
+      <div class="it">⚡ <b>Fast releases</b>, nearly every carrier</div>
+      <div class="it">🧰 <b>Free tools</b>, quoting to CRM</div>
+    </div>
+  </div></div>
+
+  <div class="truths"><div class="truths__in">
+    <div class="truths__k">No pitch. Here's the truth.</div>
+    <div class="tgrid">
+      <div class="t"><div class="n">01</div><div><h3>We're not the biggest. Good.</h3><p>Big never sold a single policy. We'd rather make you better than forget your name.</p></div></div>
+      <div class="t"><div class="n">02</div><div><h3>We already paid the tuition.</h3><p>We've made the expensive mistakes. You just get the lessons.</p></div></div>
+      <div class="t"><div class="n">03</div><div><h3>Overrides don't grow books.</h3><p>Skill, reps, and the right tools do. That's all we obsess over.</p></div></div>
+      <div class="t"><div class="n">04</div><div><h3>If you don't grow, we don't.</h3><p>That's not a slogan. It's the math. So we won't waste your time.</p></div></div>
+    </div>
+  </div></div>
+
+  <div class="team"><div class="team__in">
+    <div class="team__k">A word from the team</div>
+    <div class="team__q disp">"Whatever we know, you'll know. <span class="g">We just hand it over.</span> No gatekeeping."</div>
+    <div class="team__sign">— Austin &amp; Andrew, Founders</div>
+  </div></div>
+</body>
+</html>
