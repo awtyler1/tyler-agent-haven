@@ -64,7 +64,7 @@ export default function InsightsPage() {
           </nav>
           <div className="ins-nav__act">
             <RouterLink to="/auth" className="ins-btn ins-btn--ghost">Agent Login</RouterLink>
-            <RouterLink to="/join" className="ins-btn ins-btn--gold">Become an Agent</RouterLink>
+            <RouterLink to="/join" className="ins-btn ins-btn--gold">I'm Ready to Grow</RouterLink>
           </div>
         </div>
       </header>

@@ -156,7 +156,7 @@ export default function LandingPage() {
                 {hero.secondaryCta.label}
               </SmartLink>
               <SmartLink href={hero.primaryCta.href} className="lp-btn lp-btn--gold">
-                Become an Agent
+                {hero.primaryCta.label}
               </SmartLink>
             </div>
           </div>
