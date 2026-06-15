@@ -62,6 +62,18 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'what-a-medicare-fmo-really-does',
+    title: 'What a Medicare FMO really does, and how to pick one that grows you',
+    excerpt:
+      'Your FMO is one of the biggest business decisions you will make, and most agents pick the one whose recruiter called first. Here is what an FMO actually does, old model versus new, and what to look for.',
+    category: 'industry',
+    author: AUSTIN,
+    date: '2026-06-15',
+    readTime: '7 min read',
+    featured: true,
+    articleSlug: 'what-a-medicare-fmo-really-does',
+  },
+  {
     slug: 'cms-2027-commissions',
     title: 'What the 2027 CMS commission changes mean for you',
     excerpt:
@@ -70,7 +82,6 @@ export const insights: InsightPost[] = [
     author: ANDREW,
     date: '2026-06-11',
     readTime: '6 min read',
-    featured: true,
     articleSlug: 'cms-2027-commissions',
   },
   {

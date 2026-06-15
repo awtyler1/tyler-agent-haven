@@ -51,6 +51,66 @@ const ANDREW = {
 
 export const articles: Article[] = [
   {
+    slug: 'what-a-medicare-fmo-really-does',
+    title: 'What a Medicare FMO really does, and how to pick one that grows you',
+    category: 'market',
+    date: '2026-06-15',
+    readTime: '7 min read',
+    summary:
+      'Your FMO is one of the biggest business decisions you will make, and most agents pick the one whose recruiter called first. Here is what an FMO actually does, how the old model differs from the new one, and what to look for.',
+    author: AUSTIN,
+    takeaways: [
+      'An FMO holds your carrier contracts, pays your commissions, and is supposed to give you the tools, training, and support to grow. You do not pay them. The carrier does.',
+      'Old-school FMOs just sign agents and collect overrides. Newer ones reinvest in you. Same cost to you, very different outcome.',
+      'Treat picking an FMO like hiring a business partner. Shop a few, and read the release terms before you sign.',
+    ],
+    whatTitle: 'What an FMO actually is',
+    what: [
+      { type: 'p', text: 'FMO stands for Field Marketing Organization. In plain terms, it is the company that sits between you and the insurance carriers. It holds the master contracts, gets you appointed to sell, processes your commissions, and is supposed to back you with tools, training, and support.' },
+      { type: 'p', text: 'Here is the part most agents miss. You do not pay your FMO. When you write a policy, the carrier pays you your commission, and separately pays the FMO an override, usually somewhere around $100 to $300 a year per enrollment. That override does not come out of your check. It comes from the carrier, on top of what you earn.' },
+      { type: 'p', text: 'So nearly every FMO gets paid about the same to have you. The only real question is what they do with that money. That is the whole game.' },
+      { type: 'h', text: 'The old-school FMO' },
+      { type: 'p', text: 'The traditional model is simple: sign as many agents as possible, collect the overrides, and move on. You get a login and a contract, and after that you are mostly on your own.' },
+      { type: 'ul', items: [
+        'They recruit hard, then go quiet once you sign.',
+        'Support means a help desk that does not know your name.',
+        'Little or no real training past licensing and certifications.',
+        'They lead with "biggest overrides" instead of how they will help you grow.',
+        'Vague or restrictive release terms, so leaving means starting over.',
+      ] },
+      { type: 'h', text: 'The new FMO' },
+      { type: 'p', text: 'A newer FMO treats that override as money to reinvest in you, because they only grow when you do. Same cost to you, completely different experience.' },
+      { type: 'ul', items: [
+        'The full tech stack at no cost: quoting, enrollment, and a real CRM built for Medicare.',
+        'Coaching that goes past AHIP into how to actually build and keep a book.',
+        'A real person who knows your name and picks up the phone.',
+        'Clear, fair release terms, and your book of business is yours.',
+        'They win when you write more, not when they recruit more.',
+      ] },
+      { type: 'h', text: 'What to look for' },
+      { type: 'ul', items: [
+        'Carrier access: top contracts with the carriers you need, and fast releases.',
+        'Technology: Medicare-specific quoting, enrollment, and CRM, included.',
+        'Support: a named person, not a ticket number.',
+        'Training: real coaching, not just a certification link.',
+        'Marketing and leads: practical help, not just a pep talk.',
+        'The fine print: how they make money, whether you can leave, and whether you keep your clients.',
+      ] },
+    ],
+    why: [
+      'Your FMO is the foundation your business runs on. It is the tools you sell with, the training you grow with, who answers when you are stuck, and whether you own your book. Get it right and it quietly accelerates everything. Get it wrong and it quietly caps you.',
+      'Here is the kicker. Since the override is about the same either way, staying with an FMO that does not help you is leaving money and growth on the table for nothing. There is no prize for loyalty to a login.',
+      'Most agents end up with an FMO because a recruiter called first. It deserves a lot more thought than that. It is one of the biggest decisions for your business, so treat it like hiring a partner you will work with for years.',
+    ],
+    actions: [
+      'Audit what you have. List what your FMO actually gives you: tools, training, support, leads. If the honest answer is "a contract," you are overdue to look around.',
+      'Shop at least two or three. Compare the technology, the support, the training, and the release terms side by side. The overrides are similar, so make them compete for you.',
+      'Read the release language before you sign anything. Know whether you can leave and whether your book comes with you.',
+      'Talk to a real person there first. If you cannot get a leader or a founder on the phone before you sign, do not expect it after.',
+    ],
+    sources: 'Sources: Ritter Insurance Marketing; Spark Advisors; Senior Market Advisors; Pinnacle Financial Services (2026).',
+  },
+  {
     slug: 'cms-2027-commissions',
     title: 'What the 2027 CMS commission changes mean for you',
     category: 'cms',
