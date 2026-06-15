@@ -21,7 +21,7 @@ function PublicNav() {
     <header className="iar-nav">
       <div className="iar-nav__in">
         <RouterLink to="/" className="iar-brand">
-          <span className="iar-mk">T</span> {tig.name}
+          <img className="iar-crest" src="/tyler-crest.png" alt="" aria-hidden="true" /> {tig.name}
         </RouterLink>
         <nav className="iar-nav__lks">
           <RouterLink to="/#honest" className="iar-nav__lk">Why TIG</RouterLink>
@@ -181,7 +181,7 @@ const CSS = `
 .iar-nav{ background:rgba(14,59,46,.96); position:sticky; top:0; z-index:50; }
 .iar-nav__in{ max-width:1140px; margin:0 auto; padding:0 32px; height:66px; display:flex; align-items:center; gap:26px; }
 .iar-brand{ display:flex; align-items:center; gap:10px; color:#fff; font-weight:700; font-size:15px; }
-.iar-mk{ width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); font-weight:800; display:flex; align-items:center; justify-content:center; font-family:'Outfit'; }
+.iar-crest{ height:30px; width:auto; display:block; }
 .iar-nav__lks{ display:flex; gap:24px; flex:1; margin-left:8px; }
 .iar-nav__lk{ color:rgba(244,241,232,.74); font-size:14px; font-weight:500; }
 .iar-nav__lk:hover{ color:#fff; }
