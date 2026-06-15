@@ -175,7 +175,7 @@ const CSS = `
   font-family:'Inter',system-ui,sans-serif; background:var(--bone); color:var(--ink); -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column;
 }
 .iar *{ box-sizing:border-box; }
-.iar a{ text-decoration:none; color:inherit; }
+.iar a{ text-decoration:none; }
 .iar h1,.iar h2,.iar h3{ font-family:'Outfit','Inter',sans-serif; }
 
 .iar-nav{ background:rgba(14,59,46,.96); position:sticky; top:0; z-index:50; }

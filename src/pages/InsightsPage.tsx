@@ -236,7 +236,8 @@ const CSS = `
   font-family:'Inter',system-ui,sans-serif; background:var(--bone); color:var(--ink); -webkit-font-smoothing:antialiased; min-height:100vh;
 }
 .ins *{ box-sizing:border-box; }
-.ins a{ text-decoration:none; color:inherit; }
+.ins a{ text-decoration:none; }
+.ins-feat, .ins-card{ color:var(--ink); }
 .ins h1,.ins h2,.ins h3{ font-family:'Outfit','Inter',sans-serif; }
 
 .ins-nav{ background:rgba(14,59,46,.96); position:sticky; top:0; z-index:50; }
