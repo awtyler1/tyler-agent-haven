@@ -60,7 +60,7 @@ export default function BecomeAgentPage() {
       <nav className="ba-nav">
         <div className="ba-nav__in">
           <Link to="/" className="ba-brand">
-            <span className="ba-brand__mk">T</span> Tyler Insurance Group
+            <img className="ba-brand__crest" src="/tyler-crest.png" alt="" aria-hidden="true" /> Tyler Insurance Group
           </Link>
           <span style={{ flex: 1 }} />
           <Link to="/" className="ba-nav__lk">← Back to site</Link>
@@ -139,7 +139,7 @@ const CSS = `
 .ba-nav{ position:absolute; top:0; left:0; right:0; z-index:50; }
 .ba-nav__in{ max-width:1080px; margin:0 auto; padding:0 32px; height:64px; display:flex; align-items:center; gap:12px; }
 .ba-brand{ display:flex; align-items:center; gap:10px; color:#fff; font-weight:700; font-size:15px; text-decoration:none; }
-.ba-brand__mk{ width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); font-weight:800; display:flex; align-items:center; justify-content:center; }
+.ba-brand__crest{ height:30px; width:auto; display:block; }
 .ba-nav__lk{ color:rgba(244,241,232,.8); font-size:14px; font-weight:500; text-decoration:none; }
 .ba-nav__lk:hover{ color:#fff; }
 
