@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import { tig } from '@/data/landingContent';
 import { getInsight, categoryMeta } from '@/data/insights';
@@ -17,6 +17,7 @@ function renderBlock(b: Block, i: number) {
 }
 
 function PublicNav() {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <header className="iar-nav">
       <div className="iar-nav__in">
@@ -33,7 +34,25 @@ function PublicNav() {
           <RouterLink to="/auth" className="iar-btn iar-btn--ghost">Agent Login</RouterLink>
           <RouterLink to="/join" className="iar-btn iar-btn--gold">I'm Ready to Grow</RouterLink>
         </div>
+        <button
+          className={`iar-burger${menuOpen ? ' is-open' : ''}`}
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <span /><span /><span />
+        </button>
       </div>
+      {menuOpen && (
+        <div className="iar-mmenu" onClick={() => setMenuOpen(false)}>
+          <RouterLink to="/#honest" className="iar-mmenu__lk">Why TIG</RouterLink>
+          <RouterLink to="/book-value" className="iar-mmenu__lk">Book Value</RouterLink>
+          <RouterLink to="/insights" className="iar-mmenu__lk">Insights</RouterLink>
+          <RouterLink to="/#get" className="iar-mmenu__lk">What you get</RouterLink>
+          <RouterLink to="/auth" className="iar-mmenu__lk">Agent Login</RouterLink>
+          <RouterLink to="/join" className="iar-btn iar-btn--gold iar-mmenu__cta">I'm Ready to Grow</RouterLink>
+        </div>
+      )}
     </header>
   );
 }
@@ -187,6 +206,14 @@ const CSS = `
 .iar-nav__lk{ color:rgba(244,241,232,.74); font-size:14px; font-weight:500; }
 .iar-nav__lk:hover{ color:#fff; }
 .iar-nav__act{ display:flex; align-items:center; gap:10px; }
+.iar-burger{ display:none; flex-direction:column; justify-content:center; gap:5px; width:44px; height:44px; margin-left:auto; background:none; border:none; cursor:pointer; padding:0; }
+.iar-burger span{ display:block; width:22px; height:2px; background:#fff; border-radius:2px; transition:transform .25s ease, opacity .2s ease; }
+.iar-burger.is-open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.iar-burger.is-open span:nth-child(2){ opacity:0; }
+.iar-burger.is-open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+.iar-mmenu{ display:flex; flex-direction:column; background:rgba(8,37,28,.99); border-bottom:1px solid rgba(255,255,255,.1); padding:8px 22px 22px; }
+.iar-mmenu__lk{ color:rgba(244,241,232,.92); font-size:16px; font-weight:600; padding:15px 4px; border-bottom:1px solid rgba(255,255,255,.08); }
+.iar-mmenu__cta{ margin-top:16px; justify-content:center; font-size:16px; padding:14px; }
 .iar-btn{ font-size:13.5px; font-weight:700; padding:9px 15px; border-radius:9px; cursor:pointer; font-family:inherit; display:inline-block; }
 .iar-btn--ghost{ color:rgba(244,241,232,.85); font-weight:600; border:1px solid rgba(244,241,232,.25); padding:8px 14px; }
 .iar-btn--ghostdark{ color:var(--em); font-weight:600; border:1px solid var(--line); background:#fff; padding:8px 14px; }
@@ -256,5 +283,7 @@ const CSS = `
   .iar-tldr__t{ border-right:none; border-bottom:1px solid var(--line); }
   .iar-tldr__t:last-child{ border-bottom:none; }
   .iar-nav__lks{ display:none; }
+  .iar-nav__act{ display:none; }
+  .iar-burger{ display:flex; }
 }
 `;

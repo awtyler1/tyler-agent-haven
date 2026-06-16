@@ -296,7 +296,7 @@ const CSS = `
 .be-acq{ margin-top:28px; text-align:left; }
 .be-acq__h{ font-family:'Outfit'; font-weight:800; font-size:20px; }
 .be-acq__s{ font-size:13px; color:var(--dmuted); margin:4px 0 16px; }
-.be-acq input{ width:100%; font-family:inherit; font-size:15px; padding:14px; margin-bottom:10px; border-radius:11px; border:1px solid var(--dline); background:rgba(255,255,255,.06); color:#fff; outline:none; }
+.be-acq input{ width:100%; font-family:inherit; font-size:16px; padding:14px; margin-bottom:10px; border-radius:11px; border:1px solid var(--dline); background:rgba(255,255,255,.06); color:#fff; outline:none; }
 .be-acq input::placeholder{ color:var(--dmuted); }
 .be-acq input:focus{ border-color:var(--gold); }
 .be-acq__btn{ width:100%; margin-top:6px; font-family:'Outfit'; font-weight:800; font-size:16px; padding:16px; border:none; border-radius:13px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); cursor:pointer; }

@@ -88,6 +88,7 @@ function withEmphasis(text: string) {
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -158,8 +159,32 @@ export default function LandingPage() {
                 {hero.primaryCta.label}
               </SmartLink>
             </div>
+            <button
+              className={`lp-burger${menuOpen ? ' is-open' : ''}`}
+              aria-label="Menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((o) => !o)}
+            >
+              <span /><span /><span />
+            </button>
           </div>
         </header>
+
+        {menuOpen && (
+          <div className="lp-mobile-menu" onClick={() => setMenuOpen(false)}>
+            {navLinks.map((l) => (
+              <SmartLink key={l.href} href={l.href} className="lp-mobile-menu__lk">
+                {l.label}
+              </SmartLink>
+            ))}
+            <SmartLink href={hero.secondaryCta.href} className="lp-mobile-menu__lk">
+              {hero.secondaryCta.label}
+            </SmartLink>
+            <SmartLink href={hero.primaryCta.href} className="lp-btn lp-btn--gold lp-mobile-menu__cta">
+              {hero.primaryCta.label}
+            </SmartLink>
+          </div>
+        )}
       </div>
 
       {/* ── Hero ── */}
@@ -189,6 +214,17 @@ export default function LandingPage() {
             <SmartLink href={hero.primaryCta.href} className="lp-btn lp-btn--gold lp-btn--lg">
               {hero.primaryCta.label} →
             </SmartLink>
+          </div>
+
+          {/* Founders shown inline on smaller screens (flanking versions hide) */}
+          <div className="lp-hero__founders">
+            {founders.map((f) => (
+              <div className="lp-hf" key={f.name}>
+                <HeroPhoto founder={f} />
+                <div className="lp-hf__nm">{f.name}</div>
+                <div className="lp-hf__rl">{f.title}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -326,6 +362,15 @@ const CSS = `
 .lp-nav__link{ font-size:14px; font-weight:500; text-decoration:none; color:rgba(244,241,232,.74); transition:color .18s; }
 .lp-nav__link:hover{ color:#fff; }
 .lp-nav__actions{ display:flex; align-items:center; gap:10px; }
+.lp-burger{ display:none; flex-direction:column; justify-content:center; gap:5px; width:44px; height:44px; margin-left:auto; background:none; border:none; cursor:pointer; padding:0; }
+.lp-burger span{ display:block; width:22px; height:2px; background:#fff; border-radius:2px; transition:transform .25s ease, opacity .2s ease; }
+.lp-burger.is-open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.lp-burger.is-open span:nth-child(2){ opacity:0; }
+.lp-burger.is-open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+.lp-mobile-menu{ display:flex; flex-direction:column; background:rgba(8,37,28,.99); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,.1); padding:8px 22px 22px; animation:lpMenu .22s ease both; }
+@keyframes lpMenu{ from{ opacity:0; transform:translateY(-8px); } to{ opacity:1; transform:none; } }
+.lp-mobile-menu__lk{ color:rgba(244,241,232,.92); font-size:16px; font-weight:600; text-decoration:none; padding:15px 4px; border-bottom:1px solid rgba(255,255,255,.08); }
+.lp-mobile-menu__cta{ margin-top:16px; justify-content:center; font-size:16px; padding:15px; }
 
 /* Hero (light) */
 .lp-hero{ position:relative; overflow:hidden; background:linear-gradient(180deg,#f6f3ec,#eceae3); color:var(--ink);
@@ -352,7 +397,14 @@ const CSS = `
 .lp-hero__photo--ph span{ font-family:'Outfit',sans-serif; font-weight:800; font-size:42px; color:var(--gold); }
 .lp-hero__nm{ margin-top:12px; font-size:13px; font-weight:700; color:var(--ink); }
 .lp-hero__rl{ font-size:11px; color:var(--muted); }
-@media(max-width:1180px){ .lp-hero__who{ display:none; } }
+/* Inline founders row for smaller screens */
+.lp-hero__founders{ display:none; justify-content:center; gap:30px; margin-top:38px; }
+.lp-hero__founders .lp-hero__photo{ width:80px; height:80px; border-radius:50%; border:2px solid rgba(201,168,76,.6); object-position:center 18%; box-shadow:0 10px 26px rgba(20,30,24,.2); }
+.lp-hero__founders .lp-hero__photo--ph span{ font-size:26px; }
+.lp-hf{ text-align:center; }
+.lp-hf__nm{ margin-top:9px; font-size:13px; font-weight:700; color:var(--ink); }
+.lp-hf__rl{ font-size:11px; color:var(--muted); }
+@media(max-width:1080px){ .lp-hero__who{ display:none; } .lp-hero__founders{ display:flex; } }
 
 /* Sections */
 .lp-section{ padding:88px 0; }
@@ -436,6 +488,8 @@ const CSS = `
 /* Responsive */
 @media(max-width:820px){
   .lp-nav__links{ display:none; }
+  .lp-nav__actions{ display:none; }
+  .lp-burger{ display:flex; }
   .lp-container{ padding:0 20px; }
   .lp-truth{ grid-template-columns:1fr; gap:8px; }
   .lp-get{ grid-template-columns:1fr; }
@@ -444,7 +498,7 @@ const CSS = `
   .lp-footer__inner{ flex-direction:column; align-items:flex-start; }
 }
 @media(max-width:460px){
-  .lp-nav__actions .lp-btn--ghost{ display:none; }
+  .lp-hero{ min-height:0; padding:54px 0 70px; }
   .lp-founder{ flex-direction:column; text-align:center; }
 }
 `;
