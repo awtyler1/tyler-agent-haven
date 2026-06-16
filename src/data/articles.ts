@@ -51,6 +51,49 @@ const ANDREW = {
 
 export const articles: Article[] = [
   {
+    slug: 'brokers-not-why-medicare-is-confusing',
+    title: "Brokers aren't why Medicare is confusing. Medicare is.",
+    category: 'market',
+    date: '2026-06-16',
+    readTime: '6 min read',
+    summary:
+      "MedPAC's new report on how confusing Medicare has become is, almost by accident, one of the best cases for agents we have seen from the government. It also takes a few cheap shots. Here is the honest version.",
+    author: AUSTIN,
+    takeaways: [
+      "MedPAC's own report shows seniors are overwhelmed by Medicare and lean on agents to translate it.",
+      'The shots it takes at agents do not hold up, including an "80%" stat that was pulled only from complaint calls.',
+      'The real problem it finds is not agents. It is guaranteed issue, a rules problem that traps seniors in the wrong plan.',
+    ],
+    whatTitle: 'What the report says',
+    what: [
+      { type: 'p', text: "MedPAC just put out an analysis on how hard Medicare has become to navigate. Read it closely and it makes the case for independent agents better than most agents make it themselves. It also takes a few cheap shots. Here is the honest version." },
+      { type: 'h', text: 'Seniors are drowning, and the report admits it' },
+      { type: 'p', text: "The average beneficiary is choosing from about 39 Medicare Advantage plans, 11 standalone drug plans, and 10 Medigap types, each with its own premiums, networks, and rules. Add lifetime late-enrollment penalties and five or six sales calls a day, and people are overwhelmed." },
+      { type: 'p', text: 'Their own focus groups say it plainly. One person: "It was truly, truly confusing, and I am supposed to be relatively smart." Another, after an agent visit: "I am not comprehending all this stuff."' },
+      { type: 'h', text: 'Who seniors actually turn to' },
+      { type: 'p', text: "The agent. The report describes beneficiaries whose agents made recommendations based on their real medications and their real doctors, and who had generally positive experiences. The free government counseling alternative, SHIP, was used by roughly 4 to 5 percent of seniors, and most had never heard of it. You cannot call something almost no one uses the replacement for the thing almost everyone does." },
+      { type: 'h', text: 'The cheap shots, handled honestly' },
+      { type: 'ul', items: [
+        'The headline stat is that agents failed to ask the right questions or gave incomplete information "over 80 percent" of the time. The catch: those were complaint calls. A sample built from complaints shows you complaints, not the typical senior\'s experience.',
+        'The report leans on a 2020 study where an AI tool helped lower-skill agents give better recommendations. The honest read is the opposite of "replace agents." The tool helped the agents who needed the most help. That is a case for giving agents better tools, which is what the good shops already do.',
+      ] },
+      { type: 'h', text: 'The part they almost get right' },
+      { type: 'p', text: "The biggest barrier they find is not agent conduct. It is guaranteed issue. Switch from Medicare Advantage back to traditional Medicare after a bad diagnosis, and in most states you can be medically underwritten out of a Medigap policy. Their own data shows beneficiaries moved back to traditional Medicare at nearly double the rate in states that allow guaranteed-issue switching. That is a rules problem, not a broker problem." },
+    ],
+    why: [
+      'This matters because "agents are the problem" is the story that gets used to pile more rules on you. The report\'s own findings cut the other way. Seniors are confused by the system, and they lean on agents to make sense of it.',
+      'Know the counterargument cold. When someone waves around the "80 percent" number, you can explain it came from complaint calls. When someone says AI will replace you, you can point out the study showed AI helps agents, it does not beat them.',
+      'And keep the main thing the main thing. You are not why Medicare is confusing. Medicare is. You are the person who makes it make sense, using real doctors and real drug lists, at no cost to the client.',
+    ],
+    actions: [
+      'Use this when a prospect hesitates. Most seniors are overwhelmed by the choices. Naming that out loud, then walking them through it calmly, is your whole value.',
+      'Lead with their real life. Pull up their actual medications and doctors before you ever talk plans. That is exactly the behavior the report praised.',
+      'Get the tools that make you better. The AI study is real. Agents with strong quoting and CRM tools give better recommendations, so use them.',
+      'Be honest about the switching trap. If a healthy client picks MA now, make sure they know that moving back to a Medigap plan later can require underwriting in most states.',
+    ],
+    sources: 'Sources: MedPAC, "The complexity of Medicare enrollment decisions for beneficiaries" (March 2026); NORC at the University of Chicago focus groups (2024-2025); CMS recorded-call and complaint reviews.',
+  },
+  {
     slug: 'medicare-acquisition-landscape',
     title: 'Why everyone is buying Medicare books right now',
     category: 'market',

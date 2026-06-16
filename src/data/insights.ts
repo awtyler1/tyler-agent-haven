@@ -77,6 +77,19 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'brokers-not-why-medicare-is-confusing',
+    title: "Brokers aren't why Medicare is confusing. Medicare is.",
+    excerpt:
+      "MedPAC's new report on how confusing Medicare has become is, almost by accident, one of the best cases for agents we have seen from the government. It also takes a few cheap shots. Here is the honest version.",
+    category: 'industry',
+    author: AUSTIN,
+    date: '2026-06-16',
+    readTime: '6 min read',
+    cover: 'chart',
+    featured: true,
+    articleSlug: 'brokers-not-why-medicare-is-confusing',
+  },
+  {
     slug: 'medicare-acquisition-landscape',
     title: 'Why everyone is buying Medicare books right now',
     excerpt:
@@ -86,7 +99,6 @@ export const insights: InsightPost[] = [
     date: '2026-06-16',
     readTime: '7 min read',
     cover: 'deal',
-    featured: true,
     articleSlug: 'medicare-acquisition-landscape',
   },
   {
