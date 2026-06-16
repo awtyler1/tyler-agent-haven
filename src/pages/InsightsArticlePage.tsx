@@ -4,6 +4,12 @@ import { tig } from '@/data/landingContent';
 import { getInsight, categoryMeta } from '@/data/insights';
 import { getArticle, type Block } from '@/data/articles';
 
+function AuthorAvatar({ photo, initials, name }: { photo?: string; initials: string; name: string }) {
+  const [err, setErr] = useState(false);
+  if (err || !photo) return <span className="iar-av">{initials}</span>;
+  return <img className="iar-av iar-av--img" src={photo} alt={name} onError={() => setErr(true)} />;
+}
+
 function renderBlock(b: Block, i: number) {
   if (b.type === 'h') return <h2 className="iar-h2" key={i}>{b.text}</h2>;
   if (b.type === 'ul') {
@@ -135,7 +141,7 @@ export default function InsightsArticlePage() {
         <h1 className="iar-title">{post.title}</h1>
 
         <div className="iar-byline">
-          <span className="iar-av">{post.author.initials}</span>
+          <AuthorAvatar photo={post.author.photo} initials={post.author.initials} name={post.author.name} />
           <div>
             <div className="iar-byline__n">{post.author.name}</div>
             <div className="iar-byline__t">Broker Development · Tyler Insurance Group</div>
@@ -229,6 +235,7 @@ const CSS = `
 
 .iar-byline{ display:flex; align-items:center; gap:11px; padding-bottom:22px; margin-bottom:24px; border-bottom:1px solid var(--line); }
 .iar-av{ width:42px; height:42px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); font-family:'Outfit'; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; }
+.iar-av--img{ object-fit:cover; object-position:center 16%; background:#10362a; }
 .iar-byline__n{ font-size:13.5px; font-weight:700; }
 .iar-byline__t{ font-size:11.5px; color:var(--muted); margin-top:1px; }
 

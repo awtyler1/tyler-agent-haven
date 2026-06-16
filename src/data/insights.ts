@@ -40,10 +40,11 @@ export const INSIGHT_CATEGORIES: InsightCategoryMeta[] = [
 export interface InsightAuthor {
   name: string;
   initials: string;
+  photo: string;
 }
 
-export const AUSTIN: InsightAuthor = { name: 'Austin Tyler', initials: 'AT' };
-export const ANDREW: InsightAuthor = { name: 'Andrew Horn', initials: 'AH' };
+export const AUSTIN: InsightAuthor = { name: 'Austin Tyler', initials: 'AT', photo: '/images/founders/atyler-headshot.jpg' };
+export const ANDREW: InsightAuthor = { name: 'Andrew Horn', initials: 'AH', photo: '/images/founders/andrew-horn.png' };
 
 // The animated cover graphic for an article. RULE: every article gets a unique
 // cover. Never reuse the same motif on two articles. Add a new motif to
