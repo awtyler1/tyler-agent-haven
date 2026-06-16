@@ -12,7 +12,7 @@
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const FROM = "Tyler Insurance Group <noreply@tylerinsurancegroup.com>";
-const TEAM = ["austin@tylerinsurancegroup.com", "andrew@tylerinsurancegroup.com"];
+const TEAM = ["austin@tylerinsurancegroup.com"];
 
 // Origins allowed to call this function from the browser.
 const ALLOWED_ORIGINS = [
