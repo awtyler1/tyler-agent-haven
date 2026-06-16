@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import {
   boardMeta,
   boardItems,
+  welcome,
   newThisWeek,
   aep,
   type BoardItem,
@@ -84,8 +85,15 @@ export default function Index() {
               </span>
             )}
           </div>
+          {welcome.show && (
+            <div className="hub-welcome">
+              <div className="hub-welcome__t">{welcome.title}</div>
+              <p className="hub-welcome__b">{welcome.body}</p>
+              <div className="hub-welcome__sign">{welcome.sign}</div>
+            </div>
+          )}
           {boardItems.length === 0 ? (
-            <div className="hub-board__empty">Nothing urgent right now. Check back soon.</div>
+            !welcome.show && <div className="hub-board__empty">Nothing urgent right now. Check back soon.</div>
           ) : (
             boardItems.map((item) => {
             const kc = KIND_COLORS[item.kind];
@@ -207,6 +215,10 @@ const CSS = `
 .hub-board__title{ font-size:15px; font-weight:700; }
 .hub-board__meta{ font-size:11px; color:rgba(244,241,232,.55); }
 .hub-board__empty{ font-size:13px; color:rgba(244,241,232,.6); padding:6px 0 2px; position:relative; }
+.hub-welcome{ position:relative; padding-bottom:15px; margin-bottom:2px; }
+.hub-welcome__t{ font-size:16px; font-weight:700; }
+.hub-welcome__b{ font-size:13.5px; color:rgba(244,241,232,.82); line-height:1.6; margin:6px 0 0; max-width:64ch; }
+.hub-welcome__sign{ font-size:12.5px; color:var(--gold); font-weight:600; margin-top:10px; }
 .hub-bitem{ display:flex; align-items:center; gap:13px; padding:12px 0; border-top:1px solid rgba(255,255,255,.1); position:relative; font-size:14px; }
 .hub-bitem__kind{ flex-shrink:0; width:96px; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; display:flex; align-items:center; gap:7px; }
 .hub-bitem__dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
