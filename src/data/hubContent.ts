@@ -32,19 +32,18 @@ export interface BoardItem {
 
 export const boardMeta = {
   postedBy: "Austin & Andrew",
-  postedOn: "2026-06-09", // update when you refresh the board
+  postedOn: "2026-06-16", // update when you refresh the board
 };
 
 export const boardItems: BoardItem[] = [
-  // Add real deadlines/actions/openings here. Example shape:
-  // {
-  //   id: "aetna-cert-close",
-  //   kind: "deadline",                 // deadline | action | open
-  //   title: "Aetna 2027 certification closes",
-  //   note: "Do it now, the portal gets slow near the deadline",
-  //   when: "Jun 30",                   // big right-side label
-  //   date: "2026-06-30",               // optional — auto-computes "N days"
-  // },
+  {
+    id: "ahip-2027-launch",
+    kind: "action",
+    title: "AHIP 2027 training launches",
+    note: "Knock it out early — you need AHIP done before any carrier certification",
+    when: "Jun 22",
+    date: "2026-06-22",
+  },
 ];
 
 // ── The Dock (tools) ─────────────────────────────────────────────────────────
