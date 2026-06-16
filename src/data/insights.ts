@@ -45,15 +45,29 @@ export interface InsightAuthor {
 export const AUSTIN: InsightAuthor = { name: 'Austin Tyler', initials: 'AT' };
 export const ANDREW: InsightAuthor = { name: 'Andrew Horn', initials: 'AH' };
 
+// The animated cover graphic for an article. RULE: every article gets a unique
+// cover. Never reuse the same motif on two articles. Add a new motif to
+// InsightCover (in InsightsPage) before you run out. A dev-time console warning
+// fires below if two posts ever share one.
+export type CoverMotif =
+  | 'rings'   // concentric care rings + cross (health / Medicare basics)
+  | 'chart'   // rising trend line (market / industry data)
+  | 'bars'    // growth bars (agency / growth)
+  | 'lock'    // padlock (members / playbooks)
+  | 'coins'   // stacked coins + arrow (money / commissions)
+  | 'shield'  // shield + check (FMO / protection / contracts)
+  | 'deal';   // consolidation network (acquisition / buying books)
+
 export interface InsightPost {
   slug: string;
   title: string;
   excerpt: string;
   category: InsightCategory;
+  cover: CoverMotif; // unique per article — see rule above
   author: InsightAuthor;
   date: string; // 'YYYY-MM-DD'
   readTime: string; // e.g. '6 min read'
-  image?: string; // cover image URL or /public path
+  image?: string; // cover image URL or /public path (unused; covers are generated)
   featured?: boolean; // the big hero card up top (first featured wins)
   members?: boolean; // gated behind the agent login
   articleSlug?: string; // links to the full body in articles.ts
@@ -70,6 +84,7 @@ export const insights: InsightPost[] = [
     author: AUSTIN,
     date: '2026-06-16',
     readTime: '7 min read',
+    cover: 'deal',
     featured: true,
     articleSlug: 'medicare-acquisition-landscape',
   },
@@ -82,6 +97,7 @@ export const insights: InsightPost[] = [
     author: AUSTIN,
     date: '2026-06-15',
     readTime: '7 min read',
+    cover: 'shield',
     articleSlug: 'what-a-medicare-fmo-really-does',
   },
   {
@@ -93,6 +109,7 @@ export const insights: InsightPost[] = [
     author: ANDREW,
     date: '2026-06-11',
     readTime: '6 min read',
+    cover: 'coins',
     articleSlug: 'cms-2027-commissions',
   },
   {
@@ -104,6 +121,7 @@ export const insights: InsightPost[] = [
     author: AUSTIN,
     date: '2026-06-10',
     readTime: '6 min read',
+    cover: 'rings',
     articleSlug: 'why-clients-choose-medicare-advantage',
   },
 ];
@@ -114,4 +132,20 @@ export function getInsight(slug: string): InsightPost | undefined {
 
 export function categoryMeta(key: InsightCategory): InsightCategoryMeta {
   return INSIGHT_CATEGORIES.find((c) => c.key === key) ?? INSIGHT_CATEGORIES[0];
+}
+
+// Guardrail: warn (in dev) if any two articles reuse the same cover graphic.
+if (import.meta.env?.DEV) {
+  const seen = new Set<string>();
+  const dupes = new Set<string>();
+  for (const p of insights) {
+    if (seen.has(p.cover)) dupes.add(p.cover);
+    seen.add(p.cover);
+  }
+  if (dupes.size) {
+    console.warn(
+      `[insights] Duplicate cover graphic(s) in use: ${[...dupes].join(', ')}. ` +
+        'Give each article a unique cover (see CoverMotif in src/data/insights.ts).',
+    );
+  }
 }

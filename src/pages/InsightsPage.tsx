@@ -7,6 +7,7 @@ import {
   categoryMeta,
   type InsightPost,
   type InsightCategory,
+  type CoverMotif,
 } from '@/data/insights';
 
 // Where a card points: members → login, everything else → the reader.
@@ -21,13 +22,13 @@ function fmtDate(date: string): string {
   });
 }
 
-// On-brand animated SVG cover, one motif per topic (replaces stock imagery).
-function InsightCover({ category, variant = 'card' }: { category: InsightCategory; variant?: 'card' | 'feat' }) {
+// On-brand animated SVG cover, one unique motif per article (no stock imagery).
+function InsightCover({ cover, variant = 'card' }: { cover: CoverMotif; variant?: 'card' | 'feat' }) {
   return (
-    <div className={`ins-cover ins-cover--${variant}`} data-cat={category} aria-hidden="true">
+    <div className={`ins-cover ins-cover--${variant}`} data-cover={cover} aria-hidden="true">
       <span className="ins-cover__glow" />
       <svg className="ins-cover__svg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
-        {category === 'medicare-101' && (
+        {cover === 'rings' && (
           <g className="ins-art">
             <circle className="r r1" cx="200" cy="110" r="42" />
             <circle className="r r2" cx="200" cy="110" r="64" />
@@ -35,14 +36,14 @@ function InsightCover({ category, variant = 'card' }: { category: InsightCategor
             <path className="plus" d="M200 84 v52 M174 110 h52" />
           </g>
         )}
-        {category === 'industry' && (
+        {cover === 'chart' && (
           <g className="ins-art">
             <path className="axis" d="M40 156 H360" />
             <polyline className="line" points="40,150 110,122 180,132 250,90 330,56" />
             <circle className="enddot" cx="330" cy="56" r="6" />
           </g>
         )}
-        {category === 'agency' && (
+        {cover === 'bars' && (
           <g className="ins-art ins-art--bars">
             <rect className="bar b1" x="118" y="70" width="34" height="92" rx="4" />
             <rect className="bar b2" x="183" y="70" width="34" height="92" rx="4" />
@@ -50,12 +51,39 @@ function InsightCover({ category, variant = 'card' }: { category: InsightCategor
             <path className="trend" d="M135 96 L200 50 L300 64" />
           </g>
         )}
-        {category === 'playbook' && (
+        {cover === 'lock' && (
           <g className="ins-art ins-art--lock">
             <rect className="lockbody" x="158" y="104" width="84" height="62" rx="11" />
             <path className="shackle" d="M174 104 v-12 a26 26 0 0 1 52 0 v12" />
             <circle className="keyhole" cx="200" cy="130" r="7" />
             <rect className="keyhole" x="197" y="130" width="6" height="18" rx="3" />
+          </g>
+        )}
+        {cover === 'coins' && (
+          <g className="ins-art ins-art--coins">
+            <ellipse className="coin c1" cx="200" cy="152" rx="48" ry="15" />
+            <ellipse className="coin c2" cx="200" cy="128" rx="48" ry="15" />
+            <ellipse className="coin c3" cx="200" cy="104" rx="48" ry="15" />
+            <path className="coinup" d="M200 92 v-26 M188 78 l12 -12 l12 12" />
+          </g>
+        )}
+        {cover === 'shield' && (
+          <g className="ins-art ins-art--shield">
+            <path className="shieldbody" d="M200 50 L252 72 V118 C252 160 200 182 200 182 C200 182 148 160 148 118 V72 Z" />
+            <path className="shieldcheck" d="M178 114 l16 16 l30 -34" />
+          </g>
+        )}
+        {cover === 'deal' && (
+          <g className="ins-art ins-art--deal">
+            <line className="spoke s1" x1="200" y1="110" x2="110" y2="58" />
+            <line className="spoke s2" x1="200" y1="110" x2="300" y2="58" />
+            <line className="spoke s3" x1="200" y1="110" x2="110" y2="162" />
+            <line className="spoke s4" x1="200" y1="110" x2="300" y2="162" />
+            <circle className="node n1" cx="110" cy="58" r="10" />
+            <circle className="node n2" cx="300" cy="58" r="10" />
+            <circle className="node n3" cx="110" cy="162" r="10" />
+            <circle className="node n4" cx="300" cy="162" r="10" />
+            <circle className="hub" cx="200" cy="110" r="22" />
           </g>
         )}
       </svg>
@@ -140,7 +168,7 @@ export default function InsightsPage() {
         {featured && (
           <RouterLink className="ins-feat" to={postHref(featured)}>
             <div className="ins-feat__img">
-              <InsightCover category={featured.category} variant="feat" />
+              <InsightCover cover={featured.cover} variant="feat" />
               <span className="ins-pill">★ Featured</span>
             </div>
             <div className="ins-feat__body">
@@ -182,7 +210,7 @@ export default function InsightsPage() {
             {visible.map((p) => (
               <RouterLink className="ins-card" to={postHref(p)} key={p.slug}>
                 <div className={`ins-card__img${p.members ? ' is-locked' : ''}`}>
-                  <InsightCover category={p.category} />
+                  <InsightCover cover={p.cover} />
                   <span className="ins-pill">{categoryMeta(p.category).label}</span>
                   {p.members && <span className="ins-lock">Members</span>}
                 </div>
@@ -316,7 +344,7 @@ const CSS = `
 
 /* Animated topic covers */
 .ins-cover{ position:absolute; inset:0; overflow:hidden; background:linear-gradient(150deg,#13503c,#0a2c22); }
-.ins-cover[data-cat="playbook"]{ background:linear-gradient(150deg,#0f4234,#081f18); }
+.ins-cover[data-cover="lock"]{ background:linear-gradient(150deg,#0f4234,#081f18); }
 .ins-cover__glow{ position:absolute; top:-45%; right:-25%; width:85%; height:150%; background:radial-gradient(circle,rgba(201,168,76,.22),transparent 60%); animation:insDrift 7s ease-in-out infinite; }
 @keyframes insDrift{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(-8%,7%); } }
 .ins-cover__svg{ position:absolute; inset:0; width:100%; height:100%; transition:transform .35s ease; }
@@ -351,10 +379,38 @@ const CSS = `
 .ins-art--lock .keyhole{ fill:#e7cf86; }
 @keyframes insFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
 
+/* commissions: stacked coins + up arrow */
+.ins-art--coins .coin{ fill:none; stroke:#C9A84C; stroke-width:3; opacity:0; transform-box:fill-box; transform-origin:center; animation:insCoin .55s ease forwards; }
+.ins-art--coins .c1{ animation-delay:.1s; }
+.ins-art--coins .c2{ animation-delay:.3s; }
+.ins-art--coins .c3{ animation-delay:.5s; }
+@keyframes insCoin{ from{ opacity:0; transform:translateY(12px); } to{ opacity:.9; transform:none; } }
+.ins-art--coins .coinup{ fill:none; stroke:#e7cf86; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:80; stroke-dashoffset:80; animation:insDraw 1s ease .75s forwards; }
+
+/* FMO: drawing shield + check, gently floating */
+.ins-art--shield{ transform-box:fill-box; transform-origin:center; animation:insFloat 5s ease-in-out infinite; }
+.ins-art--shield .shieldbody{ fill:rgba(201,168,76,.06); stroke:#C9A84C; stroke-width:4; stroke-linejoin:round; stroke-dasharray:440; stroke-dashoffset:440; animation:insDraw 1.7s ease forwards; }
+.ins-art--shield .shieldcheck{ fill:none; stroke:#e7cf86; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:80; stroke-dashoffset:80; animation:insDraw .7s ease 1.2s forwards; }
+
+/* acquisition: consolidation network (nodes feeding a hub) */
+.ins-art--deal .spoke{ stroke:rgba(201,168,76,.5); stroke-width:2; stroke-dasharray:130; stroke-dashoffset:130; animation:insDraw 1s ease forwards; }
+.ins-art--deal .s2{ animation-delay:.15s; }
+.ins-art--deal .s3{ animation-delay:.3s; }
+.ins-art--deal .s4{ animation-delay:.45s; }
+.ins-art--deal .node{ fill:#C9A84C; transform-box:fill-box; transform-origin:center; animation:insNode 2.6s ease-in-out infinite; }
+.ins-art--deal .n2{ animation-delay:.4s; }
+.ins-art--deal .n3{ animation-delay:.8s; }
+.ins-art--deal .n4{ animation-delay:1.2s; }
+.ins-art--deal .hub{ fill:rgba(231,207,134,.14); stroke:#e7cf86; stroke-width:4; }
+@keyframes insNode{ 0%,100%{ opacity:.55; transform:scale(1); } 50%{ opacity:1; transform:scale(1.18); } }
+
 @media (prefers-reduced-motion: reduce){
-  .ins-cover__glow,.ins-art .r,.ins-art .enddot,.ins-art--bars .bar,.ins-art--lock{ animation:none; }
-  .ins-art .line,.ins-art--bars .trend{ animation:none; stroke-dashoffset:0; }
+  .ins-cover__glow,.ins-art .r,.ins-art .enddot,.ins-art--bars .bar,.ins-art--lock,
+  .ins-art--shield,.ins-art--deal .node,.ins-art--coins .coin{ animation:none; }
+  .ins-art .line,.ins-art--bars .trend,.ins-art--shield .shieldbody,.ins-art--shield .shieldcheck,
+  .ins-art--coins .coinup,.ins-art--deal .spoke{ animation:none; stroke-dashoffset:0; }
   .ins-art--bars .bar{ transform:scaleY(1); }
+  .ins-art--coins .coin{ opacity:.9; transform:none; }
 }
 .ins-lock{ position:absolute; right:12px; top:12px; z-index:2; background:rgba(10,44,34,.82); color:var(--gold); font-size:11px; font-weight:700; padding:5px 10px; border-radius:30px; display:flex; align-items:center; gap:5px; backdrop-filter:blur(2px); }
 .ins-card__b{ padding:18px 18px 20px; display:flex; flex-direction:column; flex:1; }
