@@ -29,6 +29,7 @@ const NAV_ITEMS: NavItem[] = [
 // External quoting / CRM tools — open in a new tab.
 const TOOL_LINKS = [
   { label: 'Forge CRM', icon: '🔥', href: 'https://app.runonforge.us' },
+  { label: 'BOSS CRM', icon: '👥', href: 'https://fmo.kizen.com/login' },
   { label: 'SunFire', icon: '⚡', href: 'https://www.sunfirematrix.com/app/agent/' },
   { label: 'Connecture', icon: '✍️', href: 'https://pinnacle7.destinationrx.com/PC/Agent/Account/Login' },
 ];
