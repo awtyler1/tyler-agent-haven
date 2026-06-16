@@ -106,11 +106,11 @@ export function AgentShell() {
 }
 
 const CSS = `
-.shell{ display:flex; min-height:100vh; background:#F4F1E8; }
+.shell{ display:flex; height:100vh; height:100dvh; overflow:hidden; background:#F4F1E8; }
 .shell *{ box-sizing:border-box; }
 
 .shell-sb{ width:230px; flex-shrink:0; background:linear-gradient(180deg,#0b2c21,#082018); color:#F4F1E8;
-  display:flex; flex-direction:column; padding:18px 14px; position:sticky; top:0; height:100vh;
+  display:flex; flex-direction:column; padding:18px 14px; height:100%; overflow-y:auto;
   font-family:'Outfit','Inter',system-ui,sans-serif; }
 .shell-brand{ display:flex; align-items:center; gap:10px; padding:6px 8px 18px; border-bottom:1px solid rgba(255,255,255,.08); text-decoration:none; color:inherit; }
 .shell-crest{ height:30px; width:auto; flex-shrink:0; }
@@ -135,7 +135,7 @@ const CSS = `
   color:rgba(244,241,232,.9); font-family:inherit; font-size:12px; font-weight:600; padding:8px 10px; border-radius:8px; cursor:pointer; transition:.15s; }
 .shell-foot__out:hover{ border-color:rgba(255,255,255,.3); color:#fff; }
 
-.shell-main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:100vh; overflow-y:auto; }
+.shell-main{ flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; overflow-y:auto; }
 
 @media(max-width:760px){
   .shell{ flex-direction:column; }
