@@ -9,10 +9,10 @@ const MAPD_RENEWAL = 330;
 const COOLDOWN_MS = 10 * 60 * 1000;
 
 const RETENTION = [
-  { label: 'A fair number leave', sub: '~75% stay', mult: 1.7 },
-  { label: 'Most stick around', sub: '~85% stay', mult: 2.0 },
-  { label: 'Very loyal', sub: '~92% stay', mult: 2.3 },
-  { label: 'Almost never leave', sub: '95%+ stay', mult: 2.5 },
+  { label: 'A fair number leave', sub: '~75% stay', mult: 1.0 },
+  { label: 'Most stick around', sub: '~85% stay', mult: 1.2 },
+  { label: 'Very loyal', sub: '~92% stay', mult: 1.4 },
+  { label: 'Almost never leave', sub: '95%+ stay', mult: 1.5 },
 ];
 
 const fmt = (n: number) => '$' + Math.round(n).toLocaleString();
