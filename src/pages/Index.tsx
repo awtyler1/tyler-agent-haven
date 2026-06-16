@@ -8,6 +8,8 @@ import {
   type BoardItem,
 } from '@/data/hubContent';
 import { calendarEvents, CATEGORY_META } from '@/data/calendarContent';
+import { articles } from '@/data/articles';
+import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const KIND_COLORS: Record<BoardItem['kind'], { dot: string; label: string }> = {
@@ -54,6 +56,25 @@ export default function Index() {
   const upcoming = calendarEvents
     .filter((e) => e.date >= todayKey && e.date <= weekKey)
     .sort((a, b) => a.date.localeCompare(b.date));
+
+  // New this week = articles published in the last 7 days (auto-surfaced from
+  // the same articles that power Knowledge & Updates), newest first, plus any
+  // manual items. Articles posted today get a "New" badge.
+  type NewsRow = { id: string; category: string; title: string; href?: string; isNew: boolean };
+  const recentArticles: NewsRow[] = articles
+    .filter((a) => { const d = daysUntil(a.date); return d <= 0 && d >= -6; })
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map((a) => ({
+      id: a.slug,
+      category: KNOWLEDGE_META[a.category]?.label ?? 'Update',
+      title: a.title,
+      href: `/knowledge/${a.slug}`,
+      isNew: daysUntil(a.date) === 0,
+    }));
+  const newsItems: NewsRow[] = [
+    ...recentArticles,
+    ...newThisWeek.map((n) => ({ id: n.id, category: n.category, title: n.title, href: n.href, isNew: false })),
+  ];
 
   return (
     <div className="hub">
@@ -159,13 +180,16 @@ export default function Index() {
             <h2 className="hub-card__h">
               🆕 New this week <Link to="/industry-updates" className="hub-card__more">All updates →</Link>
             </h2>
-            {newThisWeek.length === 0 ? (
+            {newsItems.length === 0 ? (
               <div className="hub-empty">Nothing new yet this week.</div>
             ) : (
-              newThisWeek.map((n) => {
+              newsItems.map((n) => {
                 const inner = (
                   <>
-                    <div className="hub-new__cat">{n.category}</div>
+                    <div className="hub-new__cat">
+                      {n.category}
+                      {n.isNew && <span className="hub-new__badge">New</span>}
+                    </div>
                     <div className="hub-new__t">{n.title}</div>
                   </>
                 );
@@ -251,6 +275,7 @@ const CSS = `
 .hub-new:last-child{ border-bottom:none; }
 .hub-new--link:hover .hub-new__t{ color:var(--gold2); }
 .hub-new__cat{ font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gold2); }
+.hub-new__badge{ margin-left:8px; background:var(--gold); color:#1b2620; font-size:9px; font-weight:800; letter-spacing:.06em; padding:2px 7px; border-radius:20px; text-transform:uppercase; vertical-align:middle; }
 .hub-new__t{ font-size:13px; font-weight:600; margin-top:2px; transition:color .15s; }
 
 @media(max-width:760px){
