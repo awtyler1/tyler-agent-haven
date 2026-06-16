@@ -7,6 +7,7 @@ import {
   categoryMeta,
   type InsightPost,
   type InsightCategory,
+  type InsightAuthor,
   type CoverMotif,
 } from '@/data/insights';
 
@@ -91,8 +92,18 @@ function InsightCover({ cover, variant = 'card' }: { cover: CoverMotif; variant?
   );
 }
 
-function Avatar({ initials }: { initials: string }) {
-  return <span className="ins-av">{initials}</span>;
+function Avatar({ author }: { author: InsightAuthor }) {
+  const [err, setErr] = useState(false);
+  if (err || !author.photo) return <span className="ins-av">{author.initials}</span>;
+  return (
+    <img
+      className="ins-av ins-av--img"
+      src={author.photo}
+      alt={author.name}
+      loading="lazy"
+      onError={() => setErr(true)}
+    />
+  );
 }
 
 export default function InsightsPage() {
@@ -176,7 +187,7 @@ export default function InsightsPage() {
               <h2>{featured.title}</h2>
               <p>{featured.excerpt}</p>
               <div className="ins-meta">
-                <Avatar initials={featured.author.initials} /> {featured.author.name}
+                <Avatar author={featured.author} /> {featured.author.name}
                 <span className="ins-dot" /> {featured.readTime}
                 <span className="ins-dot" /> {fmtDate(featured.date)}
               </div>
@@ -223,7 +234,7 @@ export default function InsightsPage() {
                       <span className="ins-card__lockmeta">🔒 Unlock with your agent login</span>
                     ) : (
                       <>
-                        <Avatar initials={p.author.initials} /> {p.author.name}
+                        <Avatar author={p.author} /> {p.author.name}
                         <span className="ins-dot" /> {p.readTime}
                       </>
                     )}
@@ -320,6 +331,7 @@ const CSS = `
 .ins-pill{ display:inline-flex; align-items:center; gap:6px; background:rgba(10,44,34,.55); color:var(--gold); border:1px solid rgba(201,168,76,.55); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:5px 11px; border-radius:30px; position:relative; z-index:2; backdrop-filter:blur(3px); }
 .ins-kick{ font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--gold2); }
 .ins-av{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); font-family:'Outfit'; font-weight:800; font-size:12px; display:inline-flex; align-items:center; justify-content:center; }
+.ins-av--img{ display:inline-block; object-fit:cover; object-position:center 16%; background:#10362a; vertical-align:middle; }
 .ins-dot{ width:3px; height:3px; border-radius:50%; background:var(--line); display:inline-block; }
 
 .ins-feat{ display:grid; grid-template-columns:1.25fr 1fr; background:#fff; border:1px solid var(--line); border-radius:20px; overflow:hidden; box-shadow:0 24px 60px rgba(20,30,24,.1); transition:box-shadow .2s; }
