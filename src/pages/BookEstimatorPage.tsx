@@ -9,20 +9,20 @@ const MAPD_RENEWAL = 330;
 const COOLDOWN_MS = 10 * 60 * 1000;
 
 const RETENTION = [
-  { label: 'A fair number leave', sub: '~75% stay', mult: 1.0 },
-  { label: 'Most stick around', sub: '~85% stay', mult: 1.2 },
-  { label: 'Very loyal', sub: '~92% stay', mult: 1.4 },
-  { label: 'Almost never leave', sub: '95%+ stay', mult: 1.5 },
+  { label: 'A fair number leave', sub: '~75% stay', mult: 0.8 },
+  { label: 'Most stick around', sub: '~85% stay', mult: 1.0 },
+  { label: 'Very loyal', sub: '~92% stay', mult: 1.15 },
+  { label: 'Almost never leave', sub: '95%+ stay', mult: 1.25 },
 ];
 
 const fmt = (n: number) => '$' + Math.round(n).toLocaleString();
 
 function tierFor(v: number): { title: string; msg: string; celebrate: boolean } {
-  if (v >= 750000) return { title: "A career's work.", msg: "You've built something most agents never do. That deserves a real conversation.", celebrate: true };
-  if (v >= 350000) return { title: 'A serious book.', msg: 'This is a meaningful asset. Protect it and keep growing.', celebrate: true };
-  if (v >= 150000) return { title: 'Six figures and climbing.', msg: "You've built real, sellable value. Well done.", celebrate: false };
-  if (v >= 50000) return { title: "You've built a real asset.", msg: 'The foundation is there. Now compound it.', celebrate: false };
-  return { title: "You're just getting started.", msg: 'Every big book started right here.', celebrate: false };
+  if (v >= 300000) return { title: "A career's work.", msg: "You've built what most independent agents never do. That deserves a real conversation.", celebrate: true };
+  if (v >= 150000) return { title: 'A serious book.', msg: 'This is a real asset you built yourself. Protect it and keep growing.', celebrate: true };
+  if (v >= 60000) return { title: "You've built something real.", msg: 'The foundation is there. Now compound it.', celebrate: false };
+  if (v >= 20000) return { title: "You're on your way.", msg: 'Every big book started right here.', celebrate: false };
+  return { title: "You're just getting started.", msg: 'The best time to build is now.', celebrate: false };
 }
 
 function burst() {
@@ -64,7 +64,7 @@ export default function BookEstimatorPage() {
   const mult = RETENTION[retIdx].mult;
   const safeLives = Math.max(0, lives || 0);
   const est = safeLives * MAPD_RENEWAL * mult;
-  const low = safeLives * MAPD_RENEWAL * (mult - 0.3);
+  const low = safeLives * MAPD_RENEWAL * Math.max(0.5, mult - 0.2);
   const tier = tierFor(est);
 
   useEffect(() => {
