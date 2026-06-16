@@ -62,6 +62,18 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'medicare-acquisition-landscape',
+    title: 'Why everyone is buying Medicare books right now',
+    excerpt:
+      'A retirement wave on one side, hungry buyers on the other. Here is how books are valued today, why so many people are buying them, and what it means for the asset you have built.',
+    category: 'industry',
+    author: AUSTIN,
+    date: '2026-06-16',
+    readTime: '7 min read',
+    featured: true,
+    articleSlug: 'medicare-acquisition-landscape',
+  },
+  {
     slug: 'what-a-medicare-fmo-really-does',
     title: 'What a Medicare FMO really does, and how to pick one that grows you',
     excerpt:
@@ -70,7 +82,6 @@ export const insights: InsightPost[] = [
     author: AUSTIN,
     date: '2026-06-15',
     readTime: '7 min read',
-    featured: true,
     articleSlug: 'what-a-medicare-fmo-really-does',
   },
   {
