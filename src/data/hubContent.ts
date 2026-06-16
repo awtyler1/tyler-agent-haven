@@ -35,6 +35,16 @@ export const boardMeta = {
   postedOn: "2026-06-16", // update when you refresh the board
 };
 
+// A warm welcome that sits at the top of the Board. Set show:false to hide it
+// once the team is settled in.
+export const welcome = {
+  show: true,
+  title: "Welcome to your TIG home base.",
+  body:
+    "Glad you're here. Everything you need to run your business now lives in one place: your carrier portals, contacts, and docs, your forms, certifications, training, and all your tools. This board up top is where we post what matters most each week, so start here when you log in.",
+  sign: "Anything you need, just reach out. We're in it with you. — Austin & Andrew",
+};
+
 export const boardItems: BoardItem[] = [
   {
     id: "ahip-2027-launch",
