@@ -116,22 +116,22 @@ const CSS = `
 .shell-brand__nm{ font-weight:700; font-size:13.5px; line-height:1.2; }
 
 .shell-nav{ margin-top:14px; display:flex; flex-direction:column; }
-.shell-nav a{ display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:9px; font-size:13.5px; font-weight:500;
-  color:rgba(244,241,232,.74); text-decoration:none; position:relative; margin-bottom:2px; transition:background .15s,color .15s; }
-.shell-nav a:hover{ background:rgba(255,255,255,.05); color:#fff; }
-.shell-nav a.on{ background:rgba(201,168,76,.14); color:#fff; font-weight:600; }
+.shell-nav a{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:9px; font-size:14.5px; font-weight:500;
+  color:rgba(244,241,232,.92); text-decoration:none; position:relative; margin-bottom:2px; transition:background .15s,color .15s; }
+.shell-nav a:hover{ background:rgba(255,255,255,.1); color:#fff; }
+.shell-nav a.on{ background:rgba(201,168,76,.22); color:#fff; font-weight:700; }
 .shell-nav a.on:before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:2px; background:#C9A84C; }
-.shell-nav__ic{ width:16px; flex-shrink:0; opacity:.9; }
-.shell-nav__label{ font-size:9.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(244,241,232,.4); padding:16px 11px 7px; }
-.shell-nav__ext{ display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:9px; font-size:13.5px; font-weight:500; color:rgba(244,241,232,.74); text-decoration:none; margin-bottom:2px; transition:background .15s,color .15s; }
-.shell-nav__ext:hover{ background:rgba(255,255,255,.05); color:#fff; }
-.shell-nav__arrow{ margin-left:auto; font-size:11px; opacity:.5; }
+.shell-nav__ic{ width:16px; flex-shrink:0; opacity:1; }
+.shell-nav__label{ font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(244,241,232,.58); padding:16px 12px 7px; }
+.shell-nav__ext{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:9px; font-size:14.5px; font-weight:500; color:rgba(244,241,232,.92); text-decoration:none; margin-bottom:2px; transition:background .15s,color .15s; }
+.shell-nav__ext:hover{ background:rgba(255,255,255,.1); color:#fff; }
+.shell-nav__arrow{ margin-left:auto; font-size:11px; opacity:.7; }
 
 .shell-foot{ margin-top:auto; padding:12px 10px 4px; border-top:1px solid rgba(255,255,255,.08); }
-.shell-foot__note{ font-size:11.5px; color:rgba(244,241,232,.5); line-height:1.5; }
+.shell-foot__note{ font-size:12px; color:rgba(244,241,232,.62); line-height:1.5; }
 .shell-foot__note a{ color:#C9A84C; font-weight:600; text-decoration:none; }
 .shell-foot__out{ margin-top:10px; width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
-  color:rgba(244,241,232,.8); font-family:inherit; font-size:12px; font-weight:600; padding:8px 10px; border-radius:8px; cursor:pointer; transition:.15s; }
+  color:rgba(244,241,232,.9); font-family:inherit; font-size:12px; font-weight:600; padding:8px 10px; border-radius:8px; cursor:pointer; transition:.15s; }
 .shell-foot__out:hover{ border-color:rgba(255,255,255,.3); color:#fff; }
 
 .shell-main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:100vh; overflow-y:auto; }
