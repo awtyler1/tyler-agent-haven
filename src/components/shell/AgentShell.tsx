@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { logActivity, ActivityAction } from '@/utils/activityLogger';
 import { toast } from 'sonner';
 import { ContentLoader } from '@/components/ui/ContentLoader';
+import { articles } from '@/data/articles';
 
 // ============================================================
 // TIG Hub shell — emerald sidebar (shared-login MVP)
@@ -36,6 +37,10 @@ const TOOL_LINKS = [
 
 export function AgentShell() {
   const location = useLocation();
+
+  // Show a "new" dot on Knowledge & Updates when an article was posted today.
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const hasNewKnowledge = articles.some((a) => a.date === todayKey);
 
   const isActive = (path: string) => {
     if (path === '/hub') return location.pathname === '/hub';
@@ -75,6 +80,9 @@ export function AgentShell() {
             <Link key={item.path} to={item.path} className={isActive(item.path) ? 'on' : ''}>
               <span className="shell-nav__ic" aria-hidden="true">{item.icon}</span>
               {item.label}
+              {item.path === '/industry-updates' && hasNewKnowledge && (
+                <span className="shell-nav__dot" aria-label="New articles" />
+              )}
             </Link>
           ))}
 
@@ -123,6 +131,9 @@ const CSS = `
 .shell-nav a.on{ background:rgba(201,168,76,.22); color:#fff; font-weight:700; }
 .shell-nav a.on:before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:2px; background:#C9A84C; }
 .shell-nav__ic{ width:16px; flex-shrink:0; opacity:1; }
+.shell-nav__dot{ margin-left:auto; width:8px; height:8px; border-radius:50%; background:#C9A84C; flex-shrink:0; animation:shellDot 2s ease-in-out infinite; }
+@keyframes shellDot{ 0%,100%{ box-shadow:0 0 0 0 rgba(201,168,76,.55); } 50%{ box-shadow:0 0 0 5px rgba(201,168,76,0); } }
+@media(prefers-reduced-motion:reduce){ .shell-nav__dot{ animation:none; } }
 .shell-nav__label{ font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(244,241,232,.58); padding:16px 12px 7px; }
 .shell-nav__ext{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:9px; font-size:14.5px; font-weight:500; color:rgba(244,241,232,.92); text-decoration:none; margin-bottom:2px; transition:background .15s,color .15s; }
 .shell-nav__ext:hover{ background:rgba(255,255,255,.1); color:#fff; }
