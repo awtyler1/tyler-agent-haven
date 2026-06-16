@@ -51,6 +51,51 @@ const ANDREW = {
 
 export const articles: Article[] = [
   {
+    slug: 'medicare-acquisition-landscape',
+    title: 'Why everyone is buying Medicare books right now',
+    category: 'market',
+    date: '2026-06-16',
+    readTime: '7 min read',
+    summary:
+      'A retirement wave on one side, hungry buyers on the other. Here is the plain version of how Medicare books are valued today, why so many people are buying them, and what it means for the asset you have built.',
+    author: AUSTIN,
+    takeaways: [
+      'A wave of agents is retiring. The average agent is about 59, and most have no succession plan, so more books are hitting the market than ever.',
+      'Buyers are hungry. FMOs, aggregators, and private-equity-backed groups have spent years consolidating Medicare distribution because renewal income is steady and recurring.',
+      'Your book is a real asset. What it is worth comes down to retention, whether you own your renewals, and how clean your data is.',
+    ],
+    whatTitle: "What's happening in the market",
+    what: [
+      { type: 'p', text: 'Two things are colliding in Medicare right now, and together they have created the busiest market for buying and selling books we have seen in years.' },
+      { type: 'h', text: 'A wave of sellers' },
+      { type: 'p', text: 'The average insurance agent is about 59 years old, and a large share of agents in their late 50s and 60s have no succession plan. A book can represent 30 or 40 years of work. As that generation steps back over the next few years, a flood of Medicare books is coming up for sale.' },
+      { type: 'h', text: 'A line of buyers' },
+      { type: 'p', text: 'At the same time, buyers have been circling for years. Medicare distribution has consolidated hard, with FMOs, aggregators, and private-equity-backed groups buying up agencies and books. The reason is simple: renewal income is recurring and predictable. MAPD and Part D renewals pay for the life of the client, which is exactly the kind of steady cash flow investors love.' },
+      { type: 'p', text: 'Many of these buyers run a roll-up play. They buy a lot of small books, combine them, and aim to sell the whole thing a few years later at a higher price. Your life\'s work becomes a line item in someone else\'s portfolio.' },
+      { type: 'h', text: 'How books are valued today' },
+      { type: 'p', text: 'Most Medicare books are valued on a simple idea: a multiple of your annual renewal income. But in today\'s choppier market, buyers are pickier about what they will pay up for.' },
+      { type: 'ul', items: [
+        'Retention is everything. A book where clients stay year after year is worth far more than one that churns, even at the same size.',
+        'Vesting matters. You can only sell renewals you actually own. If your contracts are not vested, there may be little to sell.',
+        'Clean data wins. A book in a real CRM with notes and dates is worth more than a list of names on a spreadsheet.',
+        'Product and market mix. Lifetime MAPD and sticky Med Supp clients carry more value than churn-prone single drug plans.',
+      ] },
+      { type: 'p', text: 'The market is also bumpier than it was. Carriers are trimming plans and exiting some areas for 2026, which means more clients shopping and more churn risk. That makes a clean, loyal, well-run book stand out even more, and a shaky one worth less.' },
+    ],
+    why: [
+      'Here is the part most agents miss: you have built an asset, whether or not you ever plan to sell it. For a lot of agents it is the single most valuable thing they own, and they have never put a number on it.',
+      'The buyer pool is as strong as it has ever been, but what you walk away with is mostly in your control. Retention, vesting, and clean records are the difference between a top-of-market sale and pennies on the dollar.',
+      'And the buyer you choose matters as much as the price. Some buyers see your clients as a spreadsheet. The right one keeps serving the people you spent a career taking care of.',
+    ],
+    actions: [
+      'Know your number. Even a ballpark changes how you think about your business. Our Book Estimator gives you a rough range in a couple of minutes.',
+      'Protect what drives value. Keep retention high, confirm your renewals are vested, and get your book into a real CRM.',
+      'If you are within a few years of slowing down, start early. The best outcomes come from planning, not a fire sale.',
+      'Talk to a buyer who will treat your clients right. Price matters, but so does who picks up the phone for your people after you step away.',
+    ],
+    sources: 'Sources: Spark Advisors; Cherry Bekaert 2025 Private Equity Outlook; Honest Health 2025 MA Year in Review; Ritter Insurance Marketing; LIMRA and Nationwide succession data (2025-2026).',
+  },
+  {
     slug: 'what-a-medicare-fmo-really-does',
     title: 'What a Medicare FMO really does, and how to pick one that grows you',
     category: 'market',
