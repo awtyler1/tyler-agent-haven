@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Book Estimator — The Reveal</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#08251c;--bone:#F4F1E8;--line:#1d4a3a;--muted:#9fb4a8;--gold:#C9A84C;--gold2:#A8801F;--up:#46d39a}
+  body{font-family:'Inter',system-ui,sans-serif;background:radial-gradient(120% 80% at 50% 0%,#0f4233,#08251c);color:var(--bone);-webkit-font-smoothing:antialiased;min-height:100vh}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:#fff;color:var(--em);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700}.tag b{color:var(--gold2)}
+  .nav{height:64px;display:flex;align-items:center;gap:10px;max-width:560px;margin:0 auto;padding:0 24px}
+  .crest{height:28px}.brand{font-weight:700;font-size:15px;color:#fff}
+  .wrap{max-width:520px;margin:0 auto;padding:24px 24px 90px;text-align:center}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  h1{font-family:'Outfit';font-weight:800;font-size:clamp(28px,6vw,40px);letter-spacing:-.03em;margin:10px 0 6px}
+  .sub{color:var(--muted);font-size:15px;margin-bottom:30px}
+
+  .panel{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:20px;padding:26px;text-align:left}
+  .fld{margin-bottom:22px}
+  .fld__top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  .fld__l{font-size:14px;font-weight:600;color:#fff}.fld__v{font-family:'Outfit';font-weight:800;font-size:18px;color:var(--gold)}
+  .stepper{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .stepper button{width:48px;height:50px;background:rgba(255,255,255,.05);border:none;color:#fff;font-size:22px;cursor:pointer}
+  .stepper input{flex:1;height:50px;background:transparent;border:none;color:#fff;text-align:center;font-family:'Outfit';font-weight:800;font-size:22px;outline:none}
+  input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:6px;background:var(--line);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--gold);cursor:pointer}
+  .reveal-btn{width:100%;margin-top:6px;font-family:'Outfit';font-weight:800;font-size:17px;padding:17px;border:none;border-radius:14px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);cursor:pointer}
+
+  /* result */
+  #result{display:none;animation:rise .6s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .rlabel{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .rnum{font-family:'Outfit';font-weight:900;font-size:clamp(52px,15vw,96px);letter-spacing:-.04em;line-height:1;margin:10px 0 8px;color:#fff;text-shadow:0 0 40px rgba(201,168,76,.3)}
+  .rrange{font-size:15px;color:var(--up);font-weight:600}
+  .rtier{display:inline-block;margin-top:20px;background:rgba(201,168,76,.16);border:1px solid rgba(201,168,76,.45);color:var(--gold);font-size:14px;font-weight:700;padding:8px 18px;border-radius:30px}
+  .rmsg{color:var(--muted);font-size:14px;margin:12px auto 0;max-width:36ch;line-height:1.5}
+  .grow{margin-top:28px;text-align:left}
+  .grow__h{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;text-align:center}
+  .lever{display:flex;justify-content:space-between;gap:12px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+  .lever__t{font-size:13.5px}.lever__v{font-family:'Outfit';font-weight:800;color:var(--up);font-size:15px;white-space:nowrap}
+  .ctas{display:grid;gap:10px;margin-top:24px}
+  .btn{display:block;text-align:center;font-family:'Outfit';font-weight:800;font-size:16px;padding:16px;border-radius:14px;cursor:pointer;border:none}
+  .btn--gold{background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em)}
+  .btn--ghost{background:transparent;border:1px solid var(--line);color:#fff}
+  .again{margin-top:16px;font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline}
+  .disc{font-size:11.5px;color:var(--muted);margin-top:20px;line-height:1.5}
+  .confetti{position:fixed;top:-10px;width:9px;height:14px;z-index:80;pointer-events:none}
+</style></head>
+<body>
+  <div class="tag">BOOK ESTIMATOR · <b>C — The Reveal</b></div>
+  <div class="nav"><img class="crest" src="/tyler-crest.png" alt=""><span class="brand">Tyler Insurance Group</span></div>
+
+  <div class="wrap">
+    <div id="intro">
+      <div class="eyebrow">Book Estimator</div>
+      <h1 class="disp">You built it. Let's value it.</h1>
+      <div class="sub">Two questions. One number you've probably never seen.</div>
+      <div class="panel">
+        <div class="fld">
+          <div class="fld__top"><span class="fld__l">Active MAPD members</span><span class="fld__v" id="mapdv">350</span></div>
+          <div class="stepper"><button data-step="-25">−</button><input id="mapd" type="number" value="350"><button data-step="25">+</button></div>
+        </div>
+        <div class="fld">
+          <div class="fld__top"><span class="fld__l">Client retention</span><span class="fld__v" id="retv">90%</span></div>
+          <input id="ret" type="range" min="70" max="98" value="90">
+        </div>
+        <button class="reveal-btn" id="go">Reveal my book value →</button>
+      </div>
+    </div>
+
+    <div id="result">
+      <div class="rlabel">Your estimated book value</div>
+      <div class="rnum" id="num">$0</div>
+      <div class="rrange" id="range">—</div>
+      <div class="rtier" id="tier">—</div>
+      <div class="rmsg" id="tiermsg"></div>
+      <div class="grow">
+        <div class="grow__h">How to grow it</div>
+        <div class="lever"><span class="lever__t">Lift retention by 5 points</span><span class="lever__v" id="lev1">+$0</span></div>
+        <div class="lever"><span class="lever__t">Add 50 lives this AEP</span><span class="lever__v" id="lev2">+$0</span></div>
+        <div class="lever"><span class="lever__t">Own your renewals (get vested)</span><span class="lever__v">protect it</span></div>
+      </div>
+      <div class="ctas">
+        <a class="btn btn--gold">Grow this number with TIG →</a>
+        <a class="btn btn--ghost">Talk to our acquisition team →</a>
+      </div>
+      <div class="again" id="again">Recalculate</div>
+      <div class="disc">Educational estimate, not a formal appraisal or an offer.</div>
+    </div>
+  </div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const fmt=n=>'$'+Math.round(n).toLocaleString();
+  function multFor(r){return r<80?1.6:r<90?2.0:r<95?2.3:2.5}
+  function estFor(m,r){return m*330*multFor(r)}
+  function tier(v){
+    if(v>=750000)return['A career’s work.','You’ve built something most agents never do. That deserves a real conversation.',true];
+    if(v>=350000)return['A serious book.','This is a meaningful asset. Protect it and keep growing.',true];
+    if(v>=150000)return['Six figures and climbing.','You’ve built real, sellable value. Well done.',false];
+    if(v>=50000)return['You’ve built a real asset.','The foundation is there. Now compound it.',false];
+    return['You’re just getting started.','Every big book started right here.',false];
+  }
+  $('mapd').oninput=()=>$('mapdv').textContent=Math.max(0,+$('mapd').value||0);
+  $('ret').oninput=()=>$('retv').textContent=$('ret').value+'%';
+  document.querySelectorAll('.stepper button').forEach(b=>b.onclick=()=>{$('mapd').value=Math.max(0,(+$('mapd').value||0)+ +b.dataset.step);$('mapdv').textContent=$('mapd').value;});
+  function burst(){const c=['#C9A84C','#e7cf86','#46d39a','#fff'];for(let i=0;i<60;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.background=c[i%4];document.body.appendChild(d);d.animate([{top:'-10px',opacity:1,transform:'rotate(0)'},{top:'100vh',opacity:.9,transform:'rotate('+(360+Math.random()*360)+'deg)'}],{duration:1500+Math.random()*1200,easing:'cubic-bezier(.3,.6,.5,1)'});setTimeout(()=>d.remove(),2800);}}
+  $('go').onclick=()=>{
+    const m=Math.max(0,+$('mapd').value||0), r=+$('ret').value, mult=multFor(r), est=m*330*mult, low=m*330*(mult-0.3);
+    $('intro').style.display='none';$('result').style.display='block';
+    $('range').textContent='Likely range '+fmt(low)+' to '+fmt(est);
+    const [tt,tm,cel]=tier(est);$('tier').textContent=tt;$('tiermsg').textContent=tm;
+    $('lev1').textContent='+'+fmt(estFor(m,Math.min(98,r+5))-est);
+    $('lev2').textContent='+'+fmt(estFor(m+50,r)-est);
+    let shown=0;const t0=performance.now();function step(t){const k=Math.min(1,(t-t0)/1100);const e=1-Math.pow(1-k,4);shown=est*e;$('num').textContent=fmt(shown);if(k<1)requestAnimationFrame(step);else{$('num').textContent=fmt(est);if(cel)burst();}}requestAnimationFrame(step);
+  };
+  $('again').onclick=()=>{$('result').style.display='none';$('intro').style.display='block';};
+</script>
+</body></html>
