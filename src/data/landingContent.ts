@@ -81,7 +81,7 @@ export const founderNote = {
     "Whatever we know, you'll know. |We just hand it over.| No gatekeeping.",
     "We've learned most of this the hard way. You don't have to.",
   ],
-  sign: "— Austin & Andrew, Founders",
+  sign: "— Austin & Andrew, Broker Development",
 };
 
 // ── Founders (shown flanking the hero) ────────────────────────────────────────
@@ -97,14 +97,14 @@ export const founders: Founder[] = [
   {
     name: "Austin Tyler",
     credential: "MBA",
-    title: "Founder",
+    title: "Broker Development",
     photo: "/images/founders/atyler-headshot.jpg",
     initials: "AT",
   },
   {
     name: "Andrew Horn",
     credential: "MHA",
-    title: "Founder",
+    title: "Broker Development",
     photo: "/images/founders/andrew-horn.png",
     initials: "AH",
   },

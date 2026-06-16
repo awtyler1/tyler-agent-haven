@@ -37,14 +37,14 @@ export interface Article {
 
 const AUSTIN = {
   name: 'Austin Tyler',
-  title: 'Founder · Tyler Insurance Group',
+  title: 'Broker Development · Tyler Insurance Group',
   photo: '/images/founders/atyler-headshot.jpg',
   initials: 'AT',
 };
 
 const ANDREW = {
   name: 'Andrew Horn',
-  title: 'Founder · Tyler Insurance Group',
+  title: 'Broker Development · Tyler Insurance Group',
   photo: '/images/founders/andrew-horn.png',
   initials: 'AH',
 };
