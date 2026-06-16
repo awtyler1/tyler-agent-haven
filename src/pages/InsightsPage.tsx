@@ -69,6 +69,7 @@ function Avatar({ initials }: { initials: string }) {
 
 export default function InsightsPage() {
   const [active, setActive] = useState<InsightCategory | 'all'>('all');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     document.title = 'Insights | Tyler Insurance Group';
@@ -101,7 +102,25 @@ export default function InsightsPage() {
             <RouterLink to="/auth" className="ins-btn ins-btn--ghost">Agent Login</RouterLink>
             <RouterLink to="/join" className="ins-btn ins-btn--gold">I'm Ready to Grow</RouterLink>
           </div>
+          <button
+            className={`ins-burger${menuOpen ? ' is-open' : ''}`}
+            aria-label="Menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <span /><span /><span />
+          </button>
         </div>
+        {menuOpen && (
+          <div className="ins-mmenu" onClick={() => setMenuOpen(false)}>
+            <RouterLink to="/#honest" className="ins-mmenu__lk">Why TIG</RouterLink>
+            <RouterLink to="/book-value" className="ins-mmenu__lk">Book Value</RouterLink>
+            <RouterLink to="/insights" className="ins-mmenu__lk">Insights</RouterLink>
+            <RouterLink to="/#get" className="ins-mmenu__lk">What you get</RouterLink>
+            <RouterLink to="/auth" className="ins-mmenu__lk">Agent Login</RouterLink>
+            <RouterLink to="/join" className="ins-btn ins-btn--gold ins-mmenu__cta">I'm Ready to Grow</RouterLink>
+          </div>
+        )}
       </header>
 
       {/* ── Header band ── */}
@@ -249,6 +268,14 @@ const CSS = `
 .ins-nav__lk{ color:rgba(244,241,232,.74); font-size:14px; font-weight:500; transition:color .18s; }
 .ins-nav__lk:hover{ color:#fff; }
 .ins-nav__act{ display:flex; align-items:center; gap:10px; }
+.ins-burger{ display:none; flex-direction:column; justify-content:center; gap:5px; width:44px; height:44px; margin-left:auto; background:none; border:none; cursor:pointer; padding:0; }
+.ins-burger span{ display:block; width:22px; height:2px; background:#fff; border-radius:2px; transition:transform .25s ease, opacity .2s ease; }
+.ins-burger.is-open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.ins-burger.is-open span:nth-child(2){ opacity:0; }
+.ins-burger.is-open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+.ins-mmenu{ display:flex; flex-direction:column; background:rgba(8,37,28,.99); border-bottom:1px solid rgba(255,255,255,.1); padding:8px 22px 22px; }
+.ins-mmenu__lk{ color:rgba(244,241,232,.92); font-size:16px; font-weight:600; padding:15px 4px; border-bottom:1px solid rgba(255,255,255,.08); }
+.ins-mmenu__cta{ margin-top:16px; justify-content:center; font-size:16px; padding:14px; }
 .ins-btn{ font-size:13.5px; font-weight:700; padding:9px 15px; border-radius:9px; border:none; cursor:pointer; font-family:inherit; }
 .ins-btn--ghost{ color:rgba(244,241,232,.85); font-weight:600; border:1px solid rgba(244,241,232,.25); background:transparent; padding:8px 14px; }
 .ins-btn--gold{ background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); }
@@ -357,6 +384,8 @@ const CSS = `
   .ins-grid{ grid-template-columns:1fr 1fr; }
   .ins-news{ grid-template-columns:1fr; }
   .ins-nav__lks{ display:none; }
+  .ins-nav__act{ display:none; }
+  .ins-burger{ display:flex; }
 }
 @media(max-width:600px){ .ins-grid{ grid-template-columns:1fr; } }
 `;

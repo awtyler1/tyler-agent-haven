@@ -159,7 +159,7 @@ const CSS = `
 .ba-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .ba-fld{ margin-bottom:14px; }
 .ba label{ display:block; font-size:12px; font-weight:600; color:var(--ink); margin-bottom:6px; }
-.ba input,.ba select,.ba textarea{ width:100%; font-family:inherit; font-size:14px; padding:11px 13px; border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink); outline:none; transition:.15s; }
+.ba input,.ba select,.ba textarea{ width:100%; font-family:inherit; font-size:16px; padding:12px 13px; border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink); outline:none; transition:.15s; }
 .ba input:focus,.ba select:focus,.ba textarea:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,.15); }
 .ba textarea{ min-height:84px; resize:vertical; }
 .ba-btn{ width:100%; margin-top:8px; font-family:inherit; font-size:15px; font-weight:700; padding:14px; border:none; border-radius:10px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em); cursor:pointer; transition:.15s; text-decoration:none; display:inline-block; text-align:center; }
