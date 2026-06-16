@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Book Estimator — Reveal Takeover</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#08251c;--bone:#F4F1E8;--paper:#f3f1ea;--line:#e1d9c8;--dline:#1d4a3a;--muted:#5f6b62;--dmuted:#9fb4a8;--ink:#16201b;--gold:#C9A84C;--gold2:#A8801F;--up:#46d39a}
+  body{font-family:'Inter',system-ui,sans-serif;background:#fbfaf6;color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700}.tag b{color:var(--gold)}
+  .nav{height:64px;display:flex;align-items:center;gap:10px;max-width:600px;margin:0 auto;padding:0 24px}
+  .crest{height:28px}.brand{font-weight:700;font-size:15px;color:var(--em)}
+  .wrap{max-width:540px;margin:0 auto;padding:34px 24px 90px;text-align:center}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2)}
+  h1{font-family:'Outfit';font-weight:800;font-size:clamp(28px,5.5vw,40px);letter-spacing:-.03em;margin:10px 0 6px}
+  .sub{color:var(--muted);font-size:15px;margin-bottom:26px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(20,30,24,.08);text-align:left}
+  .lbl{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px}
+  .stepper{display:flex;border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:24px}
+  .stepper button{width:52px;height:56px;background:var(--paper);border:none;color:var(--em);font-size:24px;cursor:pointer}
+  .stepper input{flex:1;height:56px;border:none;text-align:center;font-family:'Outfit';font-weight:900;font-size:26px;outline:none;color:var(--ink)}
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .seg button{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:13px 14px;cursor:pointer;transition:.15s}
+  .seg button .t{font-family:'Outfit';font-weight:700;font-size:14px;color:var(--ink)}
+  .seg button .s{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .seg button.sel{border-color:var(--gold2);background:rgba(201,168,76,.1)}
+  .reveal-btn{width:100%;margin-top:24px;font-family:'Outfit';font-weight:800;font-size:17px;padding:18px;border:none;border-radius:14px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);cursor:pointer}
+  .disc{font-size:11.5px;color:var(--muted);margin-top:16px;line-height:1.5}
+
+  /* takeover */
+  .take{position:fixed;inset:0;z-index:90;background:radial-gradient(120% 80% at 50% 0%,#0f4233,#06201a);color:var(--bone);display:none;align-items:center;justify-content:center;padding:30px}
+  .take.on{display:flex;animation:fade .5s ease both}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .tin{max-width:460px;width:100%;text-align:center;animation:pop .7s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes pop{from{opacity:0;transform:scale(.94) translateY(16px)}to{opacity:1;transform:none}}
+  .tlabel{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dmuted)}
+  .tnum{font-family:'Outfit';font-weight:900;font-size:clamp(54px,16vw,100px);letter-spacing:-.04em;line-height:1;margin:12px 0 8px;color:#fff;text-shadow:0 0 50px rgba(201,168,76,.35)}
+  .trange{font-size:15px;color:var(--up);font-weight:700}
+  .ttier{display:inline-block;margin-top:20px;background:rgba(201,168,76,.16);border:1px solid rgba(201,168,76,.45);color:var(--gold);font-size:14px;font-weight:700;padding:8px 18px;border-radius:30px}
+  .tmsg{color:var(--dmuted);font-size:14.5px;margin:14px auto 0;max-width:34ch;line-height:1.55}
+  .fork{display:grid;gap:12px;margin-top:30px;text-align:left}
+  .fcard{border-radius:16px;padding:20px;cursor:pointer}
+  .fcard--gold{background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em)}
+  .fcard--ghost{background:rgba(255,255,255,.05);border:1px solid var(--dline);color:var(--bone)}
+  .fcard__t{font-family:'Outfit';font-weight:800;font-size:17px}.fcard__s{font-size:13px;margin-top:3px;opacity:.88;line-height:1.45}
+  .again{margin-top:18px;font-size:13px;color:var(--dmuted);cursor:pointer;text-decoration:underline}
+  .confetti{position:fixed;top:-10px;width:9px;height:14px;z-index:95;pointer-events:none}
+</style></head>
+<body>
+  <div class="tag">ESTIMATOR · <b>C — Reveal takeover</b></div>
+  <div class="nav"><img class="crest" src="/tyler-crest.png" alt=""><span class="brand">Tyler Insurance Group</span></div>
+
+  <div class="wrap">
+    <div class="eyebrow">Book Estimator</div>
+    <h1 class="disp">You built it. Let's value it.</h1>
+    <div class="sub">Two questions. One number most agents have never seen.</div>
+    <div class="card">
+      <div class="lbl">Active MAPD members</div>
+      <div class="stepper"><button data-step="-25">−</button><input id="mapd" type="number" value="350"><button data-step="25">+</button></div>
+      <div class="lbl">How loyal are your clients?</div>
+      <div class="seg" id="seg">
+        <button data-m="1.7"><div class="t">A fair number leave</div><div class="s">~75% stay</div></button>
+        <button data-m="2.0"><div class="t">Most stick around</div><div class="s">~85% stay</div></button>
+        <button data-m="2.3" class="sel"><div class="t">Very loyal</div><div class="s">~92% stay</div></button>
+        <button data-m="2.5"><div class="t">Almost never leave</div><div class="s">95%+ stay</div></button>
+      </div>
+      <button class="reveal-btn" id="go">Reveal my book value →</button>
+      <div class="disc">Educational estimate, not a formal appraisal or an offer.</div>
+    </div>
+  </div>
+
+  <div class="take" id="take"><div class="tin">
+    <div class="tlabel">Your estimated book value</div>
+    <div class="tnum" id="num">$0</div>
+    <div class="trange" id="range">—</div>
+    <div class="ttier" id="tier">—</div>
+    <div class="tmsg" id="tiermsg"></div>
+    <div class="fork">
+      <a class="fcard fcard--gold"><div class="fcard__t">Grow it bigger</div><div class="fcard__s">See what a real FMO does for your book and your numbers.</div></a>
+      <a class="fcard fcard--ghost"><div class="fcard__t">Talk to our acquisition team</div><div class="fcard__s">Curious what it's worth to sell? Have a private, no-pressure conversation.</div></a>
+    </div>
+    <div class="again" id="again">Start over</div>
+  </div></div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const fmt=n=>'$'+Math.round(n).toLocaleString();
+  let mult=2.3;
+  function tier(v){
+    if(v>=750000)return['A career’s work.','You’ve built something most agents never do. That deserves a real conversation.',true];
+    if(v>=350000)return['A serious book.','This is a meaningful asset. Protect it and keep growing.',true];
+    if(v>=150000)return['Six figures and climbing.','You’ve built real, sellable value. Well done.',false];
+    if(v>=50000)return['You’ve built a real asset.','The foundation is there. Now compound it.',false];
+    return['You’re just getting started.','Every big book started right here.',false];
+  }
+  document.querySelectorAll('.stepper button').forEach(b=>b.onclick=()=>$('mapd').value=Math.max(0,(+$('mapd').value||0)+ +b.dataset.step));
+  document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');mult=+b.dataset.m;});
+  function burst(){const c=['#C9A84C','#e7cf86','#46d39a','#fff'];for(let i=0;i<70;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.background=c[i%4];document.body.appendChild(d);d.animate([{top:'-10px',opacity:1,transform:'rotate(0)'},{top:'100vh',opacity:.9,transform:'rotate('+(360+Math.random()*360)+'deg)'}],{duration:1600+Math.random()*1200,easing:'cubic-bezier(.3,.6,.5,1)'});setTimeout(()=>d.remove(),2900);}}
+  $('go').onclick=()=>{
+    const m=Math.max(0,+$('mapd').value||0),est=m*330*mult,low=m*330*(mult-0.3);
+    $('take').classList.add('on');
+    $('range').textContent='Likely range '+fmt(low)+' to '+fmt(est);
+    const [tt,tm,cel]=tier(est);$('tier').textContent=tt;$('tiermsg').textContent=tm;
+    let t0=performance.now();function step(t){const k=Math.min(1,(t-t0)/1300);const e=1-Math.pow(1-k,4);$('num').textContent=fmt(est*e);if(k<1)requestAnimationFrame(step);else{$('num').textContent=fmt(est);if(cel)burst();}}requestAnimationFrame(step);
+  };
+  $('again').onclick=()=>$('take').classList.remove('on');
+</script>
+</body></html>

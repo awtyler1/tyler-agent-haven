@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Book Estimator — Conversational</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--paper:#f3f1ea;--line:#e1d9c8;--muted:#5f6b62;--ink:#16201b;--gold:#C9A84C;--gold2:#A8801F;--up:#1f9d63}
+  body{font-family:'Inter',system-ui,sans-serif;background:#fbfaf6;color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+  .disp{font-family:'Outfit',sans-serif}a{text-decoration:none;color:inherit}
+  .tag{position:fixed;bottom:16px;right:16px;z-index:99;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700}.tag b{color:var(--gold)}
+  .top{height:6px;background:var(--line)}.top__f{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:50%;transition:width .45s cubic-bezier(.4,0,.2,1)}
+  .nav{height:60px;display:flex;align-items:center;gap:10px;max-width:620px;margin:0 auto;padding:0 24px}
+  .crest{height:26px}.brand{font-weight:700;font-size:14px;color:var(--em)}
+  .stage{max-width:560px;margin:0 auto;padding:40px 24px 90px;min-height:60vh}
+  .screen{display:none;animation:slide .5s cubic-bezier(.2,.7,.3,1) both}.screen.on{display:block}
+  @keyframes slide{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2)}
+  .q{font-family:'Outfit';font-weight:800;font-size:clamp(28px,5.5vw,40px);letter-spacing:-.025em;margin:12px 0 8px;line-height:1.1}
+  .hint{color:var(--muted);font-size:15px;margin-bottom:30px;max-width:42ch}
+
+  .bigin{display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--em);padding-bottom:10px;max-width:320px}
+  .bigin span{font-family:'Outfit';font-weight:800;font-size:40px;color:var(--muted)}
+  .bigin input{flex:1;border:none;outline:none;background:transparent;font-family:'Outfit';font-weight:900;font-size:54px;color:var(--ink);width:100%}
+  .unit{font-size:14px;color:var(--muted);margin-top:10px}
+  .cont{margin-top:30px;font-family:'Outfit';font-weight:800;font-size:16px;padding:15px 34px;border:none;border-radius:40px;background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em);cursor:pointer}
+
+  .opts{display:grid;gap:12px;max-width:460px}
+  .opt{display:flex;align-items:center;gap:14px;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:18px;cursor:pointer;transition:.15s}
+  .opt:hover{border-color:var(--gold2);box-shadow:0 10px 26px rgba(20,30,24,.08);transform:translateY(-2px)}
+  .opt__k{width:30px;height:30px;border-radius:9px;background:var(--paper);color:var(--em);font-family:'Outfit';font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+  .opt__t{font-family:'Outfit';font-weight:700;font-size:16px}.opt__s{font-size:12.5px;color:var(--muted)}
+
+  .rwrap{text-align:center}
+  .rlabel{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .rnum{font-family:'Outfit';font-weight:900;font-size:clamp(52px,13vw,84px);letter-spacing:-.04em;line-height:1;margin:10px 0 8px;color:var(--em)}
+  .rrange{font-size:15px;color:var(--up);font-weight:700}
+  .rtier{display:inline-block;margin-top:18px;background:var(--em);color:var(--gold);font-size:14px;font-weight:700;padding:8px 18px;border-radius:30px}
+  .rmsg{color:var(--muted);font-size:14.5px;margin:14px auto 0;max-width:36ch;line-height:1.55}
+  .fork{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px;text-align:left}
+  .fcard{border-radius:16px;padding:22px;cursor:pointer}
+  .fcard--gold{background:linear-gradient(135deg,#e7cf86,var(--gold2));color:var(--em)}
+  .fcard--em{background:var(--em);color:var(--bone)}
+  .fcard__t{font-family:'Outfit';font-weight:800;font-size:17px}.fcard__s{font-size:13px;margin-top:4px;opacity:.9;line-height:1.45}
+  .again{margin-top:20px;font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline}
+  .disc{font-size:11.5px;color:var(--muted);margin-top:18px;line-height:1.5}
+  @media(max-width:560px){.fork{grid-template-columns:1fr}}
+</style></head>
+<body>
+  <div class="tag">ESTIMATOR · <b>B — Conversational</b></div>
+  <div class="top"><div class="top__f" id="bar"></div></div>
+  <div class="nav"><img class="crest" src="/tyler-crest.png" alt=""><span class="brand">Tyler Insurance Group</span></div>
+
+  <div class="stage">
+    <div class="screen on" id="s1">
+      <div class="kicker">Book Estimator · 1 of 2</div>
+      <div class="q disp">First, how big is your book?</div>
+      <div class="hint">Roughly how many active MAPD members do you have right now? A ballpark is fine.</div>
+      <div class="bigin"><span>≈</span><input id="mapd" type="number" value="350"></div>
+      <div class="unit">active MAPD members</div>
+      <button class="cont" id="to2">Continue →</button>
+    </div>
+
+    <div class="screen" id="s2">
+      <div class="kicker">Book Estimator · 2 of 2</div>
+      <div class="q disp">How loyal are your clients?</div>
+      <div class="hint">Retention is the biggest lever on value. Pick the one that sounds most like your book.</div>
+      <div class="opts">
+        <button class="opt" data-m="1.7"><span class="opt__k">A</span><span><div class="opt__t">A fair number leave</div><div class="opt__s">Roughly 3 in 4 stay each year</div></span></button>
+        <button class="opt" data-m="2.0"><span class="opt__k">B</span><span><div class="opt__t">Most stick around</div><div class="opt__s">About 85% stay year to year</div></span></button>
+        <button class="opt" data-m="2.3"><span class="opt__k">C</span><span><div class="opt__t">Very loyal</div><div class="opt__s">Around 92% stay with me</div></span></button>
+        <button class="opt" data-m="2.5"><span class="opt__k">D</span><span><div class="opt__t">They almost never leave</div><div class="opt__s">95%+ stay, year after year</div></span></button>
+      </div>
+    </div>
+
+    <div class="screen" id="sr">
+      <div class="rwrap">
+        <div class="rlabel">Your book is likely worth</div>
+        <div class="rnum" id="num">$0</div>
+        <div class="rrange" id="range">—</div>
+        <div class="rtier" id="tier">—</div>
+        <div class="rmsg" id="tiermsg"></div>
+        <div class="fork">
+          <a class="fcard fcard--gold"><div class="fcard__t">Grow it bigger</div><div class="fcard__s">See what a real FMO does for your book.</div></a>
+          <a class="fcard fcard--em"><div class="fcard__t">Talk to our acquisition team</div><div class="fcard__s">Curious what it's worth to sell? Let's talk, privately.</div></a>
+        </div>
+        <div class="again" id="again">Start over</div>
+        <div class="disc">Educational estimate, not a formal appraisal or an offer.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const fmt=n=>'$'+Math.round(n).toLocaleString();
+  function tier(v){
+    if(v>=750000)return['A career’s work.','You’ve built something most agents never do. That deserves a real conversation.'];
+    if(v>=350000)return['A serious book.','This is a meaningful asset. Protect it and keep growing.'];
+    if(v>=150000)return['Six figures and climbing.','You’ve built real, sellable value. Well done.'];
+    if(v>=50000)return['You’ve built a real asset.','The foundation is there. Now compound it.'];
+    return['You’re just getting started.','Every big book started right here.'];
+  }
+  function show(id,pct){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');if(pct!=null)$('bar').style.width=pct+'%';}
+  $('bar').style.width='50%';
+  $('to2').onclick=()=>show('s2',100);
+  document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{
+    const m=Math.max(0,+$('mapd').value||0),mult=+o.dataset.m,est=m*330*mult,low=m*330*(mult-0.3);
+    show('sr');
+    $('range').textContent='Likely range '+fmt(low)+' to '+fmt(est);
+    const [tt,tm]=tier(est);$('tier').textContent=tt;$('tiermsg').textContent=tm;
+    let shown=0;const t0=performance.now();function step(t){const k=Math.min(1,(t-t0)/1200);const e=1-Math.pow(1-k,4);$('num').textContent=fmt(est*e);if(k<1)requestAnimationFrame(step);else $('num').textContent=fmt(est);}requestAnimationFrame(step);
+  });
+  $('again').onclick=()=>show('s1',50);
+</script>
+</body></html>

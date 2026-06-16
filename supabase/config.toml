@@ -83,6 +83,10 @@ verify_jwt = false
 # Public form submission - no auth needed
 verify_jwt = false
 
+[functions.send-book-inquiry]
+# Public Book Estimator lead - no auth needed
+verify_jwt = false
+
 [functions.extract-pdf-fields]
 # Utility endpoint for PDF analysis
 verify_jwt = false
