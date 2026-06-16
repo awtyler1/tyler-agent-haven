@@ -182,7 +182,7 @@ BEGIN
   FROM carriers c WHERE c.code = 'uhc';
 
   INSERT INTO carrier_links (carrier_id, state_code, link_type, name, url, description, display_order)
-  SELECT c.id, NULL, 'portal', 'Agent Portal', 'https://www.uhcagent.com', NULL, 1
+  SELECT c.id, NULL, 'portal', 'Jarvis', 'https://www.uhcjarvis.com/content/jarvis/en/sign_in.html#/sign_in', NULL, 1
   FROM carriers c WHERE c.code = 'uhc';
 
   INSERT INTO carrier_links (carrier_id, state_code, link_type, name, url, description, display_order)
@@ -233,7 +233,7 @@ BEGIN
   FROM carriers c WHERE c.code = 'wellcare';
 
   INSERT INTO carrier_links (carrier_id, state_code, link_type, name, url, description, display_order)
-  SELECT c.id, NULL, 'portal', 'Broker Portal', 'https://brokerportal.wellcare.com/login', NULL, 1
+  SELECT c.id, NULL, 'portal', 'Broker Portal', 'https://www.wellcare.com/Broker-Resources/Broker-Resources', NULL, 1
   FROM carriers c WHERE c.code = 'wellcare';
 
   INSERT INTO carrier_links (carrier_id, state_code, link_type, name, url, description, display_order)
