@@ -39,6 +39,7 @@ export const calendarEvents: CalEvent[] = [
   // events, deadlines, and OOO as they come up — see the shape above.
 
   // ── 2027 Certifications ──
+  { id: "cert-uhc", date: "2026-06-08", title: "UnitedHealthcare certs kickoff", detail: "2027 certifications open", category: "cert" },
   { id: "ahip-2027", date: "2026-06-22", title: "AHIP 2027 launches 🎓", detail: "2027 Medicare training opens", category: "cert" },
   { id: "cert-aetna", date: "2026-06-23", title: "Aetna certs kickoff", detail: "2027 certifications open", category: "cert" },
   { id: "cert-devoted", date: "2026-06-23", title: "Devoted certs kickoff", detail: "2027 certifications open", category: "cert" },
