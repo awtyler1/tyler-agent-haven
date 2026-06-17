@@ -77,6 +77,19 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'building-an-asset-not-a-job',
+    title: 'Are you building an asset or renting a job?',
+    excerpt:
+      'Strip away the tactics and one question sits under everything you do in Medicare. Most agents never ask it. The ones who do build a book they could sell one day, not a pile of applications that churns.',
+    category: 'agency',
+    author: AUSTIN,
+    date: '2026-06-16',
+    readTime: '7 min read',
+    cover: 'bars',
+    featured: true,
+    articleSlug: 'building-an-asset-not-a-job',
+  },
+  {
     slug: 'brokers-not-why-medicare-is-confusing',
     title: "Brokers aren't why Medicare is confusing. Medicare is.",
     excerpt:
@@ -86,7 +99,6 @@ export const insights: InsightPost[] = [
     date: '2026-06-16',
     readTime: '6 min read',
     cover: 'chart',
-    featured: true,
     articleSlug: 'brokers-not-why-medicare-is-confusing',
   },
   {
