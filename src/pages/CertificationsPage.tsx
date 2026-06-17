@@ -20,8 +20,13 @@ function CarrierCard({ c }: { c: CarrierCert }) {
         <span className={`ct-pill ${open ? 'ct-pill--open' : 'ct-pill--tbd'}`}>
           {open ? 'Open now' : 'Not open yet'}
         </span>
-        {c.opensLabel && <span className="ct-cc__when">{c.opensLabel}</span>}
       </div>
+      {c.opensLabel && (
+        <div className="ct-cc__date">
+          <span className="ct-cc__date-ic" aria-hidden="true">📅</span>
+          {c.opensLabel}
+        </div>
+      )}
       <div className="ct-cc__acts">
         {c.howToUrl ? (
           <a className="ct-ca" href={c.howToUrl} target="_blank" rel="noopener noreferrer">📄 How-to</a>
@@ -111,7 +116,7 @@ const CSS = `
 .ct-ahip__t{ font-size:18px; font-weight:700; }
 .ct-ahip__s{ font-size:12.5px; color:rgba(244,241,232,.72); margin-top:3px; }
 .ct-ahip__r{ position:relative; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-.ct-ahip__open{ font-size:12px; color:rgba(244,241,232,.72); font-weight:600; }
+.ct-ahip__open{ font-size:12.5px; font-weight:700; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:7px 13px; border-radius:9px; }
 .ct-btn-gold{ display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em);
   font-weight:700; font-size:13px; padding:11px 18px; border-radius:9px; text-decoration:none; transition:.15s; }
 .ct-btn-gold:hover{ transform:translateY(-1px); box-shadow:0 8px 20px rgba(168,128,31,.3); }
@@ -128,11 +133,13 @@ const CSS = `
 .ct-cc__mark{ width:38px; height:38px; border-radius:10px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; flex-shrink:0; }
 .ct-cc__nm{ font-size:16px; font-weight:700; }
 .ct-cc__yr{ font-size:11px; color:var(--muted); }
-.ct-cc__status{ display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:12px; }
+.ct-cc__status{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:12px; }
 .ct-pill{ font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 9px; border-radius:20px; }
 .ct-pill--open{ background:rgba(91,125,68,.15); color:var(--green); }
 .ct-pill--tbd{ background:rgba(176,127,51,.14); color:var(--amber); }
-.ct-cc__when{ color:var(--muted); }
+.ct-cc__date{ display:inline-flex; align-items:center; gap:7px; margin-bottom:14px; background:rgba(201,168,76,.14); border:1px solid rgba(201,168,76,.45);
+  color:var(--gold2); font-family:'Outfit',sans-serif; font-weight:700; font-size:13px; padding:7px 12px; border-radius:9px; }
+.ct-cc__date-ic{ font-size:13px; line-height:1; }
 .ct-cc__acts{ display:flex; gap:8px; }
 .ct-ca{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:11.5px; font-weight:600; padding:9px; border-radius:8px; border:1px solid var(--line); color:var(--ink); text-decoration:none; transition:.15s; }
 .ct-ca:hover{ border-color:var(--gold); }

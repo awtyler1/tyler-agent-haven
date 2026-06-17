@@ -33,7 +33,7 @@ export interface CarrierCert {
 export const certYear = 2027;
 
 export const carrierCerts: CarrierCert[] = [
-  { id: "uhc", name: "UnitedHealthcare", color: "#002677", status: "not-open" },
+  { id: "uhc", name: "UnitedHealthcare", color: "#002677", status: "not-open", opensLabel: "Kickoff July 8" },
   { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Kickoff July 8" },
   { id: "aetna", name: "Aetna", color: "#7a2f86", status: "not-open", opensLabel: "Kickoff June 23" },
   { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open" },
