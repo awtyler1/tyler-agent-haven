@@ -36,7 +36,7 @@ export const carrierCerts: CarrierCert[] = [
   { id: "uhc", name: "UnitedHealthcare", color: "#002677", status: "not-open", opensLabel: "Kickoff July 8" },
   { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Kickoff July 8" },
   { id: "aetna", name: "Aetna", color: "#7a2f86", status: "not-open", opensLabel: "Kickoff June 23" },
-  { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open" },
+  { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open", opensLabel: "Kickoff June 30" },
   { id: "wellcare", name: "Wellcare", color: "#007A72", status: "not-open", opensLabel: "Kickoff July 21" },
   { id: "devoted", name: "Devoted Health", color: "#B8292F", status: "not-open", opensLabel: "Kickoff June 23" },
   { id: "cigna", name: "Cigna", color: "#00857C", status: "not-open" },
