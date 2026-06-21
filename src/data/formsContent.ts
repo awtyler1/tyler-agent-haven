@@ -46,8 +46,7 @@ export const forms: FormItem[] = [
   // ── Fact Finders & Worksheets (TIG-branded) ──
   { id: 'medicare-factfinder', category: 'fact_finder', source: 'TIG', name: 'Medicare Fact Finder', description: 'Fillable. Doctors, drugs, coverage, health, budget, and priorities.', file: '/forms/medicare-fact-finder.pdf' },
   { id: 'aca-factfinder', category: 'fact_finder', source: 'TIG', name: 'ACA / Under-65 Fact Finder', description: 'Fillable. Household, income for subsidy, doctors, drugs, and priorities.', file: '/forms/aca-fact-finder.pdf' },
-  { id: 'drug-worksheet', category: 'fact_finder', source: 'TIG', name: 'Prescription Drug Worksheet', description: 'Meds, dosages, and pharmacy for accurate plan comparison.' },
-  { id: 'provider-worksheet', category: 'fact_finder', source: 'TIG', name: 'Provider & Doctor Worksheet', description: 'The doctors and hospitals to check against plan networks.' },
+  { id: 'doctor-med-list', category: 'fact_finder', source: 'TIG', name: 'Doctor & Medication List', description: 'Fillable. List every doctor and prescription to check against plans.', file: '/forms/doctor-medication-worksheet.pdf' },
 
   // ── Client Intake & Permissions (TIG-branded) ──
   { id: 'ptc', category: 'intake', source: 'TIG', name: 'Permission to Contact (PTC)', description: 'Lets you legally follow up and review other coverage.' },
