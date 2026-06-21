@@ -44,7 +44,7 @@ export const forms: FormItem[] = [
   { id: 'medicare-and-you', category: 'cms', source: 'CMS', name: 'Medicare & You Handbook', description: 'The official CMS handbook clients ask for.', year: 2026, file: '/forms/10050-medicare-and-you.pdf' },
 
   // ── Fact Finders & Worksheets (TIG-branded) ──
-  { id: 'medicare-factfinder', category: 'fact_finder', source: 'TIG', name: 'Medicare Fact Finder', description: 'Doctors, drugs, coverage, budget, and priorities in one sheet.' },
+  { id: 'medicare-factfinder', category: 'fact_finder', source: 'TIG', name: 'Medicare Fact Finder', description: 'Fillable. Doctors, drugs, coverage, health, budget, and priorities.', file: '/forms/medicare-fact-finder.pdf' },
   { id: 'aca-factfinder', category: 'fact_finder', source: 'TIG', name: 'ACA / Under-65 Fact Finder', description: 'Household, income, coverage, and providers for marketplace plans.' },
   { id: 'drug-worksheet', category: 'fact_finder', source: 'TIG', name: 'Prescription Drug Worksheet', description: 'Meds, dosages, and pharmacy for accurate plan comparison.' },
   { id: 'provider-worksheet', category: 'fact_finder', source: 'TIG', name: 'Provider & Doctor Worksheet', description: 'The doctors and hospitals to check against plan networks.' },
