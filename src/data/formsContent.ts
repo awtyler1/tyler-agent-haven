@@ -41,7 +41,7 @@ export const forms: FormItem[] = [
   { id: 'soa', category: 'cms', source: 'CMS', name: 'Scope of Appointment (SOA)', description: 'Required before any Medicare Advantage or Part D sales appointment.', file: '/forms/scope-of-appointment.pdf' },
   { id: 'cms-40b', category: 'cms', source: 'CMS', name: 'CMS-40B: Apply for Part B', description: 'Application for enrollment in Medicare Part B.', file: '/forms/cms-40b-part-b-application.pdf' },
   { id: 'tpmo', category: 'cms', source: 'CMS', name: 'TPMO Disclaimer', description: 'Read within the first minute of the call.', file: '/forms/tpmo-disclaimer.pdf' },
-  { id: 'medicare-and-you', category: 'cms', source: 'CMS', name: 'Medicare & You Handbook', description: 'The official CMS handbook clients ask for.', year: 2026 },
+  { id: 'medicare-and-you', category: 'cms', source: 'CMS', name: 'Medicare & You Handbook', description: 'The official CMS handbook clients ask for.', year: 2026, file: '/forms/10050-medicare-and-you.pdf' },
 
   // ── Fact Finders & Worksheets (TIG-branded) ──
   { id: 'medicare-factfinder', category: 'fact_finder', source: 'TIG', name: 'Medicare Fact Finder', description: 'Doctors, drugs, coverage, budget, and priorities in one sheet.' },
