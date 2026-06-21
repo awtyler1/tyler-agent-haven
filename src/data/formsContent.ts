@@ -40,6 +40,7 @@ export const forms: FormItem[] = [
   // ── CMS & Compliance (download current versions from cms.gov) ──
   { id: 'soa', category: 'cms', source: 'CMS', name: 'Scope of Appointment (SOA)', description: 'Required before any Medicare Advantage or Part D sales appointment.' },
   { id: 'pecl', category: 'cms', source: 'CMS', name: 'Pre-Enrollment Checklist (PECL)', description: 'Review with the client before you enroll them.' },
+  { id: 'cms-40b', category: 'cms', source: 'CMS', name: 'CMS-40B: Apply for Part B', description: 'Application for enrollment in Medicare Part B.' },
   { id: 'star-ratings', category: 'cms', source: 'CMS', name: 'Medicare Star Ratings', description: "Provide the plan's current star rating at the appointment.", year: 2026 },
   { id: 'mli', category: 'cms', source: 'CMS', name: 'Multi-Language Insert', description: 'The required language-access notice.' },
   { id: 'tpmo', category: 'cms', source: 'CMS', name: 'TPMO Disclaimer', description: 'Read before discussing any plan benefits.' },
