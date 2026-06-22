@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MA vs Med Supp — B (Cards + Table)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--paper:#fbfaf6;--line:#e1d9c8;--muted:#5f6b62;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;--emL:#eef3ef;--goL:#f7f1e2}
+  body{font-family:'Inter',system-ui,sans-serif;background:#dcdcd6;color:var(--ink);-webkit-font-smoothing:antialiased;padding:24px}
+  .disp{font-family:'Outfit',sans-serif}
+  .tag{position:fixed;bottom:16px;right:16px;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;z-index:9}.tag b{color:var(--gold)}
+  .page{width:816px;margin:0 auto;background:#fff;box-shadow:0 10px 40px rgba(0,0,0,.18);padding-bottom:2px}
+  .hd{background:linear-gradient(120deg,var(--em),var(--em2));color:var(--bone);padding:20px 30px;text-align:center}
+  .hd__brand{font-weight:800;font-size:12px;letter-spacing:.14em;color:var(--gold)}
+  .hd h1{font-family:'Outfit';font-weight:800;font-size:25px;letter-spacing:-.02em;margin-top:5px}
+  .hd p{font-size:12px;color:rgba(244,241,232,.8);margin-top:3px}
+  .gold-rule{height:3px;background:linear-gradient(90deg,var(--gold),#e7cf86)}
+  /* summary cards */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px 30px 6px}
+  .card{border-radius:14px;padding:16px;border:1px solid var(--line)}
+  .card--ma{background:var(--emL);border-color:#cfe0d6}
+  .card--ms{background:var(--goL);border-color:#ecdcb6}
+  .card__top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .card__ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .card--ma .card__ic{background:var(--em)}.card--ms .card__ic{background:var(--gold2)}
+  .card .nm{font-family:'Outfit';font-weight:800;font-size:16px}
+  .card--ma .nm{color:var(--em)}.card--ms .nm{color:var(--gold2)}
+  .card .sn{font-size:10.5px;color:var(--muted)}
+  .card .ess{font-size:12px;line-height:1.5;color:#3a3f37;margin-bottom:10px}
+  .tags{display:flex;flex-wrap:wrap;gap:5px}
+  .tags .t{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:#fff;border:1px solid var(--line);color:#3a3f37}
+  .tagsh{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  /* table */
+  .tbl{padding:14px 30px 4px}
+  .tbl table{width:100%;border-collapse:collapse}
+  .tbl th{font-family:'Outfit';font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:7px 10px}
+  .tbl th.c{color:var(--em)}.tbl th.s{color:var(--gold2)}
+  .tbl th:first-child{color:var(--muted)}
+  .tbl td{font-size:11.5px;line-height:1.4;padding:8px 10px;vertical-align:top;border-top:1px solid var(--line)}
+  .tbl tr:nth-child(even) td{background:#faf8f3}
+  .tbl td:first-child{font-weight:700;color:var(--ink);width:27%}
+  .tbl td.ma{width:36.5%;border-left:1px solid var(--line)}
+  .tbl td.ms{width:36.5%;border-left:1px solid var(--line)}
+  /* examples + questions */
+  .bottom{display:grid;grid-template-columns:1.05fr 1fr;gap:0;border-top:2px solid var(--line);margin-top:10px}
+  .ex{padding:13px 22px 13px 30px}
+  .ex .eh{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .excard{margin-bottom:9px}
+  .excard .nm{font-family:'Outfit';font-weight:700;font-size:12px}
+  .excard .nm.ma{color:var(--em)}.excard .nm.ms{color:var(--gold2)}
+  .excard p{font-size:11px;line-height:1.45;color:#3a3f37;margin-top:1px}
+  .q{padding:13px 30px 13px 22px;background:#f3f1ea;border-left:1px solid var(--line)}
+  .q .eh{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:8px}
+  .q div.qq{font-size:11px;line-height:1.4;color:#3a3f37;padding-left:15px;position:relative;margin-bottom:5px}
+  .q div.qq:before{content:"?";position:absolute;left:0;top:0;color:var(--gold2);font-weight:800}
+  .foot{background:var(--em2);color:rgba(244,241,232,.62);font-size:9.5px;padding:9px 30px;display:flex;justify-content:space-between}
+  .foot b{color:var(--gold)}
+</style></head>
+<body>
+  <div class="tag">COMPARE · <b>B — Cards + Table</b></div>
+  <div class="page">
+    <div class="hd">
+      <div class="hd__brand">TYLER INSURANCE GROUP</div>
+      <h1 class="disp">Medicare Advantage vs. Medicare Supplement</h1>
+      <p>The fast, side-by-side way to find the right fit for your client.</p>
+    </div>
+    <div class="gold-rule"></div>
+
+    <div class="cards">
+      <div class="card card--ma">
+        <div class="card__top"><div class="card__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="12" rx="2" stroke="#fff" stroke-width="1.8"/><path d="M6 7V5h12v2M3 11h18" stroke="#fff" stroke-width="1.8"/></svg></div>
+          <div><div class="nm disp">Medicare Advantage</div><div class="sn">Part C · all-in-one private plan</div></div></div>
+        <div class="ess">Bundles your hospital, medical, and usually drug coverage into one low-premium plan, with extras, in exchange for using a network.</div>
+        <div class="tagsh">Often best for</div>
+        <div class="tags"><span class="t">Tighter budgets</span><span class="t">Mostly local care</span><span class="t">Wants dental / extras</span></div>
+      </div>
+      <div class="card card--ms">
+        <div class="card__top"><div class="card__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 7-7 8-4-1-7-3.5-7-8V6z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><div class="nm disp">Medicare Supplement</div><div class="sn">Medigap · fills Original Medicare's gaps</div></div></div>
+        <div class="ess">Pairs with Original Medicare and pays the gaps, so you can see any doctor nationwide with very predictable costs, for a higher premium.</div>
+        <div class="tagsh">Often best for</div>
+        <div class="tags"><span class="t">Doctor freedom</span><span class="t">Travelers</span><span class="t">Predictable costs</span><span class="t">Ongoing needs</span></div>
+      </div>
+    </div>
+
+    <div class="tbl">
+      <table>
+        <tr><th>What to compare</th><th class="c">Medicare Advantage</th><th class="s">Medicare Supplement</th></tr>
+        <tr><td>Monthly premium</td><td class="ma">Often $0 (plus Part B)</td><td class="ms">Higher (plus Part B & Part D)</td></tr>
+        <tr><td>Choosing doctors</td><td class="ma">Plan network (HMO / PPO)</td><td class="ms">Any provider that takes Medicare</td></tr>
+        <tr><td>Referrals & prior approval</td><td class="ma">Often required</td><td class="ms">Not required</td></tr>
+        <tr><td>Costs when you use care</td><td class="ma">Copays up to a yearly max</td><td class="ms">Very low and predictable</td></tr>
+        <tr><td>Prescription drugs</td><td class="ma">Usually built in</td><td class="ms">Separate Part D plan</td></tr>
+        <tr><td>Extra benefits</td><td class="ma">Dental, vision, gym, often included</td><td class="ms">Not included; buy separately</td></tr>
+        <tr><td>Travel / nationwide</td><td class="ma">Best in your local area</td><td class="ms">Works anywhere in the U.S.</td></tr>
+        <tr><td>Changing later</td><td class="ma">Switch yearly at AEP</td><td class="ms">Anytime, may need underwriting</td></tr>
+      </table>
+    </div>
+
+    <div class="bottom">
+      <div class="ex">
+        <div class="eh">How they actually work</div>
+        <div class="excard"><div class="nm disp ma">Margaret, 67 · healthy, on a budget</div><p>Local in-network doctors, a $0 plan with dental and a gym, small copays as she goes, capped by the yearly max.</p></div>
+        <div class="excard"><div class="nm disp ms">Robert, 72 · manages conditions, travels</div><p>Any specialist, no referrals. Plan G plus a Part D plan. Higher premium, near-zero when he gets care.</p></div>
+      </div>
+      <div class="q">
+        <div class="eh">Questions to ask</div>
+        <div class="qq">Keeping specific doctors? Are they in-network?</div>
+        <div class="qq">Do you travel or live elsewhere part of the year?</div>
+        <div class="qq">How is your health, any procedures coming?</div>
+        <div class="qq">Low monthly bill, or few surprises?</div>
+        <div class="qq">How much do dental and extras matter?</div>
+      </div>
+    </div>
+    <div class="foot"><span>For agent use in client education. Both require Medicare Part B. Plan details vary by carrier and area.</span><span>Powered by <b>Tyler Insurance Group</b></span></div>
+  </div>
+</body></html>

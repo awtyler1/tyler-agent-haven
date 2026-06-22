@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MA vs Med Supp — C (Decision Guide)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--paper:#fbfaf6;--line:#e1d9c8;--muted:#5f6b62;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F;--emL:#eef3ef;--goL:#f7f1e2}
+  body{font-family:'Inter',system-ui,sans-serif;background:#dcdcd6;color:var(--ink);-webkit-font-smoothing:antialiased;padding:24px}
+  .disp{font-family:'Outfit',sans-serif}
+  .tag{position:fixed;bottom:16px;right:16px;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;z-index:9}.tag b{color:var(--gold)}
+  .page{width:816px;margin:0 auto;background:#fff;box-shadow:0 10px 40px rgba(0,0,0,.18)}
+  .hd{background:linear-gradient(120deg,var(--em),var(--em2));color:var(--bone);padding:20px 30px;text-align:center}
+  .hd__brand{font-weight:800;font-size:12px;letter-spacing:.14em;color:var(--gold)}
+  .hd h1{font-family:'Outfit';font-weight:800;font-size:24px;letter-spacing:-.02em;margin-top:5px}
+  .hd p{font-size:12px;color:rgba(244,241,232,.8);margin-top:3px}
+  .gold-rule{height:3px;background:linear-gradient(90deg,var(--gold),#e7cf86)}
+  /* at a glance strip */
+  .glance{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+  .gi{background:#fff;padding:9px 14px}
+  .gi .k{font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .gi .v{font-size:10.5px;line-height:1.35}
+  .gi .v .ma{color:var(--em);font-weight:700}.gi .v .ms{color:var(--gold2);font-weight:700}
+  /* decision columns */
+  .dec{display:grid;grid-template-columns:1fr 1fr}
+  .col{padding:16px 26px 18px 30px}
+  .col--ma{background:var(--emL)}
+  .col--ms{background:var(--goL);border-left:1px solid var(--line)}
+  .col__top{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+  .col__ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .col--ma .col__ic{background:var(--em)}.col--ms .col__ic{background:var(--gold2)}
+  .col .nm{font-family:'Outfit';font-weight:800;font-size:16px}
+  .col--ma .nm{color:var(--em)}.col--ms .nm{color:var(--gold2)}
+  .col .sn{font-size:10px;color:var(--muted)}
+  .col .lead{font-family:'Outfit';font-weight:700;font-size:12.5px;margin:8px 0 9px;color:var(--ink)}
+  .crit{list-style:none}
+  .crit li{font-size:11.5px;line-height:1.4;color:#3a3f37;padding-left:20px;position:relative;margin-bottom:7px}
+  .crit li svg{position:absolute;left:0;top:1px}
+  .note{font-size:10.5px;color:var(--muted);font-style:italic;margin-top:9px;padding-top:8px;border-top:1px dashed var(--line)}
+  /* examples */
+  .ex{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--line)}
+  .exb{padding:11px 30px}
+  .exb--ms{border-left:1px solid var(--line)}
+  .exb .h{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .exb .nm{font-family:'Outfit';font-weight:700;font-size:12px}
+  .exb .nm.ma{color:var(--em)}.exb .nm.ms{color:var(--gold2)}
+  .exb p{font-size:11px;line-height:1.45;color:#3a3f37;margin-top:1px}
+  /* questions */
+  .q{padding:13px 30px 14px;border-top:1px solid var(--line)}
+  .q .h{font-family:'Outfit';font-weight:800;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .q .h:before{content:"";width:18px;height:3px;background:var(--gold);border-radius:2px}
+  .qg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px 20px}
+  .qg div{font-size:10.5px;line-height:1.35;color:#3a3f37;padding-left:14px;position:relative}
+  .qg div:before{content:"?";position:absolute;left:0;top:0;color:var(--gold2);font-weight:800}
+  .foot{background:var(--em2);color:rgba(244,241,232,.62);font-size:9.5px;padding:9px 30px;display:flex;justify-content:space-between}
+  .foot b{color:var(--gold)}
+</style></head>
+<body>
+  <div class="tag">COMPARE · <b>C — Decision Guide</b></div>
+  <div class="page">
+    <div class="hd">
+      <div class="hd__brand">TYLER INSURANCE GROUP</div>
+      <h1 class="disp">Medicare Advantage or Medicare Supplement?</h1>
+      <p>A simple way to guide your client to the plan that actually fits.</p>
+    </div>
+    <div class="gold-rule"></div>
+
+    <div class="glance">
+      <div class="gi"><div class="k">Premium</div><div class="v"><span class="ma">MA:</span> often $0 · <span class="ms">MS:</span> higher</div></div>
+      <div class="gi"><div class="k">Doctors</div><div class="v"><span class="ma">MA:</span> network · <span class="ms">MS:</span> anyone on Medicare</div></div>
+      <div class="gi"><div class="k">Costs to use it</div><div class="v"><span class="ma">MA:</span> copays to a max · <span class="ms">MS:</span> very low</div></div>
+      <div class="gi"><div class="k">Drugs & extras</div><div class="v"><span class="ma">MA:</span> usually included · <span class="ms">MS:</span> separate</div></div>
+    </div>
+
+    <div class="dec">
+      <div class="col col--ma">
+        <div class="col__top"><div class="col__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="12" rx="2" stroke="#fff" stroke-width="1.8"/><path d="M6 7V5h12v2M3 11h18" stroke="#fff" stroke-width="1.8"/></svg></div>
+          <div><div class="nm disp">Medicare Advantage</div><div class="sn">Part C · all-in-one private plan</div></div></div>
+        <div class="lead">Lean this way if your client…</div>
+        <ul class="crit">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#0E3B2E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Wants the lowest monthly premium</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#0E3B2E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Mostly uses local doctors, fine with a network</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#0E3B2E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Wants dental, vision, and extras bundled in</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#0E3B2E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Is okay with copays and occasional prior approvals</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#0E3B2E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Is generally healthy right now</li>
+        </ul>
+      </div>
+      <div class="col col--ms">
+        <div class="col__top"><div class="col__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 7-7 8-4-1-7-3.5-7-8V6z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><div class="nm disp">Medicare Supplement</div><div class="sn">Medigap · fills Original Medicare's gaps</div></div></div>
+        <div class="lead">Lean this way if your client…</div>
+        <ul class="crit">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#A8801F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Wants any doctor or hospital, no networks</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#A8801F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Travels or lives part of the year elsewhere</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#A8801F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Wants the most predictable, low out-of-pocket costs</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#A8801F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Has ongoing health needs or expects care</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-10" stroke="#A8801F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Doesn't mind a higher premium for peace of mind</li>
+        </ul>
+        <div class="note">Remember: pair it with a separate Part D drug plan.</div>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="exb exb--ma"><div class="h">How it works</div><div class="nm disp ma">Margaret, 67 · healthy, on a budget</div><p>Local in-network doctors, a $0 plan with dental and a gym, copays as she goes, capped by the yearly max.</p></div>
+      <div class="exb exb--ms"><div class="h">How it works</div><div class="nm disp ms">Robert, 72 · manages conditions, travels</div><p>Any specialist, no referrals. Plan G plus Part D. Higher premium, near-zero when he gets care.</p></div>
+    </div>
+
+    <div class="q">
+      <div class="h disp">Questions to ask before deciding</div>
+      <div class="qg">
+        <div>Want to keep specific doctors? In-network?</div>
+        <div>Travel or live elsewhere part of the year?</div>
+        <div>How is your health? Procedures coming?</div>
+        <div>Low monthly bill, or few surprises?</div>
+        <div>How much do dental and extras matter?</div>
+        <div>What is comfortable to pay monthly?</div>
+      </div>
+    </div>
+    <div class="foot"><span>For agent use in client education. Both require Medicare Part B. Plan details vary by carrier and area.</span><span>Powered by <b>Tyler Insurance Group</b></span></div>
+  </div>
+</body></html>
