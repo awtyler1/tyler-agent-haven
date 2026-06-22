@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Training — B (Format Sections + Grid)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Outfit','Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .tag{position:fixed;bottom:16px;right:16px;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;z-index:9}.tag b{color:var(--gold)}
+  .wrap{max-width:1040px;margin:0 auto;padding:30px 36px 60px}
+  .h1{font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .sec{margin-top:30px}
+  .sec__h{display:flex;align-items:center;gap:10px;padding-bottom:11px;border-bottom:2px solid var(--em);margin-bottom:16px}
+  .sec__ic{width:30px;height:30px;border-radius:8px;background:var(--em);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .sec__t{font-size:16px;font-weight:700}
+  .sec__c{font-size:11.5px;color:var(--muted);margin-left:auto}
+  /* doc grid */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .doc{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;text-decoration:none;color:var(--ink);transition:.15s}
+  .doc:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(14,59,46,.10)}
+  .doc__paper{height:120px;background:linear-gradient(155deg,#f4efe2,#e7dcc2);position:relative;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line)}
+  .doc__mini{width:72px;height:90px;background:#fff;border:1px solid #ddd2b8;border-radius:3px;padding:9px 8px;box-shadow:0 3px 9px rgba(0,0,0,.10)}
+  .doc__mini .bar{height:4px;border-radius:2px;background:var(--em);margin-bottom:4px;width:80%}
+  .doc__mini .bar.g{background:var(--gold);width:55%}
+  .doc__mini .ln{height:2.5px;border-radius:2px;background:#d8d2c4;margin-bottom:3px}
+  .doc__mini .ln.s{width:60%}
+  .doc__badge{position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:rgba(14,59,46,.88);color:#fff;padding:3px 8px;border-radius:20px}
+  .doc__b{padding:11px 12px 13px}
+  .doc__t{font-size:13px;font-weight:600;line-height:1.28}
+  .doc__m{font-size:11px;color:var(--muted);margin-top:5px}
+  .doc__m b{color:var(--gold2);float:right}
+  /* video grid */
+  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .vc{text-decoration:none;color:var(--ink)}
+  .vc__th{aspect-ratio:16/9;border-radius:12px;background:linear-gradient(135deg,#1d5d49,#0a2c22);position:relative;display:flex;align-items:center;justify-content:center}
+  .vc__pl{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--em);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .vc__dur{position:absolute;bottom:8px;right:8px;font-size:10px;font-weight:600;background:rgba(0,0,0,.6);color:#fff;padding:2px 7px;border-radius:5px}
+  .vc__t{font-size:13.5px;font-weight:600;margin-top:10px;line-height:1.3}
+  .vc__m{font-size:11px;color:var(--muted);margin-top:3px}
+  /* playbook list */
+  .list{display:flex;flex-direction:column;gap:9px}
+  .li{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;text-decoration:none;color:var(--ink);transition:.15s}
+  .li:hover{border-color:var(--gold);box-shadow:0 5px 16px rgba(14,59,46,.07)}
+  .li__ic{width:38px;height:38px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,#d6c08a,#a8801f);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .li__t{font-size:13.5px;font-weight:600}
+  .li__s{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .li__meta{margin-left:auto;font-size:11px;color:var(--muted);font-weight:600}
+</style></head>
+<body>
+  <div class="tag">TRAINING · <b>B — Format Sections</b></div>
+  <div class="wrap">
+    <div class="h1">Training &amp; Playbooks</div>
+    <div class="sub">Everything in one place, grouped by what it is, so you find the right format fast.</div>
+
+    <div class="sec">
+      <div class="sec__h"><div class="sec__ic">📄</div><div class="sec__t">One-Pagers &amp; Guides</div><div class="sec__c">3 guides</div></div>
+      <div class="grid">
+        <a class="doc"><div class="doc__paper"><span class="doc__badge">1-page guide</span><div class="doc__mini"><div class="bar"></div><div class="bar g"></div><div class="ln"></div><div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="ln s"></div></div></div><div class="doc__b"><div class="doc__t">Medicare Advantage vs. Medicare Supplement</div><div class="doc__m">PDF · 1 page <b>Open</b></div></div></a>
+        <a class="doc"><div class="doc__paper"><span class="doc__badge">1-page guide</span><div class="doc__mini"><div class="bar g"></div><div class="bar"></div><div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="ln"></div><div class="ln s"></div></div></div><div class="doc__b"><div class="doc__t">The 6 Enrollment Periods, simplified</div><div class="doc__m">PDF · 1 page <b>Open</b></div></div></a>
+        <a class="doc"><div class="doc__paper"><span class="doc__badge">1-page guide</span><div class="doc__mini"><div class="bar"></div><div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="bar g"></div><div class="ln"></div><div class="ln s"></div></div></div><div class="doc__b"><div class="doc__t">Extra Help &amp; LIS at a glance</div><div class="doc__m">PDF · 1 page <b>Open</b></div></div></a>
+        <a class="doc" style="opacity:.55"><div class="doc__paper" style="background:linear-gradient(155deg,#eee9da,#e2d8c4)"><span class="doc__badge" style="background:rgba(107,100,87,.85)">soon</span><div class="doc__mini" style="opacity:.6"><div class="bar"></div><div class="ln"></div><div class="ln s"></div></div></div><div class="doc__b"><div class="doc__t">Part D &amp; the donut hole</div><div class="doc__m">Coming soon</div></div></a>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec__h"><div class="sec__ic">▶</div><div class="sec__t">Video Training</div><div class="sec__c">Day 1–3 curriculum</div></div>
+      <div class="vgrid">
+        <a class="vc"><div class="vc__th"><span class="vc__pl">▶</span><span class="vc__dur">1h 25m</span></div><div class="vc__t">The Basics: Understanding Medicare</div><div class="vc__m">Day 1 · Video</div></a>
+        <a class="vc"><div class="vc__th"><span class="vc__pl">▶</span><span class="vc__dur">42 min</span></div><div class="vc__t">Medicare Advantage &amp; Enrollment Periods</div><div class="vc__m">Day 1 · Video</div></a>
+        <a class="vc"><div class="vc__th"><span class="vc__pl">▶</span><span class="vc__dur">38 min</span></div><div class="vc__t">Med Supp Plans Deep Dive</div><div class="vc__m">Day 2 · Video</div></a>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec__h"><div class="sec__ic" style="background:var(--gold2)">📘</div><div class="sec__t">Playbooks &amp; Walkthroughs</div><div class="sec__c">2 playbooks</div></div>
+      <div class="list">
+        <a class="li"><div class="li__ic">📘</div><div><div class="li__t">Forge CRM: Your first 30 minutes</div><div class="li__s">Set up your pipeline and never lose a renewal.</div></div><div class="li__meta">PDF · 8 min read</div></a>
+        <a class="li"><div class="li__ic">✍️</div><div><div class="li__t">SunFire quoting walkthrough</div><div class="li__s">From client intake to a side-by-side quote.</div></div><div class="li__meta">PDF · 6 min read</div></a>
+      </div>
+    </div>
+  </div>
+</body></html>
