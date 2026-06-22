@@ -39,7 +39,7 @@ export const boardMeta = {
 // A warm welcome that sits at the top of the Board. Set show:false to hide it
 // once the team is settled in.
 export const welcome = {
-  show: true,
+  show: false,
   title: "Welcome to your TIG home base.",
   body:
     "Glad you're here. Everything you need to run your business now lives in one place: your carrier portals, contacts, and docs, your forms, certifications, training, and all your tools. This board up top is where we post what matters most each week, so start here when you log in.",
