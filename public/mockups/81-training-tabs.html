@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Training — C (Tabbed Library)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--em:#0E3B2E;--em2:#0a2c22;--bone:#F4F1E8;--line:#e7e0cf;--muted:#6b6457;--ink:#1b2620;--gold:#C9A84C;--gold2:#A8801F}
+  body{font-family:'Outfit','Inter',system-ui,sans-serif;background:var(--bone);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .tag{position:fixed;bottom:16px;right:16px;background:var(--em);color:var(--bone);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;z-index:9}.tag b{color:var(--gold)}
+  .wrap{max-width:1040px;margin:0 auto;padding:30px 36px 60px}
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .h1{font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .search{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:13px;color:var(--muted);min-width:230px;display:flex;align-items:center;gap:8px}
+  /* tabs */
+  .tabs{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:0}
+  .tab{font-size:13px;font-weight:600;color:var(--muted);padding:9px 15px;border-radius:9px 9px 0 0;cursor:pointer;border:1px solid transparent;border-bottom:none;position:relative;top:1px}
+  .tab .n{font-size:11px;opacity:.7;margin-left:5px}
+  .tab.on{color:var(--em);background:#fff;border-color:var(--line)}
+  .tab.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--em)}
+  /* grid mixes shapes */
+  .grid{margin-top:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden;text-decoration:none;color:var(--ink);transition:.15s}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(14,59,46,.10)}
+  .th{position:relative;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line)}
+  .th--doc{height:122px;background:linear-gradient(155deg,#f4efe2,#e7dcc2)}
+  .th--vid{height:122px;background:linear-gradient(135deg,#1d5d49,#0a2c22);border-bottom:none}
+  .th--play{height:122px;background:linear-gradient(135deg,#d6c08a,#a8801f);border-bottom:none}
+  .mini{width:70px;height:88px;background:#fff;border:1px solid #ddd2b8;border-radius:3px;padding:8px 7px;box-shadow:0 3px 9px rgba(0,0,0,.10)}
+  .mini .bar{height:4px;border-radius:2px;background:var(--em);margin-bottom:4px;width:80%}
+  .mini .bar.g{background:var(--gold);width:55%}
+  .mini .ln{height:2.5px;border-radius:2px;background:#d8d2c4;margin-bottom:3px}
+  .mini .ln.s{width:60%}
+  .pl{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--em);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .pl.sq{border-radius:10px}
+  .badge{position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#fff;padding:3px 8px;border-radius:20px}
+  .badge--doc{background:rgba(14,59,46,.88)}.badge--vid{background:rgba(0,0,0,.55)}.badge--play{background:rgba(14,59,46,.6)}
+  .dur{position:absolute;bottom:8px;right:8px;font-size:10px;font-weight:600;background:rgba(0,0,0,.6);color:#fff;padding:2px 7px;border-radius:5px}
+  .cb{padding:11px 12px 13px}
+  .ct{font-size:13px;font-weight:600;line-height:1.28}
+  .cm{font-size:11px;color:var(--muted);margin-top:5px}
+</style></head>
+<body>
+  <div class="tag">TRAINING · <b>C — Tabbed Library</b></div>
+  <div class="wrap">
+    <div class="top">
+      <div><div class="h1">Training &amp; Playbooks</div><div class="sub">Filter by what you need: guides to hand a client, videos to learn, playbooks to run.</div></div>
+      <div class="search">🔍 Search the library…</div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab on">All <span class="n">9</span></div>
+      <div class="tab">One-Pagers <span class="n">3</span></div>
+      <div class="tab">Videos <span class="n">4</span></div>
+      <div class="tab">Playbooks <span class="n">2</span></div>
+      <div class="tab">Case Studies <span class="n">0</span></div>
+    </div>
+
+    <div class="grid">
+      <a class="card"><div class="th th--doc"><span class="badge badge--doc">1-page guide</span><div class="mini"><div class="bar"></div><div class="bar g"></div><div class="ln"></div><div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="ln s"></div></div></div><div class="cb"><div class="ct">Medicare Advantage vs. Medicare Supplement</div><div class="cm">Guide · PDF</div></div></a>
+      <a class="card"><div class="th th--doc"><span class="badge badge--doc">1-page guide</span><div class="mini"><div class="bar g"></div><div class="bar"></div><div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="ln"></div><div class="ln s"></div></div></div><div class="cb"><div class="ct">The 6 Enrollment Periods, simplified</div><div class="cm">Guide · PDF</div></div></a>
+      <a class="card"><div class="th th--vid"><span class="badge badge--vid">Video</span><span class="pl">▶</span><span class="dur">1h 25m</span></div><div class="cb"><div class="ct">The Basics: Understanding Medicare</div><div class="cm">Video · Day 1</div></div></a>
+      <a class="card"><div class="th th--play"><span class="badge badge--play">Playbook</span><span class="pl sq">📘</span></div><div class="cb"><div class="ct">Forge CRM: Your first 30 minutes</div><div class="cm">Playbook · PDF</div></div></a>
+      <a class="card"><div class="th th--doc"><span class="badge badge--doc">1-page guide</span><div class="mini"><div class="bar"></div><div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="bar g"></div><div class="ln"></div><div class="ln s"></div></div></div><div class="cb"><div class="ct">Extra Help &amp; LIS at a glance</div><div class="cm">Guide · PDF</div></div></a>
+      <a class="card"><div class="th th--vid"><span class="badge badge--vid">Video</span><span class="pl">▶</span><span class="dur">42 min</span></div><div class="cb"><div class="ct">Medicare Advantage &amp; Enrollment Periods</div><div class="cm">Video · Day 1</div></div></a>
+      <a class="card"><div class="th th--vid"><span class="badge badge--vid">Video</span><span class="pl">▶</span><span class="dur">38 min</span></div><div class="cb"><div class="ct">Med Supp Plans Deep Dive</div><div class="cm">Video · Day 2</div></div></a>
+      <a class="card"><div class="th th--play"><span class="badge badge--play">Playbook</span><span class="pl sq">✍️</span></div><div class="cb"><div class="ct">SunFire quoting walkthrough</div><div class="cm">Playbook · PDF</div></div></a>
+    </div>
+  </div>
+</body></html>
