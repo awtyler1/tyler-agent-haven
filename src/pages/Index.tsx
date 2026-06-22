@@ -128,6 +128,11 @@ export default function Index() {
                 <div className="hub-bitem__body">
                   <div className="hub-bitem__title">{item.title}</div>
                   {item.note && <div className="hub-bitem__note">{item.note}</div>}
+                  {item.details && item.details.length > 0 && (
+                    <ul className="hub-bitem__details">
+                      {item.details.map((d, i) => <li key={i}>{d}</li>)}
+                    </ul>
+                  )}
                 </div>
                 <div className="hub-bitem__when">
                   <div className="hub-bitem__whenBig">{item.when}</div>
@@ -243,8 +248,11 @@ const CSS = `
 .hub-welcome__t{ font-size:16px; font-weight:700; }
 .hub-welcome__b{ font-size:13.5px; color:rgba(244,241,232,.82); line-height:1.6; margin:6px 0 0; max-width:64ch; }
 .hub-welcome__sign{ font-size:12.5px; color:var(--gold); font-weight:600; margin-top:10px; }
-.hub-bitem{ display:flex; align-items:center; gap:13px; padding:12px 0; border-top:1px solid rgba(255,255,255,.1); position:relative; font-size:14px; }
-.hub-bitem__kind{ flex-shrink:0; width:96px; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; display:flex; align-items:center; gap:7px; }
+.hub-bitem{ display:flex; align-items:flex-start; gap:13px; padding:12px 0; border-top:1px solid rgba(255,255,255,.1); position:relative; font-size:14px; }
+.hub-bitem__kind{ flex-shrink:0; width:96px; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; display:flex; align-items:center; gap:7px; padding-top:2px; }
+.hub-bitem__details{ margin:7px 0 0; padding:0; list-style:none; }
+.hub-bitem__details li{ font-size:12px; color:rgba(244,241,232,.8); line-height:1.5; padding-left:14px; position:relative; margin-bottom:3px; }
+.hub-bitem__details li:before{ content:""; position:absolute; left:2px; top:6px; width:4px; height:4px; border-radius:50%; background:var(--gold); }
 .hub-bitem__dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 .hub-bitem__body{ min-width:0; }
 .hub-bitem__title{ font-weight:600; }

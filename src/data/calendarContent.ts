@@ -40,12 +40,6 @@ export const calendarEvents: CalEvent[] = [
 
   // ── 2027 Certifications ──
   { id: "ahip-2027", date: "2026-06-22", title: "AHIP 2027 launches 🎓", detail: "2027 Medicare training opens", category: "cert" },
-  { id: "cert-aetna", date: "2026-06-23", title: "Aetna certs kickoff", detail: "2027 certifications open", category: "cert" },
-  { id: "cert-devoted", date: "2026-06-23", title: "Devoted certs kickoff", detail: "2027 certifications open", category: "cert" },
-  { id: "cert-anthem", date: "2026-06-30", title: "Anthem certs kickoff", detail: "2027 certifications open", category: "cert" },
-  { id: "cert-humana", date: "2026-07-08", title: "Humana certs kickoff", detail: "2027 certifications open", category: "cert" },
-  { id: "cert-uhc", date: "2026-07-08", title: "UnitedHealthcare certs kickoff", detail: "2027 certifications open", category: "cert" },
-  { id: "cert-wellcare", date: "2026-07-21", title: "Wellcare certs kickoff", detail: "2027 certifications open", category: "cert" },
 
   // ── Annual Enrollment Period (CMS) ──
   { id: "aep-start", date: "2026-10-15", title: "AEP begins 🔔", category: "deadline" },

@@ -22,6 +22,7 @@ export interface BoardItem {
   kind: BoardKind; // deadline = red, action = amber, open = green
   title: string;
   note?: string; // the "why it matters" line under the title
+  details?: string[]; // optional bullet points under the note
   /** Big right-side label, e.g. 'Jun 30' or 'Open'. */
   when: string;
   /** Optional date used to auto-compute "N days" under `when`. */
@@ -32,7 +33,7 @@ export interface BoardItem {
 
 export const boardMeta = {
   postedBy: "Austin & Andrew",
-  postedOn: "2026-06-16", // update when you refresh the board
+  postedOn: "2026-06-22", // update when you refresh the board
 };
 
 // A warm welcome that sits at the top of the Board. Set show:false to hide it
@@ -47,12 +48,23 @@ export const welcome = {
 
 export const boardItems: BoardItem[] = [
   {
-    id: "ahip-2027-launch",
-    kind: "action",
-    title: "AHIP 2027 training launches",
-    note: "Knock it out early — you need AHIP done before any carrier certification",
-    when: "Jun 22",
-    date: "2026-06-22",
+    id: "ahip-2027-out",
+    kind: "open",
+    title: "AHIP 2027 is officially out",
+    note: "Knock it out as soon as you can. AHIP is required before any carrier certification.",
+    details: [
+      "First-year agents: we cover your AHIP cost.",
+      "Save $50 on AHIP: Pinnacle website > sign in > Agent Dashboard > Certification > AHIP Discounts.",
+    ],
+    when: "Do it now",
+    whenSub: "go early",
+  },
+  {
+    id: "forms-updated",
+    kind: "open",
+    title: "The Forms library just got an upgrade",
+    note: "New fillable fact finders and CMS forms are live. Take a look under Forms.",
+    when: "New",
   },
 ];
 

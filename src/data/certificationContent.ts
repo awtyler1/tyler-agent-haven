@@ -13,7 +13,7 @@
 export const ahip = {
   title: "Complete your AHIP",
   note: "Required before any carrier certification. Score 90% to pass.",
-  opensLabel: "Opens June 22",
+  opensLabel: "Available now",
   url: "https://www.ahipmedicaretraining.com/page/login",
 };
 
@@ -33,12 +33,12 @@ export interface CarrierCert {
 export const certYear = 2027;
 
 export const carrierCerts: CarrierCert[] = [
-  { id: "uhc", name: "UnitedHealthcare", color: "#002677", status: "not-open", opensLabel: "Kickoff July 8" },
-  { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Kickoff July 8" },
-  { id: "aetna", name: "Aetna", color: "#7a2f86", status: "not-open", opensLabel: "Kickoff June 23" },
-  { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open", opensLabel: "Kickoff June 30" },
-  { id: "wellcare", name: "Wellcare", color: "#007A72", status: "not-open", opensLabel: "Kickoff July 21" },
-  { id: "devoted", name: "Devoted Health", color: "#B8292F", status: "not-open", opensLabel: "Kickoff June 23" },
-  { id: "cigna", name: "Cigna", color: "#00857C", status: "not-open" },
-  { id: "moo", name: "Mutual of Omaha", color: "#004B8D", status: "not-open" },
+  { id: "uhc", name: "UnitedHealthcare", color: "#002677", status: "not-open", opensLabel: "Coming soon" },
+  { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Coming soon" },
+  { id: "aetna", name: "Aetna", color: "#7a2f86", status: "not-open", opensLabel: "Coming soon" },
+  { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open", opensLabel: "Coming soon" },
+  { id: "wellcare", name: "Wellcare", color: "#007A72", status: "not-open", opensLabel: "Coming soon" },
+  { id: "devoted", name: "Devoted Health", color: "#B8292F", status: "not-open", opensLabel: "Coming soon" },
+  { id: "cigna", name: "Cigna", color: "#00857C", status: "not-open", opensLabel: "Coming soon" },
+  { id: "moo", name: "Mutual of Omaha", color: "#004B8D", status: "not-open", opensLabel: "Coming soon" },
 ];
