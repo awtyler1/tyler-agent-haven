@@ -103,7 +103,7 @@ export default function TrainingLibrary() {
   const [q, setQ] = useState('');
 
   useEffect(() => {
-    document.title = 'Training & Playbooks | Tyler Insurance Group';
+    document.title = 'Learning Center | Tyler Insurance Group';
   }, []);
 
   const hasContent = trainingItems.length > 0;
@@ -135,7 +135,7 @@ export default function TrainingLibrary() {
       <div className="tr-max">
         <div className="tr-top">
           <div>
-            <h1 className="tr-h1">Training &amp; Playbooks</h1>
+            <h1 className="tr-h1">Learning Center</h1>
             <div className="tr-sub">Filter by what you need: one-pagers to hand a client, videos to learn, playbooks to run.</div>
           </div>
           {hasContent && (

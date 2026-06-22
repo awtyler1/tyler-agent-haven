@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Home', path: '/hub', icon: '⌂' },
   { label: 'Carriers', path: '/carrier-resources', icon: '⛨' },
   { label: '2027 Certifications', path: '/certifications', icon: '🎓' },
-  { label: 'Training & Playbooks', path: '/training', icon: '📚' },
+  { label: 'Learning Center', path: '/training', icon: '📚' },
   { label: 'Knowledge & Updates', path: '/industry-updates', icon: '📈' },
   { label: 'Forms', path: '/forms-library', icon: '📋' },
   { label: 'Calendar', path: '/calendar', icon: '🗓' },
