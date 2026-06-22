@@ -50,6 +50,26 @@ export const trainingItems: TrainingItem[] = [
     blurb: "A clean one-pager that lays the two paths side by side, with examples and the questions to ask when helping a client choose.",
     isNew: true,
   },
+  {
+    id: "ma-explained",
+    title: "Medicare Advantage, made simple",
+    type: "guide",
+    category: "Client Education",
+    href: "/forms/medicare-advantage-guide.pdf",
+    duration: "1 page",
+    blurb: "How a Part C (MAPD) plan works with Original Medicare, with the key terms defined for someone brand new to it.",
+    isNew: true,
+  },
+  {
+    id: "medsupp-explained",
+    title: "Medicare Supplement: Plan G vs. Plan N",
+    type: "guide",
+    category: "Client Education",
+    href: "/forms/medicare-supplement-guide.pdf",
+    duration: "1 page",
+    blurb: "How Medigap fills the gaps in Original Medicare, plus a side-by-side of Plan G and Plan N.",
+    isNew: true,
+  },
   // Example shape (delete the // to use):
   // {
   //   id: "forge-onboarding",
