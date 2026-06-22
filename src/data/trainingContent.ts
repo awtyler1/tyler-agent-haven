@@ -30,6 +30,7 @@ export interface TrainingItem {
 
 // Row order. Add/rename categories here; rows render in this order.
 export const trainingCategories: string[] = [
+  "Client Education",
   "CRM & Tools",
   "Product Training",
   "Grow Your Business",
@@ -37,6 +38,15 @@ export const trainingCategories: string[] = [
 ];
 
 export const trainingItems: TrainingItem[] = [
+  {
+    id: "ma-vs-medsupp",
+    title: "Medicare Advantage vs. Medicare Supplement",
+    type: "playbook",
+    category: "Client Education",
+    href: "/forms/ma-vs-med-supp-comparison.pdf",
+    duration: "PDF",
+    blurb: "A clean one-pager that lays the two paths side by side, with examples and the questions to ask when helping a client choose.",
+  },
   // Example shape (delete the // to use):
   // {
   //   id: "forge-onboarding",
