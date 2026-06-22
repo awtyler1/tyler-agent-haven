@@ -1,20 +1,22 @@
 // ============================================================================
-// TRAINING & PLAYBOOKS — content library (Category Rows layout)
+// TRAINING & PLAYBOOKS — content library (Tabbed library layout)
 // ----------------------------------------------------------------------------
-// Add items below and they appear automatically: grouped into rows by
-// `category`, in the order categories are listed in `trainingCategories`.
-// Mark one item `featured: true` to highlight it in the top banner.
+// Add items below and they appear automatically. The page groups them into
+// filter tabs by `type` (One-Pagers, Videos, Playbooks, …) with a search box.
 //
 // While `trainingItems` is empty, the page shows an elegant "coming soon"
 // state — no placeholder content is ever shown.
 //
-//   type:     'video' | 'article' | 'playbook' | 'case-study'
-//   category: must match one of `trainingCategories` (else it won't show)
+//   type:     'guide' | 'video' | 'article' | 'playbook' | 'case-study'
+//             ('guide' = a one-page PDF reference you can hand a client)
+//   category: a short topic label shown on the card, e.g. 'Client Education'
 //   href:     video URL, PDF, or article link (opens in a new tab)
 //   duration: e.g. '12 min' for video, '5 min read' for article, 'PDF'
+//   featured: optional — pins the item first within its tab
+//   isNew:    optional — shows a gold "New" badge on the card
 // ============================================================================
 
-export type TrainingType = "video" | "article" | "playbook" | "case-study";
+export type TrainingType = "guide" | "video" | "article" | "playbook" | "case-study";
 
 export interface TrainingItem {
   id: string;
@@ -41,11 +43,12 @@ export const trainingItems: TrainingItem[] = [
   {
     id: "ma-vs-medsupp",
     title: "Medicare Advantage vs. Medicare Supplement",
-    type: "playbook",
+    type: "guide",
     category: "Client Education",
     href: "/forms/ma-vs-med-supp-comparison.pdf",
-    duration: "PDF",
+    duration: "1 page",
     blurb: "A clean one-pager that lays the two paths side by side, with examples and the questions to ask when helping a client choose.",
+    isNew: true,
   },
   // Example shape (delete the // to use):
   // {
