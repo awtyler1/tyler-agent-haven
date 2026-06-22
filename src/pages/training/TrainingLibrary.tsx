@@ -35,7 +35,7 @@ export default function TrainingLibrary() {
   }, []);
 
   const hasContent = trainingItems.length > 0;
-  const featured = trainingItems.find((i) => i.featured) || trainingItems[0];
+  const featured = trainingItems.find((i) => i.featured);
   const rows = trainingCategories
     .map((cat) => ({ cat, items: trainingItems.filter((i) => i.category === cat) }))
     .filter((r) => r.items.length > 0);
