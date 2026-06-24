@@ -9,7 +9,7 @@ function CarrierCard({ c }: { c: CarrierCert }) {
   const open = c.status === 'open';
   const [showHow, setShowHow] = useState(false);
   return (
-    <div className="ct-cc" style={{ ['--bc' as string]: c.color }}>
+    <div className={`ct-cc ${open ? 'ct-cc--live' : 'ct-cc--dead'}`} style={{ ['--bc' as string]: c.color }}>
       <div className="ct-cc__top">
         <span className="ct-cc__mark" style={{ background: c.color }}>{initial(c.name)}</span>
         <div>
@@ -152,8 +152,13 @@ const CSS = `
 /* grid + cards */
 .ct-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
 .ct-cc{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; position:relative; overflow:hidden; transition:.18s; box-shadow:0 1px 3px rgba(0,0,0,.03); }
-.ct-cc:hover{ transform:translateY(-3px); box-shadow:0 14px 30px rgba(20,30,24,.08); }
 .ct-cc:before{ content:""; position:absolute; top:0; left:0; right:0; height:3px; background:var(--bc); }
+/* live carrier — full color, gently emphasized so it pops against the dimmed ones */
+.ct-cc--live{ border-color:rgba(201,168,76,.5); box-shadow:0 4px 16px rgba(168,128,31,.12); }
+.ct-cc--live:hover{ transform:translateY(-3px); box-shadow:0 16px 32px rgba(168,128,31,.18); }
+/* not released yet — dimmed and inert until the carrier opens its window */
+.ct-cc--dead{ opacity:.6; filter:grayscale(.92); box-shadow:none; }
+.ct-cc--dead:hover{ transform:none; box-shadow:0 1px 3px rgba(0,0,0,.03); }
 .ct-cc__top{ display:flex; align-items:center; gap:11px; margin-bottom:14px; }
 .ct-cc__mark{ width:38px; height:38px; border-radius:10px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; flex-shrink:0; }
 .ct-cc__nm{ font-size:16px; font-weight:700; }
