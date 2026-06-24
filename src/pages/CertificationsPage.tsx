@@ -17,14 +17,9 @@ function CarrierCard({ c }: { c: CarrierCert }) {
           <div className="ct-cc__yr">{certYear} certification</div>
         </div>
       </div>
-      <div className="ct-cc__status">
-        <span className={`ct-pill ${open ? 'ct-pill--open' : 'ct-pill--tbd'}`}>
-          {open ? 'Open now' : 'Not open yet'}
-        </span>
-      </div>
       {c.opensLabel && (
         <div className="ct-cc__date">
-          <span className="ct-cc__date-ic" aria-hidden="true">📅</span>
+          <span className="ct-cc__date-ic" aria-hidden="true">{open ? '✓' : '📅'}</span>
           {c.opensLabel}
         </div>
       )}
@@ -163,10 +158,6 @@ const CSS = `
 .ct-cc__mark{ width:38px; height:38px; border-radius:10px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; flex-shrink:0; }
 .ct-cc__nm{ font-size:16px; font-weight:700; }
 .ct-cc__yr{ font-size:11px; color:var(--muted); }
-.ct-cc__status{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:12px; }
-.ct-pill{ font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 9px; border-radius:20px; }
-.ct-pill--open{ background:rgba(91,125,68,.15); color:var(--green); }
-.ct-pill--tbd{ background:rgba(176,127,51,.14); color:var(--amber); }
 .ct-cc__date{ display:inline-flex; align-items:center; gap:7px; margin-bottom:14px; background:rgba(201,168,76,.14); border:1px solid rgba(201,168,76,.45);
   color:var(--gold2); font-family:'Outfit',sans-serif; font-weight:700; font-size:13px; padding:7px 12px; border-radius:9px; }
 .ct-cc__date-ic{ font-size:13px; line-height:1; }
