@@ -18,6 +18,19 @@
 
 export type TrainingType = "guide" | "video" | "article" | "playbook" | "case-study";
 
+// Optional topic-matched card graphic. Falls back to a per-type default when
+// omitted (guide/article → doc, playbook → book, case-study → chart, video →
+// play). Pick the one that fits the subject so the library never reads flat.
+export type TrainingMotif =
+  | "calendar" // dates / seasons / AEP
+  | "compare"  // side-by-side / vs
+  | "layers"   // all-in-one / bundled
+  | "shield"   // protection / supplement / gaps
+  | "book"     // playbook / how-to
+  | "doc"      // generic one-pager
+  | "chart"    // data / case study
+  | "play";    // video
+
 export interface TrainingItem {
   id: string;
   title: string;
@@ -28,6 +41,7 @@ export interface TrainingItem {
   blurb?: string; // only used by the featured banner
   featured?: boolean;
   isNew?: boolean;
+  motif?: TrainingMotif; // topic-matched card graphic (defaults by type)
 }
 
 // Row order. Add/rename categories here; rows render in this order.
@@ -49,6 +63,7 @@ export const trainingItems: TrainingItem[] = [
     duration: "PDF",
     blurb: "The action checklist behind “The AEP Game Plan” — work it from now through September.",
     isNew: true,
+    motif: "calendar",
   },
   {
     id: "ma-vs-medsupp",
@@ -59,6 +74,7 @@ export const trainingItems: TrainingItem[] = [
     duration: "1 page",
     blurb: "A clean one-pager that lays the two paths side by side, with examples and the questions to ask when helping a client choose.",
     isNew: true,
+    motif: "compare",
   },
   {
     id: "ma-explained",
@@ -69,6 +85,7 @@ export const trainingItems: TrainingItem[] = [
     duration: "1 page",
     blurb: "How a Part C (MAPD) plan works with Original Medicare, with the key terms defined for someone brand new to it.",
     isNew: true,
+    motif: "layers",
   },
   {
     id: "medsupp-explained",
@@ -79,6 +96,7 @@ export const trainingItems: TrainingItem[] = [
     duration: "1 page",
     blurb: "How Medigap fills the gaps in Original Medicare, plus a side-by-side of Plan G and Plan N.",
     isNew: true,
+    motif: "shield",
   },
   // Example shape (delete the // to use):
   // {

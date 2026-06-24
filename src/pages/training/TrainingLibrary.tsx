@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { trainingItems, type TrainingItem, type TrainingType } from '@/data/trainingContent';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { trainingItems, type TrainingItem, type TrainingType, type TrainingMotif } from '@/data/trainingContent';
 
 // ── type → tab label + card glyph ────────────────────────────────────────────
 const TYPE_LABEL: Record<TrainingType, string> = {
@@ -19,66 +19,98 @@ const TAB_LABEL: Record<TrainingType, string> = {
 // canonical tab order
 const TYPE_ORDER: TrainingType[] = ['guide', 'video', 'playbook', 'article', 'case-study'];
 
-// small deterministic hash so each doc gets its own bar pattern
-function hash(s: string) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h;
-}
+const DEFAULT_MOTIF: Record<TrainingType, TrainingMotif> = {
+  guide: 'doc',
+  article: 'doc',
+  playbook: 'book',
+  'case-study': 'chart',
+  video: 'play',
+};
 
-// the graphic that sits behind every card — never flat
+// the graphic behind every card — a topic-matched motif with its own gradient,
+// so the row reads varied instead of flat. 'doc' sits on parchment (dark ink).
 function Thumb({ item }: { item: TrainingItem }) {
-  if (item.type === 'guide' || item.type === 'article') {
-    const h = hash(item.id);
-    const goldFirst = h % 2 === 0;
-    const widths = [82, 60, 92, 70, 88, 64]; // line widths, rotated by hash
-    const off = h % widths.length;
-    return (
-      <div className={`tr-th tr-th--doc`}>
-        <span className="tr-th__corner" aria-hidden="true" />
-        <span className="tr-badge tr-badge--doc">{item.type === 'guide' ? '1-page guide' : 'Article'}</span>
-        <div className="tr-paper" aria-hidden="true">
-          <span className={`tr-paper__bar ${goldFirst ? 'g' : ''}`} />
-          <span className={`tr-paper__bar ${goldFirst ? '' : 'g'}`} style={{ width: '56%' }} />
-          {[0, 1, 2, 3].map((i) => (
-            <span key={i} className="tr-paper__ln" style={{ width: `${widths[(off + i) % widths.length]}%` }} />
-          ))}
-        </div>
-      </div>
-    );
-  }
-  if (item.type === 'video') {
-    return (
-      <div className="tr-th tr-th--vid">
-        <Rings />
-        <span className="tr-badge tr-badge--vid">Video</span>
-        <span className="tr-play">▶</span>
-        {item.duration && <span className="tr-dur">{item.duration}</span>}
-      </div>
-    );
-  }
-  // playbook / case-study
-  const isCase = item.type === 'case-study';
+  const motif: TrainingMotif = item.motif ?? DEFAULT_MOTIF[item.type];
+  const dark = motif === 'doc';
   return (
-    <div className={`tr-th ${isCase ? 'tr-th--case' : 'tr-th--play'}`}>
-      <Rings light />
-      <span className="tr-badge tr-badge--play">{TYPE_LABEL[item.type]}</span>
-      <span className="tr-play tr-play--sq">{isCase ? '📊' : '📘'}</span>
+    <div className={`tr-th tr-th--${motif}`}>
+      <Rings tone={dark ? 'rgba(14,59,46,.09)' : 'rgba(255,255,255,.16)'} />
+      <span className={`tr-badge ${dark ? 'tr-badge--ink' : 'tr-badge--ondark'}`}>{TYPE_LABEL[item.type]}</span>
+      <Motif name={motif} dark={dark} />
+      {motif === 'play' && item.duration && <span className="tr-dur">{item.duration}</span>}
     </div>
   );
 }
 
-// faint concentric-ring motif so video / playbook thumbs feel designed
-function Rings({ light = false }: { light?: boolean }) {
-  const c = light ? 'rgba(255,255,255,.16)' : 'rgba(201,168,76,.22)';
+// faint concentric-ring backdrop so every thumb has depth
+function Rings({ tone }: { tone: string }) {
   return (
     <svg className="tr-rings" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <circle cx="158" cy="22" r="60" fill="none" stroke={c} strokeWidth="1.4" />
-      <circle cx="158" cy="22" r="40" fill="none" stroke={c} strokeWidth="1.4" />
-      <circle cx="158" cy="22" r="22" fill="none" stroke={c} strokeWidth="1.4" />
-      <circle cx="22" cy="104" r="34" fill="none" stroke={c} strokeWidth="1.4" />
+      <circle cx="162" cy="20" r="58" fill="none" stroke={tone} strokeWidth="1.4" />
+      <circle cx="162" cy="20" r="38" fill="none" stroke={tone} strokeWidth="1.4" />
+      <circle cx="22" cy="106" r="32" fill="none" stroke={tone} strokeWidth="1.4" />
     </svg>
   );
+}
+
+// the foreground icon, drawn to match the topic
+function Motif({ name, dark }: { name: TrainingMotif; dark: boolean }) {
+  const s = dark ? '#0E3B2E' : '#ffffff';
+  const p = { fill: 'none', stroke: s, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  let inner: ReactNode;
+  switch (name) {
+    case 'calendar':
+      inner = (<>
+        <rect x="9" y="11" width="30" height="28" rx="4" {...p} />
+        <path d="M9 18 H39" {...p} />
+        <path d="M17 7 V13 M31 7 V13" {...p} />
+        <path d="M16 28 l4 4 l9 -10" {...p} />
+      </>); break;
+    case 'compare':
+      inner = (<>
+        <rect x="6" y="12" width="15" height="25" rx="2.5" {...p} />
+        <rect x="27" y="12" width="15" height="25" rx="2.5" {...p} />
+        <path d="M10 19 H17 M10 24 H17 M10 29 H15" {...p} />
+        <path d="M31 19 H38 M31 24 H38 M31 29 H36" {...p} />
+      </>); break;
+    case 'layers':
+      inner = (<>
+        <path d="M24 7 L41 16 L24 25 L7 16 Z" {...p} />
+        <path d="M7 23 L24 32 L41 23" {...p} />
+        <path d="M7 30 L24 39 L41 30" {...p} />
+      </>); break;
+    case 'shield':
+      inner = (<>
+        <path d="M24 6 L39 12 V22 C39 31 32 36 24 38 C16 36 9 31 9 22 V12 Z" {...p} />
+        <path d="M24 17 V27 M19 22 H29" {...p} />
+      </>); break;
+    case 'book':
+      inner = (<>
+        <path d="M24 13 C20 10 14 10 9 11 V34 C14 33 20 33 24 36" {...p} />
+        <path d="M24 13 C28 10 34 10 39 11 V34 C34 33 28 33 24 36" {...p} />
+        <path d="M24 13 V36" {...p} />
+      </>); break;
+    case 'chart':
+      inner = (<>
+        <path d="M9 39 H40" {...p} />
+        <rect x="13" y="25" width="6" height="12" {...p} />
+        <rect x="22" y="19" width="6" height="18" {...p} />
+        <rect x="31" y="13" width="6" height="24" {...p} />
+      </>); break;
+    case 'play':
+      inner = (<>
+        <circle cx="24" cy="24" r="15" {...p} />
+        <path d="M21 18 L31 24 L21 30 Z" fill={s} stroke={s} strokeWidth="2" strokeLinejoin="round" />
+      </>); break;
+    case 'doc':
+    default:
+      inner = (<>
+        <path d="M15 8 H28 L34 14 V40 H15 Z" {...p} />
+        <path d="M28 8 V14 H34" {...p} />
+        <path d="M19 23 H30 M19 28 H30 M19 33 H26" {...p} />
+      </>); break;
+  }
+  return <svg className="tr-motif" viewBox="0 0 48 48" aria-hidden="true">{inner}</svg>;
 }
 
 function Card({ item }: { item: TrainingItem }) {
@@ -242,29 +274,24 @@ const CSS = `
   text-transform:uppercase; color:var(--em2); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:3px 9px; border-radius:20px;
   box-shadow:0 2px 6px rgba(168,128,31,.3); }
 
-/* thumbnail graphics */
+/* thumbnail graphics — one gradient + icon per motif so the row reads varied */
 .tr-th{ position:relative; height:128px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-.tr-th--doc{ background:linear-gradient(155deg,#f4efe2,#e6dcc1); border-bottom:1px solid var(--line); }
-.tr-th--vid{ background:linear-gradient(135deg,#1d5d49,#0a2c22); }
-.tr-th--play{ background:linear-gradient(135deg,#d9c389,#a8801f); }
-.tr-th--case{ background:linear-gradient(135deg,#b9cbbf,#5e7d6e); }
-.tr-th__corner{ position:absolute; top:0; right:0; border-width:0 22px 22px 0; border-style:solid;
-  border-color:#fff #fbf8f0 transparent transparent; filter:drop-shadow(-1px 1px 0 var(--line)); }
+.tr-th--calendar{ background:linear-gradient(135deg,#d9c389,#a8801f); }
+.tr-th--compare { background:linear-gradient(135deg,#1d5d49,#0a2c22); }
+.tr-th--layers  { background:linear-gradient(135deg,#2f8f6e,#12463a); }
+.tr-th--shield  { background:linear-gradient(135deg,#6f9484,#3c574a); }
+.tr-th--book    { background:linear-gradient(135deg,#cdb978,#9b7a23); }
+.tr-th--chart   { background:linear-gradient(135deg,#9db3a6,#566f60); }
+.tr-th--play    { background:linear-gradient(135deg,#1d5d49,#0a2c22); }
+.tr-th--doc     { background:linear-gradient(155deg,#f4efe2,#e6dcc1); border-bottom:1px solid var(--line); }
 .tr-rings{ position:absolute; inset:0; width:100%; height:100%; }
-.tr-paper{ position:relative; width:74px; height:92px; background:#fff; border:1px solid #ddd2b8; border-radius:3px;
-  padding:9px 8px; box-shadow:0 4px 11px rgba(0,0,0,.12); }
-.tr-paper__bar{ display:block; height:4px; border-radius:2px; background:var(--em); margin-bottom:4px; width:80%; }
-.tr-paper__bar.g{ background:var(--gold); }
-.tr-paper__ln{ display:block; height:2.5px; border-radius:2px; background:#d8d2c4; margin-bottom:3.5px; }
-.tr-play{ position:relative; z-index:2; width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.94);
-  color:var(--em); display:flex; align-items:center; justify-content:center; font-size:15px; box-shadow:0 4px 12px rgba(0,0,0,.2); }
-.tr-play--sq{ border-radius:11px; }
-.tr-badge{ position:absolute; top:9px; left:9px; z-index:2; font-size:9px; font-weight:700; letter-spacing:.05em;
-  text-transform:uppercase; color:#fff; padding:3px 8px; border-radius:20px; }
-.tr-badge--doc{ background:rgba(14,59,46,.88); }
-.tr-badge--vid{ background:rgba(0,0,0,.5); }
-.tr-badge--play{ background:rgba(14,59,46,.55); }
-.tr-dur{ position:absolute; bottom:9px; right:9px; z-index:2; font-size:10px; font-weight:600;
+.tr-motif{ position:relative; z-index:2; width:60px; height:60px; filter:drop-shadow(0 3px 8px rgba(0,0,0,.18)); }
+.tr-th--doc .tr-motif{ filter:none; }
+.tr-badge{ position:absolute; top:9px; left:9px; z-index:3; font-size:9px; font-weight:700; letter-spacing:.05em;
+  text-transform:uppercase; padding:3px 8px; border-radius:20px; }
+.tr-badge--ondark{ background:rgba(0,0,0,.42); color:#fff; }
+.tr-badge--ink{ background:rgba(14,59,46,.9); color:#fff; }
+.tr-dur{ position:absolute; bottom:9px; right:9px; z-index:3; font-size:10px; font-weight:600;
   background:rgba(0,0,0,.6); color:#fff; padding:2px 7px; border-radius:5px; }
 
 .tr-cb{ padding:11px 13px 14px; }
