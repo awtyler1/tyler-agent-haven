@@ -86,6 +86,7 @@ export const insights: InsightPost[] = [
     date: '2026-06-24',
     readTime: '6 min read',
     cover: 'lock',
+    featured: true,
     articleSlug: 'aep-game-plan',
   },
   {
@@ -98,7 +99,6 @@ export const insights: InsightPost[] = [
     date: '2026-06-16',
     readTime: '7 min read',
     cover: 'bars',
-    featured: true,
     articleSlug: 'building-an-asset-not-a-job',
   },
   {
