@@ -33,12 +33,12 @@ export interface CarrierCert {
 export const certYear = 2027;
 
 export const carrierCerts: CarrierCert[] = [
+  { id: "devoted", name: "Devoted Health", color: "#B8292F", status: "open", opensLabel: "Available now", portalUrl: "https://agent.devoted.com/" },
   { id: "uhc", name: "UnitedHealthcare", color: "#002677", status: "not-open", opensLabel: "Coming soon" },
   { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Coming soon" },
   { id: "aetna", name: "Aetna", color: "#7a2f86", status: "not-open", opensLabel: "Coming soon" },
   { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open", opensLabel: "Coming soon" },
   { id: "wellcare", name: "Wellcare", color: "#007A72", status: "not-open", opensLabel: "Coming soon" },
-  { id: "devoted", name: "Devoted Health", color: "#B8292F", status: "not-open", opensLabel: "Coming soon" },
   { id: "cigna", name: "Cigna", color: "#00857C", status: "not-open", opensLabel: "Coming soon" },
   { id: "moo", name: "Mutual of Omaha", color: "#004B8D", status: "not-open", opensLabel: "Coming soon" },
 ];
