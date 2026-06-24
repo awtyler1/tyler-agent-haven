@@ -77,6 +77,19 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'aep-game-plan',
+    title: 'The AEP Game Plan',
+    excerpt:
+      'AEP is still months out, but it should sit in the back of everything you do until then. Here is the five-part game plan: stay in front of clients year-round, know your book cold before September, get into advisor mode now, out-prepare every appointment, and map your outreach before the mail hits.',
+    category: 'playbook',
+    author: AUSTIN,
+    date: '2026-06-24',
+    readTime: '6 min read',
+    cover: 'lock',
+    featured: true,
+    articleSlug: 'aep-game-plan',
+  },
+  {
     slug: 'building-an-asset-not-a-job',
     title: 'Are you building an asset or renting a job?',
     excerpt:
@@ -86,7 +99,6 @@ export const insights: InsightPost[] = [
     date: '2026-06-16',
     readTime: '7 min read',
     cover: 'bars',
-    featured: true,
     articleSlug: 'building-an-asset-not-a-job',
   },
   {

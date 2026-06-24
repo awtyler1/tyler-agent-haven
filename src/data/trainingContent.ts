@@ -41,6 +41,16 @@ export const trainingCategories: string[] = [
 
 export const trainingItems: TrainingItem[] = [
   {
+    id: "aep-prep-checklist",
+    title: "AEP Prep Checklist",
+    type: "playbook",
+    category: "Grow Your Business",
+    href: "/forms/aep-prep-checklist.pdf",
+    duration: "PDF",
+    blurb: "The action checklist behind “The AEP Game Plan” — work it from now through September.",
+    isNew: true,
+  },
+  {
     id: "ma-vs-medsupp",
     title: "Medicare Advantage vs. Medicare Supplement",
     type: "guide",
