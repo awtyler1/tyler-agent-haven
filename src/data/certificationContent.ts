@@ -25,7 +25,8 @@ export interface CarrierCert {
   color: string; // brand color for the card bar + mark
   status: CertStatus;
   opensLabel?: string; // optional hint, e.g. "Opens late July"
-  howToUrl?: string; // PDF on how to certify (leave '' until ready)
+  howTo?: string[]; // inline how-to steps — renders an expandable box (preferred for short flows)
+  howToUrl?: string; // OR a PDF on how to certify (used only when howTo is not set)
   portalUrl?: string; // carrier certification portal (leave '' until ready)
 }
 
@@ -33,12 +34,23 @@ export interface CarrierCert {
 export const certYear = 2027;
 
 export const carrierCerts: CarrierCert[] = [
+  {
+    id: "devoted",
+    name: "Devoted Health",
+    color: "#B8292F",
+    status: "open",
+    opensLabel: "Available now",
+    portalUrl: "https://agent.devoted.com/",
+    howTo: [
+      "Log in at agent.devoted.com.",
+      "On the main page, click “Start RTS Certification Now.”",
+    ],
+  },
   { id: "uhc", name: "UnitedHealthcare", color: "#002677", status: "not-open", opensLabel: "Coming soon" },
   { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Coming soon" },
   { id: "aetna", name: "Aetna", color: "#7a2f86", status: "not-open", opensLabel: "Coming soon" },
   { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open", opensLabel: "Coming soon" },
   { id: "wellcare", name: "Wellcare", color: "#007A72", status: "not-open", opensLabel: "Coming soon" },
-  { id: "devoted", name: "Devoted Health", color: "#B8292F", status: "not-open", opensLabel: "Coming soon" },
   { id: "cigna", name: "Cigna", color: "#00857C", status: "not-open", opensLabel: "Coming soon" },
   { id: "moo", name: "Mutual of Omaha", color: "#004B8D", status: "not-open", opensLabel: "Coming soon" },
 ];

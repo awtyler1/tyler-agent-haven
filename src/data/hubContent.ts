@@ -33,7 +33,7 @@ export interface BoardItem {
 
 export const boardMeta = {
   postedBy: "Austin & Andrew",
-  postedOn: "2026-06-22", // update when you refresh the board
+  postedOn: "2026-06-24", // update when you refresh the board
 };
 
 // A warm welcome that sits at the top of the Board. Set show:false to hide it
@@ -58,6 +58,17 @@ export const boardItems: BoardItem[] = [
     ],
     when: "Do it now",
     whenSub: "go early",
+  },
+  {
+    id: "devoted-live",
+    kind: "open",
+    title: "Devoted contracting is now live",
+    note: "Devoted is open to contract and certify. Knock out your RTS certification at agent.devoted.com.",
+    details: [
+      "On the Devoted portal, click “Start RTS Certification Now.”",
+      "See the Certifications page for the link and a quick how-to.",
+    ],
+    when: "New",
   },
   {
     id: "forms-updated",

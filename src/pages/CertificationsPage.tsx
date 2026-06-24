@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ahip, carrierCerts, certYear, type CarrierCert } from '@/data/certificationContent';
 
 function initial(name: string) {
@@ -7,6 +7,7 @@ function initial(name: string) {
 
 function CarrierCard({ c }: { c: CarrierCert }) {
   const open = c.status === 'open';
+  const [showHow, setShowHow] = useState(false);
   return (
     <div className="ct-cc" style={{ ['--bc' as string]: c.color }}>
       <div className="ct-cc__top">
@@ -28,7 +29,16 @@ function CarrierCard({ c }: { c: CarrierCert }) {
         </div>
       )}
       <div className="ct-cc__acts">
-        {c.howToUrl ? (
+        {c.howTo ? (
+          <button
+            type="button"
+            className={`ct-ca ${showHow ? 'ct-ca--on' : ''}`}
+            onClick={() => setShowHow((v) => !v)}
+            aria-expanded={showHow}
+          >
+            📄 How-to
+          </button>
+        ) : c.howToUrl ? (
           <a className="ct-ca" href={c.howToUrl} target="_blank" rel="noopener noreferrer">📄 How-to</a>
         ) : (
           <span className="ct-ca ct-ca--dim">📄 How-to</span>
@@ -39,6 +49,21 @@ function CarrierCard({ c }: { c: CarrierCert }) {
           <span className="ct-ca ct-ca--dim">Portal ↗</span>
         )}
       </div>
+      {showHow && c.howTo && (
+        <div className="ct-how">
+          <div className="ct-how__h">How to certify</div>
+          <ol className="ct-how__steps">
+            {c.howTo.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ol>
+          {c.portalUrl && (
+            <a className="ct-how__link" href={c.portalUrl} target="_blank" rel="noopener noreferrer">
+              Open the {c.name} portal ↗
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -141,10 +166,22 @@ const CSS = `
   color:var(--gold2); font-family:'Outfit',sans-serif; font-weight:700; font-size:13px; padding:7px 12px; border-radius:9px; }
 .ct-cc__date-ic{ font-size:13px; line-height:1; }
 .ct-cc__acts{ display:flex; gap:8px; }
-.ct-ca{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:11.5px; font-weight:600; padding:9px; border-radius:8px; border:1px solid var(--line); color:var(--ink); text-decoration:none; transition:.15s; }
+.ct-ca{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:11.5px; font-weight:600; padding:9px; border-radius:8px; border:1px solid var(--line); color:var(--ink); text-decoration:none; transition:.15s; background:transparent; font-family:inherit; cursor:pointer; }
 .ct-ca:hover{ border-color:var(--gold); }
+.ct-ca--on{ border-color:var(--gold); background:rgba(201,168,76,.1); color:var(--gold2); }
 .ct-ca--go{ background:var(--em); color:var(--bone); border-color:var(--em); }
 .ct-ca--dim{ color:var(--muted); opacity:.5; cursor:not-allowed; }
+
+/* inline how-to */
+.ct-how{ margin-top:11px; background:rgba(14,59,46,.04); border:1px solid var(--line); border-radius:10px; padding:12px 14px; animation:ctHow .15s ease; }
+@keyframes ctHow{ from{ opacity:0; transform:translateY(-3px); } to{ opacity:1; transform:translateY(0); } }
+.ct-how__h{ font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); margin-bottom:8px; }
+.ct-how__steps{ margin:0 0 2px; padding:0; list-style:none; counter-reset:s; }
+.ct-how__steps li{ position:relative; padding-left:25px; font-size:12px; line-height:1.4; color:var(--ink); margin-bottom:7px; counter-increment:s; }
+.ct-how__steps li:last-child{ margin-bottom:0; }
+.ct-how__steps li:before{ content:counter(s); position:absolute; left:0; top:0; width:17px; height:17px; border-radius:50%; background:var(--em); color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.ct-how__link{ display:inline-block; margin-top:9px; font-size:11.5px; font-weight:700; color:var(--gold2); text-decoration:none; }
+.ct-how__link:hover{ text-decoration:underline; }
 
 .ct-note{ font-size:12.5px; color:var(--muted); margin-top:22px; line-height:1.6; }
 .ct-note a{ color:var(--gold2); font-weight:600; text-decoration:none; }
