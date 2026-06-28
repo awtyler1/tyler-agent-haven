@@ -82,7 +82,7 @@ export const carrierCerts: CarrierCert[] = [
     color: "#007A72",
     status: "open",
     opensLabel: "Available now",
-    portalUrl: "https://www.centene-workbench.com/",
+    portalUrl: "https://www.wellcare.com/Broker-Resources/Broker-Resources",
     howTo: [
       "Log in to the Centene Workbench.",
       "In the left-hand menu, click “Training,” then “Required Training.”",
