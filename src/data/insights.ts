@@ -57,7 +57,8 @@ export type CoverMotif =
   | 'lock'    // padlock (members / playbooks)
   | 'coins'   // stacked coins + arrow (money / commissions)
   | 'shield'  // shield + check (FMO / protection / contracts)
-  | 'deal';   // consolidation network (acquisition / buying books)
+  | 'deal'    // consolidation network (acquisition / buying books)
+  | 'steps';  // ascending steps + climber (starting from zero / fundamentals)
 
 export interface InsightPost {
   slug: string;
@@ -76,6 +77,18 @@ export interface InsightPost {
 
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
+  {
+    slug: 'starting-from-zero-again',
+    title: 'If I Were Starting From Zero Again',
+    excerpt:
+      "If I lost it all tomorrow and had to rebuild a Medicare agency from nothing, I wouldn't go hunting for a secret. I'd do four boring things, in order, before I let myself get distracted by anything shiny: start a Google Business Profile, get the word out, get around other agents, and make my carrier reps my teachers.",
+    category: 'agency',
+    author: AUSTIN,
+    date: '2026-06-28',
+    readTime: '7 min read',
+    cover: 'steps',
+    articleSlug: 'starting-from-zero-again',
+  },
   {
     slug: 'aep-game-plan',
     title: 'The AEP Game Plan',

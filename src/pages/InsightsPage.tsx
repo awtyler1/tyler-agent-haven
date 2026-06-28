@@ -74,6 +74,16 @@ function InsightCover({ cover, variant = 'card' }: { cover: CoverMotif; variant?
             <path className="shieldcheck" d="M178 114 l16 16 l30 -34" />
           </g>
         )}
+        {cover === 'steps' && (
+          <g className="ins-art ins-art--steps">
+            <rect className="step st1" x="60" y="150" width="58" height="22" rx="3" />
+            <rect className="step st2" x="118" y="124" width="58" height="48" rx="3" />
+            <rect className="step st3" x="176" y="98" width="58" height="74" rx="3" />
+            <rect className="step st4" x="234" y="72" width="58" height="100" rx="3" />
+            <path className="climb" d="M76 150 L146 124 L210 98 L276 72" />
+            <circle className="climber" cx="276" cy="72" r="7" />
+          </g>
+        )}
         {cover === 'deal' && (
           <g className="ins-art ins-art--deal">
             <line className="spoke s1" x1="200" y1="110" x2="110" y2="58" />
@@ -416,12 +426,21 @@ const CSS = `
 .ins-art--deal .hub{ fill:rgba(231,207,134,.14); stroke:#e7cf86; stroke-width:4; }
 @keyframes insNode{ 0%,100%{ opacity:.55; transform:scale(1); } 50%{ opacity:1; transform:scale(1.18); } }
 
+/* starting from zero: ascending steps + climbing marker */
+.ins-art--steps .step{ fill:#C9A84C; transform-box:fill-box; transform-origin:center bottom; transform:scaleY(0); animation:insGrow .7s cubic-bezier(.4,0,.2,1) forwards; }
+.ins-art--steps .st1{ opacity:.45; animation-delay:.1s; }
+.ins-art--steps .st2{ opacity:.62; animation-delay:.25s; }
+.ins-art--steps .st3{ opacity:.8; animation-delay:.4s; }
+.ins-art--steps .st4{ opacity:.95; animation-delay:.55s; }
+.ins-art--steps .climb{ fill:none; stroke:#e7cf86; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:300; stroke-dashoffset:300; animation:insDraw 1.4s ease-out .7s forwards; }
+.ins-art--steps .climber{ fill:#e7cf86; animation:insBlink 2.4s ease-in-out 2s infinite; }
+
 @media (prefers-reduced-motion: reduce){
   .ins-cover__glow,.ins-art .r,.ins-art .enddot,.ins-art--bars .bar,.ins-art--lock,
-  .ins-art--shield,.ins-art--deal .node,.ins-art--coins .coin{ animation:none; }
+  .ins-art--shield,.ins-art--deal .node,.ins-art--coins .coin,.ins-art--steps .step,.ins-art--steps .climber{ animation:none; }
   .ins-art .line,.ins-art--bars .trend,.ins-art--shield .shieldbody,.ins-art--shield .shieldcheck,
-  .ins-art--coins .coinup,.ins-art--deal .spoke{ animation:none; stroke-dashoffset:0; }
-  .ins-art--bars .bar{ transform:scaleY(1); }
+  .ins-art--coins .coinup,.ins-art--deal .spoke,.ins-art--steps .climb{ animation:none; stroke-dashoffset:0; }
+  .ins-art--bars .bar,.ins-art--steps .step{ transform:scaleY(1); }
   .ins-art--coins .coin{ opacity:.9; transform:none; }
 }
 .ins-lock{ position:absolute; right:12px; top:12px; z-index:2; background:rgba(10,44,34,.82); color:var(--gold); font-size:11px; font-weight:700; padding:5px 10px; border-radius:30px; display:flex; align-items:center; gap:5px; backdrop-filter:blur(2px); }
