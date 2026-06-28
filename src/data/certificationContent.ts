@@ -76,7 +76,19 @@ export const carrierCerts: CarrierCert[] = [
   },
   { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Coming soon" },
   { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open", opensLabel: "Coming soon" },
-  { id: "wellcare", name: "Wellcare", color: "#007A72", status: "not-open", opensLabel: "Coming soon" },
+  {
+    id: "wellcare",
+    name: "Wellcare",
+    color: "#007A72",
+    status: "open",
+    opensLabel: "Available now",
+    portalUrl: "https://www.centene-workbench.com/",
+    howTo: [
+      "Log in to the Centene Workbench.",
+      "In the left-hand menu, click “Training,” then “Required Training.”",
+      "Complete the 2027 Wellcare required training to certify.",
+    ],
+  },
   { id: "cigna", name: "Cigna", color: "#00857C", status: "not-open", opensLabel: "Coming soon" },
   { id: "moo", name: "Mutual of Omaha", color: "#004B8D", status: "not-open", opensLabel: "Coming soon" },
 ];
