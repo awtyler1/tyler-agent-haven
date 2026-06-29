@@ -83,12 +83,28 @@ export default function CalendarPage() {
                   <span className="cal-dn">{d}</span>
                   {evs.map((ev) => {
                     const meta = CATEGORY_META[ev.category];
-                    return (
+                    const tip = ev.detail ? `${ev.title} — ${ev.detail}` : ev.title;
+                    const style = meta.dashed
+                      ? { borderColor: meta.color, color: meta.color }
+                      : { background: meta.color };
+                    return ev.link ? (
+                      <a
+                        className={`cal-evt cal-evt--link${meta.dashed ? ' soft' : ''}`}
+                        key={ev.id}
+                        href={ev.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`${tip} (click to ${ev.linkLabel ?? 'join'})`}
+                        style={style}
+                      >
+                        {ev.title}
+                      </a>
+                    ) : (
                       <span
                         className={`cal-evt${meta.dashed ? ' soft' : ''}`}
                         key={ev.id}
-                        title={ev.detail ? `${ev.title} — ${ev.detail}` : ev.title}
-                        style={meta.dashed ? { borderColor: meta.color, color: meta.color } : { background: meta.color }}
+                        title={tip}
+                        style={style}
                       >
                         {ev.title}
                       </span>
@@ -148,6 +164,8 @@ const CSS = `
 .cal-evt{ display:block; margin-top:4px; font-size:10.5px; font-weight:600; padding:3px 7px; border-radius:6px; color:#fff;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:default; }
 .cal-evt.soft{ background:transparent; border:1.5px dashed; }
+.cal-evt--link{ cursor:pointer; text-decoration:none; }
+.cal-evt--link:hover{ filter:brightness(1.08); box-shadow:0 1px 6px rgba(0,0,0,.18); }
 
 @media(max-width:760px){
   .cal{ padding:18px; }

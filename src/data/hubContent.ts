@@ -29,6 +29,10 @@ export interface BoardItem {
   date?: string; // 'YYYY-MM-DD'
   /** Small label under `when` when no date is given, e.g. 'go early'. */
   whenSub?: string;
+  /** Optional join/RSVP URL. Renders as a "Join" button; raw URL is hidden. */
+  link?: string;
+  /** Label for the link, e.g. 'Join the call'. Defaults to 'Join'. */
+  linkLabel?: string;
 }
 
 export const boardMeta = {
@@ -47,6 +51,16 @@ export const welcome = {
 };
 
 export const boardItems: BoardItem[] = [
+  {
+    id: "tig-aetna-aep-call",
+    kind: "action",
+    title: "Don't miss: TIG + Aetna AEP call, July 8 at 11 AM ET",
+    note: "A look at what to expect from Aetna during AEP and into next year. This is an important one. Block the time and come ready with questions.",
+    when: "Jul 8",
+    date: "2026-07-08",
+    link: "https://teams.microsoft.com/meet/219912569776466?p=C3AZ6F6PvcIUqnwECm",
+    linkLabel: "Join the call",
+  },
   {
     id: "ahip-2027-out",
     kind: "open",
