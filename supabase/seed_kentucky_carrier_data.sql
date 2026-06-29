@@ -144,10 +144,6 @@ SELECT c.id, 'KY', 'sales_manager', 'Horace Williams', 'Broker Relationship Exec
 FROM carriers c WHERE c.code = 'humana';
 
 INSERT INTO carrier_contacts (carrier_id, state_code, contact_type, name, title, phone, email, region, is_primary)
-SELECT c.id, 'KY', 'territory_manager', 'Chris Baker', 'Broker Relationship Manager', '(859) 227-9256', 'cbaker56@humana.com', 'Eastern Kentucky', false
-FROM carriers c WHERE c.code = 'humana';
-
-INSERT INTO carrier_contacts (carrier_id, state_code, contact_type, name, title, phone, email, region, is_primary)
 SELECT c.id, 'KY', 'territory_manager', 'Samantha Stevenson', 'Broker Relationship Manager', '(502) 438-3816', 'sjones224@humana.com', 'Western Kentucky', false
 FROM carriers c WHERE c.code = 'humana';
 
