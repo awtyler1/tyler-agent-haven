@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tyler Insurance Group | Medicare help for Kentuckians</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F6F1E7;
+    --ivory:#FBF8F1;
+    --emerald:#0E3B2E;
+    --emerald-deep:#0a2c22;
+    --gold:#B0892F;
+    --gold-light:#C9A84C;
+    --ink:#22302a;
+    --line:#e3dccb;
+    --paper:#ffffff;
+    --muted:#6c7269;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:18px;
+    line-height:1.65;
+    color:var(--ink);
+    background:var(--ivory);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+
+  /* Focus styles */
+  a:focus-visible,button:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px;}
+
+  /* Hairline gold rule */
+  .hairline{height:1px;background:linear-gradient(90deg,transparent,var(--gold-light),transparent);border:0;margin:0;}
+
+  /* ===== Header ===== */
+  header.site{
+    position:sticky;top:0;z-index:50;
+    background:rgba(251,248,241,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;padding:14px 24px;max-width:1140px;margin:0 auto;
+  }
+  .brand{display:flex;flex-direction:column;line-height:1.15;}
+  .brand .name{font-family:'Fraunces',serif;font-weight:600;font-size:22px;color:var(--emerald);letter-spacing:.2px;}
+  .brand .tag{font-size:13px;color:var(--muted);letter-spacing:.3px;}
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  .btn-call{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--emerald);color:#fff;
+    font-weight:600;font-size:17px;
+    padding:12px 20px;border-radius:999px;
+    min-height:48px;text-decoration:none;
+    border:1px solid var(--emerald-deep);
+    transition:background .18s ease, transform .18s ease;
+  }
+  .btn-call:hover{background:var(--emerald-deep);transform:translateY(-1px);}
+  .btn-call svg{width:18px;height:18px;}
+  .menu-toggle{display:none;}
+
+  /* ===== Hero ===== */
+  .hero{
+    background:
+      radial-gradient(1200px 600px at 90% -10%, rgba(176,137,47,0.07), transparent 60%),
+      var(--cream);
+    padding:64px 0 72px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1.05fr .95fr;
+    gap:56px;align-items:center;
+  }
+  .eyebrow{
+    display:inline-block;
+    font-size:13px;font-weight:700;letter-spacing:.16em;
+    color:var(--gold);text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{content:"";display:inline-block;width:28px;height:1px;background:var(--gold);vertical-align:middle;margin-right:10px;margin-bottom:3px;}
+  h1.hero-h1{
+    font-size:clamp(40px,5.4vw,62px);
+    line-height:1.04;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--emerald);
+    margin-bottom:22px;
+  }
+  .subhead{font-size:20px;color:var(--ink);max-width:36ch;margin-bottom:28px;}
+  .trust-list{list-style:none;margin:0 0 32px;display:grid;gap:13px;}
+  .trust-list li{display:flex;align-items:flex-start;gap:13px;font-size:18px;font-weight:500;}
+  .trust-list .check{
+    flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+    background:var(--emerald);color:var(--gold-light);
+    display:grid;place-items:center;margin-top:1px;
+  }
+  .trust-list .check svg{width:14px;height:14px;}
+
+  /* Hero photo card */
+  .hero-photo{
+    position:relative;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:14px;
+    box-shadow:0 30px 60px -28px rgba(14,59,46,0.35), 0 2px 0 var(--gold-light);
+  }
+  .hero-photo .frame{
+    border-radius:12px;overflow:hidden;
+    border:1px solid var(--line);
+    aspect-ratio:4/4.4;
+    background:#ded7c6;
+  }
+  .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;}
+  .name-plate{
+    position:absolute;left:28px;right:28px;bottom:-26px;
+    background:var(--emerald);color:#fff;
+    border-radius:12px;padding:16px 20px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    box-shadow:0 18px 36px -16px rgba(14,59,46,0.55);
+    border:1px solid var(--emerald-deep);
+  }
+  .name-plate .who{display:flex;flex-direction:column;line-height:1.25;}
+  .name-plate .who .nm{font-family:'Fraunces',serif;font-weight:600;font-size:20px;}
+  .name-plate .who .loc{font-size:13.5px;color:#cfe0d6;}
+  .name-plate .rate{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+  .stars{display:inline-flex;gap:2px;}
+  .stars svg{width:16px;height:16px;}
+  .star-fill{fill:var(--gold-light);}
+  .name-plate .score{font-weight:700;font-size:15px;color:#fff;}
+  .name-plate .score b{color:var(--gold-light);}
+
+  /* ===== Doors ===== */
+  .doors{padding:64px 0 56px;background:var(--ivory);}
+  .doors-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px;}
+  .door{
+    display:block;text-decoration:none;color:inherit;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:32px 30px;
+    position:relative;
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    box-shadow:0 10px 30px -22px rgba(14,59,46,0.4);
+    min-height:44px;
+  }
+  .door:hover{transform:translateY(-3px);box-shadow:0 24px 44px -26px rgba(14,59,46,0.5);border-color:var(--gold-light);}
+  .door .kicker{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .door h3{font-size:27px;font-weight:600;color:var(--emerald);line-height:1.1;margin-bottom:18px;}
+  .door .door-link{
+    display:inline-flex;align-items:center;gap:9px;
+    font-weight:600;font-size:18px;color:var(--emerald);
+  }
+  .door .door-link .arrow{transition:transform .2s ease;}
+  .door:hover .door-link .arrow{transform:translateX(4px);}
+  .door .door-link svg{width:18px;height:18px;}
+  .reassure{margin-top:16px;font-size:16.5px;color:var(--muted);font-style:italic;text-align:center;}
+  .door-b-note{grid-column:1 / -1;}
+
+  /* ===== Generic section ===== */
+  section.band{padding:80px 0;}
+  .band.cream{background:var(--cream);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .section-head{max-width:60ch;margin:0 auto 40px;text-align:center;}
+  .section-head .label{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block;}
+  h2.section-h2{font-size:clamp(30px,3.8vw,42px);font-weight:600;line-height:1.1;color:var(--emerald);letter-spacing:-0.01em;}
+  .section-head .sub{margin-top:14px;font-size:19px;color:var(--ink);}
+
+  /* Why free */
+  .why-wrap{max-width:760px;margin:0 auto;}
+  .why-wrap p{font-size:20px;margin-bottom:20px;color:var(--ink);}
+  .pullquote{
+    margin:36px auto 0;max-width:680px;text-align:center;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+    font-size:clamp(26px,3.2vw,34px);line-height:1.2;
+    color:var(--emerald);
+    padding:28px 0;
+    border-top:1px solid var(--gold-light);
+    border-bottom:1px solid var(--gold-light);
+  }
+  .pullquote .mark{color:var(--gold);}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:16px;}
+  .step{
+    background:var(--paper);border:1px solid var(--line);border-radius:16px;
+    padding:34px 28px;position:relative;
+    box-shadow:0 12px 30px -24px rgba(14,59,46,0.4);
+  }
+  .step .num{
+    font-family:'Fraunces',serif;font-weight:600;font-size:58px;line-height:1;
+    color:var(--gold);
+    display:block;margin-bottom:14px;
+  }
+  .step h3{font-size:23px;font-weight:600;color:var(--emerald);margin-bottom:10px;}
+  .step p{font-size:17.5px;color:var(--ink);}
+
+  /* Reviews wall */
+  .reviews-wall{
+    columns:2;column-gap:28px;max-width:920px;margin:8px auto 0;
+  }
+  .clip{
+    break-inside:avoid;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:26px 26px 24px;
+    margin-bottom:28px;
+    box-shadow:0 16px 34px -26px rgba(14,59,46,0.5);
+  }
+  .clip:nth-child(odd){transform:rotate(-0.5deg);}
+  .clip:nth-child(even){transform:rotate(0.5deg);}
+  .clip .stars{margin-bottom:14px;}
+  .clip .stars svg{width:18px;height:18px;}
+  .clip blockquote{font-family:'Fraunces',serif;font-size:21px;line-height:1.4;color:var(--ink);font-weight:400;margin-bottom:16px;}
+  .clip .who{font-weight:600;font-size:16px;color:var(--emerald);}
+  .clip .who::before{content:"";display:inline-block;width:16px;height:2px;background:var(--gold);vertical-align:middle;margin-right:8px;margin-bottom:3px;}
+  .review-note{text-align:center;font-size:14.5px;color:var(--muted);font-style:italic;margin-top:6px;}
+
+  /* Office */
+  .office-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+  .office-copy h2{margin-bottom:22px;}
+  .office-copy p{font-size:19px;margin-bottom:18px;}
+  .map-pin{
+    display:inline-flex;align-items:center;gap:12px;
+    background:var(--ivory);border:1px solid var(--line);
+    border-left:4px solid var(--gold);
+    border-radius:10px;padding:14px 18px;margin-top:6px;
+    font-weight:600;color:var(--emerald);
+  }
+  .map-pin svg{width:22px;height:22px;flex:0 0 auto;color:var(--gold);}
+  .office-photo{
+    aspect-ratio:4/3;
+    background:
+      repeating-linear-gradient(45deg, rgba(176,137,47,0.05) 0 14px, transparent 14px 28px),
+      var(--cream);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px;
+    box-shadow:0 28px 56px -30px rgba(14,59,46,0.4);
+  }
+  .office-photo .inner{
+    height:100%;border-radius:10px;border:1px dashed var(--gold-light);
+    display:grid;place-items:center;text-align:center;color:var(--muted);
+    background:rgba(255,255,255,0.4);
+    font-size:15px;gap:6px;padding:20px;
+  }
+  .office-photo .inner svg{width:34px;height:34px;color:var(--gold);}
+
+  /* Final reroute */
+  .reroute{background:var(--emerald);color:#fff;text-align:center;padding:80px 0;}
+  .reroute h2{color:#fff;margin-bottom:18px;}
+  .reroute p{font-size:20px;color:#dfeae3;max-width:60ch;margin:0 auto 32px;}
+  .reroute .btn-call{background:var(--gold);border-color:var(--gold);color:var(--emerald-deep);font-size:20px;padding:16px 30px;min-height:56px;}
+  .reroute .btn-call:hover{background:var(--gold-light);}
+  .reroute-secondary{margin-top:26px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .reroute-secondary a{
+    text-decoration:none;color:#fff;font-weight:600;font-size:17px;
+    border:1px solid rgba(255,255,255,0.4);border-radius:999px;
+    padding:11px 22px;min-height:44px;display:inline-flex;align-items:center;
+    transition:background .18s ease;
+  }
+  .reroute-secondary a:hover{background:rgba(255,255,255,0.12);}
+
+  /* Footer */
+  footer.site{background:var(--cream);padding:54px 0 64px;border-top:1px solid var(--line);}
+  .footer-top{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-bottom:28px;}
+  .footer-brand .name{font-family:'Fraunces',serif;font-weight:600;font-size:21px;color:var(--emerald);}
+  .footer-brand .tag{font-size:14px;color:var(--muted);}
+  .footer-phone{font-family:'Fraunces',serif;font-size:24px;color:var(--emerald);text-decoration:none;font-weight:600;}
+  .disclaimer{font-size:13.5px;line-height:1.6;color:var(--muted);max-width:80ch;}
+  .disclaimer p{margin-bottom:10px;}
+  .disclaimer .loc-line{font-weight:600;color:var(--ink);}
+
+  /* Concept badge */
+  .concept-badge{
+    position:fixed;right:18px;bottom:18px;z-index:80;
+    background:var(--paper);border:1px solid var(--line);
+    border-radius:999px;padding:8px 16px;font-size:13px;color:var(--muted);
+    box-shadow:0 10px 26px -14px rgba(14,59,46,0.5);
+  }
+  .concept-badge b{color:var(--emerald);font-weight:700;}
+
+  /* Responsive */
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:48px;}
+    .hero-photo{max-width:440px;margin:24px auto 0;}
+    .office-grid{grid-template-columns:1fr;gap:32px;}
+    .steps{grid-template-columns:1fr;}
+    .reviews-wall{columns:1;}
+  }
+  @media (max-width:680px){
+    body{font-size:17px;}
+    .doors-grid{grid-template-columns:1fr;}
+    .header-actions .btn-call .label-full{display:none;}
+    .header-actions .btn-call{padding:12px 16px;}
+    .footer-top{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="name">Tyler Insurance Group</span>
+      <span class="tag">Medicare help for Kentuckians</span>
+    </div>
+    <div class="header-actions">
+      <a class="btn-call" href="tel:+18596186443">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span class="label-full">Call (859) 618-6443</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">A real person, right here in Lexington</span>
+        <h1 class="hero-h1">Medicare, handled by one real person in Lexington.</h1>
+        <p class="subhead">I'm Austin Tyler. I help Kentuckians sort out Medicare right at their own kitchen table. Plain English, no cost, no pressure.</p>
+        <ul class="trust-list">
+          <li>
+            <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <span>You talk to Austin. Every time.</span>
+          </li>
+          <li>
+            <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <span>Plain English. No jargon, no sales pitch.</span>
+          </li>
+          <li>
+            <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <span>Always free to talk.</span>
+          </li>
+        </ul>
+        <a class="btn-call" href="tel:+18596186443" style="font-size:19px;padding:15px 26px;min-height:54px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Call (859) 618-6443
+        </a>
+      </div>
+
+      <div class="hero-photo">
+        <div class="frame">
+          <img src="/images/founders/atyler-headshot.jpg" alt="Austin Tyler, Medicare advisor in Lexington, Kentucky">
+        </div>
+        <div class="name-plate">
+          <div class="who">
+            <span class="nm">Austin Tyler</span>
+            <span class="loc">Tyler Insurance Group, Lexington KY</span>
+          </div>
+          <div class="rate">
+            <span class="stars" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+              <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+              <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+              <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+              <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            </span>
+            <span class="score">5.0 rating</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOORS -->
+<section class="doors">
+  <div class="wrap">
+    <div class="doors-grid">
+      <a class="door" href="/guide/">
+        <span class="kicker">Door 1</span>
+        <h3>New to Medicare or turning 65?</h3>
+        <span class="door-link">Get the free guide
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </span>
+      </a>
+      <a class="door" href="/review/">
+        <span class="kicker">Door 2</span>
+        <h3>Already on Medicare?</h3>
+        <span class="door-link">Get a free review
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </span>
+      </a>
+      <div class="door-b-note">
+        <p class="reassure">It is never too late to have a local advisor in your corner.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: WHY FREE -->
+<section class="band cream">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="label">No catch</span>
+      <h2 class="section-h2">The free part is real. Here's why.</h2>
+    </div>
+    <div class="why-wrap">
+      <p>It costs you nothing to work with me. Nothing now, nothing later.</p>
+      <p>The carriers pay licensed advisors. That is how this works for everyone in my position, whether you ever find one or not.</p>
+      <p>So you are not paying for my time, and you are not getting a lesser version by keeping it local. You get a real person instead of a call center, at no cost to you.</p>
+      <blockquote class="pullquote">That is the whole catch. <span class="mark">There isn't one.</span></blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: HOW IT WORKS -->
+<section class="band">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="label">How it works</span>
+      <h2 class="section-h2">Three steps, and most of them are mine.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="num">1</span>
+        <h3>We talk.</h3>
+        <p>You call me, or I call you. No forms to get through, no quiz to pass.</p>
+      </div>
+      <div class="step">
+        <span class="num">2</span>
+        <h3>I do the comparing.</h3>
+        <p>You don't read a single brochure. That part is my job, not yours.</p>
+      </div>
+      <div class="step">
+        <span class="num">3</span>
+        <h3>You decide.</h3>
+        <p>I lay your options out in plain English. You pick the one that fits. Or you don't. No pressure either way.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: PROOF -->
+<section class="band cream">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="label">Kentuckians like you</span>
+      <h2 class="section-h2">Over 1,000 Kentuckians have sat where you're sitting.</h2>
+      <p class="sub">Same questions, same pile of mail, same not knowing where to start. Here's what a few of them said after.</p>
+    </div>
+    <div class="reviews-wall">
+      <div class="clip">
+        <span class="stars" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+        </span>
+        <blockquote>"Austin made it simple and answered every question I had. I never felt rushed."</blockquote>
+        <div class="who">Linda M.</div>
+      </div>
+      <div class="clip">
+        <span class="stars" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+        </span>
+        <blockquote>"He came to our kitchen table and explained everything in plain English. No pressure at all."</blockquote>
+        <div class="who">Robert H.</div>
+      </div>
+      <div class="clip">
+        <span class="stars" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+        </span>
+        <blockquote>"I had a stack of mail I did not understand. Austin walked me through all of it patiently."</blockquote>
+        <div class="who">Carol S.</div>
+      </div>
+      <div class="clip">
+        <span class="stars" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+        </span>
+        <blockquote>"Easiest part of turning 65. He picked up every time I called."</blockquote>
+        <div class="who">James T.</div>
+      </div>
+      <div class="clip">
+        <span class="stars" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg><svg viewBox="0 0 24 24"><polygon class="star-fill" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+        </span>
+        <blockquote>"Honest, local, and genuinely kind. I have already sent him two neighbors."</blockquote>
+        <div class="who">Patricia D.</div>
+      </div>
+    </div>
+    <p class="review-note">Placeholder reviews, to be replaced with real Google screenshots.</p>
+  </div>
+</section>
+
+<!-- SECTION 5: OFFICE -->
+<section class="band">
+  <div class="wrap">
+    <div class="office-grid">
+      <div class="office-copy">
+        <span class="label" style="font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block;">A real, local office</span>
+        <h2 class="section-h2">You can drive to my office.</h2>
+        <p>I'm not a call center in another state. I'm at 1029 Monarch Street, right off Beaumont Circle.</p>
+        <p>Licensed, local, and the same person you'll talk to next year when something changes.</p>
+        <p>If you'd rather sit across a table than talk on the phone, that's a real option. The door is right here.</p>
+        <div class="map-pin">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          1029 Monarch Street, Lexington, KY
+        </div>
+      </div>
+      <div class="office-photo">
+        <div class="inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>Photo of the Monarch Street office</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: FINAL REROUTE -->
+<section class="reroute">
+  <div class="wrap">
+    <h2 class="section-h2">Not sure where to start? Start with a phone call.</h2>
+    <p>If you're turning 65, grab the free guide. If you're already on Medicare, get a free review. And if you're not sure which one you are, just call me. I'll point you the right way in two minutes.</p>
+    <a class="btn-call" href="tel:+18596186443">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Call (859) 618-6443
+    </a>
+    <div class="reroute-secondary">
+      <a href="/guide/">New to Medicare? Get the free guide</a>
+      <a href="/review/">Already on Medicare? Get a free review</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="name">Tyler Insurance Group</div>
+        <div class="tag">Medicare help for Kentuckians</div>
+      </div>
+      <a class="footer-phone" href="tel:+18596186443">Call (859) 618-6443</a>
+    </div>
+    <hr class="hairline" style="margin:8px 0 24px;">
+    <div class="disclaimer">
+      <p>We do not offer every plan available in your area. Any information we provide is limited to those plans we do offer in your area. Please contact Medicare.gov or 1-800-MEDICARE to get information on all of your options.</p>
+      <p>Not connected with or endorsed by the United States government or the federal Medicare program.</p>
+      <p class="loc-line">Tyler Insurance Group, Lexington, Kentucky. Serving all of Kentucky.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Concept badge -->
+<div class="concept-badge">Concept <b>Warm Editorial</b></div>
+
+</body>
+</html>
