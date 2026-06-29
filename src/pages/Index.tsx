@@ -133,6 +133,11 @@ export default function Index() {
                       {item.details.map((d, i) => <li key={i}>{d}</li>)}
                     </ul>
                   )}
+                  {item.link && (
+                    <a className="hub-bitem__join" href={item.link} target="_blank" rel="noopener noreferrer">
+                      {item.linkLabel ?? 'Join'} ↗
+                    </a>
+                  )}
                 </div>
                 <div className="hub-bitem__when">
                   <div className="hub-bitem__whenBig">{item.when}</div>
@@ -174,6 +179,11 @@ export default function Index() {
                         {ev.title}
                       </div>
                       <div className="hub-ev__s">{ev.detail ?? CATEGORY_META[ev.category].label}</div>
+                      {ev.link && (
+                        <a className="hub-ev__join" href={ev.link} target="_blank" rel="noopener noreferrer">
+                          {ev.linkLabel ?? 'Join'} ↗
+                        </a>
+                      )}
                     </div>
                   </div>
                 );
@@ -257,6 +267,9 @@ const CSS = `
 .hub-bitem__body{ min-width:0; }
 .hub-bitem__title{ font-weight:600; }
 .hub-bitem__note{ font-size:12px; color:rgba(244,241,232,.55); margin-top:1px; }
+.hub-bitem__join{ display:inline-flex; align-items:center; gap:5px; margin-top:10px; font-size:12px; font-weight:700;
+  color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:7px 13px; border-radius:8px; text-decoration:none; }
+.hub-bitem__join:hover{ filter:brightness(1.05); transform:translateY(-1px); }
 .hub-bitem__when{ margin-left:auto; text-align:right; flex-shrink:0; }
 .hub-bitem__whenBig{ font-size:15px; font-weight:700; color:var(--gold); }
 .hub-bitem__whenSub{ font-size:10.5px; color:rgba(244,241,232,.55); }
@@ -278,6 +291,8 @@ const CSS = `
 .hub-ev__t{ font-size:13px; font-weight:600; display:flex; align-items:center; gap:7px; }
 .hub-ev__dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 .hub-ev__s{ font-size:11.5px; color:var(--muted); }
+.hub-ev__join{ display:inline-block; margin-top:4px; font-size:11.5px; font-weight:700; color:var(--gold2); text-decoration:none; }
+.hub-ev__join:hover{ text-decoration:underline; }
 
 .hub-new{ display:block; padding:9px 0; border-bottom:1px solid var(--line); text-decoration:none; color:var(--ink); }
 .hub-new:last-child{ border-bottom:none; }

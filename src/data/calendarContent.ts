@@ -23,6 +23,11 @@ export interface CalEvent {
   title: string;
   detail?: string;
   category: EventCategory;
+  /** Optional join/RSVP URL. Renders as a clickable "Join" link on the
+   *  calendar chip and the hub's Upcoming card. The raw URL is never shown. */
+  link?: string;
+  /** Label for the link, e.g. "Join the call". Defaults to "Join". */
+  linkLabel?: string;
 }
 
 export const CATEGORY_META: Record<EventCategory, { label: string; color: string; dashed?: boolean }> = {
@@ -37,6 +42,17 @@ export const CATEGORY_META: Record<EventCategory, { label: string; color: string
 export const calendarEvents: CalEvent[] = [
   // Real Medicare/holiday anchors. Add your own TIG events, carrier
   // events, deadlines, and OOO as they come up — see the shape above.
+
+  // ── TIG events ──
+  {
+    id: "tig-aetna-aep-call",
+    date: "2026-07-08",
+    title: "TIG + Aetna AEP Call ⭐",
+    detail: "11:00 AM ET · Microsoft Teams · What to expect from Aetna for AEP and next year. Don't miss this one.",
+    category: "tig",
+    link: "https://teams.microsoft.com/meet/219912569776466?p=C3AZ6F6PvcIUqnwECm",
+    linkLabel: "Join the call",
+  },
 
   // ── 2027 Certifications ──
   { id: "ahip-2027", date: "2026-06-22", title: "AHIP 2027 launches 🎓", detail: "2027 Medicare training opens", category: "cert" },
