@@ -53,6 +53,24 @@ export const calendarEvents: CalEvent[] = [
     link: "https://teams.microsoft.com/meet/219912569776466?p=C3AZ6F6PvcIUqnwECm",
     linkLabel: "Join the call",
   },
+  {
+    id: "tig-uhc-call",
+    date: "2026-07-15",
+    title: "TIG + UHC Call (Mark Reeder)",
+    detail: "11:00 AM ET · Microsoft Teams · Tyler Team + UHC with Mark Reeder.",
+    category: "tig",
+    link: "https://teams.microsoft.com/meet/262872777073942?p=vc3uuzfmDgMxC2zAJQ",
+    linkLabel: "Join the call",
+  },
+  {
+    id: "tig-devoted-call",
+    date: "2026-07-22",
+    title: "TIG + Devoted Call (Hailey Lindenbauer)",
+    detail: "11:00 AM ET · Microsoft Teams · Tyler Team + Devoted with Hailey Lindenbauer.",
+    category: "tig",
+    link: "https://teams.microsoft.com/meet/23718475518502?p=kvWc3NPMJ7CYzBp5mU",
+    linkLabel: "Join the call",
+  },
 
   // ── 2027 Certifications ──
   { id: "ahip-2027", date: "2026-06-22", title: "AHIP 2027 launches 🎓", detail: "2027 Medicare training opens", category: "cert" },
