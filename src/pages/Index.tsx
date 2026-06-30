@@ -51,10 +51,16 @@ export default function Index() {
   const daysLeftAep = Math.ceil((aepEnd.getTime() - now.getTime()) / 86_400_000);
   const inAep = now >= aepStart && now <= aepEnd;
 
-  // Upcoming = everything on the calendar in the next 7 days (a week at a glance).
+  // Upcoming card. Calls/meetings (tig + carrier) only surface here when they're
+  // 7 days out or less, so the dashboard stays focused on the near term. Cert
+  // milestones (e.g. AHIP launch) are exempt — they can show further out.
   const weekKey = new Date(now.getTime() + 7 * 86_400_000).toISOString().slice(0, 10);
   const upcoming = calendarEvents
-    .filter((e) => e.date >= todayKey && e.date <= weekKey)
+    .filter((e) => {
+      if (e.date < todayKey) return false;
+      if (e.category === 'cert') return true;
+      return e.date <= weekKey;
+    })
     .sort((a, b) => a.date.localeCompare(b.date));
 
   // New this week = articles published in the last 7 days (auto-surfaced from
