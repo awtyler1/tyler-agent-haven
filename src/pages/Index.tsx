@@ -63,6 +63,13 @@ export default function Index() {
     })
     .sort((a, b) => a.date.localeCompare(b.date));
 
+  // Board items that are calls/meetings (a join link tied to a date) follow the
+  // same rule — only show on the dashboard when they're 7 days out or less.
+  // Everything else on the Board (open items, deadlines, AHIP) is left alone.
+  const visibleBoardItems = boardItems.filter((item) =>
+    item.link && item.date ? item.date >= todayKey && item.date <= weekKey : true
+  );
+
   // New this week = articles published in the last 7 days (auto-surfaced from
   // the same articles that power Knowledge & Updates), newest first, plus any
   // manual items. Articles posted today get a "New" badge.
@@ -106,7 +113,7 @@ export default function Index() {
         <section className="hub-board" aria-label="Bulletin board">
           <div className="hub-board__head">
             <span className="hub-board__title">📌 The Board</span>
-            {boardItems.length > 0 && (
+            {visibleBoardItems.length > 0 && (
               <span className="hub-board__meta">
                 Posted by {boardMeta.postedBy} · {formatPostedOn(boardMeta.postedOn)}
               </span>
@@ -119,10 +126,10 @@ export default function Index() {
               <div className="hub-welcome__sign">{welcome.sign}</div>
             </div>
           )}
-          {boardItems.length === 0 ? (
+          {visibleBoardItems.length === 0 ? (
             !welcome.show && <div className="hub-board__empty">Nothing urgent right now. Check back soon.</div>
           ) : (
-            boardItems.map((item) => {
+            visibleBoardItems.map((item) => {
             const kc = KIND_COLORS[item.kind];
             const days = item.date ? daysUntil(item.date) : null;
             return (
