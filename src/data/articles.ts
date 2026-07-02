@@ -58,7 +58,7 @@ export const articles: Article[] = [
     readTime: '6 min read',
     summary:
       'Starting July 1, eligible Medicare members can get Wegovy, Zepbound, or Foundayo for a flat $50 a month. Your phone is going to ring about it. Here is the plain version, including the catches that will trip clients up.',
-    author: ANDREW,
+    author: AUSTIN,
     takeaways: [
       'As of July 1, 2026, eligible Medicare members can get select GLP-1 weight-loss drugs for a flat $50 a month, but it is a temporary demonstration that ends December 31, 2027.',
       'It runs outside their Part D plan through a central processor. No separate sign-up, but a doctor has to submit prior authorization, and the $50 does not count toward their drug out-of-pocket cap.',
