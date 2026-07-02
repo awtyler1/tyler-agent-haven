@@ -51,6 +51,63 @@ const ANDREW = {
 
 export const articles: Article[] = [
   {
+    slug: 'medicare-glp1-bridge',
+    title: 'The Medicare GLP-1 Bridge is live: what to tell your clients',
+    category: 'cms',
+    date: '2026-07-02',
+    readTime: '6 min read',
+    summary:
+      'Starting July 1, eligible Medicare members can get Wegovy, Zepbound, or Foundayo for a flat $50 a month. Your phone is going to ring about it. Here is the plain version, including the catches that will trip clients up.',
+    author: ANDREW,
+    takeaways: [
+      'As of July 1, 2026, eligible Medicare members can get select GLP-1 weight-loss drugs for a flat $50 a month, but it is a temporary demonstration that ends December 31, 2027.',
+      'It runs outside their Part D plan through a central processor. No separate sign-up, but a doctor has to submit prior authorization, and the $50 does not count toward their drug out-of-pocket cap.',
+      'Not everyone qualifies. It is weight-loss use only, tied to BMI tiers, and members already covered for diabetes, sleep apnea, or MASH are excluded.',
+    ],
+    whatTitle: 'What the GLP-1 Bridge is',
+    what: [
+      { type: 'p', text: 'GLP-1 drugs are the most talked-about medications in the country right now, and Medicare has never covered them for weight loss. That just changed, and your clients are seeing the headlines. Expect the questions. Here is the plain version so you can answer them well.' },
+      { type: 'p', text: 'The Medicare GLP-1 Bridge is a temporary CMS demonstration. Starting July 1, 2026, eligible members can get certain GLP-1 medications for weight loss at a flat $50 a month. That $50 is the total out-of-pocket cost for the drug. The program runs through December 31, 2027, and then it is scheduled to end.' },
+      { type: 'p', text: 'The key thing to understand: the Bridge runs outside a member\'s Part D plan. CMS uses a single central processor to handle the prior authorization, the claim, and payment to the pharmacy. So this is not their plan "adding" Ozempic-style coverage. It is a separate lane that sits alongside whatever plan they already have.' },
+      { type: 'h', text: 'What it covers, and who qualifies' },
+      { type: 'p', text: 'Three drugs are covered when used to reduce excess weight and keep it off:' },
+      { type: 'ul', items: [
+        'Wegovy (semaglutide), injection and tablets',
+        'Zepbound (tirzepatide), KwikPen formulation only',
+        'Foundayo (orforglipron), an oral GLP-1 option',
+      ] },
+      { type: 'p', text: 'To be eligible, a member must be enrolled in Medicare Part D or a Medicare Advantage plan with drug coverage, and a prescriber must confirm they meet one of three BMI-based tiers:' },
+      { type: 'ul', items: [
+        'BMI of 35 or higher, on BMI alone.',
+        'BMI of 30 or higher with heart failure, uncontrolled high blood pressure, or chronic kidney disease.',
+        'BMI of 27 or higher with prediabetes, a prior heart attack, a prior stroke, or peripheral artery disease.',
+      ] },
+      { type: 'p', text: 'There is no separate enrollment for the member. They do not opt in or pick a new plan. But a doctor has to submit a prior authorization to the central processor attesting to the BMI tier and documenting the criteria. No prescriber attestation, no Bridge.' },
+      { type: 'h', text: 'Who does not qualify' },
+      { type: 'p', text: 'Members who have type 2 diabetes, moderate-to-severe obstructive sleep apnea, or noncirrhotic MASH (a liver condition) are excluded from the Bridge, even if they otherwise meet the BMI criteria. That sounds backwards until you see why: GLP-1 drugs are already covered under a normal Part D plan for those medical conditions. Those members go through their regular plan, not the Bridge. The Bridge exists to cover the one use Part D never did, weight loss on its own.' },
+      { type: 'h', text: 'The fine print that will trip clients up' },
+      { type: 'ul', items: [
+        'It is temporary. The Bridge ends December 31, 2027. Nobody should reshape their whole plan around a benefit with an expiration date.',
+        'The $50 does not count toward their drug cap. Because the Bridge sits outside Part D, the copay does not apply to the deductible or the $2,100 out-of-pocket limit for 2026.',
+        'No Extra Help. The low-income subsidy does not apply to the Bridge, so the $50 is $50 even for LIS members.',
+        'Weight loss only. This is not general "GLP-1 coverage." It is specific drugs, for weight reduction, for members who clear the BMI tiers.',
+        'It is their doctor\'s call, not yours. Eligibility and the prior authorization run through the prescriber.',
+      ] },
+    ],
+    why: [
+      'This is the single most-asked-about drug class in the country, and now it touches Medicare. When a client hears "Medicare covers Ozempic now" on the news, they are going to call someone. Be the person who explains it accurately, catches and all. That is the exact kind of no-pitch, genuinely-helpful moment that keeps a client for years.',
+      'Stay in your lane. You do not sell, enroll, or approve anyone for the Bridge, and you should not give medical advice or promise eligibility. Your job is to set honest expectations and point them to their prescriber for the clinical piece. Get that boundary right and you look like the pro. Get it wrong and you own a problem that was never yours.',
+    ],
+    actions: [
+      'Learn the three-sentence version: $50 a month for Wegovy, Zepbound, or Foundayo for weight loss, through 2027, if a doctor confirms you meet the BMI rules.',
+      'When a client asks, first confirm they are in a Part D or MA-PD plan, then send them to their prescriber for eligibility and the prior authorization.',
+      'Set expectations on the catches: temporary through 2027, weight-loss use only, the $50 does not count toward their drug cap, and no Extra Help.',
+      'Never promise eligibility or give medical advice. The BMI attestation is the physician\'s, not yours.',
+      'Use it as a reason to reach out. A short, helpful note to your book or community about the Bridge is a warm touch that asks for nothing.',
+    ],
+    sources: 'Sources: CMS, "Medicare GLP-1 Bridge" program pages and FAQ (2026); CMS press release, "Coming Soon: CMS to Provide $50 Monthly Access to GLP-1 Medications" (2026); Medicare.gov GLP-1 Bridge fact sheet (Pub. 12234); Medicare Rights Center (June 2026).',
+  },
+  {
     slug: 'starting-from-zero-again',
     title: 'If I Were Starting From Zero Again',
     category: 'market',
