@@ -10,6 +10,7 @@ import {
 import { calendarEvents, CATEGORY_META } from '@/data/calendarContent';
 import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
+import { FourthOfJuly, isFourthOfJulyWindow } from '@/components/seasonal/FourthOfJuly';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const KIND_COLORS: Record<BoardItem['kind'], { dot: string; label: string }> = {
@@ -40,6 +41,7 @@ function eventDate(iso: string): { mo: string; dy: string } {
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function Index() {
   const now = new Date();
+  const showJuly4 = isFourthOfJulyWindow(now);
   const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const todayKey = now.toISOString().slice(0, 10);
 
@@ -93,6 +95,9 @@ export default function Index() {
     <div className="hub">
       <style>{CSS}</style>
       <div className="hub-max">
+        {/* ── Fourth of July flair (holiday window only) ── */}
+        {showJuly4 && <FourthOfJuly />}
+
         {/* ── Header ── */}
         <div className="hub-head">
           <div>
