@@ -186,12 +186,11 @@ export function FourthOfJuly() {
       <style>{CSS}</style>
       {!prefersReduced && <FireworksCanvas />}
       <div className="fj-greet" role="status">
-        <span className="fj-greet__spark" aria-hidden="true">🎆</span>
         <div className="fj-greet__body">
           <div className="fj-greet__t">Happy 4th of July! 🇺🇸</div>
           <p className="fj-greet__s">
-            Thank you for all you do. Go ahead and unplug for the holiday — the work will
-            keep. Enjoy the fireworks, the cookout, and time with friends and family.
+            Thank you for all you do. Go ahead and unplug for the holiday, the work will be
+            here when you return and unfortunately AHIP. Enjoy the time with friends and family!
           </p>
         </div>
       </div>
@@ -214,7 +213,6 @@ const CSS = `
   content:""; position:absolute; top:-60px; right:-40px; width:220px; height:220px;
   background:radial-gradient(circle,rgba(231,207,134,.22),transparent 62%); pointer-events:none;
 }
-.fj-greet__spark{ font-size:26px; line-height:1; position:relative; }
 .fj-greet__body{ position:relative; min-width:0; }
 .fj-greet__t{ font-size:16px; font-weight:700; letter-spacing:-.01em; }
 .fj-greet__s{ font-size:13px; line-height:1.55; color:rgba(253,246,234,.86); margin:5px 0 0; max-width:66ch; }
