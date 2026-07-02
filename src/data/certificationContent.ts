@@ -75,7 +75,21 @@ export const carrierCerts: CarrierCert[] = [
     ],
   },
   { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Coming soon" },
-  { id: "anthem", name: "Anthem", color: "#0033A0", status: "not-open", opensLabel: "Coming soon" },
+  {
+    id: "anthem",
+    name: "Anthem",
+    color: "#0033A0",
+    status: "open",
+    opensLabel: "Available now",
+    portalUrl: "https://getcertified.elevancehealth.com/",
+    howTo: [
+      "Go to GetCertified.ElevanceHealth.com and click “Certify with AHIP.”",
+      "Sign in and confirm the access code “External-SelfReg” is displayed — if it doesn’t appear, enter it.",
+      "Complete AHIP training and all compliance training.",
+      "Sign the attestations.",
+      "Complete all product training.",
+    ],
+  },
   {
     id: "wellcare",
     name: "Wellcare",
