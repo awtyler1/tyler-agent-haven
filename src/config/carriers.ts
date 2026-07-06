@@ -16,6 +16,7 @@ export const CARRIER_BRAND_COLORS: Record<string, string> = {
   anthem: '#0072CE',     // Blue
   wellcare: '#00A79D',   // Teal
   devoted: '#F97316',    // Orange
+  essence: '#6B2C91',    // Purple
 };
 
 export interface CarrierConfig {

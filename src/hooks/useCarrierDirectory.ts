@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
+import { carriers as CARRIERS_DATA } from '@/data/carriersData';
 import type {
-  Carrier,
   CarrierContact,
   CarrierLink,
-  CarrierDocument,
   CarrierWithResources
 } from '@/types/carrierDirectory';
 
@@ -34,94 +33,88 @@ export interface CarrierDirectoryData {
   refetch: () => void;
 }
 
-/**
- * Fetch carriers with their contacts, links, and documents for a given state.
- * Includes items where state_code matches OR state_code is NULL (nationwide).
- */
-// Module-level cache so re-navigating to the directory is instant (no loader
-// flash). Data refreshes in the background each visit.
-const directoryCache: Record<string, CarrierWithResources[]> = {};
+// ────────────────────────────────────────────────────────────────
+// SOURCE OF TRUTH: src/data/carriersData.ts (hardcoded, no database).
+// Carrier contacts + portal links change often, so we keep them in a
+// static file that's quick to edit instead of a Supabase table.
+// ────────────────────────────────────────────────────────────────
+
+const STATE_CODE_TO_NAME: Record<string, string> = {
+  KY: 'Kentucky',
+  TN: 'Tennessee',
+  OH: 'Ohio',
+  IN: 'Indiana',
+  WV: 'West Virginia',
+  GA: 'Georgia',
+  VA: 'Virginia',
+};
+
+// Contacts whose name/label reads like a support desk are treated as the
+// carrier's general broker line (drives the "call support" button).
+const SUPPORT_CONTACT_RE = /broker services|broker support|agent support|support team|support unit|help desk|producer help/i;
+
+/** Build the directory (carriers + contacts + links) for a state from the static file. */
+function buildDirectory(stateCode: string): CarrierWithResources[] {
+  const stateName = STATE_CODE_TO_NAME[stateCode] || 'Kentucky';
+
+  return CARRIERS_DATA.map((carrier) => {
+    const sd: any = (carrier as any).stateData?.[stateName] || { contacts: [], links: [] };
+
+    const contacts: CarrierContact[] = (sd.contacts || []).map((c: any, i: number) => {
+      const name = c.name ?? c.type ?? '';
+      return {
+        id: `${carrier.id}-contact-${i}`,
+        carrier_id: carrier.id,
+        state_code: stateCode,
+        contact_type: SUPPORT_CONTACT_RE.test(name) ? 'broker_support' : 'territory_manager',
+        name,
+        title: c.role ?? null,
+        phone: c.number ?? c.phone ?? null,
+        email: c.email ?? null,
+        region: c.region ?? c.subtitle ?? null,
+        is_primary: false,
+        notes: null,
+      };
+    });
+
+    // First link is treated as the primary broker/agent portal; the rest
+    // render as resource pills.
+    const links: CarrierLink[] = (sd.links || []).map((l: any, i: number) => ({
+      id: `${carrier.id}-link-${i}`,
+      carrier_id: carrier.id,
+      state_code: stateCode,
+      link_type: i === 0 ? 'portal' : 'resource',
+      name: l.name,
+      url: l.url,
+      description: l.subtext ?? null,
+      display_order: i,
+    }));
+
+    return {
+      id: carrier.id,
+      code: carrier.id,
+      name: carrier.name,
+      display_name: null,
+      is_active: true,
+      contacts,
+      links,
+      documents: [],
+    };
+  });
+}
 
 export function useCarrierDirectory(stateCode: string = 'KY'): CarrierDirectoryData {
-  const [carriers, setCarriers] = useState<CarrierWithResources[]>(() => directoryCache[stateCode] || []);
-  const [loading, setLoading] = useState(() => !directoryCache[stateCode]);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchData = async () => {
-    try {
-      // Only show the loader when we have nothing cached to show yet.
-      if (!directoryCache[stateCode]) setLoading(true);
-      setError(null);
-
-      // Fetch active carriers that have logos (our 6 main carriers)
-      const { data: carriersData, error: carriersError } = await supabase
-        .from('carriers')
-        .select('id, code, name, display_name, is_active')
-        .eq('is_active', true)
-        .in('code', ['aetna', 'anthem', 'devoted', 'humana', 'uhc', 'wellcare'])
-        .order('name');
-
-      if (carriersError) throw carriersError;
-
-      // Fetch contacts, links, and documents in parallel.
-      // Each query is independent — if one fails, the others still provide data.
-      const [contactsResult, linksResult, documentsResult] = await Promise.all([
-        supabase
-          .from('carrier_contacts')
-          .select('*')
-          .or(`state_code.eq.${stateCode},state_code.is.null`)
-          .then(res => {
-            if (res.error) console.error('Error fetching carrier contacts:', res.error);
-            return res.data || [];
-          }),
-        supabase
-          .from('carrier_links')
-          .select('*')
-          .or(`state_code.eq.${stateCode},state_code.is.null`)
-          .order('display_order')
-          .then(res => {
-            if (res.error) console.error('Error fetching carrier links:', res.error);
-            return res.data || [];
-          }),
-        supabase
-          .from('carrier_documents')
-          .select('*')
-          .or(`state_code.eq.${stateCode},state_code.is.null`)
-          .order('display_order')
-          .then(res => {
-            if (res.error) console.error('Error fetching carrier documents:', res.error);
-            return res.data || [];
-          }),
-      ]);
-
-      // Combine data - attach resources to each carrier
-      const carriersWithResources: CarrierWithResources[] = (carriersData || []).map((carrier) => ({
-        ...carrier,
-        logo: CARRIER_LOGOS[carrier.code] || '',
-        contacts: contactsResult.filter((c: any) => c.carrier_id === carrier.id) as CarrierContact[],
-        links: linksResult.filter((l: any) => l.carrier_id === carrier.id) as CarrierLink[],
-        documents: documentsResult.filter((d: any) => d.carrier_id === carrier.id) as CarrierDocument[],
-      }));
-
-      directoryCache[stateCode] = carriersWithResources;
-      setCarriers(carriersWithResources);
-    } catch (err) {
-      console.error('Error fetching carrier directory:', err);
-      setError(err instanceof Error ? err : new Error('Failed to fetch carrier directory'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [carriers, setCarriers] = useState<CarrierWithResources[]>(() => buildDirectory(stateCode));
 
   useEffect(() => {
-    fetchData();
+    setCarriers(buildDirectory(stateCode));
   }, [stateCode]);
 
   return {
     carriers,
-    loading,
-    error,
-    refetch: fetchData,
+    loading: false,
+    error: null,
+    refetch: () => setCarriers(buildDirectory(stateCode)),
   };
 }
 
@@ -133,19 +126,15 @@ export function getCarrierLogo(code: string): string {
 }
 
 /**
- * List of supported carriers with their display info
+ * List of supported carriers with their display info, derived from the static
+ * carrier file. `logo` may be '' — callers should fall back to a monogram.
  */
 export function useSupportedCarriers() {
-  const carriers = [
-    { code: 'aetna', name: 'Aetna', logo: aetnaLogo },
-    { code: 'anthem', name: 'Anthem', logo: anthemLogo },
-    { code: 'devoted', name: 'Devoted', logo: devotedLogo },
-    { code: 'humana', name: 'Humana', logo: humanaLogo },
-    { code: 'uhc', name: 'United Healthcare', logo: uhcLogo },
-    { code: 'wellcare', name: 'Wellcare', logo: wellcareLogo },
-  ];
-
-  return carriers;
+  return CARRIERS_DATA.map((c) => ({
+    code: c.id,
+    name: c.name,
+    logo: c.logo,
+  }));
 }
 
 // All carriers with RTS name mapping
