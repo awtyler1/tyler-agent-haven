@@ -17,14 +17,32 @@
 
 export type EventCategory = "deadline" | "cert" | "tig" | "carrier" | "holiday" | "ooo";
 
+/** A document an agent should review before the event. */
+export interface CalEventDoc {
+  name: string;
+  url: string;
+}
+
 export interface CalEvent {
   id: string;
   date: string;
   title: string;
   detail?: string;
   category: EventCategory;
-  /** Optional join/RSVP URL. Renders as a clickable "Join" link on the
-   *  calendar chip and the hub's Upcoming card. The raw URL is never shown. */
+  // ── Detail popout (shown when an event is clicked on the Calendar) ──
+  // Every event opens the same layout: Title, Description, Location, Time,
+  // and any documents to review beforehand. Fill what applies; empty fields
+  // are simply skipped, and Documents shows a "nothing to review" note.
+  /** Full description shown in the popout (falls back to `detail`). */
+  description?: string;
+  /** Where it happens, e.g. "Microsoft Teams" or a street address. */
+  location?: string;
+  /** When it happens, e.g. "11:00 AM ET". */
+  time?: string;
+  /** Docs/links an agent should review before the meeting. */
+  documents?: CalEventDoc[];
+  /** Optional join/RSVP URL. Renders as a button inside the popout. The
+   *  raw URL is never shown. */
   link?: string;
   /** Label for the link, e.g. "Join the call". Defaults to "Join". */
   linkLabel?: string;
@@ -49,6 +67,10 @@ export const calendarEvents: CalEvent[] = [
     date: "2026-07-08",
     title: "TIG + Aetna AEP Call ⭐",
     detail: "11:00 AM ET · Microsoft Teams · What to expect from Aetna for AEP and next year. Don't miss this one.",
+    description:
+      "The Tyler team sits down with Aetna to walk through what to expect for AEP and the year ahead — plan changes, market moves, and how to position Aetna with your clients. One of the most important calls before the season, so make it if you can.",
+    location: "Microsoft Teams",
+    time: "11:00 AM ET",
     category: "tig",
     link: "https://teams.microsoft.com/meet/219912569776466?p=C3AZ6F6PvcIUqnwECm",
     linkLabel: "Join the call",
@@ -58,6 +80,10 @@ export const calendarEvents: CalEvent[] = [
     date: "2026-07-15",
     title: "TIG + UHC Call (Mark Reeder)",
     detail: "11:00 AM ET · Microsoft Teams · Tyler Team + UHC with Mark Reeder.",
+    description:
+      "The Tyler team meets with UnitedHealthcare's Mark Reeder to cover UHC's AEP outlook, product updates, and what's changing for the coming year. Bring your questions.",
+    location: "Microsoft Teams",
+    time: "11:00 AM ET",
     category: "tig",
     link: "https://teams.microsoft.com/meet/262872777073942?p=vc3uuzfmDgMxC2zAJQ",
     linkLabel: "Join the call",
@@ -67,20 +93,58 @@ export const calendarEvents: CalEvent[] = [
     date: "2026-07-22",
     title: "TIG + Devoted Call (Hailey Lindenbauer)",
     detail: "11:00 AM ET · Microsoft Teams · Tyler Team + Devoted with Hailey Lindenbauer.",
+    description:
+      "The Tyler team meets with Devoted's Hailey Lindenbauer for a look at Devoted's plans, AEP outlook, and updates for the year ahead.",
+    location: "Microsoft Teams",
+    time: "11:00 AM ET",
     category: "tig",
     link: "https://teams.microsoft.com/meet/23718475518502?p=kvWc3NPMJ7CYzBp5mU",
     linkLabel: "Join the call",
   },
+  {
+    id: "tig-team-night-aep-kickoff",
+    date: "2026-08-06",
+    title: "TIG Team Night 🍕",
+    detail: "6:00 PM · Goodfellas Distillery (Distillery District) · Team hang before AEP prep — pizza, then we walk the district.",
+    description:
+      "A team get-together before we dive into AEP prep and the AEP push. We'll meet up for pizza at Goodfellas, then walk to a few more spots around the Distillery District. Come kick off the season with the team.",
+    location: "Goodfellas Distillery · 1228 Manchester St, Lexington, KY 40504 (Distillery District)",
+    time: "6:00 PM ET",
+    category: "tig",
+  },
 
   // ── 2027 Certifications ──
-  { id: "ahip-2027", date: "2026-06-22", title: "AHIP 2027 launches 🎓", detail: "2027 Medicare training opens", category: "cert" },
+  {
+    id: "ahip-2027",
+    date: "2026-06-22",
+    title: "AHIP 2027 launches 🎓",
+    detail: "2027 Medicare training opens",
+    description:
+      "2027 AHIP Medicare training opens. AHIP is required before you can certify with any carrier for 2027, so knock it out early to stay ahead of the carrier windows.",
+    time: "Available now",
+    category: "cert",
+  },
 
   // ── Annual Enrollment Period (CMS) ──
-  { id: "aep-start", date: "2026-10-15", title: "AEP begins 🔔", category: "deadline" },
-  { id: "aep-end", date: "2026-12-07", title: "AEP ends", category: "deadline" },
+  {
+    id: "aep-start",
+    date: "2026-10-15",
+    title: "AEP begins 🔔",
+    description:
+      "The Medicare Annual Enrollment Period opens. Beneficiaries can enroll in or change Medicare Advantage and Part D plans through December 7.",
+    category: "deadline",
+  },
+  {
+    id: "aep-end",
+    date: "2026-12-07",
+    title: "AEP ends",
+    description:
+      "Last day of the Medicare Annual Enrollment Period. Changes made today take effect January 1.",
+    category: "deadline",
+  },
 
   // ── Federal holidays ──
-  { id: "july4", date: "2026-07-04", title: "Independence Day", category: "holiday" },
-  { id: "thanksgiving", date: "2026-11-26", title: "Thanksgiving", category: "holiday" },
-  { id: "christmas", date: "2026-12-25", title: "Christmas Day", category: "holiday" },
+  { id: "july4", date: "2026-07-04", title: "Independence Day", description: "Federal holiday.", category: "holiday" },
+  { id: "thanksgiving", date: "2026-11-26", title: "Thanksgiving", description: "Federal holiday.", category: "holiday" },
+  { id: "christmas", date: "2026-12-25", title: "Christmas Day", description: "Federal holiday.", category: "holiday" },
 ];

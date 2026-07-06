@@ -1,13 +1,97 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { calendarEvents, CATEGORY_META, type CalEvent } from '@/data/calendarContent';
 
 function ymKey(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
+function formatFullDate(iso: string) {
+  return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+// Consistent detail popout — every event opens this same layout.
+function EventModal({ event, onClose }: { event: CalEvent; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const meta = CATEGORY_META[event.category];
+  const description = event.description ?? event.detail;
+
+  return (
+    <div className="cal-modal" role="dialog" aria-modal="true" aria-labelledby="cal-modal-title" onClick={onClose}>
+      <div className="cal-modal__card" onClick={(e) => e.stopPropagation()}>
+        <button className="cal-modal__x" onClick={onClose} aria-label="Close">×</button>
+
+        <div className="cal-modal__cat">
+          <span
+            className="cal-modal__dot"
+            style={meta.dashed ? { border: `1.5px dashed ${meta.color}` } : { background: meta.color }}
+          />
+          {meta.label}
+        </div>
+        <h2 className="cal-modal__title" id="cal-modal-title">{event.title}</h2>
+        <div className="cal-modal__date">{formatFullDate(event.date)}</div>
+
+        {description && (
+          <div className="cal-modal__sec">
+            <div className="cal-modal__h">Description</div>
+            <p className="cal-modal__p">{description}</p>
+          </div>
+        )}
+
+        {event.location && (
+          <div className="cal-modal__sec">
+            <div className="cal-modal__h">Location</div>
+            <p className="cal-modal__p">📍 {event.location}</p>
+          </div>
+        )}
+
+        {event.time && (
+          <div className="cal-modal__sec">
+            <div className="cal-modal__h">Time</div>
+            <p className="cal-modal__p">🕕 {event.time}</p>
+          </div>
+        )}
+
+        <div className="cal-modal__sec">
+          <div className="cal-modal__h">Documents to review beforehand</div>
+          {event.documents && event.documents.length > 0 ? (
+            <ul className="cal-modal__docs">
+              {event.documents.map((d, i) => (
+                <li key={i}>
+                  <a href={d.url} target="_blank" rel="noopener noreferrer">📄 {d.name} ↗</a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="cal-modal__none">Nothing to review ahead of this one.</p>
+          )}
+        </div>
+
+        {event.link && (
+          <a className="cal-modal__join" href={event.link} target="_blank" rel="noopener noreferrer">
+            {event.linkLabel ?? 'Join'} ↗
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function CalendarPage() {
   const now = new Date();
   const [cursor, setCursor] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1));
+  const [selected, setSelected] = useState<CalEvent | null>(null);
 
   const y = cursor.getFullYear();
   const m = cursor.getMonth();
@@ -87,27 +171,17 @@ export default function CalendarPage() {
                     const style = meta.dashed
                       ? { borderColor: meta.color, color: meta.color }
                       : { background: meta.color };
-                    return ev.link ? (
-                      <a
-                        className={`cal-evt cal-evt--link${meta.dashed ? ' soft' : ''}`}
-                        key={ev.id}
-                        href={ev.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={`${tip} (click to ${ev.linkLabel ?? 'join'})`}
-                        style={style}
-                      >
-                        {ev.title}
-                      </a>
-                    ) : (
-                      <span
+                    return (
+                      <button
+                        type="button"
                         className={`cal-evt${meta.dashed ? ' soft' : ''}`}
                         key={ev.id}
-                        title={tip}
+                        title={`${tip} (click for details)`}
                         style={style}
+                        onClick={() => setSelected(ev)}
                       >
                         {ev.title}
-                      </span>
+                      </button>
                     );
                   })}
                 </div>
@@ -122,6 +196,8 @@ export default function CalendarPage() {
           </div>
         </div>
       </div>
+
+      {selected && <EventModal event={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
@@ -161,11 +237,36 @@ const CSS = `
 .cal-dn{ font-size:11.5px; font-weight:600; color:var(--muted); }
 .cal-cell.today .cal-dn{ display:inline-flex; align-items:center; justify-content:center; width:21px; height:21px;
   border-radius:50%; background:var(--em); color:var(--bone); }
-.cal-evt{ display:block; margin-top:4px; font-size:10.5px; font-weight:600; padding:3px 7px; border-radius:6px; color:#fff;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:default; }
+.cal-evt{ display:block; width:100%; margin-top:4px; font-size:10.5px; font-weight:600; padding:3px 7px; border-radius:6px; color:#fff;
+  border:none; font-family:inherit; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; transition:.12s; }
+.cal-evt:hover{ filter:brightness(1.08); box-shadow:0 1px 6px rgba(0,0,0,.18); }
 .cal-evt.soft{ background:transparent; border:1.5px dashed; }
-.cal-evt--link{ cursor:pointer; text-decoration:none; }
-.cal-evt--link:hover{ filter:brightness(1.08); box-shadow:0 1px 6px rgba(0,0,0,.18); }
+
+/* event detail popout */
+.cal-modal{ position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:20px;
+  background:rgba(14,32,26,.55); backdrop-filter:blur(3px); animation:calFade .15s ease; }
+@keyframes calFade{ from{ opacity:0; } to{ opacity:1; } }
+.cal-modal__card{ background:var(--card); border-radius:18px; width:100%; max-width:460px; max-height:88vh; overflow-y:auto;
+  padding:24px; position:relative; box-shadow:0 24px 60px rgba(0,0,0,.3); animation:calPop .16s ease; }
+@keyframes calPop{ from{ opacity:0; transform:translateY(8px) scale(.98); } to{ opacity:1; transform:none; } }
+.cal-modal__x{ position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:8px; border:1px solid var(--line);
+  background:var(--card); cursor:pointer; font-size:18px; line-height:1; color:var(--muted); font-family:inherit; transition:.15s; }
+.cal-modal__x:hover{ border-color:var(--gold); color:var(--ink); }
+.cal-modal__cat{ display:inline-flex; align-items:center; gap:7px; font-size:11px; font-weight:700; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--muted); }
+.cal-modal__dot{ width:9px; height:9px; border-radius:50%; }
+.cal-modal__title{ font-size:21px; font-weight:700; letter-spacing:-.02em; margin:8px 0 3px; padding-right:30px; }
+.cal-modal__date{ font-size:13px; color:var(--gold2); font-weight:600; }
+.cal-modal__sec{ margin-top:16px; }
+.cal-modal__h{ font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); margin-bottom:5px; }
+.cal-modal__p{ font-size:13.5px; line-height:1.55; color:var(--ink); margin:0; }
+.cal-modal__none{ font-size:12.5px; color:var(--muted); font-style:italic; margin:0; }
+.cal-modal__docs{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px; }
+.cal-modal__docs a{ font-size:13px; font-weight:600; color:var(--gold2); text-decoration:none; }
+.cal-modal__docs a:hover{ text-decoration:underline; }
+.cal-modal__join{ display:inline-flex; align-items:center; gap:7px; margin-top:20px; background:var(--em); color:var(--bone);
+  font-size:13px; font-weight:700; padding:11px 18px; border-radius:10px; text-decoration:none; transition:.15s; }
+.cal-modal__join:hover{ filter:brightness(1.1); transform:translateY(-1px); }
 
 @media(max-width:760px){
   .cal{ padding:18px; }
