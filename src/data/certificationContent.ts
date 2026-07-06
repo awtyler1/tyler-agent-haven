@@ -103,6 +103,5 @@ export const carrierCerts: CarrierCert[] = [
       "Complete the 2027 Wellcare required training to certify.",
     ],
   },
-  { id: "cigna", name: "Cigna", color: "#00857C", status: "not-open", opensLabel: "Coming soon" },
-  { id: "moo", name: "Mutual of Omaha", color: "#004B8D", status: "not-open", opensLabel: "Coming soon" },
+  { id: "essence", name: "Essence Healthcare", color: "#6B2C91", status: "not-open", opensLabel: "Coming soon" },
 ];
