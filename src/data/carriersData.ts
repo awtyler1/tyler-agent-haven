@@ -892,5 +892,36 @@ export const carriers = [
       },
     },
   },
+  {
+    id: "essence",
+    name: "Essence Healthcare",
+    logo: "", // no logo asset yet — cards fall back to an "E" monogram
+    stateData: {
+      "Kentucky": {
+        contacts: [
+          { type: "Broker Support", number: "1-877-259-8657" },
+        ],
+        links: [
+          { name: "Agent Portal", url: "https://producer.essencehealthcare.com/?_gl=1*9tt8rn*_gcl_au*MjQzMjQ4MzE4LjE3ODMzNzY1NTc" },
+        ],
+        downloads: [],
+      },
+      "Tennessee": { contacts: [], links: [], downloads: [] },
+      "Ohio": { contacts: [], links: [], downloads: [] },
+      "Indiana": { contacts: [], links: [], downloads: [] },
+      "West Virginia": { contacts: [], links: [], downloads: [] },
+      "Georgia": { contacts: [], links: [], downloads: [] },
+      "Virginia": { contacts: [], links: [], downloads: [] },
+    },
+    summaryOfBenefits: {
+      "Kentucky": {},
+      "Tennessee": {},
+      "Ohio": {},
+      "Indiana": {},
+      "West Virginia": {},
+      "Georgia": {},
+      "Virginia": {},
+    },
+  },
 ];
 

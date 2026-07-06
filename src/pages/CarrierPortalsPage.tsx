@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { useCarrierDirectory, useSupportedCarriers } from "@/hooks/useCarrierDirectory";
+import { CARRIER_BRAND_COLORS } from "@/config/carriers";
 import {
   Select,
   SelectContent,
@@ -8,6 +9,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+// Renders the carrier logo, or an initial-letter monogram in the carrier's
+// brand color when no logo image is available.
+function CarrierLogo({ code, name, logo, muted }: { code: string; name: string; logo?: string; muted?: boolean }) {
+  if (logo) {
+    return <img src={logo} alt={name} className={`w-full h-full object-contain${muted ? " grayscale" : ""}`} />;
+  }
+  const color = CARRIER_BRAND_COLORS[code] || "#A8801F";
+  return (
+    <div
+      className="w-full h-full rounded-lg flex items-center justify-center font-bold text-white text-xl"
+      style={{ background: color, opacity: muted ? 0.6 : 1 }}
+      aria-label={name}
+    >
+      {name.charAt(0).toUpperCase()}
+    </div>
+  );
+}
 
 // State codes and display names
 const STATES = [
@@ -101,7 +120,7 @@ const CarrierPortalsPage = () => {
                       className="group card-premium border border-[#E5E2DB] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:bg-white/[1.015] hover:border-[#D4CFC4] hover:shadow-[0_6px_20px_-3px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-150 text-center p-2.5 flex flex-col items-center min-h-[130px]"
                     >
                       <div className="w-16 h-14 mb-1.5 flex items-center justify-center flex-shrink-0">
-                        <img src={carrier.logo} alt={carrier.name} className="w-full h-full object-contain" />
+                        <CarrierLogo code={carrier.code} name={carrier.name} logo={carrier.logo} />
                       </div>
                       <h3 className="text-xs font-semibold mb-1 leading-tight">{carrier.name}</h3>
                       <div className="flex items-center gap-1 text-[10px] text-muted-foreground group-hover:text-gold transition-smooth mt-auto">
@@ -115,7 +134,7 @@ const CarrierPortalsPage = () => {
                       className="card-premium border border-[#E5E2DB] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] text-center p-2.5 flex flex-col items-center opacity-50 cursor-not-allowed min-h-[130px] bg-white/60"
                     >
                       <div className="w-16 h-14 mb-1.5 flex items-center justify-center flex-shrink-0">
-                        <img src={carrier.logo} alt={carrier.name} className="w-full h-full object-contain grayscale" />
+                        <CarrierLogo code={carrier.code} name={carrier.name} logo={carrier.logo} muted />
                       </div>
                       <h3 className="text-xs font-semibold mb-1 leading-tight text-foreground/60">{carrier.name}</h3>
                       <div className="flex items-center gap-1 text-[10px] text-red-600/70 mt-auto">
