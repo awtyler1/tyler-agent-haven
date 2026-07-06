@@ -79,9 +79,12 @@ function EventModal({ event, onClose }: { event: CalEvent; onClose: () => void }
         </div>
 
         {event.link && (
-          <a className="cal-modal__join" href={event.link} target="_blank" rel="noopener noreferrer">
-            {event.linkLabel ?? 'Join'} ↗
-          </a>
+          <div className="cal-modal__sec">
+            <div className="cal-modal__h">Meeting link</div>
+            <a className="cal-modal__join" href={event.link} target="_blank" rel="noopener noreferrer">
+              💻 {event.linkLabel ?? 'Join the meeting'} ↗
+            </a>
+          </div>
         )}
       </div>
     </div>
@@ -264,7 +267,7 @@ const CSS = `
 .cal-modal__docs{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px; }
 .cal-modal__docs a{ font-size:13px; font-weight:600; color:var(--gold2); text-decoration:none; }
 .cal-modal__docs a:hover{ text-decoration:underline; }
-.cal-modal__join{ display:inline-flex; align-items:center; gap:7px; margin-top:20px; background:var(--em); color:var(--bone);
+.cal-modal__join{ display:inline-flex; align-items:center; gap:7px; background:var(--em); color:var(--bone);
   font-size:13px; font-weight:700; padding:11px 18px; border-radius:10px; text-decoration:none; transition:.15s; }
 .cal-modal__join:hover{ filter:brightness(1.1); transform:translateY(-1px); }
 
