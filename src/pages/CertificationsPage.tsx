@@ -103,6 +103,23 @@ export default function CertificationsPage() {
           ))}
         </div>
 
+        {/* ── Printable tracker ── */}
+        <a
+          className="ct-tracker"
+          href="/forms/2027-certification-tracker.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="ct-tracker__ic" aria-hidden="true">📋</span>
+          <span className="ct-tracker__body">
+            <span className="ct-tracker__t">{certYear} Certification Tracker</span>
+            <span className="ct-tracker__s">
+              A fillable one-pager of this page — check off each cert, add the date, and save it to your computer or print it.
+            </span>
+          </span>
+          <span className="ct-tracker__btn">↓ Download</span>
+        </a>
+
         <p className="ct-note">
           Dates and certification links are added as each carrier opens its {certYear} window.
           Questions? Caroline Horn handles contracting &amp; certification — find her on{' '}
@@ -178,6 +195,18 @@ const CSS = `
 .ct-how__steps li:before{ content:counter(s); position:absolute; left:0; top:0; width:17px; height:17px; border-radius:50%; background:var(--em); color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; }
 .ct-how__link{ display:inline-block; margin-top:9px; font-size:11.5px; font-weight:700; color:var(--gold2); text-decoration:none; }
 .ct-how__link:hover{ text-decoration:underline; }
+
+/* printable tracker strip */
+.ct-tracker{ display:flex; align-items:center; gap:13px; margin-top:16px; background:var(--card); border:1px solid var(--line);
+  border-radius:14px; padding:14px 18px; text-decoration:none; color:var(--ink); transition:.15s; }
+.ct-tracker:hover{ border-color:var(--gold); transform:translateY(-1px); box-shadow:0 8px 18px rgba(20,30,24,.06); }
+.ct-tracker__ic{ font-size:20px; flex-shrink:0; }
+.ct-tracker__body{ flex:1; min-width:0; }
+.ct-tracker__t{ display:block; font-size:13.5px; font-weight:700; }
+.ct-tracker__s{ display:block; font-size:11.5px; color:var(--muted); margin-top:1px; }
+.ct-tracker__btn{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--gold2);
+  border:1px solid var(--line); border-radius:8px; padding:8px 14px; flex-shrink:0; white-space:nowrap; transition:.15s; }
+.ct-tracker:hover .ct-tracker__btn{ border-color:var(--gold); }
 
 .ct-note{ font-size:12.5px; color:var(--muted); margin-top:22px; line-height:1.6; }
 .ct-note a{ color:var(--gold2); font-weight:600; text-decoration:none; }
