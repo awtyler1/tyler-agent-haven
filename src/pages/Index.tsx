@@ -10,6 +10,7 @@ import {
 import { calendarEvents, CATEGORY_META } from '@/data/calendarContent';
 import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
+import { AepTrainingBoard } from '@/components/hub/AepTrainingBoard';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const KIND_COLORS: Record<BoardItem['kind'], { dot: string; label: string }> = {
@@ -167,6 +168,9 @@ export default function Index() {
           })
           )}
         </section>
+
+        {/* ── AEP training input (flip BOARD_OPEN off in AepTrainingBoard when done) ── */}
+        <AepTrainingBoard />
 
         {/* ── Two quiet cards ── */}
         <div className="hub-two">
