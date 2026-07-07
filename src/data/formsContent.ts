@@ -49,7 +49,7 @@ export const forms: FormItem[] = [
   { id: 'doctor-med-list', category: 'fact_finder', source: 'TIG', name: 'Doctor & Medication List', description: 'Fillable. List every doctor and prescription to check against plans.', file: '/forms/doctor-medication-worksheet.pdf' },
 
   // ── Client Intake & Permissions (TIG-branded) ──
-  { id: 'ptc', category: 'intake', source: 'TIG', name: 'Permission to Contact (PTC)', description: 'Lets you legally follow up and review other coverage.' },
+  { id: 'ptc', category: 'intake', source: 'TIG', name: 'Permission to Contact (PTC)', description: 'Consent-to-contact form. Lets you legally follow up and review other coverage.', file: '/forms/permission-to-contact.pdf' },
   { id: 'intake', category: 'intake', source: 'TIG', name: 'Client Intake Sheet', description: 'Demographics, Medicare ID, and contact info in one place.' },
   { id: 'hipaa', category: 'intake', source: 'TIG', name: 'HIPAA Authorization', description: 'Handle and discuss protected health information cleanly.' },
 
