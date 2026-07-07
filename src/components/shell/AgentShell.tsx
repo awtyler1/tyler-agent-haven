@@ -32,6 +32,7 @@ const TOOL_LINKS = [
   { label: 'Forge CRM', icon: '🔥', href: 'https://app.runonforge.us' },
   { label: 'BOSS CRM', icon: '👥', href: 'https://fmo.kizen.com/login' },
   { label: 'Connecture', icon: '✍️', href: 'https://pinnacle7.destinationrx.com/PC/Agent/Account/Login' },
+  { label: 'Pinnacle Financial', icon: '🏔️', href: 'https://pfsinsurance.com/login' },
 ];
 
 export function AgentShell() {
