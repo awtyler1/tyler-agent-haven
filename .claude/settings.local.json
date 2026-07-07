@@ -88,7 +88,8 @@
       "Bash(PID=\"7bd4bc8f-77c2-4490-9d3d-bab0ace2e991\")",
       "Bash(__NEW_LINE_e30fcb92e1ab74ab__ echo \"policies:\")",
       "Bash(__NEW_LINE_7386fe16b840778b__ echo \"clients:\")",
-      "Bash(cp \"/root/.claude/uploads/b03c152a-13c5-5bd8-a68d-ed2ee569c208/295ac343-TIGPTCStandard.pdf\" /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf && ls -la /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf)"
+      "Bash(cp \"/root/.claude/uploads/b03c152a-13c5-5bd8-a68d-ed2ee569c208/295ac343-TIGPTCStandard.pdf\" /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf && ls -la /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf)",
+      "Bash(cp \"/root/.claude/uploads/b03c152a-13c5-5bd8-a68d-ed2ee569c208/420718ed-TIGPermissiontoContact.pdf\" /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf && ls -la /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf)"
     ]
   }
 }
