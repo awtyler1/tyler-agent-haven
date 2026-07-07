@@ -47,6 +47,7 @@ export const forms: FormItem[] = [
   { id: 'medicare-factfinder', category: 'fact_finder', source: 'TIG', name: 'Medicare Fact Finder', description: 'Fillable. Doctors, drugs, coverage, health, budget, and priorities.', file: '/forms/medicare-fact-finder.pdf' },
   { id: 'aca-factfinder', category: 'fact_finder', source: 'TIG', name: 'ACA / Under-65 Fact Finder', description: 'Fillable. Household, income for subsidy, doctors, drugs, and priorities.', file: '/forms/aca-fact-finder.pdf' },
   { id: 'doctor-med-list', category: 'fact_finder', source: 'TIG', name: 'Doctor & Medication List', description: 'Fillable. List every doctor and prescription to check against plans.', file: '/forms/doctor-medication-worksheet.pdf' },
+  { id: 'cert-tracker', category: 'fact_finder', source: 'TIG', name: '2027 Certification Tracker', description: 'Fillable. Check off AHIP and each carrier cert with dates — save or print. Also on the Certifications page.', year: 2027, file: '/forms/2027-certification-tracker.pdf' },
 
   // ── Client Intake & Permissions (TIG-branded) ──
   { id: 'ptc', category: 'intake', source: 'TIG', name: 'Permission to Contact (PTC)', description: 'Consent-to-contact form. Lets you legally follow up and review other coverage.', file: '/forms/permission-to-contact.pdf' },
