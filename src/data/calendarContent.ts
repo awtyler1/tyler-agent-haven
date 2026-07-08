@@ -17,10 +17,17 @@
 
 export type EventCategory = "deadline" | "cert" | "tig" | "carrier" | "holiday" | "ooo";
 
-/** A document an agent should review before the event. */
+/** A document tied to an event — prep material, or slides/notes in a recap. */
 export interface CalEventDoc {
   name: string;
   url: string;
+}
+
+/** Post-event recap, shown in the popout after the meeting happens. */
+export interface CalEventRecap {
+  summary?: string; // a short "here's what it was about" paragraph
+  points?: string[]; // key takeaways / action items
+  documents?: CalEventDoc[]; // slides, notes, or handouts from the meeting
 }
 
 export interface CalEvent {
@@ -41,6 +48,9 @@ export interface CalEvent {
   time?: string;
   /** Docs/links an agent should review before the meeting. */
   documents?: CalEventDoc[];
+  /** Post-event recap. When set, the popout shows a "Recap" section and the
+   *  calendar chip gets a 📝 marker so agents know a recap is available. */
+  recap?: CalEventRecap;
   /** Optional join/RSVP URL. Renders as a button inside the popout. The
    *  raw URL is never shown. */
   link?: string;
@@ -74,6 +84,16 @@ export const calendarEvents: CalEvent[] = [
     category: "tig",
     link: "https://teams.microsoft.com/meet/219912569776466?p=C3AZ6F6PvcIUqnwECm",
     linkLabel: "Join the call",
+    recap: {
+      summary:
+        "Today's call was mostly a certification push — get your Aetna certification done — plus a heads-up to watch for first looks coming in late July.",
+      points: [
+        "Get certified now: Aetna's certification runs through the Aetna Academy online platform. They've also moved contracting over to Aetna Academy.",
+        "First looks are coming late July — be on the lookout.",
+        "Save the date: Aetna First Looks is Tuesday, July 28 at 10:00 AM at the Signature Club (also added to the calendar).",
+        "New Aetna contact: Stefni Powell, Medicare Account Manager — (502) 658-3652, Stefni.Powell@aetna.com.",
+      ],
+    },
   },
   {
     id: "tig-uhc-call",
@@ -100,6 +120,17 @@ export const calendarEvents: CalEvent[] = [
     category: "tig",
     link: "https://teams.microsoft.com/meet/23718475518502?p=kvWc3NPMJ7CYzBp5mU",
     linkLabel: "Join the call",
+  },
+  {
+    id: "aetna-first-looks",
+    date: "2026-07-28",
+    title: "Aetna First Looks 👀",
+    detail: "10:00 AM · Signature Club · Aetna's first look at 2027 plans and benefits.",
+    description:
+      "Aetna's first look at their 2027 plans and benefits — an early read on what's changing before AEP. Came out of the July 8 TIG + Aetna call.",
+    location: "Signature Club",
+    time: "10:00 AM ET",
+    category: "carrier",
   },
   {
     id: "tig-team-night-aep-kickoff",
