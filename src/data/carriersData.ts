@@ -16,6 +16,7 @@ export const carriers = [
           { type: "Jonathan Lemaster - Broker Manager", subtitle: "Greater Lexington / Ashland / Eastern Kentucky", number: "(859) 333-5389", email: "lemasterj1@aetna.com" },
           { type: "Will Coursey - Broker Manager", subtitle: "Greater Bowling Green, Owensboro, Western KY", number: "(270) 816-9531", email: "courseyw@aetna.com" },
           { type: "Nina Grinestaff - Broker Manager", subtitle: "Greater Louisville, Northern KY", number: "(502) 443-5381", email: "grinestaff@aetna.com" },
+          { type: "Stefni Powell - Medicare Account Manager", number: "(502) 658-3652", email: "Stefni.Powell@aetna.com" },
           { type: "Broker Services", number: "(866) 714-9301", email: "brokersupport@aetna.com" },
         ],
         links: [
