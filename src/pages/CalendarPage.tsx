@@ -42,6 +42,25 @@ function EventModal({ event, onClose }: { event: CalEvent; onClose: () => void }
         <h2 className="cal-modal__title" id="cal-modal-title">{event.title}</h2>
         <div className="cal-modal__date">{formatFullDate(event.date)}</div>
 
+        {event.recap && (
+          <div className="cal-recap">
+            <div className="cal-recap__h">📝 Recap</div>
+            {event.recap.summary && <p className="cal-recap__s">{event.recap.summary}</p>}
+            {event.recap.points && event.recap.points.length > 0 && (
+              <ul className="cal-recap__list">
+                {event.recap.points.map((p, i) => <li key={i}>{p}</li>)}
+              </ul>
+            )}
+            {event.recap.documents && event.recap.documents.length > 0 && (
+              <div className="cal-recap__docs">
+                {event.recap.documents.map((d, i) => (
+                  <a key={i} href={d.url} target="_blank" rel="noopener noreferrer">📄 {d.name} ↗</a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {description && (
           <div className="cal-modal__sec">
             <div className="cal-modal__h">Description</div>
@@ -179,11 +198,11 @@ export default function CalendarPage() {
                         type="button"
                         className={`cal-evt${meta.dashed ? ' soft' : ''}`}
                         key={ev.id}
-                        title={`${tip} (click for details)`}
+                        title={`${tip} (click for ${ev.recap ? 'recap' : 'details'})`}
                         style={style}
                         onClick={() => setSelected(ev)}
                       >
-                        {ev.title}
+                        {ev.recap ? '📝 ' : ''}{ev.title}
                       </button>
                     );
                   })}
@@ -260,6 +279,17 @@ const CSS = `
 .cal-modal__dot{ width:9px; height:9px; border-radius:50%; }
 .cal-modal__title{ font-size:21px; font-weight:700; letter-spacing:-.02em; margin:8px 0 3px; padding-right:30px; }
 .cal-modal__date{ font-size:13px; color:var(--gold2); font-weight:600; }
+/* recap callout — stands apart from the prep fields */
+.cal-recap{ margin-top:14px; background:rgba(14,59,46,.05); border:1px solid rgba(14,59,46,.16); border-radius:12px; padding:14px 16px; }
+.cal-recap__h{ font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--em); margin-bottom:7px; }
+.cal-recap__s{ font-size:13px; line-height:1.55; color:var(--ink); margin:0; }
+.cal-recap__list{ margin:9px 0 0; padding-left:18px; }
+.cal-recap__list li{ font-size:12.5px; line-height:1.5; color:var(--ink); margin-bottom:5px; }
+.cal-recap__list li:last-child{ margin-bottom:0; }
+.cal-recap__docs{ display:flex; flex-direction:column; gap:5px; margin-top:10px; }
+.cal-recap__docs a{ font-size:12.5px; font-weight:700; color:var(--gold2); text-decoration:none; }
+.cal-recap__docs a:hover{ text-decoration:underline; }
+
 .cal-modal__sec{ margin-top:16px; }
 .cal-modal__h{ font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); margin-bottom:5px; }
 .cal-modal__p{ font-size:13.5px; line-height:1.55; color:var(--ink); margin:0; }
