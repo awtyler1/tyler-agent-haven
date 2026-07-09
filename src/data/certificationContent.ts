@@ -74,7 +74,19 @@ export const carrierCerts: CarrierCert[] = [
       "Click “Go to certification page.”",
     ],
   },
-  { id: "humana", name: "Humana", color: "#3A9A34", status: "not-open", opensLabel: "Coming soon" },
+  {
+    id: "humana",
+    name: "Humana",
+    color: "#3A9A34",
+    status: "open",
+    opensLabel: "Available now",
+    portalUrl: "https://account.humana.com/",
+    howTo: [
+      "Log in at account.humana.com with your Vantage login.",
+      "Open Humana MarketPoint University (HMU): click the Education card, or click “Get Certified/Recertify” on the Licensing, Certification and Contracts card.",
+      "Inside HMU, open your certification course from “View” on the top banner, “Certifications & Courses,” or the drop-down menu.",
+    ],
+  },
   {
     id: "anthem",
     name: "Anthem",
