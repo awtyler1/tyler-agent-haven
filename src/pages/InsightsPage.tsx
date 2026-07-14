@@ -5,6 +5,7 @@ import {
   insights,
   INSIGHT_CATEGORIES,
   categoryMeta,
+  coverFor,
   type InsightPost,
   type InsightCategory,
   type InsightAuthor,
@@ -236,7 +237,7 @@ export default function InsightsPage() {
         {featured && (
           <RouterLink className="ins-feat" to={postHref(featured)}>
             <div className="ins-feat__img">
-              <InsightCover cover={featured.cover} variant="feat" />
+              <InsightCover cover={coverFor(featured)} variant="feat" />
               <span className="ins-pill">★ Featured</span>
             </div>
             <div className="ins-feat__body">
@@ -278,7 +279,7 @@ export default function InsightsPage() {
             {visible.map((p) => (
               <RouterLink className="ins-card" to={postHref(p)} key={p.slug}>
                 <div className={`ins-card__img${p.members ? ' is-locked' : ''}`}>
-                  <InsightCover cover={p.cover} />
+                  <InsightCover cover={coverFor(p)} />
                   <span className="ins-pill">{categoryMeta(p.category).label}</span>
                   {p.members && <span className="ins-lock">Members</span>}
                 </div>
