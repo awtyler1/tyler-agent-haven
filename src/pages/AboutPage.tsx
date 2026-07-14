@@ -163,6 +163,10 @@ export default function AboutPage() {
             <div className="ab-lcard__t">How FMO commissions actually work</div>
             <div className="ab-lcard__d">Street, override, and why "we pay the most" is a myth.</div>
           </RouterLink>
+          <RouterLink className="ab-lcard" to="/kentucky-medicare-market-report">
+            <div className="ab-lcard__t">The Kentucky Medicare Market Report</div>
+            <div className="ab-lcard__d">Our sourced 2026 data report on the market we build in.</div>
+          </RouterLink>
         </div>
       </section>
 

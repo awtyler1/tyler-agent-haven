@@ -211,6 +211,27 @@ export default function InsightsPage() {
       </div>
 
       <div className="ins-wrap">
+        {/* ── Report banner ── */}
+        <RouterLink
+          to="/kentucky-medicare-market-report"
+          style={{
+            display: 'block', marginBottom: 22, padding: '20px 24px', borderRadius: 16,
+            background: 'linear-gradient(135deg,#13503c,#0a2c22)', color: '#F4F1E8',
+            border: '1px solid rgba(201,168,76,.3)', textDecoration: 'none',
+          }}
+        >
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: 6 }}>
+            New · TIG Research Report
+          </div>
+          <div style={{ fontFamily: "'Outfit','Inter',sans-serif", fontSize: 20, fontWeight: 800, marginBottom: 4 }}>
+            The Kentucky Medicare Market: an agent's 2026 report
+          </div>
+          <div style={{ fontSize: 14, color: 'rgba(244,241,232,.82)', lineHeight: 1.5 }}>
+            ~900K on Medicare, ~55% in Medicare Advantage, an aging and less-healthy population, and a
+            disrupted 2026 market. The numbers, and what they mean for agents. Fully sourced. →
+          </div>
+        </RouterLink>
+
         {/* ── Featured ── */}
         {featured && (
           <RouterLink className="ins-feat" to={postHref(featured)}>
