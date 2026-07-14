@@ -121,7 +121,6 @@ export const articles: Article[] = [
       "Claim and polish your Google Business Profile, then publish two plain-English “turning 65” explainers to start the SEO clock.",
       "Keep Permission to Contact forms on hand (they are in the Forms library) so every T65 lead is one you can legally follow up with.",
     ],
-    sources: 'Sources: Ritter Insurance Marketing (T65 seminars and educational-event compliance); Insurance Advisors Direct (T65 timing and referral partnerships); PSM Brokerage and PTT Financial (T65 marketing); LeadsPlease and industry direct-mail benchmarks (2025-2026).',
   },
   {
     slug: 'medicare-2027-changes',
@@ -175,7 +174,6 @@ export const articles: Article[] = [
       'If you have a dual book, verify each client\'s Medicaid plan alignment before AEP — the 2027 D-SNP rules tie your plan options to it.',
       'Own the benefits-reminder touchpoint: plans no longer have to tell members about unused supplemental benefits, so build a mid-year "use your dental and OTC" check-in into your calendar.',
     ],
-    sources: 'Sources: CMS Contract Year 2027 MA and Part D Final Rule and Rate Announcement (April 2026); CMS Medicare Drug Price Negotiation Program, negotiated prices effective 2027; 2026 Medicare Trustees Report; KFF analyses of the CY2027 final rule and negotiation program (2026).',
   },
   {
     slug: 'medicare-glp1-bridge',
@@ -232,7 +230,6 @@ export const articles: Article[] = [
       'Never promise eligibility or give medical advice. The BMI attestation is the physician\'s, not yours.',
       'Use it as a reason to reach out. A short, helpful note to your book or community about the Bridge is a warm touch that asks for nothing.',
     ],
-    sources: 'Sources: CMS, "Medicare GLP-1 Bridge" program pages and FAQ (2026); CMS press release, "Coming Soon: CMS to Provide $50 Monthly Access to GLP-1 Medications" (2026); Medicare.gov GLP-1 Bridge fact sheet (Pub. 12234); Medicare Rights Center (June 2026).',
   },
   {
     slug: 'starting-from-zero-again',
@@ -471,7 +468,6 @@ export const articles: Article[] = [
       'Get the tools that make you better. The AI study is real. Agents with strong quoting and CRM tools give better recommendations, so use them.',
       'Be honest about the switching trap. If a healthy client picks MA now, make sure they know that moving back to a Medigap plan later can require underwriting in most states.',
     ],
-    sources: 'Sources: MedPAC, "The complexity of Medicare enrollment decisions for beneficiaries" (March 2026); NORC at the University of Chicago focus groups (2024-2025); CMS recorded-call and complaint reviews.',
   },
   {
     slug: 'medicare-acquisition-landscape',
@@ -516,7 +512,6 @@ export const articles: Article[] = [
       'If you are within a few years of slowing down, start early. The best outcomes come from planning, not a fire sale.',
       'Talk to a buyer who will treat your clients right. Price matters, but so does who picks up the phone for your people after you step away.',
     ],
-    sources: 'Sources: Spark Advisors; Cherry Bekaert 2025 Private Equity Outlook; Honest Health 2025 MA Year in Review; Ritter Insurance Marketing; LIMRA and Nationwide succession data (2025-2026).',
   },
   {
     slug: 'what-a-medicare-fmo-really-does',
@@ -576,7 +571,6 @@ export const articles: Article[] = [
       'Read the release language before you sign anything. Know whether you can leave and whether your book comes with you.',
       'Talk to a real person there first. If you cannot get a leader or a founder on the phone before you sign, do not expect it after.',
     ],
-    sources: 'Sources: Ritter Insurance Marketing; Spark Advisors; Senior Market Advisors; Pinnacle Financial Services (2026).',
   },
   {
     slug: 'cms-2027-commissions',
@@ -623,7 +617,6 @@ export const articles: Article[] = [
       'Use the looser timeline, but keep it clean. No 48 hour wait means you can help people faster, but still get your Scope of Appointment, still record, and still document everything.',
       "Mark October 1 on your calendar. The new marketing rules start then, so build your AEP game plan around them, not last year's.",
     ],
-    sources: 'Sources: CMS Contract Year 2027 Final Rule and the June 2026 CMS commission memo; Ritter Insurance Marketing and Center for Medicare Advocacy (2026).',
   },
   {
     slug: 'why-clients-choose-medicare-advantage',
@@ -667,7 +660,6 @@ export const articles: Article[] = [
       'For healthy clients choosing MA now, flag that switching back to a Med Supp may require underwriting.',
       'Lead with 5-star plans where available. They carry the richest extra benefits.',
     ],
-    sources: 'Sources: KFF and CMS (2025–2026 data).',
   },
 ];
 
