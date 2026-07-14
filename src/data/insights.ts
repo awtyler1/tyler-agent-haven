@@ -58,7 +58,10 @@ export type CoverMotif =
   | 'coins'   // stacked coins + arrow (money / commissions)
   | 'shield'  // shield + check (FMO / protection / contracts)
   | 'deal'    // consolidation network (acquisition / buying books)
-  | 'steps';  // ascending steps + climber (starting from zero / fundamentals)
+  | 'steps'   // ascending steps + climber (starting from zero / fundamentals)
+  | 'deed'    // ownership document + seal (who owns your book)
+  | 'flow'    // carrier-to-agent money flow (how commissions work)
+  | 'map';    // state map + pin (Kentucky / local commissions)
 
 export interface InsightPost {
   slug: string;
@@ -77,6 +80,42 @@ export interface InsightPost {
 
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
+  {
+    slug: 'who-owns-your-book',
+    title: 'Who owns your book of business? A straight answer for Medicare agents',
+    excerpt:
+      "There is one question that decides whether you are building a business or renting one, and most agents never ask it: if I leave, do my clients come with me? The answer is one word in your contract. Here is how to find it.",
+    category: 'agency',
+    author: AUSTIN,
+    date: '2026-07-14',
+    readTime: '7 min read',
+    cover: 'deed',
+    articleSlug: 'who-owns-your-book',
+  },
+  {
+    slug: 'how-fmo-commissions-work',
+    title: 'How Medicare FMO commissions actually work',
+    excerpt:
+      "FMO pay sounds complicated on purpose. Strip it down and the carrier pays in two directions, the override is about the same everywhere, and “we pay the most” is mostly a myth. Here is how the money actually moves.",
+    category: 'industry',
+    author: ANDREW,
+    date: '2026-07-13',
+    readTime: '7 min read',
+    cover: 'flow',
+    articleSlug: 'how-fmo-commissions-work',
+  },
+  {
+    slug: 'kentucky-medicare-commissions-2027',
+    title: 'Medicare agent commissions in Kentucky: 2026 and 2027 pay, explained',
+    excerpt:
+      "Kentucky uses the national CMS commission maximums, and they went up again for 2027. Here are the real numbers for Medicare Advantage, Part D, and Supplement, and why your renewals matter more than any of them.",
+    category: 'industry',
+    author: AUSTIN,
+    date: '2026-07-12',
+    readTime: '6 min read',
+    cover: 'map',
+    articleSlug: 'kentucky-medicare-commissions-2027',
+  },
   {
     slug: 'starting-from-zero-again',
     title: 'If I Were Starting From Zero Again',

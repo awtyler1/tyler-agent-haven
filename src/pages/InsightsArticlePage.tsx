@@ -32,9 +32,9 @@ function PublicNav() {
         </RouterLink>
         <nav className="iar-nav__lks">
           <RouterLink to="/#honest" className="iar-nav__lk">Why TIG</RouterLink>
-          <RouterLink to="/book-value" className="iar-nav__lk">Book Value</RouterLink>
+          <RouterLink to="/choosing-a-medicare-fmo" className="iar-nav__lk">Choosing an FMO</RouterLink>
           <RouterLink to="/insights" className="iar-nav__lk">Insights</RouterLink>
-          <RouterLink to="/#get" className="iar-nav__lk">What you get</RouterLink>
+          <RouterLink to="/about" className="iar-nav__lk">About</RouterLink>
         </nav>
         <div className="iar-nav__act">
           <RouterLink to="/auth" className="iar-btn iar-btn--ghost">Agent Login</RouterLink>
@@ -52,9 +52,10 @@ function PublicNav() {
       {menuOpen && (
         <div className="iar-mmenu" onClick={() => setMenuOpen(false)}>
           <RouterLink to="/#honest" className="iar-mmenu__lk">Why TIG</RouterLink>
-          <RouterLink to="/book-value" className="iar-mmenu__lk">Book Value</RouterLink>
+          <RouterLink to="/choosing-a-medicare-fmo" className="iar-mmenu__lk">Choosing an FMO</RouterLink>
           <RouterLink to="/insights" className="iar-mmenu__lk">Insights</RouterLink>
-          <RouterLink to="/#get" className="iar-mmenu__lk">What you get</RouterLink>
+          <RouterLink to="/about" className="iar-mmenu__lk">About</RouterLink>
+          <RouterLink to="/book-value" className="iar-mmenu__lk">Book Value</RouterLink>
           <RouterLink to="/auth" className="iar-mmenu__lk">Agent Login</RouterLink>
           <RouterLink to="/join" className="iar-btn iar-btn--gold iar-mmenu__cta">I'm Ready to Grow</RouterLink>
         </div>
