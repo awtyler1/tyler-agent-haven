@@ -54,10 +54,12 @@ Everything else (`/hub`, `/admin/*`, training, carrier resources, contracting) i
 
 - **Brand:** Tyler Insurance Group (TIG)
 - **Segment:** growth-minded 1 to 3 year agents and small downline builders ("scale your Medicare business")
-- **Geography:** Kentucky / Bluegrass in reality; "Nationwide" on the page `[NEEDS INPUT: commit to a geographic wedge?]`
+- **Geography:** Kentucky first. **DECIDED (July 2026):** commit to the Kentucky wedge, retire "Nationwide," expand regionally only after owning the state.
 - **Upline / ecosystem:** Pinnacle (the RTS import pipeline points to Pinnacle) `[NEEDS INPUT: confirm]`
 - **Signature differentiator:** operator-built infrastructure. TIG literally built this agent platform (CRM, contracting wizard, book tracking, RTS import). That is the persona's ideal claim made real: "operator-grade infrastructure the agent could not build alone." This is the moat and it is underused on the public site.
 - **Release / vesting stance:** copy asserts "fast releases" and "your book is yours," but no standalone page states the actual terms `[NEEDS INPUT: exact written release + vesting terms]`
+- **Transparency depth:** **DECIDED (July 2026):** publish release policy, vesting/book-ownership stance, AND an honest override/street comp-economics explainer (Crowe-style), without publishing a proprietary commission grid. Strong differentiation, manageable exposure.
+- **Public brand domain:** **DECIDED (July 2026):** target `agents.` or `join.tylerinsurancegroup.com` as a subdomain of the preferred brand domain, pointed at the existing Vercel deployment. This requires only one DNS record and does NOT touch or redesign the existing consumer-facing tylerinsurancegroup.com site. Fallback if DNS access is inconvenient: keep the site on tigagenthub.com and unify entity signals (consistent NAP, `sameAs` schema linking both domains as one organization, consistent branding). Not a blocker for any other workstream.
 - **Proof assets:** 1,000+ policies in 4 years; named founders (Austin Tyler MBA, Andrew Horn MHA); the platform itself; 11 articles; the book-value tool.
 
 ---
@@ -130,9 +132,9 @@ This is where the largest gap and the largest opportunity both live.
 
 **Positioning changes to make:**
 
-- **Retire "Nationwide"; claim a geography.** "The Medicare FMO built in Kentucky, for agents who want to grow" (or Bluegrass/regional framing) is defensible; "Nationwide" is not, for a small shop. Own the state, then the region, then expand. `[NEEDS INPUT]`
+- **Retire "Nationwide"; claim Kentucky (DECIDED).** "The Medicare FMO built in Kentucky, for agents who want to grow" is defensible; "Nationwide" is not, for a small shop. Own the state, then the region, then expand.
 - **Reframe away from override/comp size.** The current copy already does this well ("Overrides don't grow books"), which is both smart positioning and, as it turns out, the compliant posture. Lean in. Make transparency the headline, not comp.
-- **Unify the entity.** Decide on one primary brand domain and make NAP (name, address, phone), the About/leadership page, and off-site mentions consistent. Split identity weakens the entity signal AI assistants rely on. `[NEEDS INPUT: tigagenthub.com vs tylerinsurancegroup.com as canonical]`
+- **Unify the entity (DECIDED: subdomain preferred).** Preferred path: serve the recruiting site from `agents.` or `join.tylerinsurancegroup.com` (one DNS record; does not touch the existing consumer site). Fallback: keep tigagenthub.com and unify signals. Either way, make NAP, the About/leadership page, off-site mentions, and `sameAs` schema consistent so both domains resolve to one organization. The domain string matters far less than consistent entity signals; do not let the DNS ask block anything.
 - **Build the missing About/leadership page.** There is founder content on the landing page but no dedicated, schema-marked leadership/entity page with verifiable track record. This is a core GEO entity asset and it does not exist yet.
 
 **Tone read:** the blunt, no-hype voice is a genuine differentiator. Health1's "No-BS Guide" wins its query almost entirely on tone in a field of bland copy, and Spark wins mindshare with adversarial "dark side of FMO contracting" thought leadership. TIG's voice is already in that register. Use it.
@@ -206,7 +208,8 @@ The regulatory picture materially changes what TIG should and should not say. Ve
    - **"Who owns your book of business?"** page targeting that exact query.
 5. **Build the About / leadership page** with named founders, credentials, verifiable track record, and Person schema. Core entity asset; currently missing.
 6. **Apply GEO edits to existing articles:** add statistics, inline authoritative citations, and quotable one-sentence answers near the top of each. Low effort, measured 30 to 40% visibility lift.
-7. **Retire "Nationwide"; stand up one Kentucky local page** as a pilot for the geo play.
+7. **Retire "Nationwide"; stand up one Kentucky local page** as a pilot for the geo play. Reframe the landing tagline to a Kentucky-first line (e.g., "The Medicare FMO built in Kentucky, for agents who want to grow"). Edit `landingContent.ts` (`tig.tagline`).
+8. **Set up the brand subdomain (when DNS access is convenient).** Add `agents.` or `join.tylerinsurancegroup.com` in Vercel and point it at the existing deployment. One DNS record; no consumer-site changes. Non-blocking; do it whenever the favor is easy to ask.
 
 ## Medium-term Strategy (6 to 18 months)
 
@@ -250,12 +253,12 @@ The regulatory picture materially changes what TIG should and should not say. Ve
 - [ ] One Kentucky local page (pilot). `[MEDIUM IMPACT / LOW EFFORT]`
 - [ ] First original data report. `[HIGH IMPACT / HIGH EFFORT]`
 
-**Positioning / decisions needed from TIG:**
-- [ ] `[NEEDS INPUT]` Exact written release and vesting terms.
-- [ ] `[NEEDS INPUT]` Commit to a geographic wedge (recommended: Kentucky first).
-- [ ] `[NEEDS INPUT]` Canonical brand domain (tigagenthub.com vs tylerinsurancegroup.com).
+**Positioning / decisions:**
+- [x] **DECIDED:** Geography = Kentucky first. Retire "Nationwide."
+- [x] **DECIDED:** Transparency depth = release + vesting + honest comp-economics explainer (no proprietary grid).
+- [x] **DECIDED:** Domain = target `agents.`/`join.tylerinsurancegroup.com` subdomain (one DNS record, no consumer-site redesign); fallback keep tigagenthub.com with unified entity signals. Non-blocking.
+- [ ] `[NEEDS INPUT]` Exact written release and vesting terms (needed to author the release policy page).
 - [ ] `[NEEDS INPUT]` Confirm upline/ecosystem (Pinnacle) and whether it can be named.
-- [ ] `[NEEDS INPUT]` Willingness to publish an actual commission grid (biggest single differentiator; sensitive).
 
 ---
 
