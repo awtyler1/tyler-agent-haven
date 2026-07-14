@@ -222,6 +222,7 @@ If a draft can't answer these, it isn't done.
 | `docs/BRANDING_WORKFLOW_AUDIT.md` | TIG branding removal checklist |
 | `docs/DEVELOPER_ONBOARDING.md` | New developer setup guide |
 | `docs/GOLDEN_HOUR_MIGRATION_AUDIT.md` | GH theme migration for 3 areas |
+| `docs/SEO_GEO_RECRUITING_STRATEGY.md` | Public-site SEO/GEO + FMO recruiting-funnel strategy |
 
 ---
 
