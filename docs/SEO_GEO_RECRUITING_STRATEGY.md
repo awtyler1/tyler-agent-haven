@@ -6,6 +6,8 @@
 
 > **A note on what this is optimizing for.** The searcher here is a business decision-maker choosing where to place their book, not a senior choosing a plan. Every recommendation below is measured in contracted agents, retained production, and override growth. It is not measured in beneficiary leads. The whole document assumes that distinction.
 
+> **Implementation log (July 14, 2026 — shipped on `claude/medicare-fmo-seo-strategy-4k3q1i`):** The gating technical work is done. The five public marketing routes now prerender to static HTML at build time (`src/prerender/entry-server.tsx` + `scripts/prerender.mjs`), so AI crawlers and search engines receive real content, per-page title/description/canonical, and Article JSON-LD instead of an empty `<div id="root">`. Also shipped: Organization + WebSite entity schema in `index.html`, a Kentucky-first default title/description with absolute OG tags, a build-generated `sitemap.xml`, and a `robots.txt` that explicitly allows the AI answer-engine crawlers. The SPA runtime (authenticated agent + admin app) is unchanged. Remaining work is content and positioning, tracked in Action Items below.
+
 ---
 
 ## Executive Summary
@@ -165,6 +167,31 @@ TIG can credibly take four of these five in six months.
 
 ---
 
+## The Crowe Playbook (steal-worthy, from a friendly operator)
+
+Ed Crowe (Crowe & Associates, Brookfield CT, working through the Pinnacle ecosystem) has grown almost entirely through organic agent-side content. He is a friendly operator, not a competitor in TIG's geography, so his playbook is a model to learn from directly. The core lesson: **he built a compounding library of exact-match, agent-intent pages and made radical comp transparency the ranking strategy itself.** The same page that ranks for "Medicare FMO compensation" is the one that says "we take 0% of your commission." Below are the highest-value, most-replicable moves, mapped to TIG's plan. (Page content observed via search snippets; verify live figures before reuse.)
+
+**Structural lessons:**
+
+- **Two-namespace site:** newer optimized "money" pages at the root (`/best-fmo-for-medicare-agents/`, `/medicare-commissions-2026/`) plus a deep evergreen back-catalog under `/agentblog/`. The moat is *volume plus vintage*: hundreds of dated pages compounding since ~2015. TIG cannot fake the vintage, but it can start the compounding now and win on depth-per-topic where Crowe wins on breadth.
+- **Agent-only audience focus.** Nearly everything targets the agent/recruit, not the beneficiary. TIG's public site is already correctly agent-only; keep that discipline.
+- **The exact-match title discipline** (title and slug mirror the query verbatim). Cheap and effective. (Crowe also prefixes titles with a literal "1" as a SERP pattern-interrupt. Distinctive but unproven; adopt the exact-match discipline, skip the gimmick.)
+
+**The specific assets to build (ranked by value, all evidenced to work for Crowe):**
+
+1. **A state-by-state commission table, refreshed and re-slugged every year.** Real CMS FMV dollars in a per-state chart (`/medicare-commissions-2026/` model). Ranks for "Medicare commissions [year]" and doubles as a trust flag. Spin a fresh year-stamped URL each year, leave prior years live to keep catching "[old year] commissions" searches. For TIG this is a natural fit with a Kentucky-first framing and pairs with the CMS 2027 article already written.
+2. **The "who owns your book of business" explainer**, contrasting direct-carrier-pay (you own renewals, they follow you on release) vs. upline-owned commissions, including how release and once-a-year hierarchy changes actually work. This is the transparency centerpiece and the recruiting pitch in one page. Already prioritized in TIG's transparency cluster; Crowe's version is the template.
+3. **Worked first-year and second-year income math** for a named state (e.g., "80 MAPD in year one → roughly $X, then $Y in year two with renewals"). Answers "how much can I actually make." Build two near-duplicates to catch both "how much can a Medicare agent earn" and "how much do Medicare agents make." Keep every number defensible and framed as typical, not best-case (see Compliance Risks: FTC earnings-claims exposure).
+4. **A seasonal AHIP / certification traffic magnet, published every June** when AHIP opens. Enormous new-agent search volume; a top-of-funnel net that pulls in agents before they have chosen an FMO. Frame it as a compliant "how to pass / module walkthrough," not answer-sharing (Crowe's version pushes into exam-answer territory that TIG should not copy).
+5. **The "how the hierarchy works" education cluster** (overrides, street vs. true-up, becoming a general agency with overrides, "what does ready-to-sell mean"). Owning the boring plumbing queries positions TIG as the honest broker and catches agents researching whether to switch.
+6. **Compliance content as authority and timeliness bait** (TPMO disclaimer, CMS call-recording, one-to-one consent, compliant sales events), refreshed whenever CMS rules change. Agents search these urgently each season. Note the 2027 marketing-rule changes are a fresh hook right now.
+7. **A weekly live webinar to evergreen-YouTube loop.** Crowe runs fixed-time live sessions (Wed/Thu 1pm ET), records them, and reposts to YouTube and an on-demand library. One weekly production yields perpetual ranking video plus a recruiting library that answers "how do I sell Medicare." This is also TIG's single best lever for the YouTube signal (the strongest measured correlate of AI visibility) and it plays to TIG's "operators who still sell" positioning.
+8. **A money-back conversion offer stated in plain dollars** as the primary CTA, dropped inside every educational article, with the catch disclosed. Crowe uses lead-cost reimbursement and new-agent licensing-cost reimbursement, and the transparency about the condition (Crowe must be the upline) is part of why it converts. TIG should state whatever its real offer is in specific numbers, not vague "marketing support," and keep the claim defensible.
+
+**What TIG should NOT copy:** the "1"-prefix title gimmick (unproven), the AHIP exam-answer framing (compliance and reputation risk), and the sprawl of thin near-duplicate pages (Google's tolerance for that is falling; TIG should win on fewer, deeper, more honest pages). And keep the comp content anchored to *caps and how pay works*, never to inducement dollars (see Compliance Risks).
+
+---
+
 ## Compliance Risks
 
 The regulatory picture materially changes what TIG should and should not say. Verified as of July 2026:
@@ -237,12 +264,13 @@ The regulatory picture materially changes what TIG should and should not say. Ve
 ## Specific Action Items
 
 **Engineering (unblocks everything):**
-- [ ] Prerender marketing routes to static HTML (SSG). `[HIGH IMPACT / HIGH EFFORT]`
-- [ ] Per-page `<title>`, meta description, canonical, absolute `og:image`. `[HIGH IMPACT / LOW EFFORT]`
-- [ ] Generate and submit `sitemap.xml`. `[HIGH IMPACT / LOW EFFORT]`
-- [ ] Rewrite `robots.txt` for AI crawlers; verify no WAF 403s. `[HIGH IMPACT / LOW EFFORT]`
-- [ ] Organization + Person + Article + FAQ JSON-LD. `[MEDIUM IMPACT / LOW EFFORT]`
-- [ ] Submit to Bing Webmaster Tools + Google Search Console; check Brave. `[MEDIUM IMPACT / LOW EFFORT]`
+- [x] **SHIPPED** Prerender marketing routes to static HTML. `src/prerender/entry-server.tsx` + `scripts/prerender.mjs`; build now runs client build, SSR build, then prerender. SPA runtime unchanged.
+- [x] **SHIPPED** Per-page `<title>`, meta description, canonical, absolute `og:image` on all five marketing routes (injected at prerender time).
+- [x] **SHIPPED** Generate `sitemap.xml` from the route list at build time. *Still to do: submit it in Search Console + Bing Webmaster Tools after deploy.*
+- [x] **SHIPPED** Rewrite `robots.txt` for AI crawlers. *Still to do post-deploy: confirm no Vercel/WAF 403s against the AI-crawler user agents.*
+- [x] **SHIPPED** Organization + WebSite JSON-LD in `index.html`; Article JSON-LD on posts. *Still to do: Person schema on the About page (page not built yet) and FAQ schema on the pillar pages (not built yet).*
+- [ ] Submit to Bing Webmaster Tools + Google Search Console; check Brave. `[MEDIUM IMPACT / LOW EFFORT]` *(post-deploy)*
+- [ ] Verify a preview deploy: fetch a marketing route as a bot user-agent and confirm content is in the raw HTML; smoke-test the authenticated app still boots. `[HIGH IMPACT / LOW EFFORT]`
 
 **Content (plant the flag):**
 - [ ] Release policy page. `[HIGH IMPACT / LOW EFFORT once terms are confirmed]`
@@ -264,18 +292,20 @@ The regulatory picture materially changes what TIG should and should not say. Ve
 
 ## Priority Matrix
 
-**High Impact / Low Effort (do first):**
-- Per-page meta + canonical + absolute OG image
-- `sitemap.xml` + AI-crawler `robots.txt`
+**Done (shipped July 14, 2026):**
+- ~~Prerender the marketing site~~ · ~~per-page meta + canonical + absolute OG~~ · ~~`sitemap.xml` + AI-crawler `robots.txt`~~ · ~~Organization/WebSite/Article JSON-LD~~
+
+**High Impact / Low Effort (do next):**
 - Release policy page (once terms confirmed)
 - "Who owns your book" page
-- GEO edits to existing articles
+- GEO edits to existing articles (stats, inline citations, top-of-page answers)
+- Annual Kentucky commission table (Crowe Playbook #1)
 
 **High Impact / High Effort (fund and schedule):**
-- Prerender/SSG the marketing site (technically the prerequisite; start immediately even though it is higher effort)
-- FMO-selection pillar
-- About/leadership page
+- FMO-selection pillar ("how to choose an FMO, and how to leave one")
+- About/leadership page (Person schema)
 - First original data report
+- Weekly webinar to evergreen-YouTube loop (Crowe Playbook #7)
 
 **Medium Impact (steady build):**
 - JSON-LD across pages
