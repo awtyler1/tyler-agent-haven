@@ -97,6 +97,31 @@ function InsightCover({ cover, variant = 'card' }: { cover: CoverMotif; variant?
             <circle className="hub" cx="200" cy="110" r="22" />
           </g>
         )}
+        {cover === 'deed' && (
+          <g className="ins-art ins-art--deed">
+            <rect className="deedpage" x="150" y="52" width="100" height="120" rx="7" />
+            <path className="deedline" d="M168 82 h64 M168 102 h64 M168 122 h40" />
+            <circle className="deedseal" cx="216" cy="150" r="15" />
+            <path className="deedribbon" d="M210 163 l-6 20 l12 -8 l12 8 l-6 -20" />
+          </g>
+        )}
+        {cover === 'flow' && (
+          <g className="ins-art ins-art--flow">
+            <rect className="flownode fn1" x="54" y="92" width="52" height="40" rx="6" />
+            <circle className="flownode fn2" cx="330" cy="112" r="24" />
+            <circle className="flownode fn3" cx="200" cy="54" r="17" />
+            <path className="flowline fl1" d="M106 112 H302" />
+            <path className="flowline fl2" d="M200 92 V71" />
+            <path className="flowarrow" d="M292 103 l13 9 l-13 9" />
+          </g>
+        )}
+        {cover === 'map' && (
+          <g className="ins-art ins-art--map">
+            <path className="mapland" d="M92 82 H286 a12 12 0 0 1 12 12 v34 a12 12 0 0 1 -12 12 H156 l-20 18 v-18 H92 a12 12 0 0 1 -12 -12 V94 a12 12 0 0 1 12 -12 Z" />
+            <path className="mappin" d="M200 92 a20 20 0 0 1 20 20 c0 15 -20 32 -20 32 c0 0 -20 -17 -20 -32 a20 20 0 0 1 20 -20 Z" />
+            <circle className="mappindot" cx="200" cy="112" r="7" />
+          </g>
+        )}
       </svg>
     </div>
   );
@@ -435,11 +460,32 @@ const CSS = `
 .ins-art--steps .climb{ fill:none; stroke:#e7cf86; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:300; stroke-dashoffset:300; animation:insDraw 1.4s ease-out .7s forwards; }
 .ins-art--steps .climber{ fill:#e7cf86; animation:insBlink 2.4s ease-in-out 2s infinite; }
 
+/* who owns your book: ownership document + wax seal */
+.ins-art--deed{ transform-box:fill-box; transform-origin:center; animation:insFloat 5s ease-in-out infinite; }
+.ins-art--deed .deedpage{ fill:rgba(201,168,76,.06); stroke:#C9A84C; stroke-width:4; stroke-linejoin:round; stroke-dasharray:440; stroke-dashoffset:440; animation:insDraw 1.7s ease forwards; }
+.ins-art--deed .deedline{ stroke:rgba(244,241,232,.5); stroke-width:3; stroke-linecap:round; }
+.ins-art--deed .deedseal{ fill:rgba(231,207,134,.14); stroke:#e7cf86; stroke-width:3; }
+.ins-art--deed .deedribbon{ fill:#e7cf86; opacity:.9; }
+
+/* how commissions work: carrier-to-agent money flow, with override branch */
+.ins-art--flow .flownode{ fill:rgba(201,168,76,.1); stroke:#C9A84C; stroke-width:3; }
+.ins-art--flow .fn2{ fill:rgba(231,207,134,.16); stroke:#e7cf86; }
+.ins-art--flow .flowline{ fill:none; stroke:#C9A84C; stroke-width:3; stroke-linecap:round; stroke-dasharray:260; stroke-dashoffset:260; animation:insDraw 1.6s ease forwards; }
+.ins-art--flow .fl2{ stroke:rgba(201,168,76,.55); animation-delay:.6s; }
+.ins-art--flow .flowarrow{ fill:none; stroke:#e7cf86; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+
+/* kentucky commissions: state land mass + location pin */
+.ins-art--map .mapland{ fill:rgba(244,241,232,.05); stroke:rgba(244,241,232,.18); stroke-width:2; stroke-linejoin:round; }
+.ins-art--map .mappin{ fill:rgba(201,168,76,.16); stroke:#C9A84C; stroke-width:4; stroke-linejoin:round; transform-box:fill-box; transform-origin:center bottom; animation:insFloat 4.5s ease-in-out infinite; }
+.ins-art--map .mappindot{ fill:#e7cf86; }
+
 @media (prefers-reduced-motion: reduce){
   .ins-cover__glow,.ins-art .r,.ins-art .enddot,.ins-art--bars .bar,.ins-art--lock,
-  .ins-art--shield,.ins-art--deal .node,.ins-art--coins .coin,.ins-art--steps .step,.ins-art--steps .climber{ animation:none; }
+  .ins-art--shield,.ins-art--deal .node,.ins-art--coins .coin,.ins-art--steps .step,.ins-art--steps .climber,
+  .ins-art--deed,.ins-art--map .mappin{ animation:none; }
   .ins-art .line,.ins-art--bars .trend,.ins-art--shield .shieldbody,.ins-art--shield .shieldcheck,
-  .ins-art--coins .coinup,.ins-art--deal .spoke,.ins-art--steps .climb{ animation:none; stroke-dashoffset:0; }
+  .ins-art--coins .coinup,.ins-art--deal .spoke,.ins-art--steps .climb,
+  .ins-art--deed .deedpage,.ins-art--flow .flowline{ animation:none; stroke-dashoffset:0; }
   .ins-art--bars .bar,.ins-art--steps .step{ transform:scaleY(1); }
   .ins-art--coins .coin{ opacity:.9; transform:none; }
 }
