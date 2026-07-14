@@ -46,10 +46,14 @@ export interface InsightAuthor {
 export const AUSTIN: InsightAuthor = { name: 'Austin Tyler', initials: 'AT', photo: '/images/founders/atyler-headshot.jpg' };
 export const ANDREW: InsightAuthor = { name: 'Andrew Horn', initials: 'AH', photo: '/images/founders/andrew-horn.png' };
 
-// The animated cover graphic for an article. RULE: every article gets a unique
-// cover. Never reuse the same motif on two articles. Add a new motif to
-// InsightCover (in InsightsPage) before you run out. A dev-time console warning
-// fires below if two posts ever share one.
+// The animated cover graphic for an article.
+//
+// POLICY: `cover` is OPTIONAL. Leave it off and the article gets a sensible
+// default motif for its category (see CATEGORY_COVER below) — no per-article
+// art work required. Set an explicit `cover` only for cornerstone pieces you
+// want to stand out; those should be unique (a dev-time warning fires if two
+// posts set the SAME explicit cover). Category defaults are expected to repeat
+// across the long tail and are not warned.
 export type CoverMotif =
   | 'rings'   // concentric care rings + cross (health / Medicare basics)
   | 'chart'   // rising trend line (market / industry data)
@@ -68,7 +72,7 @@ export interface InsightPost {
   title: string;
   excerpt: string;
   category: InsightCategory;
-  cover: CoverMotif; // unique per article — see rule above
+  cover?: CoverMotif; // optional; falls back to a category default (see CATEGORY_COVER)
   author: InsightAuthor;
   date: string; // 'YYYY-MM-DD'
   readTime: string; // e.g. '6 min read'
@@ -223,18 +227,35 @@ export function categoryMeta(key: InsightCategory): InsightCategoryMeta {
   return INSIGHT_CATEGORIES.find((c) => c.key === key) ?? INSIGHT_CATEGORIES[0];
 }
 
-// Guardrail: warn (in dev) if any two articles reuse the same cover graphic.
+// Default cover motif per category, used when a post does not set an explicit
+// `cover`. These are meant to repeat across the long tail.
+export const CATEGORY_COVER: Record<InsightCategory, CoverMotif> = {
+  'medicare-101': 'rings',
+  industry: 'chart',
+  agency: 'bars',
+  playbook: 'steps',
+};
+
+// Resolve the motif to render for a post: its explicit cover, else the category
+// default. Use this everywhere instead of reading `post.cover` directly.
+export function coverFor(p: Pick<InsightPost, 'cover' | 'category'>): CoverMotif {
+  return p.cover ?? CATEGORY_COVER[p.category];
+}
+
+// Guardrail: warn (in dev) only if two posts set the SAME *explicit* cover.
+// Category-default covers are expected to repeat and are not flagged.
 if (import.meta.env?.DEV) {
   const seen = new Set<string>();
   const dupes = new Set<string>();
   for (const p of insights) {
+    if (!p.cover) continue;
     if (seen.has(p.cover)) dupes.add(p.cover);
     seen.add(p.cover);
   }
   if (dupes.size) {
     console.warn(
-      `[insights] Duplicate cover graphic(s) in use: ${[...dupes].join(', ')}. ` +
-        'Give each article a unique cover (see CoverMotif in src/data/insights.ts).',
+      `[insights] Duplicate explicit cover graphic(s): ${[...dupes].join(', ')}. ` +
+        'Give each cornerstone article a unique cover, or drop `cover` to use the category default.',
     );
   }
 }
