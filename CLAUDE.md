@@ -179,6 +179,32 @@ White-label pivot in progress — audit completed, changes pending.
 
 ---
 
+## Writing Standards — Articles & Consumer/Agent Copy
+
+> **Rule:** Before writing or editing ANY article (`src/data/articles.ts`), knowledge post, email, or other reader-facing copy, hold it to this standard. Reputation *is* the quality of the work we put out. Do not ship writing that fails these bars.
+
+**Every piece must clear three bars:**
+
+| Bar | Means |
+|-----|-------|
+| **True** | Accurate and sourced. If a fact isn't verified, don't write it. Research first, claim second. |
+| **Useful / actionable** | The reader can *do* something with it. Always answer "so what — for me?" |
+| **Clear** | Simple and easy to understand. **High signal, low noise** — cut anything not pulling its weight. |
+
+**Keep the lens on the reader.** Write for what *they* need, not what we want to say. Prime them early — in the first lines, make it obvious why this is worth their time.
+
+**Ask these questions every time — before writing and again after:**
+1. What do people need right now?
+2. What are people asking for?
+3. How can we make this incredibly useful?
+4. How can we make it more actionable?
+5. How can we make it easier to understand and simpler?
+6. How are we priming the reader for high-quality, useful, clear work?
+
+If a draft can't answer these, it isn't done.
+
+---
+
 ## Documentation Index
 
 | File | Purpose |
