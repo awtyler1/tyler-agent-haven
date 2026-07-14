@@ -10,7 +10,7 @@
 export const tig = {
   name: "Tyler Insurance Group",
   short: "TIG",
-  tagline: "Independent Medicare FMO · Nationwide",
+  tagline: "Independent Medicare FMO · Built in Kentucky",
   recruitingEmail: "join@tylerinsurancegroup.com",
 };
 
