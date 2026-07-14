@@ -23,6 +23,7 @@ import InsightsPage from '../pages/InsightsPage';
 import InsightsArticlePage from '../pages/InsightsArticlePage';
 import AboutPage from '../pages/AboutPage';
 import ChoosingFmoPage from '../pages/ChoosingFmoPage';
+import KentuckyReportPage from '../pages/KentuckyReportPage';
 
 import { insights } from '../data/insights';
 
@@ -38,6 +39,7 @@ export function render(url: string): string {
         <Route path="/book-value" element={<BookEstimatorPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/choosing-a-medicare-fmo" element={<ChoosingFmoPage />} />
+        <Route path="/kentucky-medicare-market-report" element={<KentuckyReportPage />} />
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/insights/:slug" element={<InsightsArticlePage />} />
       </Routes>
@@ -120,6 +122,30 @@ export function routes(): RouteMeta[] {
             },
           },
         ],
+      },
+    },
+    {
+      url: '/kentucky-medicare-market-report',
+      title: 'The Kentucky Medicare Market: An Agent’s 2026 Report | Tyler Insurance Group',
+      description:
+        'Original data report: Kentucky has ~900,000 Medicare beneficiaries, ~55% in Medicare Advantage, an aging and less-healthy senior population, and a disrupted 2026 market. What the numbers mean for Medicare agents, fully sourced.',
+      priority: 0.9,
+      jsonld: {
+        '@context': 'https://schema.org',
+        '@type': 'Report',
+        headline: 'The Kentucky Medicare Market: An Agent’s 2026 Report',
+        description:
+          'A sourced synthesis of public CMS, KFF, Census, and industry data on the Kentucky Medicare market, compiled for Medicare agents.',
+        datePublished: '2026-07-14',
+        author: { '@type': 'Organization', name: 'Tyler Insurance Group', '@id': `${SITE}/#organization` },
+        publisher: { '@type': 'Organization', name: 'Tyler Insurance Group', '@id': `${SITE}/#organization` },
+        mainEntityOfPage: `${SITE}/kentucky-medicare-market-report`,
+        about: [
+          { '@type': 'Thing', name: 'Medicare in Kentucky' },
+          { '@type': 'Thing', name: 'Medicare Advantage' },
+          { '@type': 'Thing', name: 'Medicare insurance agents' },
+        ],
+        isAccessibleForFree: true,
       },
     },
     {

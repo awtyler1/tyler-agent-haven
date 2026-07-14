@@ -251,6 +251,10 @@ export default function ChoosingFmoPage() {
               <div className="cf-ccard__t">What a Medicare FMO really does</div>
               <div className="cf-ccard__d">The old model vs. the new one, and how to pick one that grows you.</div>
             </RouterLink>
+            <RouterLink className="cf-ccard" to="/kentucky-medicare-market-report">
+              <div className="cf-ccard__t">The Kentucky Medicare Market Report</div>
+              <div className="cf-ccard__d">Our sourced 2026 data report on the market you would be building in.</div>
+            </RouterLink>
           </div>
         </section>
       </article>

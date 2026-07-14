@@ -308,10 +308,13 @@ The regulatory picture materially changes what TIG should and should not say. Ve
 **Done (shipped July 14, 2026, cont.):**
 - ~~FMO-selection pillar ("how to choose an FMO, and how to leave one")~~ · ~~About/leadership page (Person schema)~~ · ~~three transparency/comp articles~~
 
+**Done (shipped July 14, 2026, cont.):**
+- ~~First original data report~~ — the Kentucky Medicare Market Report (`/kentucky-medicare-market-report`), a fully-sourced synthesis of public CMS/KFF/Census/AHR/MedPAC data compiled for the agent audience, with Report schema, stat tiles, an aging-trend chart, and a cited sources section. Deliberately excludes figures no authoritative public source supports (a hard KY agent count, a KY dual-eligible headcount, a measured beneficiaries-per-agent ratio). Future editions add TIG first-party data (retention, agent survey) to make it a true proprietary moat.
+
 **High Impact / High Effort (fund and schedule):**
-- First original data report
 - Weekly webinar to evergreen-YouTube loop (Crowe Playbook #7)
 - Release-policy page (needs TIG's written terms)
+- Second-edition data report with TIG first-party data (retention/release rates, agent-experience survey)
 
 **Medium Impact (steady build):**
 - JSON-LD across pages

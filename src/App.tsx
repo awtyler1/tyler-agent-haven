@@ -34,6 +34,7 @@ import InsightsPage from "./pages/InsightsPage";
 import InsightsArticlePage from "./pages/InsightsArticlePage";
 import AboutPage from "./pages/AboutPage";
 import ChoosingFmoPage from "./pages/ChoosingFmoPage";
+import KentuckyReportPage from "./pages/KentuckyReportPage";
 import AuthPage from "./pages/AuthPage";
 import SetPasswordPage from "./pages/auth/SetPasswordPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
@@ -151,6 +152,7 @@ const App = () => (
             <Route path="/book-value" element={<BookEstimatorPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/choosing-a-medicare-fmo" element={<ChoosingFmoPage />} />
+            <Route path="/kentucky-medicare-market-report" element={<KentuckyReportPage />} />
             <Route path="/insights" element={<InsightsPage />} />
             <Route path="/insights/:slug" element={<InsightsArticlePage />} />
             <Route path="/auth" element={<AuthPage />} />
