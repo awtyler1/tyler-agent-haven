@@ -223,6 +223,8 @@ If a draft can't answer these, it isn't done.
 | `docs/DEVELOPER_ONBOARDING.md` | New developer setup guide |
 | `docs/GOLDEN_HOUR_MIGRATION_AUDIT.md` | GH theme migration for 3 areas |
 | `docs/SEO_GEO_RECRUITING_STRATEGY.md` | Public-site SEO/GEO + FMO recruiting-funnel strategy |
+| `docs/CONTENT_WORKFLOW.md` | How to add articles + YouTube so they rank and get cited |
+| `docs/MEASUREMENT.md` | SEO/GEO/recruiting measurement runbook (week-one + monthly) |
 
 ---
 
