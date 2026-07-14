@@ -193,7 +193,7 @@ White-label pivot in progress — audit completed, changes pending.
 
 **Keep the lens on the reader.** Write for what *they* need, not what we want to say. Prime them early — in the first lines, make it obvious why this is worth their time.
 
-**Ask these questions every time — before writing and again after:**
+**Ask these questions every time, before writing and again after:**
 1. What do people need right now?
 2. What are people asking for?
 3. How can we make this incredibly useful?
@@ -202,6 +202,9 @@ White-label pivot in progress — audit completed, changes pending.
 6. How are we priming the reader for high-quality, useful, clear work?
 
 If a draft can't answer these, it isn't done.
+
+**Style rules:**
+- **No em dashes (—).** Use a period, a comma, a colon, or parentheses instead. Rework the sentence rather than reaching for a dash.
 
 ---
 
