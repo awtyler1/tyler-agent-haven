@@ -16,9 +16,9 @@ export const tig = {
 
 export const navLinks = [
   { label: "Why TIG", href: "#honest" },
-  { label: "Book Value", href: "/book-value" },
+  { label: "Choosing an FMO", href: "/choosing-a-medicare-fmo" },
   { label: "Insights", href: "/insights" },
-  { label: "What you get", href: "#get" },
+  { label: "About", href: "/about" },
 ];
 
 // ── Sticky announcement bar (top of page) ─────────────────────────────────────

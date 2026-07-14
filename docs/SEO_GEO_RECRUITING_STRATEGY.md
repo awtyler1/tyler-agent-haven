@@ -8,7 +8,9 @@
 
 > **Implementation log (July 14, 2026 — shipped on `claude/medicare-fmo-seo-strategy-4k3q1i`):** The gating technical work is done. The five public marketing routes now prerender to static HTML at build time (`src/prerender/entry-server.tsx` + `scripts/prerender.mjs`), so AI crawlers and search engines receive real content, per-page title/description/canonical, and Article JSON-LD instead of an empty `<div id="root">`. Also shipped: Organization + WebSite entity schema in `index.html`, a Kentucky-first default title/description with absolute OG tags, a build-generated `sitemap.xml`, and a `robots.txt` that explicitly allows the AI answer-engine crawlers. The SPA runtime (authenticated agent + admin app) is unchanged.
 >
-> **Content shipped (same date):** three high-intent transparency/comp articles, each targeting a query cluster the strategy identified and each now prerendered with its own metadata: "Who owns your book of business?" (`/insights/who-owns-your-book`), "How Medicare FMO commissions actually work" (`/insights/how-fmo-commissions-work`), and "Medicare agent commissions in Kentucky: 2026 and 2027" (`/insights/kentucky-medicare-commissions-2027`). Comp figures use the verified CMS caps; no invented release terms; no over-cap inducement framing. One line in the book-ownership piece asserts TIG's release terms are in writing and the direct-pay/you-own-it model. Confirm that sentence matches TIG's actual contract before relying on it publicly. Remaining work is content and positioning, tracked in Action Items below.
+> **Content shipped (same date):** three high-intent transparency/comp articles, each targeting a query cluster the strategy identified and each now prerendered with its own metadata: "Who owns your book of business?" (`/insights/who-owns-your-book`), "How Medicare FMO commissions actually work" (`/insights/how-fmo-commissions-work`), and "Medicare agent commissions in Kentucky: 2026 and 2027" (`/insights/kentucky-medicare-commissions-2027`). Comp figures use the verified CMS caps; no invented release terms; no over-cap inducement framing. One line in the book-ownership piece asserts TIG's release terms are in writing and the direct-pay/you-own-it model. Confirm that sentence matches TIG's actual contract before relying on it publicly.
+>
+> **Also shipped (same date):** two structural pages. The FMO-selection pillar/hub at `/choosing-a-medicare-fmo` targets the top-intent "how to choose a Medicare FMO" query, carries FAQPage schema, and is the internal-linking hub that ties the transparency cluster together (it links all four comp/ownership articles). An About/leadership page at `/about` gives the operator-credibility and entity proof the strategy called for, with Person schema for both founders. Both are in the marketing nav across the public pages. Note: the founder bios on `/about` are written to be true but modest; expand them with real specifics when convenient. Remaining work is content and positioning, tracked in Action Items below.
 
 ---
 
@@ -303,11 +305,13 @@ The regulatory picture materially changes what TIG should and should not say. Ve
 - GEO edits to existing articles (stats, inline citations, top-of-page answers)
 - Annual Kentucky commission table (Crowe Playbook #1)
 
+**Done (shipped July 14, 2026, cont.):**
+- ~~FMO-selection pillar ("how to choose an FMO, and how to leave one")~~ · ~~About/leadership page (Person schema)~~ · ~~three transparency/comp articles~~
+
 **High Impact / High Effort (fund and schedule):**
-- FMO-selection pillar ("how to choose an FMO, and how to leave one")
-- About/leadership page (Person schema)
 - First original data report
 - Weekly webinar to evergreen-YouTube loop (Crowe Playbook #7)
+- Release-policy page (needs TIG's written terms)
 
 **Medium Impact (steady build):**
 - JSON-LD across pages

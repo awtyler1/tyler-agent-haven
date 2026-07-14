@@ -21,6 +21,8 @@ import BecomeAgentPage from '../pages/BecomeAgentPage';
 import BookEstimatorPage from '../pages/BookEstimatorPage';
 import InsightsPage from '../pages/InsightsPage';
 import InsightsArticlePage from '../pages/InsightsArticlePage';
+import AboutPage from '../pages/AboutPage';
+import ChoosingFmoPage from '../pages/ChoosingFmoPage';
 
 import { insights } from '../data/insights';
 
@@ -34,6 +36,8 @@ export function render(url: string): string {
         <Route path="/" element={<LandingPage />} />
         <Route path="/join" element={<BecomeAgentPage />} />
         <Route path="/book-value" element={<BookEstimatorPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/choosing-a-medicare-fmo" element={<ChoosingFmoPage />} />
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/insights/:slug" element={<InsightsArticlePage />} />
       </Routes>
@@ -72,6 +76,79 @@ export function routes(): RouteMeta[] {
       description:
         'Straight talk for Medicare agents: how to choose an FMO, own your book, run AEP, read the CMS commission changes, and build an agency worth selling.',
       priority: 0.8,
+    },
+    {
+      url: '/choosing-a-medicare-fmo',
+      title: 'How to Choose a Medicare FMO (and How to Leave One) | Tyler Insurance Group',
+      description:
+        'The honest framework for choosing a Medicare FMO: how you are paid, who owns your book, release policy, carrier access, tech, and support. Plus the questions to ask before you sign and how to leave one.',
+      priority: 0.9,
+      jsonld: {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'What is the most important thing to look for in a Medicare FMO?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Whether you own your book of business. If you are paid directly by the carrier at the full CMS commission and your renewals follow you when you leave, you own it. If your commissions are assigned to the agency, they own it. Everything else is secondary to that.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Do all FMOs pay the same commission?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'At street level, effectively yes. CMS sets a maximum commission each year, and a good FMO pays you that full amount directly from the carrier. The FMO earns a separate override from the carrier on top of your check, and that override is roughly the same everywhere. So "we pay the most" is usually a myth. Judge FMOs on what they do with the override, not on the number itself.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'How do I get released from my FMO?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Request the release in writing from a principal officer of the agency. Fair FMOs state their release policy up front. Note two things: many uplines pause releases during AEP (September 1 to December 31), and for most carriers you can change your hierarchy once a year around your contract anniversary without any release at all. If an upline refuses to release you, carriers generally allow a self-release after a waiting period, commonly six months.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'What is the difference between direct pay and LOA?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Direct pay means the carrier pays you the full commission and you own the book. LOA, or licensed-only-agent, means the carrier pays the agency and the agency pays you a share, usually while keeping ownership of the book. Some agents take an LOA deal early for leads or salary. Just know the trade you are making.',
+            },
+          },
+        ],
+      },
+    },
+    {
+      url: '/about',
+      title: 'About Tyler Insurance Group | Medicare FMO Built in Kentucky',
+      description:
+        'Tyler Insurance Group is a Kentucky-built Medicare FMO run by operators who still sell. Meet the founders, and see what we believe about transparency, book ownership, and how an FMO should treat its agents.',
+      priority: 0.7,
+      jsonld: {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        mainEntity: { '@id': `${SITE}/#organization` },
+        about: [
+          {
+            '@type': 'Person',
+            name: 'Austin Tyler',
+            jobTitle: 'Broker Development',
+            honorificSuffix: 'MBA',
+            worksFor: { '@id': `${SITE}/#organization` },
+          },
+          {
+            '@type': 'Person',
+            name: 'Andrew Horn',
+            jobTitle: 'Broker Development',
+            honorificSuffix: 'MHA',
+            worksFor: { '@id': `${SITE}/#organization` },
+          },
+        ],
+      },
     },
     {
       url: '/book-value',

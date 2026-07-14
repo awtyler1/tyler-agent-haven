@@ -32,6 +32,8 @@ import BecomeAgentPage from "./pages/BecomeAgentPage";
 import BookEstimatorPage from "./pages/BookEstimatorPage";
 import InsightsPage from "./pages/InsightsPage";
 import InsightsArticlePage from "./pages/InsightsArticlePage";
+import AboutPage from "./pages/AboutPage";
+import ChoosingFmoPage from "./pages/ChoosingFmoPage";
 import AuthPage from "./pages/AuthPage";
 import SetPasswordPage from "./pages/auth/SetPasswordPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
@@ -147,6 +149,8 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/join" element={<BecomeAgentPage />} />
             <Route path="/book-value" element={<BookEstimatorPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/choosing-a-medicare-fmo" element={<ChoosingFmoPage />} />
             <Route path="/insights" element={<InsightsPage />} />
             <Route path="/insights/:slug" element={<InsightsArticlePage />} />
             <Route path="/auth" element={<AuthPage />} />

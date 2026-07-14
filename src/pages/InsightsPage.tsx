@@ -168,9 +168,9 @@ export default function InsightsPage() {
           </RouterLink>
           <nav className="ins-nav__lks">
             <RouterLink to="/#honest" className="ins-nav__lk">Why TIG</RouterLink>
-            <RouterLink to="/book-value" className="ins-nav__lk">Book Value</RouterLink>
+            <RouterLink to="/choosing-a-medicare-fmo" className="ins-nav__lk">Choosing an FMO</RouterLink>
             <RouterLink to="/insights" className="ins-nav__lk">Insights</RouterLink>
-            <RouterLink to="/#get" className="ins-nav__lk">What you get</RouterLink>
+            <RouterLink to="/about" className="ins-nav__lk">About</RouterLink>
           </nav>
           <div className="ins-nav__act">
             <RouterLink to="/auth" className="ins-btn ins-btn--ghost">Agent Login</RouterLink>
@@ -188,9 +188,10 @@ export default function InsightsPage() {
         {menuOpen && (
           <div className="ins-mmenu" onClick={() => setMenuOpen(false)}>
             <RouterLink to="/#honest" className="ins-mmenu__lk">Why TIG</RouterLink>
-            <RouterLink to="/book-value" className="ins-mmenu__lk">Book Value</RouterLink>
+            <RouterLink to="/choosing-a-medicare-fmo" className="ins-mmenu__lk">Choosing an FMO</RouterLink>
             <RouterLink to="/insights" className="ins-mmenu__lk">Insights</RouterLink>
-            <RouterLink to="/#get" className="ins-mmenu__lk">What you get</RouterLink>
+            <RouterLink to="/about" className="ins-mmenu__lk">About</RouterLink>
+            <RouterLink to="/book-value" className="ins-mmenu__lk">Book Value</RouterLink>
             <RouterLink to="/auth" className="ins-mmenu__lk">Agent Login</RouterLink>
             <RouterLink to="/join" className="ins-btn ins-btn--gold ins-mmenu__cta">I'm Ready to Grow</RouterLink>
           </div>
