@@ -1,3 +1,7 @@
+# Tyler Insurance Group — robots.txt
+# Agent-recruiting site. All public content is open to search and AI crawlers.
+
+# ---- Traditional search + social ----
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +14,49 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+# ---- AI answer engines ----
+# OpenAI runs three separate agents. OAI-SearchBot builds the search index that
+# powers ChatGPT citations; ChatGPT-User is the live fetch on a user click;
+# GPTBot is training. Allowing all three maximizes ChatGPT visibility.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Anthropic / Claude
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Google Gemini grounding
+User-agent: Google-Extended
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ---- Everyone else ----
 User-agent: *
 Allow: /
+
+Sitemap: https://www.tigagenthub.com/sitemap.xml
