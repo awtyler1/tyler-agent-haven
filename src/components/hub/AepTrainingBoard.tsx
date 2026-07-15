@@ -50,95 +50,24 @@ const table = () => (supabase as any).from('aep_training_requests');
 export function AepTrainingBoard() {
   const [open, setOpen] = useState(false);
 
+  if (!BOARD_OPEN) return null;
+
   return (
     <>
-      <style>{CERT_CSS}</style>
-      <CertReminders />
-
-      {BOARD_OPEN && (
-        <>
-          <style>{CSS}</style>
-          <button type="button" className="atb-card" onClick={() => setOpen(true)}>
-            <span className="atb-card__ic" aria-hidden="true">🎯</span>
-            <span className="atb-card__body">
-              <span className="atb-card__t">Help shape our AEP training</span>
-              <span className="atb-card__s">
-                Austin &amp; Andrew are mapping out the AEP sessions now and want to hear from you.
-                Vote on topics or write in what you'd like covered.
-              </span>
-            </span>
-            <span className="atb-card__btn">Add your voice →</span>
-          </button>
-          {open && <BoardModal onClose={() => setOpen(false)} />}
-        </>
-      )}
+      <style>{CSS}</style>
+      <button type="button" className="atb-card" onClick={() => setOpen(true)}>
+        <span className="atb-card__ic" aria-hidden="true">🎯</span>
+        <span className="atb-card__body">
+          <span className="atb-card__t">Help shape our AEP training</span>
+          <span className="atb-card__s">
+            Austin &amp; Andrew are mapping out the AEP sessions now and want to hear from you.
+            Vote on topics or write in what you'd like covered.
+          </span>
+        </span>
+        <span className="atb-card__btn">Add your voice →</span>
+      </button>
+      {open && <BoardModal onClose={() => setOpen(false)} />}
     </>
-  );
-}
-
-// ============================================================================
-// CERT REMINDERS — one-way announcement strip that sits above the vote board.
-// Renders independently of BOARD_OPEN, so it stays up through cert season even
-// after the training-vote card is locked off. Static copy: edit the arrays
-// below to change what the team sees. No data / no table.
-// ============================================================================
-
-// The four things every agent needs before they can write a carrier on Oct 15.
-const RTS_STEPS = [
-  'AHIP 2027 passed',
-  'Carrier certification (each carrier)',
-  'Active contract / appointment',
-  'Current E&O coverage',
-];
-
-// The sharpest do-it-now reminders for mid-cert-season. Lead phrase is bolded.
-const CERT_REMINDERS: { lead: string; rest: string }[] = [
-  { lead: 'AHIP first.', rest: 'Nothing else counts until it is passed.' },
-  { lead: "Use a carrier's AHIP link", rest: 'for the ~$50 discount. You pay once and it applies to every carrier.' },
-  { lead: 'Limited attempts at 90%.', rest: 'Study the modules, do not wing it.' },
-  { lead: 'Certify your top carriers first', rest: '— the ones you actually write.' },
-  { lead: 'Check your NPN and legal name', rest: 'before you start. Mismatches quietly stall RTS.' },
-];
-
-function CertReminders() {
-  return (
-    <section className="crs" aria-label="2027 certification reminders">
-      <div className="crs__head">
-        <span className="crs__ic" aria-hidden="true">🎓</span>
-        <div>
-          <div className="crs__t">2027 certifications are open. Get Ready to Sell early.</div>
-          <div className="crs__s">
-            AEP starts Oct 15. Aim to be RTS before Labor Day so you are booking appointments
-            while everyone else is still testing.
-          </div>
-        </div>
-      </div>
-
-      <div className="crs__grid">
-        <div className="crs__col">
-          <div className="crs__h">Ready to Sell = all four</div>
-          <ul className="crs__rts">
-            {RTS_STEPS.map((step, i) => (
-              <li key={step}>
-                <span className="crs__box" aria-hidden="true">{i + 1}</span>
-                {step}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="crs__col">
-          <div className="crs__h">Do this now</div>
-          <ul className="crs__rem">
-            {CERT_REMINDERS.map((r) => (
-              <li key={r.lead}>
-                <b>{r.lead}</b> {r.rest}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -353,36 +282,6 @@ function BoardModal({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
-
-const CERT_CSS = `
-/* cert reminders strip — one-way announcement above the vote board */
-.crs{ margin-bottom:18px; background:linear-gradient(135deg,#fffdf7,#faf4e6);
-  border:1px solid rgba(201,168,76,.5); border-radius:16px; padding:17px 19px;
-  color:#1b2620; font-family:'Outfit','Inter',system-ui,sans-serif; }
-.crs__head{ display:flex; align-items:flex-start; gap:12px; }
-.crs__ic{ font-size:22px; line-height:1.1; flex-shrink:0; }
-.crs__t{ font-size:14.5px; font-weight:800; letter-spacing:-.01em; color:#0E3B2E; }
-.crs__s{ font-size:12px; line-height:1.5; color:#6b6457; margin-top:2px; }
-
-.crs__grid{ display:grid; grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr); gap:18px; margin-top:15px;
-  padding-top:14px; border-top:1px solid rgba(201,168,76,.28); }
-.crs__col{ min-width:0; }
-.crs__h{ font-size:10px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:#A8801F; margin-bottom:9px; }
-
-.crs__rts{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
-.crs__rts li{ display:flex; align-items:center; gap:9px; font-size:12.5px; font-weight:600; color:#1b2620; }
-.crs__box{ flex-shrink:0; width:19px; height:19px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
-  font-size:10.5px; font-weight:800; color:#0E3B2E; background:linear-gradient(135deg,#e7cf86,#C9A84C); }
-
-.crs__rem{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
-.crs__rem li{ position:relative; padding-left:15px; font-size:12.5px; line-height:1.5; color:#4a453c; }
-.crs__rem li::before{ content:''; position:absolute; left:0; top:8px; width:5px; height:5px; border-radius:50%; background:#C9A84C; }
-.crs__rem b{ color:#1b2620; font-weight:700; }
-
-@media(max-width:560px){
-  .crs__grid{ grid-template-columns:1fr; gap:15px; }
-}
-`;
 
 const CSS = `
 /* call-out card on the hub */

@@ -3,6 +3,7 @@ import {
   boardMeta,
   boardItems,
   welcome,
+  season,
   newThisWeek,
   aep,
   type BoardItem,
@@ -111,16 +112,15 @@ export default function Index() {
           </div>
         </div>
 
-        {/* ── The Board ── */}
+        {/* ── The Board — cockpit priority: season banner + this-week items ── */}
         <section className="hub-board" aria-label="Bulletin board">
           <div className="hub-board__head">
             <span className="hub-board__title">📌 The Board</span>
-            {visibleBoardItems.length > 0 && (
-              <span className="hub-board__meta">
-                Posted by {boardMeta.postedBy} · {formatPostedOn(boardMeta.postedOn)}
-              </span>
-            )}
+            <span className="hub-board__meta">
+              Posted by {boardMeta.postedBy} · {formatPostedOn(boardMeta.postedOn)}
+            </span>
           </div>
+
           {welcome.show && (
             <div className="hub-welcome">
               <div className="hub-welcome__t">{welcome.title}</div>
@@ -128,53 +128,80 @@ export default function Index() {
               <div className="hub-welcome__sign">{welcome.sign}</div>
             </div>
           )}
-          {visibleBoardItems.length === 0 ? (
-            !welcome.show && <div className="hub-board__empty">Nothing urgent right now. Check back soon.</div>
-          ) : (
-            visibleBoardItems.map((item) => {
-            const kc = KIND_COLORS[item.kind];
-            const days = item.date ? daysUntil(item.date) : null;
-            return (
-              <div className="hub-bitem" key={item.id}>
-                <span className="hub-bitem__kind" style={{ color: kc.dot }}>
-                  <span className="hub-bitem__dot" style={{ background: kc.dot }} />
-                  {kc.label}
-                </span>
-                <div className="hub-bitem__body">
-                  <div className="hub-bitem__title">{item.title}</div>
-                  {item.note && <div className="hub-bitem__note">{item.note}</div>}
-                  {item.details && item.details.length > 0 && (
-                    <ul className="hub-bitem__details">
-                      {item.details.map((d, i) => <li key={i}>{d}</li>)}
-                    </ul>
-                  )}
-                  {item.link && (
-                    <a className="hub-bitem__join" href={item.link} target="_blank" rel="noopener noreferrer">
-                      {item.linkLabel ?? 'Join'} ↗
-                    </a>
-                  )}
-                </div>
-                <div className="hub-bitem__when">
-                  <div className="hub-bitem__whenBig">{item.when}</div>
-                  <div className="hub-bitem__whenSub">
-                    {days !== null
-                      ? days <= 0
-                        ? 'today'
-                        : `${days} day${days === 1 ? '' : 's'}`
-                      : item.whenSub ?? ''}
-                  </div>
-                </div>
+
+          {season.show && (
+            <div className="hub-season">
+              <span className="hub-season__ic" aria-hidden="true">{season.emoji}</span>
+              <div className="hub-season__body">
+                <div className="hub-season__t">{season.title}</div>
+                <p className="hub-season__b">{season.body}</p>
+                <Link className="hub-season__cta" to={season.ctaHref}>{season.ctaLabel} →</Link>
               </div>
-            );
-          })
+            </div>
+          )}
+
+          {visibleBoardItems.length > 0 && (
+            <div className={season.show || welcome.show ? 'hub-bitems hub-bitems--divided' : 'hub-bitems'}>
+              {visibleBoardItems.map((item) => {
+                const kc = KIND_COLORS[item.kind];
+                const days = item.date ? daysUntil(item.date) : null;
+                return (
+                  <div className="hub-bitem" key={item.id}>
+                    <span className="hub-bitem__kind" style={{ color: kc.dot }}>
+                      <span className="hub-bitem__dot" style={{ background: kc.dot }} />
+                      {kc.label}
+                    </span>
+                    <div className="hub-bitem__body">
+                      <div className="hub-bitem__title">{item.title}</div>
+                      {item.note && <div className="hub-bitem__note">{item.note}</div>}
+                      {item.details && item.details.length > 0 && (
+                        <ul className="hub-bitem__details">
+                          {item.details.map((d, i) => <li key={i}>{d}</li>)}
+                        </ul>
+                      )}
+                      {item.link && (
+                        <a className="hub-bitem__join" href={item.link} target="_blank" rel="noopener noreferrer">
+                          {item.linkLabel ?? 'Join'} ↗
+                        </a>
+                      )}
+                    </div>
+                    <div className="hub-bitem__when">
+                      <div className="hub-bitem__whenBig">{item.when}</div>
+                      <div className="hub-bitem__whenSub">
+                        {days !== null
+                          ? days <= 0
+                            ? 'today'
+                            : `${days} day${days === 1 ? '' : 's'}`
+                          : item.whenSub ?? ''}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {!season.show && !welcome.show && visibleBoardItems.length === 0 && (
+            <div className="hub-board__empty">Nothing urgent right now. Check back soon.</div>
           )}
         </section>
 
-        {/* ── AEP training input (flip BOARD_OPEN off in AepTrainingBoard when done) ── */}
-        <AepTrainingBoard />
-
-        {/* ── Two quiet cards ── */}
+        {/* ── Cockpit row: book your 1:1 + upcoming ── */}
         <div className="hub-two">
+          {/* Book your 1:1 */}
+          <a className="hub-oo" href={ONE_ON_ONE_CALENDLY_URL} target="_blank" rel="noopener noreferrer">
+            <div className="hub-oo__top">
+              <span className="hub-oo__badge" aria-hidden="true">1:1</span>
+              <span className="hub-oo__t">Your monthly 1:1 with Austin &amp; Andrew</span>
+            </div>
+            <p className="hub-oo__s">
+              A full hour, once a month. Your pipeline, your blockers, next month's number.
+              Slots go fast, so book early.
+            </p>
+            <span className="hub-oo__btn">Book your 1:1 →</span>
+          </a>
+
+          {/* Upcoming */}
           <section className="hub-card">
             <h2 className="hub-card__h">
               🗓 Upcoming <span className="hub-card__hint">next 7 days</span>
@@ -208,56 +235,39 @@ export default function Index() {
               })
             )}
           </section>
+        </div>
 
-          <section className="hub-card">
+        {/* ── Below the fold: training input + what's new ── */}
+        {/* Flip BOARD_OPEN off in AepTrainingBoard when the training plan is locked. */}
+        <AepTrainingBoard />
+
+        {newsItems.length > 0 && (
+          <section className="hub-card hub-new-wk">
             <h2 className="hub-card__h">
               🆕 New this week <Link to="/industry-updates" className="hub-card__more">All updates →</Link>
             </h2>
-            {newsItems.length === 0 ? (
-              <div className="hub-empty">Nothing new yet this week.</div>
-            ) : (
-              newsItems.map((n) => {
-                const inner = (
-                  <>
-                    <div className="hub-new__cat">
-                      {n.category}
-                      {n.isNew && <span className="hub-new__badge">New</span>}
-                    </div>
-                    <div className="hub-new__t">{n.title}</div>
-                  </>
-                );
-                return n.href ? (
-                  n.href.startsWith('http') ? (
-                    <a className="hub-new hub-new--link" key={n.id} href={n.href} target="_blank" rel="noopener noreferrer">{inner}</a>
-                  ) : (
-                    <Link className="hub-new hub-new--link" key={n.id} to={n.href}>{inner}</Link>
-                  )
+            {newsItems.map((n) => {
+              const inner = (
+                <>
+                  <div className="hub-new__cat">
+                    {n.category}
+                    {n.isNew && <span className="hub-new__badge">New</span>}
+                  </div>
+                  <div className="hub-new__t">{n.title}</div>
+                </>
+              );
+              return n.href ? (
+                n.href.startsWith('http') ? (
+                  <a className="hub-new hub-new--link" key={n.id} href={n.href} target="_blank" rel="noopener noreferrer">{inner}</a>
                 ) : (
-                  <div className="hub-new" key={n.id}>{inner}</div>
-                );
-              })
-            )}
+                  <Link className="hub-new hub-new--link" key={n.id} to={n.href}>{inner}</Link>
+                )
+              ) : (
+                <div className="hub-new" key={n.id}>{inner}</div>
+              );
+            })}
           </section>
-        </div>
-
-        {/* ── Monthly 1:1 with Austin & Andrew ── */}
-        <a
-          className="hub-oo"
-          href={ONE_ON_ONE_CALENDLY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span className="hub-oo__badge" aria-hidden="true">1:1</span>
-          <span className="hub-oo__body">
-            <span className="hub-oo__t">Your monthly 1:1 with Austin &amp; Andrew</span>
-            <span className="hub-oo__s">
-              A full hour with both of us, once a month. We'll look at your book, clear anything
-              stuck in contracting or certs, and set next month's number. One slot a day,
-              Tuesday through Thursday, so grab yours early.
-            </span>
-          </span>
-          <span className="hub-oo__btn">Book your 1:1 →</span>
-        </a>
+        )}
       </div>
     </div>
   );
@@ -311,6 +321,17 @@ const CSS = `
 .hub-bitem__whenBig{ font-size:15px; font-weight:700; color:var(--gold); }
 .hub-bitem__whenSub{ font-size:10.5px; color:rgba(244,241,232,.55); }
 
+/* season banner — slim, always-on cert reminder at the top of the Board */
+.hub-season{ display:flex; align-items:flex-start; gap:13px; position:relative; }
+.hub-season__ic{ font-size:22px; line-height:1.1; flex-shrink:0; }
+.hub-season__body{ flex:1; min-width:0; }
+.hub-season__t{ font-size:15px; font-weight:700; }
+.hub-season__b{ font-size:13px; color:rgba(244,241,232,.82); line-height:1.55; margin:3px 0 0; max-width:66ch; }
+.hub-season__cta{ display:inline-flex; align-items:center; gap:6px; margin-top:11px; font-size:12.5px; font-weight:700;
+  color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:8px 14px; border-radius:8px; text-decoration:none; transition:.15s; }
+.hub-season__cta:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+.hub-bitems--divided{ margin-top:14px; padding-top:4px; border-top:1px solid rgba(255,255,255,.1); }
+
 /* two cards */
 .hub-two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .hub-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,.03); }
@@ -320,25 +341,23 @@ const CSS = `
 .hub-card__more:hover{ text-decoration:underline; }
 .hub-empty{ font-size:13px; color:var(--muted); padding:8px 0; }
 
-/* monthly 1:1 with Austin & Andrew */
-.hub-oo{ display:flex; align-items:center; gap:16px; margin-top:22px; text-decoration:none;
-  background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone); border-radius:18px;
-  padding:20px 24px; position:relative; overflow:hidden; transition:transform .15s, box-shadow .15s; }
-.hub-oo:before{ content:""; position:absolute; top:-80px; right:-50px; width:300px; height:300px;
+/* monthly 1:1 — cockpit card (sits in the hub-two grid, emerald against white) */
+.hub-oo{ display:flex; flex-direction:column; text-decoration:none; color:var(--bone);
+  background:linear-gradient(135deg,#10362a,#0a2c22); border:1px solid rgba(201,168,76,.3); border-radius:16px;
+  padding:18px 20px; position:relative; overflow:hidden; transition:transform .15s, box-shadow .15s; }
+.hub-oo:before{ content:""; position:absolute; top:-70px; right:-50px; width:240px; height:240px;
   background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); pointer-events:none; }
 .hub-oo:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(10,44,34,.28); }
-.hub-oo__badge{ flex-shrink:0; width:46px; height:46px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
-  font-size:15px; font-weight:800; letter-spacing:.02em; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); position:relative; }
-.hub-oo__body{ flex:1; min-width:0; position:relative; }
-.hub-oo__t{ display:block; font-size:15.5px; font-weight:700; }
-.hub-oo__s{ display:block; font-size:12.5px; line-height:1.55; color:rgba(244,241,232,.82); margin-top:3px; max-width:60ch; }
-.hub-oo__btn{ flex-shrink:0; font-size:13px; font-weight:700; color:var(--em);
-  background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:11px 18px; border-radius:10px; white-space:nowrap; position:relative; }
+.hub-oo__top{ display:flex; align-items:center; gap:11px; position:relative; }
+.hub-oo__badge{ flex-shrink:0; width:38px; height:38px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; letter-spacing:.02em; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); }
+.hub-oo__t{ font-size:14.5px; font-weight:700; line-height:1.25; }
+.hub-oo__s{ font-size:12px; line-height:1.5; color:rgba(244,241,232,.82); margin:11px 0 0; position:relative; }
+.hub-oo__btn{ align-self:flex-start; margin-top:14px; font-size:12.5px; font-weight:700; color:var(--em);
+  background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:10px 16px; border-radius:9px; position:relative; }
 
-@media(max-width:620px){
-  .hub-oo{ flex-wrap:wrap; }
-  .hub-oo__btn{ width:100%; text-align:center; }
-}
+/* below-fold "new this week" spacing */
+.hub-new-wk{ margin-top:16px; }
 
 .hub-ev{ display:flex; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); }
 .hub-ev:last-child{ border-bottom:none; }

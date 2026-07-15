@@ -40,6 +40,19 @@ export const boardMeta = {
   postedOn: "2026-06-28", // update when you refresh the board
 };
 
+// ── Season banner ────────────────────────────────────────────────────────────
+// A slim, always-on reminder pinned to the top of the Board. It names the season
+// and points to the depth — it does NOT repeat the AHIP/RTS detail (that lives on
+// the Certifications page). Flip show:false when cert season winds down.
+export const season = {
+  show: true,
+  emoji: "🎓",
+  title: "It's cert season: AHIP, carrier certs, and Ready to Sell.",
+  body: "AHIP 2027 is out. Get certified and Ready to Sell before AEP opens Oct 15.",
+  ctaLabel: "Go to Certifications",
+  ctaHref: "/certifications",
+};
+
 // A warm welcome that sits at the top of the Board. Set show:false to hide it
 // once the team is settled in.
 export const welcome = {
@@ -50,30 +63,21 @@ export const welcome = {
   sign: "Anything you need, just reach out. We're in it with you. — Austin & Andrew",
 };
 
-export const boardItems: BoardItem[] = [
-  {
-    id: "tig-aetna-aep-call",
-    kind: "action",
-    title: "Don't miss: TIG + Aetna AEP call, July 8 at 11 AM ET",
-    note: "A look at what to expect from Aetna during AEP and into next year. This is an important one. Block the time and come ready with questions.",
-    when: "Jul 8",
-    date: "2026-07-08",
-    link: "https://teams.microsoft.com/meet/219912569776466?p=C3AZ6F6PvcIUqnwECm",
-    linkLabel: "Join the call",
-  },
-  {
-    id: "ahip-2027-out",
-    kind: "open",
-    title: "AHIP 2027 is officially out",
-    note: "Knock it out as soon as you can. AHIP is required before any carrier certification.",
-    details: [
-      "First-year agents: we cover your AHIP cost.",
-      "Save $50 on AHIP: Pinnacle website > sign in > Agent Dashboard > Certification > AHIP Discounts.",
-    ],
-    when: "Do it now",
-    whenSub: "go early",
-  },
-];
+// Time-sensitive weekly items ONLY (carrier calls, CMS deadlines, new openings).
+// Certification is NOT posted here — it lives in the `season` banner above and,
+// in full, on the Certifications page. Keep this to what's happening THIS week.
+// Example shape:
+//   {
+//     id: "tig-humana-call",
+//     kind: "action",
+//     title: "TIG + Humana AEP call, Aug 5 at 11 AM ET",
+//     note: "What to expect from Humana this AEP. Block the time, bring questions.",
+//     when: "Aug 5",
+//     date: "2026-08-05",
+//     link: "https://teams.microsoft.com/...",
+//     linkLabel: "Join the call",
+//   },
+export const boardItems: BoardItem[] = [];
 
 // ── The Dock (tools) ─────────────────────────────────────────────────────────
 // href: 'http…' opens in a new tab; '/path' is an in-app route.

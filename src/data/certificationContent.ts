@@ -13,6 +13,10 @@
 export const ahip = {
   title: "Complete your AHIP",
   note: "Required before any carrier certification. Score 90% to pass.",
+  details: [
+    "First-year agents: we cover your AHIP cost.",
+    "Save $50: Pinnacle website > sign in > Agent Dashboard > Certification > AHIP Discounts.",
+  ],
   opensLabel: "Available now",
   url: "https://www.ahipmedicaretraining.com/page/login",
 };
