@@ -85,6 +85,11 @@ export default function CertificationsPage() {
           <div className="ct-ahip__b">
             <div className="ct-ahip__t">Step 1 — {ahip.title}</div>
             <div className="ct-ahip__s">{ahip.note}</div>
+            {ahip.details && ahip.details.length > 0 && (
+              <ul className="ct-ahip__details">
+                {ahip.details.map((d, i) => <li key={i}>{d}</li>)}
+              </ul>
+            )}
           </div>
           <div className="ct-ahip__r">
             {ahip.opensLabel && <span className="ct-ahip__open">{ahip.opensLabel}</span>}
@@ -152,6 +157,9 @@ const CSS = `
 .ct-ahip__b{ position:relative; flex:1; min-width:200px; }
 .ct-ahip__t{ font-size:18px; font-weight:700; }
 .ct-ahip__s{ font-size:12.5px; color:rgba(244,241,232,.72); margin-top:3px; }
+.ct-ahip__details{ margin:9px 0 0; padding:0; list-style:none; }
+.ct-ahip__details li{ position:relative; padding-left:15px; font-size:12px; line-height:1.5; color:rgba(244,241,232,.82); margin-top:4px; }
+.ct-ahip__details li:before{ content:""; position:absolute; left:2px; top:7px; width:4px; height:4px; border-radius:50%; background:var(--gold); }
 .ct-ahip__r{ position:relative; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
 .ct-ahip__open{ font-size:12.5px; font-weight:700; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:7px 13px; border-radius:9px; }
 .ct-btn-gold{ display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em);
