@@ -5,6 +5,7 @@ import { logActivity, ActivityAction } from '@/utils/activityLogger';
 import { toast } from 'sonner';
 import { ContentLoader } from '@/components/ui/ContentLoader';
 import { articles } from '@/data/articles';
+import { ONE_ON_ONE_CALENDLY_URL } from '@/data/booking';
 
 // ============================================================
 // TIG Hub shell — emerald sidebar (shared-login MVP)
@@ -97,6 +98,16 @@ export function AgentShell() {
         </nav>
 
         <div className="shell-foot">
+          <a
+            className="shell-foot__book"
+            href={ONE_ON_ONE_CALENDLY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span aria-hidden="true">🗓</span>
+            Book your monthly 1:1
+            <span className="shell-foot__bookarrow" aria-hidden="true">↗</span>
+          </a>
           <div className="shell-foot__note">
             Questions? Text Austin or Andrew. <Link to="/contacts">Contacts →</Link>
           </div>
@@ -140,6 +151,11 @@ const CSS = `
 .shell-nav__arrow{ margin-left:auto; font-size:11px; opacity:.7; }
 
 .shell-foot{ margin-top:auto; padding:12px 10px 4px; border-top:1px solid rgba(255,255,255,.08); }
+.shell-foot__book{ display:flex; align-items:center; gap:8px; margin-bottom:12px; padding:9px 11px; border-radius:8px;
+  background:rgba(201,168,76,.16); border:1px solid rgba(201,168,76,.4); color:#F4F1E8; font-size:13px; font-weight:600;
+  text-decoration:none; transition:background .15s,border-color .15s; }
+.shell-foot__book:hover{ background:rgba(201,168,76,.26); border-color:rgba(201,168,76,.7); }
+.shell-foot__bookarrow{ margin-left:auto; font-size:11px; opacity:.75; }
 .shell-foot__note{ font-size:12px; color:rgba(244,241,232,.62); line-height:1.5; }
 .shell-foot__note a{ color:#C9A84C; font-weight:600; text-decoration:none; }
 .shell-foot__out{ margin-top:10px; width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
