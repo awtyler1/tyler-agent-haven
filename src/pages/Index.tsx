@@ -249,10 +249,11 @@ export default function Index() {
         >
           <span className="hub-oo__badge" aria-hidden="true">1:1</span>
           <span className="hub-oo__body">
-            <span className="hub-oo__t">Your monthly 15 with Austin &amp; Andrew</span>
+            <span className="hub-oo__t">Your monthly 1:1 with Austin &amp; Andrew</span>
             <span className="hub-oo__s">
-              Fifteen minutes, once a month. We'll look at your book, clear anything stuck in
-              contracting or certs, and set next month's number. This is your time. Use it.
+              A full hour with both of us, once a month. We'll look at your book, clear anything
+              stuck in contracting or certs, and set next month's number. One slot a day,
+              Tuesday through Thursday, so grab yours early.
             </span>
           </span>
           <span className="hub-oo__btn">Book your 1:1 →</span>
