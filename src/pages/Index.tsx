@@ -11,6 +11,7 @@ import { calendarEvents, CATEGORY_META } from '@/data/calendarContent';
 import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 import { AepTrainingBoard } from '@/components/hub/AepTrainingBoard';
+import { ONE_ON_ONE_CALENDLY_URL } from '@/data/booking';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const KIND_COLORS: Record<BoardItem['kind'], { dot: string; label: string }> = {
@@ -238,6 +239,24 @@ export default function Index() {
             )}
           </section>
         </div>
+
+        {/* ── Monthly 1:1 with Austin & Andrew ── */}
+        <a
+          className="hub-oo"
+          href={ONE_ON_ONE_CALENDLY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="hub-oo__badge" aria-hidden="true">1:1</span>
+          <span className="hub-oo__body">
+            <span className="hub-oo__t">Your monthly 15 with Austin &amp; Andrew</span>
+            <span className="hub-oo__s">
+              Fifteen minutes, once a month. We'll look at your book, clear anything stuck in
+              contracting or certs, and set next month's number. This is your time. Use it.
+            </span>
+          </span>
+          <span className="hub-oo__btn">Book your 1:1 →</span>
+        </a>
       </div>
     </div>
   );
@@ -299,6 +318,26 @@ const CSS = `
 .hub-card__more{ margin-left:auto; font-size:12px; font-weight:500; color:var(--gold2); text-decoration:none; }
 .hub-card__more:hover{ text-decoration:underline; }
 .hub-empty{ font-size:13px; color:var(--muted); padding:8px 0; }
+
+/* monthly 1:1 with Austin & Andrew */
+.hub-oo{ display:flex; align-items:center; gap:16px; margin-top:22px; text-decoration:none;
+  background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone); border-radius:18px;
+  padding:20px 24px; position:relative; overflow:hidden; transition:transform .15s, box-shadow .15s; }
+.hub-oo:before{ content:""; position:absolute; top:-80px; right:-50px; width:300px; height:300px;
+  background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); pointer-events:none; }
+.hub-oo:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(10,44,34,.28); }
+.hub-oo__badge{ flex-shrink:0; width:46px; height:46px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+  font-size:15px; font-weight:800; letter-spacing:.02em; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); position:relative; }
+.hub-oo__body{ flex:1; min-width:0; position:relative; }
+.hub-oo__t{ display:block; font-size:15.5px; font-weight:700; }
+.hub-oo__s{ display:block; font-size:12.5px; line-height:1.55; color:rgba(244,241,232,.82); margin-top:3px; max-width:60ch; }
+.hub-oo__btn{ flex-shrink:0; font-size:13px; font-weight:700; color:var(--em);
+  background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:11px 18px; border-radius:10px; white-space:nowrap; position:relative; }
+
+@media(max-width:620px){
+  .hub-oo{ flex-wrap:wrap; }
+  .hub-oo__btn{ width:100%; text-align:center; }
+}
 
 .hub-ev{ display:flex; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); }
 .hub-ev:last-child{ border-bottom:none; }
