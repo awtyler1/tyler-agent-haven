@@ -37,7 +37,7 @@ export interface BoardItem {
 
 export const boardMeta = {
   postedBy: "Austin & Andrew",
-  postedOn: "2026-06-28", // update when you refresh the board
+  postedOn: "2026-07-20", // update when you refresh the board
 };
 
 // ── Season banner ────────────────────────────────────────────────────────────
@@ -77,7 +77,18 @@ export const welcome = {
 //     link: "https://teams.microsoft.com/...",
 //     linkLabel: "Join the call",
 //   },
-export const boardItems: BoardItem[] = [];
+export const boardItems: BoardItem[] = [
+  {
+    id: "aetna-first-look-bid-mechanics",
+    kind: "action",
+    title: "Aetna First Look + Bid Mechanics, Jul 28 at 10 AM ET",
+    note: "This year's First Look adds a Bid Mechanics segment: a behind-the-scenes look at how carriers build and rebuild MAPD plans. Brunch & Learn at the Signature Club of Lansdowne. Seating is limited, so register ahead.",
+    when: "Jul 28",
+    whenSub: "register now",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register now (seating is limited)",
+  },
+];
 
 // ── The Dock (tools) ─────────────────────────────────────────────────────────
 // href: 'http…' opens in a new tab; '/path' is an in-app route.
