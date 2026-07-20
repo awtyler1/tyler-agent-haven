@@ -124,13 +124,15 @@ export const calendarEvents: CalEvent[] = [
   {
     id: "aetna-first-looks",
     date: "2026-07-28",
-    title: "Aetna First Looks 👀",
-    detail: "10:00 AM · Signature Club · Aetna's first look at 2027 plans and benefits.",
+    title: "Aetna First Look + Bid Mechanics 👀",
+    detail: "10:00 AM–12:00 PM ET · Signature Club of Lansdowne · Register ahead, seating is limited.",
     description:
-      "Aetna's first look at their 2027 plans and benefits — an early read on what's changing before AEP. Came out of the July 8 TIG + Aetna call.",
-    location: "Signature Club",
-    time: "10:00 AM ET",
+      "Aetna's First Look at Benefits, now with a new Bid Mechanics segment built for the broker community. Bid Mechanics gives you a behind-the-scenes look at how carriers build and rebuild MAPD plans, and why they make the decisions they do based on funding, STAR ratings, the bidding process, and the dynamics of pricing insurance. You'll see how the trade-offs get made between must-have and nice-to-have benefits, how cost constraints play in, and how benefits get prioritized around member needs, competition, and CMS funding. Expect to walk away with a deeper appreciation for the strategy behind plan design, plus talking points to guide your clients with confidence. This is a Brunch & Learn session. Seating is limited, so please register ahead of time at AetnaMedicareAgentTraining.com.",
+    location: "The Signature Club of Lansdowne · 3256 Lansdowne Dr., Lexington, KY 40502",
+    time: "10:00 AM–12:00 PM ET",
     category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register now (seating is limited)",
   },
   {
     id: "tig-team-night-aep-kickoff",
