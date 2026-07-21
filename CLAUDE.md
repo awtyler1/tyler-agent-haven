@@ -183,15 +183,21 @@ White-label pivot in progress — audit completed, changes pending.
 
 > **Rule:** Before writing or editing ANY article (`src/data/articles.ts`), knowledge post, email, or other reader-facing copy, hold it to this standard. Reputation *is* the quality of the work we put out. Do not ship writing that fails these bars.
 
+**Two audiences, one set of bars.** The three bars below are shared DNA and apply to everything we publish. But *who* the piece is for changes how you execute:
+- **Consumer / newer-agent pieces** (education, plain-language explainers): default to the guidance in this section. Explain the mechanics simply. Clarity wins.
+- **Insider / professional pieces** (market analysis, carrier and product breakdowns, selling-season strategy, regulatory reads for people who sell every day): also follow the **Insider / Professional Writing** section further down. Do not explain the basics to this reader.
+
+When you start a piece, decide which audience it serves and apply the matching layer.
+
 **Every piece must clear three bars:**
 
 | Bar | Means |
 |-----|-------|
 | **True** | Accurate and sourced. If a fact isn't verified, don't write it. Research first, claim second. |
-| **Useful / actionable** | The reader can *do* something with it. Always answer "so what — for me?" |
-| **Clear** | Simple and easy to understand. **High signal, low noise** — cut anything not pulling its weight. |
+| **Useful / actionable** | The reader can *do* something with it. Always answer "so what, for me?" |
+| **Clear** | Simple and easy to understand. **High signal, low noise.** Cut anything not pulling its weight. |
 
-**Keep the lens on the reader.** Write for what *they* need, not what we want to say. Prime them early — in the first lines, make it obvious why this is worth their time.
+**Keep the lens on the reader.** Write for what *they* need, not what we want to say. Prime them early. In the first lines, make it obvious why this is worth their time.
 
 **Ask these questions every time, before writing and again after:**
 1. What do people need right now?
@@ -205,6 +211,50 @@ If a draft can't answer these, it isn't done.
 
 **Style rules:**
 - **No em dashes (—).** Use a period, a comma, a colon, or parentheses instead. Rework the sentence rather than reaching for a dash.
+
+---
+
+## Insider / Professional Writing
+
+> **Rule:** Applies when the audience is the industry itself: brokers, agents, FMO/IMO partners, carrier contacts, and other experts. This layer sits on top of the three bars above (True / Useful / Clear), it does not replace them. The style rules above still hold, including **no em dashes**.
+
+**Mission.** Two jobs, and only these two: make it genuinely valuable to someone who already knows this industry, and make it engaging enough that a busy professional reads to the end. For this reader those are the same goal. Both come from respecting their time and their intelligence.
+
+**The bar.** A seasoned broker should finish and think "I didn't know that," or "I've never framed it that way," or "I'm forwarding this to my team." Anything less is filler.
+
+**Who you're writing for.** Insiders who sell Medicare Advantage, Med Supp, and Part D every day. They know the vocabulary, so do not explain what a formulary, star rating, MOOP, AEP, or MLR is. They read a lot of industry content and have low tolerance for the generic version of it. They are time-poor and skeptical. Write to them as a peer who has done the homework, not as a vendor and not as a teacher.
+
+**What "high value" means here.** Value for an expert is the *delta*: what you add to what they already know. Measure every piece against that.
+- **Lead with insight, not recap.** Assume they saw the headline. Your value starts where the headline stops, in the implications.
+- **Have a thesis.** Take a defensible position and back it. Do not hedge into mush.
+- **Think in second-order effects.** Not "Carrier X cut commissions," but what that signals about their MA margins and how it reshapes broker behavior next season. Always push to what it means downstream.
+- **Be specific, and be right.** Named dynamics, real numbers, actual mechanics. Precision is non-negotiable. An expert stops reading the instant they catch you bluffing. When you are not certain of a figure or a claim, verify it or frame it honestly as a read rather than a fact.
+- **Synthesize across sources.** The freshest takes come from connecting things others treat separately: an enrollment trend against a demographic shift, a carrier's move against a broader incentive structure. Original synthesis is the highest-value thing you can offer.
+
+If a paragraph does not teach, sharpen, or reframe something, cut it.
+
+**What "engaging" means here.** Momentum plus credibility, not entertainment.
+- **Open with a hook that signals payoff.** A specific claim, a surprising number, a sharp question, a counterintuitive read. Skip the throat-clearing.
+- **Earn every next paragraph.** Each one advances the argument or adds a new angle. No treading water.
+- **Write with plainspoken authority.** Say the thing directly. Confidence backed by substance is what keeps a skeptical reader.
+- **Use concrete detail** and the occasional well-chosen analogy to make a complex dynamic click, never at the cost of precision and never analogies aimed at beginners.
+- **Find the tension.** The most engaging industry writing sits on a real friction: a strategy working now that will not last, an incentive misalignment, a bet the market has not priced in. Name it.
+- **Respect the scan.** Tight paragraphs, meaningful headers. But keep prose as the engine. This reader wants an argument, not a slide deck rendered as bullets.
+
+**What to avoid.**
+- Explaining the basics. The fastest way to lose this reader.
+- Empty authority signals ("In today's ever-evolving Medicare landscape..."). Cut all of it.
+- Both-sides mush with no take. Concluding nothing reads as having no insight.
+- Padding. If it is a 400-word idea, it is a 400-word piece. Length is never the goal.
+- Overstatement you cannot back. Experts catch it instantly and it torches your credibility for the whole piece.
+
+**Voice.** Sharp, confident, peer-to-peer. A well-informed insider talking to other insiders: direct, specific, occasionally opinionated, never puffed up. The kind of voice that earns a forward and a "you seen this?"
+
+**Output shape.**
+1. Open on the insight or the stakes, no warm-up.
+2. Carry one clear argument the reader can hold onto.
+3. Move through it with momentum, each section adding a distinct point.
+4. Land on the "so what for you," the practical or strategic implication for someone selling in this market.
 
 ---
 
