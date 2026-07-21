@@ -37,15 +37,15 @@ export const KNOWLEDGE_META: Record<KnowledgeCategory, { label: string; color: s
 };
 
 export const knowledgeItems: KnowledgeItem[] = [
-  // Example shape (delete the // to use):
-  // {
-  //   id: "final-rule-2027",
-  //   title: "2027 CMS Final Rule: the 5 changes that affect your book",
-  //   category: "tig",
-  //   date: "2026-06-08",
-  //   source: "TIG",
-  //   summary: "Plain-English breakdown of marketing rules and AEP talking points.",
-  //   href: "https://…",
-  //   pinned: true,
-  // },
+  {
+    id: "kentucky-medicare-market-report",
+    title: "The Kentucky Medicare Market Report",
+    category: "tig",
+    date: "2026-07-15",
+    source: "TIG Research",
+    summary:
+      "Our original market research on the state we sell in: ~900K Kentuckians on Medicare, ~55% in Medicare Advantage, one of the oldest and least-healthy senior populations in the country, and where 2026's plan disruption opens real room for agents.",
+    href: "/kentucky-medicare-market-report",
+    pinned: true,
+  },
 ];
