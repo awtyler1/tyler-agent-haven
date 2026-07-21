@@ -12,7 +12,8 @@ function AuthorAvatar({ photo, initials, name }: { photo: string; initials: stri
 }
 
 function renderBlock(b: Block, i: number) {
-  if (b.type === 'h') return <h2 className="ap-h2" key={i}>{b.text}</h2>;
+  // In-body subheads are H3 — they sit under the section H2 ("What's happening").
+  if (b.type === 'h') return <h3 className="ap-h3" key={i}>{b.text}</h3>;
   if (b.type === 'ul') {
     return (
       <ul className="ap-ul" key={i}>
@@ -84,19 +85,19 @@ export default function ArticlePage() {
 
         {/* What's happening */}
         <section className="ap-block ap-what">
-          <div className="ap-block__h"><span className="ap-block__ic">📋</span><span className="ap-block__t">{article.whatTitle || "What's happening"}</span></div>
+          <div className="ap-block__h"><span className="ap-block__ic">📋</span><h2 className="ap-block__t">{article.whatTitle || "What's happening"}</h2></div>
           {article.what.map(renderBlock)}
         </section>
 
         {/* Why it matters to you */}
         <section className="ap-block ap-why">
-          <div className="ap-block__h"><span className="ap-block__ic">💡</span><span className="ap-block__t">Why it matters to you</span></div>
+          <div className="ap-block__h"><span className="ap-block__ic">💡</span><h2 className="ap-block__t">Why it matters to you</h2></div>
           {article.why.map((p, i) => <p className="ap-p" key={i}>{p}</p>)}
         </section>
 
         {/* What to do now */}
         <section className="ap-block ap-do">
-          <div className="ap-block__h"><span className="ap-block__ic">✅</span><span className="ap-block__t">What to do now</span></div>
+          <div className="ap-block__h"><span className="ap-block__ic">✅</span><h2 className="ap-block__t">What to do now</h2></div>
           <ol className="ap-ol">
             {article.actions.map((a, i) => <li key={i}>{a}</li>)}
           </ol>
@@ -143,9 +144,9 @@ const CSS = `
 .ap-block{ margin-bottom:22px; }
 .ap-block__h{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
 .ap-block__ic{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
-.ap-block__t{ font-family:'Outfit'; font-size:17px; font-weight:700; }
+.ap-block__t{ font-family:'Outfit'; font-size:17px; font-weight:700; margin:0; }
 .ap-p{ font-size:15.5px; line-height:1.7; color:#33312c; margin-bottom:14px; }
-.ap-h2{ font-family:'Outfit'; font-size:16px; font-weight:700; margin:18px 0 9px; }
+.ap-h3{ font-family:'Outfit'; font-size:16px; font-weight:700; margin:18px 0 9px; }
 .ap-ul{ margin:0 0 14px 2px; }
 .ap-ul li{ list-style:none; display:flex; gap:10px; font-size:15px; line-height:1.6; margin-bottom:8px; color:#33312c; }
 .ap-ul li:before{ content:"–"; color:var(--gold2); font-weight:700; flex-shrink:0; }
