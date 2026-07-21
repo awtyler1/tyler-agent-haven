@@ -98,7 +98,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'how-fmo-commissions-work',
-    title: 'How Medicare FMO commissions actually work',
+    title: 'How Medicare FMO Commissions Work: Street, Override, and Who Pays You',
     excerpt:
       "FMO pay sounds complicated on purpose. Strip it down and the carrier pays in two directions, the override is about the same everywhere, and “we pay the most” is mostly a myth. Here is how the money actually moves.",
     category: 'industry',
@@ -110,7 +110,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'kentucky-medicare-commissions-2027',
-    title: 'Medicare agent commissions in Kentucky: 2026 and 2027 pay, explained',
+    title: 'Medicare Agent Commissions in Kentucky: 2026 and 2027 Pay',
     excerpt:
       "Kentucky uses the national CMS commission maximums, and they went up again for 2027. Here are the real numbers for Medicare Advantage, Part D, and Supplement, and why your renewals matter more than any of them.",
     category: 'industry',
@@ -122,7 +122,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'starting-from-zero-again',
-    title: 'If I Were Starting From Zero Again',
+    title: 'How to Build a Medicare Agency From Scratch (If I Were Starting From Zero)',
     excerpt:
       "If I lost it all tomorrow and had to rebuild a Medicare agency from nothing, I wouldn't go hunting for a secret. I'd do four boring things, in order, before I let myself get distracted by anything shiny: start a Google Business Profile, get the word out, get around other agents, and make my carrier reps my teachers.",
     category: 'agency',
@@ -134,7 +134,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'aep-game-plan',
-    title: 'The AEP Game Plan',
+    title: 'Medicare AEP Game Plan: How Agents Prepare for Annual Enrollment',
     excerpt:
       'AEP is still months out, but it should sit in the back of everything you do until then. Here is the five-part game plan: stay in front of clients year-round, know your book cold before September, get into advisor mode now, out-prepare every appointment, and map your outreach before the mail hits.',
     category: 'playbook',
@@ -147,7 +147,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'building-an-asset-not-a-job',
-    title: 'Are you building an asset or renting a job?',
+    title: 'Building a Medicare Book of Business: Asset or Just a Job?',
     excerpt:
       'Strip away the tactics and one question sits under everything you do in Medicare. Most agents never ask it. The ones who do build a book they could sell one day, not a pile of applications that churns.',
     category: 'agency',
@@ -159,7 +159,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'brokers-not-why-medicare-is-confusing',
-    title: "Brokers aren't why Medicare is confusing. Medicare is.",
+    title: "Why Is Medicare So Confusing? It's Not the Agents",
     excerpt:
       "MedPAC's new report on how confusing Medicare has become is, almost by accident, one of the best cases for agents we have seen from the government. It also takes a few cheap shots. Here is the honest version.",
     category: 'industry',
@@ -171,7 +171,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'medicare-acquisition-landscape',
-    title: 'Why everyone is buying Medicare books right now',
+    title: "What's a Medicare Book of Business Worth? Why Everyone's Buying",
     excerpt:
       'A retirement wave on one side, hungry buyers on the other. Here is how books are valued today, why so many people are buying them, and what it means for the asset you have built.',
     category: 'industry',
@@ -183,7 +183,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'what-a-medicare-fmo-really-does',
-    title: 'What a Medicare FMO really does, and how to pick one that grows you',
+    title: 'What Is a Medicare FMO, and How Do You Choose One?',
     excerpt:
       'Your FMO is one of the biggest business decisions you will make, and most agents pick the one whose recruiter called first. Here is what an FMO actually does, old model versus new, and what to look for.',
     category: 'industry',
@@ -195,7 +195,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'cms-2027-commissions',
-    title: 'What the 2027 CMS commission changes mean for you',
+    title: '2027 CMS Commission Changes: What They Mean for Medicare Agents',
     excerpt:
       'CMS just raised what you can get paid in 2027 and loosened the marketing rules right before AEP. Here is the plain version, and what the move really signals.',
     category: 'industry',

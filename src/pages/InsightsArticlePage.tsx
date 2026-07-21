@@ -11,7 +11,8 @@ function AuthorAvatar({ photo, initials, name }: { photo?: string; initials: str
 }
 
 function renderBlock(b: Block, i: number) {
-  if (b.type === 'h') return <h2 className="iar-h2" key={i}>{b.text}</h2>;
+  // In-body subheads are H3 — they sit under the section H2 ("What's happening").
+  if (b.type === 'h') return <h3 className="iar-h3" key={i}>{b.text}</h3>;
   if (b.type === 'ul') {
     return (
       <ul className="iar-ul" key={i}>
@@ -161,17 +162,17 @@ export default function InsightsArticlePage() {
             </div>
 
             <section className="iar-block">
-              <div className="iar-block__h"><span className="iar-block__ic iar-ic-what">📋</span><span className="iar-block__t">{article.whatTitle || "What's happening"}</span></div>
+              <div className="iar-block__h"><span className="iar-block__ic iar-ic-what">📋</span><h2 className="iar-block__t">{article.whatTitle || "What's happening"}</h2></div>
               {article.what.map(renderBlock)}
             </section>
 
             <section className="iar-block iar-why">
-              <div className="iar-block__h"><span className="iar-block__ic iar-ic-why">💡</span><span className="iar-block__t">Why it matters</span></div>
+              <div className="iar-block__h"><span className="iar-block__ic iar-ic-why">💡</span><h2 className="iar-block__t">Why it matters</h2></div>
               {article.why.map((p, i) => <p className="iar-p" key={i}>{p}</p>)}
             </section>
 
             <section className="iar-block">
-              <div className="iar-block__h"><span className="iar-block__ic iar-ic-do">✅</span><span className="iar-block__t">What to do now</span></div>
+              <div className="iar-block__h"><span className="iar-block__ic iar-ic-do">✅</span><h2 className="iar-block__t">What to do now</h2></div>
               <ol className="iar-ol">
                 {article.actions.map((a, i) => <li key={i}>{a}</li>)}
               </ol>
@@ -252,9 +253,9 @@ const CSS = `
 .iar-ic-what{ background:rgba(94,125,158,.14); }
 .iar-ic-why{ background:rgba(201,168,76,.2); }
 .iar-ic-do{ background:rgba(91,125,68,.16); }
-.iar-block__t{ font-family:'Outfit'; font-size:17px; font-weight:700; }
+.iar-block__t{ font-family:'Outfit'; font-size:17px; font-weight:700; margin:0; }
 .iar-p{ font-size:15.5px; line-height:1.7; color:#33312c; margin-bottom:14px; }
-.iar-h2{ font-family:'Outfit'; font-size:16px; font-weight:700; margin:18px 0 9px; }
+.iar-h3{ font-family:'Outfit'; font-size:16px; font-weight:700; margin:18px 0 9px; }
 .iar-ul{ margin:0 0 14px 2px; padding:0; }
 .iar-ul li{ list-style:none; display:flex; gap:10px; font-size:15px; line-height:1.6; margin-bottom:8px; color:#33312c; }
 .iar-ul li:before{ content:"–"; color:var(--gold2); font-weight:700; flex-shrink:0; }
