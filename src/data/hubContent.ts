@@ -53,6 +53,21 @@ export const season = {
   ctaHref: "/certifications",
 };
 
+// ── Featured highlight ───────────────────────────────────────────────────────
+// A single spotlight card that sits directly under the Board on the hub home.
+// Use it to surface one thing worth everyone's attention this stretch (a
+// research report, a playbook, a big update). Flip show:false to hide it.
+// href: '/path' is an in-app route; 'http…' opens in a new tab.
+export const featured = {
+  show: true,
+  eyebrow: "TIG Research",
+  title: "The Kentucky Medicare Market Report",
+  body:
+    "Our original research on the market we sell in: ~900K Kentuckians on Medicare, ~55% in Medicare Advantage, one of the oldest and least-healthy senior populations in the country, and where 2026's disruption (a carrier exit, a new entrant, forced plan changes) opens real room for the prepared agent.",
+  ctaLabel: "Read the report",
+  ctaHref: "/kentucky-medicare-market-report",
+};
+
 // A warm welcome that sits at the top of the Board. Set show:false to hide it
 // once the team is settled in.
 export const welcome = {

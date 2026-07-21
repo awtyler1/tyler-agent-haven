@@ -51,6 +51,55 @@ const ANDREW = {
 
 export const articles: Article[] = [
   {
+    slug: 'medicare-prescription-payment-plan-m3p',
+    title: 'The Medicare Prescription Payment Plan: a one-pager for helping clients spread drug costs',
+    category: 'cms',
+    date: '2026-07-21',
+    readTime: '5 min read',
+    summary:
+      "M3P lets a client pay their Part D drug costs in monthly installments instead of all at once at the counter. It does not save them a dollar, but for the right client it removes a real barrier to filling a prescription. Here is who it helps, who it does not, and how to position it.",
+    author: ANDREW,
+    takeaways: [
+      "M3P spreads a client's out-of-pocket Part D costs across the year. Same total, no interest, no fees. It is cash flow, not a discount.",
+      "It is built for clients with high drug costs early in the year who do not get Extra Help. For low or steady costs, it just adds a bill.",
+      "New for 2026: enrollment auto-renews. The Part D out-of-pocket cap is $2,100, and that is the most anyone pays before the spreading even starts.",
+    ],
+    whatTitle: 'What it is',
+    what: [
+      { type: 'p', text: 'The Medicare Prescription Payment Plan (M3P) started in 2025, and every Part D plan has to offer it: standalone drug plans and Medicare Advantage plans with drug coverage alike. It lets a client pay their out-of-pocket drug costs in monthly installments billed by the plan, instead of paying the full amount at the pharmacy counter.' },
+      { type: 'p', text: 'The mechanics are simple. The client pays $0 for covered drugs at the pharmacy. The plan sends a monthly bill instead, spread across the rest of the calendar year (January through December). There is no cost to join, and no interest or fees, even if a payment is late.' },
+      { type: 'p', text: 'Be crystal clear with clients on one point: M3P does not save them money. Their total out-of-pocket for the year is exactly the same. All it changes is the timing. Under 2026 rules that total is capped at $2,100 on covered Part D drugs, and after a client hits the cap the plan pays 100% for the rest of the year.' },
+      { type: 'h', text: 'How the monthly bill is calculated' },
+      { type: 'p', text: 'The plan caps each monthly payment. In the first month, the cap is the remaining yearly out-of-pocket divided by the number of months left in the year. After that, each month adds the new drug costs to any unpaid balance and divides by the months remaining. The client is always billed the lesser of that cap or what they actually owe.' },
+      { type: 'p', text: 'The practical takeaway: the earlier in the year a client with big drug costs joins, the more months there are to spread the bill, and the smaller each payment. Join in January and a $2,100 year spreads across 12 months. Join in October and the same balance is squeezed into three.' },
+      { type: 'h', text: 'Who it helps' },
+      { type: 'ul', items: [
+        'Clients with high drug costs early in the year. A specialty or cancer drug that would cost hundreds at the counter in January becomes a manageable monthly bill.',
+        'Clients who skip or delay a fill because they cannot absorb a big hit at the pharmacy. M3P removes that up-front wall.',
+        'Clients who do not qualify for Extra Help but still feel the pinch of front-loaded costs.',
+      ] },
+      { type: 'h', text: 'Who it does not help' },
+      { type: 'ul', items: [
+        'Extra Help / LIS clients. Their out-of-pocket is already minimal, so spreading it adds a bill without a benefit.',
+        'Clients with low or steady drug costs. If they would pay $15 a month anyway, M3P just turns it into a different $15 bill.',
+        'Clients who hit big costs late in the year. Fewer months to spread means larger payments, sometimes right when money is tightest.',
+      ] },
+    ],
+    why: [
+      "M3P is a trust tool, not a sales pitch. It will not move a premium or lower a plan cost, so it does not belong in a comparison spreadsheet. Where it earns its keep is the client who was about to walk away from a prescription because a big bill in January felt impossible.",
+      "Position it wrong and it backfires. Sell it as 'savings' and the client feels misled when the total is identical. Put an Extra Help client on it and you have added a bill for no reason. Knowing exactly who it fits, and saying so plainly, is what makes you the agent they call before they make a mistake.",
+    ],
+    actions: [
+      "Flag the fit during AEP. When a client's drug list points to high, front-loaded costs and they do not have Extra Help, raise M3P by name.",
+      "Frame it in one sentence: 'Same total, spread into monthly payments, no interest. It helps your cash flow, it does not lower the cost.'",
+      'Screen out the wrong clients first. Check for Extra Help / LIS and steady low costs before you bring it up.',
+      "Set the timing expectation. Earlier enrollment means smaller monthly bills, so do not wait if the client's costs land early in the year.",
+      'Tell them how to opt in: through their plan, by phone, online, or a paper form, and that the plan must act on the request. For 2026, enrollment auto-renews unless they opt out.',
+      'Warn about the one real risk: miss payments and the plan can remove them from M3P after a two-month grace period. They keep their drug coverage and owe no interest, but they lose the monthly spreading.',
+    ],
+    sources: 'CMS Medicare Prescription Payment Plan; Medicare.gov; 2026 Part D out-of-pocket maximum of $2,100 (Inflation Reduction Act).',
+  },
+  {
     slug: 'who-owns-your-book',
     title: 'Who owns your book of business? A straight answer for Medicare agents',
     category: 'market',

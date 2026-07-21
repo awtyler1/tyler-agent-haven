@@ -4,6 +4,7 @@ import {
   boardItems,
   welcome,
   season,
+  featured,
   newThisWeek,
   aep,
   type BoardItem,
@@ -186,6 +187,18 @@ export default function Index() {
           )}
         </section>
 
+        {/* ── Featured highlight — one spotlight item under the Board ── */}
+        {featured.show && (
+          <Link className="hub-feat" to={featured.ctaHref}>
+            <div className="hub-feat__body">
+              <div className="hub-feat__eyebrow">⭑ {featured.eyebrow}</div>
+              <div className="hub-feat__t">{featured.title}</div>
+              <p className="hub-feat__b">{featured.body}</p>
+              <span className="hub-feat__cta">{featured.ctaLabel} →</span>
+            </div>
+          </Link>
+        )}
+
         {/* ── Cockpit row: book your 1:1 + upcoming ── */}
         <div className="hub-two">
           {/* Book your 1:1 */}
@@ -331,6 +344,20 @@ const CSS = `
   color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:8px 14px; border-radius:8px; text-decoration:none; transition:.15s; }
 .hub-season__cta:hover{ filter:brightness(1.05); transform:translateY(-1px); }
 .hub-bitems--divided{ margin-top:14px; padding-top:4px; border-top:1px solid rgba(255,255,255,.1); }
+
+/* featured highlight — bright spotlight card under the board */
+.hub-feat{ display:block; text-decoration:none; color:var(--ink); background:var(--card); border:1px solid var(--line);
+  border-left:5px solid var(--gold); border-radius:16px; padding:18px 22px; margin-bottom:22px; position:relative;
+  overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.03); transition:transform .15s, box-shadow .15s; }
+.hub-feat:before{ content:""; position:absolute; top:-70px; right:-40px; width:230px; height:230px;
+  background:radial-gradient(circle,rgba(201,168,76,.12),transparent 60%); pointer-events:none; }
+.hub-feat:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(20,30,24,.08); }
+.hub-feat__body{ position:relative; }
+.hub-feat__eyebrow{ font-size:10.5px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--gold2); margin-bottom:6px; }
+.hub-feat__t{ font-size:17px; font-weight:700; letter-spacing:-.01em; line-height:1.25; }
+.hub-feat__b{ font-size:13px; line-height:1.6; color:var(--muted); margin:6px 0 0; max-width:72ch; }
+.hub-feat__cta{ display:inline-flex; align-items:center; gap:6px; margin-top:13px; font-size:12.5px; font-weight:700;
+  color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:9px 15px; border-radius:9px; }
 
 /* two cards */
 .hub-two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
