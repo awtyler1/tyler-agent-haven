@@ -45,7 +45,7 @@ export const knowledgeItems: KnowledgeItem[] = [
     source: "TIG Research",
     summary:
       "Our original market research on the state we sell in: ~900K Kentuckians on Medicare, ~55% in Medicare Advantage, one of the oldest and least-healthy senior populations in the country, and where 2026's plan disruption opens real room for agents.",
-    href: "/kentucky-medicare-market-report",
+    href: "/market-report",
     pinned: true,
   },
 ];
