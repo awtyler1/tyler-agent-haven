@@ -19,10 +19,18 @@ interface FeedEntry {
 }
 
 function buildFeed(): FeedEntry[] {
-  const external: FeedEntry[] = knowledgeItems.map((k) => ({
-    id: k.id, title: k.title, category: k.category, date: k.date,
-    source: k.source, summary: k.summary, href: k.href, pinned: k.pinned,
-  }));
+  const external: FeedEntry[] = knowledgeItems.map((k) => {
+    // In-app routes (start with '/') navigate via <Link> so the agent stays in
+    // the shell; only true external (http) links use an <a href>.
+    const isInternal = !!k.href && !k.href.startsWith('http');
+    return {
+      id: k.id, title: k.title, category: k.category, date: k.date,
+      source: k.source, summary: k.summary,
+      href: isInternal ? undefined : k.href,
+      to: isInternal ? k.href : undefined,
+      pinned: k.pinned,
+    };
+  });
   const internal: FeedEntry[] = articles.map((a) => ({
     id: a.slug, title: a.title, category: a.category, date: a.date,
     source: 'TIG', summary: a.summary, to: `/knowledge/${a.slug}`,

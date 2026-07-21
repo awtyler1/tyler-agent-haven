@@ -65,7 +65,7 @@ export const featured = {
   body:
     "Our original research on the market we sell in: ~900K Kentuckians on Medicare, ~55% in Medicare Advantage, one of the oldest and least-healthy senior populations in the country, and where 2026's disruption (a carrier exit, a new entrant, forced plan changes) opens real room for the prepared agent.",
   ctaLabel: "Read the report",
-  ctaHref: "/kentucky-medicare-market-report",
+  ctaHref: "/market-report",
 };
 
 // A warm welcome that sits at the top of the Board. Set show:false to hide it
