@@ -249,10 +249,12 @@ const CSS = `
 .cal-lg__d{ width:8px; height:8px; border-radius:50%; }
 
 .cal-board{ background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.03); }
-.cal-dow{ display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--line); background:#fbf9f4; }
+.cal-dow{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); border-bottom:1px solid var(--line); background:#fbf9f4; }
 .cal-dow div{ padding:9px 10px; font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
-.cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); }
-.cal-cell{ min-height:92px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); padding:7px 8px; }
+/* minmax(0,1fr) — not 1fr — so a long event pill can't stretch its column and
+   skew the grid. Columns stay equal; the pill truncates with its own ellipsis. */
+.cal-grid{ display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); }
+.cal-cell{ min-width:0; min-height:92px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); padding:7px 8px; }
 .cal-cell:nth-child(7n){ border-right:none; }
 .cal-cell.dim{ background:#faf8f2; }
 .cal-cell.dim .cal-dn{ color:#c4bcab; }
