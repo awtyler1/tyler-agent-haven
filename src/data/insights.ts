@@ -110,7 +110,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'kentucky-medicare-commissions-2027',
-    title: 'Medicare Agent Commissions in Kentucky: 2026 and 2027 Pay',
+    title: 'Medicare Agent Commissions in Kentucky: 2026 and 2027 Pay Rates',
     excerpt:
       "Kentucky uses the national CMS commission maximums, and they went up again for 2027. Here are the real numbers for Medicare Advantage, Part D, and Supplement, and why your renewals matter more than any of them.",
     category: 'industry',
@@ -122,7 +122,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'starting-from-zero-again',
-    title: 'How to Build a Medicare Agency From Scratch (If I Were Starting From Zero)',
+    title: 'How to Build a Medicare Agency From Scratch: My First 4 Moves',
     excerpt:
       "If I lost it all tomorrow and had to rebuild a Medicare agency from nothing, I wouldn't go hunting for a secret. I'd do four boring things, in order, before I let myself get distracted by anything shiny: start a Google Business Profile, get the word out, get around other agents, and make my carrier reps my teachers.",
     category: 'agency',
@@ -171,7 +171,7 @@ export const insights: InsightPost[] = [
   },
   {
     slug: 'medicare-acquisition-landscape',
-    title: "What's a Medicare Book of Business Worth? Why Everyone's Buying",
+    title: "What's a Medicare Book of Business Worth? Valuation and Multiples",
     excerpt:
       'A retirement wave on one side, hungry buyers on the other. Here is how books are valued today, why so many people are buying them, and what it means for the asset you have built.',
     category: 'industry',

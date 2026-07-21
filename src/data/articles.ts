@@ -52,7 +52,7 @@ const ANDREW = {
 export const articles: Article[] = [
   {
     slug: 'medicare-prescription-payment-plan-m3p',
-    title: 'The Medicare Prescription Payment Plan: a one-pager for helping clients spread drug costs',
+    title: "Medicare Prescription Payment Plan (M3P): An Agent's Guide for 2026",
     category: 'cms',
     date: '2026-07-21',
     readTime: '5 min read',
@@ -184,7 +184,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'kentucky-medicare-commissions-2027',
-    title: 'Medicare Agent Commissions in Kentucky: 2026 and 2027 Pay',
+    title: 'Medicare Agent Commissions in Kentucky: 2026 and 2027 Pay Rates',
     category: 'cms',
     date: '2026-07-12',
     readTime: '6 min read',
@@ -229,7 +229,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'fill-your-t65-pipeline',
-    title: 'The T65 pipeline: how to grow a book that doesn’t live and die by AEP',
+    title: 'How to Fill Your T65 Pipeline: Year-Round Medicare Leads Beyond AEP',
     category: 'market',
     date: '2026-07-14',
     readTime: '8 min read',
@@ -301,7 +301,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'medicare-2027-changes',
-    title: 'What\'s Changing in Medicare for 2027: Your AEP Briefing',
+    title: 'Medicare 2027 Changes: What Agents Need to Know Before AEP',
     category: 'cms',
     date: '2026-07-07',
     readTime: '8 min read',
@@ -354,7 +354,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'medicare-glp1-bridge',
-    title: 'The Medicare GLP-1 Bridge is live: what to tell your clients',
+    title: 'Medicare GLP-1 Bridge: What to Tell Clients About $50 Wegovy',
     category: 'cms',
     date: '2026-07-02',
     readTime: '6 min read',
@@ -410,7 +410,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'starting-from-zero-again',
-    title: 'How to Build a Medicare Agency From Scratch (If I Were Starting From Zero)',
+    title: 'How to Build a Medicare Agency From Scratch: My First 4 Moves',
     category: 'market',
     date: '2026-06-28',
     readTime: '7 min read',
@@ -648,7 +648,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'medicare-acquisition-landscape',
-    title: "What's a Medicare Book of Business Worth? Why Everyone's Buying",
+    title: "What's a Medicare Book of Business Worth? Valuation and Multiples",
     category: 'market',
     date: '2026-06-16',
     readTime: '7 min read',
