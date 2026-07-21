@@ -145,7 +145,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'how-fmo-commissions-work',
-    title: 'How Medicare FMO commissions actually work: street, override, and who really pays you',
+    title: 'How Medicare FMO Commissions Work: Street, Override, and Who Pays You',
     category: 'market',
     date: '2026-07-13',
     readTime: '7 min read',
@@ -184,7 +184,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'kentucky-medicare-commissions-2027',
-    title: 'Medicare agent commissions in Kentucky: what you can earn in 2026 and 2027',
+    title: 'Medicare Agent Commissions in Kentucky: 2026 and 2027 Pay',
     category: 'cms',
     date: '2026-07-12',
     readTime: '6 min read',
@@ -301,7 +301,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'medicare-2027-changes',
-    title: 'What\'s changing in Medicare for 2027 — your AEP briefing',
+    title: 'What\'s Changing in Medicare for 2027: Your AEP Briefing',
     category: 'cms',
     date: '2026-07-07',
     readTime: '8 min read',
@@ -318,7 +318,7 @@ export const articles: Article[] = [
       { type: 'p', text: 'CMS locked in the 2027 rules this spring — the final rule and payment notice landed in early April. Every plan you sell this AEP is built on them. Here is what actually changes for the people in your book, in plain English.' },
       { type: 'h', text: 'The drug cap goes up: $2,400, with a $700 deductible' },
       { type: 'p', text: 'The out-of-pocket cap on covered Part D drugs rises from $2,100 to $2,400, and the standard deductible climbs from $615 to $700. Both are roughly 14% jumps — the cap is indexed to drug-cost inflation, so it moves every year.' },
-      { type: 'p', text: 'The structure your clients learned these past two years stays put: no more donut hole, $0 cost sharing once they hit the cap, and the option to spread drug costs across the year with the Medicare Prescription Payment Plan. What was temporary guidance is now permanent regulation — CMS codified the whole redesign for 2027 and beyond.' },
+      { type: 'p', text: 'The structure your clients learned these past two years stays put: no more donut hole, $0 cost sharing once they hit the cap, and the option to spread drug costs across the year with the Medicare Prescription Payment Plan. What was temporary guidance is now permanent regulation. CMS codified the whole redesign for 2027 and beyond.' },
       { type: 'p', text: 'The client-facing version: "Your worst-case year at the pharmacy is $2,400, then you pay nothing. But your deductible is bigger, so January may sting more before coverage kicks in."' },
       { type: 'h', text: 'Negotiated prices hit 15 more drugs — including Ozempic and Wegovy' },
       { type: 'p', text: 'Round two of Medicare drug price negotiation takes effect January 1, 2027. The headliners: Ozempic, Wegovy, and Rybelsus drop to $274 a month — about 71% off list price. The list also includes Trelegy and Breo (COPD/asthma), Ofev, Xtandi, Ibrance, Pomalyst, Calquence (cancer), Linzess and Xifaxan (GI), and Tradjenta and Janumet (diabetes).' },
@@ -410,7 +410,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'starting-from-zero-again',
-    title: 'If I Were Starting From Zero Again',
+    title: 'How to Build a Medicare Agency From Scratch (If I Were Starting From Zero)',
     category: 'market',
     date: '2026-06-28',
     readTime: '7 min read',
@@ -474,7 +474,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'aep-game-plan',
-    title: 'The AEP Game Plan',
+    title: 'Medicare AEP Game Plan: How Agents Prepare for Annual Enrollment',
     category: 'market',
     date: '2026-06-24',
     readTime: '6 min read',
@@ -550,7 +550,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'building-an-asset-not-a-job',
-    title: 'Are you building an asset or renting a job?',
+    title: 'Building a Medicare Book of Business: Asset or Just a Job?',
     category: 'market',
     date: '2026-06-16',
     readTime: '7 min read',
@@ -606,7 +606,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'brokers-not-why-medicare-is-confusing',
-    title: "Brokers aren't why Medicare is confusing. Medicare is.",
+    title: "Why Is Medicare So Confusing? It's Not the Agents",
     category: 'market',
     date: '2026-06-16',
     readTime: '6 min read',
@@ -648,7 +648,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'medicare-acquisition-landscape',
-    title: 'Why everyone is buying Medicare books right now',
+    title: "What's a Medicare Book of Business Worth? Why Everyone's Buying",
     category: 'market',
     date: '2026-06-16',
     readTime: '7 min read',
@@ -692,7 +692,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'what-a-medicare-fmo-really-does',
-    title: 'What a Medicare FMO really does, and how to pick one that grows you',
+    title: 'What Is a Medicare FMO, and How Do You Choose One?',
     category: 'market',
     date: '2026-06-15',
     readTime: '7 min read',
@@ -751,7 +751,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'cms-2027-commissions',
-    title: 'What the 2027 CMS commission changes mean for you',
+    title: '2027 CMS Commission Changes: What They Mean for Medicare Agents',
     category: 'cms',
     date: '2026-06-11',
     readTime: '6 min read',
@@ -797,7 +797,7 @@ export const articles: Article[] = [
   },
   {
     slug: 'why-clients-choose-medicare-advantage',
-    title: 'Why more of your clients are choosing Medicare Advantage',
+    title: 'Why more clients are choosing Medicare Advantage in 2027',
     category: 'market',
     date: '2026-06-10',
     readTime: '4 min read',
