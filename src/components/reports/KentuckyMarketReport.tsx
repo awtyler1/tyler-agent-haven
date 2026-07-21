@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { tig } from '@/data/landingContent';
 
@@ -80,6 +80,16 @@ const AGING: { year: string; pct: number; proj?: boolean }[] = [
 ];
 
 export function KentuckyMarketReport({ embedded = false }: { embedded?: boolean }) {
+  // Cross-references to public /insights articles. In the embedded (in-shell)
+  // render they open in a new tab so the agent's hub stays put; on the public
+  // page they navigate in place via the router.
+  const Xref = ({ to, children }: { to: string; children: ReactNode }) =>
+    embedded ? (
+      <a className="kr-ilink" href={to} target="_blank" rel="noopener noreferrer">{children}</a>
+    ) : (
+      <RouterLink className="kr-ilink" to={to}>{children}</RouterLink>
+    );
+
   return (
     <div className={`kr${embedded ? ' kr--embedded' : ''}`}>
       <style>{CSS}</style>
@@ -251,14 +261,12 @@ export function KentuckyMarketReport({ embedded = false }: { embedded?: boolean 
             percent of all broker commissions. Beneficiaries increasingly want an agent, and the
             agents who last are the ones who keep the clients they write.
           </p>
-          {!embedded && (
-            <p className="kr-p">
-              For the mechanics behind these numbers, see{' '}
-              <RouterLink className="kr-ilink" to="/insights/how-fmo-commissions-work">how FMO commissions actually work</RouterLink>{' '}
-              and{' '}
-              <RouterLink className="kr-ilink" to="/insights/kentucky-medicare-commissions-2027">Medicare agent commissions in Kentucky for 2026 and 2027</RouterLink>.
-            </p>
-          )}
+          <p className="kr-p">
+            For the mechanics behind these numbers, see{' '}
+            <Xref to="/insights/how-fmo-commissions-work">how FMO commissions actually work</Xref>{' '}
+            and{' '}
+            <Xref to="/insights/kentucky-medicare-commissions-2027">Medicare agent commissions in Kentucky for 2026 and 2027</Xref>.
+          </p>
         </section>
 
         <section className="kr-sec">
