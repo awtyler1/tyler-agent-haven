@@ -39,6 +39,14 @@ export const ahipModules: AhipModule[] = [
   { n: 5, file: "/ahip/module-5-final-review.pdf" },
 ];
 
+// The comprehensive final review — every module in one, the capstone before the
+// exam. Shown as an emphasized card beneath the per-module tiles.
+export const ahipFinalReview = {
+  title: "Full Final Review",
+  note: "Every module's review questions in one place. Your last stop before the AHIP exam.",
+  file: "/ahip/final-review.pdf",
+};
+
 export type CertStatus = "open" | "not-open";
 
 export interface CarrierCert {
