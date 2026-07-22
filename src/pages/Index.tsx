@@ -156,6 +156,7 @@ export default function Index() {
     .filter((e) => {
       if (e.date < todayKey) return false;
       if (e.category === 'cert') return true;
+      if (e.hubBoard) return true; // flagged to surface early
       return e.date <= weekKey;
     })
     .filter((e) => {

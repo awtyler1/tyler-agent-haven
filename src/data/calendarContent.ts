@@ -56,6 +56,10 @@ export interface CalEvent {
   link?: string;
   /** Label for the link, e.g. "Join the call". Defaults to "Join". */
   linkLabel?: string;
+  /** Surface this event on the hub "This Week" board even when it's more than
+   *  7 days out. Use for meetings worth flagging early. Normal events only
+   *  appear on the board once they're inside the next 7 days. */
+  hubBoard?: boolean;
 }
 
 export const CATEGORY_META: Record<EventCategory, { label: string; color: string; dashed?: boolean }> = {
@@ -146,6 +150,7 @@ export const calendarEvents: CalEvent[] = [
     category: "tig",
     link: "https://teams.microsoft.com/meet/28156652203712?p=J4a2QI3GLb32GhonW6",
     linkLabel: "Join the call",
+    hubBoard: true,
   },
   {
     id: "tig-team-night-aep-kickoff",
