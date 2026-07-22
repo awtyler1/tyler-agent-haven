@@ -135,6 +135,19 @@ export const calendarEvents: CalEvent[] = [
     linkLabel: "Register now (seating is limited)",
   },
   {
+    id: "tig-humana-samantha-stevenson",
+    date: "2026-07-30",
+    title: "TIG + Humana Call (Samantha Stevenson)",
+    detail: "11:00 AM ET · Microsoft Teams · Humana market position + what makes a great broker.",
+    description:
+      "The Tyler team meets with Samantha Stevenson, Humana broker manager based out of Louisville, to talk through Humana's market position, what makes a great Medicare broker, and more.",
+    location: "Microsoft Teams",
+    time: "11:00 AM ET",
+    category: "tig",
+    link: "https://teams.microsoft.com/meet/28156652203712?p=J4a2QI3GLb32GhonW6",
+    linkLabel: "Join the call",
+  },
+  {
     id: "tig-team-night-aep-kickoff",
     date: "2026-08-06",
     title: "TIG Team Night 🍕",
