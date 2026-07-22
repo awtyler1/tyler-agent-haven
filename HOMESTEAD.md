@@ -771,8 +771,9 @@ overlap.
   (matched on a normalised title), keeping the richer bulletin. Rows are
   **compact** (title + when + one truncated line + a small CTA); full detail
   lives one click away, so no single row can grow tall enough to clip.
-- **Reading lead rotation:** the AEP training drive outranks the featured item
-  while `AEP_TRAINING_OPEN` is `true`; otherwise the featured item leads.
+- **Reading lead:** the featured item (the Market Report) is the showcase lead.
+  When `AEP_TRAINING_OPEN` is `true`, the training drive rides under it as a slim
+  secondary CTA (`.lead__mini`) so it isn't lost.
 - **Cards hug their content**, equal height, top-aligned. A light week reads as
   calm space, not a stretched void. Caps keep the busiest week above the fold.
 - **Tools are NOT a zone** (the sidebar already has them). Don't add a tools

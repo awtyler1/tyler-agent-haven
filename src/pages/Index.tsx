@@ -180,28 +180,32 @@ export default function Index() {
     ...newThisWeek.map((n) => ({ id: n.id, category: n.category, title: n.title, href: n.href, isNew: false })),
   ];
 
-  // Worth-reading lead: the training drive outranks the featured item while live.
+  // Worth-reading lead: the featured item (the Market Report) is the showcase.
+  // The AEP training drive rides along as a slim secondary CTA while it's live,
+  // so it isn't lost.
   const [trainingOpen, setTrainingOpen] = useState(false);
-  const leadMode: 'training' | 'featured' | 'none' =
-    AEP_TRAINING_OPEN ? 'training' : featured.show ? 'featured' : 'none';
+  const hasLead = featured.show || AEP_TRAINING_OPEN;
 
   const ReadingLead = (
     <div className="lead">
-      {leadMode === 'training' ? (
-        <button type="button" className="lead__card lead__card--btn" onClick={() => setTrainingOpen(true)}>
-          <div className="lead__e">🎯 Help shape AEP training</div>
-          <div className="lead__t">What should we cover this AEP?</div>
-          <p className="lead__b">Vote on topics or write in what you'd like covered. It all posts to the board for the team.</p>
-          <span className="lead__cta">Add your voice →</span>
-        </button>
-      ) : leadMode === 'featured' ? (
+      {featured.show && (
         <Link className="lead__card" to={featured.ctaHref}>
           <div className="lead__e">⭑ {featured.eyebrow}</div>
           <div className="lead__t">{featured.title}</div>
           <p className="lead__b">{featured.body}</p>
           <span className="lead__cta">{featured.ctaLabel} →</span>
         </Link>
-      ) : null}
+      )}
+      {AEP_TRAINING_OPEN && (
+        <button type="button" className="lead__mini" onClick={() => setTrainingOpen(true)}>
+          <span className="lead__mini-ic" aria-hidden="true">🎯</span>
+          <span className="lead__mini-b">
+            <span className="lead__mini-t">Help shape our AEP training</span>
+            <span className="lead__mini-s">Vote on topics or write in what to cover.</span>
+          </span>
+          <span className="lead__mini-cta">Add your voice →</span>
+        </button>
+      )}
     </div>
   );
 
@@ -252,7 +256,7 @@ export default function Index() {
           icon="📖"
           title="Worth reading"
           more={{ label: 'All updates →', to: '/industry-updates' }}
-          fixed={leadMode !== 'none' ? ReadingLead : undefined}
+          fixed={hasLead ? ReadingLead : undefined}
           items={newsItems}
           cap={4}
           itemKey={(n) => n.id}
@@ -361,18 +365,27 @@ const CSS = `
 .row__when-s{ font-size:9px; color:rgba(244,241,232,.5); }
 
 /* ── Worth reading: lead + updates ── */
-.lead{ padding-bottom:12px; }
+.lead{ display:flex; flex-direction:column; gap:9px; padding-bottom:12px; }
 .lead__card{ display:block; text-align:left; width:100%; text-decoration:none; color:var(--ink);
   background:linear-gradient(135deg,#fdf8ec,#f7efd8); border:1px solid rgba(201,168,76,.5); border-radius:12px;
-  padding:14px 15px; transition:transform .15s, box-shadow .15s; }
+  padding:15px 16px; transition:transform .15s, box-shadow .15s; }
 .lead__card--btn{ font-family:inherit; cursor:pointer; }
 .lead__card:hover{ transform:translateY(-1px); box-shadow:0 10px 22px rgba(168,128,31,.14); }
-.lead__e{ font-size:9px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--gold2); }
-.lead__t{ font-size:15px; font-weight:700; line-height:1.2; margin-top:4px; letter-spacing:-.01em; }
+.lead__e{ font-size:9.5px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--gold2); }
+.lead__t{ font-size:15.5px; font-weight:700; line-height:1.2; margin-top:4px; letter-spacing:-.01em; }
 .lead__b{ font-size:11px; color:var(--muted); line-height:1.5; margin:5px 0 0;
   display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .lead__cta{ display:inline-block; margin-top:9px; font-size:10.5px; font-weight:700; color:var(--em);
   background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:7px 12px; border-radius:8px; }
+/* slim secondary CTA riding under the showcase lead */
+.lead__mini{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; font-family:inherit; cursor:pointer;
+  background:var(--card); border:1px solid var(--line); border-radius:11px; padding:9px 12px; transition:.15s; }
+.lead__mini:hover{ border-color:var(--gold); background:rgba(201,168,76,.05); }
+.lead__mini-ic{ font-size:15px; flex-shrink:0; }
+.lead__mini-b{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.lead__mini-t{ font-size:11.5px; font-weight:700; color:var(--ink); }
+.lead__mini-s{ font-size:10px; color:var(--muted); margin-top:1px; }
+.lead__mini-cta{ flex-shrink:0; font-size:10px; font-weight:700; color:var(--gold2); white-space:nowrap; }
 
 .zone__item + .zone__item .upd{ border-top:1px solid var(--line); }
 .upd{ display:block; padding:8px 0; text-decoration:none; color:var(--ink); }
