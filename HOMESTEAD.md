@@ -616,11 +616,13 @@ function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
 
 ## 10. PAGE PATTERNS
 
-### Dashboard (Home)
-- **Hero pattern:** Single centered number (Lora 700, massive) with supporting label and delta badge below.
-- **Radial warmth:** `radial-gradient(ellipse 50% 50% at 50% 48%, var(--bg-warm-glow) 0%, var(--bg) 70%)` behind the number.
-- **Footer strip:** Carrier pills on a `--bg-subtle` shelf with `--bg-muted` top border.
-- **Sync badge:** Top-right, clickable, shows "· Sync" on hover.
+### Dashboard (Home) — The Cockpit
+The hub home (`src/pages/Index.tsx`) is **The Cockpit**: a fixed 2×2 grid of four
+permanent zones that fills the viewport with **no page scroll** on desktop. It
+never changes shape as content changes. This is a locked pattern — see
+**§14. THE COCKPIT** for the full spec and the four rules that keep it stable.
+Do not add blocks to the dashboard flow; content goes *into* a zone, never
+*between* zones.
 
 ### List Pages (My Book, Forms, Contracting)
 - **Page header:** Page title (Outfit 18px 600) + action button on right.
@@ -702,5 +704,113 @@ This document grows with the platform. It's not a snapshot — it's a living fou
 
 ---
 
-*Homestead v1.1 — February 2026*
+## 14. THE COCKPIT (Dashboard build philosophy)
+
+> **Why this exists:** the dashboard used to be a vertical stack of optional
+> blocks. Each block appeared only when it had content, and two were date-filtered
+> at runtime, so the page changed shape on its own as the calendar rolled. Brokers
+> logging in under pressure never built muscle memory, and adding content reshaped
+> the page. The Cockpit ends that. **The frame is permanent; only the readings
+> inside it change.**
+
+**Reference implementation:** `src/pages/Index.tsx` + `src/components/hub/BoardZone.tsx`.
+
+### The promise
+
+- **Above the fold, always.** On desktop the dashboard fills the viewport with
+  **zero page scroll**. A broker never scrolls or hunts, and never wonders if
+  they're missing something. Verified down to 1366×768 (the most common broker
+  laptop).
+- **The shape never moves.** A quiet week and a busy week are the same layout.
+  Empty zones show a resting line; they never collapse and pull the page up.
+
+### The four rules (non-negotiable)
+
+Every zone on the dashboard — and any future zoned page — obeys these. They are
+enforced in code by the `<BoardZone>` primitive, so an edit *cannot* reintroduce
+the shift.
+
+1. **Reserved slots.** Every zone always renders its frame. Nothing is
+   conditionally mounted into the layout flow. A zone never returns `null`.
+2. **Resting states.** An empty zone shows a calm one-line message
+   (`empty="…"`), not a collapse. Reserved space is held.
+3. **Fixed order.** Priority is designed once, by grid placement, never emergent
+   from which blocks happen to have content.
+4. **Hard caps.** A zone shows at most `cap` items, then an explicit
+   "View all N →" link. Overflow is **signposted, never a silent scrollbar** and
+   never spilled down the page.
+
+### Zone map (the locked template)
+
+```
+┌─ header: greeting + AEP countdown pill (the only fixed strip) ──────────────┐
+├───────────────────────────────┬────────────────────────────────────────────┤
+│ ① THE BOARD (emerald)          │ ② THIS WEEK (white card)                    │
+│   season banner (always) +     │   next-7-day calendar events, cap 3,        │
+│   this-week items, cap 2,      │   → View full calendar                      │
+│   → View all this week         │                                             │
+├───────────────────────────────┼────────────────────────────────────────────┤
+│ ③ SPOTLIGHT (white card)       │ ④ NEW THIS WEEK (white card)                │
+│   ONE rotating priority:       │   recent articles / updates, cap 3,         │
+│   AEP-training drive when live,│   → All updates                             │
+│   else the featured item       │                                             │
+└───────────────────────────────┴────────────────────────────────────────────┘
+```
+
+| Zone | Variant | Holds | Cap | Overflow → |
+|------|---------|-------|-----|------------|
+| ① The Board | `dark` | Season banner (fixed) + this-week bulletin items | 2 | `/calendar` |
+| ② This Week | `card` | `calendarEvents`, next 7 days | 3 | `/calendar` |
+| ③ Spotlight | `card` | One rotating item (training drive ▸ featured) | 1 | — |
+| ④ New this week | `card` | Recent `articles` + `newThisWeek` | 3 | `/industry-updates` |
+
+- **Spotlight rotation:** the AEP training drive outranks the featured item while
+  `AEP_TRAINING_OPEN` is `true`. When it's off, the featured item (e.g. the market
+  report) owns Spotlight. One slot, always full, priority-ordered.
+- **The monthly 1:1 is NOT a zone.** It lives in the sidebar footer. Don't
+  duplicate it on the board.
+
+### The `<BoardZone>` primitive
+
+Every zone is a `<BoardZone>`. It owns the *behaviour* (the four rules); the page
+owns the *look* (the `.zone*` classes in `Index.tsx`'s scoped CSS). Key props:
+
+```tsx
+<BoardZone
+  variant="card"                 // 'card' (white) | 'dark' (emerald)
+  icon="🗓" title="This Week" hint="next 7 days"
+  more={{ label: 'Calendar →', to: '/calendar' }}
+  fixed={<SeasonBanner />}        // always-shown block above the list (optional)
+  items={events} cap={3}
+  renderItem={(ev) => <EventRow ev={ev} />}
+  itemKey={(ev) => ev.id}
+  empty="Nothing on the calendar in the next 7 days."   // resting state
+  viewAll={{ label: (n) => `View all ${n} →`, to: '/calendar' }}
+/>
+```
+
+Pass `children` instead of `items` for a fully custom body (Spotlight uses this).
+The frame is still enforced.
+
+### Changing dashboard content
+
+**Edit data, never layout.** Weekly updates happen in `src/data/hubContent.ts`
+and `src/data/calendarContent.ts` only. The number of items can be anything —
+the caps and resting states absorb it. If you're tempted to add a *fifth* zone,
+stop: the four-zone grid is the guarantee. Rotate the new thing through Spotlight
+or fold it into the Board instead.
+
+### Responsive
+
+- **Desktop (> 900px):** the 2×2 grid fills the viewport, no scroll.
+- **≤ 900px:** the grid collapses to a **single column in the same fixed order**
+  (Board → This Week → Spotlight → New) and the page scrolls. Order is preserved,
+  so the mobile experience is the desktop one, stacked. Nothing is hidden or
+  reordered.
+
+*Added v1.2. Supersedes the old hero-number "Dashboard (Home)" pattern.*
+
+---
+
+*Homestead v1.2 — July 2026*
 *Built for agents who build their futures one client at a time.*

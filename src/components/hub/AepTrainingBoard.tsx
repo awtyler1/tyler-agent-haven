@@ -13,7 +13,9 @@ import { supabase } from '@/integrations/supabase/client';
 // aep_training_requests table (see the 20260707 migration).
 // ============================================================================
 
-const BOARD_OPEN = true;
+// Flip to false (and redeploy) when the training plan is locked. When true, the
+// training drive takes the hub's Spotlight zone ahead of the featured item.
+export const AEP_TRAINING_OPEN = true;
 
 // Preset topics — edit labels freely; keys are what's stored in the table.
 const TOPICS: { key: string; label: string }[] = [
@@ -50,11 +52,11 @@ const table = () => (supabase as any).from('aep_training_requests');
 export function AepTrainingBoard() {
   const [open, setOpen] = useState(false);
 
-  if (!BOARD_OPEN) return null;
+  if (!AEP_TRAINING_OPEN) return null;
 
   return (
     <>
-      <style>{CSS}</style>
+      <style>{CARD_CSS}</style>
       <button type="button" className="atb-card" onClick={() => setOpen(true)}>
         <span className="atb-card__ic" aria-hidden="true">🎯</span>
         <span className="atb-card__body">
@@ -66,12 +68,14 @@ export function AepTrainingBoard() {
         </span>
         <span className="atb-card__btn">Add your voice →</span>
       </button>
-      {open && <BoardModal onClose={() => setOpen(false)} />}
+      {open && <AepTrainingModal onClose={() => setOpen(false)} />}
     </>
   );
 }
 
-function BoardModal({ onClose }: { onClose: () => void }) {
+// Exported so the hub Spotlight zone can host the voting flow directly. The
+// modal injects its own styles, so it works wherever it's mounted.
+export function AepTrainingModal({ onClose }: { onClose: () => void }) {
   const token = clientToken();
   const [rows, setRows] = useState<BoardRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -177,6 +181,8 @@ function BoardModal({ onClose }: { onClose: () => void }) {
     new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
+    <>
+    <style>{MODAL_CSS}</style>
     <div className="atb-modal" role="dialog" aria-modal="true" aria-labelledby="atb-title" onClick={onClose}>
       <div className="atb-modal__card" onClick={(e) => e.stopPropagation()}>
         <button className="atb-modal__x" onClick={onClose} aria-label="Close">×</button>
@@ -280,10 +286,11 @@ function BoardModal({ onClose }: { onClose: () => void }) {
         )}
       </div>
     </div>
+    </>
   );
 }
 
-const CSS = `
+const CARD_CSS = `
 /* call-out card on the hub */
 .atb-card{ display:flex; align-items:center; gap:13px; width:100%; margin-bottom:22px; text-align:left;
   background:linear-gradient(135deg,#fdf8ec,#f7efd8); border:1px solid rgba(201,168,76,.55); border-radius:16px;
@@ -295,7 +302,13 @@ const CSS = `
 .atb-card__s{ display:block; font-size:11.5px; color:#6b6457; margin-top:1px; }
 .atb-card__btn{ flex-shrink:0; font-size:12px; font-weight:700; color:#0E3B2E; background:linear-gradient(135deg,#e7cf86,#C9A84C);
   padding:9px 15px; border-radius:9px; white-space:nowrap; }
+@media(max-width:560px){
+  .atb-card{ flex-wrap:wrap; }
+  .atb-card__btn{ width:100%; text-align:center; }
+}
+`;
 
+const MODAL_CSS = `
 /* modal */
 .atb-modal{ position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:20px;
   background:rgba(14,32,26,.55); backdrop-filter:blur(3px); animation:atbFade .15s ease; }
@@ -350,8 +363,6 @@ const CSS = `
 .atb-idea__x:hover{ border-color:#b8503f; color:#b8503f; }
 
 @media(max-width:560px){
-  .atb-card{ flex-wrap:wrap; }
-  .atb-card__btn{ width:100%; text-align:center; }
   .atb-submitrow{ flex-direction:column; }
 }
 `;
