@@ -617,12 +617,12 @@ function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
 ## 10. PAGE PATTERNS
 
 ### Dashboard (Home) — The Cockpit
-The hub home (`src/pages/Index.tsx`) is **The Cockpit**: a fixed 2×2 grid of four
-permanent zones that fills the viewport with **no page scroll** on desktop. It
-never changes shape as content changes. This is a locked pattern — see
-**§14. THE COCKPIT** for the full spec and the four rules that keep it stable.
-Do not add blocks to the dashboard flow; content goes *into* a zone, never
-*between* zones.
+The hub home (`src/pages/Index.tsx`) is **The Cockpit**: two permanent job-zones
+(**This Week** = what needs you, **Worth reading** = what's worth knowing) with a
+permanent frame and **no page scroll** on desktop. It never changes shape as
+content changes. This is a locked pattern — see **§14. THE COCKPIT** for the full
+spec and the four rules that keep it stable. Do not add blocks to the dashboard
+flow; content goes *into* a zone, never *between* zones.
 
 ### List Pages (My Book, Forms, Contracting)
 - **Page header:** Page title (Outfit 18px 600) + action button on right.
@@ -740,35 +740,44 @@ the shift.
    "View all N →" link. Overflow is **signposted, never a silent scrollbar** and
    never spilled down the page.
 
-### Zone map (the locked template)
+### Zone map — two jobs, two zones (the locked template)
+
+A broker home answers exactly two questions: **what needs me** (act), and
+**what's worth knowing** (read). We map one zone to each. We do *not* split by
+data source (bulletins vs calendar vs articles) — that's what produced three
+near-identical "look at this" cards and duplicate items. Two job-zones, no
+overlap.
 
 ```
 ┌─ header: greeting + AEP countdown pill (the only fixed strip) ──────────────┐
-├───────────────────────────────┬────────────────────────────────────────────┤
-│ ① THE BOARD (emerald)          │ ② THIS WEEK (white card)                    │
-│   season banner (always) +     │   next-7-day calendar events, cap 3,        │
-│   this-week items, cap 2,      │   → View full calendar                      │
-│   → View all this week         │                                             │
-├───────────────────────────────┼────────────────────────────────────────────┤
-│ ③ SPOTLIGHT (white card)       │ ④ NEW THIS WEEK (white card)                │
-│   ONE rotating priority:       │   recent articles / updates, cap 3,         │
-│   AEP-training drive when live,│   → All updates                             │
-│   else the featured item       │                                             │
-└───────────────────────────────┴────────────────────────────────────────────┘
+├───────────────────────────────────────┬────────────────────────────────────┤
+│ ① THIS WEEK — what needs you (emerald) │ ② WORTH READING (white card)        │
+│   season strip (always) +              │   ONE rotating lead:                │
+│   pinned bulletins + next-7-day        │   AEP-training drive when live,     │
+│   calendar, MERGED + de-duplicated,    │   else the featured item;           │
+│   compact rows, cap 4 events           │   then recent updates, cap 4        │
+│   → View full calendar                 │   → All updates                     │
+└───────────────────────────────────────┴────────────────────────────────────┘
 ```
 
 | Zone | Variant | Holds | Cap | Overflow → |
 |------|---------|-------|-----|------------|
-| ① The Board | `dark` | Season banner (fixed) + this-week bulletin items | 2 | `/calendar` |
-| ② This Week | `card` | `calendarEvents`, next 7 days | 3 | `/calendar` |
-| ③ Spotlight | `card` | One rotating item (training drive ▸ featured) | 1 | — |
-| ④ New this week | `card` | Recent `articles` + `newThisWeek` | 3 | `/industry-updates` |
+| ① This Week | `dark` | Season strip + pinned `boardItems` + `calendarEvents` (next 7 days), merged & de-duped | 4 events | `/calendar` |
+| ② Worth reading | `card` | One rotating lead (training ▸ featured) + recent `articles` / `newThisWeek` | 4 updates | `/industry-updates` |
 
-- **Spotlight rotation:** the AEP training drive outranks the featured item while
-  `AEP_TRAINING_OPEN` is `true`. When it's off, the featured item (e.g. the market
-  report) owns Spotlight. One slot, always full, priority-ordered.
-- **The monthly 1:1 is NOT a zone.** It lives in the sidebar footer. Don't
-  duplicate it on the board.
+- **Merge + de-dupe (kills the duplication).** A dated event entered as *both* a
+  board bulletin and a calendar event used to show twice. Zone ① merges the two
+  sources and drops a calendar event when a bulletin already describes it
+  (matched on a normalised title), keeping the richer bulletin. Rows are
+  **compact** (title + when + one truncated line + a small CTA); full detail
+  lives one click away, so no single row can grow tall enough to clip.
+- **Reading lead rotation:** the AEP training drive outranks the featured item
+  while `AEP_TRAINING_OPEN` is `true`; otherwise the featured item leads.
+- **Cards hug their content**, equal height, top-aligned. A light week reads as
+  calm space, not a stretched void. Caps keep the busiest week above the fold.
+- **Tools are NOT a zone** (the sidebar already has them) and **the 1:1 is NOT a
+  zone** (sidebar footer). Putting either on the board just re-duplicates the
+  sidebar.
 
 ### The `<BoardZone>` primitive
 
@@ -795,22 +804,24 @@ The frame is still enforced.
 ### Changing dashboard content
 
 **Edit data, never layout.** Weekly updates happen in `src/data/hubContent.ts`
-and `src/data/calendarContent.ts` only. The number of items can be anything —
-the caps and resting states absorb it. If you're tempted to add a *fifth* zone,
-stop: the four-zone grid is the guarantee. Rotate the new thing through Spotlight
-or fold it into the Board instead.
+(pinned bulletins, season, featured) and `src/data/calendarContent.ts` (dated
+events) only. The number of items can be anything — caps and resting states
+absorb it. If it's a dated event, it goes in the calendar; the board bulletin is
+for the rare thing that isn't a calendar event. If you're tempted to add a
+*third* zone, stop: the two jobs (act / read) are the guarantee. A genuinely new
+job (e.g. live cert-progress) earns a zone only if it's neither "act" nor "read".
 
 ### Responsive
 
-- **Desktop (> 900px):** the 2×2 grid fills the viewport, no scroll.
-- **≤ 900px:** the grid collapses to a **single column in the same fixed order**
-  (Board → This Week → Spotlight → New) and the page scrolls. Order is preserved,
-  so the mobile experience is the desktop one, stacked. Nothing is hidden or
-  reordered.
+- **Desktop (> 900px):** two zones side by side, cards hug content, no page scroll.
+- **≤ 900px:** they stack into a **single column in the same fixed order**
+  (This Week → Worth reading) and the page scrolls. Order is preserved, so mobile
+  is the desktop layout stacked. Nothing is hidden or reordered.
 
-*Added v1.2. Supersedes the old hero-number "Dashboard (Home)" pattern.*
+*Added v1.2, revised v1.3 (four source-zones collapsed to two job-zones).
+Supersedes the old hero-number "Dashboard (Home)" pattern.*
 
 ---
 
-*Homestead v1.2 — July 2026*
+*Homestead v1.3 — July 2026*
 *Built for agents who build their futures one client at a time.*
