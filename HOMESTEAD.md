@@ -775,9 +775,14 @@ overlap.
   while `AEP_TRAINING_OPEN` is `true`; otherwise the featured item leads.
 - **Cards hug their content**, equal height, top-aligned. A light week reads as
   calm space, not a stretched void. Caps keep the busiest week above the fold.
-- **Tools are NOT a zone** (the sidebar already has them) and **the 1:1 is NOT a
-  zone** (sidebar footer). Putting either on the board just re-duplicates the
-  sidebar.
+- **Tools are NOT a zone** (the sidebar already has them). Don't add a tools
+  zone; it just re-duplicates the sidebar.
+- **The 1:1 is a slim standing strip, not a zone.** A full-width "Book your
+  monthly 1:1" invitation sits *below* the two zones (`.oneone`). It's a fixed,
+  low-height CTA (so it can't clip and stays above the fold), kept out of the two
+  content zones so it never competes with "act" or "read". It intentionally
+  echoes the sidebar-footer 1:1 link: the footer is quiet navigation, the strip
+  is the warm invitation.
 
 ### The `<BoardZone>` primitive
 
