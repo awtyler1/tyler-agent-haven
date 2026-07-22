@@ -13,6 +13,7 @@ import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 import { BoardZone } from '@/components/hub/BoardZone';
 import { AEP_TRAINING_OPEN, AepTrainingModal } from '@/components/hub/AepTrainingBoard';
+import { ONE_ON_ONE_CALENDLY_URL } from '@/data/booking';
 
 // ============================================================================
 // THE HUB HOME — two jobs, two zones (see HOMESTEAD.md § 14 THE COCKPIT).
@@ -261,6 +262,16 @@ export default function Index() {
         />
       </div>
 
+      {/* Standing invitation: book the monthly 1:1. A slim strip, not a zone. */}
+      <a className="oneone" href={ONE_ON_ONE_CALENDLY_URL} target="_blank" rel="noopener noreferrer">
+        <span className="oneone__badge" aria-hidden="true">1:1</span>
+        <div className="oneone__text">
+          <span className="oneone__t">Book your monthly 1:1 with Austin &amp; Andrew</span>
+          <span className="oneone__s">A full hour on your pipeline, your blockers, and next month's number. Slots go fast.</span>
+        </div>
+        <span className="oneone__btn">Book your 1:1 →</span>
+      </a>
+
       {trainingOpen && <AepTrainingModal onClose={() => setTrainingOpen(false)} />}
     </div>
   );
@@ -372,6 +383,23 @@ const CSS = `
 .upd__t{ font-size:11.5px; font-weight:600; margin-top:1px; line-height:1.35; transition:color .15s;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
+/* ── Book your 1:1 — slim standing invitation strip under the zones ── */
+.oneone{ flex:0 0 auto; margin-top:14px; display:flex; align-items:center; gap:14px; text-decoration:none;
+  color:var(--bone); background:linear-gradient(135deg,#10362a,#0a2c22); border:1px solid rgba(201,168,76,.3);
+  border-radius:14px; padding:13px 18px; position:relative; overflow:hidden; transition:transform .15s, box-shadow .15s; }
+.oneone:before{ content:""; position:absolute; top:-80px; right:-40px; width:240px; height:240px;
+  background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); pointer-events:none; }
+.oneone:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(10,44,34,.28); }
+.oneone__badge{ flex-shrink:0; width:38px; height:38px; border-radius:50%; display:inline-flex; align-items:center;
+  justify-content:center; font-size:12.5px; font-weight:800; letter-spacing:.02em; color:var(--em);
+  background:linear-gradient(135deg,#e7cf86,var(--gold)); position:relative; }
+.oneone__text{ min-width:0; position:relative; }
+.oneone__t{ display:block; font-size:13.5px; font-weight:700; line-height:1.2; }
+.oneone__s{ display:block; font-size:11px; color:rgba(244,241,232,.72); margin-top:2px; line-height:1.4;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.oneone__btn{ flex-shrink:0; margin-left:auto; font-size:12px; font-weight:700; color:var(--em); white-space:nowrap;
+  background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:9px 15px; border-radius:9px; position:relative; }
+
 /* ── Responsive: below 900px the two zones stack in the same fixed order ── */
 @media(max-width:900px){
   .hub{ overflow-y:auto; padding:18px 20px 28px; }
@@ -381,5 +409,8 @@ const CSS = `
   .zone{ overflow:visible; }
   .zone__body{ overflow:visible; }
   .row__sub{ white-space:normal; }
+  .oneone{ flex-wrap:wrap; }
+  .oneone__s{ white-space:normal; }
+  .oneone__btn{ margin-left:0; width:100%; text-align:center; }
 }
 `;
