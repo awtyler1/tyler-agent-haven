@@ -89,7 +89,10 @@
       "Bash(__NEW_LINE_e30fcb92e1ab74ab__ echo \"policies:\")",
       "Bash(__NEW_LINE_7386fe16b840778b__ echo \"clients:\")",
       "Bash(cp \"/root/.claude/uploads/b03c152a-13c5-5bd8-a68d-ed2ee569c208/295ac343-TIGPTCStandard.pdf\" /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf && ls -la /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf)",
-      "Bash(cp \"/root/.claude/uploads/b03c152a-13c5-5bd8-a68d-ed2ee569c208/420718ed-TIGPermissiontoContact.pdf\" /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf && ls -la /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf)"
+      "Bash(cp \"/root/.claude/uploads/b03c152a-13c5-5bd8-a68d-ed2ee569c208/420718ed-TIGPermissiontoContact.pdf\" /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf && ls -la /home/user/tyler-agent-haven/public/forms/permission-to-contact.pdf)",
+      "Bash(cp \"/root/.claude/uploads/6eed27d7-2cbf-5db2-ae7f-25a1955184bf/326d50f1-Final_Review.pdf\" public/ahip/final-review.pdf)",
+      "Bash(chmod 644 public/ahip/final-review.pdf)",
+      "Bash(awk '{print $1, $5, $9}')"
     ]
   }
 }

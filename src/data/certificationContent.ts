@@ -21,6 +21,32 @@ export const ahip = {
   url: "https://www.ahipmedicaretraining.com/page/login",
 };
 
+// ── AHIP exam prep — review questions by module ──────────────────────────────
+// Study material that lives with AHIP (Step 1) all year. Each module is a PDF in
+// public/ahip/. Agents open them to study or download them to keep. To swap a
+// module, replace the file at the same path (or add a new entry here).
+export interface AhipModule {
+  n: number;
+  file: string;
+}
+export const ahipReviewNote =
+  "Practice review questions for each AHIP module. Open to study, or download to keep for your records.";
+export const ahipModules: AhipModule[] = [
+  { n: 1, file: "/ahip/module-1-final-review.pdf" },
+  { n: 2, file: "/ahip/module-2-final-review.pdf" },
+  { n: 3, file: "/ahip/module-3-final-review.pdf" },
+  { n: 4, file: "/ahip/module-4-final-review.pdf" },
+  { n: 5, file: "/ahip/module-5-final-review.pdf" },
+];
+
+// The comprehensive final review — every module in one, the capstone before the
+// exam. Shown as an emphasized card beneath the per-module tiles.
+export const ahipFinalReview = {
+  title: "Full Final Review",
+  note: "Every module's review questions in one place. Your last stop before the AHIP exam.",
+  file: "/ahip/final-review.pdf",
+};
+
 export type CertStatus = "open" | "not-open";
 
 export interface CarrierCert {

@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { ahip, carrierCerts, certYear, type CarrierCert } from '@/data/certificationContent';
+import {
+  ahip,
+  ahipModules,
+  ahipReviewNote,
+  ahipFinalReview,
+  carrierCerts,
+  certYear,
+  type CarrierCert,
+} from '@/data/certificationContent';
 
 function initial(name: string) {
   return name[0].toUpperCase();
@@ -97,6 +105,48 @@ export default function CertificationsPage() {
           </div>
         </div>
 
+        {/* AHIP exam prep — review questions by module (study + keep) */}
+        <div className="ct-seclbl">
+          <span>AHIP exam prep — review by module</span>
+          <span>Study &amp; keep</span>
+        </div>
+        <p className="ct-prep__note">{ahipReviewNote}</p>
+        <div className="ct-mods">
+          {ahipModules.map((m) => (
+            <a
+              className="ct-mod"
+              key={m.n}
+              href={m.file}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`AHIP Module ${m.n} final review — open or download PDF`}
+            >
+              <span className="ct-mod__n" aria-hidden="true">{m.n}</span>
+              <span className="ct-mod__b">
+                <span className="ct-mod__t">Module {m.n}</span>
+                <span className="ct-mod__s">Final review</span>
+              </span>
+              <span className="ct-mod__dl" aria-hidden="true">↓ PDF</span>
+            </a>
+          ))}
+        </div>
+
+        {/* Capstone — the full final review across all modules */}
+        <a
+          className="ct-finalrev"
+          href={ahipFinalReview.file}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="AHIP full final review — open or download PDF"
+        >
+          <span className="ct-finalrev__ic" aria-hidden="true">🏁</span>
+          <span className="ct-finalrev__b">
+            <span className="ct-finalrev__t">{ahipFinalReview.title}</span>
+            <span className="ct-finalrev__s">{ahipFinalReview.note}</span>
+          </span>
+          <span className="ct-finalrev__btn">↓ PDF</span>
+        </a>
+
         {/* Step 2 — carriers */}
         <div className="ct-seclbl">
           <span>Step 2 — Carrier certifications</span>
@@ -165,6 +215,37 @@ const CSS = `
 .ct-btn-gold{ display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em);
   font-weight:700; font-size:13px; padding:11px 18px; border-radius:9px; text-decoration:none; transition:.15s; }
 .ct-btn-gold:hover{ transform:translateY(-1px); box-shadow:0 8px 20px rgba(168,128,31,.3); }
+
+/* AHIP exam prep — review-by-module tiles */
+.ct-prep__note{ font-size:12.5px; color:var(--muted); margin:-2px 0 13px; line-height:1.5; }
+.ct-mods{ display:grid; grid-template-columns:repeat(auto-fill,minmax(178px,1fr)); gap:12px; margin-bottom:12px; }
+.ct-mod{ display:flex; flex-direction:column; align-items:flex-start; gap:10px; background:var(--card); border:1px solid var(--line);
+  border-radius:13px; padding:15px 15px 13px; text-decoration:none; color:var(--ink); position:relative; overflow:hidden; transition:.15s;
+  box-shadow:0 1px 3px rgba(0,0,0,.03); }
+.ct-mod:before{ content:""; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--gold2),var(--gold)); opacity:.85; }
+.ct-mod:hover{ border-color:var(--gold); transform:translateY(-2px); box-shadow:0 12px 24px rgba(168,128,31,.14); }
+.ct-mod__n{ width:36px; height:36px; flex-shrink:0; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-weight:800; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); }
+.ct-mod__b{ display:flex; flex-direction:column; min-width:0; }
+.ct-mod__t{ font-size:13.5px; font-weight:700; line-height:1.15; }
+.ct-mod__s{ font-size:11px; color:var(--muted); margin-top:2px; }
+.ct-mod__dl{ margin-top:1px; font-size:10.5px; font-weight:700; color:var(--gold2); border:1px solid var(--line);
+  border-radius:7px; padding:5px 11px; transition:.15s; }
+.ct-mod:hover .ct-mod__dl{ border-color:var(--gold); background:rgba(201,168,76,.08); }
+
+/* capstone — full final review across all modules */
+.ct-finalrev{ display:flex; align-items:center; gap:14px; margin-bottom:26px; padding:15px 18px; text-decoration:none;
+  color:var(--bone); background:linear-gradient(135deg,#10362a,#0a2c22); border:1px solid rgba(201,168,76,.4);
+  border-radius:14px; position:relative; overflow:hidden; transition:.15s; }
+.ct-finalrev:before{ content:""; position:absolute; top:-70px; right:-50px; width:240px; height:240px;
+  background:radial-gradient(circle,rgba(201,168,76,.18),transparent 60%); pointer-events:none; }
+.ct-finalrev:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(10,44,34,.28); border-color:rgba(201,168,76,.7); }
+.ct-finalrev__ic{ font-size:22px; flex-shrink:0; position:relative; }
+.ct-finalrev__b{ flex:1; min-width:0; position:relative; }
+.ct-finalrev__t{ display:block; font-size:14px; font-weight:700; }
+.ct-finalrev__s{ display:block; font-size:11.5px; color:rgba(244,241,232,.72); margin-top:2px; line-height:1.45; }
+.ct-finalrev__btn{ flex-shrink:0; position:relative; font-size:12px; font-weight:700; color:var(--em); white-space:nowrap;
+  background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:9px 15px; border-radius:9px; }
 
 /* section label */
 .ct-seclbl{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; display:flex; justify-content:space-between; gap:10px; }
