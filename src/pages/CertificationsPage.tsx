@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import {
   ahip,
   ahipModules,
-  ahipReviewNote,
   ahipFinalReview,
   carrierCerts,
   certYear,
@@ -13,52 +12,48 @@ function initial(name: string) {
   return name[0].toUpperCase();
 }
 
-function CarrierCard({ c }: { c: CarrierCert }) {
+// Compact carrier row. The how-to steps expand inline on click, so the resting
+// state stays a single line so all carriers fit above the fold.
+function CarrierRow({ c }: { c: CarrierCert }) {
   const open = c.status === 'open';
   const [showHow, setShowHow] = useState(false);
+  const hasHow = !!(c.howTo && c.howTo.length);
   return (
-    <div className={`ct-cc ${open ? 'ct-cc--live' : 'ct-cc--dead'}`} style={{ ['--bc' as string]: c.color }}>
-      <div className="ct-cc__top">
-        <span className="ct-cc__mark" style={{ background: c.color }}>{initial(c.name)}</span>
-        <div>
-          <div className="ct-cc__nm">{c.name}</div>
-          <div className="ct-cc__yr">{certYear} certification</div>
-        </div>
+    <div className={`ct-row-wrap ${open ? '' : 'ct-row-wrap--dim'}`}>
+      <div className="ct-row" style={{ ['--bc' as string]: c.color }}>
+        <span className="ct-row__mark" style={{ background: c.color }}>{initial(c.name)}</span>
+        <span className="ct-row__nm">{c.name}</span>
+        <span className={`ct-row__stat ${open ? '' : 'ct-row__stat--soon'}`}>
+          <span className="ct-row__dot" />
+          {c.opensLabel ?? (open ? 'Available now' : 'Coming soon')}
+        </span>
+        <span className="ct-row__acts">
+          {hasHow ? (
+            <button
+              type="button"
+              className={`ct-row__how ${showHow ? 'ct-row__how--on' : ''}`}
+              onClick={() => setShowHow((v) => !v)}
+              aria-expanded={showHow}
+            >
+              📄 How-to
+            </button>
+          ) : c.howToUrl ? (
+            <a className="ct-row__how" href={c.howToUrl} target="_blank" rel="noopener noreferrer">📄 How-to</a>
+          ) : (
+            <span className="ct-row__how ct-row__how--dim">📄 How-to</span>
+          )}
+          {open && c.portalUrl ? (
+            <a className="ct-row__cert" href={c.portalUrl} target="_blank" rel="noopener noreferrer">Certify ↗</a>
+          ) : (
+            <span className="ct-row__cert ct-row__cert--dim">Portal ↗</span>
+          )}
+        </span>
       </div>
-      {c.opensLabel && (
-        <div className="ct-cc__date">
-          <span className="ct-cc__date-ic" aria-hidden="true">{open ? '✓' : '📅'}</span>
-          {c.opensLabel}
-        </div>
-      )}
-      <div className="ct-cc__acts">
-        {c.howTo ? (
-          <button
-            type="button"
-            className={`ct-ca ${showHow ? 'ct-ca--on' : ''}`}
-            onClick={() => setShowHow((v) => !v)}
-            aria-expanded={showHow}
-          >
-            📄 How-to
-          </button>
-        ) : c.howToUrl ? (
-          <a className="ct-ca" href={c.howToUrl} target="_blank" rel="noopener noreferrer">📄 How-to</a>
-        ) : (
-          <span className="ct-ca ct-ca--dim">📄 How-to</span>
-        )}
-        {open && c.portalUrl ? (
-          <a className="ct-ca ct-ca--go" href={c.portalUrl} target="_blank" rel="noopener noreferrer">Certify ↗</a>
-        ) : (
-          <span className="ct-ca ct-ca--dim">Portal ↗</span>
-        )}
-      </div>
-      {showHow && c.howTo && (
-        <div className="ct-how">
-          <div className="ct-how__h">How to certify</div>
+      {showHow && hasHow && (
+        <div className="ct-row__how-panel">
+          <div className="ct-how__h">How to certify {c.name}</div>
           <ol className="ct-how__steps">
-            {c.howTo.map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
+            {c.howTo!.map((s, i) => <li key={i}>{s}</li>)}
           </ol>
           {c.portalUrl && (
             <a className="ct-how__link" href={c.portalUrl} target="_blank" rel="noopener noreferrer">
@@ -84,101 +79,94 @@ export default function CertificationsPage() {
       <div className="ct-max">
         <div className="ct-head">
           <h1 className="ct-h1">{certYear} Certifications</h1>
-          <div className="ct-sub">AHIP first, then certify each carrier for {certYear}.</div>
+          <span className="ct-sub">AHIP first, then certify each carrier for {certYear}.</span>
         </div>
 
-        {/* Step 1 — AHIP */}
-        <div className="ct-ahip">
-          <span className="ct-ahip__ic" aria-hidden="true">🎓</span>
-          <div className="ct-ahip__b">
-            <div className="ct-ahip__t">Step 1 — {ahip.title}</div>
-            <div className="ct-ahip__s">{ahip.note}</div>
-            {ahip.details && ahip.details.length > 0 && (
-              <ul className="ct-ahip__details">
-                {ahip.details.map((d, i) => <li key={i}>{d}</li>)}
-              </ul>
-            )}
+        {/* Two-column top: AHIP (Step 1) + study material */}
+        <div className="ct-top">
+          {/* Step 1 — AHIP */}
+          <div className="ct-ahip">
+            <span className="ct-ahip__ic" aria-hidden="true">🎓</span>
+            <div className="ct-ahip__b">
+              <div className="ct-ahip__t">Step 1: {ahip.title}</div>
+              <div className="ct-ahip__s">{ahip.note}</div>
+              {ahip.details && ahip.details.length > 0 && (
+                <ul className="ct-ahip__details">
+                  {ahip.details.map((d, i) => <li key={i}>{d}</li>)}
+                </ul>
+              )}
+              <div className="ct-ahip__r">
+                {ahip.opensLabel && <span className="ct-ahip__open">{ahip.opensLabel}</span>}
+                <a className="ct-btn-gold" href={ahip.url} target="_blank" rel="noopener noreferrer">Go to AHIP ↗</a>
+              </div>
+            </div>
           </div>
-          <div className="ct-ahip__r">
-            {ahip.opensLabel && <span className="ct-ahip__open">{ahip.opensLabel}</span>}
-            <a className="ct-btn-gold" href={ahip.url} target="_blank" rel="noopener noreferrer">Go to AHIP ↗</a>
-          </div>
-        </div>
 
-        {/* AHIP exam prep — review questions by module (study + keep) */}
-        <div className="ct-seclbl">
-          <span>AHIP exam prep — review by module</span>
-          <span>Study &amp; keep</span>
-        </div>
-        <p className="ct-prep__note">{ahipReviewNote}</p>
-        <div className="ct-mods">
-          {ahipModules.map((m) => (
+          {/* AHIP exam prep — review by module */}
+          <div className="ct-study">
+            <div className="ct-seclbl">
+              <span>AHIP exam prep: review by module</span>
+              <span>Study &amp; keep</span>
+            </div>
+            <div className="ct-mods">
+              {ahipModules.map((m) => (
+                <a
+                  className="ct-mod"
+                  key={m.n}
+                  href={m.file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`AHIP Module ${m.n} final review, open or download PDF`}
+                >
+                  <span className="ct-mod__n" aria-hidden="true">{m.n}</span>
+                  <span className="ct-mod__t">Module {m.n}</span>
+                  <span className="ct-mod__s">Final review</span>
+                  <span className="ct-mod__dl" aria-hidden="true">↓ PDF</span>
+                </a>
+              ))}
+            </div>
             <a
-              className="ct-mod"
-              key={m.n}
-              href={m.file}
+              className="ct-finalrev"
+              href={ahipFinalReview.file}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`AHIP Module ${m.n} final review — open or download PDF`}
+              aria-label="AHIP full final review, open or download PDF"
             >
-              <span className="ct-mod__n" aria-hidden="true">{m.n}</span>
-              <span className="ct-mod__b">
-                <span className="ct-mod__t">Module {m.n}</span>
-                <span className="ct-mod__s">Final review</span>
+              <span className="ct-finalrev__ic" aria-hidden="true">🏁</span>
+              <span className="ct-finalrev__b">
+                <span className="ct-finalrev__t">{ahipFinalReview.title}</span>
+                <span className="ct-finalrev__s">Every module in one. Your last stop before the exam.</span>
               </span>
-              <span className="ct-mod__dl" aria-hidden="true">↓ PDF</span>
+              <span className="ct-finalrev__btn">↓ PDF</span>
             </a>
-          ))}
+          </div>
         </div>
 
-        {/* Capstone — the full final review across all modules */}
-        <a
-          className="ct-finalrev"
-          href={ahipFinalReview.file}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="AHIP full final review — open or download PDF"
-        >
-          <span className="ct-finalrev__ic" aria-hidden="true">🏁</span>
-          <span className="ct-finalrev__b">
-            <span className="ct-finalrev__t">{ahipFinalReview.title}</span>
-            <span className="ct-finalrev__s">{ahipFinalReview.note}</span>
-          </span>
-          <span className="ct-finalrev__btn">↓ PDF</span>
-        </a>
-
-        {/* Step 2 — carriers */}
-        <div className="ct-seclbl">
-          <span>Step 2 — Carrier certifications</span>
+        {/* Step 2 — carriers as a compact list */}
+        <div className="ct-seclbl ct-seclbl--rows">
+          <span>Step 2: Carrier certifications</span>
           <span>{openCount > 0 ? `${openCount} open · ` : ''}{carrierCerts.length - openCount} not open yet</span>
         </div>
-        <div className="ct-grid">
+        <div className="ct-rows">
           {carrierCerts.map((c) => (
-            <CarrierCard key={c.id} c={c} />
+            <CarrierRow key={c.id} c={c} />
           ))}
         </div>
 
-        {/* ── Printable tracker ── */}
+        {/* Tracker — folded into a slim footer link */}
         <a
-          className="ct-tracker"
+          className="ct-track-link"
           href="/forms/2027-certification-tracker.pdf"
           target="_blank"
           rel="noopener noreferrer"
         >
-          <span className="ct-tracker__ic" aria-hidden="true">📋</span>
-          <span className="ct-tracker__body">
-            <span className="ct-tracker__t">{certYear} Certification Tracker</span>
-            <span className="ct-tracker__s">
-              A fillable one-pager of this page — check off each cert, add the date, and save it to your computer or print it.
-            </span>
-          </span>
-          <span className="ct-tracker__btn">↓ Download</span>
+          <span aria-hidden="true">📋</span>
+          <span><b>Download the {certYear} Certification Tracker</b>: a fillable one-pager to check off each cert, add the date, and save or print.</span>
         </a>
 
         <p className="ct-note">
-          Dates and certification links are added as each carrier opens its {certYear} window.
-          Questions? Caroline Horn handles contracting &amp; certification — find her on{' '}
-          <a href="/contacts">Contacts</a>.
+          New carrier windows appear here as they open. Certification questions? Caroline Horn can help;
+          find her on <a href="/contacts">Contacts</a>.
         </p>
       </div>
     </div>
@@ -191,91 +179,93 @@ const CSS = `
   --green:#5b7d44; --amber:#b07f33;
   flex:1 1 auto; min-height:0; overflow-y:auto; background:var(--bone);
   font-family:'Outfit','Inter',system-ui,sans-serif; color:var(--ink);
-  -webkit-font-smoothing:antialiased; padding:30px 36px 44px;
+  -webkit-font-smoothing:antialiased; padding:20px 32px 16px;
 }
 .ct *{ box-sizing:border-box; }
-.ct-max{ max-width:1000px; margin:0 auto; }
-.ct-head{ margin-bottom:16px; }
-.ct-h1{ font-size:25px; font-weight:700; letter-spacing:-.02em; margin:0; }
-.ct-sub{ font-size:12.5px; color:var(--muted); margin-top:2px; }
+.ct-max{ max-width:1100px; margin:0 auto; }
+.ct-head{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+.ct-h1{ font-size:23px; font-weight:700; letter-spacing:-.02em; margin:0; }
+.ct-sub{ font-size:12.5px; color:var(--muted); }
+
+/* two-column top */
+.ct-top{ display:grid; grid-template-columns:1.05fr 1fr; gap:15px; align-items:stretch; margin-bottom:11px; }
 
 /* AHIP */
-.ct-ahip{ display:flex; align-items:center; gap:16px; background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone);
-  border-radius:16px; padding:18px 22px; margin-bottom:24px; position:relative; overflow:hidden; flex-wrap:wrap; }
-.ct-ahip:before{ content:""; position:absolute; top:-70px; right:-50px; width:260px; height:260px; background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); }
-.ct-ahip__ic{ font-size:24px; position:relative; }
+.ct-ahip{ display:flex; align-items:center; gap:15px; background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone);
+  border-radius:15px; padding:16px 20px; position:relative; overflow:hidden; flex-wrap:wrap; }
+.ct-ahip:before{ content:""; position:absolute; top:-70px; right:-50px; width:240px; height:240px; background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); }
+.ct-ahip__ic{ font-size:22px; position:relative; }
 .ct-ahip__b{ position:relative; flex:1; min-width:200px; }
-.ct-ahip__t{ font-size:18px; font-weight:700; }
-.ct-ahip__s{ font-size:12.5px; color:rgba(244,241,232,.72); margin-top:3px; }
-.ct-ahip__details{ margin:9px 0 0; padding:0; list-style:none; }
-.ct-ahip__details li{ position:relative; padding-left:15px; font-size:12px; line-height:1.5; color:rgba(244,241,232,.82); margin-top:4px; }
+.ct-ahip__t{ font-size:16px; font-weight:700; }
+.ct-ahip__s{ font-size:12px; color:rgba(244,241,232,.72); margin-top:3px; }
+.ct-ahip__details{ margin:8px 0 0; padding:0; list-style:none; }
+.ct-ahip__details li{ position:relative; padding-left:14px; font-size:11.5px; line-height:1.5; color:rgba(244,241,232,.82); margin-top:3px; }
 .ct-ahip__details li:before{ content:""; position:absolute; left:2px; top:7px; width:4px; height:4px; border-radius:50%; background:var(--gold); }
-.ct-ahip__r{ position:relative; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-.ct-ahip__open{ font-size:12.5px; font-weight:700; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:7px 13px; border-radius:9px; }
+.ct-ahip__r{ display:flex; align-items:center; gap:11px; margin-top:12px; flex-wrap:wrap; }
+.ct-ahip__open{ font-size:12px; font-weight:700; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:6px 12px; border-radius:8px; }
 .ct-btn-gold{ display:inline-flex; align-items:center; gap:7px; background:linear-gradient(135deg,#e7cf86,var(--gold2)); color:var(--em);
-  font-weight:700; font-size:13px; padding:11px 18px; border-radius:9px; text-decoration:none; transition:.15s; }
+  font-weight:700; font-size:12.5px; padding:10px 16px; border-radius:8px; text-decoration:none; transition:.15s; }
 .ct-btn-gold:hover{ transform:translateY(-1px); box-shadow:0 8px 20px rgba(168,128,31,.3); }
 
-/* AHIP exam prep — review-by-module tiles */
-.ct-prep__note{ font-size:12.5px; color:var(--muted); margin:-2px 0 13px; line-height:1.5; }
-.ct-mods{ display:grid; grid-template-columns:repeat(auto-fill,minmax(178px,1fr)); gap:12px; margin-bottom:12px; }
-.ct-mod{ display:flex; flex-direction:column; align-items:flex-start; gap:10px; background:var(--card); border:1px solid var(--line);
-  border-radius:13px; padding:15px 15px 13px; text-decoration:none; color:var(--ink); position:relative; overflow:hidden; transition:.15s;
+/* study column */
+.ct-study{ display:flex; flex-direction:column; gap:8px; }
+.ct-mods{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.ct-mod{ display:flex; flex-direction:column; align-items:flex-start; gap:5px; background:var(--card); border:1px solid var(--line);
+  border-radius:11px; padding:9px 10px 9px; text-decoration:none; color:var(--ink); position:relative; overflow:hidden; transition:.15s;
   box-shadow:0 1px 3px rgba(0,0,0,.03); }
 .ct-mod:before{ content:""; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--gold2),var(--gold)); opacity:.85; }
 .ct-mod:hover{ border-color:var(--gold); transform:translateY(-2px); box-shadow:0 12px 24px rgba(168,128,31,.14); }
-.ct-mod__n{ width:36px; height:36px; flex-shrink:0; border-radius:10px; display:flex; align-items:center; justify-content:center;
-  font-size:16px; font-weight:800; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); }
-.ct-mod__b{ display:flex; flex-direction:column; min-width:0; }
-.ct-mod__t{ font-size:13.5px; font-weight:700; line-height:1.15; }
-.ct-mod__s{ font-size:11px; color:var(--muted); margin-top:2px; }
-.ct-mod__dl{ margin-top:1px; font-size:10.5px; font-weight:700; color:var(--gold2); border:1px solid var(--line);
-  border-radius:7px; padding:5px 11px; transition:.15s; }
+.ct-mod__n{ width:28px; height:28px; flex-shrink:0; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:var(--em); background:linear-gradient(135deg,#e7cf86,var(--gold)); }
+.ct-mod__t{ font-size:11.5px; font-weight:700; line-height:1.1; }
+.ct-mod__s{ font-size:9.5px; color:var(--muted); margin-top:-3px; }
+.ct-mod__dl{ margin-top:1px; font-size:9.5px; font-weight:700; color:var(--gold2); border:1px solid var(--line);
+  border-radius:6px; padding:4px 9px; transition:.15s; }
 .ct-mod:hover .ct-mod__dl{ border-color:var(--gold); background:rgba(201,168,76,.08); }
 
-/* capstone — full final review across all modules */
-.ct-finalrev{ display:flex; align-items:center; gap:14px; margin-bottom:26px; padding:15px 18px; text-decoration:none;
-  color:var(--bone); background:linear-gradient(135deg,#10362a,#0a2c22); border:1px solid rgba(201,168,76,.4);
-  border-radius:14px; position:relative; overflow:hidden; transition:.15s; }
-.ct-finalrev:before{ content:""; position:absolute; top:-70px; right:-50px; width:240px; height:240px;
-  background:radial-gradient(circle,rgba(201,168,76,.18),transparent 60%); pointer-events:none; }
+/* full final review capstone */
+.ct-finalrev{ display:flex; align-items:center; gap:12px; padding:10px 15px; text-decoration:none; color:var(--bone);
+  background:linear-gradient(135deg,#10362a,#0a2c22); border:1px solid rgba(201,168,76,.4); border-radius:12px; position:relative; overflow:hidden; transition:.15s; }
+.ct-finalrev:before{ content:""; position:absolute; top:-70px; right:-50px; width:240px; height:240px; background:radial-gradient(circle,rgba(201,168,76,.18),transparent 60%); pointer-events:none; }
 .ct-finalrev:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(10,44,34,.28); border-color:rgba(201,168,76,.7); }
-.ct-finalrev__ic{ font-size:22px; flex-shrink:0; position:relative; }
+.ct-finalrev__ic{ font-size:20px; flex-shrink:0; position:relative; }
 .ct-finalrev__b{ flex:1; min-width:0; position:relative; }
-.ct-finalrev__t{ display:block; font-size:14px; font-weight:700; }
-.ct-finalrev__s{ display:block; font-size:11.5px; color:rgba(244,241,232,.72); margin-top:2px; line-height:1.45; }
-.ct-finalrev__btn{ flex-shrink:0; position:relative; font-size:12px; font-weight:700; color:var(--em); white-space:nowrap;
-  background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:9px 15px; border-radius:9px; }
+.ct-finalrev__t{ display:block; font-size:13.5px; font-weight:700; }
+.ct-finalrev__s{ display:block; font-size:11px; color:rgba(244,241,232,.72); margin-top:1px; line-height:1.4; }
+.ct-finalrev__btn{ flex-shrink:0; position:relative; font-size:11.5px; font-weight:700; color:var(--em); white-space:nowrap;
+  background:linear-gradient(135deg,#e7cf86,var(--gold)); padding:8px 14px; border-radius:8px; }
 
 /* section label */
-.ct-seclbl{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; display:flex; justify-content:space-between; gap:10px; }
+.ct-seclbl{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 9px; display:flex; justify-content:space-between; gap:10px; }
+.ct-seclbl--rows{ margin-top:2px; }
 
-/* grid + cards */
-.ct-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-.ct-cc{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; position:relative; overflow:hidden; transition:.18s; box-shadow:0 1px 3px rgba(0,0,0,.03); }
-.ct-cc:before{ content:""; position:absolute; top:0; left:0; right:0; height:3px; background:var(--bc); }
-/* live carrier — full color, gently emphasized so it pops against the dimmed ones */
-.ct-cc--live{ border-color:rgba(201,168,76,.5); box-shadow:0 4px 16px rgba(168,128,31,.12); }
-.ct-cc--live:hover{ transform:translateY(-3px); box-shadow:0 16px 32px rgba(168,128,31,.18); }
-/* not released yet — dimmed and inert until the carrier opens its window */
-.ct-cc--dead{ opacity:.6; filter:grayscale(.92); box-shadow:none; }
-.ct-cc--dead:hover{ transform:none; box-shadow:0 1px 3px rgba(0,0,0,.03); }
-.ct-cc__top{ display:flex; align-items:center; gap:11px; margin-bottom:14px; }
-.ct-cc__mark{ width:38px; height:38px; border-radius:10px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; flex-shrink:0; }
-.ct-cc__nm{ font-size:16px; font-weight:700; }
-.ct-cc__yr{ font-size:11px; color:var(--muted); }
-.ct-cc__date{ display:inline-flex; align-items:center; gap:7px; margin-bottom:14px; background:rgba(201,168,76,.14); border:1px solid rgba(201,168,76,.45);
-  color:var(--gold2); font-family:'Outfit',sans-serif; font-weight:700; font-size:13px; padding:7px 12px; border-radius:9px; }
-.ct-cc__date-ic{ font-size:13px; line-height:1; }
-.ct-cc__acts{ display:flex; gap:8px; }
-.ct-ca{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:11.5px; font-weight:600; padding:9px; border-radius:8px; border:1px solid var(--line); color:var(--ink); text-decoration:none; transition:.15s; background:transparent; font-family:inherit; cursor:pointer; }
-.ct-ca:hover{ border-color:var(--gold); }
-.ct-ca--on{ border-color:var(--gold); background:rgba(201,168,76,.1); color:var(--gold2); }
-.ct-ca--go{ background:var(--em); color:var(--bone); border-color:var(--em); }
-.ct-ca--dim{ color:var(--muted); opacity:.5; cursor:not-allowed; }
+/* carrier rows */
+.ct-rows{ display:flex; flex-direction:column; gap:5px; }
+.ct-row-wrap{ background:var(--card); border:1px solid var(--line); border-radius:11px; overflow:hidden; transition:.15s; box-shadow:0 1px 3px rgba(0,0,0,.03); }
+.ct-row-wrap:hover{ border-color:rgba(201,168,76,.55); }
+.ct-row-wrap--dim{ opacity:.6; filter:grayscale(.9); }
+.ct-row-wrap--dim:hover{ border-color:var(--line); }
+.ct-row{ display:flex; align-items:center; gap:13px; padding:7px 15px; position:relative; }
+.ct-row:before{ content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:2px; background:var(--bc); }
+.ct-row__mark{ width:28px; height:28px; border-radius:8px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0; margin-left:4px; }
+.ct-row__nm{ font-size:14px; font-weight:700; min-width:150px; }
+.ct-row__stat{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--gold2); }
+.ct-row__stat--soon{ color:var(--muted); }
+.ct-row__dot{ width:7px; height:7px; border-radius:50%; background:var(--green); flex-shrink:0; }
+.ct-row__stat--soon .ct-row__dot{ background:var(--amber); }
+.ct-row__acts{ margin-left:auto; display:flex; gap:8px; flex-shrink:0; }
+.ct-row__how{ font-family:inherit; cursor:pointer; font-size:11.5px; font-weight:600; color:var(--ink); background:transparent;
+  border:1px solid var(--line); border-radius:8px; padding:7px 13px; transition:.15s; white-space:nowrap; }
+.ct-row__how:hover{ border-color:var(--gold); }
+.ct-row__how--on{ border-color:var(--gold); background:rgba(201,168,76,.1); color:var(--gold2); }
+.ct-row__how--dim{ color:var(--muted); opacity:.55; cursor:not-allowed; }
+.ct-row__cert{ font-size:11.5px; font-weight:700; color:var(--bone); background:var(--em); border:1px solid var(--em);
+  border-radius:8px; padding:7px 15px; text-decoration:none; white-space:nowrap; transition:.15s; }
+.ct-row__cert:hover{ filter:brightness(1.15); }
+.ct-row__cert--dim{ color:var(--muted); background:transparent; border-color:var(--line); opacity:.6; }
 
-/* inline how-to */
-.ct-how{ margin-top:11px; background:rgba(14,59,46,.04); border:1px solid var(--line); border-radius:10px; padding:12px 14px; animation:ctHow .15s ease; }
+/* inline how-to panel (expanded on click) */
+.ct-row__how-panel{ padding:2px 16px 14px 52px; animation:ctHow .15s ease; }
 @keyframes ctHow{ from{ opacity:0; transform:translateY(-3px); } to{ opacity:1; transform:translateY(0); } }
 .ct-how__h{ font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); margin-bottom:8px; }
 .ct-how__steps{ margin:0 0 2px; padding:0; list-style:none; counter-reset:s; }
@@ -285,22 +275,24 @@ const CSS = `
 .ct-how__link{ display:inline-block; margin-top:9px; font-size:11.5px; font-weight:700; color:var(--gold2); text-decoration:none; }
 .ct-how__link:hover{ text-decoration:underline; }
 
-/* printable tracker strip */
-.ct-tracker{ display:flex; align-items:center; gap:13px; margin-top:16px; background:var(--card); border:1px solid var(--line);
-  border-radius:14px; padding:14px 18px; text-decoration:none; color:var(--ink); transition:.15s; }
-.ct-tracker:hover{ border-color:var(--gold); transform:translateY(-1px); box-shadow:0 8px 18px rgba(20,30,24,.06); }
-.ct-tracker__ic{ font-size:20px; flex-shrink:0; }
-.ct-tracker__body{ flex:1; min-width:0; }
-.ct-tracker__t{ display:block; font-size:13.5px; font-weight:700; }
-.ct-tracker__s{ display:block; font-size:11.5px; color:var(--muted); margin-top:1px; }
-.ct-tracker__btn{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--gold2);
-  border:1px solid var(--line); border-radius:8px; padding:8px 14px; flex-shrink:0; white-space:nowrap; transition:.15s; }
-.ct-tracker:hover .ct-tracker__btn{ border-color:var(--gold); }
+/* tracker footer link */
+.ct-track-link{ display:flex; align-items:center; gap:9px; margin-top:11px; font-size:12px; color:var(--muted); text-decoration:none; line-height:1.4; }
+.ct-track-link b{ color:var(--gold2); font-weight:700; }
+.ct-track-link:hover b{ text-decoration:underline; }
 
-.ct-note{ font-size:12.5px; color:var(--muted); margin-top:22px; line-height:1.6; }
+.ct-note{ font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5; }
 .ct-note a{ color:var(--gold2); font-weight:600; text-decoration:none; }
 .ct-note a:hover{ text-decoration:underline; }
 
-@media(max-width:900px){ .ct-grid{ grid-template-columns:repeat(2,1fr); } }
-@media(max-width:560px){ .ct{ padding:20px; } .ct-grid{ grid-template-columns:1fr; } }
+@media(max-width:900px){
+  .ct-top{ grid-template-columns:1fr; }
+  .ct-mods{ grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); }
+}
+@media(max-width:560px){
+  .ct{ padding:20px; }
+  .ct-row{ flex-wrap:wrap; }
+  .ct-row__acts{ width:100%; margin-left:0; }
+  .ct-row__how, .ct-row__cert{ flex:1; text-align:center; }
+  .ct-row__how-panel{ padding-left:16px; }
+}
 `;
