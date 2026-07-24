@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { whatsNew } from '@/data/whatsNew';
 import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
@@ -12,17 +13,25 @@ import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 // merged with published articles. Nothing is ever removed; items simply lose
 // their "New" chip once read.
 //
-// Read state is PER ITEM, per browser (localStorage; shared-login MVP, same
-// approach as the AEP training board). An item is marked read when the agent
-// clicks its link, hits its ✓ button, or uses "Mark all as read" — never just
-// because the panel was opened. Backstop: an item older than NEW_WINDOW_DAYS
-// stops counting as new even if unclicked, so one ignored item can't leave a
-// permanent badge; it stays in the log either way.
+// Read state is PER ITEM and durable. The source of truth is the
+// whats_new_reads table in Supabase, keyed by a lightweight agent identity:
+// the name they enter once (shared-login MVP, same approach and same stored
+// name as the AEP training board). That makes read history follow the agent
+// across devices and survive cleared browser storage. localStorage is kept as
+// a fast local cache and as the fallback when the agent hasn't added a name
+// yet or the network is down. An item is marked read when the agent clicks
+// its link, taps its ✓, or uses "Mark all as read" — never just because the
+// panel was opened. Backstop: items older than NEW_WINDOW_DAYS stop counting
+// as new even if unclicked, so one ignored item can't leave a permanent badge.
 // ============================================================================
 
-const READ_KEY = 'tig-whatsnew-read'; // JSON array of read item ids
+const READ_KEY = 'tig-whatsnew-read'; // local cache: JSON array of read ids
+const NAME_KEY = 'tig-aep-board-name'; // shared "who am I" with the AEP board
 const NEW_WINDOW_DAYS = 30;
 const MAX_ROWS = 60;
+
+const readsTable = () => (supabase as any).from('whats_new_reads');
+const noop = () => {};
 
 interface FeedRow {
   id: string;
@@ -69,7 +78,12 @@ function buildFeed(): FeedRow[] {
     .slice(0, MAX_ROWS);
 }
 
-function loadRead(): Set<string> {
+/** Normalized identity key: trimmed, lowercased, single-spaced. */
+function toAgentKey(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function loadCache(): Set<string> {
   try {
     const raw = localStorage.getItem(READ_KEY);
     const arr = raw ? JSON.parse(raw) : [];
@@ -79,10 +93,60 @@ function loadRead(): Set<string> {
   }
 }
 
+function saveCache(read: Set<string>, feedIds: Set<string>) {
+  try {
+    // Persist only ids still in the feed so the cache can't grow forever.
+    localStorage.setItem(READ_KEY, JSON.stringify([...read].filter((id) => feedIds.has(id))));
+  } catch { /* private mode */ }
+}
+
+/** Fire-and-forget server write; silent when offline or pre-migration. */
+function pushReads(agentKey: string, ids: string[]) {
+  if (!agentKey || ids.length === 0) return;
+  try {
+    readsTable()
+      .upsert(ids.map((item_id) => ({ agent_key: agentKey, item_id })), {
+        onConflict: 'agent_key,item_id',
+        ignoreDuplicates: true,
+      })
+      .then(noop, noop);
+  } catch { /* never let read-state sync break the hub */ }
+}
+
 export function WhatsNewBell() {
   const [open, setOpen] = useState(false);
   const feed = useMemo(buildFeed, []);
-  const [read, setRead] = useState<Set<string>>(loadRead);
+  const feedIds = useMemo(() => new Set(feed.map((r) => r.id)), [feed]);
+
+  const [name, setName] = useState<string>(() => {
+    try { return localStorage.getItem(NAME_KEY) || ''; } catch { return ''; }
+  });
+  const agentKey = toAgentKey(name);
+
+  const [read, setRead] = useState<Set<string>>(loadCache);
+  const readRef = useRef(read);
+  readRef.current = read;
+
+  // With an identity: pull their server-side read history and merge, and push
+  // up anything this device marked while offline or before the name was set.
+  useEffect(() => {
+    if (!agentKey) return;
+    let cancelled = false;
+    pushReads(agentKey, [...readRef.current]);
+    (async () => {
+      try {
+        const { data, error } = await readsTable().select('item_id').eq('agent_key', agentKey);
+        if (cancelled || error || !Array.isArray(data)) return;
+        setRead((prev) => {
+          const next = new Set(prev);
+          data.forEach((r: { item_id: string }) => next.add(r.item_id));
+          saveCache(next, feedIds);
+          return next;
+        });
+      } catch { /* offline or table not migrated yet: cache carries it */ }
+    })();
+    return () => { cancelled = true; };
+  }, [agentKey, feedIds]);
 
   const isUnread = (r: FeedRow) => ageInDays(r.date) <= NEW_WINDOW_DAYS && !read.has(r.id);
   const unreadCount = feed.filter(isUnread).length;
@@ -91,13 +155,31 @@ export function WhatsNewBell() {
     setRead((prev) => {
       const next = new Set(prev);
       ids.forEach((id) => next.add(id));
-      // Persist only ids still in the feed so the stored list can't grow forever.
-      const feedIds = new Set(feed.map((r) => r.id));
-      try {
-        localStorage.setItem(READ_KEY, JSON.stringify([...next].filter((id) => feedIds.has(id))));
-      } catch { /* private mode */ }
+      saveCache(next, feedIds);
       return next;
     });
+    pushReads(agentKey, ids);
+  };
+
+  // First save of a name adopts this device's history; switching to a
+  // different name starts from that person's server history instead.
+  const saveIdentity = (newName: string) => {
+    const clean = newName.trim().replace(/\s+/g, ' ');
+    if (!clean) return;
+    const newKey = toAgentKey(clean);
+    const switching = !!agentKey && newKey !== agentKey;
+    try { localStorage.setItem(NAME_KEY, clean); } catch { /* private mode */ }
+    if (switching) {
+      const empty = new Set<string>();
+      setRead(empty);
+      saveCache(empty, feedIds);
+    }
+    setName(clean);
+  };
+
+  const clearIdentity = () => {
+    try { localStorage.removeItem(NAME_KEY); } catch { /* private mode */ }
+    setName('');
   };
 
   return (
@@ -121,6 +203,9 @@ export function WhatsNewBell() {
           feed={feed}
           isUnread={isUnread}
           unreadCount={unreadCount}
+          identityName={name}
+          onSaveIdentity={saveIdentity}
+          onClearIdentity={clearIdentity}
           onRead={(id) => markRead([id])}
           onReadAll={() => markRead(feed.filter(isUnread).map((r) => r.id))}
           onClose={() => setOpen(false)}
@@ -134,6 +219,9 @@ function Panel({
   feed,
   isUnread,
   unreadCount,
+  identityName,
+  onSaveIdentity,
+  onClearIdentity,
   onRead,
   onReadAll,
   onClose,
@@ -141,17 +229,22 @@ function Panel({
   feed: FeedRow[];
   isUnread: (r: FeedRow) => boolean;
   unreadCount: number;
+  identityName: string;
+  onSaveIdentity: (name: string) => void;
+  onClearIdentity: () => void;
   onRead: (id: string) => void;
   onReadAll: () => void;
   onClose: () => void;
 }) {
+  const [draftName, setDraftName] = useState('');
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  // Freeze the fresh/older grouping at open so rows don't jump around as the
+  // Freeze the fresh/earlier grouping at open so rows don't jump around as the
   // agent marks things read; the chips and badge still update live.
   const [freshIds] = useState<Set<string>>(
     () => new Set(feed.filter(isUnread).map((r) => r.id))
@@ -171,6 +264,36 @@ function Panel({
           A running log of everything we add or update: forms, events, carrier news, features, and articles.
           Open an item or tap its ✓ to mark it read.
         </p>
+
+        {identityName ? (
+          <div className="wn-ident">
+            Read history saves for <b>{identityName}</b> and follows you on any device.
+            <button type="button" className="wn-ident__change" onClick={onClearIdentity}>Not you?</button>
+          </div>
+        ) : (
+          <div className="wn-claim">
+            <div className="wn-claim__t">Add your name so your read history follows you on any device.</div>
+            <div className="wn-claim__row">
+              <input
+                className="wn-claim__input"
+                placeholder="Your first name"
+                value={draftName}
+                maxLength={60}
+                onChange={(e) => setDraftName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { onSaveIdentity(draftName); setDraftName(''); } }}
+              />
+              <button
+                type="button"
+                className="wn-claim__go"
+                disabled={!draftName.trim()}
+                onClick={() => { onSaveIdentity(draftName); setDraftName(''); }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        )}
+
         {unreadCount > 0 && (
           <button type="button" className="wn-markall" onClick={onReadAll}>
             ✓ Mark all as read
@@ -262,6 +385,23 @@ const CSS = `
 .wn-modal__kicker{ font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#A8801F; }
 .wn-modal__title{ font-size:21px; font-weight:700; letter-spacing:-.02em; margin:6px 0 0; padding-right:30px; }
 .wn-modal__note{ font-size:12.5px; line-height:1.55; color:#6b6457; margin:8px 0 0; }
+
+/* identity */
+.wn-ident{ margin-top:12px; font-size:11.5px; color:#6b6457; }
+.wn-ident b{ color:#1b2620; }
+.wn-ident__change{ margin-left:7px; font-family:inherit; font-size:11px; font-weight:700; color:#A8801F;
+  background:none; border:none; cursor:pointer; padding:0; text-decoration:underline; }
+.wn-claim{ margin-top:12px; background:#faf8f2; border:1px solid #e7e0cf; border-radius:11px; padding:11px 13px; }
+.wn-claim__t{ font-size:11.5px; font-weight:600; color:#1b2620; }
+.wn-claim__row{ display:flex; gap:8px; margin-top:8px; }
+.wn-claim__input{ flex:1; min-width:0; font-family:inherit; font-size:12.5px; color:#1b2620; background:#fff;
+  border:1px solid #e7e0cf; border-radius:9px; padding:8px 11px; outline:none; transition:.15s; }
+.wn-claim__input:focus{ border-color:#C9A84C; }
+.wn-claim__go{ flex-shrink:0; font-family:inherit; font-size:12px; font-weight:700; color:#F4F1E8; background:#0E3B2E;
+  border:none; border-radius:9px; padding:8px 16px; cursor:pointer; transition:.15s; }
+.wn-claim__go:hover:not(:disabled){ filter:brightness(1.15); }
+.wn-claim__go:disabled{ opacity:.45; cursor:not-allowed; }
+
 .wn-markall{ margin-top:12px; font-family:inherit; font-size:11.5px; font-weight:700; color:#A8801F; cursor:pointer;
   background:rgba(201,168,76,.1); border:1px solid rgba(201,168,76,.45); border-radius:8px; padding:7px 13px; transition:.15s; }
 .wn-markall:hover{ background:rgba(201,168,76,.18); border-color:#C9A84C; }
