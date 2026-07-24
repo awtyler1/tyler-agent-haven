@@ -4,7 +4,6 @@ import {
   boardItems,
   season,
   featured,
-  newThisWeek,
   aep,
   type BoardItem,
 } from '@/data/hubContent';
@@ -13,6 +12,7 @@ import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 import { BoardZone } from '@/components/hub/BoardZone';
 import { AEP_TRAINING_OPEN, AepTrainingModal } from '@/components/hub/AepTrainingBoard';
+import { WhatsNewBell } from '@/components/hub/WhatsNewBell';
 import { ONE_ON_ONE_CALENDLY_URL } from '@/data/booking';
 
 // ============================================================================
@@ -176,10 +176,9 @@ export default function Index() {
       href: `/knowledge/${a.slug}`,
       isNew: daysUntil(a.date) === 0,
     }));
-  const newsItems: NewsRow[] = [
-    ...recentArticles,
-    ...newThisWeek.map((n) => ({ id: n.id, category: n.category, title: n.title, href: n.href, isNew: false })),
-  ];
+  // Manual announcements live in the What's New feed (the bell); this list is
+  // reading material only.
+  const newsItems: NewsRow[] = recentArticles;
 
   // Worth-reading lead: the featured item (the Market Report) is the showcase.
   // The AEP training drive rides along as a slim secondary CTA while it's live,
@@ -219,13 +218,16 @@ export default function Index() {
           <div className="hub-date">{dateStr} · Updated weekly</div>
           <h1 className="hub-h1">Here's what matters this week.</h1>
         </div>
-        <div className="hub-aep" role="status">
-          🗓{' '}
-          {inAep ? (
-            <>AEP: <b>{daysLeftAep <= 0 ? 'last day' : `${daysLeftAep} days left`}</b></>
-          ) : (
-            <>AEP in <b>{daysToAep} days</b></>
-          )}
+        <div className="hub-head__r">
+          <WhatsNewBell />
+          <div className="hub-aep" role="status">
+            🗓{' '}
+            {inAep ? (
+              <>AEP: <b>{daysLeftAep <= 0 ? 'last day' : `${daysLeftAep} days left`}</b></>
+            ) : (
+              <>AEP in <b>{daysToAep} days</b></>
+            )}
+          </div>
         </div>
       </header>
 
@@ -297,6 +299,7 @@ const CSS = `
 .hub-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-shrink:0; margin-bottom:14px; }
 .hub-date{ font-size:12px; color:var(--muted); }
 .hub-h1{ font-size:23px; font-weight:700; letter-spacing:-.02em; margin:1px 0 0; }
+.hub-head__r{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .hub-aep{ display:inline-flex; align-items:center; gap:6px; background:var(--em); color:var(--bone);
   padding:8px 14px; border-radius:24px; font-size:12.5px; flex-shrink:0; }
 .hub-aep b{ color:var(--gold); }

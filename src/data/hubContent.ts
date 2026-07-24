@@ -8,7 +8,7 @@
 //   • dockLinks              → ⚡ the tool dock (always visible row)
 //   • events live in src/data/calendarContent.ts (one list feeds the
 //     Calendar page AND the hub home's Upcoming card)
-//   • newThisWeek            → 🆕 New this week
+//   • announcements live in src/data/whatsNew.ts (the 🔔 What's New bell)
 //
 // Dates are 'YYYY-MM-DD'. Keep the board to 3–5 items max — it's a bulletin,
 // not a backlog.
@@ -122,19 +122,9 @@ export const dockLinks = [
 // src/data/calendarContent.ts — one list feeds the Calendar page and the
 // hub home's "Upcoming" card.
 
-// ── New this week ────────────────────────────────────────────────────────────
-export interface NewItem {
-  id: string;
-  category: "Playbook" | "Form" | "CMS" | "Carrier" | "Training" | "Update";
-  title: string;
-  href?: string; // optional link (in-app route or URL)
-}
-
-export const newThisWeek: NewItem[] = [
-  // Add what changed this week. Example shape:
-  // { id: "t65-script", category: "Playbook", title: "T65 outreach script that converts" },
-  // { id: "soa-2027", category: "Form", title: "2027 SOA (updated)", href: "/forms-library" },
-];
+// ── Announcements ────────────────────────────────────────────────────────────
+// Moved to src/data/whatsNew.ts — the running notification log behind the hub's
+// 🔔 What's New bell. Add one dated entry there whenever something new drops.
 
 // ── AEP countdown ────────────────────────────────────────────────────────────
 // Oct 15 of the current year; flips to "days left in AEP" during Oct 15–Dec 7.
