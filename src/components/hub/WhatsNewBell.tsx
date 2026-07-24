@@ -7,18 +7,20 @@ import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 // ============================================================================
 // WHAT'S NEW BELL — the hub's notification center.
 // ----------------------------------------------------------------------------
-// A bell in the hub header with a gold count of what this browser hasn't seen,
-// opening a running, dated, newest-first log: manual entries from
-// src/data/whatsNew.ts merged with published articles. Nothing is ever
-// removed; items simply lose their "New" chip once seen.
+// A bell in the hub header with a gold count of unread items, opening a
+// running, dated, newest-first log: manual entries from src/data/whatsNew.ts
+// merged with published articles. Nothing is ever removed; items simply lose
+// their "New" chip once read.
 //
-// "Seen" is per-browser via localStorage (shared-login MVP, same approach as
-// the AEP training board): we store the date the panel was last closed. An
-// item is NEW when it's newer than that date AND at most NEW_WINDOW_DAYS old,
-// so a first visit or a long absence never opens to a wall of flags.
+// Read state is PER ITEM, per browser (localStorage; shared-login MVP, same
+// approach as the AEP training board). An item is marked read when the agent
+// clicks its link, hits its ✓ button, or uses "Mark all as read" — never just
+// because the panel was opened. Backstop: an item older than NEW_WINDOW_DAYS
+// stops counting as new even if unclicked, so one ignored item can't leave a
+// permanent badge; it stays in the log either way.
 // ============================================================================
 
-const SEEN_KEY = 'tig-whatsnew-seen'; // 'YYYY-MM-DD' the panel was last closed
+const READ_KEY = 'tig-whatsnew-read'; // JSON array of read item ids
 const NEW_WINDOW_DAYS = 30;
 const MAX_ROWS = 60;
 
@@ -29,10 +31,6 @@ interface FeedRow {
   title: string;
   note?: string;
   href?: string;
-}
-
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function ageInDays(iso: string): number {
@@ -71,47 +69,35 @@ function buildFeed(): FeedRow[] {
     .slice(0, MAX_ROWS);
 }
 
-function isNewSince(date: string, seen: string | null): boolean {
-  if (ageInDays(date) > NEW_WINDOW_DAYS) return false;
-  return !seen || date > seen;
-}
-
-function Row({ row, isNew }: { row: FeedRow; isNew: boolean }) {
-  const inner = (
-    <>
-      <div className="wn-row__top">
-        <span className="wn-row__cat">{row.category}</span>
-        {isNew && <span className="wn-row__new">New</span>}
-        <span className="wn-row__date">{formatDate(row.date)}</span>
-      </div>
-      <div className="wn-row__t">{row.title}</div>
-      {row.note && <div className="wn-row__n">{row.note}</div>}
-    </>
-  );
-  const cls = `wn-row${isNew ? ' wn-row--new' : ''}${row.href ? ' wn-row--link' : ''}`;
-  if (!row.href) return <div className={cls}>{inner}</div>;
-  return row.href.startsWith('http') ? (
-    <a className={cls} href={row.href} target="_blank" rel="noopener noreferrer">{inner}</a>
-  ) : (
-    <Link className={cls} to={row.href}>{inner}</Link>
-  );
+function loadRead(): Set<string> {
+  try {
+    const raw = localStorage.getItem(READ_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(arr) ? arr.filter((x) => typeof x === 'string') : []);
+  } catch {
+    return new Set();
+  }
 }
 
 export function WhatsNewBell() {
   const [open, setOpen] = useState(false);
-  // Frozen at mount so the chips stay visible while browsing this session;
-  // updated when the panel closes so the badge clears immediately.
-  const [seen, setSeen] = useState<string | null>(() => {
-    try { return localStorage.getItem(SEEN_KEY); } catch { return null; }
-  });
-
   const feed = useMemo(buildFeed, []);
-  const unseenCount = feed.filter((r) => isNewSince(r.date, seen)).length;
+  const [read, setRead] = useState<Set<string>>(loadRead);
 
-  const close = () => {
-    try { localStorage.setItem(SEEN_KEY, todayKey()); } catch { /* private mode */ }
-    setSeen(todayKey());
-    setOpen(false);
+  const isUnread = (r: FeedRow) => ageInDays(r.date) <= NEW_WINDOW_DAYS && !read.has(r.id);
+  const unreadCount = feed.filter(isUnread).length;
+
+  const markRead = (ids: string[]) => {
+    setRead((prev) => {
+      const next = new Set(prev);
+      ids.forEach((id) => next.add(id));
+      // Persist only ids still in the feed so the stored list can't grow forever.
+      const feedIds = new Set(feed.map((r) => r.id));
+      try {
+        localStorage.setItem(READ_KEY, JSON.stringify([...next].filter((id) => feedIds.has(id))));
+      } catch { /* private mode */ }
+      return next;
+    });
   };
 
   return (
@@ -121,29 +107,57 @@ export function WhatsNewBell() {
         type="button"
         className="wn-bell"
         onClick={() => setOpen(true)}
-        aria-label={unseenCount > 0 ? `What's new, ${unseenCount} unread` : "What's new"}
+        aria-label={unreadCount > 0 ? `What's new, ${unreadCount} unread` : "What's new"}
       >
         <span aria-hidden="true">🔔</span>
-        {unseenCount > 0 && (
+        {unreadCount > 0 && (
           <span className="wn-bell__count" aria-hidden="true">
-            {unseenCount > 9 ? '9+' : unseenCount}
+            {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
-      {open && <Panel feed={feed} seen={seen} onClose={close} />}
+      {open && (
+        <Panel
+          feed={feed}
+          isUnread={isUnread}
+          unreadCount={unreadCount}
+          onRead={(id) => markRead([id])}
+          onReadAll={() => markRead(feed.filter(isUnread).map((r) => r.id))}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </>
   );
 }
 
-function Panel({ feed, seen, onClose }: { feed: FeedRow[]; seen: string | null; onClose: () => void }) {
+function Panel({
+  feed,
+  isUnread,
+  unreadCount,
+  onRead,
+  onReadAll,
+  onClose,
+}: {
+  feed: FeedRow[];
+  isUnread: (r: FeedRow) => boolean;
+  unreadCount: number;
+  onRead: (id: string) => void;
+  onReadAll: () => void;
+  onClose: () => void;
+}) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const fresh = feed.filter((r) => isNewSince(r.date, seen));
-  const older = feed.filter((r) => !isNewSince(r.date, seen));
+  // Freeze the fresh/older grouping at open so rows don't jump around as the
+  // agent marks things read; the chips and badge still update live.
+  const [freshIds] = useState<Set<string>>(
+    () => new Set(feed.filter(isUnread).map((r) => r.id))
+  );
+  const fresh = feed.filter((r) => freshIds.has(r.id));
+  const older = feed.filter((r) => !freshIds.has(r.id));
 
   return (
     <div className="wn-modal" role="dialog" aria-modal="true" aria-labelledby="wn-title" onClick={onClose}>
@@ -151,21 +165,74 @@ function Panel({ feed, seen, onClose }: { feed: FeedRow[]; seen: string | null; 
         <button className="wn-modal__x" onClick={onClose} aria-label="Close">×</button>
         <div className="wn-modal__kicker">🔔 What's New</div>
         <h2 className="wn-modal__title" id="wn-title">
-          {fresh.length > 0 ? `${fresh.length} new since your last check` : "You're all caught up"}
+          {unreadCount > 0 ? `${unreadCount} new since your last check` : "You're all caught up"}
         </h2>
         <p className="wn-modal__note">
-          A running log of everything we add or update: forms, events, carrier news, features, and articles. Newest first.
+          A running log of everything we add or update: forms, events, carrier news, features, and articles.
+          Open an item or tap its ✓ to mark it read.
         </p>
+        {unreadCount > 0 && (
+          <button type="button" className="wn-markall" onClick={onReadAll}>
+            ✓ Mark all as read
+          </button>
+        )}
 
         <div className="wn-list">
-          {fresh.map((r) => <Row key={r.id} row={r} isNew />)}
+          {fresh.map((r) => (
+            <Row key={r.id} row={r} unread={isUnread(r)} onRead={onRead} />
+          ))}
           {fresh.length > 0 && older.length > 0 && (
-            <div className="wn-caughtup" aria-hidden="true"><span>you're caught up</span></div>
+            <div className="wn-caughtup" aria-hidden="true"><span>earlier</span></div>
           )}
-          {older.map((r) => <Row key={r.id} row={r} isNew={false} />)}
+          {older.map((r) => (
+            <Row key={r.id} row={r} unread={false} onRead={onRead} />
+          ))}
           {feed.length === 0 && <div className="wn-empty">Nothing posted yet. Check back soon.</div>}
         </div>
       </div>
+    </div>
+  );
+}
+
+function Row({ row, unread, onRead }: { row: FeedRow; unread: boolean; onRead: (id: string) => void }) {
+  const body = (
+    <>
+      <div className="wn-row__top">
+        <span className="wn-row__cat">{row.category}</span>
+        {unread && <span className="wn-row__new">New</span>}
+        <span className="wn-row__date">{formatDate(row.date)}</span>
+      </div>
+      <div className="wn-row__t">{row.title}</div>
+      {row.note && <div className="wn-row__n">{row.note}</div>}
+    </>
+  );
+  const mainCls = `wn-row__main${row.href ? ' wn-row__main--link' : ''}`;
+  return (
+    <div className={`wn-row${unread ? ' wn-row--new' : ''}`}>
+      {row.href ? (
+        row.href.startsWith('http') ? (
+          <a className={mainCls} href={row.href} target="_blank" rel="noopener noreferrer" onClick={() => onRead(row.id)}>
+            {body}
+          </a>
+        ) : (
+          <Link className={mainCls} to={row.href} onClick={() => onRead(row.id)}>
+            {body}
+          </Link>
+        )
+      ) : (
+        <div className={mainCls}>{body}</div>
+      )}
+      {unread && (
+        <button
+          type="button"
+          className="wn-row__check"
+          onClick={() => onRead(row.id)}
+          aria-label={`Mark "${row.title}" as read`}
+          title="Mark as read"
+        >
+          ✓
+        </button>
+      )}
     </div>
   );
 }
@@ -195,14 +262,18 @@ const CSS = `
 .wn-modal__kicker{ font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#A8801F; }
 .wn-modal__title{ font-size:21px; font-weight:700; letter-spacing:-.02em; margin:6px 0 0; padding-right:30px; }
 .wn-modal__note{ font-size:12.5px; line-height:1.55; color:#6b6457; margin:8px 0 0; }
+.wn-markall{ margin-top:12px; font-family:inherit; font-size:11.5px; font-weight:700; color:#A8801F; cursor:pointer;
+  background:rgba(201,168,76,.1); border:1px solid rgba(201,168,76,.45); border-radius:8px; padding:7px 13px; transition:.15s; }
+.wn-markall:hover{ background:rgba(201,168,76,.18); border-color:#C9A84C; }
 
 /* list */
-.wn-list{ margin-top:16px; display:flex; flex-direction:column; gap:7px; }
-.wn-row{ display:block; background:#faf8f2; border:1px solid #e7e0cf; border-radius:11px; padding:10px 13px;
-  text-decoration:none; color:#1b2620; transition:.15s; }
+.wn-list{ margin-top:14px; display:flex; flex-direction:column; gap:7px; }
+.wn-row{ display:flex; align-items:flex-start; gap:9px; background:#faf8f2; border:1px solid #e7e0cf; border-radius:11px;
+  padding:10px 13px; transition:background .2s, border-color .2s; }
 .wn-row--new{ background:rgba(201,168,76,.09); border-color:rgba(201,168,76,.5); }
-.wn-row--link:hover{ border-color:#C9A84C; }
-.wn-row--link:hover .wn-row__t{ color:#A8801F; }
+.wn-row__main{ flex:1; min-width:0; display:block; text-decoration:none; color:#1b2620; }
+.wn-row__main--link{ cursor:pointer; }
+.wn-row__main--link:hover .wn-row__t{ color:#A8801F; }
 .wn-row__top{ display:flex; align-items:center; gap:7px; }
 .wn-row__cat{ font-size:9px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#A8801F; }
 .wn-row__new{ background:#C9A84C; color:#1b2620; font-size:8px; font-weight:800; letter-spacing:.05em;
@@ -210,8 +281,12 @@ const CSS = `
 .wn-row__date{ margin-left:auto; font-size:10px; color:#928b7c; flex-shrink:0; }
 .wn-row__t{ font-size:12.5px; font-weight:700; margin-top:3px; line-height:1.3; transition:color .15s; }
 .wn-row__n{ font-size:11px; color:#6b6457; line-height:1.45; margin-top:2px; }
+.wn-row__check{ flex-shrink:0; width:26px; height:26px; margin-top:1px; border-radius:8px; cursor:pointer;
+  border:1px solid rgba(201,168,76,.55); background:#fff; color:#A8801F; font-size:13px; line-height:1;
+  font-family:inherit; transition:.15s; }
+.wn-row__check:hover{ background:#C9A84C; color:#1b2620; border-color:#C9A84C; }
 
-/* caught-up divider */
+/* divider between the fresh group and earlier items */
 .wn-caughtup{ display:flex; align-items:center; gap:10px; padding:4px 0; }
 .wn-caughtup:before, .wn-caughtup:after{ content:""; flex:1; height:1px; background:#e7e0cf; }
 .wn-caughtup span{ font-size:9px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#928b7c; }

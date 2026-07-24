@@ -815,11 +815,13 @@ everything added or updated: manual entries from `src/data/whatsNew.ts` merged
 automatically with published articles. Nothing is ever deleted; the log is the
 permanent "did I miss anything?" answer.
 
-- **"New" is per-broker, not per-day.** An item is flagged (and counted in the
-  badge) until that browser closes the panel, then it clears. Seen state lives
-  in localStorage (shared-login MVP, the same approach as the AEP training
-  board). Backstop: anything older than **30 days** never counts as new, so a
-  first visit or long absence doesn't open to a wall of flags.
+- **"New" is per-item, per-broker.** An item stays flagged (and counted in the
+  badge) until it's read: clicking its link, tapping its ✓ button, or "Mark all
+  as read." Opening the panel alone clears nothing. Read state lives in
+  localStorage (shared-login MVP, the same approach as the AEP training board).
+  Backstop: an item older than **30 days** stops counting as new even if
+  unclicked (it stays in the log), so one ignored item can't leave a permanent
+  badge.
 - **Badge is gold, never red.** Gold is the platform's "new content" signal
   (sidebar dot, "New" chips). Red stays reserved for critical/overdue.
 - **A "you're caught up" divider** separates fresh items from the rest.
