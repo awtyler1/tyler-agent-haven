@@ -807,6 +807,34 @@ owns the *look* (the `.zone*` classes in `Index.tsx`'s scoped CSS). Key props:
 Pass `children` instead of `items` for a fully custom body (Spotlight uses this).
 The frame is still enforced.
 
+### What's New (notifications)
+
+The hub header carries a **bell** (`WhatsNewBell`) with a gold count badge: the
+notification center. It opens a **running, dated, newest-first log** of
+everything added or updated: manual entries from `src/data/whatsNew.ts` merged
+automatically with published articles. Nothing is ever deleted; the log is the
+permanent "did I miss anything?" answer.
+
+- **"New" is per-broker, not per-day.** An item is flagged (and counted in the
+  badge) until that browser closes the panel, then it clears. Seen state lives
+  in localStorage (shared-login MVP, the same approach as the AEP training
+  board). Backstop: anything older than **30 days** never counts as new, so a
+  first visit or long absence doesn't open to a wall of flags.
+- **Badge is gold, never red.** Gold is the platform's "new content" signal
+  (sidebar dot, "New" chips). Red stays reserved for critical/overdue.
+- **A "you're caught up" divider** separates fresh items from the rest.
+
+**The three-home rule** (this is what keeps the board clean):
+
+| Content | Home |
+|---------|------|
+| Needs action by a date | The Board / calendar (`calendarContent.ts`) |
+| Reading material | Worth reading (articles, auto) |
+| "FYI, something new exists" | What's New (`whatsNew.ts`), never the board |
+
+Posting a notification = adding one dated entry to `whatsNew.ts`. Articles
+join the feed automatically, so never add an article there twice.
+
 ### Changing dashboard content
 
 **Edit data, never layout.** Weekly updates happen in `src/data/hubContent.ts`

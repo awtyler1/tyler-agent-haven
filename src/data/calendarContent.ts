@@ -164,6 +164,52 @@ export const calendarEvents: CalEvent[] = [
     category: "tig",
   },
 
+  // ── UHC 2027 Product Overview (save the dates; invitation + links to come) ──
+  {
+    id: "uhc-2027-overview-lexington",
+    date: "2026-09-01",
+    title: "UHC 2027 Product Overview (Lexington)",
+    detail: "11:00 AM–1:00 PM ET · The Signature Club of Lansdowne · Registration required, seating is limited.",
+    description:
+      "UnitedHealthcare's 2027 Product Overview: a closer look at your market's Medicare product lineup and key updates to prepare for AEP. Registration is required and seating is limited. Each attendee must register individually and registration is not transferable; bring your ID or confirmation email for check-in. Watch for the invitation from UHC.",
+    location: "The Signature Club of Lansdowne · 3256 Lansdowne Dr., Lexington, KY 40502",
+    time: "11:00 AM–1:00 PM ET",
+    category: "carrier",
+  },
+  {
+    id: "uhc-2027-overview-owensboro",
+    date: "2026-09-08",
+    title: "UHC 2027 Product Overview (Owensboro)",
+    detail: "11:00 AM–1:00 PM CT · The Miller House · Registration required, seating is limited.",
+    description:
+      "UnitedHealthcare's 2027 Product Overview: a closer look at your market's Medicare product lineup and key updates to prepare for AEP. Registration is required and seating is limited. Each attendee must register individually and registration is not transferable; bring your ID or confirmation email for check-in. Watch for the invitation from UHC.",
+    location: "The Miller House · Owensboro, KY",
+    time: "11:00 AM–1:00 PM CT",
+    category: "carrier",
+  },
+  {
+    id: "uhc-2027-overview-virtual-1",
+    date: "2026-09-22",
+    title: "UHC 2027 Product Overview (Virtual Option 1)",
+    detail: "9:00–10:30 AM CT · Virtual · Join link comes with your invitation.",
+    description:
+      "UnitedHealthcare's 2027 Product Overview, virtual session: your market's Medicare product lineup and key updates to prepare for AEP. Registration is required; each attendee must register individually and registration is not transferable. The join link will be provided before the event. Watch for the invitation from UHC.",
+    location: "Virtual (link provided before the event)",
+    time: "9:00–10:30 AM CT",
+    category: "carrier",
+  },
+  {
+    id: "uhc-2027-overview-virtual-2",
+    date: "2026-09-24",
+    title: "UHC 2027 Product Overview (Virtual Option 2)",
+    detail: "2:00–3:30 PM ET · Virtual · Join link comes with your invitation.",
+    description:
+      "UnitedHealthcare's 2027 Product Overview, virtual session: your market's Medicare product lineup and key updates to prepare for AEP. Registration is required; each attendee must register individually and registration is not transferable. The join link will be provided before the event. Watch for the invitation from UHC.",
+    location: "Virtual (link provided before the event)",
+    time: "2:00–3:30 PM ET",
+    category: "carrier",
+  },
+
   // ── 2027 Certifications ──
   {
     id: "ahip-2027",
