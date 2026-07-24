@@ -817,12 +817,10 @@ permanent "did I miss anything?" answer.
 
 - **"New" is per-item, per-broker.** An item stays flagged (and counted in the
   badge) until it's read: clicking its link, tapping its ✓ button, or "Mark all
-  as read." Opening the panel alone clears nothing.
-- **Read state is durable and follows the agent.** Source of truth is the
-  `whats_new_reads` table in Supabase, keyed by a name the agent enters once in
-  the panel (shared-login MVP; same stored name as the AEP training board).
-  That survives cleared browser storage and syncs across devices. localStorage
-  is only a fast cache and the fallback before a name is set or when offline.
+  as read." Opening the panel alone clears nothing. Read state lives in
+  localStorage (shared-login MVP, the same approach as the AEP training board),
+  so it's per browser/device for now. When real per-agent logins land, read
+  state moves server-side keyed to the account; the UI doesn't change.
   Backstop: an item older than **30 days** stops counting as new even if
   unclicked (it stays in the log), so one ignored item can't leave a permanent
   badge.
