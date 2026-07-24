@@ -815,15 +815,16 @@ everything added or updated: manual entries from `src/data/whatsNew.ts` merged
 automatically with published articles. Nothing is ever deleted; the log is the
 permanent "did I miss anything?" answer.
 
-- **"New" is per-item, per-broker.** An item stays flagged (and counted in the
-  badge) until it's read: clicking its link, tapping its ✓ button, or "Mark all
-  as read." Opening the panel alone clears nothing. Read state lives in
-  localStorage (shared-login MVP, the same approach as the AEP training board),
-  so it's per browser/device for now. When real per-agent logins land, read
-  state moves server-side keyed to the account; the UI doesn't change.
-  Backstop: an item older than **30 days** stops counting as new even if
-  unclicked (it stays in the log), so one ignored item can't leave a permanent
-  badge.
+- **"New" is per-item, and always expires.** An item is flagged (and counted in
+  the badge) while BOTH are true: it's **7 days old or less**, and it hasn't
+  been read (link click, ✓ button, or "Mark all as read"; opening the panel
+  alone clears nothing). The 7-day cutoff is computed from the item's post
+  date, so the badge always resolves itself within a week even where browser
+  storage doesn't persist (private mode, preview iframes). Read state lives in
+  localStorage per browser/device (shared-login MVP, same approach as the AEP
+  training board); when real per-agent logins land it moves server-side keyed
+  to the account with no UI change. Read or aged-out items stay in the log,
+  they just lose the chip.
 - **Badge is gold, never red.** Gold is the platform's "new content" signal
   (sidebar dot, "New" chips). Red stays reserved for critical/overdue.
 - **A "you're caught up" divider** separates fresh items from the rest.

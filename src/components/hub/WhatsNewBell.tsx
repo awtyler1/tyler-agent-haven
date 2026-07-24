@@ -15,13 +15,18 @@ import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 // Read state is PER ITEM, per browser (localStorage; shared-login MVP, same
 // approach as the AEP training board). An item is marked read when the agent
 // clicks its link, hits its ✓ button, or uses "Mark all as read" — never just
-// because the panel was opened. Backstop: an item older than NEW_WINDOW_DAYS
-// stops counting as new even if unclicked, so one ignored item can't leave a
-// permanent badge; it stays in the log either way.
+// because the panel was opened.
+//
+// Hard guarantee: an item stops counting as new NEW_WINDOW_DAYS after its
+// post date no matter what. That's computed from the item's date alone, so
+// even where browser storage doesn't persist (private mode, preview iframes)
+// the badge always resolves itself within a week; it stays in the log either
+// way. Where storage does persist (agents' normal browsers), marking read
+// clears immediately and permanently.
 // ============================================================================
 
 const READ_KEY = 'tig-whatsnew-read'; // JSON array of read item ids
-const NEW_WINDOW_DAYS = 30;
+const NEW_WINDOW_DAYS = 7; // matches the hub's "Updated weekly" rhythm
 const MAX_ROWS = 60;
 
 interface FeedRow {
