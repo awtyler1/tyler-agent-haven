@@ -85,6 +85,17 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'medicare-marketing-rules-2027',
+    title: 'The New Medicare Marketing Rules: What Changes October 1 and How to Rebuild Your Process Around It',
+    excerpt:
+      'On October 1, the 48-hour Scope of Appointment wait dies, the TPMO disclaimer moves, and the wall between educational and sales events comes down. The rules got looser. The winners will be the agents who redesign their process in September, not the ones who merely know the rules changed.',
+    category: 'playbook',
+    author: AUSTIN,
+    date: '2026-07-29',
+    readTime: '7 min read',
+    articleSlug: 'medicare-marketing-rules-2027',
+  },
+  {
     slug: 'part-d-2027-premium-shock',
     title: 'The 2027 Part D Premium Increase: Why It Is Coming and How Agents Get Ahead of It',
     excerpt:

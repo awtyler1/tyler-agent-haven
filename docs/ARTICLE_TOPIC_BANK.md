@@ -48,6 +48,7 @@ Companion to `docs/CONTENT_WORKFLOW.md` (how to ship) and `docs/SEO_GEO_RECRUITI
 | `cms-2027-commissions` | 2027 caps + marketing rule changes |
 | `why-clients-choose-medicare-advantage` | MA growth, trade-offs |
 | `part-d-2027-premium-shock` | Part D demo ending, 2027 premium jump, PDP strategy *(added July 29, 2026)* |
+| `medicare-marketing-rules-2027` | Oct 1, 2026 rule changes: same-day SOA, TPMO timing, event rules, process rebuild *(added July 29, 2026)* |
 
 ---
 
@@ -59,10 +60,9 @@ Timely, weak or stale SERPs, high insider value. Each is a full brief.
 **[I]** · Queries: "why are Part D premiums going up 2027", "Part D premium increase 2027", "Part D premium stabilization demo ending"
 News broke July 28, 2026: CMS ends the premium stabilization demo after 2026. The $10 subsidy and the $50 year-over-year cap disappear, the OOP cap rises to $2,400, deductible to $700. Nobody has the agent-facing piece. Thesis: 2027 is the first year clients see the IRA's real Part D price, and it lands in ANOC season. Pair with the 14% PDP commission raise: CMS is paying agents more to hold the line exactly when the line gets hardest to hold.
 
-### 2. What changed October 1, 2026: the new Medicare marketing rules in one page
+### 2. ~~What changed October 1, 2026: the new Medicare marketing rules~~ ✅ WRITTEN July 29, 2026 (`medicare-marketing-rules-2027`)
 **[I]** · Queries: "48 hour rule scope of appointment eliminated", "SOA same day appointment", "TPMO disclaimer 2027", "medicare marketing rules 2027"
-The CY2027 final rule (April 6, 2026) killed the 48-hour SOA wait, moved the TPMO disclaimer from "first 60 seconds" to "before benefits discussion," dropped the SHIP reference, and removed the 12-hour educational-to-marketing gap. Effective October 1, 2026. Most ranking content still describes the old rules. Angle: not a recap, an operations piece. What your intake flow, phone script, and event calendar should look like on October 2 that they could not look like on September 30. We have one section on this inside `cms-2027-commissions`; this is the standalone, query-matched deep version.
-**Window: publish August, peak searches Aug-Oct.**
+Shipped as the operations piece: same-day SOA flow, TPMO-timing trap for old scripts, same-day event model, what did not change, carrier-overlay caveat.
 
 ### 3. Medicare commission chargebacks: the exceptions nobody explains
 **[C]** · Queries: "rapid disenrollment chargeback", "medicare commission chargeback rules", "chargeback exceptions"
