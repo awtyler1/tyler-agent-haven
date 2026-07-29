@@ -155,13 +155,30 @@ export const calendarEvents: CalEvent[] = [
   {
     id: "tig-team-night-aep-kickoff",
     date: "2026-08-06",
-    title: "TIG Team Night 🍕",
-    detail: "6:00 PM · Goodfellas Distillery (Distillery District) · Team hang before AEP prep — pizza, then we walk the district.",
+    title: "TIG Team Night: Lexington 🍕",
+    detail: "6:00 PM · Goodfellas Distillery (Distillery District) · Now two nights: Lexington Aug 6 or Louisville Aug 13. Come to whichever is closer. RSVP by Aug 3.",
     description:
-      "A team get-together before we dive into AEP prep and the AEP push. We'll meet up for pizza at Goodfellas, then walk to a few more spots around the Distillery District. Come kick off the season with the team.",
+      "A team get-together before we dive into AEP prep and the AEP push. The original plan had everyone coming to Lexington, which meant a long drive for a lot of the team, so we split it into two nights: Lexington on Aug 6 and Louisville on Aug 13. Come to whichever one is closer. For Lexington we'll meet up for pizza at Goodfellas, then walk to a few more spots around the Distillery District. No agenda and no presentation, just food, drinks, and a chance to catch up before AEP prep takes over. RSVP by email to Austin or Andrew by Monday, August 3 with which night you're coming to (or that neither works) so we can lock in headcounts with both venues.",
     location: "Goodfellas Distillery · 1228 Manchester St, Lexington, KY 40504 (Distillery District)",
     time: "6:00 PM ET",
     category: "tig",
+    link: "mailto:austin@tylerinsurancegroup.com,andrew@tylerinsurancegroup.com?subject=Team%20Night%20RSVP",
+    linkLabel: "RSVP to Austin or Andrew",
+    hubBoard: true,
+  },
+  {
+    id: "tig-team-night-louisville",
+    date: "2026-08-13",
+    title: "TIG Team Night: Louisville 🍕",
+    detail: "6:00 PM · Louisville, venue coming soon · The second of two team nights. Come to whichever is closer. RSVP by Aug 3.",
+    description:
+      "The Louisville night of the team get-together before AEP prep takes over. We split the original Lexington-only plan into two nights (Lexington Aug 6, Louisville Aug 13) so nobody has a long drive. Come to whichever one is closer. The Louisville venue is still being finalized and will be posted here as soon as it's locked in. No agenda and no presentation, just food, drinks, and a chance to catch up. RSVP by email to Austin or Andrew by Monday, August 3 with which night you're coming to (or that neither works) so we can lock in headcounts with both venues.",
+    location: "Louisville, KY · Venue being finalized, watch for the update",
+    time: "6:00 PM ET",
+    category: "tig",
+    link: "mailto:austin@tylerinsurancegroup.com,andrew@tylerinsurancegroup.com?subject=Team%20Night%20RSVP",
+    linkLabel: "RSVP to Austin or Andrew",
+    hubBoard: true,
   },
 
   // ── UHC 2027 Product Overview (save the dates; invitation + links to come) ──
