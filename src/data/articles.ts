@@ -51,6 +51,48 @@ const ANDREW = {
 
 export const articles: Article[] = [
   {
+    slug: 'part-d-2027-premium-shock',
+    title: 'The 2027 Part D Premium Increase: Why It Is Coming and How Agents Get Ahead of It',
+    category: 'cms',
+    date: '2026-07-29',
+    readTime: '7 min read',
+    summary:
+      'CMS is ending the Part D premium stabilization demo after 2026. The subsidy and the cap that held drug plan premiums down for two years are gone, right as the deductible and out-of-pocket cap rise. Here is why the sticker shock is coming, and the September playbook for it.',
+    author: ANDREW,
+    takeaways: [
+      'The Part D premium stabilization demo ends after 2026. The $10 monthly subsidy and the $50 cap on year-over-year increases disappear, so standalone drug plan premiums float free for the first time since the IRA redesign.',
+      'The 2027 base beneficiary premium is already set at $41.33, up about 6%, and that is before plans reprice without the subsidy. Final premiums land with ANOCs in late September, and the sticker shock lands with them.',
+      'CMS raised PDP commissions 14% for 2027, to $130 new and $65 renewal. Read the two moves together: drug plans just got harder to defend and better paid at the same time.',
+    ],
+    whatTitle: 'The training wheels come off Part D',
+    what: [
+      { type: 'p', text: 'On July 28, the news broke that CMS will end the Part D premium stabilization demonstration after 2026. If that sentence means nothing to you, it is about to mean a lot to your standalone drug plan clients. The demo is the reason PDP premiums have looked survivable for the past two years. In 2027 it is gone.' },
+      { type: 'h', text: 'What the demo was actually doing' },
+      { type: 'p', text: 'The Inflation Reduction Act rebuilt Part D: the $2,000 cap in 2025, no more donut hole, plans on the hook for far more of the catastrophic phase. That redesign shifted real cost onto plan sponsors, and their first instinct was to price it into premiums. CMS blunted the impact with a demonstration program. In 2025 it cut base premiums by $15 a month and capped any plan\'s year-over-year increase at $35. For 2026 it scaled back to a $10 reduction and a $50 cap.' },
+      { type: 'p', text: 'For 2027: nothing. CMS says sponsors now have enough experience pricing the redesigned benefit and are on their own. Whatever a plan needs to charge, it can charge. The $10 subsidy comes off the top, and there is no ceiling on the increase. Nothing stops a $20 plan from filing at $45.' },
+      { type: 'h', text: 'The early numbers point one direction' },
+      { type: 'p', text: 'The base beneficiary premium for 2027 is $41.33, up from $38.99, about a 6% rise. That is the floor of the story, not the whole of it, because the base number is calculated before the demo money disappears from actual plan pricing. The national average bid came in at $296.05, and Centene, which runs the largest PDP book in the country, told investors that drug cost trend is pushing 2027 subsidies significantly higher. Plan-by-plan premiums will not be public until late September. Our honest read: expect meaningful jumps on many standalone plans, with some outliers that genuinely hurt.' },
+      { type: 'p', text: 'Stack the rest of the 2027 changes on top. The standard deductible rises from $615 to $700. The out-of-pocket cap rises from $2,100 to $2,400. Both are roughly 14% moves, and both hit in January, when clients are already staring at a bigger premium on the ANOC they got in September.' },
+      { type: 'h', text: 'Why this concentrates in standalone PDPs' },
+      { type: 'p', text: 'Medicare Advantage drug coverage has a shock absorber: carriers can spend rebate dollars to hold drug premiums near zero. Standalone PDPs have no such cushion, which is why the market has been consolidating for years. Five sponsors now hold roughly 94% of standalone drug plans, several carriers have exited entirely, and some of the remaining ones stopped paying agent commissions on PDP business altogether. The clients left in standalone plans are disproportionately the ones on Original Medicare with a Med Supp: your highest-retention, highest-value relationships.' },
+      { type: 'p', text: 'That is the trap in treating this as a small-dollar problem. The premium is small. The relationship attached to it is not. A Med Supp client who gets a shocking drug plan letter and calls a stranger about it is one conversation away from that stranger reviewing everything else they have.' },
+      { type: 'h', text: 'The commission signal' },
+      { type: 'p', text: 'Now hold the other headline next to this one. For 2027, CMS raised the PDP commission 14%, to $130 for a new enrollment and $65 for a renewal, the biggest raise on the board, as we covered in our 2027 commission changes piece. CMS is not subtle. It ended the subsidy that kept drug plans comfortable and simultaneously raised the pay for the people who help seniors navigate them. The bet is that agents, not press releases, will absorb the shock. For once the incentive points exactly at the work that needs doing.' },
+    ],
+    why: [
+      'The premium call is coming whether you place it or receive it. When the ANOCs land in late September, every standalone PDP client in your book gets a letter with a bigger number on it, and the IRA headlines they will see promise the opposite of what the letter says. The agent who calls first, with the reason and a plan, keeps the client. The agent who waits inherits a panicked voicemail, or silence and a lost renewal.',
+      'This is also the year the drug plan conversation stops being an afterthought economically. At $130 new and $65 renewal, a PDP review season pays real money for the first time, and it protects the Med Supp and MA renewals sitting behind those clients. Servicing the drug plan is book defense with a commission attached.',
+    ],
+    actions: [
+      'Pull your standalone PDP list now and sort it by carrier. When September premiums drop, you will know within a day which segment of your book got hit hardest and who gets called first.',
+      'Pre-write the two-sentence explanation: "A federal subsidy that was holding drug plan premiums down ends this year, so most plans are going up. The cap on your total drug costs still protects you at $2,400, and we will make sure you are on the right plan before December 7."',
+      'Do not premium-shop reflexively. A cheaper premium with the $700 deductible and a worse formulary can cost more than the increase. Run the actual drug list every time, especially with 15 more negotiated drug prices landing January 1.',
+      'Flag clients with heavy early-year drug costs for the Medicare Prescription Payment Plan. Spreading $2,400 across twelve months softens exactly the January sting this redesign creates. Our M3P one-pager has the script.',
+      'Set a calendar reminder for late September: final 2027 premiums and the plan landscape publish then, and that is when this article\'s numbers get real. We will update our AEP briefing when they do.',
+    ],
+    sources: 'CMS 2027 Part D national average bid and base beneficiary premium ($296.05 / $41.33); CMS CY2027 Part D parameters ($2,400 OOP cap, $700 deductible); CMS CY2027 agent/broker compensation memo ($130/$65 PDP); WSJ and Reuters reporting on the premium stabilization demonstration ending, July 28, 2026; Centene Q2 2026 earnings call.',
+  },
+  {
     slug: 'medicare-prescription-payment-plan-m3p',
     title: 'The Medicare Prescription Payment Plan: a one-pager for helping clients spread drug costs',
     category: 'cms',

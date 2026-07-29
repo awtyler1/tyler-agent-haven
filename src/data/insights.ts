@@ -85,6 +85,17 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'part-d-2027-premium-shock',
+    title: 'The 2027 Part D Premium Increase: Why It Is Coming and How Agents Get Ahead of It',
+    excerpt:
+      'CMS is ending the Part D premium stabilization demo after 2026. The subsidy and the cap that held drug plan premiums down for two years are gone, right as the deductible and out-of-pocket cap rise. Here is why the sticker shock is coming, and the September playbook for it.',
+    category: 'industry',
+    author: ANDREW,
+    date: '2026-07-29',
+    readTime: '7 min read',
+    articleSlug: 'part-d-2027-premium-shock',
+  },
+  {
     slug: 'who-owns-your-book',
     title: 'Who owns your book of business? A straight answer for Medicare agents',
     excerpt:
