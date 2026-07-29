@@ -150,7 +150,10 @@ export default function Index() {
   // Board bulletins are richer (why-it-matters + a CTA), so when a bulletin and a
   // calendar event describe the same thing, we keep the bulletin and drop the
   // event. That's what removes the "Aetna shows twice" duplication.
-  const pins = boardItems;
+  // Bulletins with a `date` auto-drop the day after it passes (they show
+  // through their date, then disappear); undated bulletins stay until removed
+  // from hubContent.ts.
+  const pins = boardItems.filter((b) => !b.date || b.date >= todayKey);
   const pinNorms = pins.map((b) => norm(b.title));
   const upcoming = calendarEvents
     .filter((e) => {
