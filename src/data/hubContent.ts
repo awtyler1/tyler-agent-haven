@@ -25,7 +25,10 @@ export interface BoardItem {
   details?: string[]; // optional bullet points under the note
   /** Big right-side label, e.g. 'Jun 30' or 'Open'. */
   when: string;
-  /** Optional date used to auto-compute "N days" under `when`. */
+  /** Optional date used to auto-compute "N days" under `when`. Items with a
+   *  `date` also auto-drop from the hub the day AFTER it passes, so always set
+   *  it for dated items — no manual cleanup needed. Undated items (e.g.
+   *  kind: 'open') stay until removed here. */
   date?: string; // 'YYYY-MM-DD'
   /** Small label under `when` when no date is given, e.g. 'go early'. */
   whenSub?: string;
@@ -102,16 +105,6 @@ export const boardItems: BoardItem[] = [
     date: "2026-08-03",
     link: "mailto:austin@tylerinsurancegroup.com,andrew@tylerinsurancegroup.com?subject=Team%20Night%20RSVP",
     linkLabel: "RSVP by email",
-  },
-  {
-    id: "aetna-first-look-bid-mechanics",
-    kind: "action",
-    title: "Aetna First Look + Bid Mechanics, Jul 28 at 10 AM ET",
-    note: "This year's First Look adds a Bid Mechanics segment: a behind-the-scenes look at how carriers build and rebuild MAPD plans. Brunch & Learn at the Signature Club of Lansdowne. Seating is limited, so register ahead.",
-    when: "Jul 28",
-    whenSub: "register now",
-    link: "https://AetnaMedicareAgentTraining.com",
-    linkLabel: "Register now (seating is limited)",
   },
 ];
 
