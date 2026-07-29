@@ -37,7 +37,7 @@ export interface BoardItem {
 
 export const boardMeta = {
   postedBy: "Austin & Andrew",
-  postedOn: "2026-07-20", // update when you refresh the board
+  postedOn: "2026-07-29", // update when you refresh the board
 };
 
 // ── Season banner ────────────────────────────────────────────────────────────
@@ -93,6 +93,16 @@ export const welcome = {
 //     linkLabel: "Join the call",
 //   },
 export const boardItems: BoardItem[] = [
+  {
+    id: "team-night-rsvp",
+    kind: "action",
+    title: "Team Night is now two nights. Pick yours and RSVP by Aug 3.",
+    note: "We split the get-together so nobody has a long drive: Lexington Thu Aug 6 (Goodfellas Distillery) or Louisville Thu Aug 13 (venue coming soon), both at 6 PM. No agenda, just food, drinks, and the team before AEP prep. Email Austin or Andrew with which night you're coming to, or that neither works, so we can lock in headcounts.",
+    when: "Aug 3",
+    date: "2026-08-03",
+    link: "mailto:austin@tylerinsurancegroup.com,andrew@tylerinsurancegroup.com?subject=Team%20Night%20RSVP",
+    linkLabel: "RSVP by email",
+  },
   {
     id: "aetna-first-look-bid-mechanics",
     kind: "action",

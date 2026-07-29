@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "team-night-two-nights",
+    date: "2026-07-29",
+    category: "Event",
+    title: "Team Night is now two nights: Lexington Aug 6, Louisville Aug 13",
+    note: "We split the get-together so nobody has a long drive. Come to whichever is closer. RSVP by email to Austin or Andrew by Mon, Aug 3.",
+    href: "/calendar",
+  },
+  {
     id: "uhc-2027-overview-dates",
     date: "2026-07-22",
     category: "Carrier",
