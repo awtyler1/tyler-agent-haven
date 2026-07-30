@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "humana-2027-dates",
+    date: "2026-07-30",
+    category: "Carrier",
+    title: "Humana 2027: First Look Aug 14, rollouts Sept 16 (Louisville) and 17 (Lexington)",
+    note: "From today's call with Samantha Stevenson. Order materials by Aug 14 for Sept 30 delivery, and 2027 certification is open now. All on the calendar.",
+    href: "/calendar",
+  },
+  {
     id: "team-night-two-nights",
     date: "2026-07-29",
     category: "Event",

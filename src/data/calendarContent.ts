@@ -151,6 +151,16 @@ export const calendarEvents: CalEvent[] = [
     link: "https://teams.microsoft.com/meet/28156652203712?p=J4a2QI3GLb32GhonW6",
     linkLabel: "Join the call",
     hubBoard: true,
+    recap: {
+      summary:
+        "Samantha walked through Humana's market position and the dates that matter between now and AEP. All four dates below are on the calendar.",
+      points: [
+        "Humana First Look is targeted for August 14. Humana flagged the date with an asterisk, so treat it as a target that could shift.",
+        "2027 AEP Rollout meetings: Louisville on September 16, Lexington on September 17.",
+        "Order enrollment materials by August 14 to have them delivered by September 30.",
+        "Humana 2027 certification is open now. Knock it out early.",
+      ],
+    },
   },
   {
     id: "tig-team-night-aep-kickoff",
@@ -179,6 +189,46 @@ export const calendarEvents: CalEvent[] = [
     link: "mailto:austin@tylerinsurancegroup.com,andrew@tylerinsurancegroup.com?subject=Team%20Night%20RSVP",
     linkLabel: "RSVP to Austin or Andrew",
     hubBoard: true,
+  },
+
+  // ── Humana 2027 dates (from the Jul 30 call with Samantha Stevenson) ──
+  {
+    id: "humana-first-look-2027",
+    date: "2026-08-14",
+    title: "Humana First Look 👀",
+    detail: "Humana's 2027 First Look drops. Humana's target date, could shift.",
+    description:
+      "Humana's First Look at 2027 benefits is expected today. Humana flagged the date with an asterisk on their slide, so treat it as a target rather than a lock. We'll pass along access details as soon as Humana sends them.",
+    category: "carrier",
+  },
+  {
+    id: "humana-material-order-deadline",
+    date: "2026-08-14",
+    title: "Humana material order deadline 📦",
+    detail: "Order enrollment materials by today for delivery by Sept 30.",
+    description:
+      "Last day to order Humana enrollment materials and still have them delivered by September 30. Order by today so your kits are in hand well before AEP opens.",
+    category: "deadline",
+  },
+  {
+    id: "humana-aep-rollout-louisville",
+    date: "2026-09-16",
+    title: "Humana 2027 AEP Rollout (Louisville)",
+    detail: "Louisville rollout of Humana's 2027 AEP lineup. Time and venue to come.",
+    description:
+      "Humana's 2027 AEP Rollout for the Louisville market: the plan lineup and key updates heading into AEP. Time and venue details will be posted here once Humana sends them.",
+    location: "Louisville, KY · Details to come from Humana",
+    category: "carrier",
+  },
+  {
+    id: "humana-aep-rollout-lexington",
+    date: "2026-09-17",
+    title: "Humana 2027 AEP Rollout (Lexington)",
+    detail: "Lexington rollout of Humana's 2027 AEP lineup. Time and venue to come.",
+    description:
+      "Humana's 2027 AEP Rollout for the Lexington market: the plan lineup and key updates heading into AEP. Time and venue details will be posted here once Humana sends them.",
+    location: "Lexington, KY · Details to come from Humana",
+    category: "carrier",
   },
 
   // ── UHC 2027 Product Overview (save the dates; invitation + links to come) ──
@@ -228,6 +278,16 @@ export const calendarEvents: CalEvent[] = [
   },
 
   // ── 2027 Certifications ──
+  {
+    id: "humana-cert-2027",
+    date: "2026-07-30",
+    title: "Humana 2027 certification open 🎓",
+    detail: "Certify with Humana for 2027, open now",
+    description:
+      "Humana's 2027 certification is open. AHIP comes first, then knock out Humana early so you're Ready to Sell well before AEP.",
+    time: "Available now",
+    category: "cert",
+  },
   {
     id: "ahip-2027",
     date: "2026-06-22",
