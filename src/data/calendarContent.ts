@@ -60,6 +60,10 @@ export interface CalEvent {
    *  7 days out. Use for meetings worth flagging early. Normal events only
    *  appear on the board once they're inside the next 7 days. */
   hubBoard?: boolean;
+  /** Keep this event OFF the hub "This Week" board entirely (it still shows on
+   *  the Calendar page). Use when the hub already covers it elsewhere, e.g. a
+   *  cert entry that would double up with the season banner. */
+  hubHide?: boolean;
 }
 
 export const CATEGORY_META: Record<EventCategory, { label: string; color: string; dashed?: boolean }> = {
@@ -287,6 +291,7 @@ export const calendarEvents: CalEvent[] = [
       "Humana's 2027 certification is open. AHIP comes first, then knock out Humana early so you're Ready to Sell well before AEP.",
     time: "Available now",
     category: "cert",
+    hubHide: true, // cert season banner already covers this on the hub
   },
   {
     id: "ahip-2027",

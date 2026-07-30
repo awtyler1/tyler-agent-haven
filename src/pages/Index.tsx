@@ -158,6 +158,7 @@ export default function Index() {
   const upcoming = calendarEvents
     .filter((e) => {
       if (e.date < todayKey) return false;
+      if (e.hubHide) return false; // opted out of the hub board
       if (e.category === 'cert') return true;
       if (e.hubBoard) return true; // flagged to surface early
       return e.date <= weekKey;
