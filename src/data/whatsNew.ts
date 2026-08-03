@@ -34,8 +34,8 @@ export const whatsNew: WhatsNewItem[] = [
     id: "devoted-rollout-2027-lexington",
     date: "2026-08-03",
     category: "Carrier",
-    title: "Devoted Broker Rollout 2027: Lexington, Aug 27 at 10 AM",
-    note: "Meet the local Devoted team and review 2027 benefits at CenterWell Senior Primary Care. Registration link is on the calendar.",
+    title: "Devoted Broker Rollout 2027: four sessions, pick your city and date",
+    note: "Louisville Aug 25 or Sept 24, Lexington Aug 27 or Sept 23, all at CenterWell Senior Primary Care. Registration links are on the calendar.",
     href: "/calendar",
   },
   {
