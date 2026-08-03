@@ -48,7 +48,7 @@ export const boardMeta = {
 // and points to the depth — it does NOT repeat the AHIP/RTS detail (that lives on
 // the Certifications page). Flip show:false when cert season winds down.
 export const season = {
-  show: true,
+  show: false,
   emoji: "🎓",
   title: "It's cert season: AHIP, carrier certs, and Ready to Sell.",
   body: "AHIP 2027 is out. Get certified and Ready to Sell before AEP opens Oct 15.",
@@ -95,18 +95,7 @@ export const welcome = {
 //     link: "https://teams.microsoft.com/...",
 //     linkLabel: "Join the call",
 //   },
-export const boardItems: BoardItem[] = [
-  {
-    id: "team-night-rsvp",
-    kind: "action",
-    title: "Team Night is now two nights. Pick yours and RSVP by Aug 3.",
-    note: "We split the get-together so nobody has a long drive: Lexington Thu Aug 6 (Goodfellas Distillery) or Louisville Thu Aug 13 (venue coming soon), both at 6 PM. No agenda, just food, drinks, and the team before AEP prep. Email Austin or Andrew with which night you're coming to, or that neither works, so we can lock in headcounts.",
-    when: "Aug 3",
-    date: "2026-08-03",
-    link: "mailto:austin@tylerinsurancegroup.com,andrew@tylerinsurancegroup.com?subject=Team%20Night%20RSVP",
-    linkLabel: "RSVP by email",
-  },
-];
+export const boardItems: BoardItem[] = [];
 
 // ── The Dock (tools) ─────────────────────────────────────────────────────────
 // href: 'http…' opens in a new tab; '/path' is an in-app route.
