@@ -40,6 +40,7 @@ export const forms: FormItem[] = [
   // ── CMS & Compliance (download current versions from cms.gov) ──
   { id: 'soa', category: 'cms', source: 'CMS', name: 'Scope of Appointment (SOA)', description: 'Required before any Medicare Advantage or Part D sales appointment.', file: '/forms/scope-of-appointment.pdf' },
   { id: 'cms-40b', category: 'cms', source: 'CMS', name: 'CMS-40B: Apply for Part B', description: 'Application for enrollment in Medicare Part B.', file: '/forms/cms-40b-part-b-application.pdf' },
+  { id: 'cms-l564', category: 'cms', source: 'CMS', name: 'CMS-L564: Request for Employment Information', description: 'Proof of employer coverage for the Part B Special Enrollment Period. Client fills Section A, employer fills Section B. Submit with the CMS-40B.', file: '/forms/cms-l564-employment-information.pdf' },
   { id: 'tpmo', category: 'cms', source: 'CMS', name: 'TPMO Disclaimer', description: 'Read within the first minute of the call.', file: '/forms/tpmo-disclaimer.pdf' },
   { id: 'medicare-and-you', category: 'cms', source: 'CMS', name: 'Medicare & You Handbook', description: 'The official CMS handbook clients ask for.', year: 2026, file: '/forms/10050-medicare-and-you.pdf' },
 

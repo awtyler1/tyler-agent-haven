@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "cms-l564-added",
+    date: "2026-08-03",
+    category: "Form",
+    title: "New form: CMS-L564, Request for Employment Information",
+    note: "The proof-of-employer-coverage form for Part B Special Enrollment. Pairs with the CMS-40B, both now in the Forms Library.",
+    href: "/forms-library",
+  },
+  {
     id: "devoted-rollout-2027-lexington",
     date: "2026-08-03",
     category: "Carrier",
