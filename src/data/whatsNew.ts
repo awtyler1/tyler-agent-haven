@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "devoted-rollout-2027-lexington",
+    date: "2026-08-03",
+    category: "Carrier",
+    title: "Devoted Broker Rollout 2027: Lexington, Aug 27 at 10 AM",
+    note: "Meet the local Devoted team and review 2027 benefits at CenterWell Senior Primary Care. Registration link is on the calendar.",
+    href: "/calendar",
+  },
+  {
     id: "humana-pre-aep-webinar",
     date: "2026-08-03",
     category: "Carrier",

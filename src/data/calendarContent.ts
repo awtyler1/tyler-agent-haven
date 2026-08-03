@@ -249,6 +249,21 @@ export const calendarEvents: CalEvent[] = [
     category: "carrier",
   },
 
+  // ── Devoted 2027 ──
+  {
+    id: "devoted-broker-rollout-2027-lexington",
+    date: "2026-08-27",
+    title: "Devoted Broker Rollout 2027 (Lexington)",
+    detail: "10 AM–12 PM ET · CenterWell Senior Primary Care, Lexington · Meet the local team + 2027 benefits. Register on Eventbrite.",
+    description:
+      "Devoted Health's 2027 broker rollout for the Lexington market. Meet your local Devoted team, hear about Devoted's mission, history, and growth, review the benefits for the upcoming plan year, and get a look at the Devoted member experience and how they partner with the broker community. Register ahead on Eventbrite with the link below.",
+    location: "CenterWell Senior Primary Care · Lexington, KY",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://www.eventbrite.com/e/devoted-health-broker-rollout-2027-lexington-ky-august-27th-tickets-1993651892478?aff=oddtdtcreator",
+    linkLabel: "Register on Eventbrite",
+  },
+
   // ── UHC 2027 Product Overview (save the dates; invitation + links to come) ──
   {
     id: "uhc-2027-overview-lexington",
