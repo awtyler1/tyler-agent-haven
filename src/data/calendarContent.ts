@@ -249,18 +249,56 @@ export const calendarEvents: CalEvent[] = [
     category: "carrier",
   },
 
-  // ── Devoted 2027 ──
+  // ── Devoted 2027 broker rollouts (two rounds per city; register per session) ──
+  {
+    id: "devoted-broker-rollout-2027-louisville",
+    date: "2026-08-25",
+    title: "Devoted Broker Rollout 2027 (Louisville)",
+    detail: "10 AM–12 PM ET · CenterWell Senior Primary Care, Louisville · Meet the local team + 2027 benefits. Register on Eventbrite.",
+    description:
+      "Devoted Health's 2027 broker rollout for the Louisville market. Meet your local Devoted team, hear about Devoted's mission, history, and growth, review the benefits for the upcoming plan year, and get a look at the Devoted member experience and how they partner with the broker community. A second Louisville session runs September 24 if this date doesn't work. Register ahead on Eventbrite with the link below.",
+    location: "CenterWell Senior Primary Care · Louisville, KY",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://www.eventbrite.com/e/devoted-health-broker-rollout-2027-louisville-ky-august-25th-tickets-1993650151270?aff=oddtdtcreator",
+    linkLabel: "Register on Eventbrite",
+  },
   {
     id: "devoted-broker-rollout-2027-lexington",
     date: "2026-08-27",
     title: "Devoted Broker Rollout 2027 (Lexington)",
     detail: "10 AM–12 PM ET · CenterWell Senior Primary Care, Lexington · Meet the local team + 2027 benefits. Register on Eventbrite.",
     description:
-      "Devoted Health's 2027 broker rollout for the Lexington market. Meet your local Devoted team, hear about Devoted's mission, history, and growth, review the benefits for the upcoming plan year, and get a look at the Devoted member experience and how they partner with the broker community. Register ahead on Eventbrite with the link below.",
+      "Devoted Health's 2027 broker rollout for the Lexington market. Meet your local Devoted team, hear about Devoted's mission, history, and growth, review the benefits for the upcoming plan year, and get a look at the Devoted member experience and how they partner with the broker community. A second Lexington session runs September 23 if this date doesn't work. Register ahead on Eventbrite with the link below.",
     location: "CenterWell Senior Primary Care · Lexington, KY",
     time: "10:00 AM–12:00 PM ET",
     category: "carrier",
     link: "https://www.eventbrite.com/e/devoted-health-broker-rollout-2027-lexington-ky-august-27th-tickets-1993651892478?aff=oddtdtcreator",
+    linkLabel: "Register on Eventbrite",
+  },
+  {
+    id: "devoted-broker-rollout-2027-lexington-2",
+    date: "2026-09-23",
+    title: "Devoted Broker Rollout 2027 (Lexington, Round 2)",
+    detail: "11 AM–1 PM ET · CenterWell Senior Primary Care, Lexington · Second Lexington session, same program. Register on Eventbrite.",
+    description:
+      "The second Lexington session of Devoted Health's 2027 broker rollout, same program as the August 27 session: meet your local Devoted team, hear about Devoted's mission, history, and growth, review the benefits for the upcoming plan year, and get a look at the Devoted member experience. Register ahead on Eventbrite with the link below.",
+    location: "CenterWell Senior Primary Care · Lexington, KY",
+    time: "11:00 AM–1:00 PM ET",
+    category: "carrier",
+    link: "https://www.eventbrite.com/e/devoted-health-broker-rollout-2027-lexington-ky-september-23rd-tickets-1993650856379?aff=oddtdtcreator",
+    linkLabel: "Register on Eventbrite",
+  },
+  {
+    id: "devoted-broker-rollout-2027-louisville-2",
+    date: "2026-09-24",
+    title: "Devoted Broker Rollout 2027 (Louisville, Round 2)",
+    detail: "CenterWell Senior Primary Care, Louisville · Second Louisville session, same program. Time on Eventbrite. Register ahead.",
+    description:
+      "The second Louisville session of Devoted Health's 2027 broker rollout, same program as the August 25 session: meet your local Devoted team, hear about Devoted's mission, history, and growth, review the benefits for the upcoming plan year, and get a look at the Devoted member experience. Check the Eventbrite page for the start time and register ahead with the link below.",
+    location: "CenterWell Senior Primary Care · Louisville, KY",
+    category: "carrier",
+    link: "https://www.eventbrite.com/e/devoted-health-broker-rollout-2027-louisville-ky-september-24th-tickets-1993649435128?aff=oddtdtcreator",
     linkLabel: "Register on Eventbrite",
   },
 
