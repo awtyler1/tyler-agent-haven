@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "humana-pre-aep-webinar",
+    date: "2026-08-03",
+    category: "Carrier",
+    title: "Humana Pre-AEP Webinar: Aug 19 at 10 AM ET, register now",
+    note: "A quick virtual session on Humana's 2027 rollout schedule and AEP resources. Registration link is on the calendar.",
+    href: "/calendar",
+  },
+  {
     id: "humana-2027-dates",
     date: "2026-07-30",
     category: "Carrier",
