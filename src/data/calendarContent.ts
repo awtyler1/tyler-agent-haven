@@ -215,6 +215,20 @@ export const calendarEvents: CalEvent[] = [
     category: "deadline",
   },
   {
+    id: "humana-pre-aep-webinar",
+    date: "2026-08-19",
+    title: "Humana Pre-AEP Webinar 💻",
+    detail: "10:00 AM ET · Virtual (Zoom) · 2027 rollout schedule + AEP resources. Register ahead.",
+    description:
+      "A quick pre-AEP webinar from Humana for brokers and agents: a review of the 2027 rollout schedule and the AEP resources available to you, so you head into the season with a plan. Virtual via Zoom. Register ahead with the link below.",
+    location: "Virtual (Zoom)",
+    time: "10:00 AM ET",
+    category: "carrier",
+    link: "https://humana.zoom.us/webinar/register/WN_e43yJAR_Tb2fwJXqhRhHWA#/registration",
+    linkLabel: "Register for the webinar",
+    hubBoard: true,
+  },
+  {
     id: "humana-aep-rollout-louisville",
     date: "2026-09-16",
     title: "Humana 2027 AEP Rollout (Louisville)",
