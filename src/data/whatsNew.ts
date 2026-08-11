@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "aep-business-plan-docs",
+    date: "2026-08-11",
+    category: "Form",
+    title: "Your AEP business plan: two new printables in the Forms Library",
+    note: "Start with the Top 20 Activities idea sheet, pick 4 to 6, then set your goal and weekly targets on the one-page AEP Business Plan and review it with your manager.",
+    href: "/forms-library",
+  },
+  {
     id: "cms-l564-added",
     date: "2026-08-03",
     category: "Form",

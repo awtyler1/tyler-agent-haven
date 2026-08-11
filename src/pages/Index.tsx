@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   boardItems,
@@ -11,7 +10,6 @@ import { calendarEvents, CATEGORY_META } from '@/data/calendarContent';
 import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 import { BoardZone } from '@/components/hub/BoardZone';
-import { AEP_TRAINING_OPEN, AepTrainingModal } from '@/components/hub/AepTrainingBoard';
 import { WhatsNewBell } from '@/components/hub/WhatsNewBell';
 import { ONE_ON_ONE_CALENDLY_URL } from '@/data/booking';
 
@@ -185,10 +183,9 @@ export default function Index() {
   const newsItems: NewsRow[] = recentArticles;
 
   // Worth-reading lead: the featured item (the Market Report) is the showcase.
-  // The AEP training drive rides along as a slim secondary CTA while it's live,
-  // so it isn't lost.
-  const [trainingOpen, setTrainingOpen] = useState(false);
-  const hasLead = featured.show || AEP_TRAINING_OPEN;
+  // The AEP business plan rides along as a slim secondary CTA through the
+  // season — the two printables every agent works from (Forms Library).
+  const hasLead = true;
 
   const ReadingLead = (
     <div className="lead">
@@ -200,16 +197,14 @@ export default function Index() {
           <span className="lead__cta">{featured.ctaLabel} →</span>
         </Link>
       )}
-      {AEP_TRAINING_OPEN && (
-        <button type="button" className="lead__mini" onClick={() => setTrainingOpen(true)}>
-          <span className="lead__mini-ic" aria-hidden="true">🎯</span>
-          <span className="lead__mini-b">
-            <span className="lead__mini-t">Help shape our AEP training</span>
-            <span className="lead__mini-s">Vote on topics or write in what to cover.</span>
-          </span>
-          <span className="lead__mini-cta">Add your voice →</span>
-        </button>
-      )}
+      <Link className="lead__mini" to="/forms-library">
+        <span className="lead__mini-ic" aria-hidden="true">🎯</span>
+        <span className="lead__mini-b">
+          <span className="lead__mini-t">Build your AEP business plan</span>
+          <span className="lead__mini-s">Two printables: pick 4 to 6 activities, set weekly targets, commit.</span>
+        </span>
+        <span className="lead__mini-cta">Get the plan →</span>
+      </Link>
     </div>
   );
 
@@ -283,7 +278,6 @@ export default function Index() {
         <span className="oneone__btn">Book your 1:1 →</span>
       </a>
 
-      {trainingOpen && <AepTrainingModal onClose={() => setTrainingOpen(false)} />}
     </div>
   );
 }
