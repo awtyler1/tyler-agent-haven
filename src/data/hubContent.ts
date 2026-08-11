@@ -14,6 +14,8 @@
 // not a backlog.
 // ============================================================================
 
+import { ONE_ON_ONE_CALENDLY_URL } from "./booking";
+
 // ── The Board ────────────────────────────────────────────────────────────────
 export type BoardKind = "deadline" | "action" | "open";
 
@@ -40,7 +42,7 @@ export interface BoardItem {
 
 export const boardMeta = {
   postedBy: "Austin & Andrew",
-  postedOn: "2026-07-29", // update when you refresh the board
+  postedOn: "2026-08-11", // update when you refresh the board
 };
 
 // ── Season banner ────────────────────────────────────────────────────────────
@@ -95,7 +97,19 @@ export const welcome = {
 //     link: "https://teams.microsoft.com/...",
 //     linkLabel: "Join the call",
 //   },
-export const boardItems: BoardItem[] = [];
+export const boardItems: BoardItem[] = [
+  // Undated on purpose: stands all AEP prep season. Remove once AEP opens.
+  {
+    id: "aep-plan-to-1on1",
+    kind: "action",
+    title: "Print your AEP business plan and bring it to your monthly 1:1.",
+    note: "Both printables are in the Forms Library: pick your 4 to 6 activities from the Top 20 sheet, set your enrollment goal and weekly targets on the plan, and we'll sign the commitment section together at your 1:1.",
+    when: "Now",
+    whenSub: "before AEP",
+    link: ONE_ON_ONE_CALENDLY_URL,
+    linkLabel: "Book your 1:1",
+  },
+];
 
 // ── The Dock (tools) ─────────────────────────────────────────────────────────
 // href: 'http…' opens in a new tab; '/path' is an in-app route.
