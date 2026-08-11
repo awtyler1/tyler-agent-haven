@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Flip to false (and redeploy) when the training plan is locked. When true, the
 // training drive takes the hub's Spotlight zone ahead of the featured item.
-export const AEP_TRAINING_OPEN = true;
+export const AEP_TRAINING_OPEN = false; // drive closed; hub CTA slot now points to the AEP business plan
 
 // Preset topics — edit labels freely; keys are what's stored in the table.
 const TOPICS: { key: string; label: string }[] = [

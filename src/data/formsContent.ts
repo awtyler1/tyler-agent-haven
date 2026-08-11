@@ -12,7 +12,7 @@
 // to FORM_CATEGORIES (the page renders categories in that order).
 // ============================================================================
 
-export type FormCategory = 'cms' | 'fact_finder' | 'intake' | 'specialty';
+export type FormCategory = 'planning' | 'cms' | 'fact_finder' | 'intake' | 'specialty';
 
 export interface FormCategoryMeta {
   key: FormCategory;
@@ -20,6 +20,9 @@ export interface FormCategoryMeta {
 }
 
 export const FORM_CATEGORIES: FormCategoryMeta[] = [
+  // Pinned first through AEP season — every agent works from these two.
+  // Move below 'cms' once AEP wraps.
+  { key: 'planning', label: 'AEP & Business Planning' },
   { key: 'cms', label: 'CMS & Compliance' },
   { key: 'fact_finder', label: 'Fact Finders & Worksheets' },
   { key: 'intake', label: 'Client Intake & Permissions' },
@@ -37,6 +40,10 @@ export interface FormItem {
 }
 
 export const forms: FormItem[] = [
+  // ── AEP & Business Planning (print both; they work as a pair) ──
+  { id: 'top-20-activities', category: 'planning', source: 'TIG', name: 'Top 20 Activities to Generate Medicare Business', description: 'Step 1: the idea menu. Twenty proven activities across community, referrals, partnerships, and outreach. Pick the four to six that fit your market, strengths, and budget.', file: '/forms/top-20-medicare-activities.pdf' },
+  { id: 'aep-business-plan', category: 'planning', source: 'TIG', name: 'Medicare AEP Business Plan', description: 'Step 2: the one-page plan. Print it, set your enrollment goal, write in your four to six activities with weekly targets, and sign the commitment with your manager. This is the plan we work all AEP.', file: '/forms/aep-business-plan.pdf' },
+
   // ── CMS & Compliance (download current versions from cms.gov) ──
   { id: 'soa', category: 'cms', source: 'CMS', name: 'Scope of Appointment (SOA)', description: 'Required before any Medicare Advantage or Part D sales appointment.', file: '/forms/scope-of-appointment.pdf' },
   { id: 'cms-40b', category: 'cms', source: 'CMS', name: 'CMS-40B: Apply for Part B', description: 'Application for enrollment in Medicare Part B.', file: '/forms/cms-40b-part-b-application.pdf' },
