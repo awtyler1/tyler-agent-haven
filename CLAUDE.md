@@ -274,6 +274,7 @@ If a paragraph does not teach, sharpen, or reframe something, cut it.
 | `docs/GOLDEN_HOUR_MIGRATION_AUDIT.md` | GH theme migration for 3 areas |
 | `docs/SEO_GEO_RECRUITING_STRATEGY.md` | Public-site SEO/GEO + FMO recruiting-funnel strategy |
 | `docs/CONTENT_WORKFLOW.md` | How to add articles + YouTube so they rank and get cited |
+| `docs/ARTICLE_TOPIC_BANK.md` | Pre-researched article topic queue (keywords, briefs, seasonal calendar) |
 | `docs/MEASUREMENT.md` | SEO/GEO/recruiting measurement runbook (week-one + monthly) |
 
 ---
