@@ -85,6 +85,39 @@ export interface InsightPost {
 // ── Posts (newest first) ─────────────────────────────────────────────────────
 export const insights: InsightPost[] = [
   {
+    slug: 'medicare-2027-disruption-plan-exits-part-d-premiums',
+    title: "Medicare's 2027 shake-up: plan exits, Part D premium hikes, and the star ratings fight",
+    excerpt:
+      "Humana is exiting plans covering roughly 600,000 members. The Part D subsidy that held premiums down dies January 1. And a federal judge just forced CMS to rebuild the star ratings math. Here is the 2027 disruption map, and why every piece of it favors the prepared agent.",
+    category: 'industry',
+    author: AUSTIN,
+    date: '2026-08-12',
+    readTime: '8 min read',
+    articleSlug: 'medicare-2027-disruption-plan-exits-part-d-premiums',
+  },
+  {
+    slug: 'medicare-agent-quality-metrics-comp',
+    title: 'Carriers are grading your book: the quality metrics that will decide Medicare agent comp',
+    excerpt:
+      "The volume era of Medicare distribution comp is ending. Carriers are wiring overrides and marketing dollars to quality metrics: complaint rates, HRA completion, rapid disenrollment, provider selection. It starts at the top of the hierarchy, and it rolls downhill. Here are the four numbers to know, and how to protect yours.",
+    category: 'industry',
+    author: ANDREW,
+    date: '2026-08-12',
+    readTime: '8 min read',
+    articleSlug: 'medicare-agent-quality-metrics-comp',
+  },
+  {
+    slug: 'under-65-market-aca-subsidy-expiration',
+    title: 'The under-65 window: ACA subsidy expiration is pushing clients to your desk',
+    excerpt:
+      "Enhanced ACA subsidies died in December and marketplace enrollment has already fallen by about 3 million. Millions of people are priced out, uninsured, or underinsured, and most agents are ignoring them because they are not 65 yet. Here is the product shelf, the compliance lines, and why this market feeds your Medicare book.",
+    category: 'industry',
+    author: AUSTIN,
+    date: '2026-08-12',
+    readTime: '7 min read',
+    articleSlug: 'under-65-market-aca-subsidy-expiration',
+  },
+  {
     slug: 'medicare-marketing-rules-2027',
     title: 'The New Medicare Marketing Rules: What Changes October 1 and How to Rebuild Your Process Around It',
     excerpt:

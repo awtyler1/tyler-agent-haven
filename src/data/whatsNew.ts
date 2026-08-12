@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "quality-scorecard-triage-onepagers",
+    date: "2026-08-12",
+    category: "Form",
+    title: "Two new one-pagers: Agent Quality Scorecard + 2027 Client Triage Checklist",
+    note: "Print both. The scorecard covers the four metrics carriers now grade; the checklist is your September playbook for plan exits and Part D premium jumps. They pair with today's three market articles.",
+    href: "/forms-library",
+  },
+  {
     id: "aep-business-plan-docs",
     date: "2026-08-11",
     category: "Form",
