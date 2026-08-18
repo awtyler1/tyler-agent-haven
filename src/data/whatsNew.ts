@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "tig-talks-launch",
+    date: "2026-08-18",
+    category: "Event",
+    title: "TIG Talks: a weekly Tuesday bootcamp with Jay Eldridge, 11 AM ET",
+    note: "Carriers, products, cross-selling, providers, marketing, and live mock sales scenarios, every Tuesday through AEP prep. Open to all agents. Register once; dates and the Zoom link are on the calendar.",
+    href: "/calendar",
+  },
+  {
     id: "aetna-2027-trainings",
     date: "2026-08-18",
     category: "Carrier",

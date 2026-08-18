@@ -100,6 +100,16 @@ export const welcome = {
 export const boardItems: BoardItem[] = [
   // Undated on purpose: stands all AEP prep season. Remove once AEP opens.
   {
+    id: "tig-talks-weekly",
+    kind: "action",
+    title: "New: TIG Talks with Jay Eldridge, every Tuesday at 11 AM ET.",
+    note: "Meet Jay: a seasoned Medicare veteran with a heart for teaching, who has spent years building and running successful Medicare businesses. His weekly bootcamp is open to every agent and covers carriers, products, cross-selling, providers, and marketing, plus live mock sales scenarios. It runs every Tuesday from now through AEP prep. Register once and you are set for the whole series.",
+    when: "Tuesdays",
+    whenSub: "11 AM ET",
+    link: "https://us02web.zoom.us/meeting/register/idBgCnyHRq-E6azyMDN24Q",
+    linkLabel: "Register for the series",
+  },
+  {
     id: "aep-plan-to-1on1",
     kind: "action",
     title: "Print your AEP business plan and bring it to your monthly 1:1.",

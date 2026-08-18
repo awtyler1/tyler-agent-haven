@@ -195,6 +195,32 @@ export const calendarEvents: CalEvent[] = [
     hubBoard: true,
   },
 
+  // ── TIG Talks: weekly Tuesday bootcamp with Jay Eldridge ──
+  // 8:00 AM Pacific on the invite = 11:00 AM Eastern. The calendar has no
+  // recurrence, so one entry per Tuesday through AEP prep; extend as needed.
+  ...[
+    "2026-08-25",
+    "2026-09-01",
+    "2026-09-08",
+    "2026-09-15",
+    "2026-09-22",
+    "2026-09-29",
+    "2026-10-06",
+    "2026-10-13",
+  ].map((date): CalEvent => ({
+    id: `tig-talks-${date}`,
+    date,
+    title: "TIG Talks with Jay 🎙️",
+    detail: "11 AM–12 PM ET · Zoom · Weekly bootcamp: carriers, products, cross-selling, providers, marketing, and live mock sales. Register once for the series.",
+    description:
+      "TIG Talks is our weekly agent bootcamp, led by Jay Eldridge. Jay is a seasoned Medicare veteran with a heart for teaching: he has spent years building and running successful Medicare businesses, and this hour is your chance to pick up the insight and perspective that kind of tenure buys. Sessions rotate through the parts of the business that move the needle (carriers, products, cross-selling, providers, and marketing), and Jay runs live mock sales scenarios you can take straight into your next appointment. Open to all agents, every Tuesday through AEP prep. Register once with the link below and you are set for the whole series. Time is 11:00 AM Eastern (the original invite lists 8:00 AM Pacific).",
+    location: "Zoom",
+    time: "11:00 AM–12:00 PM ET",
+    category: "tig",
+    link: "https://us02web.zoom.us/meeting/register/idBgCnyHRq-E6azyMDN24Q",
+    linkLabel: "Register for the series",
+  })),
+
   // ── Humana 2027 dates (from the Jul 30 call with Samantha Stevenson) ──
   {
     id: "humana-first-look-2027",
