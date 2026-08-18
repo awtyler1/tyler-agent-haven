@@ -284,10 +284,15 @@ export default function Index() {
 
 // ── Scoped styles (emerald cockpit, two zones) ───────────────────────────────
 const CSS = `
+/* The hub grows with its content and the shell's main column scrolls.
+   Never lock this page to the viewport (overflow:hidden) — content volume
+   changes weekly, and clipping forces users to zoom out. Above-the-fold
+   priority comes from ORDER (board first, reading rail second), not from
+   squeezing everything into one screen. */
 .hub{
   --em:#0E3B2E; --bone:#F4F1E8; --bone2:#EDE7DB; --card:#fff; --line:#e2dcc9; --line2:#efeadb;
   --muted:#6b6457; --faint:#928b7c; --ink:#1b2620; --gold:#C9A84C; --gold2:#A8801F;
-  flex:1 1 auto; min-height:0; min-width:0; display:flex; flex-direction:column; overflow:hidden;
+  flex:1 0 auto; min-width:0; display:flex; flex-direction:column;
   background:radial-gradient(120% 80% at 50% 0%, #f7f3ea, var(--bone));
   font-family:'Outfit','Inter',system-ui,sans-serif; color:var(--ink);
   -webkit-font-smoothing:antialiased; padding:20px 26px 22px;
@@ -324,7 +329,7 @@ const CSS = `
 .zone--dark .zone__more{ color:var(--gold); }
 .zone--card .zone__more{ color:var(--gold2); }
 .zone__more:hover{ text-decoration:underline; }
-.zone__body{ flex:1 1 auto; min-height:0; padding:12px 18px 15px; display:flex; flex-direction:column; position:relative; z-index:1; overflow:hidden; }
+.zone__body{ flex:1 1 auto; min-height:0; padding:12px 18px 15px; display:flex; flex-direction:column; position:relative; z-index:1; }
 .zone__list{ display:flex; flex-direction:column; min-height:0; }
 .zone__list--divided{ margin-top:10px; padding-top:4px; border-top:1px solid rgba(255,255,255,.12); }
 .zone--card .zone__list--divided{ border-top-color:var(--line2); }
@@ -417,7 +422,7 @@ const CSS = `
 
 /* ── Responsive: below 900px the two zones stack in the same fixed order ── */
 @media(max-width:900px){
-  .hub{ overflow-y:auto; padding:18px 20px 28px; }
+  .hub{ padding:18px 20px 28px; }
   .hub-head{ flex-direction:column; align-items:flex-start; gap:10px; }
   .hub-h1{ font-size:20px; }
   .hub-grid{ display:flex; flex-direction:column; flex:0 0 auto; gap:14px; }
