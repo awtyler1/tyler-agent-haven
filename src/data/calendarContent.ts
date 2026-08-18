@@ -302,6 +302,73 @@ export const calendarEvents: CalEvent[] = [
     linkLabel: "Register on Eventbrite",
   },
 
+  // ── Aetna 2027 in-person trainings (pick one; register at AetnaMedicareAgentTraining.com) ──
+  {
+    id: "aetna-2027-training-lexington-1",
+    date: "2026-09-10",
+    title: "Aetna 2027 Training (Lexington)",
+    detail: "10 AM–12 PM ET · The Signature Club · Brunch provided. Pick one of five sessions; register ahead.",
+    description:
+      "Aetna's in-person 2027 training for agents. Attend whichever session is closest: Lexington September 10 or 22, Prestonsburg September 15, Ashland September 17, or Somerset September 24. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "The Signature Club of Lansdowne · 3256 Lansdowne Dr., Lexington, KY 40502",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+  {
+    id: "aetna-2027-training-prestonsburg",
+    date: "2026-09-15",
+    title: "Aetna 2027 Training (Prestonsburg)",
+    detail: "10 AM–12 PM ET · Mountain Arts Center · Eastern KY session. Brunch provided. Register ahead.",
+    description:
+      "Aetna's in-person 2027 training for agents, Eastern Kentucky session. Attend whichever session is closest: Lexington September 10 or 22, Prestonsburg September 15, Ashland September 17, or Somerset September 24. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "Mountain Arts Center · Prestonsburg, KY",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+  {
+    id: "aetna-2027-training-ashland",
+    date: "2026-09-17",
+    title: "Aetna 2027 Training (Ashland)",
+    detail: "10 AM–12 PM ET · Delta Hotels · Brunch provided. Register ahead.",
+    description:
+      "Aetna's in-person 2027 training for agents, Ashland session. Attend whichever session is closest: Lexington September 10 or 22, Prestonsburg September 15, Ashland September 17, or Somerset September 24. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "Delta Hotels · Ashland, KY",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+  {
+    id: "aetna-2027-training-lexington-2",
+    date: "2026-09-22",
+    title: "Aetna 2027 Training (Lexington, Round 2)",
+    detail: "10 AM–12 PM ET · The Signature Club · Second Lexington session. Brunch provided. Register ahead.",
+    description:
+      "The second Lexington session of Aetna's in-person 2027 training for agents, same program as September 10. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "The Signature Club of Lansdowne · 3256 Lansdowne Dr., Lexington, KY 40502",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+  {
+    id: "aetna-2027-training-somerset",
+    date: "2026-09-24",
+    title: "Aetna 2027 Training (Somerset)",
+    detail: "10 AM–12 PM ET · Courtyard by Marriott · Brunch provided. Register ahead.",
+    description:
+      "Aetna's in-person 2027 training for agents, Somerset session. Attend whichever session is closest: Lexington September 10 or 22, Prestonsburg September 15, Ashland September 17, or Somerset September 24. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "Courtyard by Marriott · Somerset, KY",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+
   // ── UHC 2027 Product Overview (save the dates; invitation + links to come) ──
   {
     id: "uhc-2027-overview-lexington",

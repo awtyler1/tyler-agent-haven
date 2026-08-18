@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "aetna-2027-trainings",
+    date: "2026-08-18",
+    category: "Carrier",
+    title: "Aetna 2027 trainings: five September sessions across Kentucky, pick one",
+    note: "Lexington Sept 10 or 22, Prestonsburg Sept 15, Ashland Sept 17, Somerset Sept 24. All 10 AM to noon, brunch provided. Register at AetnaMedicareAgentTraining.com; dates are on the calendar.",
+    href: "/calendar",
+  },
+  {
     id: "quality-scorecard-triage-onepagers",
     date: "2026-08-12",
     category: "Form",
