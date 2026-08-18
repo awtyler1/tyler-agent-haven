@@ -98,7 +98,27 @@ export const welcome = {
 //     linkLabel: "Join the call",
 //   },
 export const boardItems: BoardItem[] = [
+  {
+    id: "aep-planning-session-aug21",
+    kind: "action",
+    title: "Friday: AEP Business Planning with Jeremy Boz and Eric Price. Be there.",
+    note: "One hour, the whole team, and the plan that carries you through December. Jeremy (partner of the firm) and Eric (lead broker manager) will walk agents and managers across the country through building a real AEP plan: a sharp refresher for veterans, a head start for new agents. Print the Top 20 Activities sheet and the AEP Business Plan from the Forms Library and bring them. RSVP to Austin, then join Friday at 1 PM ET. The Zoom link is on the calendar.",
+    when: "Aug 21",
+    date: "2026-08-21",
+    link: "https://us06web.zoom.us/j/84758060212?pwd=he1toiLbJbfTsKlj73aoszr0EcbFqd.1",
+    linkLabel: "Join Friday at 1 PM ET",
+  },
   // Undated on purpose: stands all AEP prep season. Remove once AEP opens.
+  {
+    id: "tig-talks-weekly",
+    kind: "action",
+    title: "New: TIG Talks with Jay Eldridge, every Tuesday at 11 AM ET.",
+    note: "Meet Jay: a seasoned Medicare veteran with a heart for teaching, who has spent years building and running successful Medicare businesses. His weekly bootcamp is open to every agent and covers carriers, products, cross-selling, providers, and marketing, plus live mock sales scenarios. It runs every Tuesday from now through AEP prep. Register once and you are set for the whole series.",
+    when: "Tuesdays",
+    whenSub: "11 AM ET",
+    link: "https://us02web.zoom.us/meeting/register/idBgCnyHRq-E6azyMDN24Q",
+    linkLabel: "Register for the series",
+  },
   {
     id: "aep-plan-to-1on1",
     kind: "action",

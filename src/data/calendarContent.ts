@@ -195,6 +195,52 @@ export const calendarEvents: CalEvent[] = [
     hubBoard: true,
   },
 
+  // ── AEP Business Planning session (Jeremy Boz + Eric Price) ──
+  {
+    id: "aep-business-planning-session",
+    date: "2026-08-21",
+    title: "AEP Business Planning Session ⭐",
+    detail: "1:00–2:00 PM ET · Zoom · Jeremy Boz + Eric Price walk the whole team through building your AEP plan. Bring your worksheets. RSVP to Austin.",
+    description:
+      "One hour that sets up your whole season. Jeremy Boz, partner of the firm, and Eric Price, lead broker manager, are running an AEP business planning training for TIG agents and managers across the country. It is a sharp refresher for veteran agents and the fastest way for newer agents to build a solid AEP plan from scratch. This session works directly from our two planning worksheets, so print the Top 20 Activities sheet and the Medicare AEP Business Plan (both attached below and in the Forms Library) and bring them filled in as far as you can get. Come with your enrollment goal in mind and leave with the plan to hit it. Please RSVP to Austin if you plan to join, then use the link below on Friday.",
+    location: "Zoom",
+    time: "1:00–2:00 PM ET",
+    category: "tig",
+    documents: [
+      { name: "Top 20 Activities to Generate Medicare Business", url: "/forms/top-20-medicare-activities.pdf" },
+      { name: "Medicare AEP Business Plan", url: "/forms/aep-business-plan.pdf" },
+    ],
+    link: "https://us06web.zoom.us/j/84758060212?pwd=he1toiLbJbfTsKlj73aoszr0EcbFqd.1",
+    linkLabel: "Join the session",
+    hubBoard: true,
+  },
+
+  // ── TIG Talks: weekly Tuesday bootcamp with Jay Eldridge ──
+  // 8:00 AM Pacific on the invite = 11:00 AM Eastern. The calendar has no
+  // recurrence, so one entry per Tuesday through AEP prep; extend as needed.
+  ...[
+    "2026-08-25",
+    "2026-09-01",
+    "2026-09-08",
+    "2026-09-15",
+    "2026-09-22",
+    "2026-09-29",
+    "2026-10-06",
+    "2026-10-13",
+  ].map((date): CalEvent => ({
+    id: `tig-talks-${date}`,
+    date,
+    title: "TIG Talks with Jay 🎙️",
+    detail: "11 AM–12 PM ET · Zoom · Weekly bootcamp: carriers, products, cross-selling, providers, marketing, and live mock sales. Register once for the series.",
+    description:
+      "TIG Talks is our weekly agent bootcamp, led by Jay Eldridge. Jay is a seasoned Medicare veteran with a heart for teaching: he has spent years building and running successful Medicare businesses, and this hour is your chance to pick up the insight and perspective that kind of tenure buys. Sessions rotate through the parts of the business that move the needle (carriers, products, cross-selling, providers, and marketing), and Jay runs live mock sales scenarios you can take straight into your next appointment. Open to all agents, every Tuesday through AEP prep. Register once with the link below and you are set for the whole series. Time is 11:00 AM Eastern (the original invite lists 8:00 AM Pacific).",
+    location: "Zoom",
+    time: "11:00 AM–12:00 PM ET",
+    category: "tig",
+    link: "https://us02web.zoom.us/meeting/register/idBgCnyHRq-E6azyMDN24Q",
+    linkLabel: "Register for the series",
+  })),
+
   // ── Humana 2027 dates (from the Jul 30 call with Samantha Stevenson) ──
   {
     id: "humana-first-look-2027",
@@ -300,6 +346,73 @@ export const calendarEvents: CalEvent[] = [
     category: "carrier",
     link: "https://www.eventbrite.com/e/devoted-health-broker-rollout-2027-louisville-ky-september-24th-tickets-1993649435128?aff=oddtdtcreator",
     linkLabel: "Register on Eventbrite",
+  },
+
+  // ── Aetna 2027 in-person trainings (pick one; register at AetnaMedicareAgentTraining.com) ──
+  {
+    id: "aetna-2027-training-lexington-1",
+    date: "2026-09-10",
+    title: "Aetna 2027 Training (Lexington)",
+    detail: "10 AM–12 PM ET · The Signature Club · Brunch provided. Pick one of five sessions; register ahead.",
+    description:
+      "Aetna's in-person 2027 training for agents. Attend whichever session is closest: Lexington September 10 or 22, Prestonsburg September 15, Ashland September 17, or Somerset September 24. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "The Signature Club of Lansdowne · 3256 Lansdowne Dr., Lexington, KY 40502",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+  {
+    id: "aetna-2027-training-prestonsburg",
+    date: "2026-09-15",
+    title: "Aetna 2027 Training (Prestonsburg)",
+    detail: "10 AM–12 PM ET · Mountain Arts Center · Eastern KY session. Brunch provided. Register ahead.",
+    description:
+      "Aetna's in-person 2027 training for agents, Eastern Kentucky session. Attend whichever session is closest: Lexington September 10 or 22, Prestonsburg September 15, Ashland September 17, or Somerset September 24. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "Mountain Arts Center · Prestonsburg, KY",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+  {
+    id: "aetna-2027-training-ashland",
+    date: "2026-09-17",
+    title: "Aetna 2027 Training (Ashland)",
+    detail: "10 AM–12 PM ET · Delta Hotels · Brunch provided. Register ahead.",
+    description:
+      "Aetna's in-person 2027 training for agents, Ashland session. Attend whichever session is closest: Lexington September 10 or 22, Prestonsburg September 15, Ashland September 17, or Somerset September 24. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "Delta Hotels · Ashland, KY",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+  {
+    id: "aetna-2027-training-lexington-2",
+    date: "2026-09-22",
+    title: "Aetna 2027 Training (Lexington, Round 2)",
+    detail: "10 AM–12 PM ET · The Signature Club · Second Lexington session. Brunch provided. Register ahead.",
+    description:
+      "The second Lexington session of Aetna's in-person 2027 training for agents, same program as September 10. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "The Signature Club of Lansdowne · 3256 Lansdowne Dr., Lexington, KY 40502",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
+  },
+  {
+    id: "aetna-2027-training-somerset",
+    date: "2026-09-24",
+    title: "Aetna 2027 Training (Somerset)",
+    detail: "10 AM–12 PM ET · Courtyard by Marriott · Brunch provided. Register ahead.",
+    description:
+      "Aetna's in-person 2027 training for agents, Somerset session. Attend whichever session is closest: Lexington September 10 or 22, Prestonsburg September 15, Ashland September 17, or Somerset September 24. Brunch is provided. Register ahead at AetnaMedicareAgentTraining.com.",
+    location: "Courtyard by Marriott · Somerset, KY",
+    time: "10:00 AM–12:00 PM ET",
+    category: "carrier",
+    link: "https://AetnaMedicareAgentTraining.com",
+    linkLabel: "Register for a session",
   },
 
   // ── UHC 2027 Product Overview (save the dates; invitation + links to come) ──

@@ -31,6 +31,30 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "aep-planning-session-aug21",
+    date: "2026-08-18",
+    category: "Event",
+    title: "Friday Aug 21: AEP Business Planning session with Jeremy Boz and Eric Price",
+    note: "1 PM ET on Zoom, for agents and managers across the country. Works straight from the two planning worksheets in the Forms Library. RSVP to Austin; join link is on the calendar and the board.",
+    href: "/calendar",
+  },
+  {
+    id: "tig-talks-launch",
+    date: "2026-08-18",
+    category: "Event",
+    title: "TIG Talks: a weekly Tuesday bootcamp with Jay Eldridge, 11 AM ET",
+    note: "Carriers, products, cross-selling, providers, marketing, and live mock sales scenarios, every Tuesday through AEP prep. Open to all agents. Register once; dates and the Zoom link are on the calendar.",
+    href: "/calendar",
+  },
+  {
+    id: "aetna-2027-trainings",
+    date: "2026-08-18",
+    category: "Carrier",
+    title: "Aetna 2027 trainings: five September sessions across Kentucky, pick one",
+    note: "Lexington Sept 10 or 22, Prestonsburg Sept 15, Ashland Sept 17, Somerset Sept 24. All 10 AM to noon, brunch provided. Register at AetnaMedicareAgentTraining.com; dates are on the calendar.",
+    href: "/calendar",
+  },
+  {
     id: "quality-scorecard-triage-onepagers",
     date: "2026-08-12",
     category: "Form",
