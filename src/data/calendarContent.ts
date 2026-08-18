@@ -195,6 +195,26 @@ export const calendarEvents: CalEvent[] = [
     hubBoard: true,
   },
 
+  // ── AEP Business Planning session (Jeremy Boz + Eric Price) ──
+  {
+    id: "aep-business-planning-session",
+    date: "2026-08-21",
+    title: "AEP Business Planning Session ⭐",
+    detail: "10:00–11:00 AM ET · Zoom · Jeremy Boz + Eric Price walk the whole team through building your AEP plan. Bring your worksheets. RSVP to Austin.",
+    description:
+      "One hour that sets up your whole season. Jeremy Boz, partner of the firm, and Eric Price, lead broker manager, are running an AEP business planning training for TIG agents and managers across the country. It is a sharp refresher for veteran agents and the fastest way for newer agents to build a solid AEP plan from scratch. This session works directly from our two planning worksheets, so print the Top 20 Activities sheet and the Medicare AEP Business Plan (both attached below and in the Forms Library) and bring them filled in as far as you can get. Come with your enrollment goal in mind and leave with the plan to hit it. Please RSVP to Austin if you plan to join, then use the link below on Friday.",
+    location: "Zoom",
+    time: "10:00–11:00 AM ET",
+    category: "tig",
+    documents: [
+      { name: "Top 20 Activities to Generate Medicare Business", url: "/forms/top-20-medicare-activities.pdf" },
+      { name: "Medicare AEP Business Plan", url: "/forms/aep-business-plan.pdf" },
+    ],
+    link: "https://us06web.zoom.us/j/84758060212?pwd=he1toiLbJbfTsKlj73aoszr0EcbFqd.1",
+    linkLabel: "Join the session",
+    hubBoard: true,
+  },
+
   // ── TIG Talks: weekly Tuesday bootcamp with Jay Eldridge ──
   // 8:00 AM Pacific on the invite = 11:00 AM Eastern. The calendar has no
   // recurrence, so one entry per Tuesday through AEP prep; extend as needed.

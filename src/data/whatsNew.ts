@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "aep-planning-session-aug21",
+    date: "2026-08-18",
+    category: "Event",
+    title: "Friday Aug 21: AEP Business Planning session with Jeremy Boz and Eric Price",
+    note: "10 AM ET on Zoom, for agents and managers across the country. Works straight from the two planning worksheets in the Forms Library. RSVP to Austin; join link is on the calendar and the board.",
+    href: "/calendar",
+  },
+  {
     id: "tig-talks-launch",
     date: "2026-08-18",
     category: "Event",
