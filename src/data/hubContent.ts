@@ -14,8 +14,6 @@
 // not a backlog.
 // ============================================================================
 
-import { ONE_ON_ONE_CALENDLY_URL } from "./booking";
-
 // ── The Board ────────────────────────────────────────────────────────────────
 export type BoardKind = "deadline" | "action" | "open";
 
@@ -97,39 +95,19 @@ export const welcome = {
 //     link: "https://teams.microsoft.com/...",
 //     linkLabel: "Join the call",
 //   },
-export const boardItems: BoardItem[] = [
-  {
-    id: "aep-planning-session-aug21",
-    kind: "action",
-    title: "Friday: AEP Business Planning with Jeremy Boz and Eric Price. Be there.",
-    note: "One hour, the whole team, and the plan that carries you through December. Jeremy (partner of the firm) and Eric (lead broker manager) will walk agents and managers across the country through building a real AEP plan: a sharp refresher for veterans, a head start for new agents. Print the Top 20 Activities sheet and the AEP Business Plan from the Forms Library and bring them. RSVP to Austin, then join Friday at 1 PM ET. The Zoom link is on the calendar.",
-    when: "Aug 21",
-    date: "2026-08-21",
-    link: "https://us06web.zoom.us/j/84758060212?pwd=he1toiLbJbfTsKlj73aoszr0EcbFqd.1",
-    linkLabel: "Join Friday at 1 PM ET",
-  },
-  // Undated on purpose: stands all AEP prep season. Remove once AEP opens.
-  {
-    id: "tig-talks-weekly",
-    kind: "action",
-    title: "New: TIG Talks with Jay Eldridge, every Tuesday at 11 AM ET.",
-    note: "Meet Jay: a seasoned Medicare veteran with a heart for teaching, who has spent years building and running successful Medicare businesses. His weekly bootcamp is open to every agent and covers carriers, products, cross-selling, providers, and marketing, plus live mock sales scenarios. It runs every Tuesday from now through AEP prep. Register once and you are set for the whole series.",
-    when: "Tuesdays",
-    whenSub: "11 AM ET",
-    link: "https://us02web.zoom.us/meeting/register/idBgCnyHRq-E6azyMDN24Q",
-    linkLabel: "Register for the series",
-  },
-  {
-    id: "aep-plan-to-1on1",
-    kind: "action",
-    title: "Print your AEP business plan and bring it to your monthly 1:1.",
-    note: "Both printables are in the Forms Library: pick your 4 to 6 activities from the Top 20 sheet, set your enrollment goal and weekly targets on the plan, and we'll sign the commitment section together at your 1:1.",
-    when: "Now",
-    whenSub: "before AEP",
-    link: ONE_ON_ONE_CALENDLY_URL,
-    linkLabel: "Book your 1:1",
-  },
-];
+// USUALLY EMPTY, and that is correct.
+//
+// An event belongs in calendarContent.ts, not here. Add it there with
+// `urgent: true` and the hub's "Needs you" strip picks it up automatically,
+// with the calendar, the popout, and the RSVP link all coming along for free.
+// Posting the same thing in both places is what used to make the hub read as
+// noise, so the rule now is: events live on the calendar; this list is only
+// for a bulletin that has NO date and NO event behind it.
+//
+// Legitimate uses: "Wellcare's portal is down, use the paper app," or
+// "commission statements are late this month." Short note, one action, and
+// delete it once it is stale.
+export const boardItems: BoardItem[] = [];
 
 // ── The Dock (tools) ─────────────────────────────────────────────────────────
 // href: 'http…' opens in a new tab; '/path' is an in-app route.
