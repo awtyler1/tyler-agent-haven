@@ -286,42 +286,19 @@ export default function Index() {
         </Link>
       </section>
 
-      {/* Tools — the standing rail */}
-      <nav className="tools" aria-label="Tools">
-        <a className="tool tool--gold" href={ONE_ON_ONE_CALENDLY_URL} target="_blank" rel="noopener noreferrer">
-          <span className="tool__ic" aria-hidden="true">
-            1:1
-          </span>
-          <span className="tool__b">
-            <b>Book your monthly 1:1</b>
-            <i>An hour on your pipeline with Austin &amp; Andrew</i>
-          </span>
-        </a>
-        <Link className="tool" to="/forms-library">
-          <span className="tool__ic" aria-hidden="true">
-            📋
-          </span>
-          Forms &amp; AEP plan
-        </Link>
-        <Link className="tool" to="/certifications">
-          <span className="tool__ic" aria-hidden="true">
-            🎓
-          </span>
-          Certifications
-        </Link>
-        <Link className="tool" to="/carrier-portals">
-          <span className="tool__ic" aria-hidden="true">
-            ⛨
-          </span>
-          Carrier portals
-        </Link>
-        <a className="tool" href="https://app.runonforge.us" target="_blank" rel="noopener noreferrer">
-          <span className="tool__ic" aria-hidden="true">
-            🔥
-          </span>
-          Forge CRM
-        </a>
-      </nav>
+      {/* The 1:1 — a standing invitation, not a tools rail. Forms, certs,
+          portals, and CRMs all live in the sidebar; repeating them here just
+          duplicates navigation the agent already has on screen. */}
+      <a className="oneone" href={ONE_ON_ONE_CALENDLY_URL} target="_blank" rel="noopener noreferrer">
+        <span className="oneone__badge" aria-hidden="true">
+          1:1
+        </span>
+        <span className="oneone__text">
+          <b>Book your monthly 1:1 with Austin &amp; Andrew</b>
+          <i>A full hour on your pipeline, your blockers, and next month's number.</i>
+        </span>
+        <span className="oneone__btn">Book your 1:1 →</span>
+      </a>
     </div>
   );
 }
@@ -453,22 +430,24 @@ const CSS = `
   text-decoration:none; white-space:nowrap; padding:0 4px; }
 .read__more:hover{ text-decoration:underline; }
 
-/* ── Tools ── */
-.tools{ display:flex; gap:9px; align-items:stretch; flex-wrap:wrap; }
-.tool{ display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink);
-  background:var(--card); border:1px solid var(--line); border-radius:11px; padding:10px 13px;
-  font-size:11.5px; font-weight:600; transition:.14s; }
-.tool:hover{ border-color:var(--gold); background:#fdfbf5; }
-.tool__ic{ flex-shrink:0; font-size:13px; }
-.tool--gold{ flex:1; min-width:260px; background:linear-gradient(135deg,#10362a,#0a2c22); color:var(--bone);
-  border-color:rgba(201,168,76,.3); }
-.tool--gold:hover{ border-color:var(--gold); background:linear-gradient(135deg,#134334,#0c3529); }
-.tool--gold .tool__ic{ width:30px; height:30px; border-radius:50%; display:inline-flex; align-items:center;
-  justify-content:center; font-size:11px; font-weight:800; color:var(--em);
-  background:linear-gradient(135deg,#e7cf86,var(--gold)); }
-.tool__b{ display:flex; flex-direction:column; min-width:0; }
-.tool__b b{ font-size:12px; font-weight:700; }
-.tool__b i{ font-style:normal; font-size:10px; color:rgba(244,241,232,.7); }
+/* ── The 1:1 invitation ── */
+.oneone{ display:flex; align-items:center; gap:14px; text-decoration:none; color:var(--bone);
+  background:linear-gradient(135deg,#10362a,#0a2c22); border:1px solid rgba(201,168,76,.3);
+  border-radius:13px; padding:13px 18px; position:relative; overflow:hidden;
+  transition:transform .15s, box-shadow .15s; }
+.oneone:before{ content:""; position:absolute; top:-80px; right:-40px; width:240px; height:240px;
+  background:radial-gradient(circle,rgba(201,168,76,.16),transparent 60%); pointer-events:none; }
+.oneone:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(10,44,34,.28); }
+.oneone__badge{ flex-shrink:0; width:38px; height:38px; border-radius:50%; display:inline-flex;
+  align-items:center; justify-content:center; font-size:12.5px; font-weight:800; color:var(--em);
+  background:linear-gradient(135deg,#e7cf86,var(--gold)); position:relative; }
+.oneone__text{ min-width:0; position:relative; display:flex; flex-direction:column; }
+.oneone__text b{ font-size:13.5px; font-weight:700; line-height:1.2; }
+.oneone__text i{ font-style:normal; font-size:11px; color:rgba(244,241,232,.72); margin-top:2px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.oneone__btn{ flex-shrink:0; margin-left:auto; font-size:12px; font-weight:700; color:var(--em);
+  white-space:nowrap; background:linear-gradient(135deg,#e7cf86,var(--gold));
+  padding:9px 15px; border-radius:9px; position:relative; }
 
 /* ── Responsive ── */
 @media(max-width:1080px){
@@ -485,6 +464,8 @@ const CSS = `
   .nr__m{ flex-basis:100%; order:2; }
   .nr__w{ order:1; margin-left:auto; text-align:right; }
   .nr__a{ order:3; margin-left:auto; }
-  .tool--gold{ min-width:100%; }
+  .oneone{ flex-wrap:wrap; }
+  .oneone__text i{ white-space:normal; }
+  .oneone__btn{ margin-left:0; width:100%; text-align:center; }
 }
 `;
