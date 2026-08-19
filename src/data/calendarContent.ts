@@ -64,6 +64,24 @@ export interface CalEvent {
    *  the Calendar page). Use when the hub already covers it elsewhere, e.g. a
    *  cert entry that would double up with the season banner. */
   hubHide?: boolean;
+  // ── Hub feed routing (see src/lib/hubFeed.ts) ──
+  // These are all OPTIONAL. The feed derives carrier and market from the title
+  // and location when they're absent, so you only set them when the guess would
+  // be wrong. Set them explicitly for anything ambiguous.
+  /** Which carrier this belongs to, e.g. 'Aetna'. Routes the event into the
+   *  hub's carrier lane and lets agents filter it by the carriers they sell. */
+  carrier?: string;
+  /** Where it happens for filtering purposes: 'Lexington', 'Louisville',
+   *  'Eastern KY', 'Somerset', 'Ashland', 'Owensboro', or 'Virtual'. */
+  market?: string;
+  /** Recurring series: give every occurrence the same id and the hub collapses
+   *  them to the next one instead of listing every week. */
+  seriesId?: string;
+  /** How the series reads in the "when" column, e.g. 'Every Tue'. */
+  seriesLabel?: string;
+  /** Force this into the hub's "Needs you" strip even if it is further out.
+   *  Use sparingly: the strip shows at most three things. */
+  urgent?: boolean;
 }
 
 export const CATEGORY_META: Record<EventCategory, { label: string; color: string; dashed?: boolean }> = {
@@ -206,6 +224,8 @@ export const calendarEvents: CalEvent[] = [
     location: "Zoom",
     time: "1:00–2:00 PM ET",
     category: "tig",
+    market: "Virtual",
+    urgent: true, // the whole team should be on this one
     documents: [
       { name: "Top 20 Activities to Generate Medicare Business", url: "/forms/top-20-medicare-activities.pdf" },
       { name: "Medicare AEP Business Plan", url: "/forms/aep-business-plan.pdf" },
@@ -237,6 +257,9 @@ export const calendarEvents: CalEvent[] = [
     location: "Zoom",
     time: "11:00 AM–12:00 PM ET",
     category: "tig",
+    market: "Virtual",
+    seriesId: "tig-talks",
+    seriesLabel: "Every Tue",
     link: "https://us02web.zoom.us/meeting/register/idBgCnyHRq-E6azyMDN24Q",
     linkLabel: "Register for the series",
   })),

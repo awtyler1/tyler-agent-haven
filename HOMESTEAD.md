@@ -617,12 +617,12 @@ function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
 ## 10. PAGE PATTERNS
 
 ### Dashboard (Home) — The Cockpit
-The hub home (`src/pages/Index.tsx`) is **The Cockpit**: two permanent job-zones
-(**This Week** = what needs you, **Worth reading** = what's worth knowing) with a
-permanent frame and **no page scroll** on desktop. It never changes shape as
-content changes. This is a locked pattern — see **§14. THE COCKPIT** for the full
-spec and the four rules that keep it stable. Do not add blocks to the dashboard
-flow; content goes *into* a zone, never *between* zones.
+The hub home (`src/pages/Index.tsx`) answers two questions in order: **what needs
+me** (the *Needs you* strip, capped at three) and **what's going on** (two lanes
+split by source, **From TIG** and **From your carriers**). Below those sit two
+quiet rails: what's worth reading, and the tools. See **§14. THE COCKPIT** for the
+full spec, the row grammar, and the routing rules. Do not add blocks to the
+dashboard flow; content goes *into* a section, never *between* them.
 
 ### List Pages (My Book, Forms, Contracting)
 - **Page header:** Page title (Outfit 18px 600) + action button on right.
@@ -713,99 +713,101 @@ This document grows with the platform. It's not a snapshot — it's a living fou
 > the page. The Cockpit ends that. **The frame is permanent; only the readings
 > inside it change.**
 
-**Reference implementation:** `src/pages/Index.tsx` + `src/components/hub/BoardZone.tsx`.
+**Reference implementation:** `src/pages/Index.tsx` + `src/lib/hubFeed.ts`.
 
 ### The promise
 
-- **Above the fold, always.** On desktop the dashboard fills the viewport with
-  **zero page scroll**. A broker never scrolls or hunts, and never wonders if
-  they're missing something. Verified down to 1366×768 (the most common broker
-  laptop).
 - **The shape never moves.** A quiet week and a busy week are the same layout.
-  Empty zones show a resting line; they never collapse and pull the page up.
+  Empty sections show a resting line; they never collapse and pull the page up.
+- **The page scrolls, and that is correct.** Priority comes from **order and
+  weight**, never from clipping. The hub was once locked to the viewport
+  (`overflow:hidden`) so everything would "fit above the fold"; content volume
+  changes weekly, so it stopped fitting and forced people to zoom out. Never
+  re-lock this page. The most important thing is at the top; the rest scrolls.
 
 ### The four rules (non-negotiable)
 
-Every zone on the dashboard — and any future zoned page — obeys these. They are
-enforced in code by the `<BoardZone>` primitive, so an edit *cannot* reintroduce
-the shift.
-
-1. **Reserved slots.** Every zone always renders its frame. Nothing is
-   conditionally mounted into the layout flow. A zone never returns `null`.
-2. **Resting states.** An empty zone shows a calm one-line message
-   (`empty="…"`), not a collapse. Reserved space is held.
-3. **Fixed order.** Priority is designed once, by grid placement, never emergent
+1. **Reserved slots.** Every section always renders its frame. Nothing is
+   conditionally mounted into the layout flow.
+2. **Resting states.** An empty section shows a calm one-line message, not a
+   collapse. Prefer a message that explains *why* it's empty ("Everything from
+   us this week is up top").
+3. **Fixed order.** Priority is designed once, by section order, never emergent
    from which blocks happen to have content.
-4. **Hard caps.** A zone shows at most `cap` items, then an explicit
-   "View all N →" link. Overflow is **signposted, never a silent scrollbar** and
-   never spilled down the page.
+4. **Hard caps.** A section shows at most `cap` items, then an explicit
+   "View all N →" link. Overflow is **signposted, never a silent scrollbar**.
 
-### Zone map — two jobs, two zones (the locked template)
+### The map — triage first, then source
 
-A broker home answers exactly two questions: **what needs me** (act), and
-**what's worth knowing** (read). We map one zone to each. We do *not* split by
-data source (bulletins vs calendar vs articles) — that's what produced three
-near-identical "look at this" cards and duplicate items. Two job-zones, no
-overlap.
+A broker opens the hub asking **"what do I have to do, and when."** That is the
+first question, so it gets the first section, alone. *Then* comes the browse
+layer, and that one splits by **source**, because everything here arrives from
+one of exactly two places and each asks for a different decision:
+
+- **From TIG** = *your team expects you.* Relational, usually virtual, open to
+  everyone. The decision is "show up."
+- **From your carriers** = *this matters if you sell them, in your market.*
+  Conditional and geographic. The decision is "does this apply to me?"
 
 ```
-┌─ header: greeting + AEP countdown pill (the only fixed strip) ──────────────┐
-├───────────────────────────────────────┬────────────────────────────────────┤
-│ ① THIS WEEK — what needs you (emerald) │ ② WORTH READING (white card)        │
-│   season strip (always) +              │   ONE rotating lead:                │
-│   pinned bulletins + next-7-day        │   AEP-training drive when live,     │
-│   calendar, MERGED + de-duplicated,    │   else the featured item;           │
-│   compact rows, cap 4 events           │   then recent updates, cap 4        │
-│   → View full calendar                 │   → All updates                     │
-└───────────────────────────────────────┴────────────────────────────────────┘
+┌─ header: date + headline stating the count + bell + AEP pill ───────────────┐
+├─────────────────────────────────────────────────────────────────────────────┤
+│ ⚡ NEEDS YOU (emerald) — dated + actionable, next 7 days, CAP 3              │
+│    each row chipped with its source · the only urgent surface on the page   │
+├──────────────────────────────────┬──────────────────────────────────────────┤
+│ 🏠 FROM TIG (green top rule)      │ 🏢 FROM YOUR CARRIERS (steel top rule)    │
+│    our trainings & team events    │    carrier filter chips, then events     │
+│    cap 3 → All TIG events         │    cap 3 → All carrier events (N)        │
+├──────────────────────────────────┴──────────────────────────────────────────┤
+│ 📖 WORTH READING — featured lead + 2 newest articles → All updates           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 🔧 TOOLS — 1:1 (gold, first) · Forms · Certifications · Portals · Forge      │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-| Zone | Variant | Holds | Cap | Overflow → |
-|------|---------|-------|-----|------------|
-| ① This Week | `dark` | Season strip + pinned `boardItems` + `calendarEvents` (next 7 days), merged & de-duped | 4 events | `/calendar` |
-| ② Worth reading | `card` | One rotating lead (training ▸ featured) + recent `articles` / `newThisWeek` | 4 updates | `/industry-updates` |
+**Nothing appears twice.** Whatever the strip takes, the lanes skip — including
+every other date of a recurring series. Routing lives in `src/lib/hubFeed.ts`,
+not in the page, so the rules are testable and the layout stays dumb.
 
-- **Merge + de-dupe (kills the duplication).** A dated event entered as *both* a
-  board bulletin and a calendar event used to show twice. Zone ① merges the two
-  sources and drops a calendar event when a bulletin already describes it
-  (matched on a normalised title), keeping the richer bulletin. Rows are
-  **compact** (title + when + one truncated line + a small CTA); full detail
-  lives one click away, so no single row can grow tall enough to clip.
-- **Reading lead:** the featured item (the Market Report) is the showcase lead.
-  When `AEP_TRAINING_OPEN` is `true`, the training drive rides under it as a slim
-  secondary CTA (`.lead__mini`) so it isn't lost.
-- **Cards hug their content**, equal height, top-aligned. A light week reads as
-  calm space, not a stretched void. Caps keep the busiest week above the fold.
-- **Tools are NOT a zone** (the sidebar already has them). Don't add a tools
-  zone; it just re-duplicates the sidebar.
-- **The 1:1 is a slim standing strip, not a zone.** A full-width "Book your
-  monthly 1:1" invitation sits *below* the two zones (`.oneone`). It's a fixed,
-  low-height CTA (so it can't clip and stays above the fold), kept out of the two
-  content zones so it never competes with "act" or "read". It intentionally
-  echoes the sidebar-footer 1:1 link: the footer is quiet navigation, the strip
-  is the warm invitation.
+### Row grammar (every row, no exceptions)
 
-### The `<BoardZone>` primitive
-
-Every zone is a `<BoardZone>`. It owns the *behaviour* (the four rules); the page
-owns the *look* (the `.zone*` classes in `Index.tsx`'s scoped CSS). Key props:
-
-```tsx
-<BoardZone
-  variant="card"                 // 'card' (white) | 'dark' (emerald)
-  icon="🗓" title="This Week" hint="next 7 days"
-  more={{ label: 'Calendar →', to: '/calendar' }}
-  fixed={<SeasonBanner />}        // always-shown block above the list (optional)
-  items={events} cap={3}
-  renderItem={(ev) => <EventRow ev={ev} />}
-  itemKey={(ev) => ev.id}
-  empty="Nothing on the calendar in the next 7 days."   // resting state
-  viewAll={{ label: (n) => `View all ${n} →`, to: '/calendar' }}
-/>
+```
+[source chip] [what it is, short] [when, right-aligned, tabular] [one action]
 ```
 
-Pass `children` instead of `items` for a fully custom body (Spotlight uses this).
-The frame is still enforced.
+The lane rows carry a date block on the left, so their right column shows the
+**time or the cadence, never a second date**. Long explanations belong in the
+event popout on the Calendar page. If a note cannot survive being cut to one
+line, it is an article, not a board item.
+
+### What goes where
+
+| Section | Holds | Cap |
+|---------|-------|-----|
+| ⚡ Needs you | `boardItems` (always) + events flagged `urgent`/`hubBoard`, anything inside 7 days, deadlines inside 21 | 3 |
+| 🏠 From TIG | Upcoming `category: 'tig'` events, recurring series collapsed to one row | 3 |
+| 🏢 From your carriers | Upcoming carrier events, filtered by the agent's chosen carriers | 3 |
+| 📖 Worth reading | `featured` lead + newest `articles` | 3 |
+
+- **Events belong on the calendar, not in `boardItems`.** Add the event in
+  `calendarContent.ts` with `urgent: true` and the strip picks it up, with the
+  popout, documents, and RSVP link coming along free. `boardItems` is for a
+  bulletin with **no date and no event behind it** ("the portal is down"), and
+  it should usually be empty. Posting the same thing twice is what made the hub
+  read as noise.
+- **A recurring series never occupies a strip slot** (unless flagged `urgent`).
+  A weekly meeting in the priority list every week forever is how a priority
+  list gets ignored. Give occurrences a shared `seriesId` + a `seriesLabel`
+  ("Every Tue") and the lane shows one row with a "+N more" tag.
+- **Show every carrier.** The lane is not filtered per agent. The hub runs on a
+  single shared login, so there is no identity to personalise against, and a
+  per-browser toggle would hide carrier events from whoever did not set it.
+  Each row carries a **market tag** (Lexington, Louisville, Virtual…) instead,
+  so an agent can see at a glance what is near them without anything being
+  hidden from anyone.
+- **Carrier and market are derived** from the title and location when not set
+  explicitly (see `carrierOf` / `marketOf`). Set `carrier` / `market` on the
+  event only when the guess would be wrong.
 
 ### What's New (notifications)
 
