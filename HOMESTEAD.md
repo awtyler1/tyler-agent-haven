@@ -799,10 +799,12 @@ line, it is an article, not a board item.
   A weekly meeting in the priority list every week forever is how a priority
   list gets ignored. Give occurrences a shared `seriesId` + a `seriesLabel`
   ("Every Tue") and the lane shows one row with a "+N more" tag.
-- **The carrier filter is per browser, not per agent.** The hub runs on one
-  shared login, so there is no identity to read certifications from.
-  `useMyCarriers` persists the choice to `localStorage`. Empty selection shows
-  everything: never hide a carrier the agent has not chosen to hide.
+- **Show every carrier.** The lane is not filtered per agent. The hub runs on a
+  single shared login, so there is no identity to personalise against, and a
+  per-browser toggle would hide carrier events from whoever did not set it.
+  Each row carries a **market tag** (Lexington, Louisville, Virtual…) instead,
+  so an agent can see at a glance what is near them without anything being
+  hidden from anyone.
 - **Carrier and market are derived** from the title and location when not set
   explicitly (see `carrierOf` / `marketOf`). Set `carrier` / `market` on the
   event only when the guess would be wrong.

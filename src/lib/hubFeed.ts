@@ -67,17 +67,6 @@ export function sourceOf(e: CalEvent): FeedSource {
   return carrierOf(e) ? 'carrier' : 'key';
 }
 
-/** Every carrier that currently has an upcoming event, for the filter chips. */
-export function upcomingCarriers(today: string, events: CalEvent[] = calendarEvents): string[] {
-  const seen = new Set<string>();
-  for (const e of events) {
-    if (e.date < today || e.hubHide) continue;
-    const c = carrierOf(e);
-    if (c && sourceOf(e) === 'carrier') seen.add(c);
-  }
-  return [...seen].sort();
-}
-
 // ── The "Needs you" strip ────────────────────────────────────────────────────
 
 export interface NeedsYouItem {
@@ -222,17 +211,10 @@ export interface LaneItem {
   alsoCount: number;
 }
 
-/**
- * The browse lanes: ours on the left, our carriers' on the right.
- *
- * `carrierFilter` is the agent's own list of carriers (a per-browser
- * preference, since the hub runs on one shared login and has no per-agent
- * identity). An empty list means "show everything".
- */
+/** The browse lanes: ours on the left, our carriers' on the right. */
 export function buildLanes(
   todayIso: string,
   usedEventIds: Set<string>,
-  carrierFilter: string[] = [],
   cap = 3,
   events: CalEvent[] = calendarEvents,
 ): { tig: LaneItem[]; carrier: LaneItem[]; carrierTotal: number } {
@@ -276,20 +258,15 @@ export function buildLanes(
     else carrier.push(item);
   }
 
-  const filtered =
-    carrierFilter.length > 0
-      ? carrier.filter((i) => i.carrier && carrierFilter.includes(i.carrier))
-      : carrier;
-
   // Soonest first. The source list is authored in topic groups, not date order.
   const byDate = (a: LaneItem, b: LaneItem) => a.event.date.localeCompare(b.event.date);
   tig.sort(byDate);
-  filtered.sort(byDate);
+  carrier.sort(byDate);
 
   return {
     tig: tig.slice(0, cap),
-    carrier: filtered.slice(0, cap),
-    carrierTotal: filtered.length,
+    carrier: carrier.slice(0, cap),
+    carrierTotal: carrier.length,
   };
 }
 

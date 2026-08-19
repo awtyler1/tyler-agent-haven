@@ -3,16 +3,8 @@ import { season, featured, aep } from '@/data/hubContent';
 import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 import { WhatsNewBell } from '@/components/hub/WhatsNewBell';
-import { CarrierFilter } from '@/components/hub/CarrierFilter';
-import { useMyCarriers } from '@/hooks/useMyCarriers';
 import { ONE_ON_ONE_CALENDLY_URL } from '@/data/booking';
-import {
-  buildNeedsYou,
-  buildLanes,
-  upcomingCarriers,
-  type NeedsYouItem,
-  type LaneItem,
-} from '@/lib/hubFeed';
+import { buildNeedsYou, buildLanes, type NeedsYouItem, type LaneItem } from '@/lib/hubFeed';
 
 // ============================================================================
 // THE HUB HOME — two questions, in order.
@@ -166,9 +158,7 @@ export default function Index() {
 
   // ① What needs you, and ② what's going on — routed so nothing repeats.
   const { items: needsYou, usedEventIds } = buildNeedsYou(todayKey, 3);
-  const { selected, toggle, clear } = useMyCarriers();
-  const carriers = upcomingCarriers(todayKey);
-  const lanes = buildLanes(todayKey, usedEventIds, selected, 3);
+  const lanes = buildLanes(todayKey, usedEventIds, 3);
 
   const headline =
     needsYou.length === 0
@@ -260,19 +250,13 @@ export default function Index() {
           title="From your carriers"
           sub="events and updates we relay"
           items={lanes.carrier}
-          empty={
-            selected.length > 0
-              ? 'Nothing upcoming from the carriers you picked.'
-              : 'No carrier events on the calendar right now.'
-          }
+          empty="No carrier events on the calendar right now."
           viewAll={
             lanes.carrierTotal > lanes.carrier.length
               ? { label: `All carrier events (${lanes.carrierTotal}) →`, to: '/calendar' }
               : undefined
           }
-        >
-          <CarrierFilter carriers={carriers} selected={selected} onToggle={toggle} onClear={clear} />
-        </Lane>
+        />
       </div>
 
       {/* Worth reading — quiet rail */}
@@ -448,18 +432,6 @@ const CSS = `
 .lr__w{ text-align:right; flex-shrink:0; font-variant-numeric:tabular-nums; }
 .lr__w b{ font-size:11px; font-weight:700; color:var(--gold2); display:block; white-space:nowrap; }
 .lr__w i{ font-style:normal; font-size:9px; color:var(--faint); white-space:nowrap; }
-
-/* Carrier filter chips */
-.cfilter{ display:flex; align-items:center; gap:5px; flex-wrap:wrap; padding:8px 16px;
-  background:#fbf9f4; border-bottom:1px solid var(--line2); }
-.cfilter__lbl{ font-size:9px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); }
-.cfilter__c{ font-family:inherit; cursor:pointer; font-size:10px; font-weight:600; color:var(--muted);
-  background:#fff; border:1px solid var(--line); padding:3px 9px; border-radius:11px; transition:.13s; }
-.cfilter__c:hover{ border-color:var(--car); color:var(--car-d); }
-.cfilter__c--on{ background:var(--car-d); border-color:var(--car-d); color:#fff; }
-.cfilter__clear{ font-family:inherit; cursor:pointer; font-size:9.5px; font-weight:700; color:var(--gold2);
-  background:none; border:none; padding:3px 4px; text-decoration:underline; }
-.cfilter__hint{ font-size:9px; color:var(--faint); font-style:italic; }
 
 /* ── Worth reading ── */
 .read{ display:grid; grid-template-columns:1.3fr 1fr 1fr auto; gap:11px; align-items:stretch; }
