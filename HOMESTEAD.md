@@ -756,12 +756,12 @@ one of exactly two places and each asks for a different decision:
 │    each row chipped with its source · the only urgent surface on the page   │
 ├──────────────────────────────────┬──────────────────────────────────────────┤
 │ 🏠 FROM TIG (green top rule)      │ 🏢 FROM YOUR CARRIERS (steel top rule)    │
-│    our trainings & team events    │    carrier filter chips, then events     │
+│    our trainings & team events    │    every carrier, market-tagged rows     │
 │    cap 3 → All TIG events         │    cap 3 → All carrier events (N)        │
 ├──────────────────────────────────┴──────────────────────────────────────────┤
 │ 📖 WORTH READING — featured lead + 2 newest articles → All updates           │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 🔧 TOOLS — 1:1 (gold, first) · Forms · Certifications · Portals · Forge      │
+│ 1:1 — the standing invitation strip (NOT a tools rail, see below)            │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -808,6 +808,14 @@ line, it is an article, not a board item.
 - **Carrier and market are derived** from the title and location when not set
   explicitly (see `carrierOf` / `marketOf`). Set `carrier` / `market` on the
   event only when the guess would be wrong.
+- **Tools are NOT a section on this page.** The sidebar already carries Forms,
+  Certifications, Carrier portals, and the CRMs, and it is on screen the whole
+  time. A tools row at the bottom of the home page is duplicate navigation, and
+  it has been added and removed once already. Do not add it back.
+- **The 1:1 is a slim standing strip** (`.oneone`) below the reading rail. It
+  intentionally echoes the sidebar-footer 1:1 link: the footer is quiet
+  navigation, the strip is the warm invitation. This is the one deliberate
+  repeat on the page.
 
 ### What's New (notifications)
 
