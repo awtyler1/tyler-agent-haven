@@ -233,6 +233,24 @@ export const calendarEvents: CalEvent[] = [
     link: "https://us06web.zoom.us/j/84758060212?pwd=he1toiLbJbfTsKlj73aoszr0EcbFqd.1",
     linkLabel: "Join the session",
     hubBoard: true,
+    recap: {
+      summary:
+        "Jeremy and Eric walked the team through building an AEP plan you can actually execute, on two tracks: new brokers building activity density, and veterans protecting a book before chasing strangers. The full slide deck is below and in the Forms Library.",
+      points: [
+        "AEP is an execution season, not a planning season. The question in October is not \"what should I do today?\" but \"what does my plan say I do next?\"",
+        "Two starting points. New brokers: your asset is time, your risk is not enough conversations, so build activity density. Veterans: your asset is the book, your risk is losing clients by neglect, so protect it first. Retention is production.",
+        "The priority stack. Veterans put roughly 45% of effort into existing client reviews; new brokers put roughly 30% into retail and field presence. Adjust from your real pipeline, but respect the order.",
+        "Pick four to six channels, not eight, and put a weekly number next to each one. The test: can you state the weekly target, the calendar block, and the KPI for every channel you chose?",
+        "Backward math turns a goal into behavior: 100 enrollments at an 80% close rate is 125 held appointments, at an 80% show rate is 156 set, which is about 3.5 appointments set per day across 44 selling days.",
+        "Manage leading indicators (attempts, conversations, appointments set and held), not just enrollments, and review the scoreboard every 48 hours. Fix the weakest conversion point first.",
+        "The season has four phases across eight weeks: stabilize, scale, prioritize, finish. Your calendar should change as the phase changes.",
+      ],
+      documents: [
+        { name: "Medicare AEP Field Playbook (full slide deck)", url: "/forms/aep-field-playbook.pptx" },
+        { name: "Top 20 Activities to Generate Medicare Business", url: "/forms/top-20-medicare-activities.pdf" },
+        { name: "Medicare AEP Business Plan", url: "/forms/aep-business-plan.pdf" },
+      ],
+    },
   },
 
   // ── TIG Talks: weekly Tuesday bootcamp with Jay Eldridge ──
