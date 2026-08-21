@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "aep-field-playbook-slides",
+    date: "2026-08-21",
+    category: "Form",
+    title: "Slides from today's AEP planning session are posted",
+    note: "The full Medicare AEP Field Playbook from Jeremy and Eric: two tracks, the priority stack, the six activity lanes, backward math, and the eight-week cadence. In the Forms Library, plus a recap on the calendar.",
+    href: "/forms-library",
+  },
+  {
     id: "aep-planning-session-aug21",
     date: "2026-08-18",
     category: "Event",
