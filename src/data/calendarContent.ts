@@ -456,6 +456,22 @@ export const calendarEvents: CalEvent[] = [
     linkLabel: "Register for a session",
   },
 
+  // ── Anthem 2027 Medicare Product Roadshow ──
+  // Anthem labeled this "Event 1", so expect more dates. Add them here as they land.
+  {
+    id: "anthem-2027-roadshow-lexington",
+    date: "2026-09-09",
+    title: "Anthem 2027 Product Roadshow (Lexington)",
+    detail: "9–11 AM ET · The Campbell House · 2027 products, plan updates, and benefits. Space is limited, register on Broker Connect.",
+    description:
+      "Anthem's 2027 Medicare Product Roadshow for the Lexington market. Anthem walks through their 2027 Medicare product offerings, plan updates, benefits, and what else you need to know heading into the selling season. Space is limited, so register as soon as you can through Broker Connect (link below). Anthem billed this as their first roadshow date, so more may follow.",
+    location: "The Campbell House · 1375 S Broadway, Lexington, KY 40504",
+    time: "9:00–11:00 AM ET",
+    category: "carrier",
+    link: "https://brokerconnect.anthem.com/login",
+    linkLabel: "Register on Broker Connect",
+  },
+
   // ── UHC 2027 Product Overview (save the dates; invitation + links to come) ──
   {
     id: "uhc-2027-overview-lexington",
