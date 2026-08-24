@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "anthem-2027-roadshow",
+    date: "2026-08-21",
+    category: "Carrier",
+    title: "Anthem 2027 Product Roadshow: Lexington, Sept 9 at 9 AM",
+    note: "2027 products, plan updates, and benefits at The Campbell House. Space is limited; register through Broker Connect. Details are on the calendar.",
+    href: "/calendar",
+  },
+  {
     id: "aep-field-playbook-slides",
     date: "2026-08-21",
     category: "Form",
