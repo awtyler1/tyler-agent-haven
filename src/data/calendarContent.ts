@@ -319,10 +319,11 @@ export const calendarEvents: CalEvent[] = [
     id: "humana-aep-rollout-louisville",
     date: "2026-09-16",
     title: "Humana 2027 AEP Rollout (Louisville)",
-    detail: "Louisville rollout of Humana's 2027 AEP lineup. Time and venue to come.",
+    detail: "10:00–11:30 AM ET · Waterfront Botanical Gardens · Humana's 2027 plan lineup and AEP updates.",
     description:
-      "Humana's 2027 AEP Rollout for the Louisville market: the plan lineup and key updates heading into AEP. Time and venue details will be posted here once Humana sends them.",
-    location: "Louisville, KY · Details to come from Humana",
+      "Humana's 2027 AEP Rollout for the Louisville market: the plan lineup and the key updates you need heading into AEP. The Lexington session runs the next day, September 17.",
+    location: "Waterfront Botanical Gardens · 1435 Frankfort Ave, Louisville, KY 40206",
+    time: "10:00–11:30 AM ET",
     category: "carrier",
   },
   {
