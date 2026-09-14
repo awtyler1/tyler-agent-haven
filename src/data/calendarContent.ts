@@ -329,10 +329,11 @@ export const calendarEvents: CalEvent[] = [
     id: "humana-aep-rollout-lexington",
     date: "2026-09-17",
     title: "Humana 2027 AEP Rollout (Lexington)",
-    detail: "Lexington rollout of Humana's 2027 AEP lineup. Time and venue to come.",
+    detail: "11:30 AM–1:00 PM ET · Signature Club of Lansdowne · Humana's 2027 plan lineup and AEP updates.",
     description:
-      "Humana's 2027 AEP Rollout for the Lexington market: the plan lineup and key updates heading into AEP. Time and venue details will be posted here once Humana sends them.",
-    location: "Lexington, KY · Details to come from Humana",
+      "Humana's 2027 AEP Rollout for the Lexington market: the plan lineup and the key updates you need heading into AEP. The Louisville session runs the day before, September 16.",
+    location: "The Signature Club of Lansdowne · 3256 Lansdowne Dr., Lexington, KY 40502",
+    time: "11:30 AM–1:00 PM ET",
     category: "carrier",
   },
 
