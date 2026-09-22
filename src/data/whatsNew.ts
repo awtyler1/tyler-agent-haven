@@ -31,6 +31,14 @@ export interface WhatsNewItem {
 
 export const whatsNew: WhatsNewItem[] = [
   {
+    id: "aep-kickoff-2027",
+    date: "2026-09-22",
+    category: "Event",
+    title: "AEP Kickoff: Friday in Lexington, or virtually on Monday",
+    note: "Carrier highlights, plan changes, new plans, networks, cross-selling, and selling tactics for 2027. In person Fri 10 AM to 2 PM, or on Teams Mon 12 to 2 PM. Both are on the calendar.",
+    href: "/calendar",
+  },
+  {
     id: "anthem-2027-roadshow",
     date: "2026-08-21",
     category: "Carrier",

@@ -5,7 +5,7 @@ import { logActivity, ActivityAction } from '@/utils/activityLogger';
 import { toast } from 'sonner';
 import { ContentLoader } from '@/components/ui/ContentLoader';
 import { articles } from '@/data/articles';
-import { ONE_ON_ONE_CALENDLY_URL } from '@/data/booking';
+import { ONE_ON_ONE_BOOKING_URL } from '@/data/booking';
 
 // ============================================================
 // TIG Hub shell — emerald sidebar (shared-login MVP)
@@ -100,7 +100,7 @@ export function AgentShell() {
         <div className="shell-foot">
           <a
             className="shell-foot__book"
-            href={ONE_ON_ONE_CALENDLY_URL}
+            href={ONE_ON_ONE_BOOKING_URL}
             target="_blank"
             rel="noopener noreferrer"
           >
