@@ -258,10 +258,10 @@ export const calendarEvents: CalEvent[] = [
     id: "aep-kickoff-lexington",
     date: "2026-09-25",
     title: "AEP Kickoff, in person 🚀",
-    detail: "10 AM–2 PM ET · Lexington office · Everything that matters for 2027: carrier highlights, plan changes, networks, cross-selling, and selling tactics.",
+    detail: "10 AM–2 PM ET · TIG Lexington office (1029 Monarch St) · Everything that matters for 2027: carrier highlights, plan changes, networks, cross-selling, and selling tactics.",
     description:
       "Our AEP Kickoff for 2027, in person at the Lexington office. We'll cover carrier highlights, plan changes, new plans, provider networks, cross-selling, and the selling tactics that will carry the season. This is the most valuable meeting on the calendar before AEP opens, so make it if you can. If you can't be there in person, the same session runs virtually on Monday, September 28 from 12 to 2 PM.",
-    location: "TIG Lexington office",
+    location: "TIG Lexington office · 1029 Monarch Street, Suite 110, Lexington, KY 40513",
     time: "10:00 AM–2:00 PM ET",
     category: "tig",
     market: "Lexington",
