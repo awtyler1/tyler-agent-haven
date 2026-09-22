@@ -253,6 +253,36 @@ export const calendarEvents: CalEvent[] = [
     },
   },
 
+  // ── AEP Kickoff: same content, two ways to attend ──
+  {
+    id: "aep-kickoff-lexington",
+    date: "2026-09-25",
+    title: "AEP Kickoff, in person 🚀",
+    detail: "10 AM–2 PM ET · Lexington office · Everything that matters for 2027: carrier highlights, plan changes, networks, cross-selling, and selling tactics.",
+    description:
+      "Our AEP Kickoff for 2027, in person at the Lexington office. We'll cover carrier highlights, plan changes, new plans, provider networks, cross-selling, and the selling tactics that will carry the season. This is the most valuable meeting on the calendar before AEP opens, so make it if you can. If you can't be there in person, the same session runs virtually on Monday, September 28 from 12 to 2 PM.",
+    location: "TIG Lexington office",
+    time: "10:00 AM–2:00 PM ET",
+    category: "tig",
+    market: "Lexington",
+    urgent: true,
+  },
+  {
+    id: "aep-kickoff-virtual",
+    date: "2026-09-28",
+    title: "AEP Virtual Kickoff 💻",
+    detail: "12–2 PM ET · Microsoft Teams · The virtual run of the AEP Kickoff for anyone who couldn't make Friday.",
+    description:
+      "The virtual session of our 2027 AEP Kickoff, for anyone who couldn't make the in-person meeting in Lexington on Friday. Same ground: carrier highlights, plan changes, new plans, provider networks, cross-selling, and selling tactics. Join from the link below.",
+    location: "Microsoft Teams",
+    time: "12:00–2:00 PM ET",
+    category: "tig",
+    market: "Virtual",
+    link: "https://teams.microsoft.com/meet/249553609226310?p=1x3bcrKcPZVavXiS1g",
+    linkLabel: "Join the virtual kickoff",
+    urgent: true,
+  },
+
   // ── TIG Talks: weekly Tuesday bootcamp with Jay Eldridge ──
   // 8:00 AM Pacific on the invite = 11:00 AM Eastern. The calendar has no
   // recurrence, so one entry per Tuesday through AEP prep; extend as needed.

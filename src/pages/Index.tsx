@@ -3,7 +3,7 @@ import { season, featured, aep } from '@/data/hubContent';
 import { articles } from '@/data/articles';
 import { KNOWLEDGE_META } from '@/data/knowledgeContent';
 import { WhatsNewBell } from '@/components/hub/WhatsNewBell';
-import { ONE_ON_ONE_CALENDLY_URL } from '@/data/booking';
+import { ONE_ON_ONE_BOOKING_URL } from '@/data/booking';
 import { buildNeedsYou, buildLanes, type NeedsYouItem, type LaneItem } from '@/lib/hubFeed';
 
 // ============================================================================
@@ -289,7 +289,7 @@ export default function Index() {
       {/* The 1:1 — a standing invitation, not a tools rail. Forms, certs,
           portals, and CRMs all live in the sidebar; repeating them here just
           duplicates navigation the agent already has on screen. */}
-      <a className="oneone" href={ONE_ON_ONE_CALENDLY_URL} target="_blank" rel="noopener noreferrer">
+      <a className="oneone" href={ONE_ON_ONE_BOOKING_URL} target="_blank" rel="noopener noreferrer">
         <span className="oneone__badge" aria-hidden="true">
           1:1
         </span>
